@@ -39,7 +39,7 @@
  *
  *  \link #CFE_EVS_NOOP_CC EVS NO-OP command \endlink success.
  */
-#define CFE_EVS_NOOP_EID 0
+#define CFE_EVS_NOOP_INF_EID 0
 
 /**
  * \brief EVS Initialization Event ID
@@ -50,7 +50,7 @@
  *
  *  Event Services Task initialization complete.
  */
-#define CFE_EVS_STARTUP_EID 1
+#define CFE_EVS_INIT_INF_EID 1
 
 /**
  * \brief EVS Write Event Log Command File Write Entry Failed Event ID
@@ -85,7 +85,7 @@
  *
  *  Invalid message ID received on the EVS message pipe.
  */
-#define CFE_EVS_ERR_MSGID_EID 5
+#define CFE_EVS_MID_ERR_EID 5
 
 /**
  * \brief EVS Command Event Not Registered For Filtering Event ID
@@ -199,7 +199,7 @@
  *
  *  Invalid command code for message ID #CFE_EVS_CMD_MID received on the EVS message pipe.
  */
-#define CFE_EVS_ERR_CC_EID 15
+#define CFE_EVS_CC_ERR_EID 15
 
 /**
  * \brief EVS Reset Counters Command Success Event ID
@@ -210,7 +210,7 @@
  *
  *  \link #CFE_EVS_RESET_COUNTERS_CC EVS Reset Counters Command \endlink success.
  */
-#define CFE_EVS_RSTCNT_EID 16
+#define CFE_EVS_RESET_INF_EID 16
 
 /**
  * \brief EVS Set Filter Command Success Event ID
@@ -476,7 +476,7 @@
  *
  *  Invalid length for the command code in message ID #CFE_EVS_CMD_MID received on the EVS message pipe.
  */
-#define CFE_EVS_LEN_ERR_EID 43
+#define CFE_EVS_CMD_LEN_ERR_EID 43
 
 /**
  * \brief EVS Events Squelched Error Event ID

@@ -49,7 +49,7 @@
 **       following telemetry:
 **       - \b \c \SB_CMDPC - command execution counter will
 **         increment
-**       - The #CFE_SB_CMD0_RCVD_EID informational event message will
+**       - The #CFE_SB_NOOP_INF_EID informational event message will
 **         be generated
 **
 **  \par Error Conditions
@@ -93,7 +93,7 @@
 **       - \b \c \SB_CMDPC - command execution counter will
 **         be reset to 0
 **       - All other counters listed in description will be reset to 0
-**       - The #CFE_SB_CMD1_RCVD_EID informational event message will
+**       - The #CFE_SB_RESET_INF_EID informational event message will
 **         be generated
 **
 **  \par Error Conditions

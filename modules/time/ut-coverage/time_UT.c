@@ -1400,16 +1400,16 @@ void Test_PipeCmds(void)
 
 #if (CFE_PLATFORM_TIME_CFG_SERVER == true)
     UtAssert_UINT32_EQ(CFE_TIME_Global.InternalCount, count + 1);
-    CFE_UtAssert_EVENTNOTSENT(CFE_TIME_ID_ERR_EID);
+    CFE_UtAssert_EVENTNOTSENT(CFE_TIME_MID_ERR_EID);
 #else
-    CFE_UtAssert_EVENTSENT(CFE_TIME_ID_ERR_EID);
+    CFE_UtAssert_EVENTSENT(CFE_TIME_MID_ERR_EID);
 #endif
 
     /* Test sending the no-op command */
     UT_InitData();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
     UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, sizeof(CmdBuf.noopcmd), UT_TPID_CFE_TIME_CMD_NOOP_CC);
-    CFE_UtAssert_EVENTSENT(CFE_TIME_NOOP_EID);
+    CFE_UtAssert_EVENTSENT(CFE_TIME_NOOP_INF_EID);
 
     /* Noop with bad size */
     UT_InitData();
@@ -1417,7 +1417,7 @@ void Test_PipeCmds(void)
     CFE_TIME_Global.CommandCounter      = 0;
     CFE_TIME_Global.CommandErrorCounter = 0;
     UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, 0, UT_TPID_CFE_TIME_CMD_NOOP_CC);
-    CFE_UtAssert_EVENTSENT(CFE_TIME_LEN_ERR_EID);
+    CFE_UtAssert_EVENTSENT(CFE_TIME_CMD_LEN_ERR_EID);
     UtAssert_UINT32_EQ(CFE_TIME_Global.CommandCounter, 0);
     UtAssert_UINT32_EQ(CFE_TIME_Global.CommandErrorCounter, 1);
 
@@ -1432,10 +1432,9 @@ void Test_PipeCmds(void)
     CFE_TIME_Global.ToneTaskCounter       = 1;
     CFE_TIME_Global.LocalIntCounter       = 1;
     CFE_TIME_Global.LocalTaskCounter      = 1;
-    memset(&CmdBuf, 0, sizeof(CmdBuf));
     UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, sizeof(CmdBuf.resetcounterscmd),
                     UT_TPID_CFE_TIME_CMD_RESET_COUNTERS_CC);
-    CFE_UtAssert_EVENTSENT(CFE_TIME_RESET_EID);
+    CFE_UtAssert_EVENTSENT(CFE_TIME_RESET_INF_EID);
 
     /* Confirm error counters get reset to help cover requirements that are difficult operationally */
     UtAssert_ZERO(CFE_TIME_Global.ToneMatchCounter);
@@ -1454,7 +1453,7 @@ void Test_PipeCmds(void)
     CFE_TIME_Global.CommandCounter      = 0;
     CFE_TIME_Global.CommandErrorCounter = 0;
     UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, 0, UT_TPID_CFE_TIME_CMD_RESET_COUNTERS_CC);
-    CFE_UtAssert_EVENTSENT(CFE_TIME_LEN_ERR_EID);
+    CFE_UtAssert_EVENTSENT(CFE_TIME_CMD_LEN_ERR_EID);
     UtAssert_UINT32_EQ(CFE_TIME_Global.CommandCounter, 0);
     UtAssert_UINT32_EQ(CFE_TIME_Global.CommandErrorCounter, 1);
 
@@ -1471,7 +1470,7 @@ void Test_PipeCmds(void)
     CFE_TIME_Global.CommandCounter      = 0;
     CFE_TIME_Global.CommandErrorCounter = 0;
     UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, 0, UT_TPID_CFE_TIME_CMD_SEND_DIAGNOSTIC_TLM_CC);
-    CFE_UtAssert_EVENTSENT(CFE_TIME_LEN_ERR_EID);
+    CFE_UtAssert_EVENTSENT(CFE_TIME_CMD_LEN_ERR_EID);
     UtAssert_UINT32_EQ(CFE_TIME_Global.CommandCounter, 0);
     UtAssert_UINT32_EQ(CFE_TIME_Global.CommandErrorCounter, 1);
 
@@ -1511,7 +1510,7 @@ void Test_PipeCmds(void)
     CFE_TIME_Global.CommandCounter      = 0;
     CFE_TIME_Global.CommandErrorCounter = 0;
     UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, 0, UT_TPID_CFE_TIME_CMD_SET_STATE_CC);
-    CFE_UtAssert_EVENTSENT(CFE_TIME_LEN_ERR_EID);
+    CFE_UtAssert_EVENTSENT(CFE_TIME_CMD_LEN_ERR_EID);
     UtAssert_UINT32_EQ(CFE_TIME_Global.CommandCounter, 0);
     UtAssert_UINT32_EQ(CFE_TIME_Global.CommandErrorCounter, 1);
 
@@ -1554,7 +1553,7 @@ void Test_PipeCmds(void)
     CFE_TIME_Global.CommandCounter      = 0;
     CFE_TIME_Global.CommandErrorCounter = 0;
     UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, 0, UT_TPID_CFE_TIME_CMD_SET_SOURCE_CC);
-    CFE_UtAssert_EVENTSENT(CFE_TIME_LEN_ERR_EID);
+    CFE_UtAssert_EVENTSENT(CFE_TIME_CMD_LEN_ERR_EID);
     UtAssert_UINT32_EQ(CFE_TIME_Global.CommandCounter, 0);
     UtAssert_UINT32_EQ(CFE_TIME_Global.CommandErrorCounter, 1);
 
@@ -1611,7 +1610,7 @@ void Test_PipeCmds(void)
     CFE_TIME_Global.CommandCounter      = 0;
     CFE_TIME_Global.CommandErrorCounter = 0;
     UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, 0, UT_TPID_CFE_TIME_CMD_SET_SIGNAL_CC);
-    CFE_UtAssert_EVENTSENT(CFE_TIME_LEN_ERR_EID);
+    CFE_UtAssert_EVENTSENT(CFE_TIME_CMD_LEN_ERR_EID);
     UtAssert_UINT32_EQ(CFE_TIME_Global.CommandCounter, 0);
     UtAssert_UINT32_EQ(CFE_TIME_Global.CommandErrorCounter, 1);
 
@@ -1640,7 +1639,7 @@ void Test_PipeCmds(void)
     CFE_TIME_Global.CommandCounter      = 0;
     CFE_TIME_Global.CommandErrorCounter = 0;
     UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, 0, UT_TPID_CFE_TIME_CMD_ADD_DELAY_CC);
-    CFE_UtAssert_EVENTSENT(CFE_TIME_LEN_ERR_EID);
+    CFE_UtAssert_EVENTSENT(CFE_TIME_CMD_LEN_ERR_EID);
     UtAssert_UINT32_EQ(CFE_TIME_Global.CommandCounter, 0);
     UtAssert_UINT32_EQ(CFE_TIME_Global.CommandErrorCounter, 1);
 
@@ -1667,7 +1666,7 @@ void Test_PipeCmds(void)
     CFE_TIME_Global.CommandCounter      = 0;
     CFE_TIME_Global.CommandErrorCounter = 0;
     UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, 0, UT_TPID_CFE_TIME_CMD_SUB_DELAY_CC);
-    CFE_UtAssert_EVENTSENT(CFE_TIME_LEN_ERR_EID);
+    CFE_UtAssert_EVENTSENT(CFE_TIME_CMD_LEN_ERR_EID);
     UtAssert_UINT32_EQ(CFE_TIME_Global.CommandCounter, 0);
     UtAssert_UINT32_EQ(CFE_TIME_Global.CommandErrorCounter, 1);
 
@@ -1694,7 +1693,7 @@ void Test_PipeCmds(void)
     CFE_TIME_Global.CommandCounter      = 0;
     CFE_TIME_Global.CommandErrorCounter = 0;
     UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, 0, UT_TPID_CFE_TIME_CMD_SET_TIME_CC);
-    CFE_UtAssert_EVENTSENT(CFE_TIME_LEN_ERR_EID);
+    CFE_UtAssert_EVENTSENT(CFE_TIME_CMD_LEN_ERR_EID);
     UtAssert_UINT32_EQ(CFE_TIME_Global.CommandCounter, 0);
     UtAssert_UINT32_EQ(CFE_TIME_Global.CommandErrorCounter, 1);
 
@@ -1721,7 +1720,7 @@ void Test_PipeCmds(void)
     CFE_TIME_Global.CommandCounter      = 0;
     CFE_TIME_Global.CommandErrorCounter = 0;
     UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, 0, UT_TPID_CFE_TIME_CMD_SET_MET_CC);
-    CFE_UtAssert_EVENTSENT(CFE_TIME_LEN_ERR_EID);
+    CFE_UtAssert_EVENTSENT(CFE_TIME_CMD_LEN_ERR_EID);
     UtAssert_UINT32_EQ(CFE_TIME_Global.CommandCounter, 0);
     UtAssert_UINT32_EQ(CFE_TIME_Global.CommandErrorCounter, 1);
 
@@ -1748,7 +1747,7 @@ void Test_PipeCmds(void)
     CFE_TIME_Global.CommandCounter      = 0;
     CFE_TIME_Global.CommandErrorCounter = 0;
     UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, 0, UT_TPID_CFE_TIME_CMD_SET_STCF_CC);
-    CFE_UtAssert_EVENTSENT(CFE_TIME_LEN_ERR_EID);
+    CFE_UtAssert_EVENTSENT(CFE_TIME_CMD_LEN_ERR_EID);
     UtAssert_UINT32_EQ(CFE_TIME_Global.CommandCounter, 0);
     UtAssert_UINT32_EQ(CFE_TIME_Global.CommandErrorCounter, 1);
 
@@ -1775,7 +1774,7 @@ void Test_PipeCmds(void)
     CFE_TIME_Global.CommandCounter      = 0;
     CFE_TIME_Global.CommandErrorCounter = 0;
     UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, 0, UT_TPID_CFE_TIME_CMD_ADD_ADJUST_CC);
-    CFE_UtAssert_EVENTSENT(CFE_TIME_LEN_ERR_EID);
+    CFE_UtAssert_EVENTSENT(CFE_TIME_CMD_LEN_ERR_EID);
     UtAssert_UINT32_EQ(CFE_TIME_Global.CommandCounter, 0);
     UtAssert_UINT32_EQ(CFE_TIME_Global.CommandErrorCounter, 1);
 
@@ -1802,7 +1801,7 @@ void Test_PipeCmds(void)
     CFE_TIME_Global.CommandCounter      = 0;
     CFE_TIME_Global.CommandErrorCounter = 0;
     UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, 0, UT_TPID_CFE_TIME_CMD_SUB_ADJUST_CC);
-    CFE_UtAssert_EVENTSENT(CFE_TIME_LEN_ERR_EID);
+    CFE_UtAssert_EVENTSENT(CFE_TIME_CMD_LEN_ERR_EID);
     UtAssert_UINT32_EQ(CFE_TIME_Global.CommandCounter, 0);
     UtAssert_UINT32_EQ(CFE_TIME_Global.CommandErrorCounter, 1);
 
@@ -1830,7 +1829,7 @@ void Test_PipeCmds(void)
     CFE_TIME_Global.CommandCounter      = 0;
     CFE_TIME_Global.CommandErrorCounter = 0;
     UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, 0, UT_TPID_CFE_TIME_CMD_ADD_ONEHZ_ADJUSTMENT_CC);
-    CFE_UtAssert_EVENTSENT(CFE_TIME_LEN_ERR_EID);
+    CFE_UtAssert_EVENTSENT(CFE_TIME_CMD_LEN_ERR_EID);
     UtAssert_UINT32_EQ(CFE_TIME_Global.CommandCounter, 0);
     UtAssert_UINT32_EQ(CFE_TIME_Global.CommandErrorCounter, 1);
 
@@ -1858,7 +1857,7 @@ void Test_PipeCmds(void)
     CFE_TIME_Global.CommandCounter      = 0;
     CFE_TIME_Global.CommandErrorCounter = 0;
     UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, 0, UT_TPID_CFE_TIME_CMD_SUB_ONEHZ_ADJUSTMENT_CC);
-    CFE_UtAssert_EVENTSENT(CFE_TIME_LEN_ERR_EID);
+    CFE_UtAssert_EVENTSENT(CFE_TIME_CMD_LEN_ERR_EID);
     UtAssert_UINT32_EQ(CFE_TIME_Global.CommandCounter, 0);
     UtAssert_UINT32_EQ(CFE_TIME_Global.CommandErrorCounter, 1);
 
@@ -1922,7 +1921,7 @@ void Test_PipeCmds(void)
     CFE_TIME_Global.CommandCounter      = 0;
     CFE_TIME_Global.CommandErrorCounter = 0;
     UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, 0, UT_TPID_CFE_TIME_CMD_SET_LEAP_SECONDS_CC);
-    CFE_UtAssert_EVENTSENT(CFE_TIME_LEN_ERR_EID);
+    CFE_UtAssert_EVENTSENT(CFE_TIME_CMD_LEN_ERR_EID);
     UtAssert_UINT32_EQ(CFE_TIME_Global.CommandCounter, 0);
     UtAssert_UINT32_EQ(CFE_TIME_Global.CommandErrorCounter, 1);
 
@@ -1936,7 +1935,7 @@ void Test_PipeCmds(void)
     UT_InitData();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
     UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, sizeof(CmdBuf.noopcmd), UT_TPID_CFE_TIME_INVALID_MID);
-    CFE_UtAssert_EVENTSENT(CFE_TIME_ID_ERR_EID);
+    CFE_UtAssert_EVENTSENT(CFE_TIME_MID_ERR_EID);
 
     /* Call the Task Pipe with the 1Hz command. */
     /* In the 1Hz state machine it should call PSP GetTime as part,

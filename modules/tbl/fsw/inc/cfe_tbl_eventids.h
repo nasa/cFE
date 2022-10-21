@@ -243,7 +243,7 @@
  *
  *  Invalid command code for message ID #CFE_TBL_CMD_MID received on the TBL message pipe.
  */
-#define CFE_TBL_CC1_ERR_EID 51
+#define CFE_TBL_CC_ERR_EID 51
 
 /**
  * \brief TBL Invalid Command Length Event ID
@@ -254,7 +254,7 @@
  *
  *  Invalid length for the message ID and command code received on the TBL message pipe.
  */
-#define CFE_TBL_LEN_ERR_EID 52
+#define CFE_TBL_CMD_LEN_ERR_EID 52
 
 /**
  * \brief TBL Load Table File Open Failure Event ID

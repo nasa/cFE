@@ -3259,7 +3259,7 @@ void TestTask(void)
      */
     ES_ResetUnitTest();
     UT_CallTaskPipe(CFE_ES_TaskPipe, CFE_MSG_PTR(CmdBuf), 0, UT_TPID_CFE_ES_CMD_INVALID_LENGTH);
-    CFE_UtAssert_EVENTSENT(CFE_ES_LEN_ERR_EID);
+    CFE_UtAssert_EVENTSENT(CFE_ES_CMD_LEN_ERR_EID);
 
     /* Test resetting and setting the max for the processor reset count */
     ES_ResetUnitTest();
@@ -3380,22 +3380,22 @@ void TestTask(void)
     /* Test the command pipe message process with an invalid command */
     ES_ResetUnitTest();
     UT_CallTaskPipe(CFE_ES_TaskPipe, CFE_MSG_PTR(CmdBuf), sizeof(CmdBuf.NoopCmd), UT_TPID_CFE_ES_CMD_INVALID_CC);
-    CFE_UtAssert_EVENTSENT(CFE_ES_CC1_ERR_EID);
+    CFE_UtAssert_EVENTSENT(CFE_ES_CC_ERR_EID);
 
     /* Test sending a no-op command with an invalid command length */
     ES_ResetUnitTest();
     UT_CallTaskPipe(CFE_ES_TaskPipe, CFE_MSG_PTR(CmdBuf), 0, UT_TPID_CFE_ES_CMD_NOOP_CC);
-    CFE_UtAssert_EVENTSENT(CFE_ES_LEN_ERR_EID);
+    CFE_UtAssert_EVENTSENT(CFE_ES_CMD_LEN_ERR_EID);
 
     /* Test sending a reset counters command with an invalid command length */
     ES_ResetUnitTest();
     UT_CallTaskPipe(CFE_ES_TaskPipe, CFE_MSG_PTR(CmdBuf), 0, UT_TPID_CFE_ES_CMD_RESET_COUNTERS_CC);
-    CFE_UtAssert_EVENTSENT(CFE_ES_LEN_ERR_EID);
+    CFE_UtAssert_EVENTSENT(CFE_ES_CMD_LEN_ERR_EID);
 
     /* Test sending a cFE restart command with an invalid command length */
     ES_ResetUnitTest();
     UT_CallTaskPipe(CFE_ES_TaskPipe, CFE_MSG_PTR(CmdBuf), 0, UT_TPID_CFE_ES_CMD_RESTART_CC);
-    CFE_UtAssert_EVENTSENT(CFE_ES_LEN_ERR_EID);
+    CFE_UtAssert_EVENTSENT(CFE_ES_CMD_LEN_ERR_EID);
 
     /* Test cFE restart with a power on reset */
     ES_ResetUnitTest();
@@ -3409,7 +3409,7 @@ void TestTask(void)
      */
     ES_ResetUnitTest();
     UT_CallTaskPipe(CFE_ES_TaskPipe, CFE_MSG_PTR(CmdBuf), 0, UT_TPID_CFE_ES_CMD_START_APP_CC);
-    CFE_UtAssert_EVENTSENT(CFE_ES_LEN_ERR_EID);
+    CFE_UtAssert_EVENTSENT(CFE_ES_CMD_LEN_ERR_EID);
 
     /* Test start application command with a processor restart on application
      * exception
@@ -3434,63 +3434,63 @@ void TestTask(void)
      */
     ES_ResetUnitTest();
     UT_CallTaskPipe(CFE_ES_TaskPipe, CFE_MSG_PTR(CmdBuf), 0, UT_TPID_CFE_ES_CMD_STOP_APP_CC);
-    CFE_UtAssert_EVENTSENT(CFE_ES_LEN_ERR_EID);
+    CFE_UtAssert_EVENTSENT(CFE_ES_CMD_LEN_ERR_EID);
 
     /* Test sending a restart application command with an invalid command
      * length
      */
     ES_ResetUnitTest();
     UT_CallTaskPipe(CFE_ES_TaskPipe, CFE_MSG_PTR(CmdBuf), 0, UT_TPID_CFE_ES_CMD_RESTART_APP_CC);
-    CFE_UtAssert_EVENTSENT(CFE_ES_LEN_ERR_EID);
+    CFE_UtAssert_EVENTSENT(CFE_ES_CMD_LEN_ERR_EID);
 
     /* Test sending a reload application command with an invalid command
      * length
      */
     ES_ResetUnitTest();
     UT_CallTaskPipe(CFE_ES_TaskPipe, CFE_MSG_PTR(CmdBuf), 0, UT_TPID_CFE_ES_CMD_RELOAD_APP_CC);
-    CFE_UtAssert_EVENTSENT(CFE_ES_LEN_ERR_EID);
+    CFE_UtAssert_EVENTSENT(CFE_ES_CMD_LEN_ERR_EID);
 
     /* Test sending a write request for a single application with an
      * invalid command length
      */
     ES_ResetUnitTest();
     UT_CallTaskPipe(CFE_ES_TaskPipe, CFE_MSG_PTR(CmdBuf), 0, UT_TPID_CFE_ES_CMD_QUERY_ONE_CC);
-    CFE_UtAssert_EVENTSENT(CFE_ES_LEN_ERR_EID);
+    CFE_UtAssert_EVENTSENT(CFE_ES_CMD_LEN_ERR_EID);
 
     /* Test sending a write request for all applications with an
      * invalid command length
      */
     ES_ResetUnitTest();
     UT_CallTaskPipe(CFE_ES_TaskPipe, CFE_MSG_PTR(CmdBuf), 0, UT_TPID_CFE_ES_CMD_QUERY_ALL_CC);
-    CFE_UtAssert_EVENTSENT(CFE_ES_LEN_ERR_EID);
+    CFE_UtAssert_EVENTSENT(CFE_ES_CMD_LEN_ERR_EID);
 
     /* Test sending a write request for all tasks with an
      * invalid command length
      */
     ES_ResetUnitTest();
     UT_CallTaskPipe(CFE_ES_TaskPipe, CFE_MSG_PTR(CmdBuf), 0, UT_TPID_CFE_ES_CMD_QUERY_ALL_TASKS_CC);
-    CFE_UtAssert_EVENTSENT(CFE_ES_LEN_ERR_EID);
+    CFE_UtAssert_EVENTSENT(CFE_ES_CMD_LEN_ERR_EID);
 
     /* Test sending a request to clear the system log with an
      * invalid command length
      */
     ES_ResetUnitTest();
     UT_CallTaskPipe(CFE_ES_TaskPipe, CFE_MSG_PTR(CmdBuf), 0, UT_TPID_CFE_ES_CMD_CLEAR_SYS_LOG_CC);
-    CFE_UtAssert_EVENTSENT(CFE_ES_LEN_ERR_EID);
+    CFE_UtAssert_EVENTSENT(CFE_ES_CMD_LEN_ERR_EID);
 
     /* Test sending a request to overwrite the system log with an
      * invalid command length
      */
     ES_ResetUnitTest();
     UT_CallTaskPipe(CFE_ES_TaskPipe, CFE_MSG_PTR(CmdBuf), 0, UT_TPID_CFE_ES_CMD_OVER_WRITE_SYS_LOG_CC);
-    CFE_UtAssert_EVENTSENT(CFE_ES_LEN_ERR_EID);
+    CFE_UtAssert_EVENTSENT(CFE_ES_CMD_LEN_ERR_EID);
 
     /* Test sending a request to write the system log with an
      * invalid command length
      */
     ES_ResetUnitTest();
     UT_CallTaskPipe(CFE_ES_TaskPipe, CFE_MSG_PTR(CmdBuf), 0, UT_TPID_CFE_ES_CMD_WRITE_SYS_LOG_CC);
-    CFE_UtAssert_EVENTSENT(CFE_ES_LEN_ERR_EID);
+    CFE_UtAssert_EVENTSENT(CFE_ES_CMD_LEN_ERR_EID);
 
     /* Test successful overwriting of the system log using overwrite mode */
     ES_ResetUnitTest();
@@ -3505,35 +3505,35 @@ void TestTask(void)
      */
     ES_ResetUnitTest();
     UT_CallTaskPipe(CFE_ES_TaskPipe, CFE_MSG_PTR(CmdBuf), 0, UT_TPID_CFE_ES_CMD_WRITE_ER_LOG_CC);
-    CFE_UtAssert_EVENTSENT(CFE_ES_LEN_ERR_EID);
+    CFE_UtAssert_EVENTSENT(CFE_ES_CMD_LEN_ERR_EID);
 
     /* Test sending a request to reset the processor reset count with an
      * invalid command length
      */
     ES_ResetUnitTest();
     UT_CallTaskPipe(CFE_ES_TaskPipe, CFE_MSG_PTR(CmdBuf), 0, UT_TPID_CFE_ES_CMD_RESET_PR_COUNT_CC);
-    CFE_UtAssert_EVENTSENT(CFE_ES_LEN_ERR_EID);
+    CFE_UtAssert_EVENTSENT(CFE_ES_CMD_LEN_ERR_EID);
 
     /* Test sending a request to set the maximum processor reset count with
      * an invalid command length
      */
     ES_ResetUnitTest();
     UT_CallTaskPipe(CFE_ES_TaskPipe, CFE_MSG_PTR(CmdBuf), 0, UT_TPID_CFE_ES_CMD_SET_MAX_PR_COUNT_CC);
-    CFE_UtAssert_EVENTSENT(CFE_ES_LEN_ERR_EID);
+    CFE_UtAssert_EVENTSENT(CFE_ES_CMD_LEN_ERR_EID);
 
     /* Test sending a request to delete the CDS with an invalid command
      * length
      */
     ES_ResetUnitTest();
     UT_CallTaskPipe(CFE_ES_TaskPipe, CFE_MSG_PTR(CmdBuf), 0, UT_TPID_CFE_ES_CMD_DELETE_CDS_CC);
-    CFE_UtAssert_EVENTSENT(CFE_ES_LEN_ERR_EID);
+    CFE_UtAssert_EVENTSENT(CFE_ES_CMD_LEN_ERR_EID);
 
     /* Test sending a telemetry pool statistics retrieval command with an
      * invalid command length
      */
     ES_ResetUnitTest();
     UT_CallTaskPipe(CFE_ES_TaskPipe, CFE_MSG_PTR(CmdBuf), 0, UT_TPID_CFE_ES_CMD_SEND_MEM_POOL_STATS_CC);
-    CFE_UtAssert_EVENTSENT(CFE_ES_LEN_ERR_EID);
+    CFE_UtAssert_EVENTSENT(CFE_ES_CMD_LEN_ERR_EID);
 
     /* Test successful dump of CDS to file using a specified dump file name */
     ES_ResetUnitTest();
@@ -3550,7 +3550,7 @@ void TestTask(void)
     /* Dump CDS command with invalid length */
     ES_ResetUnitTest();
     UT_CallTaskPipe(CFE_ES_TaskPipe, CFE_MSG_PTR(CmdBuf), 0, UT_TPID_CFE_ES_CMD_DUMP_CDS_REGISTRY_CC);
-    CFE_UtAssert_EVENTSENT(CFE_ES_LEN_ERR_EID);
+    CFE_UtAssert_EVENTSENT(CFE_ES_CMD_LEN_ERR_EID);
 
     /* Test error when sending Build Info event */
     ES_ResetUnitTest();

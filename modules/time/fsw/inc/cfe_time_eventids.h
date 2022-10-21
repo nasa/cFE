@@ -39,7 +39,7 @@
  *
  *  Time Services Task Initialization complete.
  */
-#define CFE_TIME_INIT_EID 1
+#define CFE_TIME_INIT_INF_EID 1
 
 /**
  * \brief TIME No-op Command Success Event ID
@@ -50,7 +50,7 @@
  *
  *  \link #CFE_TIME_NOOP_CC TIME NO-OP Command \endlink success.
  */
-#define CFE_TIME_NOOP_EID 4
+#define CFE_TIME_NOOP_INF_EID 4
 
 /**
  * \brief TIME Reset Counters Command Success Event ID
@@ -61,7 +61,7 @@
  *
  *  \link #CFE_TIME_RESET_COUNTERS_CC TIME Reset Counters Command \endlink success.
  */
-#define CFE_TIME_RESET_EID 5
+#define CFE_TIME_RESET_INF_EID 5
 
 /**
  * \brief TIME Request Diagnostics Command Success Event ID
@@ -218,7 +218,7 @@
  *
  *  Invalid message ID received on the TIME message pipe.
  */
-#define CFE_TIME_ID_ERR_EID 26
+#define CFE_TIME_MID_ERR_EID 26
 
 /**
  * \brief TIME Invalid Command Code Received Event ID
@@ -447,7 +447,7 @@
  *  Invalid length for the command code in message ID #CFE_TIME_CMD_MID received on the TIME
  *  message pipe.
  */
-#define CFE_TIME_LEN_ERR_EID 49
+#define CFE_TIME_CMD_LEN_ERR_EID 49
 /**\}*/
 
 #endif /* CFE_TIME_EVENTS_H */

@@ -48,7 +48,7 @@
 **       following telemetry:
 **       - \b \c \EVS_CMDPC - command execution counter will
 **         increment
-**       - The #CFE_EVS_NOOP_EID informational event message will
+**       - The #CFE_EVS_NOOP_INF_EID informational event message will
 **         be generated
 **
 **  \par Error Conditions
@@ -84,7 +84,7 @@
 **         will be reset to 0
 **       - \b \c \EVS_CMDEC - command error counter
 **         will be reset to 0
-**       - The #CFE_EVS_RSTCNT_EID debug event message will be
+**       - The #CFE_EVS_RESET_INF_EID debug event message will be
 **         generated
 **
 **  \par Error Conditions
