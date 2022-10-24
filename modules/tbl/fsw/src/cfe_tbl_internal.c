@@ -484,24 +484,23 @@ int32 CFE_TBL_GetNextNotification(CFE_TBL_Handle_t TblHandle)
 int16 CFE_TBL_FindTableInRegistry(const char *TblName)
 {
     int16 RegIndx = CFE_TBL_NOT_FOUND;
-    int16 i       = -1;
+    int16 i       = 0;
 
-    do
+    while ((RegIndx == CFE_TBL_NOT_FOUND) && (i < (CFE_PLATFORM_TBL_MAX_NUM_TABLES - 1)))
     {
-        /* Point to next record in the Table Registry */
-        i++;
-
-        /* Check to see if the record is currently being used */
-        if (!CFE_RESOURCEID_TEST_EQUAL(CFE_TBL_Global.Registry[i].OwnerAppId, CFE_TBL_NOT_OWNED))
+        /* Check to see if the record is currently being used and perform a case-sensitive name comparison */
+        if (!CFE_RESOURCEID_TEST_EQUAL(CFE_TBL_Global.Registry[i].OwnerAppId, CFE_TBL_NOT_OWNED) &&
+            strcmp(TblName, CFE_TBL_Global.Registry[i].Name) == 0)
         {
-            /* Perform a case sensitive name comparison */
-            if (strcmp(TblName, CFE_TBL_Global.Registry[i].Name) == 0)
-            {
-                /* If the names match, then return the index */
-                RegIndx = i;
-            }
+            /* If the names match, then return the index */
+            RegIndx = i;
         }
-    } while ((RegIndx == CFE_TBL_NOT_FOUND) && (i < (CFE_PLATFORM_TBL_MAX_NUM_TABLES - 1)));
+        else
+        {
+            /* Point to next record in the Table Registry */
+            i++;
+        }
+    }
 
     return RegIndx;
 }
