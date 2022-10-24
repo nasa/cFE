@@ -89,6 +89,8 @@ int32 CFE_TBL_EarlyInit(void)
     OsStatus = OS_MutSemCreate(&CFE_TBL_Global.RegistryMutex, CFE_TBL_MUT_REG_NAME, CFE_TBL_MUT_REG_VALUE);
     if (OsStatus != OS_SUCCESS)
     {
+        CFE_ES_WriteToSysLog("%s: Failed to create table registry access mutex (Err=0x%08X)\n", __func__,
+                             (unsigned int)OsStatus);
         return CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
     }
 
@@ -98,6 +100,8 @@ int32 CFE_TBL_EarlyInit(void)
     OsStatus = OS_MutSemCreate(&CFE_TBL_Global.WorkBufMutex, CFE_TBL_MUT_WORK_NAME, CFE_TBL_MUT_WORK_VALUE);
     if (OsStatus != OS_SUCCESS)
     {
+        CFE_ES_WriteToSysLog("%s: Failed to create working buffer access mutex (Err=0x%08X)\n", __func__,
+                             (unsigned int)OsStatus);
         return CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
     }
 
@@ -107,6 +111,7 @@ int32 CFE_TBL_EarlyInit(void)
 
     if (Status < 0)
     {
+        CFE_ES_WriteToSysLog("%s: Failed to initialize memory pool (Err=0x%08X)\n", __func__, (unsigned int)Status);
         return Status;
     }
     else
@@ -121,6 +126,8 @@ int32 CFE_TBL_EarlyInit(void)
 
             if (Status < CFE_PLATFORM_TBL_MAX_SNGL_TABLE_SIZE)
             {
+                CFE_ES_WriteToSysLog("%s: Failed to create required memory buffer (Err=0x%08X)\n", __func__,
+                                     (unsigned int)Status);
                 return Status;
             }
             else
