@@ -2402,7 +2402,7 @@ where a filter mask is logically "anded" with a counter value in order
 to generate a filter value. When the filter value is greater than zero
 the message is filtered. When the filter value is equal to zero the
 message is sent. This filtering scheme is specified during Application
-registration with the `CFE_EVS_BINARY_FILTER` parameter.
+registration with the `CFE_EVS_EventFilter_BINARY` parameter.
 
 The EVS binary filter structure type, shown below, contains an Event ID
 along with a hexadecimal bit mask. The Event ID is a numeric literal
@@ -2428,7 +2428,7 @@ Several common bit masks are defined within the EVS. These include:
 
 Applications may also create and use their own hexadecimal bit masks.
 When applications register event filters with the
-`CFE_EVS_BINARY_FILTER` scheme a filter counter is created for each
+`CFE_EVS_EventFilter_BINARY` scheme a filter counter is created for each
 Event ID contained in the binary filter structure. The binary event
 filtering is accomplished by "anding" the hexadecimal bit mask with the
 current value of the event filter counter. When the result is zero the
@@ -2497,7 +2497,7 @@ SAMPLE_AppData_t  SAMPLE_AppData;  /* Instantiate Task Data */
     */
     CFE_EVS_Register(SAMPLE_AppData.EventFilters,
                      SAMPLE_EVT_COUNT,
-                     CFE_EVS_BINARY_FILTER);
+                     CFE_EVS_EventFilter_BINARY);
 
    ...
 }
