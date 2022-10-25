@@ -322,11 +322,11 @@ function(prepare)
     WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/docs/cfe-usersguide")
 
   # OSAL API GUIDE include PUBLIC API
-  set(OSAL_API_INCLUDE_DIRECTORIES
-    "${osal_MISSION_DIR}/src/os/inc"
-    "${CMAKE_BINARY_DIR}/docs"
-  )
+  add_subdirectory(${osal_MISSION_DIR} osal_public_api)
   add_subdirectory(${osal_MISSION_DIR}/docs/src ${CMAKE_BINARY_DIR}/docs/osal-apiguide)
+
+  add_dependencies(cfe-usersguide osal_public_api_headerlist)
+  add_dependencies(mission-doc osal_public_api_headerlist)
 
   # Pull in any application-specific mission-scope configuration
   # This may include user configuration files such as cfe_mission_cfg.h,
