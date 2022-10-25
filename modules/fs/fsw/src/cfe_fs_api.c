@@ -595,7 +595,7 @@ int32 CFE_FS_ParseInputFileName(char *OutputBuffer, const char *InputName, size_
  *-----------------------------------------------------------------*/
 CFE_Status_t CFE_FS_ExtractFilenameFromPath(const char *OriginalPath, char *FileNameOnly)
 {
-    uint32 i, j;
+    uint32 i;
     int    StringLength;
     int    DirMarkIdx;
     int32  ReturnCode;
@@ -640,13 +640,9 @@ CFE_Status_t CFE_FS_ExtractFilenameFromPath(const char *OriginalPath, char *File
                 /*
                 ** Extract the filename portion
                 */
-                j = 0;
-                for (i = DirMarkIdx + 1; i < StringLength; i++)
-                {
-                    FileNameOnly[j] = OriginalPath[i];
-                    j++;
-                }
-                FileNameOnly[j] = '\0';
+                i = DirMarkIdx + 1;
+                memcpy(FileNameOnly, OriginalPath + i, StringLength - i);
+                FileNameOnly[(StringLength - i) + 1] = '\0';
 
                 ReturnCode = CFE_SUCCESS;
             }
