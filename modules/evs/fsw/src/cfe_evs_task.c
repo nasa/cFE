@@ -686,6 +686,10 @@ int32 CFE_EVS_EnableAppEventTypeCmd(const CFE_EVS_EnableAppEventTypeCmd_t *data)
         else
         {
             EVS_EnableTypes(AppDataPtr, CmdPtr->BitMask);
+
+            EVS_SendEvent(CFE_EVS_ENAAPPEVTTYPE_EID, CFE_EVS_EventType_DEBUG,
+                          "Enable App Event Type Command Received with AppName = %s, EventType Bit Mask = 0x%02x",
+                          LocalName, CmdPtr->BitMask);
         }
     }
     else if (Status == CFE_EVS_APP_NOT_REGISTERED)
@@ -704,13 +708,6 @@ int32 CFE_EVS_EnableAppEventTypeCmd(const CFE_EVS_EnableAppEventTypeCmd_t *data)
         EVS_SendEvent(CFE_EVS_ERR_NOAPPIDFOUND_EID, CFE_EVS_EventType_ERROR,
                       "Unable to retrieve application ID for %s: CC = %lu", LocalName,
                       (long unsigned int)CFE_EVS_ENABLE_APP_EVENT_TYPE_CC);
-    }
-
-    if (Status == CFE_SUCCESS)
-    {
-        EVS_SendEvent(CFE_EVS_ENAAPPEVTTYPE_EID, CFE_EVS_EventType_DEBUG,
-                      "Enable App Event Type Command Received with AppName = %s, EventType Bit Mask = 0x%02x",
-                      LocalName, CmdPtr->BitMask);
     }
 
     return Status;
@@ -748,6 +745,10 @@ int32 CFE_EVS_DisableAppEventTypeCmd(const CFE_EVS_DisableAppEventTypeCmd_t *dat
         else
         {
             EVS_DisableTypes(AppDataPtr, CmdPtr->BitMask);
+
+            EVS_SendEvent(CFE_EVS_DISAPPENTTYPE_EID, CFE_EVS_EventType_DEBUG,
+                          "Disable App Event Type Command Received with AppName = %s, EventType Bit Mask = 0x%02x",
+                          LocalName, (unsigned int)CmdPtr->BitMask);
         }
     }
     else if (Status == CFE_EVS_APP_NOT_REGISTERED)
@@ -766,13 +767,6 @@ int32 CFE_EVS_DisableAppEventTypeCmd(const CFE_EVS_DisableAppEventTypeCmd_t *dat
         EVS_SendEvent(CFE_EVS_ERR_NOAPPIDFOUND_EID, CFE_EVS_EventType_ERROR,
                       "Unable to retrieve application ID for %s: CC = %lu", LocalName,
                       (long unsigned int)CFE_EVS_DISABLE_APP_EVENT_TYPE_CC);
-    }
-
-    if (Status == CFE_SUCCESS)
-    {
-        EVS_SendEvent(CFE_EVS_DISAPPENTTYPE_EID, CFE_EVS_EventType_DEBUG,
-                      "Disable App Event Type Command Received with AppName = %s, EventType Bit Mask = 0x%02x",
-                      LocalName, (unsigned int)CmdPtr->BitMask);
     }
 
     return Status;
