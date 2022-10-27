@@ -1040,7 +1040,7 @@ void Test_SB_Cmds_EnRouteValParam(void)
 
     CFE_UtAssert_EVENTSENT(CFE_SB_SUBSCRIPTION_RCVD_EID);
 
-    CFE_UtAssert_EVENTSENT(CFE_SB_ENBL_RTE2_EID);
+    CFE_UtAssert_EVENTSENT(CFE_SB_ENBL_RTE_EID);
 
     /* Bad Size */
     UT_CallTaskPipe(CFE_SB_ProcessCmdPipePkt, &EnableRoute.SBBuf.Msg, 0, UT_TPID_CFE_SB_CMD_ENABLE_ROUTE_CC);
@@ -1079,7 +1079,7 @@ void Test_SB_Cmds_EnRouteNonExist(void)
 
     CFE_UtAssert_EVENTSENT(CFE_SB_PIPE_ADDED_EID);
     CFE_UtAssert_EVENTSENT(CFE_SB_SUBSCRIPTION_RCVD_EID);
-    CFE_UtAssert_EVENTSENT(CFE_SB_ENBL_RTE1_EID);
+    CFE_UtAssert_EVENTSENT(CFE_SB_ENBL_RTE_MID_SUB_ERR_EID);
 
     CFE_UtAssert_TEARDOWN(CFE_SB_DeletePipe(PipeId1));
     CFE_UtAssert_TEARDOWN(CFE_SB_DeletePipe(PipeId2));
@@ -1106,7 +1106,7 @@ void Test_SB_Cmds_EnRouteInvParam(void)
 
     CFE_UtAssert_EVENTCOUNT(1);
 
-    CFE_UtAssert_EVENTSENT(CFE_SB_ENBL_RTE3_EID);
+    CFE_UtAssert_EVENTSENT(CFE_SB_ENBL_RTE_MID_PIPE_ERR_EID);
 }
 
 /*
@@ -1130,7 +1130,7 @@ void Test_SB_Cmds_EnRouteInvParam2(void)
 
     CFE_UtAssert_EVENTCOUNT(1);
 
-    CFE_UtAssert_EVENTSENT(CFE_SB_ENBL_RTE3_EID);
+    CFE_UtAssert_EVENTSENT(CFE_SB_ENBL_RTE_MID_PIPE_ERR_EID);
 }
 
 /*
@@ -1155,7 +1155,7 @@ void Test_SB_Cmds_EnRouteInvParam3(void)
 
     CFE_UtAssert_EVENTCOUNT(1);
 
-    CFE_UtAssert_EVENTSENT(CFE_SB_ENBL_RTE3_EID);
+    CFE_UtAssert_EVENTSENT(CFE_SB_ENBL_RTE_MID_PIPE_ERR_EID);
 }
 
 /*
@@ -1188,7 +1188,7 @@ void Test_SB_Cmds_DisRouteValParam(void)
 
     CFE_UtAssert_EVENTSENT(CFE_SB_SUBSCRIPTION_RCVD_EID);
 
-    CFE_UtAssert_EVENTSENT(CFE_SB_DSBL_RTE2_EID);
+    CFE_UtAssert_EVENTSENT(CFE_SB_DSBL_RTE_EID);
 
     /* Bad Size */
     UT_CallTaskPipe(CFE_SB_ProcessCmdPipePkt, &DisableRoute.SBBuf.Msg, 0, UT_TPID_CFE_SB_CMD_DISABLE_ROUTE_CC);
@@ -1227,7 +1227,7 @@ void Test_SB_Cmds_DisRouteNonExist(void)
 
     CFE_UtAssert_EVENTSENT(CFE_SB_PIPE_ADDED_EID);
     CFE_UtAssert_EVENTSENT(CFE_SB_SUBSCRIPTION_RCVD_EID);
-    CFE_UtAssert_EVENTSENT(CFE_SB_DSBL_RTE1_EID);
+    CFE_UtAssert_EVENTSENT(CFE_SB_DSBL_RTE_MID_SUB_ERR_EID);
 
     CFE_UtAssert_TEARDOWN(CFE_SB_DeletePipe(PipeId1));
     CFE_UtAssert_TEARDOWN(CFE_SB_DeletePipe(PipeId2));
@@ -1254,7 +1254,7 @@ void Test_SB_Cmds_DisRouteInvParam(void)
 
     CFE_UtAssert_EVENTCOUNT(1);
 
-    CFE_UtAssert_EVENTSENT(CFE_SB_DSBL_RTE3_EID);
+    CFE_UtAssert_EVENTSENT(CFE_SB_DSBL_RTE_MID_PIPE_ERR_EID);
 }
 
 /*
@@ -1278,7 +1278,7 @@ void Test_SB_Cmds_DisRouteInvParam2(void)
 
     CFE_UtAssert_EVENTCOUNT(1);
 
-    CFE_UtAssert_EVENTSENT(CFE_SB_DSBL_RTE3_EID);
+    CFE_UtAssert_EVENTSENT(CFE_SB_DSBL_RTE_MID_PIPE_ERR_EID);
 }
 
 /*
@@ -1303,7 +1303,7 @@ void Test_SB_Cmds_DisRouteInvParam3(void)
 
     CFE_UtAssert_EVENTCOUNT(1);
 
-    CFE_UtAssert_EVENTSENT(CFE_SB_DSBL_RTE3_EID);
+    CFE_UtAssert_EVENTSENT(CFE_SB_DSBL_RTE_MID_PIPE_ERR_EID);
 }
 
 /*
