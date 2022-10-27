@@ -641,7 +641,7 @@ int32 CFE_TBL_UpdateInternal(CFE_TBL_Handle_t TblHandle, CFE_TBL_RegistryRec_t *
                     sizeof(RegRecPtr->LastFileLoaded) - 1);
             RegRecPtr->LastFileLoaded[sizeof(RegRecPtr->LastFileLoaded) - 1] = '\0';
 
-            CFE_TBL_NotifyTblUsersOfUpdate(RegRecPtr);
+            CFE_TBL_MarkTblAsUpdated(RegRecPtr);
 
             /* If the table is a critical table, update the appropriate CDS with the new data */
             if (RegRecPtr->CriticalTable == true)
@@ -687,7 +687,7 @@ int32 CFE_TBL_UpdateInternal(CFE_TBL_Handle_t TblHandle, CFE_TBL_RegistryRec_t *
                 /* Free the working buffer */
                 CFE_TBL_Global.LoadBuffs[RegRecPtr->LoadInProgress].Taken = false;
 
-                CFE_TBL_NotifyTblUsersOfUpdate(RegRecPtr);
+                CFE_TBL_MarkTblAsUpdated(RegRecPtr);
 
                 /* If the table is a critical table, update the appropriate CDS with the new data */
                 if (RegRecPtr->CriticalTable == true)
@@ -718,7 +718,7 @@ static void CFE_TBL_SetUpdatedHelper(CFE_TBL_AccessDescriptor_t *AccDescPtr, voi
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-void CFE_TBL_NotifyTblUsersOfUpdate(CFE_TBL_RegistryRec_t *RegRecPtr)
+void CFE_TBL_MarkTblAsUpdated(CFE_TBL_RegistryRec_t *RegRecPtr)
 {
     /* Reset Load in Progress Values */
     RegRecPtr->LoadInProgress   = CFE_TBL_NO_LOAD_IN_PROGRESS;
@@ -1331,7 +1331,7 @@ CFE_Status_t CFE_TBL_RestoreTableDataFromCDS(CFE_TBL_RegistryRec_t *RegRecPtr, c
                     CFE_ES_CalculateCRC(WorkingBufferPtr->BufferPtr, RegRecPtr->Size, 0, CFE_MISSION_ES_DEFAULT_CRC);
 
                 /* Make sure everyone who sees the table knows that it has been updated */
-                CFE_TBL_NotifyTblUsersOfUpdate(RegRecPtr);
+                CFE_TBL_MarkTblAsUpdated(RegRecPtr);
 
                 /* Make sure the caller realizes the contents have been initialized */
                 Status = CFE_TBL_INFO_RECOVERED_TBL;
