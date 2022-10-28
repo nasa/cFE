@@ -87,12 +87,10 @@ void CFE_TIME_ToneSend(void)
 */
 #if (CFE_PLATFORM_TIME_CFG_VIRTUAL == true)
         NewMET.Seconds = CFE_TIME_Global.VirtualMET;
-#endif
-
-/*
-** Read MET seconds from a h/w register...
-*/
-#if (CFE_PLATFORM_TIME_CFG_VIRTUAL != true)
+#else
+        /*
+        ** Read MET seconds from a h/w register...
+        */
         OS_GetLocalMET(&NewMET.Seconds);
 #endif
     }
@@ -265,10 +263,10 @@ int32 CFE_TIME_ToneSendMET(CFE_TIME_SysTime_t NewMET)
 
 #else /* !CFE_PLATFORM_TIME_CFG_BIGENDIAN */
 
-            CFE_TIME_Global.ToneDataCmd.Payload.AtToneMET         = NewMET;
-            CFE_TIME_Global.ToneDataCmd.Payload.AtToneSTCF        = Reference.AtToneSTCF;
+            CFE_TIME_Global.ToneDataCmd.Payload.AtToneMET = NewMET;
+            CFE_TIME_Global.ToneDataCmd.Payload.AtToneSTCF = Reference.AtToneSTCF;
             CFE_TIME_Global.ToneDataCmd.Payload.AtToneLeapSeconds = Reference.AtToneLeapSeconds;
-            CFE_TIME_Global.ToneDataCmd.Payload.AtToneState       = ClockState;
+            CFE_TIME_Global.ToneDataCmd.Payload.AtToneState = ClockState;
 
 #endif /* CFE_PLATFORM_TIME_CFG_BIGENDIAN */
 
@@ -405,10 +403,10 @@ int32 CFE_TIME_ToneSendGPS(CFE_TIME_SysTime_t NewTime, int16 NewLeaps)
 
 #else /* !CFE_PLATFORM_TIME_CFG_BIGENDIAN */
 
-            CFE_TIME_Global.ToneDataCmd.Payload.AtToneMET         = NewMET;
-            CFE_TIME_Global.ToneDataCmd.Payload.AtToneSTCF        = NewSTCF;
+            CFE_TIME_Global.ToneDataCmd.Payload.AtToneMET = NewMET;
+            CFE_TIME_Global.ToneDataCmd.Payload.AtToneSTCF = NewSTCF;
             CFE_TIME_Global.ToneDataCmd.Payload.AtToneLeapSeconds = NewLeaps;
-            CFE_TIME_Global.ToneDataCmd.Payload.AtToneState       = ClockState;
+            CFE_TIME_Global.ToneDataCmd.Payload.AtToneState = ClockState;
 
 #endif /* CFE_PLATFORM_TIME_CFG_BIGENDIAN */
 
@@ -545,10 +543,10 @@ int32 CFE_TIME_ToneSendTime(CFE_TIME_SysTime_t NewTime)
 
 #else /* !CFE_PLATFORM_TIME_CFG_BIGENDIAN */
 
-            CFE_TIME_Global.ToneDataCmd.Payload.AtToneMET         = NewMET;
-            CFE_TIME_Global.ToneDataCmd.Payload.AtToneSTCF        = NewSTCF;
+            CFE_TIME_Global.ToneDataCmd.Payload.AtToneMET = NewMET;
+            CFE_TIME_Global.ToneDataCmd.Payload.AtToneSTCF = NewSTCF;
             CFE_TIME_Global.ToneDataCmd.Payload.AtToneLeapSeconds = Reference.AtToneLeapSeconds;
-            CFE_TIME_Global.ToneDataCmd.Payload.AtToneState       = ClockState;
+            CFE_TIME_Global.ToneDataCmd.Payload.AtToneState = ClockState;
 
 #endif /* CFE_PLATFORM_TIME_CFG_BIGENDIAN */
 
@@ -1018,12 +1016,10 @@ void CFE_TIME_Tone1HzISR(void)
 */
 #if (CFE_PLATFORM_TIME_CFG_VIRTUAL == true)
         CFE_TIME_Global.VirtualMET++;
-#endif
-
-/*
-** Maintain virtual MET as count read from h/w MET register...
-*/
-#if (CFE_PLATFORM_TIME_CFG_VIRTUAL != true)
+#else
+        /*
+        ** Maintain virtual MET as count read from h/w MET register...
+        */
         OS_GetLocalMET(&CFE_TIME_Global.VirtualMET);
 #endif
 
