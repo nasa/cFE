@@ -1571,7 +1571,7 @@ CFE_Status_t CFE_ES_WriteToSysLog(const char *SpecStringPtr, ...)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-uint32 CFE_ES_CalculateCRC(const void *DataPtr, size_t DataLength, uint32 InputCRC, uint32 TypeCRC)
+uint32 CFE_ES_CalculateCRC(const void *DataPtr, size_t DataLength, uint32 InputCRC, CFE_ES_CrcType_Enum_t TypeCRC)
 {
     uint32       i;
     int16        Index;
@@ -1610,11 +1610,11 @@ uint32 CFE_ES_CalculateCRC(const void *DataPtr, size_t DataLength, uint32 InputC
 
     switch (TypeCRC)
     {
-        case CFE_MISSION_ES_CRC_32:
+        case CFE_ES_CrcType_CRC_32:
             CFE_ES_WriteToSysLog("%s: Calculate CRC32 not Implemented\n", __func__);
             break;
 
-        case CFE_MISSION_ES_CRC_16:
+        case CFE_ES_CrcType_CRC_16:
             Crc    = (int16)(0xFFFF & InputCRC);
             BufPtr = (const uint8 *)DataPtr;
 
@@ -1631,7 +1631,7 @@ uint32 CFE_ES_CalculateCRC(const void *DataPtr, size_t DataLength, uint32 InputC
             }
             break;
 
-        case CFE_MISSION_ES_CRC_8:
+        case CFE_ES_CrcType_CRC_8:
             CFE_ES_WriteToSysLog("%s: Calculate CRC8 not Implemented\n", __func__);
             break;
 

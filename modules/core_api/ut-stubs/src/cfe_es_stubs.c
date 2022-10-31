@@ -77,14 +77,14 @@ void CFE_ES_BackgroundWakeup(void)
  * Generated stub function for CFE_ES_CalculateCRC()
  * ----------------------------------------------------
  */
-uint32 CFE_ES_CalculateCRC(const void *DataPtr, size_t DataLength, uint32 InputCRC, uint32 TypeCRC)
+uint32 CFE_ES_CalculateCRC(const void *DataPtr, size_t DataLength, uint32 InputCRC, CFE_ES_CrcType_Enum_t TypeCRC)
 {
     UT_GenStub_SetupReturnBuffer(CFE_ES_CalculateCRC, uint32);
 
     UT_GenStub_AddParam(CFE_ES_CalculateCRC, const void *, DataPtr);
     UT_GenStub_AddParam(CFE_ES_CalculateCRC, size_t, DataLength);
     UT_GenStub_AddParam(CFE_ES_CalculateCRC, uint32, InputCRC);
-    UT_GenStub_AddParam(CFE_ES_CalculateCRC, uint32, TypeCRC);
+    UT_GenStub_AddParam(CFE_ES_CalculateCRC, CFE_ES_CrcType_Enum_t, TypeCRC);
 
     UT_GenStub_Execute(CFE_ES_CalculateCRC, Basic, NULL);
 

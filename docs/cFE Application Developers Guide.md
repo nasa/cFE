@@ -1293,24 +1293,28 @@ an API for a CRC calculation that can be used by all Applications on a mission.
 This function looks like the following:
 
 ```c
-uint32 CFE_ES_CalculateCRC(void *pData, uint32 DataLength, uint32 InputCRC, uint32 TypeCRC);
+uint32 CFE_ES_CalculateCRC(const void *DataPtr, size_t DataLength, uint32 InputCRC, CFE_ES_CrcType_Enum_t TypeCRC);
 ```
 
-where pData points to the first byte of an array of bytes that are to have
+where DataPtr points to the first byte of an array of bytes that are to have
 the CRC calculated on, DataLength specifies the number of sequential bytes to
 include in the calculation, InputCRC is the initial value of the CRC and
 TypeCRC identifies which of the standard CRC polynomials to be used.  Currently,
 there are the following types available:
 
 ```
-CFE_MISSION_ES_CRC_8 – an 8-bit additive checksum calculation that returns a 32-bit value
-CFE_MISSION_ES_CRC_16 – a 16-bit additive checksum calculation that returns a 32-bit value
-CFE_MISSION_ES_CRC_32 – a 32-bit additive checksum calculation that returns a 32-bit value
-CFE_MISSION_ES_DEFAULT_CRC – the mission specified default CRC calculation
+CFE_ES_CrcType_CRC_8 – an 8-bit additive checksum calculation that returns a 32-bit value
+CFE_ES_CrcType_CRC_16 – a 16-bit additive checksum calculation that returns a 32-bit value
+CFE_ES_CrcType_CRC_32 – a 32-bit additive checksum calculation that returns a 32-bit value
+CFE_MISSION_ES_DEFAULT_CRC – the mission specified default CRC calculation (currently
+                             this is set to CFE_ES_CrcType_CRC_16 in sample_mission_cfg.h)
 ```
 
-Unless there is a specific interface with a specified CRC calculation,
-Applications must use the CFE_MISSION_ES_DEFAULT_CRC type.
+Unless there is a specific interface with a specified CRC calculation, applications
+must use the CFE_MISSION_ES_DEFAULT_CRC type.
+
+Currently only CFE_ES_CrcType_CRC_16 is supported. CFE_ES_CrcType_CRC_8 and CFE_ES_CrcType_CRC_32 are yet
+to be implemented.
 
 ## 5.11 File System Functions
 
