@@ -2401,6 +2401,8 @@ void Test_CFE_TBL_ReleaseAddresses(void)
     /* Test releasing 0 then 1 addresses */
     UT_InitData();
 
+    memset(&File, 0, sizeof(File));
+
     /* a. Configure for successful file read to initialize table */
     strncpy(FileHeader.Description, "FS header description", sizeof(FileHeader.Description) - 1);
     FileHeader.Description[sizeof(FileHeader.Description) - 1] = '\0';
@@ -3056,6 +3058,8 @@ void Test_CFE_TBL_TblMod(void)
 
     /* b. Perform test */
     UT_ClearEventHistory();
+
+    memset(&File, 0, sizeof(File));
 
     /* Configure for successful file read to initialize table */
     strncpy(FileHeader.Description, "FS header description", sizeof(FileHeader.Description) - 1);

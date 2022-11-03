@@ -139,6 +139,7 @@ CFE_Status_t CFE_FS_ReadHeader(CFE_FS_Header_t *Hdr, osal_id_t FileDes)
         OsStatus = OS_read(FileDes, Hdr, sizeof(CFE_FS_Header_t));
 
         /* Determine if this processor is a little endian processor */
+        /* cppcheck-suppress knownConditionTrueFalse */
         if ((*(char *)(&EndianCheck)) == 0x04)
         {
             /* If this is a little endian processor, then convert the header data structure from */
@@ -231,6 +232,7 @@ CFE_Status_t CFE_FS_WriteHeader(osal_id_t FileDes, CFE_FS_Header_t *Hdr)
         /*
         ** Determine if this is a little endian processor
         */
+        /* cppcheck-suppress knownConditionTrueFalse */
         if ((*(char *)(&EndianCheck)) == 0x04)
         {
             /* If this is a little endian processor, then convert the header data structure from */
@@ -246,6 +248,7 @@ CFE_Status_t CFE_FS_WriteHeader(osal_id_t FileDes, CFE_FS_Header_t *Hdr)
         /*
         ** Determine if this is a little endian processor
         */
+        /* cppcheck-suppress knownConditionTrueFalse */
         if ((*(char *)(&EndianCheck)) == 0x04)
         {
             /* If this is a little endian processor, then convert the header data structure back */
@@ -290,6 +293,7 @@ CFE_Status_t CFE_FS_SetTimestamp(osal_id_t FileDes, CFE_TIME_SysTime_t NewTimest
         /*
         **  Determine if this is a little endian processor
         */
+        /* cppcheck-suppress knownConditionTrueFalse */
         if ((*(char *)(&EndianCheck)) == 0x04)
         {
             /* If this processor is a little endian processor, then convert the timestamp to a big */
