@@ -1113,6 +1113,7 @@ int32 CFE_TBL_ReadHeaders(osal_id_t FileDescriptor, CFE_FS_Header_t *StdFileHead
                     /* All "required" checks have passed and we are pointing at the data */
                     Status = CFE_SUCCESS;
 
+                    /* cppcheck-suppress knownConditionTrueFalse */
                     if ((*(char *)&EndianCheck) == 0x04)
                     {
                         /* If this is a little endian processor, then the standard cFE Table Header,   */
