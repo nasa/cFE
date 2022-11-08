@@ -2096,16 +2096,16 @@ CFE_Status_t CFE_SB_ReleaseMessageBuffer(CFE_SB_Buffer_t *BufPtr)
 
     Status = CFE_SB_ZeroCopyBufferValidate(BufPtr, &BufDscPtr);
 
-    CFE_SB_LockSharedData(__func__, __LINE__);
-
     if (Status == CFE_SUCCESS)
     {
+        CFE_SB_LockSharedData(__func__, __LINE__);
+
         /* Clear the ownership app ID and decrement use count (may also free) */
         BufDscPtr->AppId = CFE_ES_APPID_UNDEFINED;
         CFE_SB_DecrBufUseCnt(BufDscPtr);
-    }
 
-    CFE_SB_UnlockSharedData(__func__, __LINE__);
+        CFE_SB_UnlockSharedData(__func__, __LINE__);
+    }
 
     return Status;
 }
