@@ -33,6 +33,4 @@ SET(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE	ONLY)
 # these settings are specific to cFE/OSAL and determines
 # which abstraction layers are built when this toolchain is used
 SET(CFE_SYSTEM_PSPNAME			pc-linux)
-SET(OSAL_SYSTEM_BSPTYPE			pc-linux)
 SET(OSAL_SYSTEM_OSTYPE			posix)
-
