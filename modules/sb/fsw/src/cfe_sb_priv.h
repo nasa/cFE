@@ -564,7 +564,7 @@ static inline CFE_SB_BufferLink_t *CFE_SB_TrackingListGetNext(CFE_SB_BufferLink_
 /**
  * \brief For SB buffer tracking, checks if this current position represents the end of the list
  */
-static inline bool CFE_SB_TrackingListIsEnd(CFE_SB_BufferLink_t *List, CFE_SB_BufferLink_t *Node)
+static inline bool CFE_SB_TrackingListIsEnd(const CFE_SB_BufferLink_t *List, const CFE_SB_BufferLink_t *Node)
 {
     /* Normally list nodes should never have NULL, buf if they do, do not follow it */
     return (Node == NULL || Node == List);
