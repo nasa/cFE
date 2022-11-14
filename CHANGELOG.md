@@ -1,5 +1,9 @@
 # Changelog
 
+## Development Build: v7.0.0-rc4+dev205
+- resolve static analysis errors in tbl_UT.c
+- See <https://github.com/nasa/cFE/pull/2197>
+
 ## Development Build: v7.0.0-rc4+dev201
 - use osal_public_api header targets in doc
 - See <https://github.com/nasa/cFE/pull/2184>
