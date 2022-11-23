@@ -30,6 +30,4 @@ SET(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE	ONLY)
 # abstraction layers are built when using this toolchain
 # Note that "pc-linux" works fine even though this is not technically a "pc"
 SET(CFE_SYSTEM_PSPNAME      "pc-linux")
-SET(OSAL_SYSTEM_BSPTYPE     "pc-linux")
 SET(OSAL_SYSTEM_OSTYPE      "posix")
-
