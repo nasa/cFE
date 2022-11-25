@@ -23,24 +23,24 @@ jobs:
   checkout-and-cache:
     name: Custom checkout and cache for cFS documents
     needs: checks-for-duplicates
-    if: ${{ needs.checks-for-duplicates.outputs.should_skip != 'true' || contains(github.ref, 'main') }} 
+    if: ${{ needs.checks-for-duplicates.outputs.should_skip != 'true' || contains(github.ref, 'main') }}
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout bundle
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           repository: nasa/cFS
           submodules: true
 
       - name: Checkout submodule
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           path: cfe
 
       - name: Cache Source and Build
         id: cache-src-bld
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: /home/runner/work/${{ github.event.repository.name }}/${{ github.event.repository.name }}/*
           key: cfs-doc-${{ github.run_number }}
@@ -73,7 +73,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - uses: actions/download-artifact@v3
 

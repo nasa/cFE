@@ -12,7 +12,7 @@ env:
 
 jobs:
 
-  #Check for duplicate actions. Skips push actions if there is a matching or duplicate pull-request action. 
+  #Check for duplicate actions. Skips push actions if there is a matching or duplicate pull-request action.
   check-for-duplicates:
     runs-on: ubuntu-latest
     # Map a step output to a job output
@@ -39,13 +39,13 @@ jobs:
 
       # Checks out a copy of your repository on the ubuntu-latest machine
       - name: Checkout bundle
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           repository: nasa/cFS
           submodules: true
 
       - name: Checkout submodule
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           path: cfe
 
@@ -74,8 +74,8 @@ jobs:
           make -C build/native/default_cpu1/sbr
           make -C build/native/default_cpu1/tbl
           make -C build/native/default_cpu1/time
-  
-      # Initialize lcov and test the code 
+
+      # Initialize lcov and test the code
       - name: Test
         run: |
           lcov --capture --initial --directory build --output-file coverage_base.info
