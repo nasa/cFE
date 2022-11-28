@@ -156,7 +156,7 @@ if (${TGTNAME}_APPLIST)
 
   set_target_properties(core-${TGTNAME} PROPERTIES ENABLE_EXPORTS TRUE)
 
-  if ("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU")
+  if (("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU") OR ("${CMAKE_C_COMPILER_ID}" STREQUAL "Clang"))
     # The option pair for GNU gcc/ld tools
     set(START_WHOLE_ARCHIVE "--whole-archive")
     set(STOP_WHOLE_ARCHIVE  "--no-whole-archive")
@@ -165,6 +165,7 @@ if (${TGTNAME}_APPLIST)
     set(COMPILER_LINKER_OPTION_PREFIX "-Wl,")
   else()
     # Other toolchain options may be added here
+    message(WARNING "Unmatched compiler id, WHOLE_ARCHIVE flags not automatically set and may need custom config")
   endif()
 
   # Determine if a pass-through prefix is needed for a linker option.

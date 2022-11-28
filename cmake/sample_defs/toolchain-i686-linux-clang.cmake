@@ -9,8 +9,8 @@ SET(CMAKE_SYSTEM_PROCESSOR      i686)
 # Specify the cross compiler executables
 # Typically these would be installed in a home directory or somewhere
 # in /opt.  However in this example the system compiler is used.
-SET(CMAKE_C_COMPILER            "/usr/bin/gcc")
-SET(CMAKE_CXX_COMPILER          "/usr/bin/g++")
+SET(CMAKE_C_COMPILER            "/usr/bin/clang")
+SET(CMAKE_CXX_COMPILER          "/usr/bin/clang++")
 
 # Configure the find commands
 SET(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM   NEVER)
@@ -20,6 +20,4 @@ SET(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE   NEVER)
 # These variable settings are specific to cFE/OSAL and determines which 
 # abstraction layers are built when using this toolchain
 SET(CFE_SYSTEM_PSPNAME      "pc-linux")
-SET(OSAL_SYSTEM_BSPNAME     "pc-linux")
 SET(OSAL_SYSTEM_OSTYPE      "posix")
-
