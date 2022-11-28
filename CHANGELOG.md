@@ -1,6 +1,6 @@
 # Changelog
 
-## Development Build: v7.0.0-rc4+dev215
+## Development Build: v7.0.0-rc4+dev218
 - Update CI to use Ubuntu 20.04
 - Enforce strict cast alignment on arch
 - Support clang for whole archive flags
