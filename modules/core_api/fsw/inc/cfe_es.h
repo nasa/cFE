@@ -103,7 +103,7 @@ CFE_Status_t CFE_ES_AppID_ToIndex(CFE_ES_AppId_t AppID, uint32 *Idx);
  *
  * Index values are only guaranteed to be unique for resources of the same
  * type.  For instance, the indices corresponding to two [valid] Library
- * IDs will never overlap, but the index of an Library and a library ID
+ * IDs will never overlap, but the index of a Library and a library ID
  * may be the same.  Furthermore, indices may be reused if a resource is
  * deleted and re-created.
  *
@@ -367,7 +367,7 @@ void CFE_ES_ExitApp(uint32 ExitStatus);
 **        For ES to report application counters correctly this API should be called
 **        from the main app task as part of it's main processing loop.
 **
-**        In the event of a externally initiated app shutdown request (such as the APP_STOP,
+**        In the event of an externally initiated app shutdown request (such as the APP_STOP,
 **        APP_RELOAD, and APP_RESTART commands) or if a system error occurs requiring the app
 **        to be shut down administratively, this function returns "false" and optionally sets
 **        the "RunStatus" output to further indicate the specific application state.

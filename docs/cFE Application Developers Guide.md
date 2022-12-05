@@ -1334,7 +1334,7 @@ int32 SAMPLE_TaskInit(void)
     else if (Status != CFE_SUCCESS)
     {
         /* Error creating my critical data store */
-        CFE_EVS_SendEvent(SAMPLE_CDS_ERR_EID, CFE_EVS_ERROR,
+        CFE_EVS_SendEvent(SAMPLE_CDS_ERR_EID, CFE_EVS_EventType_ERROR,
                           "Failed to create CDS (Err=0x%08x)", Status);
     }
 
@@ -1370,7 +1370,7 @@ void SAMPLE_TaskMain(void)
             CFE_ES_CopyToCDS(SAMPLE_TaskData.MyCDSHandle, &SAMPLE_MyCDSDataType_t);
         }
     }
-    CFE_EVS_SendEvent(CFE_TBL_EXIT_ERR_EID, CFE_EVS_ERROR,
+    CFE_EVS_SendEvent(CFE_TBL_EXIT_ERR_EID, CFE_EVS_EventType_ERROR,
                       "SAMPLE Task terminating, err = 0x%X", Status);
 }
 ```
@@ -2313,23 +2313,23 @@ configured to downlink event messages if they need to be sent as telemetry.
 Event Messages are classified within the cFE and on the ground by an
 Event Type. Event Types defined within the cFE are:
 
-- `CFE_EVS_DEBUG`: Events of this type are primarily for the
+- `CFE_EVS_EventType_DEBUG`: Events of this type are primarily for the
   Developer. The messages contain specific references to code and are of
   limited use to spacecraft operations personnel. By default, these
   types of event messages are disabled.
 
-- `CFE_EVS_INFORMATION`: Events of this type are normal events that
-  confirm expected behavior of the flight software. Examples would be
-  notification of the processing of a received command, nominal mode
+- `CFE_EVS_EventType_INFORMATION`: Events of this type are normal events
+  that confirm expected behavior of the flight software. Examples would
+  be notification of the processing of a received command, nominal mode
   changes, entering/exiting orbit day/night, etc.
 
-- `CFE_EVS_ERROR`: Events of this type are notifications of abnormal
-  behavior. However, they represent error conditions that have been
-  identified and corrected for by the flight software. These typically
-  represent things like erroneous commands, illegal mode change
-  attempts, switching to redundant hardware, etc.
+- `CFE_EVS_EventType_ERROR`: Events of this type are notifications of
+  abnormal behavior. However, they represent error conditions that have
+  been identified and corrected for by the flight software. These
+  typically represent things like erroneous commands, illegal mode
+  change attempts, switching to redundant hardware, etc.
 
-- `CFE_EVS_CRITICAL`: Events of this type are notifications of error
+- `CFE_EVS_EventType_CRITICAL`: Events of this type are notifications of error
   conditions that the flight software is unable to correct or compensate
   for. These might be uncorrectable memory errors, hardware failures etc.
 
