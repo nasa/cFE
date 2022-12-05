@@ -43,41 +43,31 @@ CFE_TBL_Global_t CFE_TBL_Global;
 
 /*
  * Macros to assist in building the CFE_TBL_CmdHandlerTbl -
- *  For generic message entries, which only have a MID and a handler function (no command payload)
- */
-#define CFE_TBL_MESSAGE_ENTRY(mid, handlerfunc)                                                                  \
-    {                                                                                                            \
-        CFE_SB_MSGID_WRAP_VALUE(mid), 0, sizeof(CFE_MSG_CommandHeader_t), (CFE_TBL_MsgProcFuncPtr_t)handlerfunc, \
-            CFE_TBL_MSG_MSGTYPE                                                                                  \
-    }
-
-/*
- * Macros to assist in building the CFE_TBL_CmdHandlerTbl -
  *  For command handler entries, which have a command code, payload type, and a handler function
  */
-#define CFE_TBL_COMMAND_ENTRY(ccode, paramtype, handlerfunc)                                                       \
+#define CFE_TBL_ENTRY(mid, ccode, paramtype, handlerfunc, msgtype)                                                       \
     {                                                                                                              \
-        CFE_SB_MSGID_WRAP_VALUE(CFE_TBL_CMD_MID), ccode, sizeof(paramtype), (CFE_TBL_MsgProcFuncPtr_t)handlerfunc, \
-            CFE_TBL_CMD_MSGTYPE                                                                                    \
+        CFE_SB_MSGID_WRAP_VALUE(mid), ccode, sizeof(paramtype), (CFE_TBL_MsgProcFuncPtr_t)handlerfunc, \
+            msgtype                                                                                    \
     }
 
 /* Constant Data */
 
 const CFE_TBL_CmdHandlerTblRec_t CFE_TBL_CmdHandlerTbl[] = {
-    /* message entries (SEND_HK) */
-    CFE_TBL_MESSAGE_ENTRY(CFE_TBL_SEND_HK_MID, CFE_TBL_HousekeepingCmd),
+    /* SEND_HK Entry */
+    CFE_TBL_ENTRY(CFE_TBL_SEND_HK_MID, 0, CFE_MSG_CommandHeader_t, CFE_TBL_HousekeepingCmd, CFE_TBL_MSG_MSGTYPE),
 
-    /* command entries (everything else) */
-    CFE_TBL_COMMAND_ENTRY(CFE_TBL_NOOP_CC, CFE_TBL_NoopCmd_t, CFE_TBL_NoopCmd),
-    CFE_TBL_COMMAND_ENTRY(CFE_TBL_RESET_COUNTERS_CC, CFE_TBL_ResetCountersCmd_t, CFE_TBL_ResetCountersCmd),
-    CFE_TBL_COMMAND_ENTRY(CFE_TBL_LOAD_CC, CFE_TBL_LoadCmd_t, CFE_TBL_LoadCmd),
-    CFE_TBL_COMMAND_ENTRY(CFE_TBL_DUMP_CC, CFE_TBL_DumpCmd_t, CFE_TBL_DumpCmd),
-    CFE_TBL_COMMAND_ENTRY(CFE_TBL_VALIDATE_CC, CFE_TBL_ValidateCmd_t, CFE_TBL_ValidateCmd),
-    CFE_TBL_COMMAND_ENTRY(CFE_TBL_ACTIVATE_CC, CFE_TBL_ActivateCmd_t, CFE_TBL_ActivateCmd),
-    CFE_TBL_COMMAND_ENTRY(CFE_TBL_DUMP_REGISTRY_CC, CFE_TBL_DumpRegistryCmd_t, CFE_TBL_DumpRegistryCmd),
-    CFE_TBL_COMMAND_ENTRY(CFE_TBL_SEND_REGISTRY_CC, CFE_TBL_SendRegistryCmd_t, CFE_TBL_SendRegistryCmd),
-    CFE_TBL_COMMAND_ENTRY(CFE_TBL_DELETE_CDS_CC, CFE_TBL_DeleteCDSCmd_t, CFE_TBL_DeleteCDSCmd),
-    CFE_TBL_COMMAND_ENTRY(CFE_TBL_ABORT_LOAD_CC, CFE_TBL_AbortLoadCmd_t, CFE_TBL_AbortLoadCmd),
+    /* Everything else */
+    CFE_TBL_ENTRY(CFE_TBL_CMD_MID, CFE_TBL_NOOP_CC, CFE_TBL_NoopCmd_t, CFE_TBL_NoopCmd, CFE_TBL_CMD_MSGTYPE),
+    CFE_TBL_ENTRY(CFE_TBL_CMD_MID, CFE_TBL_RESET_COUNTERS_CC, CFE_TBL_ResetCountersCmd_t, CFE_TBL_ResetCountersCmd, CFE_TBL_CMD_MSGTYPE),
+    CFE_TBL_ENTRY(CFE_TBL_CMD_MID, CFE_TBL_LOAD_CC, CFE_TBL_LoadCmd_t, CFE_TBL_LoadCmd, CFE_TBL_CMD_MSGTYPE),
+    CFE_TBL_ENTRY(CFE_TBL_CMD_MID, CFE_TBL_DUMP_CC, CFE_TBL_DumpCmd_t, CFE_TBL_DumpCmd, CFE_TBL_CMD_MSGTYPE),
+    CFE_TBL_ENTRY(CFE_TBL_CMD_MID, CFE_TBL_VALIDATE_CC, CFE_TBL_ValidateCmd_t, CFE_TBL_ValidateCmd, CFE_TBL_CMD_MSGTYPE),
+    CFE_TBL_ENTRY(CFE_TBL_CMD_MID, CFE_TBL_ACTIVATE_CC, CFE_TBL_ActivateCmd_t, CFE_TBL_ActivateCmd, CFE_TBL_CMD_MSGTYPE),
+    CFE_TBL_ENTRY(CFE_TBL_CMD_MID, CFE_TBL_DUMP_REGISTRY_CC, CFE_TBL_DumpRegistryCmd_t, CFE_TBL_DumpRegistryCmd, CFE_TBL_CMD_MSGTYPE),
+    CFE_TBL_ENTRY(CFE_TBL_CMD_MID, CFE_TBL_SEND_REGISTRY_CC, CFE_TBL_SendRegistryCmd_t, CFE_TBL_SendRegistryCmd, CFE_TBL_CMD_MSGTYPE),
+    CFE_TBL_ENTRY(CFE_TBL_CMD_MID, CFE_TBL_DELETE_CDS_CC, CFE_TBL_DeleteCDSCmd_t, CFE_TBL_DeleteCDSCmd, CFE_TBL_CMD_MSGTYPE),
+    CFE_TBL_ENTRY(CFE_TBL_CMD_MID, CFE_TBL_ABORT_LOAD_CC, CFE_TBL_AbortLoadCmd_t, CFE_TBL_AbortLoadCmd, CFE_TBL_CMD_MSGTYPE),
 
     /* list terminator (keep last) */
     {CFE_SB_MSGID_RESERVED, 0, 0, NULL, CFE_TBL_TERM_MSGTYPE}};
