@@ -1,10 +1,11 @@
 # Changelog
 
-## Development Build: v7.0.0-rc4+dev226
+## Development Build: v7.0.0-rc4+dev229
 - add abstract documentation dependency target
 - add -fno-common to arch build flags
 - update github action versions
-- See <https://github.com/nasa/cFE/pull/2215>, <https://github.com/nasa/cFE/pull/2219>, and <https://github.com/nasa/cFE/pull/2217>
+- Combine MESSAGE and CMD ENTRY Macros
+- See <https://github.com/nasa/cFE/pull/2215>, <https://github.com/nasa/cFE/pull/2219>, <https://github.com/nasa/cFE/pull/2217>, and <https://github.com/nasa/cFE/pull/2222>
 
 ## Development Build: v7.0.0-rc4+dev218
 - Update CI to use Ubuntu 20.04
