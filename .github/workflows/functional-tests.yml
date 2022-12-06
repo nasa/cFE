@@ -12,7 +12,7 @@ env:
 
 jobs:
 
-  #Check for duplicate actions. Skips push actions if there is a matching or duplicate pull-request action. 
+  #Check for duplicate actions. Skips push actions if there is a matching or duplicate pull-request action.
   check-for-duplicates:
     runs-on: ubuntu-latest
     # Map a step output to a job output
@@ -33,16 +33,16 @@ jobs:
     runs-on: ubuntu-20.04
     timeout-minutes: 15
 
-    steps:      
+    steps:
       # Checks out a copy of your repository on the ubuntu-latest machine
       - name: Checkout bundle
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           repository: nasa/cFS
-          submodules: true    
+          submodules: true
 
       - name: Checkout submodule
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           path: cfe
 
@@ -73,36 +73,36 @@ jobs:
           ../host/cmdUtil --pktid=0x1806 --cmdcode=4 --endian=LE --string="20:CFE_TEST_APP" --string="20:CFE_TestMain" --string="64:cfe_testcase" --uint32=16384 --uint8=0 --uint8=0 --uint16=100
 
           sleep 30
-          counter=0 
+          counter=0
 
-          while [[ ! -f cf/cfe_test.log ]]; do 
-            temp=$(grep -c "BEGIN" cf/cfe_test.tmp) 
-              
+          while [[ ! -f cf/cfe_test.log ]]; do
+            temp=$(grep -c "BEGIN" cf/cfe_test.tmp)
+
             if [ $temp -eq $counter ]; then
               echo "Test is frozen. Quitting"
               break
             fi
 
-            counter=$(grep -c "BEGIN" cf/cfe_test.tmp)            
+            counter=$(grep -c "BEGIN" cf/cfe_test.tmp)
             echo "Waiting for CFE Tests"
             sleep 60
           done
-          
+
           ../host/cmdUtil --endian=LE --pktid=0x1806 --cmdcode=2 --half=0x0002
         working-directory: ./build/exe/cpu1/
 
       - name: Archive cFS Startup Artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: cFS-startup-log-deprecate-true-${{ matrix.buildtype }}
           path: ./build/exe/cpu1/cf/cfe_test.log
 
       - name: Check for cFS Warnings
-        run: |  
+        run: |
           if [[ -z $(grep -i "SUMMARY.*FAIL::0.*TSF::0.*TTF::0" cf/cfe_test.log) ]]; then
                   echo "Must resolve Test Failures in cFS Test App before submitting a pull request"
                   echo ""
                   grep -i '\[ FAIL]\|\[  TSF]\|\[  TTF]' cf/cfe_test.log
                   exit -1
           fi
-        working-directory: ./build/exe/cpu1/  
+        working-directory: ./build/exe/cpu1/
