@@ -1,5 +1,9 @@
 # Changelog
 
+## Development Build: v7.0.0-rc4+dev233
+- Replace CFE_MSG_CommandHeader_t w/ CFE_TBL_NoArgsCmd_t
+- See <https://github.com/nasa/cFE/pull/2226>
+
 ## Development Build: v7.0.0-rc4+dev229
 - add abstract documentation dependency target
 - add -fno-common to arch build flags
