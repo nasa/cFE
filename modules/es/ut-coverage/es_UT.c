@@ -664,7 +664,7 @@ void ES_ResetUnitTest(void)
      * so it must be re-initialized here every time CFE_ES_Global is reset.
      */
     CFE_ES_Global.ResetDataPtr = ES_UT_PersistentResetData;
-}
+} /* end ES_ResetUnitTest() */
 
 void TestInit(void)
 {
@@ -2466,7 +2466,7 @@ void TestTask(void)
     union
     {
         CFE_MSG_Message_t            Msg;
-        CFE_MSG_CommandHeader_t      NoArgsCmd;
+        CFE_ES_NoArgsCmd_t           NoArgsCmd;
         CFE_ES_ClearSysLogCmd_t      ClearSysLogCmd;
         CFE_ES_ClearERLogCmd_t       ClearERLogCmd;
         CFE_ES_ResetPRCountCmd_t     ResetPRCountCmd;
@@ -3518,7 +3518,7 @@ void TestTask(void)
     UT_SetHandlerFunction(UT_KEY(CFE_Config_IterateAll), ES_UT_Config_IterateAll, NULL);
     UtAssert_VOIDCALL(CFE_ES_TaskInit());
     CFE_UtAssert_PRINTF("Error sending mission version event");
-}
+} /* end TestTask */
 
 void TestPerf(void)
 {
@@ -5014,7 +5014,7 @@ void TestCDS()
     CFE_ES_Global.CDSIsAvailable = false;
     UtAssert_INT32_EQ(CFE_ES_GetCDSBlockIDByName(&CDSHandle, "NotNULL"), CFE_ES_NOT_IMPLEMENTED);
     UtAssert_INT32_EQ(CFE_ES_GetCDSBlockName(CDSName, CDSHandle, sizeof(CDSName)), CFE_ES_NOT_IMPLEMENTED);
-}
+} /* End TestCDS */
 
 void TestCDSMempool(void)
 {

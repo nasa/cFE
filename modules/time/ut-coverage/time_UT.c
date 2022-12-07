@@ -1391,7 +1391,7 @@ void Test_PipeCmds(void)
     /* Test sending the no-op command */
     UT_InitData();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
-    UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, sizeof(CmdBuf.cmd), UT_TPID_CFE_TIME_CMD_NOOP_CC);
+    UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, sizeof(CmdBuf.noopcmd), UT_TPID_CFE_TIME_CMD_NOOP_CC);
     CFE_UtAssert_EVENTSENT(CFE_TIME_NOOP_EID);
 
     /* Noop with bad size */
@@ -1416,7 +1416,8 @@ void Test_PipeCmds(void)
     CFE_TIME_Global.LocalIntCounter       = 1;
     CFE_TIME_Global.LocalTaskCounter      = 1;
     memset(&CmdBuf, 0, sizeof(CmdBuf));
-    UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, sizeof(CmdBuf.cmd), UT_TPID_CFE_TIME_CMD_RESET_COUNTERS_CC);
+    UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, sizeof(CmdBuf.resetcountercmd),
+                    UT_TPID_CFE_TIME_CMD_RESET_COUNTERS_CC);
     CFE_UtAssert_EVENTSENT(CFE_TIME_RESET_EID);
 
     /* Confirm error counters get reset to help cover requirements that are difficult operationally */
@@ -1443,7 +1444,7 @@ void Test_PipeCmds(void)
     /* Test sending the request diagnostics command */
     UT_InitData();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
-    UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, sizeof(CmdBuf.cmd),
+    UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, sizeof(CmdBuf.diagtlmcmd),
                     UT_TPID_CFE_TIME_CMD_SEND_DIAGNOSTIC_TLM_CC);
     CFE_UtAssert_EVENTSENT(CFE_TIME_DIAG_EID);
 
