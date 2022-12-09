@@ -915,6 +915,7 @@ typedef struct CFE_EVS_NoArgsCmd
 typedef CFE_EVS_NoArgsCmd_t CFE_EVS_NoopCmd_t;
 typedef CFE_EVS_NoArgsCmd_t CFE_EVS_ResetCountersCmd_t;
 typedef CFE_EVS_NoArgsCmd_t CFE_EVS_ClearLogCmd_t;
+typedef CFE_EVS_NoArgsCmd_t CFE_EVS_SendHkCmd_t;
 
 /**
 ** \brief Write Event Log to File Command Payload

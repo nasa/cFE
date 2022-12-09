@@ -359,7 +359,7 @@ void CFE_TIME_TaskPipe(CFE_SB_Buffer_t *SBBufPtr)
         ** Housekeeping telemetry request...
         */
         case CFE_TIME_SEND_HK_MID:
-            CFE_TIME_HousekeepingCmd((CFE_MSG_CommandHeader_t *)SBBufPtr);
+            CFE_TIME_HousekeepingCmd((CFE_TIME_SendHkCmd_t *)SBBufPtr);
             break;
 
         /*
@@ -547,7 +547,7 @@ void CFE_TIME_TaskPipe(CFE_SB_Buffer_t *SBBufPtr)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_TIME_HousekeepingCmd(const CFE_MSG_CommandHeader_t *data)
+int32 CFE_TIME_HousekeepingCmd(const CFE_TIME_SendHkCmd_t *data)
 {
     CFE_TIME_Reference_t Reference;
 

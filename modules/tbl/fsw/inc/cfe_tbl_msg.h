@@ -499,6 +499,7 @@ typedef struct CFE_TBL_NoArgsCmd
  */
 typedef CFE_TBL_NoArgsCmd_t CFE_TBL_NoopCmd_t;
 typedef CFE_TBL_NoArgsCmd_t CFE_TBL_ResetCountersCmd_t;
+typedef CFE_TBL_NoArgsCmd_t CFE_TBL_SendHkCmd_t;
 
 /**
 ** \brief Load Table Command Payload

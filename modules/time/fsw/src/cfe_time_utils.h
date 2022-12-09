@@ -672,7 +672,7 @@ void CFE_TIME_Local1HzTimerCallback(osal_id_t TimerId, void *Arg);
 /**
  * @brief  Onboard command (HK request)
  */
-int32 CFE_TIME_HousekeepingCmd(const CFE_MSG_CommandHeader_t *data);
+int32 CFE_TIME_HousekeepingCmd(const CFE_TIME_SendHkCmd_t *data);
 
 /*
 ** Command handler for "tone signal detected"...

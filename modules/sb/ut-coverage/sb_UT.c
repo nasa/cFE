@@ -4321,8 +4321,8 @@ void Test_SB_TransmitMsgPaths_Nominal(void)
 {
     union
     {
-        CFE_SB_Buffer_t         SBBuf;
-        CFE_MSG_CommandHeader_t Cmd;
+        CFE_SB_Buffer_t    SBBuf;
+        CFE_SB_SendHkCmd_t SendHkCmd;
     } Housekeeping;
     CFE_SB_MsgId_t   MsgId;
     CFE_SB_PipeId_t  PipeId = CFE_SB_INVALID_PIPE;
@@ -4335,7 +4335,7 @@ void Test_SB_TransmitMsgPaths_Nominal(void)
     memset(&TlmPkt, 0, sizeof(TlmPkt));
 
     /* Set up for dispatch FIRST */
-    UT_SetupBasicMsgDispatch(&UT_TPID_CFE_SB_SEND_HK, sizeof(Housekeeping.Cmd), false);
+    UT_SetupBasicMsgDispatch(&UT_TPID_CFE_SB_SEND_HK, sizeof(Housekeeping.SendHkCmd), false);
 
     /* For internal send message call */
     MsgId = CFE_SB_ValueToMsgId(CFE_SB_HK_TLM_MID);
@@ -4357,7 +4357,7 @@ void Test_SB_TransmitMsgPaths_Nominal(void)
     CFE_SB_Global.StopRecurseFlags[1] |= CFE_BIT(CFE_SB_GET_BUF_ERR_EID_BIT);
 
     /* Set up for dispatch FIRST */
-    UT_SetupBasicMsgDispatch(&UT_TPID_CFE_SB_SEND_HK, sizeof(Housekeeping.Cmd), false);
+    UT_SetupBasicMsgDispatch(&UT_TPID_CFE_SB_SEND_HK, sizeof(Housekeeping.SendHkCmd), false);
 
     /* For internal send message call */
     MsgId = CFE_SB_ValueToMsgId(CFE_SB_HK_TLM_MID);
