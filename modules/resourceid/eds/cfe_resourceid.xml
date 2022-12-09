@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<PackageFile xmlns="http://www.ccsds.org/schema/sois/seds">
+  <Package name="CFE_RESOURCEID">
+    <DataTypeSet>
+      <ContainerDataType name="BaseType">
+        <EntryList>
+          <Entry name="BaseType" type="BASE_TYPES/uint32" />
+        </EntryList>
+      </ContainerDataType>
+    </DataTypeSet>
+  </Package>
+</PackageFile>
