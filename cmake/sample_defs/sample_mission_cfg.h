@@ -258,14 +258,16 @@
 */
 #define CFE_MISSION_EVS_MAX_MESSAGE_LENGTH 122
 
+#ifndef CFE_OMIT_DEPRECATED_6_8
+/* These names have been converted to an enum in cfe_es_api_typedefs.h */
+
 /** \name Checksum/CRC algorithm identifiers */
-/** \{ */
-#define CFE_MISSION_ES_CRC_8  1 /**< \brief CRC ( 8 bit additive - returns 32 bit total) (Currently not implemented) */
-#define CFE_MISSION_ES_CRC_16 2 /**< \brief CRC (16 bit additive - returns 32 bit total) */
-#define CFE_MISSION_ES_CRC_32                                                              \
-    3 /**< \brief CRC (32 bit additive - returns 32 bit total) (Currently not implemented) \
-       */
-/** \} */
+
+#define CFE_MISSION_ES_CRC_8  CFE_ES_CrcType_CRC_8  /* 1 */
+#define CFE_MISSION_ES_CRC_16 CFE_ES_CrcType_CRC_16 /* 2 */
+#define CFE_MISSION_ES_CRC_32 CFE_ES_CrcType_CRC_32 /* 3 */
+
+#endif
 
 /**
 **  \cfeescfg Mission Default CRC algorithm
@@ -276,9 +278,10 @@
 **      Table Image data integrity values.
 **
 **  \par Limits
-**      Currently only CFE_MISSION_ES_CRC_16 is supported (see #CFE_MISSION_ES_CRC_16)
+**      Currently only CFE_ES_CrcType_CRC_16 is supported (see brief in CFE_ES_CrcType_Enum
+**      definition in cfe_es_api_typedefs.h)
 */
-#define CFE_MISSION_ES_DEFAULT_CRC CFE_MISSION_ES_CRC_16
+#define CFE_MISSION_ES_DEFAULT_CRC CFE_ES_CrcType_CRC_16
 
 /**
 **  \cfetblcfg Maximum Table Name Length

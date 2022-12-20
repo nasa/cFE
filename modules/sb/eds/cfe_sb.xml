@@ -25,21 +25,24 @@
 <PackageFile xmlns="http://www.ccsds.org/schema/sois/seds">
   <Package name="CFE_SB" shortDescription="NASA Core Flight System Software Bus">
     <DataTypeSet>
-      <IntegerDataType name="MsgId" shortDescription="A Software Bus message identifier, used for subscription and routing">
+      <IntegerDataType name="MsgIdValue" shortDescription="Underlying value of an abstract MsgId">
         <IntegerDataEncoding sizeInBits="${CFE_SB/MSGID_BIT_SIZE}" encoding="unsigned" />
         <Range>
           <MinMaxRange max="2 ^ (${CFE_SB/MSGID_BIT_SIZE})" min="0" rangeType="inclusiveMinExclusiveMax"/>
         </Range>
       </IntegerDataType>
 
-      <IntegerDataType name="PipeId" shortDescription="A Software Bus pipe identifier">
-        <IntegerDataEncoding sizeInBits="8" encoding="unsigned" />
-        <Range>
-          <MinMaxRange max="255" min="0" rangeType="inclusiveMinInclusiveMax"/>
-        </Range>
-      </IntegerDataType>
+      <!-- The actual CFE_SB_MsgId_t type is a container wrapper around the integer MsgId value -->
+      <ContainerDataType name="MsgId" shortDescription="A Software Bus message identifier, used for subscription and routing">
+        <EntryList>
+          <Entry name="Value" type="MsgIdValue" shortDescription="Internal MsgId Value" />
+        </EntryList>
+      </ContainerDataType>
 
-      <IntegerDataType name="MsgRouteIdx" shortDescription="A Software Bus internal route index">
+      <ContainerDataType name="PipeId" baseType="CFE_RESOURCEID/BaseType" shortDescription="A Software Bus Pipe identifier">
+      </ContainerDataType>
+
+      <IntegerDataType name="RouteId" shortDescription="A Software Bus route ID">
         <IntegerDataEncoding sizeInBits="16" encoding="unsigned" />
         <Range>
           <MinMaxRange max="65535" min="0" rangeType="inclusiveMinInclusiveMax"/>
@@ -62,10 +65,44 @@
         </EnumerationList>
       </EnumeratedDataType>
 
-      <ContainerDataType name="MsgQos" shortDescription="Quality of service parameters">
+      <ContainerDataType name="Qos" shortDescription="Quality Of Service Type Definition">
+        <LongDescription>
+          Currently an unused parameter in #CFE_SB_SubscribeEx
+          Intended to be used for interprocessor communication only
+        </LongDescription>
         <EntryList>
-          <Entry name="Priority" type="QosPriority" shortDescription="Message priority for off-board routing (currently unused)" />
-          <Entry name="Reliability" type="QosReliability" shortDescription="Message transfer reliability for off-board routing (currently unused)" />
+          <Entry name="Priority" type="BASE_TYPES/uint8"
+                 shortDescription="*Specify high(1) or low(0) message priority for off-board routing, currently unused"/>
+          <Entry name="Reliability" type="BASE_TYPES/uint8"
+                 shortDescription="Specify high(1) or low(0) message transfer reliability for off-board routing, currently unused"/>
+          </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="PipeInfoEntry" shortDescription="SB Pipe Information File Entry">
+        <LongDescription>
+          This statistics structure is output as part of the CFE SB
+          "Send Pipe Info" command (CFE_SB_SEND_PIPE_INFO_CC).
+
+          Previous versions of CFE simply wrote the internal CFE_SB_PipeD_t object
+          to the file, but this also contains information such as pointers which are
+          not relevant outside the running CFE process.
+
+          By defining the pipe info structure separately, it also provides some
+          independence, such that the internal CFE_SB_PipeD_t definition
+          can evolve without changing the binary format of the information
+          file.
+        </LongDescription>
+        <EntryList>
+          <Entry name="PipeId" type="PipeId" shortDescription="The runtime ID of the pipe" />
+          <Entry name="AppId" type="CFE_ES/AppId" shortDescription="The runtime ID of the application that owns the pipe" />
+          <Entry name="PipeName" type="BASE_TYPES/ApiName" shortDescription="The Name of the pipe" />
+          <Entry name="AppName" type="BASE_TYPES/ApiName" shortDescription="The Name of the application that owns the pipe" />
+          <Entry name="MaxQueueDepth" type="BASE_TYPES/uint16" shortDescription="The allocated depth of the pipe (max capacity)" />
+          <Entry name="CurrentQueueDepth" type="BASE_TYPES/uint16" shortDescription="The current depth of the pipe" />
+          <Entry name="PeakQueueDepth" type="BASE_TYPES/uint16" shortDescription="The peak depth of the pipe (high watermark)" />
+          <Entry name="SendErrors" type="BASE_TYPES/uint16" shortDescription="Number of errors when writing to this pipe" />
+          <Entry name="Opts" type="BASE_TYPES/uint8" shortDescription="Pipe options set (bitmask)" />
+          <Entry name="Spare" type="BASE_TYPES/uint8" shortDescription="Padding to make this structure a multiple of 4 bytes" />
         </EntryList>
       </ContainerDataType>
 
@@ -146,6 +183,11 @@
               \cfetlmmnemonic  \SB_DUPSUBCNT
             </LongDescription>
           </Entry>
+          <Entry name="GetPipeIdByNameErrorCounter" type="BASE_TYPES/uint8" shortDescription="Count of errors in get pipe id by name API">
+            <LongDescription>
+              \cfetlmmnemonic  \SB_GETPIPEIDBYNAMEEC
+            </LongDescription>
+          </Entry>
           <Entry name="PipeOverflowErrorCounter" type="BASE_TYPES/uint16" shortDescription="Count of pipe overflow errors">
             <LongDescription>
               \cfetlmmnemonic  \SB_PIPEOVREC
@@ -156,7 +198,7 @@
               \cfetlmmnemonic  \SB_MSGLIMEC
             </LongDescription>
           </Entry>
-          <Entry name="MemPoolHandle" type="BASE_TYPES/CpuAddress" shortDescription="Handle to Software Bus Memory Pool">
+          <Entry name="MemPoolHandle" type="CFE_ES/MemHandle" shortDescription="Handle to Software Bus Memory Pool">
             <LongDescription>
               \cfetlmmnemonic  \SB_MEMPOOLHANDLE
             </LongDescription>
@@ -184,21 +226,22 @@
               \cfetlmmnemonic  \SB_PDPIPEID
             </LongDescription>
           </Entry>
-          <Entry name="Depth" type="BASE_TYPES/uint16" shortDescription="Number of messages the pipe can hold">
+          <Entry name="MaxQueueDepth" type="BASE_TYPES/uint16" shortDescription="Number of messages the pipe can hold">
             <LongDescription>
               \cfetlmmnemonic  \SB_PDDEPTH
             </LongDescription>
           </Entry>
-          <Entry name="InUse" type="BASE_TYPES/uint16" shortDescription="Number of messages currently on the pipe">
+          <Entry name="CurrentQueueDepth" type="BASE_TYPES/uint16" shortDescription="Number of messages currently on the pipe">
             <LongDescription>
               \cfetlmmnemonic  \SB_PDINUSE
             </LongDescription>
           </Entry>
-          <Entry name="PeakInUse" type="BASE_TYPES/uint16">
+          <Entry name="PeakQueueDepth" type="BASE_TYPES/uint16" shortDescription="Peak number of messages in the pipe">
             <LongDescription>
               \cfetlmmnemonic  \SB_PDPKINUSE
             </LongDescription>
           </Entry>
+          <Entry name="Spare" type="BASE_TYPES/uint16" shortDescription="Spare word to ensure alignment" />
         </EntryList>
       </ContainerDataType>
 
@@ -318,7 +361,7 @@
         </LongDescription>
         <EntryList>
           <Entry name="MsgId" type="MsgId" shortDescription="Message Id which has been subscribed to" />
-          <Entry name="Index" type="MsgRouteIdx" shortDescription="Routing table index where pipe destinations are found" />
+          <Entry name="Index" type="RouteId" shortDescription="Routing table index where pipe destinations are found" />
         </EntryList>
       </ContainerDataType>
 
@@ -334,7 +377,7 @@
         <EntryList>
           <Entry name="SubType" type="BASE_TYPES/uint8" shortDescription="Subscription or Unsubscription" />
           <Entry name="MsgId" type="MsgId" shortDescription="MsgId subscribed or unsubscribe to" />
-          <Entry name="Qos" type="MsgQos" shortDescription="Quality of Service, used only for interprocessor communication" />
+          <Entry name="Qos" type="Qos" shortDescription="Quality of Service, used only for interprocessor communication" />
           <Entry name="Pipe" type="PipeId" shortDescription="Destination pipe id to send above msg id" />
         </EntryList>
       </ContainerDataType>
@@ -347,7 +390,7 @@
         </LongDescription>
         <EntryList>
           <Entry name="MsgId" type="MsgId" shortDescription="MsgId portion of the subscription" />
-          <Entry name="Qos" type="MsgQos" shortDescription="Qos portion of the subscription" />
+          <Entry name="Qos" type="Qos" shortDescription="Qos portion of the subscription" />
           <Entry name="Pipe" type="PipeId" shortDescription="PipeId portion of the subscription" />
         </EntryList>
       </ContainerDataType>
@@ -374,38 +417,47 @@
         </EntryList>
       </ContainerDataType>
 
-      <ContainerDataType name="CommandBase" baseType="CCSDS/CommandPacket">
+      <ContainerDataType name="CommandBase" baseType="CFE_HDR/CommandHeader">
         <!--
         This container has no entries of its own, it just serves as a common base type for all command messages.
         Defined command messages must all use this container as a base type.
         -->
       </ContainerDataType>
 
-      <ContainerDataType name="HousekeepingTlm" baseType="CCSDS/TelemetryPacket">
+      <ContainerDataType name="SubReportBase" baseType="CFE_HDR/CommandHeader">
+        <!--
+        This container has no entries of its own, it just serves as a common base type for all command messages.
+        Defined command messages must all use this container as a base type.
+        -->
+      </ContainerDataType>
+
+      <ContainerDataType name="SendHkCmd" baseType="CFE_HDR/CommandHeader" shortDescription="Send Housekeeping Command" />
+
+      <ContainerDataType name="HousekeepingTlm" baseType="CFE_HDR/TelemetryHeader">
         <EntryList>
           <Entry type="HousekeepingTlm_Payload" name="Payload" />
         </EntryList>
       </ContainerDataType>
 
-      <ContainerDataType name="StatsTlm" baseType="CCSDS/TelemetryPacket">
+      <ContainerDataType name="StatsTlm" baseType="CFE_HDR/TelemetryHeader">
         <EntryList>
           <Entry type="StatsTlm_Payload" name="Payload" />
         </EntryList>
       </ContainerDataType>
 
-      <ContainerDataType name="AllSubscriptionsTlm" baseType="CCSDS/TelemetryPacket">
+      <ContainerDataType name="AllSubscriptionsTlm" baseType="CFE_HDR/TelemetryHeader">
         <EntryList>
           <Entry type="AllSubscriptionsTlm_Payload" name="Payload" />
         </EntryList>
       </ContainerDataType>
 
-      <ContainerDataType name="SingleSubscriptionTlm" baseType="CCSDS/TelemetryPacket">
+      <ContainerDataType name="SingleSubscriptionTlm" baseType="CFE_HDR/TelemetryHeader">
         <EntryList>
           <Entry type="SingleSubscriptionTlm_Payload" name="Payload" />
         </EntryList>
       </ContainerDataType>
 
-      <ContainerDataType name="Noop" baseType="CommandBase" shortDescription="SB task command packet command codes">
+      <ContainerDataType name="NoopCmd" baseType="CommandBase" shortDescription="SB task command packet command codes">
         <LongDescription>
           \cfesbcmd  Software Bus No-Op
 
@@ -434,11 +486,11 @@
           None
         </LongDescription>
         <ConstraintSet>
-          <ValueConstraint entry="Sec.Command" value="0" />
+          <ValueConstraint entry="Sec.FunctionCode" value="0" />
         </ConstraintSet>
       </ContainerDataType>
 
-      <ContainerDataType name="ResetCounters" baseType="CommandBase">
+      <ContainerDataType name="ResetCountersCmd" baseType="CommandBase">
         <LongDescription>
           \cfesbcmd  Software Bus Reset Counters
 
@@ -471,11 +523,11 @@
           values that are reset by this command.
         </LongDescription>
         <ConstraintSet>
-          <ValueConstraint entry="Sec.Command" value="1" />
+          <ValueConstraint entry="Sec.FunctionCode" value="1" />
         </ConstraintSet>
       </ContainerDataType>
 
-      <ContainerDataType name="SendSbStats" baseType="CommandBase">
+      <ContainerDataType name="SendSbStatsCmd" baseType="CommandBase">
         <LongDescription>
           \cfesbcmd  Send Software Bus Statistics
 
@@ -509,11 +561,11 @@
           \sa
         </LongDescription>
         <ConstraintSet>
-          <ValueConstraint entry="Sec.Command" value="2" />
+          <ValueConstraint entry="Sec.FunctionCode" value="2" />
         </ConstraintSet>
       </ContainerDataType>
 
-      <ContainerDataType name="SendRoutingInfo" baseType="CommandBase">
+      <ContainerDataType name="WriteRoutingInfoCmd" baseType="CommandBase">
         <LongDescription>
           \cfesbcmd  Write Software Bus Routing Info to a File
 
@@ -556,14 +608,14 @@
           \sa  #CFE_SB_SEND_PIPE_INFO_CC, #CFE_SB_SEND_MAP_INFO_CC, #CFE_SB_WriteFileInfoCmd_t
         </LongDescription>
         <ConstraintSet>
-          <ValueConstraint entry="Sec.Command" value="3" />
+          <ValueConstraint entry="Sec.FunctionCode" value="3" />
         </ConstraintSet>
         <EntryList>
           <Entry type="WriteFileInfoCmd_Payload" name="Payload" />
         </EntryList>
       </ContainerDataType>
 
-      <ContainerDataType name="EnableRoute" baseType="CommandBase">
+      <ContainerDataType name="EnableRouteCmd" baseType="CommandBase">
         <LongDescription>
           \cfesbcmd  Enable Software Bus Route
 
@@ -602,14 +654,14 @@
           \sa  #CFE_SB_SEND_ROUTING_INFO_CC, #CFE_SB_DISABLE_ROUTE_CC, #CFE_SB_EnableRouteCmd_t
         </LongDescription>
         <ConstraintSet>
-          <ValueConstraint entry="Sec.Command" value="4" />
+          <ValueConstraint entry="Sec.FunctionCode" value="4" />
         </ConstraintSet>
         <EntryList>
           <Entry type="RouteCmd_Payload" name="Payload" />
         </EntryList>
       </ContainerDataType>
 
-      <ContainerDataType name="DisableRoute" baseType="CommandBase">
+      <ContainerDataType name="DisableRouteCmd" baseType="CommandBase">
         <LongDescription>
           \cfesbcmd  Disable Software Bus Route
 
@@ -651,14 +703,14 @@
           \sa  #CFE_SB_SEND_ROUTING_INFO_CC, #CFE_SB_ENABLE_ROUTE_CC, #CFE_SB_EnableRouteCmd_t
         </LongDescription>
         <ConstraintSet>
-          <ValueConstraint entry="Sec.Command" value="5" />
+          <ValueConstraint entry="Sec.FunctionCode" value="5" />
         </ConstraintSet>
         <EntryList>
           <Entry type="RouteCmd_Payload" name="Payload" />
         </EntryList>
       </ContainerDataType>
 
-      <ContainerDataType name="SendPipeInfo" baseType="CommandBase">
+      <ContainerDataType name="WritePipeInfoCmd" baseType="CommandBase">
         <LongDescription>
           \cfesbcmd  Write Pipe Info to a File
 
@@ -701,14 +753,14 @@
           \sa  #CFE_SB_SEND_ROUTING_INFO_CC, #CFE_SB_SEND_MAP_INFO_CC
         </LongDescription>
         <ConstraintSet>
-          <ValueConstraint entry="Sec.Command" value="7" />
+          <ValueConstraint entry="Sec.FunctionCode" value="7" />
         </ConstraintSet>
         <EntryList>
           <Entry type="WriteFileInfoCmd_Payload" name="Payload" />
         </EntryList>
       </ContainerDataType>
 
-      <ContainerDataType name="SendMapInfo" baseType="CommandBase">
+      <ContainerDataType name="WriteMapInfoCmd" baseType="CommandBase">
         <LongDescription>
           \cfesbcmd  Write Map Info to a File
 
@@ -752,14 +804,14 @@
           \sa  #CFE_SB_SEND_ROUTING_INFO_CC, #CFE_SB_SEND_PIPE_INFO_CC
         </LongDescription>
         <ConstraintSet>
-          <ValueConstraint entry="Sec.Command" value="8" />
+          <ValueConstraint entry="Sec.FunctionCode" value="8" />
         </ConstraintSet>
         <EntryList>
           <Entry type="WriteFileInfoCmd_Payload" name="Payload" />
         </EntryList>
       </ContainerDataType>
 
-      <ContainerDataType name="EnableSubReporting" baseType="CommandBase">
+      <ContainerDataType name="EnableSubReportingCmd" baseType="SubReportBase">
         <LongDescription>
           \cfesbcmd  Enable Subscription Reporting Command
 
@@ -791,11 +843,11 @@
           #CFE_SB_SEND_PREV_SUBS_CC
         </LongDescription>
         <ConstraintSet>
-          <ValueConstraint entry="Sec.Command" value="9" />
+          <ValueConstraint entry="Sec.FunctionCode" value="9" />
         </ConstraintSet>
       </ContainerDataType>
 
-      <ContainerDataType name="DisableSubReporting" baseType="CommandBase">
+      <ContainerDataType name="DisableSubReportingCmd" baseType="SubReportBase">
         <LongDescription>
           \cfesbcmd  Disable Subscription Reporting Command
 
@@ -827,11 +879,11 @@
           #CFE_SB_SEND_PREV_SUBS_CC
         </LongDescription>
         <ConstraintSet>
-          <ValueConstraint entry="Sec.Command" value="10" />
+          <ValueConstraint entry="Sec.FunctionCode" value="10" />
         </ConstraintSet>
       </ContainerDataType>
 
-      <ContainerDataType name="SendPrevSubs" baseType="CommandBase">
+      <ContainerDataType name="SendPrevSubsCmd" baseType="SubReportBase">
         <LongDescription>
           \cfesbcmd  Send Previous Subscriptions Command
 
@@ -863,7 +915,7 @@
           #CFE_SB_DISABLE_SUB_REPORTING_CC
         </LongDescription>
         <ConstraintSet>
-          <ValueConstraint entry="Sec.Command" value="11" />
+          <ValueConstraint entry="Sec.FunctionCode" value="11" />
         </ConstraintSet>
       </ContainerDataType>
 
@@ -879,10 +931,10 @@
         </LongDescription>
         <CommandSet>
           <Command name="send">
-            <Argument name="data" type="CCSDS/SpacePacket" mode="in" dataUnit="true" />
+            <Argument name="data" type="CFE_HDR/Message" mode="in" dataUnit="true" />
           </Command>
           <Command name="receive">
-            <Argument name="data" type="CCSDS/SpacePacket" mode="out" dataUnit="true" />
+            <Argument name="data" type="CFE_HDR/Message" mode="out" dataUnit="true" />
           </Command>
         </CommandSet>
       </Interface>
@@ -901,10 +953,10 @@
         </ParameterSet>
         <CommandSet>
           <Command name="send">
-            <Argument name="data" type="CCSDS/SpacePacket" mode="in" />
+            <Argument name="data" type="CFE_HDR/Message" mode="in" />
           </Command>
           <Command name="receive">
-            <Argument name="data" type="CCSDS/SpacePacket" mode="out" />
+            <Argument name="data" type="CFE_HDR/Message" mode="out" />
           </Command>
         </CommandSet>
       </Interface>
@@ -925,7 +977,7 @@
             the software bus.  This is typically the various types of telemetry that the application generates.
         </LongDescription>
         <GenericTypeSet>
-          <GenericType name="TelemetryDataType" baseType="CCSDS/TelemetryPacket" />
+          <GenericType name="TelemetryDataType" baseType="CFE_HDR/TelemetryHeader" />
         </GenericTypeSet>
         <ParameterSet>
           <Parameter name="InstanceNumber" type="BASE_TYPES/uint16" shortDescription="Identifies a specific instance of this topic within the mission" />
@@ -953,7 +1005,7 @@
             This is a receive-only interface; the Telemetry interface provides the equivalent send function.
         </LongDescription>
         <GenericTypeSet>
-          <GenericType name="TelecommandDataType" baseType="CCSDS/CommandPacket" />
+          <GenericType name="TelecommandDataType" baseType="CFE_HDR/CommandHeader" />
         </GenericTypeSet>
         <ParameterSet>
           <Parameter name="InstanceNumber" type="BASE_TYPES/uint16" shortDescription="Identifies a specific instance of this topic within the mission" />
@@ -1015,10 +1067,15 @@
               <GenericTypeMap name="TelecommandDataType" type="CommandBase" />
             </GenericTypeMapSet>
           </Interface>
+          <Interface name="SUB_RPT_CTRL" shortDescription="Subscription reporting interface" type="CFE_SB/Telecommand">
+            <GenericTypeMapSet>
+              <GenericTypeMap name="TelecommandDataType" type="SubReportBase" />
+            </GenericTypeMapSet>
+          </Interface>
           <Interface name="SEND_HK" shortDescription="Send telemetry command interface" type="CFE_SB/Telecommand">
             <!-- This uses a bare spacepacket with no payload -->
             <GenericTypeMapSet>
-              <GenericTypeMap name="TelecommandDataType" type="CCSDS/CommandPacket" />
+              <GenericTypeMap name="TelecommandDataType" type="SendHkCmd" />
             </GenericTypeMapSet>
           </Interface>
           <Interface name="HK_TLM" shortDescription="Software bus housekeeping telemetry interface" type="CFE_SB/Telemetry">
@@ -1049,6 +1106,7 @@
         <Implementation>
           <VariableSet>
             <Variable type="BASE_TYPES/uint16" readOnly="true" name="CmdTopicId" initialValue="${CFE_MISSION/SB_CMD_TOPICID}" />
+            <Variable type="BASE_TYPES/uint16" readOnly="true" name="SubReportTopicId" initialValue="${CFE_MISSION/SB_SUB_RPT_CTRL_TOPICID}" />
             <Variable type="BASE_TYPES/uint16" readOnly="true" name="SendHkTopicId" initialValue="${CFE_MISSION/SB_SEND_HK_TOPICID}" />
             <Variable type="BASE_TYPES/uint16" readOnly="true" name="HkTlmTopicId" initialValue="${CFE_MISSION/SB_HK_TLM_TOPICID}" />
             <Variable type="BASE_TYPES/uint16" readOnly="true" name="StatsTlmTopicId" initialValue="${CFE_MISSION/SB_STATS_TLM_TOPICID}" />
@@ -1058,6 +1116,7 @@
           <!-- Assign fixed numbers to the "TopicId" parameter of each interface -->
           <ParameterMapSet>
             <ParameterMap interface="CMD" parameter="TopicId" variableRef="CmdTopicId" />
+            <ParameterMap interface="SUB_RPT_CTRL" parameter="TopicId" variableRef="SubReportTopicId" />
             <ParameterMap interface="SEND_HK" parameter="TopicId" variableRef="SendHkTopicId" />
             <ParameterMap interface="HK_TLM" parameter="TopicId" variableRef="HkTlmTopicId" />
             <ParameterMap interface="STATS_TLM" parameter="TopicId" variableRef="StatsTlmTopicId" />

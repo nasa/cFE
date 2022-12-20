@@ -84,6 +84,18 @@ typedef CFE_ES_TaskEntryFuncPtr_t CFE_ES_ChildTaskMainFuncPtr_t;
 typedef void *CFE_ES_StackPointer_t; /* aka osal_stackptr_t in proposed OSAL change */
 
 /**
+ * \brief Checksum/CRC algorithm identifiers
+ *
+ * Currently only CFE_ES_CrcType_CRC_16 is supported.
+ */
+typedef enum CFE_ES_CrcType_Enum
+{
+    CFE_ES_CrcType_CRC_8  = 1, /**< \brief CRC ( 8 bit additive - returns 32 bit total) (Not currently implemented) */
+    CFE_ES_CrcType_CRC_16 = 2, /**< \brief CRC (16 bit additive - returns 32 bit total) */
+    CFE_ES_CrcType_CRC_32 = 3  /**< \brief CRC (32 bit additive - returns 32 bit total) (Not currently implemented) */
+} CFE_ES_CrcType_Enum_t;
+
+/**
  * \brief Pool Alignment
  *
  * Union that can be used for minimum memory alignment of ES memory pools on the target.

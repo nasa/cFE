@@ -41,19 +41,19 @@ void TestCalculateCRC(void)
     UtAssert_VOIDCALL(Result = CFE_ES_CalculateCRC(Data, sizeof(Data), 0, CFE_MISSION_ES_DEFAULT_CRC));
     UtAssert_MIR("Confirm mission default CRC of \"%s\" is %lu", Data, (unsigned long)Result);
 
-    UtAssert_VOIDCALL(Result = CFE_ES_CalculateCRC(Data, sizeof(Data), inputCrc, CFE_MISSION_ES_CRC_16));
+    UtAssert_VOIDCALL(Result = CFE_ES_CalculateCRC(Data, sizeof(Data), inputCrc, CFE_ES_CrcType_CRC_16));
     UtAssert_MIR("Confirm CRC16 of \"%s\" with input CRC of %lu is %lu", Data, (unsigned long)inputCrc,
                  (unsigned long)Result);
 
-    UtAssert_VOIDCALL(Result = CFE_ES_CalculateCRC(Data, sizeof(Data), 0, CFE_MISSION_ES_CRC_8));
+    UtAssert_VOIDCALL(Result = CFE_ES_CalculateCRC(Data, sizeof(Data), 0, CFE_ES_CrcType_CRC_8));
     UtAssert_MIR("Confirm CRC8 of \"%s\" is %lu", Data, (unsigned long)Result);
 
-    UtAssert_VOIDCALL(Result = CFE_ES_CalculateCRC(Data, sizeof(Data), 0, CFE_MISSION_ES_CRC_32));
+    UtAssert_VOIDCALL(Result = CFE_ES_CalculateCRC(Data, sizeof(Data), 0, CFE_ES_CrcType_CRC_32));
     UtAssert_MIR("Confirm CRC32 of \"%s\" is %lu", Data, (unsigned long)Result);
 
     /* NULL input or 0 size returns input crc */
-    UtAssert_UINT32_EQ(CFE_ES_CalculateCRC(NULL, sizeof(Data), inputCrc, CFE_MISSION_ES_CRC_16), inputCrc);
-    UtAssert_UINT32_EQ(CFE_ES_CalculateCRC(Data, 0, inputCrc, CFE_MISSION_ES_CRC_16), inputCrc);
+    UtAssert_UINT32_EQ(CFE_ES_CalculateCRC(NULL, sizeof(Data), inputCrc, CFE_ES_CrcType_CRC_16), inputCrc);
+    UtAssert_UINT32_EQ(CFE_ES_CalculateCRC(Data, 0, inputCrc, CFE_ES_CrcType_CRC_16), inputCrc);
 }
 
 void TestWriteToSysLog(void)

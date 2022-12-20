@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    GSC-18128-1, "Core Flight Executive Version 6.7"
+    LEW-19710-1, "CCSDS electronic data sheet implementation"
+
+    Copyright (c) 2006-2019 United States Government as represented by
+    the Administrator of the National Aeronautics and Space Administration.
+    All Rights Reserved.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+    This document adheres to the Electronic Data Sheet (EDS) XML schema
+    as prescribed in CCSDS book 876.0.
+
+    Purpose:
+      This describes all interface objects for the Executive Services (CFE_ES)
+      core application
+
+-->
+<PackageFile xmlns="http://www.ccsds.org/schema/sois/seds">
+  <Package name="CFE_TEST" shortDescription="CFE Functional Test (FT) Application Package">
+
+    <DataTypeSet>
+
+      <ContainerDataType name="TestTable" shortDescription="Example Table Definition">
+        <EntryList>
+          <Entry name="Int1" type="BASE_TYPES/uint16" shortDescription="Example integer 1" />
+          <Entry name="Int2" type="BASE_TYPES/uint16" shortDescription="Example integer 2" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="TestCmd" baseType="CFE_HDR/CommandHeader" shortDescription="Test command message">
+        <EntryList>
+          <Entry name="CmdPayload" type="BASE_TYPES/uint64" shortDescription="Example Payload" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="TestTlm" baseType="CFE_HDR/TelemetryHeader" shortDescription="Test housekeeping message">
+        <EntryList>
+          <Entry name="TlmPayload" type="BASE_TYPES/uint64" shortDescription="Example Payload" />
+        </EntryList>
+      </ContainerDataType>
+
+    </DataTypeSet>
+
+    <ComponentSet>
+      <Component name="Application">
+        <RequiredInterfaceSet>
+          <Interface name="CMD" shortDescription="Software bus telecommand interface" type="CFE_SB/Telecommand">
+            <GenericTypeMapSet>
+              <GenericTypeMap name="TelecommandDataType" type="TestCmd" />
+            </GenericTypeMapSet>
+          </Interface>
+          <Interface name="HK_TLM" shortDescription="Software bus housekeeping telemetry interface" type="CFE_SB/Telemetry">
+            <GenericTypeMapSet>
+              <GenericTypeMap name="TelemetryDataType" type="TestTlm" />
+            </GenericTypeMapSet>
+          </Interface>
+        </RequiredInterfaceSet>
+        <Implementation>
+          <VariableSet>
+            <Variable type="BASE_TYPES/uint16" readOnly="true" name="CmdTopicId" initialValue="${CFE_MISSION/TEST_CMD_TOPICID}" />
+            <Variable type="BASE_TYPES/uint16" readOnly="true" name="TlmTopicId" initialValue="${CFE_MISSION/TEST_HK_TLM_TOPICID}" />
+          </VariableSet>
+          <ParameterMapSet>
+            <ParameterMap interface="CMD" parameter="TopicId" variableRef="CmdTopicId" />
+            <ParameterMap interface="HK_TLM" parameter="TopicId" variableRef="TlmTopicId" />
+          </ParameterMapSet>
+        </Implementation>
+      </Component>
+    </ComponentSet>
+
+  </Package>
+</PackageFile>

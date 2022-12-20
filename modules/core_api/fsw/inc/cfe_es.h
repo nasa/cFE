@@ -999,20 +999,20 @@ CFE_Status_t CFE_ES_WriteToSysLog(const char *SpecStringPtr, ...) OS_PRINTF(1, 2
 **                          a single value.  Nominally, the user should set this value to zero.
 **
 ** \param[in]   TypeCRC     One of the following CRC algorithm selections:
-**                          \arg \c CFE_MISSION_ES_CRC_8 -  (Not currently implemented)
-**                          \arg \c CFE_MISSION_ES_CRC_16 - CRC-16/ARC <BR>
+**                          \arg \c CFE_ES_CrcType_CRC_8 -  (Not currently implemented)
+**                          \arg \c CFE_ES_CrcType_CRC_16 - CRC-16/ARC <BR>
 **                                  Polynomial: 0x8005 <BR>
 **                                  Initialization: 0x0000 <BR>
 **                                  Reflect Input/Output: true <BR>
 **                                  XorOut: 0x0000
-**                          \arg \c CFE_MISSION_ES_CRC_32 - (not currently implemented)
+**                          \arg \c CFE_ES_CrcType_CRC_32 - (not currently implemented)
 **
 ** \return The result of the CRC calculation on the specified memory block.
 **         If the TypeCRC is unimplemented will return 0.
 **         If DataPtr is null or DataLength is 0, will return InputCRC
 **
 ******************************************************************************/
-uint32 CFE_ES_CalculateCRC(const void *DataPtr, size_t DataLength, uint32 InputCRC, uint32 TypeCRC);
+uint32 CFE_ES_CalculateCRC(const void *DataPtr, size_t DataLength, uint32 InputCRC, CFE_ES_CrcType_Enum_t TypeCRC);
 
 /*****************************************************************************/
 /**

@@ -50,12 +50,14 @@
         <EnumerationList>
           <Enumeration label="CORE" value="1" shortDescription="CFE core application" />
           <Enumeration label="EXTERNAL"  value="2" shortDescription="CFE external application" />
+          <Enumeration label="LIBRARY" value="3" shortDescription="CFE library"/>
         </EnumerationList>
       </EnumeratedDataType>
 
       <EnumeratedDataType name="RunStatus" shortDescription="Run Status and Exit Status identifiers">
         <IntegerDataEncoding sizeInBits="32" encoding="unsigned" />
         <EnumerationList>
+          <Enumeration label="UNDEFINED" value="0" shortDescription="Reserved value, should not be used"/>
           <Enumeration label="APP_RUN" value="1" shortDescription="Indicates that the Application should continue to run" />
           <Enumeration label="APP_EXIT" value="2" shortDescription="Indicates that the Application wants to exit normally" />
           <Enumeration label="APP_ERROR" value="3" shortDescription="Indicates that the Application is quitting with an error" />
@@ -65,6 +67,7 @@
           <Enumeration label="SYS_DELETE" value="7" shortDescription="The system is requesting that the cFE App is stopped" />
           <Enumeration label="CORE_APP_INIT_ERROR" value="8" shortDescription="Indicates that the Core Application could not Init" />
           <Enumeration label="CORE_APP_RUNTIME_ERROR" value="9" shortDescription="Indicates that the Core Application had a runtime failure" />
+          <Enumeration label="MAX" value="10" shortDescription="Reserved, placeholder for maximum value" />
         </EnumerationList>
       </EnumeratedDataType>
 
@@ -113,10 +116,97 @@
         </EnumerationList>
       </EnumeratedDataType>
 
+      <ContainerDataType name="AppId" baseType="CFE_RESOURCEID/BaseType" shortDescription="A type for Application IDs">
+        <LongDescription>
+          This is the type that is used for any API accepting or returning an App ID
+        </LongDescription>
+      </ContainerDataType>
 
-      <StringDataType name="char_x_CFE_ES_MAX_SHELL_CMD" length="${CFE_MISSION/ES_MAX_SHELL_CMD}" />
+      <ContainerDataType name="TaskId" baseType="CFE_RESOURCEID/BaseType" shortDescription="A type for Task IDs">
+        <LongDescription>
+          This is the type that is used for any API accepting or returning a Task ID
+        </LongDescription>
+      </ContainerDataType>
+
+      <ContainerDataType name="LibId" baseType="CFE_RESOURCEID/BaseType" shortDescription="A type for Library IDs">
+        <LongDescription>
+          This is the type that is used for any API accepting or returning a Lib ID
+        </LongDescription>
+      </ContainerDataType>
+
+      <ContainerDataType name="CounterId" baseType="CFE_RESOURCEID/BaseType" shortDescription="A type for Counter IDs">
+        <LongDescription>
+          This is the type that is used for any API accepting or returning an Counter ID
+        </LongDescription>
+      </ContainerDataType>
+
+      <ContainerDataType name="MemHandle" baseType="CFE_RESOURCEID/BaseType" shortDescription="Memory Handle type">
+        <LongDescription>
+          Data type used to hold Handles of Memory Pools
+          created via CFE_ES_PoolCreate and CFE_ES_PoolCreateNoSem
+        </LongDescription>
+      </ContainerDataType>
+
+      <ContainerDataType name="CDSHandle" baseType="CFE_RESOURCEID/BaseType" shortDescription="CDS Handle type">
+        <LongDescription>
+          Data type used to hold Handles of Critical Data Stores. See #CFE_ES_RegisterCDS
+        </LongDescription>
+      </ContainerDataType>
+
+      <IntegerDataType name="TaskPriority" shortDescription="Type used for task priority in CFE ES">
+        <LongDescription>
+          @note the valid range is only 0-255 (same as OSAL) but
+          a wider type is used for backward compatibility
+          in binary formats of messages.
+        </LongDescription>
+        <IntegerDataEncoding encoding="unsigned" sizeInBits="16"/>
+        <Range>
+          <MinMaxRange rangeType="inclusiveMinInclusiveMax" min="0" max="255"/>
+        </Range>
+      </IntegerDataType>
+
+      <IntegerDataType name="MemOffset" shortDescription="Type used for memory sizes and offsets in commands and telemetry">
+        <LongDescription>
+          For backward compatibility with existing CFE code this should be uint32,
+          but all telemetry information will be limited to 4GB in size as a result.
+
+          On 64-bit platforms this can be a 64-bit value which will allow larger
+          memory objects, but this will break compatibility with existing control
+          systems, and may also change the alignment/padding of messages.
+
+          In either case this must be an unsigned type.
+        </LongDescription>
+        <IntegerDataEncoding sizeInBits="${CFE_ES/MEM_OFFSET_SIZE_BITS}" encoding="unsigned" />
+        <Range>
+          <MinMaxRange max="2 ^ ${CFE_ES/MEM_OFFSET_SIZE_BITS}" min="0" rangeType="inclusiveMinExclusiveMax"/>
+        </Range>
+      </IntegerDataType>
+
+      <IntegerDataType name="MemAddress" shortDescription="Type used for memory addresses in command and telemetry messages">
+        <LongDescription>
+          For backward compatibility with existing CFE code this should be uint32,
+          but if running on a 64-bit platform, addresses in telemetry will be
+          truncated to 32 bits and therefore will not be valid.
+
+          On 64-bit platforms this can be a 64-bit address which will allow the
+          full memory address in commands and telemetry, but this will break
+          compatibility with existing control systems, and may also change
+          the alignment/padding of messages.
+
+          In either case this must be an unsigned type.
+
+          FSW code should access this value via the macros provided, which
+          converts to the native "cpuaddr" type provided by OSAL.  This macro
+          provides independence between the message representation and local
+          representation of a memory address.
+        </LongDescription>
+        <IntegerDataEncoding sizeInBits="${CFE_ES/MEM_OFFSET_SIZE_BITS}" encoding="unsigned" />
+        <Range>
+          <MinMaxRange max="2 ^ ${CFE_ES/MEM_OFFSET_SIZE_BITS}" min="0" rangeType="inclusiveMinExclusiveMax"/>
+        </Range>
+      </IntegerDataType>
+
       <StringDataType name="char_x_CFE_ES_CDS_MAX_FULL_NAME_LEN" length="${CFE_MISSION/ES_CDS_MAX_FULL_NAME_LEN}" />
-      <StringDataType name="char_x_CFE_ES_MAX_SHELL_PKT" length="${CFE_MISSION/ES_MAX_SHELL_PKT}" />
 
       <ArrayDataType name="boolean_x_CFE_ES_PERF_MAX_IDS" dataTypeRef="BASE_TYPES/StatusBit">
         <DimensionList>
@@ -131,7 +221,7 @@
           QueryAll Commands.
         </LongDescription>
         <EntryList>
-          <Entry name="AppId" type="BASE_TYPES/uint32" shortDescription="Application ID for this Application">
+          <Entry name="ResourceId" type="CFE_RESOURCEID/BaseType" shortDescription="Application ID for this Application">
             <LongDescription>
                \cfetlmmnemonic  \ES_APP_ID
             </LongDescription>
@@ -171,37 +261,37 @@
                \cfetlmmnemonic  \ES_ADDRVALID
             </LongDescription>
           </Entry>
-          <Entry name="CodeAddress" type="BASE_TYPES/CpuAddress" shortDescription="The Address of the Application Code Segment">
+          <Entry name="CodeAddress" type="MemAddress" shortDescription="The Address of the Application Code Segment">
             <LongDescription>
                \cfetlmmnemonic  \ES_CODEADDR
             </LongDescription>
           </Entry>
-          <Entry name="CodeSize" type="BASE_TYPES/CpuAddress" shortDescription="The Code Size of the Application">
+          <Entry name="CodeSize" type="MemOffset" shortDescription="The Code Size of the Application">
             <LongDescription>
                \cfetlmmnemonic  \ES_CODESIZE
             </LongDescription>
           </Entry>
-          <Entry name="DataAddress" type="BASE_TYPES/CpuAddress" shortDescription="The Address of the Application Data Segment">
+          <Entry name="DataAddress" type="MemAddress" shortDescription="The Address of the Application Data Segment">
             <LongDescription>
                \cfetlmmnemonic  \ES_DATAADDR
             </LongDescription>
           </Entry>
-          <Entry name="DataSize" type="BASE_TYPES/CpuAddress" shortDescription="The Data Size of the Application">
+          <Entry name="DataSize" type="MemOffset" shortDescription="The Data Size of the Application">
             <LongDescription>
                \cfetlmmnemonic  \ES_DATASIZE
             </LongDescription>
           </Entry>
-          <Entry name="BSSAddress" type="BASE_TYPES/CpuAddress" shortDescription="The Address of the Application BSS Segment">
+          <Entry name="BSSAddress" type="MemAddress" shortDescription="The Address of the Application BSS Segment">
             <LongDescription>
                \cfetlmmnemonic  \ES_BSSADDR
             </LongDescription>
           </Entry>
-          <Entry name="BSSSize" type="BASE_TYPES/CpuAddress" shortDescription="The BSS Size of the Application">
+          <Entry name="BSSSize" type="MemOffset" shortDescription="The BSS Size of the Application">
             <LongDescription>
                \cfetlmmnemonic  \ES_BSSSIZE
             </LongDescription>
           </Entry>
-          <Entry name="StartAddress" type="BASE_TYPES/CpuAddress" shortDescription="The Start Address of the Application">
+          <Entry name="StartAddress" type="MemAddress" shortDescription="The Start Address of the Application">
             <LongDescription>
                \cfetlmmnemonic  \ES_STARTADDR
             </LongDescription>
@@ -211,12 +301,12 @@
                \cfetlmmnemonic  \ES_EXCEPTNACTN
             </LongDescription>
           </Entry>
-          <Entry name="Priority" type="BASE_TYPES/uint16" shortDescription="The Priority of the Application">
+          <Entry name="Priority" type="TaskPriority" shortDescription="The Priority of the Application">
             <LongDescription>
                \cfetlmmnemonic  \ES_PRIORITY
             </LongDescription>
           </Entry>
-          <Entry name="MainTaskId" type="BASE_TYPES/uint32" shortDescription="The Application's Main Task ID">
+          <Entry name="MainTaskId" type="TaskId" shortDescription="The Application's Main Task ID">
             <LongDescription>
                \cfetlmmnemonic  \ES_MAINTASKID
             </LongDescription>
@@ -239,6 +329,28 @@
         </EntryList>
       </ContainerDataType>
 
+      <ContainerDataType name="TaskInfo" shortDescription="Task Information">
+        <LongDescription>
+          Structure that is used to provide information about a task. It is primarily
+          used for the Query All Tasks (#CFE_ES_QUERY_ALL_TASKS_CC) command.
+
+          @note There is not currently a telemetry message directly containing this
+          data structure, but it does define the format of the data file generated
+          by the Query All Tasks command.  Therefore it should be considered
+          part of the overall telemetry interface.
+        </LongDescription>
+        <EntryList>
+          <Entry name="TaskId" type="TaskId" shortDescription="Task Id"/>
+          <Entry name="ExecutionCounter" type="BASE_TYPES/uint32" shortDescription="Task Execution Counter"/>
+          <Entry name="TaskName" type="BASE_TYPES/ApiName" shortDescription="Task Name"/>
+          <Entry name="AppId" type="AppId" shortDescription="Parent Application ID"/>
+          <Entry name="AppName" type="BASE_TYPES/ApiName" shortDescription="Parent Application Name"/>
+          <Entry name="StackSize" type="MemOffset" shortDescription="Size of task stack"/>
+          <Entry name="Priority" type="TaskPriority" shortDescription="Priority of task"/>
+          <PaddingEntry sizeInBits="16" shortDescription="Spare bytes for alignment"/>
+        </EntryList>
+      </ContainerDataType>
+
       <ContainerDataType name="BlockStats" shortDescription="Memory Pool Statistics data type">
         <EntryList>
           <Entry name="BlockSize" type="BASE_TYPES/uint32" shortDescription="Number of bytes in each of these blocks" />
@@ -249,13 +361,13 @@
 
       <ArrayDataType name="BlockStats_x_CFE_MAX_MEMPOOL_BLOCKS" dataTypeRef="BlockStats">
         <DimensionList>
-          <Dimension size="${CFE_MISSION/MAX_MEMPOOL_BLOCKS}" />
+          <Dimension size="${CFE_MISSION/ES_POOL_MAX_BUCKETS}" />
         </DimensionList>
       </ArrayDataType>
 
       <ContainerDataType name="MemPoolStats">
         <EntryList>
-          <Entry name="PoolSize" type="BASE_TYPES/uint32" shortDescription="Size of Memory Pool (in bytes)">
+          <Entry name="PoolSize" type="MemOffset" shortDescription="Size of Memory Pool (in bytes)">
             <LongDescription>
                \cfetlmmnemonic  \ES_POOLSIZE
             </LongDescription>
@@ -270,7 +382,7 @@
                \cfetlmmnemonic  \ES_BLKERRCTR
             </LongDescription>
           </Entry>
-          <Entry name="NumFreeBytes" type="BASE_TYPES/uint32" shortDescription="Number of bytes never allocated to a block">
+          <Entry name="NumFreeBytes" type="MemOffset" shortDescription="Number of bytes never allocated to a block">
             <LongDescription>
                \cfetlmmnemonic  \ES_FREEBYTES
             </LongDescription>
@@ -289,16 +401,6 @@
         </LongDescription>
         <EntryList>
           <Entry name="RestartType" type="BASE_TYPES/uint16" shortDescription="#CFE_ES_PROCESSOR_RESET=Processor Reset or #CFE_ES_POWERON_RESET=Power-On Reset" />
-        </EntryList>
-      </ContainerDataType>
-
-      <ContainerDataType name="ShellCmd_Payload" shortDescription="Shell Command">
-        <LongDescription>
-          For command details, see #CFE_ES_SHELL_CMD_CC
-        </LongDescription>
-        <EntryList>
-          <Entry name="CmdString" type="char_x_CFE_ES_MAX_SHELL_CMD" shortDescription="ASCII text string containing shell command to be executed" />
-          <Entry name="OutputFilename" type="BASE_TYPES/PathName" shortDescription="Filename where shell command output is to be written" />
         </EntryList>
       </ContainerDataType>
 
@@ -423,7 +525,7 @@
         </LongDescription>
         <EntryList>
           <Entry name="Application" type="BASE_TYPES/ApiName" shortDescription="RESERVED - should be all zeroes" />
-          <Entry name="PoolHandle" type="BASE_TYPES/CpuAddress" shortDescription="Handle of Pool whose statistics are to be telemetered" />
+          <Entry name="PoolHandle" type="MemHandle" shortDescription="Handle of Pool whose statistics are to be telemetered" />
         </EntryList>
       </ContainerDataType>
 
@@ -444,7 +546,7 @@
 
       <ContainerDataType name="PoolStatsTlm_Payload" shortDescription="Memory Pool Statistics Packet">
         <EntryList>
-          <Entry name="PoolHandle" type="BASE_TYPES/CpuAddress" shortDescription="Handle of memory pool whose stats are being telemetered">
+          <Entry name="PoolHandle" type="MemHandle" shortDescription="Handle of memory pool whose stats are being telemetered">
             <LongDescription>
                \cfetlmmnemonic  \ES_POOLHANDLE
             </LongDescription>
@@ -668,46 +770,31 @@
         </EntryList>
       </ContainerDataType>
 
-      <ContainerDataType name="ShellPacket_Payload">
-        <EntryList>
-          <Entry name="ShellOutput" type="char_x_CFE_ES_MAX_SHELL_PKT">
-            <LongDescription>
-               \brief  ASCII text string containing output from OS Shell
-              that was received in response to an OS Shell Command
-            </LongDescription>
-          </Entry>
-        </EntryList>
+      <ContainerDataType name="CommandBase" baseType="CFE_HDR/CommandHeader">
       </ContainerDataType>
 
-      <ContainerDataType name="CommandBase" baseType="CCSDS/CommandPacket">
-      </ContainerDataType>
+      <ContainerDataType name="SendHkCmd" baseType="CFE_HDR/CommandHeader" shortDescription="Send Housekeeping Command" />
 
-      <ContainerDataType name="HousekeepingTlm" baseType="CCSDS/TelemetryPacket">
+      <ContainerDataType name="HousekeepingTlm" baseType="CFE_HDR/TelemetryHeader">
         <EntryList>
           <Entry type="HousekeepingTlm_Payload" name="Payload" />
         </EntryList>
       </ContainerDataType>
 
-      <ContainerDataType name="OneAppTlm" baseType="CCSDS/TelemetryPacket">
+      <ContainerDataType name="OneAppTlm" baseType="CFE_HDR/TelemetryHeader">
         <EntryList>
           <Entry type="OneAppTlm_Payload" name="Payload" />
         </EntryList>
       </ContainerDataType>
 
-      <ContainerDataType name="ShellTlm" baseType="CCSDS/TelemetryPacket">
-        <EntryList>
-          <Entry type="ShellPacket_Payload" name="Payload" />
-        </EntryList>
-      </ContainerDataType>
-
-      <ContainerDataType name="MemStatsTlm" baseType="CCSDS/TelemetryPacket">
+      <ContainerDataType name="MemStatsTlm" baseType="CFE_HDR/TelemetryHeader">
         <EntryList>
           <Entry type="PoolStatsTlm_Payload" name="Payload" />
         </EntryList>
       </ContainerDataType>
 
 
-      <ContainerDataType name="Noop" baseType="CommandBase">
+      <ContainerDataType name="NoopCmd" baseType="CommandBase">
         <LongDescription>
           \cfeescmd  Executive Services No-Op
 
@@ -743,11 +830,11 @@
           None
         </LongDescription>
         <ConstraintSet>
-          <ValueConstraint entry="Sec.Command" value="0" />
+          <ValueConstraint entry="Sec.FunctionCode" value="0" />
         </ConstraintSet>
       </ContainerDataType>
 
-      <ContainerDataType name="ResetCounters" baseType="CommandBase">
+      <ContainerDataType name="ResetCountersCmd" baseType="CommandBase">
         <LongDescription>
           \cfeescmd  Executive Services Reset Counters
 
@@ -790,11 +877,11 @@
           \sa  #CFE_ES_RESET_PR_COUNT_CC
         </LongDescription>
         <ConstraintSet>
-          <ValueConstraint entry="Sec.Command" value="1" />
+          <ValueConstraint entry="Sec.FunctionCode" value="1" />
         </ConstraintSet>
       </ContainerDataType>
 
-      <ContainerDataType name="Restart" baseType="CommandBase">
+      <ContainerDataType name="RestartCmd" baseType="CommandBase">
         <LongDescription>
           \cfeescmd  Executive Services Processor / Power-On Reset
 
@@ -848,71 +935,14 @@
           \sa  #CFE_ES_RESET_PR_COUNT_CC, #CFE_ES_SET_MAX_PR_COUNT_CC
         </LongDescription>
         <ConstraintSet>
-          <ValueConstraint entry="Sec.Command" value="2" />
+          <ValueConstraint entry="Sec.FunctionCode" value="2" />
         </ConstraintSet>
         <EntryList>
           <Entry type="RestartCmd_Payload" name="Payload" />
         </EntryList>
       </ContainerDataType>
 
-      <ContainerDataType name="Shell" baseType="CommandBase">
-        <LongDescription>
-          \cfeescmd  Executive Services O/S Shell Command
-
-          \par  Description
-
-          This command passes an ASCII string as a command line to the
-          underlying realtime operating system shell.  Any response to
-          the command is both written to the shell command output file
-          and sent as a series of shell command output telemetry packets.
-
-          If the shell command output filename argument is empty, then
-          #CFE_ES_DEFAULT_SHELL_FILENAME will be used as the filename.
-          \cfecmdmnemonic  \ES_SHELL
-
-          \par  Command Structure
-          #CFE_ES_ShellCmd_t
-
-          \par  Command Verification
-
-          Successful execution of this command may be verified with
-          the following telemetry:
-          - \b \c \ES_CMDPC - command execution counter will
-          increment
-          - The #CFE_ES_SHELL_INF_EID informational event message will be
-          generated
-
-          \par  Error Conditions
-
-          This command may fail for the following reason(s):
-          - The command packet length is incorrect
-          - Failure to create the shell command output file
-          - The shell command started with ES_ but was not one of the
-          recognized cFE shell commands
-          - There was an error while performing a #OS_lseek on the shell command output file
-          - There was an error while redirecting the shell command response to the
-          shell command output file
-
-          Evidence of failure may be found in the following telemetry:
-          - \b \c \ES_CMDEC - command error counter will increment
-          - the #CFE_ES_SHELL_ERR_EID error event message will be generated
-          - Additional information on the error should be found in the System Log
-
-          \par  Criticality
-
-          This command should be used with caution.  Interfering with the
-          operation of the underlying realtime operating system can cause
-          significant problems.
-        </LongDescription>
-        <ConstraintSet>
-          <ValueConstraint entry="Sec.Command" value="3" />
-        </ConstraintSet>
-        <EntryList>
-          <Entry type="ShellCmd_Payload" name="Payload" />
-        </EntryList>
-      </ContainerDataType>
-
-      <ContainerDataType name="StartApp" baseType="CommandBase">
+      <ContainerDataType name="StartAppCmd" baseType="CommandBase">
         <LongDescription>
           \cfeescmd  Load and Start an Application
 
@@ -962,14 +992,14 @@
           \sa  #CFE_ES_STOP_APP_CC, #CFE_ES_RESTART_APP_CC, #CFE_ES_RELOAD_APP_CC
         </LongDescription>
         <ConstraintSet>
-          <ValueConstraint entry="Sec.Command" value="4" />
+          <ValueConstraint entry="Sec.FunctionCode" value="4" />
         </ConstraintSet>
         <EntryList>
           <Entry type="StartAppCmd_Payload" name="Payload" />
         </EntryList>
       </ContainerDataType>
 
-      <ContainerDataType name="StopApp" baseType="CommandBase">
+      <ContainerDataType name="StopAppCmd" baseType="CommandBase">
         <LongDescription>
           \cfeescmd  Stop and Unload Application
 
@@ -1023,14 +1053,14 @@
           \sa  #CFE_ES_START_APP_CC, #CFE_ES_RESTART_APP_CC, #CFE_ES_RELOAD_APP_CC
         </LongDescription>
         <ConstraintSet>
-          <ValueConstraint entry="Sec.Command" value="5" />
+          <ValueConstraint entry="Sec.FunctionCode" value="5" />
         </ConstraintSet>
         <EntryList>
           <Entry type="AppNameCmd_Payload" name="Payload" />
         </EntryList>
       </ContainerDataType>
 
-      <ContainerDataType name="RestartApp" baseType="CommandBase">
+      <ContainerDataType name="RestartAppCmd" baseType="CommandBase">
         <LongDescription>
           \cfeescmd  Stops and Restarts an Application
 
@@ -1077,14 +1107,14 @@
           \sa  #CFE_ES_START_APP_CC, #CFE_ES_STOP_APP_CC, #CFE_ES_RELOAD_APP_CC
         </LongDescription>
         <ConstraintSet>
-          <ValueConstraint entry="Sec.Command" value="6" />
+          <ValueConstraint entry="Sec.FunctionCode" value="6" />
         </ConstraintSet>
         <EntryList>
           <Entry type="AppNameCmd_Payload" name="Payload" />
         </EntryList>
       </ContainerDataType>
 
-      <ContainerDataType name="ReloadApp" baseType="CommandBase">
+      <ContainerDataType name="ReloadAppCmd" baseType="CommandBase">
         <LongDescription>
           \cfeescmd  Stops, Unloads, Loads from a File and Restarts an Application
 
@@ -1134,14 +1164,14 @@
           \sa  #CFE_ES_START_APP_CC, #CFE_ES_STOP_APP_CC, #CFE_ES_RESTART_APP_CC
         </LongDescription>
         <ConstraintSet>
-          <ValueConstraint entry="Sec.Command" value="7" />
+          <ValueConstraint entry="Sec.FunctionCode" value="7" />
         </ConstraintSet>
         <EntryList>
           <Entry type="AppReloadCmd_Payload" name="Payload" />
         </EntryList>
       </ContainerDataType>
 
-      <ContainerDataType name="QueryOne" baseType="CommandBase">
+      <ContainerDataType name="QueryOneCmd" baseType="CommandBase">
         <LongDescription>
           \cfeescmd  Request Executive Services Information on a Specified Application
 
@@ -1182,14 +1212,14 @@
           \sa  #CFE_ES_QUERY_ALL_CC, #CFE_ES_QUERY_ALL_TASKS_CC
         </LongDescription>
         <ConstraintSet>
-          <ValueConstraint entry="Sec.Command" value="8" />
+          <ValueConstraint entry="Sec.FunctionCode" value="8" />
         </ConstraintSet>
         <EntryList>
           <Entry type="AppNameCmd_Payload" name="Payload" />
         </EntryList>
       </ContainerDataType>
 
-      <ContainerDataType name="QueryAll" baseType="CommandBase">
+      <ContainerDataType name="QueryAllCmd" baseType="CommandBase">
         <LongDescription>
           \cfeescmd  Writes all Executive Services Information on All Applications to a File
 
@@ -1235,14 +1265,14 @@
           \sa  #CFE_ES_QUERY_ONE_CC, #CFE_ES_QUERY_ALL_TASKS_CC
         </LongDescription>
         <ConstraintSet>
-          <ValueConstraint entry="Sec.Command" value="9" />
+          <ValueConstraint entry="Sec.FunctionCode" value="9" />
         </ConstraintSet>
         <EntryList>
           <Entry type="FileNameCmd_Payload" name="Payload" />
         </EntryList>
       </ContainerDataType>
 
-      <ContainerDataType name="ClearSyslog" baseType="CommandBase">
+      <ContainerDataType name="ClearSysLogCmd" baseType="CommandBase">
         <LongDescription>
           \cfeescmd  Clear Executive Services System Log
 
@@ -1284,11 +1314,11 @@
           #CFE_ES_OVERWRITE_SYSLOG_CC
         </LongDescription>
         <ConstraintSet>
-          <ValueConstraint entry="Sec.Command" value="10" />
+          <ValueConstraint entry="Sec.FunctionCode" value="10" />
         </ConstraintSet>
       </ContainerDataType>
 
-      <ContainerDataType name="WriteSyslog" baseType="CommandBase">
+      <ContainerDataType name="WriteSysLogCmd" baseType="CommandBase">
         <LongDescription>
           \cfeescmd  Writes contents of Executive Services System Log to a File
 
@@ -1299,7 +1329,7 @@
           \cfecmdmnemonic  \ES_WRITESYSLOG2FILE
 
           \par  Command Structure
-          #CFE_ES_WriteSyslogCmd_t
+          #CFE_ES_WriteSysLogCmd_t
 
           \par  Command Verification
 
@@ -1335,14 +1365,14 @@
           #CFE_ES_OVERWRITE_SYSLOG_CC
         </LongDescription>
         <ConstraintSet>
-          <ValueConstraint entry="Sec.Command" value="11" />
+          <ValueConstraint entry="Sec.FunctionCode" value="11" />
         </ConstraintSet>
         <EntryList>
           <Entry type="FileNameCmd_Payload" name="Payload" />
         </EntryList>
       </ContainerDataType>
 
-      <ContainerDataType name="ClearERLog" baseType="CommandBase">
+      <ContainerDataType name="ClearERLogCmd" baseType="CommandBase">
         <LongDescription>
           \cfeescmd  Clears the contents of the Exception and Reset Log
 
@@ -1383,11 +1413,11 @@
           \sa  #CFE_ES_CLEAR_SYSLOG_CC, #CFE_ES_WRITE_SYSLOG_CC, #CFE_ES_WRITE_ERLOG_CC
         </LongDescription>
         <ConstraintSet>
-          <ValueConstraint entry="Sec.Command" value="12" />
+          <ValueConstraint entry="Sec.FunctionCode" value="12" />
         </ConstraintSet>
       </ContainerDataType>
 
-      <ContainerDataType name="WriteERLog" baseType="CommandBase">
+      <ContainerDataType name="WriteERLogCmd" baseType="CommandBase">
         <LongDescription>
           \cfeescmd  Writes Exception and Reset Log to a File
 
@@ -1433,14 +1463,14 @@
           \sa  #CFE_ES_CLEAR_SYSLOG_CC, #CFE_ES_WRITE_SYSLOG_CC, #CFE_ES_CLEAR_ERLOG_CC
         </LongDescription>
         <ConstraintSet>
-          <ValueConstraint entry="Sec.Command" value="13" />
+          <ValueConstraint entry="Sec.FunctionCode" value="13" />
         </ConstraintSet>
         <EntryList>
           <Entry type="FileNameCmd_Payload" name="Payload" />
         </EntryList>
       </ContainerDataType>
 
-      <ContainerDataType name="StartPerfData" baseType="CommandBase">
+      <ContainerDataType name="StartPerfDataCmd" baseType="CommandBase">
         <LongDescription>
           \cfeescmd  Start Performance Analyzer
 
@@ -1490,14 +1520,14 @@
           \sa  #CFE_ES_PERF_STOPDATA_CC, #CFE_ES_PERF_SETFILTERMASK_CC, #CFE_ES_PERF_SETTRIGMASK_CC
         </LongDescription>
         <ConstraintSet>
-          <ValueConstraint entry="Sec.Command" value="14" />
+          <ValueConstraint entry="Sec.FunctionCode" value="14" />
         </ConstraintSet>
         <EntryList>
           <Entry type="StartPerfCmd_Payload" name="Payload" />
         </EntryList>
       </ContainerDataType>
 
-      <ContainerDataType name="StopPerfData" baseType="CommandBase">
+      <ContainerDataType name="StopPerfDataCmd" baseType="CommandBase">
         <LongDescription>
           \cfeescmd  Stop Performance Analyzer
 
@@ -1544,14 +1574,14 @@
           \sa  #CFE_ES_PERF_STARTDATA_CC, #CFE_ES_PERF_SETFILTERMASK_CC, #CFE_ES_PERF_SETTRIGMASK_CC
         </LongDescription>
         <ConstraintSet>
-          <ValueConstraint entry="Sec.Command" value="15" />
+          <ValueConstraint entry="Sec.FunctionCode" value="15" />
         </ConstraintSet>
         <EntryList>
           <Entry type="StopPerfCmd_Payload" name="Payload" />
         </EntryList>
       </ContainerDataType>
 
-      <ContainerDataType name="SetPerfFilterMask" baseType="CommandBase">
+      <ContainerDataType name="SetPerfFilterMaskCmd" baseType="CommandBase">
         <LongDescription>
           \cfeescmd  Set Performance Analyzer's Filter Masks
 
@@ -1593,14 +1623,14 @@
           \sa  #CFE_ES_PERF_STARTDATA_CC, #CFE_ES_PERF_STOPDATA_CC, #CFE_ES_PERF_SETTRIGMASK_CC
         </LongDescription>
         <ConstraintSet>
-          <ValueConstraint entry="Sec.Command" value="16" />
+          <ValueConstraint entry="Sec.FunctionCode" value="16" />
         </ConstraintSet>
         <EntryList>
           <Entry type="SetPerfFilterMaskCmd_Payload" name="Payload" />
         </EntryList>
       </ContainerDataType>
 
-      <ContainerDataType name="SetPerfTriggerMask" baseType="CommandBase">
+      <ContainerDataType name="SetPerfTriggerMaskCmd" baseType="CommandBase">
         <LongDescription>
           \cfeescmd  Set Performance Analyzer's Trigger Masks
 
@@ -1641,14 +1671,14 @@
           \sa  #CFE_ES_PERF_STARTDATA_CC, #CFE_ES_PERF_STOPDATA_CC, #CFE_ES_PERF_SETFILTERMASK_CC
         </LongDescription>
         <ConstraintSet>
-          <ValueConstraint entry="Sec.Command" value="17" />
+          <ValueConstraint entry="Sec.FunctionCode" value="17" />
         </ConstraintSet>
         <EntryList>
           <Entry type="SetPerfTrigMaskCmd_Payload" name="Payload" />
         </EntryList>
       </ContainerDataType>
 
-      <ContainerDataType name="OverWriteSyslog" baseType="CommandBase">
+      <ContainerDataType name="OverWriteSysLogCmd" baseType="CommandBase">
         <LongDescription>
           \cfeescmd  Set Executive Services System Log Mode to Discard/Overwrite
 
@@ -1693,14 +1723,14 @@
           \sa  #CFE_ES_CLEAR_SYSLOG_CC, #CFE_ES_WRITE_SYSLOG_CC
         </LongDescription>
         <ConstraintSet>
-          <ValueConstraint entry="Sec.Command" value="18" />
+          <ValueConstraint entry="Sec.FunctionCode" value="18" />
         </ConstraintSet>
         <EntryList>
           <Entry type="OverWriteSysLogCmd_Payload" name="Payload" />
         </EntryList>
       </ContainerDataType>
 
-      <ContainerDataType name="ResetPRCount" baseType="CommandBase">
+      <ContainerDataType name="ResetPRCountCmd" baseType="CommandBase">
         <LongDescription>
           \cfeescmd  Resets the Processor Reset Counter to Zero
 
@@ -1744,11 +1774,11 @@
           \sa  #CFE_ES_SET_MAX_PR_COUNT_CC, #CFE_ES_RESET_CC
         </LongDescription>
         <ConstraintSet>
-          <ValueConstraint entry="Sec.Command" value="19" />
+          <ValueConstraint entry="Sec.FunctionCode" value="19" />
         </ConstraintSet>
       </ContainerDataType>
 
-      <ContainerDataType name="SetMaxPRCount" baseType="CommandBase">
+      <ContainerDataType name="SetMaxPRCountCmd" baseType="CommandBase">
         <LongDescription>
           \cfeescmd  Configure the Maximum Number of Processor Resets before a Power-On Reset
 
@@ -1793,14 +1823,14 @@
           \sa  #CFE_ES_RESET_PR_COUNT_CC
         </LongDescription>
         <ConstraintSet>
-          <ValueConstraint entry="Sec.Command" value="20" />
+          <ValueConstraint entry="Sec.FunctionCode" value="20" />
         </ConstraintSet>
         <EntryList>
           <Entry type="SetMaxPRCountCmd_Payload" name="Payload" />
         </EntryList>
       </ContainerDataType>
 
-      <ContainerDataType name="DeleteCDS" baseType="CommandBase">
+      <ContainerDataType name="DeleteCDSCmd" baseType="CommandBase">
         <LongDescription>
           \cfeescmd  Delete Critical Data Store
 
@@ -1847,14 +1877,14 @@
           \sa  #CFE_ES_DUMP_CDS_REG_CC, #CFE_TBL_DELETE_CDS_CC
         </LongDescription>
         <ConstraintSet>
-          <ValueConstraint entry="Sec.Command" value="21" />
+          <ValueConstraint entry="Sec.FunctionCode" value="21" />
         </ConstraintSet>
         <EntryList>
           <Entry type="DeleteCDSCmd_Payload" name="Payload" />
         </EntryList>
       </ContainerDataType>
 
-      <ContainerDataType name="SendMemPoolStats" baseType="CommandBase">
+      <ContainerDataType name="SendMemPoolStatsCmd" baseType="CommandBase">
         <LongDescription>
           \cfeescmd  Telemeter Memory Pool Statistics
 
@@ -1898,14 +1928,14 @@
           used in the command is correct.
         </LongDescription>
         <ConstraintSet>
-          <ValueConstraint entry="Sec.Command" value="22" />
+          <ValueConstraint entry="Sec.FunctionCode" value="22" />
         </ConstraintSet>
         <EntryList>
           <Entry type="SendMemPoolStatsCmd_Payload" name="Payload" />
         </EntryList>
       </ContainerDataType>
 
-      <ContainerDataType name="DumpCDSRegistry" baseType="CommandBase">
+      <ContainerDataType name="DumpCDSRegistryCmd" baseType="CommandBase">
         <LongDescription>
           \cfeescmd  Dump Critical Data Store Registry to a File
 
@@ -1950,14 +1980,14 @@
           \sa  #CFE_ES_DELETE_CDS_CC, #CFE_TBL_DELETE_CDS_CC
         </LongDescription>
         <ConstraintSet>
-          <ValueConstraint entry="Sec.Command" value="23" />
+          <ValueConstraint entry="Sec.FunctionCode" value="23" />
         </ConstraintSet>
         <EntryList>
           <Entry type="DumpCDSRegistryCmd_Payload" name="Payload" />
         </EntryList>
       </ContainerDataType>
 
-      <ContainerDataType name="QueryAllTasks" baseType="CommandBase">
+      <ContainerDataType name="QueryAllTasksCmd" baseType="CommandBase">
         <LongDescription>
           \cfeescmd  Writes a list of All Executive Services Tasks to a File
 
@@ -2003,10 +2033,29 @@
           \sa  #CFE_ES_QUERY_ALL_CC, CFE_ES_QUERY_ONE_CC
         </LongDescription>
         <ConstraintSet>
-          <ValueConstraint entry="Sec.Command" value="24" />
+          <ValueConstraint entry="Sec.FunctionCode" value="24" />
         </ConstraintSet>
         <EntryList>
           <Entry type="FileNameCmd_Payload" name="Payload" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="CDSRegDumpRec" shortDescription="CDS Register Dump Record">
+        <LongDescription>
+          Structure that is used to provide information about a critical data store.
+          It is primarily used for the Dump CDS registry (#CFE_ES_DUMP_CDS_REGISTRY_CC)
+          command.
+
+          @note There is not currently a telemetry message directly containing this
+          data structure, but it does define the format of the data file generated
+          by the Dump CDS registry command.  Therefore it should be considered
+          part of the overall telemetry interface.
+        </LongDescription>
+        <EntryList>
+          <Entry name="Handle" type="CDSHandle" shortDescription="Handle of CDS"/>
+          <Entry name="Size" type="MemOffset" shortDescription="Size, in bytes, of the CDS memory block"/>
+          <Entry name="Table" type="BASE_TYPES/StatusBit" shortDescription="Flag that indicates whether CDS contains a Critical Table"/>
+          <Entry name="Name" type="char_x_CFE_ES_CDS_MAX_FULL_NAME_LEN" shortDescription="Processor Unique Name of CDS"/>
         </EntryList>
       </ContainerDataType>
 
@@ -2023,7 +2072,7 @@
           <Interface name="SEND_HK" shortDescription="Send telemetry command interface" type="CFE_SB/Telecommand">
             <!-- This uses a bare spacepacket with no payload -->
             <GenericTypeMapSet>
-              <GenericTypeMap name="TelecommandDataType" type="CCSDS/CommandPacket" />
+              <GenericTypeMap name="TelecommandDataType" type="SendHkCmd" />
             </GenericTypeMapSet>
           </Interface>
           <Interface name="HK_TLM" shortDescription="Software bus housekeeping telemetry interface" type="CFE_SB/Telemetry">
@@ -2034,11 +2083,6 @@
           <Interface name="APP_TLM" shortDescription="telemetry interface" type="CFE_SB/Telemetry">
             <GenericTypeMapSet>
               <GenericTypeMap name="TelemetryDataType" type="OneAppTlm" />
-            </GenericTypeMapSet>
-          </Interface>
-          <Interface name="SHELL_TLM" shortDescription="telemetry interface" type="CFE_SB/Telemetry">
-            <GenericTypeMapSet>
-              <GenericTypeMap name="TelemetryDataType" type="ShellTlm" />
             </GenericTypeMapSet>
           </Interface>
           <Interface name="MEMSTATS_TLM" shortDescription="telemetry interface" type="CFE_SB/Telemetry">
@@ -2053,7 +2097,6 @@
             <Variable type="BASE_TYPES/uint16" readOnly="true" name="SendHkTopicId" initialValue="${CFE_MISSION/ES_SEND_HK_TOPICID}" />
             <Variable type="BASE_TYPES/uint16" readOnly="true" name="HkTlmTopicId" initialValue="${CFE_MISSION/ES_HK_TLM_TOPICID}" />
             <Variable type="BASE_TYPES/uint16" readOnly="true" name="AppTlmTopicId" initialValue="${CFE_MISSION/ES_APP_TLM_TOPICID}" />
-            <Variable type="BASE_TYPES/uint16" readOnly="true" name="ShellTlmTopicId" initialValue="${CFE_MISSION/ES_SHELL_TLM_TOPICID}" />
             <Variable type="BASE_TYPES/uint16" readOnly="true" name="MemStatsTlmTopicId" initialValue="${CFE_MISSION/ES_MEMSTATS_TLM_TOPICID}" />
           </VariableSet>
           <!-- Assign fixed numbers to the "TopicId" parameter of each interface -->
@@ -2062,7 +2105,6 @@
             <ParameterMap interface="SEND_HK" parameter="TopicId" variableRef="SendHkTopicId" />
             <ParameterMap interface="HK_TLM" parameter="TopicId" variableRef="HkTlmTopicId" />
             <ParameterMap interface="APP_TLM" parameter="TopicId" variableRef="AppTlmTopicId" />
-            <ParameterMap interface="SHELL_TLM" parameter="TopicId" variableRef="ShellTlmTopicId" />
             <ParameterMap interface="MEMSTATS_TLM" parameter="TopicId" variableRef="MemStatsTlmTopicId" />
           </ParameterMapSet>
         </Implementation>

@@ -1,5 +1,11 @@
 # Changelog
 
+## Development Build: v7.0.0-rc4+dev242
+- EDS Updates to match the current mainline
+- Update UTs to use correct cmd types
+- Move CRC types and convert to enum
+- See <https://github.com/nasa/cFE/pull/2231>, <https://github.com/nasa/cFE/pull/2229>, and <https://github.com/nasa/cFE/pull/2192>
+
 ## Development Build: v7.0.0-rc4+dev233
 - Replace CFE_MSG_CommandHeader_t w/ CFE_TBL_NoArgsCmd_t
 - See <https://github.com/nasa/cFE/pull/2226>

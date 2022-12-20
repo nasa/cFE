@@ -742,6 +742,7 @@ typedef CFE_TIME_NoArgsCmd_t CFE_TIME_SendDiagnosticCmd_t;
 typedef CFE_TIME_NoArgsCmd_t CFE_TIME_1HzCmd_t;
 typedef CFE_TIME_NoArgsCmd_t CFE_TIME_ToneSignalCmd_t;
 typedef CFE_TIME_NoArgsCmd_t CFE_TIME_FakeToneCmd_t;
+typedef CFE_TIME_NoArgsCmd_t CFE_TIME_SendHkCmd_t;
 
 /**
  * \brief Set leap seconds command payload

@@ -1073,6 +1073,7 @@ typedef CFE_ES_NoArgsCmd_t CFE_ES_ResetCountersCmd_t;
 typedef CFE_ES_NoArgsCmd_t CFE_ES_ClearSysLogCmd_t;
 typedef CFE_ES_NoArgsCmd_t CFE_ES_ClearERLogCmd_t;
 typedef CFE_ES_NoArgsCmd_t CFE_ES_ResetPRCountCmd_t;
+typedef CFE_ES_NoArgsCmd_t CFE_ES_SendHkCmd_t;
 
 /**
 ** \brief Restart cFE Command Payload

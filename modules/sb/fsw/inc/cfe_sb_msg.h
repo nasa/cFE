@@ -486,6 +486,7 @@ typedef CFE_MSG_CommandHeader_t CFE_SB_EnableSubReportingCmd_t;
 typedef CFE_MSG_CommandHeader_t CFE_SB_DisableSubReportingCmd_t;
 typedef CFE_MSG_CommandHeader_t CFE_SB_SendSbStatsCmd_t;
 typedef CFE_MSG_CommandHeader_t CFE_SB_SendPrevSubsCmd_t;
+typedef CFE_MSG_CommandHeader_t CFE_SB_SendHkCmd_t;
 
 /**
 **  \brief Write File Info Command Payload

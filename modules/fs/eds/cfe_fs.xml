@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+   NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+
+   Copyright (c) 2020 United States Government as represented by the
+   Administrator of the National Aeronautics and Space Administration.
+   All Rights Reserved.
+
+   Licensed under the Apache License, Version 2.0 (the "License"); you may
+   not use this file except in compliance with the License. You may obtain
+   a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+
+    Purpose:
+      This describes all interface objects for the File Services (CFE_FS)
+      core application
+
+-->
+<PackageFile xmlns="http://www.ccsds.org/schema/sois/seds">
+  <Package name="CFE_FS" shortDescription="NASA Core Flight System File Services">
+    <DataTypeSet>
+      <EnumeratedDataType name="SubType" shortDescription="Content descriptor for File Headers">
+        <IntegerDataEncoding sizeInBits="32" encoding="unsigned" />
+        <EnumerationList>
+            <Enumeration label="ES_ERLOG" value="1" shortDescription="Executive Services Exception/Reset Log Type">
+              <LongDescription>
+                Executive Services Exception/Reset Log File which is generated in response to a
+                \link #CFE_ES_WRITE_ERLOG_CC \ES_WRITEERLOG2FILE \endlink
+                command.
+              </LongDescription>
+            </Enumeration>
+            <Enumeration label="ES_SYSLOG" value="2" shortDescription="Executive Services System Log Type">
+              <LongDescription>
+                Executive Services System Log File which is generated in response to a
+                \link #CFE_ES_WRITE_SYSLOG_CC \ES_WRITESYSLOG2FILE \endlink
+                command.
+              </LongDescription>
+            </Enumeration>
+            <Enumeration label="ES_QUERYALL" value="3" shortDescription="Executive Services Information on All Applications File">
+              <LongDescription>
+                Executive Services Information on All Applications File which is generated in response to a
+                \link #CFE_ES_QUERY_ALL_CC \ES_WRITEAPPINFO2FILE \endlink
+                command.
+              </LongDescription>
+            </Enumeration>
+            <Enumeration label="ES_PERFDATA" value="4" shortDescription="Executive Services Performance Data File">
+              <LongDescription>
+                Executive Services Performance Analyzer Data File which is generated in response to a
+                \link #CFE_ES_PERF_STOPDATA_CC \ES_STOPLADATA \endlink
+                command.
+              </LongDescription>
+            </Enumeration>
+            <Enumeration label="ES_SHELL" value="5" shortDescription="Executive Services Shell Response File">
+              <LongDescription>
+                Executive Services Shell Response Data File which is generated in response to a
+                \link #CFE_ES_SHELL_CMD_CC \ES_SHELL \endlink
+                command.
+              </LongDescription>
+            </Enumeration>
+            <Enumeration label="ES_CDS_REG" value="6" shortDescription="Executive Services Critical Data Store Registry Dump File">
+              <LongDescription>
+                Executive Services Critical Data Store Registry Dump File which is generated in response to a
+                \link #CFE_ES_DUMP_CDS_REG_CC \ES_DUMPCDSREG \endlink
+                command.
+              </LongDescription>
+            </Enumeration>
+            <Enumeration label="TBL_REG" value="9" shortDescription="Table Services Registry Dump File">
+              <LongDescription>
+                Table Services Registry Dump File which is generated in response to a
+                \link #CFE_TBL_DUMP_REG_CC \TBL_WRITEREG2FILE \endlink
+                command.
+              </LongDescription>
+            </Enumeration>
+            <Enumeration label="TBL_IMG" value="8" shortDescription="Table Services Table Image File">
+              <LongDescription>
+                Table Services Table Image File which is generated either on the ground or in response to a
+                \link #CFE_TBL_DUMP_CC \TBL_DUMP \endlink command.
+              </LongDescription>
+            </Enumeration>
+            <Enumeration label="EVS_APPDATA" value="15" shortDescription="Event Services Application Data Dump File">
+              <LongDescription>
+                Event Services Application Data Dump File which is generated in response to a
+                \link #CFE_EVS_FILE_WRITE_APP_DATA_CC \EVS_WRITEAPPDATA2FILE \endlink
+                command.
+              </LongDescription>
+            </Enumeration>
+            <Enumeration label="EVS_EVENTLOG" value="16" shortDescription="Event Services Local Event Log Dump File">
+              <LongDescription>
+                Event Services Local Event Log Dump File which is generated in response to a
+                \link  #CFE_EVS_FILE_WRITE_LOG_DATA_CC \EVS_WRITELOG2FILE \endlink
+                command.
+              </LongDescription>
+            </Enumeration>
+            <Enumeration label="SB_PIPEDATA" value="20" shortDescription="Software Bus Pipe Data Dump File">
+              <LongDescription>
+                Software Bus Pipe Data Dump File which is generated in response to a
+                \link #CFE_SB_SEND_PIPE_INFO_CC \SB_WRITEPIPE2FILE \endlink
+                command.
+              </LongDescription>
+            </Enumeration>
+            <Enumeration label="SB_ROUTEDATA" value="21" shortDescription="Software Bus Message Routing Data Dump File">
+              <LongDescription>
+                Software Bus Message Routing Data Dump File which is generated in response to a
+                \link #CFE_SB_SEND_ROUTING_INFO_CC \SB_WRITEROUTING2FILE \endlink
+                command.
+              </LongDescription>
+            </Enumeration>
+            <Enumeration label="SB_MAPDATA" value="22" shortDescription="Software Bus Message Mapping Data Dump File">
+              <LongDescription>
+                Software Bus Message Mapping Data Dump File which is generated in response to a
+                \link #CFE_SB_SEND_MAP_INFO_CC \SB_WRITEMAP2FILE \endlink
+                command.
+              </LongDescription>
+            </Enumeration>
+            <Enumeration label="ES_QUERYALLTASKS" value="23" shortDescription="Executive Services Query All Tasks Data File">
+              <LongDescription>
+                Executive Services Query All Tasks Data File which is generated in response to a
+                \link #CFE_ES_QUERY_ALL_TASKS_CC \ES_WRITETASKINFO2FILE \endlink
+                command.
+              </LongDescription>
+            </Enumeration>
+        </EnumerationList>
+      </EnumeratedDataType>
+
+      <StringDataType name="FileDescription" length="${CFE_FS/HDR_DESC_MAX_LEN}" shortDescription="File Description String" />
+
+      <ContainerDataType name="Header" shortDescription="Standard cFE File header structure definition">
+        <EntryList>
+          <Entry name="ContentType" type="BASE_TYPES/uint32" shortDescription="Identifies the content type" />
+          <Entry name="SubType" type="SubType" shortDescription="Type of ContentType, if necessary" />
+          <LengthEntry name="Length" type="BASE_TYPES/uint32" shortDescription="Length of object">
+                <PolynomialCalibrator>
+                    <Term coefficient="1" exponent="1" />
+                    <Term coefficient="0" exponent="0" />
+                </PolynomialCalibrator>
+          </LengthEntry>
+          <FixedValueEntry name="SpacecraftID" type="BASE_TYPES/uint32" shortDescription="Spacecraft that generated the file" fixedValue="${CFE_MISSION/SPACECRAFT_ID}" />
+          <Entry name="ProcessorID" type="BASE_TYPES/uint32" shortDescription="Processor that generated the file" />
+          <Entry name="ApplicationID" type="BASE_TYPES/uint32" shortDescription="Application that generated the file" />
+          <Entry name="TimeSeconds" type="BASE_TYPES/uint32" shortDescription="File creation timestamp (seconds)" />
+          <Entry name="TimeSubSeconds" type="BASE_TYPES/uint32" shortDescription="File creation timestamp (sub-seconds)" />
+          <Entry name="Description" type="FileDescription" shortDescription="File description" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="FileObject" baseType="Header" shortDescription="Encapsulates a CFE file header and data">
+        <ConstraintSet>
+          <ValueConstraint entry="ContentType" value="${CFE_FS/FILE_CONTENT_ID}" />
+        </ConstraintSet>
+      </ContainerDataType>
+
+    </DataTypeSet>
+  </Package>
+</PackageFile>

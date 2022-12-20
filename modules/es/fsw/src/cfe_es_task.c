@@ -452,7 +452,7 @@ void CFE_ES_TaskPipe(CFE_SB_Buffer_t *SBBufPtr)
         ** Housekeeping telemetry request
         */
         case CFE_ES_SEND_HK_MID:
-            CFE_ES_HousekeepingCmd((CFE_MSG_CommandHeader_t *)SBBufPtr);
+            CFE_ES_HousekeepingCmd((CFE_ES_SendHkCmd_t *)SBBufPtr);
             break;
 
         /*
@@ -655,7 +655,7 @@ void CFE_ES_TaskPipe(CFE_SB_Buffer_t *SBBufPtr)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_HousekeepingCmd(const CFE_MSG_CommandHeader_t *data)
+int32 CFE_ES_HousekeepingCmd(const CFE_ES_SendHkCmd_t *data)
 {
     OS_heap_prop_t HeapProp;
     int32          OsStatus;
