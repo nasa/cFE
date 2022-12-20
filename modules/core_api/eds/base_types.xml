@@ -102,44 +102,6 @@
       <StringDataType name="ApiName" length="${CFE_MISSION/MAX_API_LEN}" />
       <StringDataType name="PathName" length="${CFE_MISSION/MAX_PATH_LEN}" />
 
-      <!--
-        CPU memory addresses in messages can be either 32 or 64 bits.
-        This depends on specific CPUs in use, but it should be consistent
-        across all cpus.
-       -->
-      <IntegerDataType name="CpuAddress" shortDescription="CPU memory address">
-        <IntegerDataEncoding sizeInBits="${CFE_MISSION/MAX_CPU_ADDRESS_SIZE} * 8" encoding="unsigned" byteOrder="${CFE_MISSION/DATA_BYTE_ORDER}" />
-        <Range>
-          <MinMaxRange max="2 ^ (8 * ${CFE_MISSION/MAX_CPU_ADDRESS_SIZE})" min="0" rangeType="inclusiveMinExclusiveMax"/>
-        </Range>
-      </IntegerDataType>
-
-      <!--
-        The following data types are a test/example of how 20-bit microseconds
-        can be used in outgoing telemetry packets.  It defines a container with
-        a 20 bit "Micros" field followed by 12 bits of padding to create 32 bits.
-        If this is desired then two configuration parameters need to change:
-         - Set the 'TELEMETRY_SUBSECONDS_TYPE' EDS directive
-         - Set the 'CFE_SB_PACKET_TIME_SUBSECONDS_UNITS' config directive
-        And uncomment these types...
-
-
-      <IntegerDataType name="MicrosecondsValue">
-        <IntegerDataEncoding sizeInBits="20" encoding="unsigned" />
-      </IntegerDataType>
-      <IntegerDataType name="MicrosecondsPad">
-        <IntegerDataEncoding sizeInBits="12" encoding="unsigned" />
-      </IntegerDataType>
-
-      <ContainerDataType name="TlmMicrosecs">
-        <EntryList>
-            <Entry name="Micros" type="MicrosecondsValue" />
-            <Entry name="Pad" type="MicrosecondsPad" />
-        </EntryList>
-      </ContainerDataType>
-
-      -->
-
    </DataTypeSet>
 
 </Package>
