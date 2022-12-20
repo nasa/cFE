@@ -4389,17 +4389,17 @@ void TestAPI(void)
      */
     memset(Data, 1, sizeof(Data));
     ES_ResetUnitTest();
-    UtAssert_UINT32_EQ(CFE_ES_CalculateCRC(&Data, 12, 345353, CFE_MISSION_ES_CRC_8), 0);
+    UtAssert_UINT32_EQ(CFE_ES_CalculateCRC(&Data, 12, 345353, CFE_ES_CrcType_CRC_8), 0);
 
     /* Test calculating a CRC on a range of memory using CRC type 16 */
     ES_ResetUnitTest();
-    UtAssert_UINT32_EQ(CFE_ES_CalculateCRC(&Data, 12, 345353, CFE_MISSION_ES_CRC_16), 2688);
+    UtAssert_UINT32_EQ(CFE_ES_CalculateCRC(&Data, 12, 345353, CFE_ES_CrcType_CRC_16), 2688);
 
     /* Test calculating a CRC on a range of memory using CRC type 32
      * NOTE: This capability is not currently implemented in cFE
      */
     ES_ResetUnitTest();
-    UtAssert_UINT32_EQ(CFE_ES_CalculateCRC(&Data, 12, 345353, CFE_MISSION_ES_CRC_32), 0);
+    UtAssert_UINT32_EQ(CFE_ES_CalculateCRC(&Data, 12, 345353, CFE_ES_CrcType_CRC_32), 0);
 
     /* Test calculating a CRC on a range of memory using an invalid CRC type
      */
@@ -4408,8 +4408,8 @@ void TestAPI(void)
 
     /* Test NULL and zero size */
     ES_ResetUnitTest();
-    UtAssert_UINT32_EQ(CFE_ES_CalculateCRC(NULL, 12, 345353, CFE_MISSION_ES_CRC_16), 345353);
-    UtAssert_UINT32_EQ(CFE_ES_CalculateCRC(&Data, 0, 345353, CFE_MISSION_ES_CRC_16), 345353);
+    UtAssert_UINT32_EQ(CFE_ES_CalculateCRC(NULL, 12, 345353, CFE_ES_CrcType_CRC_16), 345353);
+    UtAssert_UINT32_EQ(CFE_ES_CalculateCRC(&Data, 0, 345353, CFE_ES_CrcType_CRC_16), 345353);
 
     /* Test shared mutex take with a take error */
     ES_ResetUnitTest();
