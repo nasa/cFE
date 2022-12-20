@@ -206,7 +206,7 @@
               \cfetlmmnemonic  \TBL_LASTVALS
             </LongDescription>
           </Entry>
-          <Entry name="ActiveBuffer" type="BASE_TYPES/uint8" shortDescription="Indicator of whether table buffer validated was 0=Inactive, 1=Active">
+          <Entry name="ActiveBuffer" type="BASE_TYPES/StatusBit" shortDescription="Indicator of whether table buffer validated was 0=Inactive, 1=Active">
             <LongDescription>
               \cfetlmmnemonic  \TBL_LASTVALBUF
             </LongDescription>
@@ -306,22 +306,22 @@
               \cfetlmmnemonic  \TBL_FILECSECONDS
             </LongDescription>
           </Entry>
-          <Entry name="TableLoadedOnce" type="BASE_TYPES/uint8" shortDescription="Flag indicating whether table has been loaded once or not">
+          <Entry name="TableLoadedOnce" type="BASE_TYPES/StatusBit" shortDescription="Flag indicating whether table has been loaded once or not">
             <LongDescription>
               \cfetlmmnemonic  \TBL_LOADEDONCE
             </LongDescription>
           </Entry>
-          <Entry name="LoadPending" type="BASE_TYPES/uint8" shortDescription="Flag indicating an inactive buffer is ready to be copied">
+          <Entry name="LoadPending" type="BASE_TYPES/StatusBit" shortDescription="Flag indicating an inactive buffer is ready to be copied">
             <LongDescription>
               \cfetlmmnemonic  \TBL_UPDATEPNDNG
             </LongDescription>
           </Entry>
-          <Entry name="DumpOnly" type="BASE_TYPES/uint8" shortDescription="Flag indicating Table is NOT to be loaded">
+          <Entry name="DumpOnly" type="BASE_TYPES/StatusBit" shortDescription="Flag indicating Table is NOT to be loaded">
             <LongDescription>
               \cfetlmmnemonic  \TBL_DUMPONLY
             </LongDescription>
           </Entry>
-          <Entry name="DoubleBuffered" type="BASE_TYPES/uint8" shortDescription="Flag indicating Table has a dedicated inactive buffer">
+          <Entry name="DoubleBuffered" type="BASE_TYPES/StatusBit" shortDescription="Flag indicating Table has a dedicated inactive buffer">
             <LongDescription>
               \cfetlmmnemonic  \TBL_DBLBUFFERED
             </LongDescription>
@@ -341,7 +341,7 @@
               \cfetlmmnemonic  \TBL_OWNERAPP
             </LongDescription>
           </Entry>
-          <Entry name="Critical" type="BASE_TYPES/uint8" shortDescription="Indicates whether table is Critical or not">
+          <Entry name="Critical" type="BASE_TYPES/StatusBit" shortDescription="Indicates whether table is Critical or not">
             <LongDescription>
               \cfetlmmnemonic  \TBL_CRITICAL
             </LongDescription>

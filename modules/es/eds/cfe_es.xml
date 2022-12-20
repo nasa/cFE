@@ -30,7 +30,7 @@
     <DataTypeSet>
 
       <EnumeratedDataType name="LogMode" shortDescription="Identifies handling of log messages after storage is filled" >
-        <IntegerDataEncoding sizeInBits="8" encoding="unsigned" />
+        <IntegerDataEncoding sizeInBits="32" encoding="unsigned" />
         <EnumerationList>
           <Enumeration label="OVERWRITE" value="0" shortDescription="Overwrite Log Mode" />
           <Enumeration label="DISCARD" value="1" shortDescription="Discard Log Mode" />
