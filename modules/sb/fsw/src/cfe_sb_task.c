@@ -503,7 +503,7 @@ int32 CFE_SB_DisableSubReportingCmd(const CFE_SB_DisableSubReportingCmd_t *data)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_SB_SendHKTlmCmd(const CFE_MSG_CommandHeader_t *data)
+int32 CFE_SB_SendHKTlmCmd(const CFE_SB_SendHkCmd_t *data)
 {
     CFE_SB_LockSharedData(__FILE__, __LINE__);
 

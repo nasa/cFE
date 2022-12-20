@@ -664,7 +664,7 @@ void ES_ResetUnitTest(void)
      * so it must be re-initialized here every time CFE_ES_Global is reset.
      */
     CFE_ES_Global.ResetDataPtr = ES_UT_PersistentResetData;
-}
+} /* end ES_ResetUnitTest() */
 
 void TestInit(void)
 {
@@ -2466,7 +2466,9 @@ void TestTask(void)
     union
     {
         CFE_MSG_Message_t            Msg;
-        CFE_MSG_CommandHeader_t      NoArgsCmd;
+        CFE_ES_SendHkCmd_t           SendHkCmd;
+        CFE_ES_NoopCmd_t             NoopCmd;
+        CFE_ES_ResetCountersCmd_t    ResetCountersCmd;
         CFE_ES_ClearSysLogCmd_t      ClearSysLogCmd;
         CFE_ES_ClearERLogCmd_t       ClearERLogCmd;
         CFE_ES_ResetPRCountCmd_t     ResetPRCountCmd;
@@ -2587,23 +2589,24 @@ void TestTask(void)
 
     /* Test a successful HK request */
     ES_ResetUnitTest();
-    UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.NoArgsCmd), UT_TPID_CFE_ES_SEND_HK);
+    UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.SendHkCmd), UT_TPID_CFE_ES_SEND_HK);
     UtAssert_NONZERO(CFE_ES_Global.TaskData.HkPacket.Payload.HeapBytesFree);
 
     /* Test the HK request with a get heap failure */
     ES_ResetUnitTest();
     UT_SetDeferredRetcode(UT_KEY(OS_HeapGetInfo), 1, -1);
-    UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.NoArgsCmd), UT_TPID_CFE_ES_SEND_HK);
+    UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.SendHkCmd), UT_TPID_CFE_ES_SEND_HK);
     UtAssert_ZERO(CFE_ES_Global.TaskData.HkPacket.Payload.HeapBytesFree);
 
     /* Test successful no-op command */
     ES_ResetUnitTest();
-    UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.NoArgsCmd), UT_TPID_CFE_ES_CMD_NOOP_CC);
+    UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.NoopCmd), UT_TPID_CFE_ES_CMD_NOOP_CC);
     CFE_UtAssert_EVENTSENT(CFE_ES_NOOP_INF_EID);
 
     /* Test successful reset counters command */
     ES_ResetUnitTest();
-    UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.NoArgsCmd), UT_TPID_CFE_ES_CMD_RESET_COUNTERS_CC);
+    UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.ResetCountersCmd),
+                    UT_TPID_CFE_ES_CMD_RESET_COUNTERS_CC);
     CFE_UtAssert_EVENTSENT(CFE_ES_RESET_INF_EID);
 
     /* Test successful cFE restart */
@@ -3328,7 +3331,7 @@ void TestTask(void)
 
     /* Test the command pipe message process with an invalid command */
     ES_ResetUnitTest();
-    UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.NoArgsCmd), UT_TPID_CFE_ES_CMD_INVALID_CC);
+    UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.NoopCmd), UT_TPID_CFE_ES_CMD_INVALID_CC);
     CFE_UtAssert_EVENTSENT(CFE_ES_CC1_ERR_EID);
 
     /* Test sending a no-op command with an invalid command length */
@@ -3504,7 +3507,7 @@ void TestTask(void)
     /* Test error when sending Build Info event */
     ES_ResetUnitTest();
     UT_SetDeferredRetcode(UT_KEY(CFE_EVS_SendEvent), 1, CFE_EVS_INVALID_PARAMETER);
-    UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.NoArgsCmd), UT_TPID_CFE_ES_CMD_NOOP_CC);
+    UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.NoopCmd), UT_TPID_CFE_ES_CMD_NOOP_CC);
     CFE_UtAssert_PRINTF("Error sending build info event");
 
     /*
@@ -3518,7 +3521,7 @@ void TestTask(void)
     UT_SetHandlerFunction(UT_KEY(CFE_Config_IterateAll), ES_UT_Config_IterateAll, NULL);
     UtAssert_VOIDCALL(CFE_ES_TaskInit());
     CFE_UtAssert_PRINTF("Error sending mission version event");
-}
+} /* end TestTask */
 
 void TestPerf(void)
 {
@@ -5014,7 +5017,7 @@ void TestCDS()
     CFE_ES_Global.CDSIsAvailable = false;
     UtAssert_INT32_EQ(CFE_ES_GetCDSBlockIDByName(&CDSHandle, "NotNULL"), CFE_ES_NOT_IMPLEMENTED);
     UtAssert_INT32_EQ(CFE_ES_GetCDSBlockName(CDSName, CDSHandle, sizeof(CDSName)), CFE_ES_NOT_IMPLEMENTED);
-}
+} /* End TestCDS */
 
 void TestCDSMempool(void)
 {

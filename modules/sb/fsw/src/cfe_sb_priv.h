@@ -802,7 +802,7 @@ int32 CFE_SB_DisableSubReportingCmd(const CFE_SB_DisableSubReportingCmd_t *data)
  * \param[in] data Pointer to command structure
  * \return Execution status, see \ref CFEReturnCodes
  */
-int32 CFE_SB_SendHKTlmCmd(const CFE_MSG_CommandHeader_t *data);
+int32 CFE_SB_SendHKTlmCmd(const CFE_SB_SendHkCmd_t *data);
 
 /*---------------------------------------------------------------------------------------*/
 /**

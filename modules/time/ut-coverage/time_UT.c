@@ -1312,10 +1312,13 @@ void Test_PipeCmds(void)
     union
     {
         CFE_MSG_Message_t              message;
-        CFE_MSG_CommandHeader_t        cmd;
         CFE_TIME_ToneDataCmd_t         tonedatacmd;
+        CFE_TIME_ToneSignalCmd_t       tonesignalcmd;
+        CFE_TIME_FakeToneCmd_t         timesendcmd;
+        CFE_TIME_SendHkCmd_t           sendhkcmd;
+        CFE_TIME_1HzCmd_t              onehzcmd;
         CFE_TIME_NoopCmd_t             noopcmd;
-        CFE_TIME_ResetCountersCmd_t    resetcountercmd;
+        CFE_TIME_ResetCountersCmd_t    resetcounterscmd;
         CFE_TIME_SendDiagnosticCmd_t   diagtlmcmd;
         CFE_TIME_SetStateCmd_t         statecmd;
         CFE_TIME_SetSourceCmd_t        sourcecmd;
@@ -1344,14 +1347,14 @@ void Test_PipeCmds(void)
     UT_InitData();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
     UT_SetHookFunction(UT_KEY(CFE_SB_TransmitMsg), UT_SoftwareBusSnapshotHook, &LocalSnapshotData);
-    UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, sizeof(CmdBuf.cmd), UT_TPID_CFE_TIME_SEND_HK);
+    UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, sizeof(CmdBuf.sendhkcmd), UT_TPID_CFE_TIME_SEND_HK);
     UtAssert_INT32_EQ(LocalSnapshotData.Count, 1);
 
     /* Test sending the time at the tone "signal" command */
     UT_InitData();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
     CFE_TIME_Global.ToneSignalCounter = 0;
-    UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, sizeof(CmdBuf.cmd), UT_TPID_CFE_TIME_TONE_CMD);
+    UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, sizeof(CmdBuf.tonesignalcmd), UT_TPID_CFE_TIME_TONE_CMD);
     UtAssert_INT32_EQ(CFE_TIME_Global.ToneSignalCounter, 1);
 
     /* Test sending the time at the tone "data" command */
@@ -1379,7 +1382,7 @@ void Test_PipeCmds(void)
     count = CFE_TIME_Global.InternalCount;
 #endif
 
-    UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, sizeof(CmdBuf.cmd), UT_TPID_CFE_TIME_SEND_CMD);
+    UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, sizeof(CmdBuf.timesendcmd), UT_TPID_CFE_TIME_SEND_CMD);
 
 #if (CFE_PLATFORM_TIME_CFG_SERVER == true)
     UtAssert_UINT32_EQ(CFE_TIME_Global.InternalCount, count + 1);
@@ -1391,7 +1394,7 @@ void Test_PipeCmds(void)
     /* Test sending the no-op command */
     UT_InitData();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
-    UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, sizeof(CmdBuf.cmd), UT_TPID_CFE_TIME_CMD_NOOP_CC);
+    UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, sizeof(CmdBuf.noopcmd), UT_TPID_CFE_TIME_CMD_NOOP_CC);
     CFE_UtAssert_EVENTSENT(CFE_TIME_NOOP_EID);
 
     /* Noop with bad size */
@@ -1416,7 +1419,8 @@ void Test_PipeCmds(void)
     CFE_TIME_Global.LocalIntCounter       = 1;
     CFE_TIME_Global.LocalTaskCounter      = 1;
     memset(&CmdBuf, 0, sizeof(CmdBuf));
-    UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, sizeof(CmdBuf.cmd), UT_TPID_CFE_TIME_CMD_RESET_COUNTERS_CC);
+    UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, sizeof(CmdBuf.resetcounterscmd),
+                    UT_TPID_CFE_TIME_CMD_RESET_COUNTERS_CC);
     CFE_UtAssert_EVENTSENT(CFE_TIME_RESET_EID);
 
     /* Confirm error counters get reset to help cover requirements that are difficult operationally */
@@ -1443,7 +1447,7 @@ void Test_PipeCmds(void)
     /* Test sending the request diagnostics command */
     UT_InitData();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
-    UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, sizeof(CmdBuf.cmd),
+    UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, sizeof(CmdBuf.diagtlmcmd),
                     UT_TPID_CFE_TIME_CMD_SEND_DIAGNOSTIC_TLM_CC);
     CFE_UtAssert_EVENTSENT(CFE_TIME_DIAG_EID);
 
@@ -1911,20 +1915,20 @@ void Test_PipeCmds(void)
     /* Test response to sending an invalid command */
     UT_InitData();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
-    UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, sizeof(CmdBuf.cmd), UT_TPID_CFE_TIME_CMD_INVALID_CC);
+    UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, sizeof(CmdBuf.noopcmd), UT_TPID_CFE_TIME_CMD_INVALID_CC);
     CFE_UtAssert_EVENTSENT(CFE_TIME_CC_ERR_EID);
 
     /* Test response to sending a command using an invalid message ID */
     UT_InitData();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
-    UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, sizeof(CmdBuf.cmd), UT_TPID_CFE_TIME_INVALID_MID);
+    UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, sizeof(CmdBuf.noopcmd), UT_TPID_CFE_TIME_INVALID_MID);
     CFE_UtAssert_EVENTSENT(CFE_TIME_ID_ERR_EID);
 
     /* Call the Task Pipe with the 1Hz command. */
     /* In the 1Hz state machine it should call PSP GetTime as part,
         of latching the clock.  This is tested only to see that the latch executed. */
     UT_InitData();
-    UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, sizeof(CmdBuf.cmd), UT_TPID_CFE_TIME_1HZ_CMD);
+    UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, sizeof(CmdBuf.onehzcmd), UT_TPID_CFE_TIME_1HZ_CMD);
     UtAssert_NONZERO(UT_GetStubCount(UT_KEY(CFE_PSP_GetTime)));
 }
 

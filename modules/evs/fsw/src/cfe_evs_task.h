@@ -161,7 +161,7 @@ void CFE_EVS_ProcessCommandPacket(CFE_SB_Buffer_t *SBBufPtr);
  *
  * Request for housekeeping status telemetry packet.
  */
-int32 CFE_EVS_ReportHousekeepingCmd(const CFE_MSG_CommandHeader_t *data);
+int32 CFE_EVS_ReportHousekeepingCmd(const CFE_EVS_SendHkCmd_t *data);
 
 /*---------------------------------------------------------------------------------------*/
 /**

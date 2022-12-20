@@ -906,7 +906,8 @@ void Test_Logging(void)
     char   tmpString[100];
     union
     {
-        CFE_MSG_CommandHeader_t       cmd;
+        CFE_EVS_NoopCmd_t             noopcmd;
+        CFE_EVS_ClearLogCmd_t         clearlogcmd;
         CFE_EVS_SetLogModeCmd_t       modecmd;
         CFE_EVS_WriteLogDataFileCmd_t logfilecmd;
     } CmdBuf;
@@ -976,13 +977,15 @@ void Test_Logging(void)
     /* Test sending a no op command */
     UT_InitData();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
-    UT_EVS_DoDispatchCheckEvents(&CmdBuf.cmd, sizeof(CmdBuf.cmd), UT_TPID_CFE_EVS_CMD_NOOP_CC, &UT_EVS_EventBuf);
+    UT_EVS_DoDispatchCheckEvents(&CmdBuf.noopcmd, sizeof(CmdBuf.noopcmd), UT_TPID_CFE_EVS_CMD_NOOP_CC,
+                                 &UT_EVS_EventBuf);
     UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_NOOP_EID);
 
     /* Clear log for next test */
     UT_InitData();
     CFE_EVS_Global.EVS_TlmPkt.Payload.LogEnabled = true;
-    UT_EVS_DoDispatchCheckEvents(&CmdBuf.cmd, sizeof(CmdBuf.cmd), UT_TPID_CFE_EVS_CMD_CLEAR_LOG_CC, &UT_EVS_EventBuf);
+    UT_EVS_DoDispatchCheckEvents(&CmdBuf.clearlogcmd, sizeof(CmdBuf.clearlogcmd), UT_TPID_CFE_EVS_CMD_CLEAR_LOG_CC,
+                                 &UT_EVS_EventBuf);
     UtAssert_BOOL_FALSE(CFE_EVS_Global.EVS_LogPtr->LogFullFlag);
     UtAssert_UINT32_EQ(CFE_EVS_Global.EVS_LogPtr->LogOverflowCounter, 0);
 
@@ -1056,7 +1059,7 @@ void Test_WriteApp(void)
 {
     union
     {
-        CFE_MSG_CommandHeader_t       cmd;
+        CFE_EVS_ResetCountersCmd_t    ResetCountersCmd;
         CFE_EVS_WriteAppDataFileCmd_t AppDataCmd;
         CFE_EVS_AppNameBitMaskCmd_t   appbitcmd;
     } CmdBuf;
@@ -1078,8 +1081,8 @@ void Test_WriteApp(void)
 
     /* Test resetting counters */
     UT_InitData();
-    UT_EVS_DoDispatchCheckEvents(&CmdBuf.cmd, sizeof(CmdBuf.cmd), UT_TPID_CFE_EVS_CMD_RESET_COUNTERS_CC,
-                                 &UT_EVS_EventBuf);
+    UT_EVS_DoDispatchCheckEvents(&CmdBuf.ResetCountersCmd, sizeof(CmdBuf.ResetCountersCmd),
+                                 UT_TPID_CFE_EVS_CMD_RESET_COUNTERS_CC, &UT_EVS_EventBuf);
     UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_RSTCNT_EID);
 
     /* Test writing application data with a create failure using default
@@ -1993,7 +1996,7 @@ void Test_Misc(void)
     union
     {
         CFE_MSG_Message_t             msg;
-        CFE_MSG_CommandHeader_t       cmd;
+        CFE_EVS_SendHkCmd_t           sendhkcmd;
         CFE_EVS_SetLogModeCmd_t       modecmd;
         CFE_EVS_WriteLogDataFileCmd_t writelogdatacmd;
     } PktBuf;
@@ -2051,7 +2054,7 @@ void Test_Misc(void)
     CFE_EVS_Global.EVS_TlmPkt.Payload.LogEnabled = true;
     HK_SnapshotData.Count                        = 0;
     UT_SetHookFunction(UT_KEY(CFE_SB_TransmitMsg), UT_SoftwareBusSnapshotHook, &HK_SnapshotData);
-    UT_CallTaskPipe(CFE_EVS_ProcessCommandPacket, &PktBuf.msg, sizeof(PktBuf.cmd), UT_TPID_CFE_EVS_SEND_HK);
+    UT_CallTaskPipe(CFE_EVS_ProcessCommandPacket, &PktBuf.msg, sizeof(PktBuf.sendhkcmd), UT_TPID_CFE_EVS_SEND_HK);
     UtAssert_UINT32_EQ(HK_SnapshotData.Count, 1);
 
     /* Test successful application cleanup */
@@ -2067,7 +2070,7 @@ void Test_Misc(void)
     CFE_EVS_Global.EVS_TlmPkt.Payload.LogEnabled = false;
     HK_SnapshotData.Count                        = 0;
     UT_SetHookFunction(UT_KEY(CFE_SB_TransmitMsg), UT_SoftwareBusSnapshotHook, &HK_SnapshotData);
-    UT_CallTaskPipe(CFE_EVS_ProcessCommandPacket, &PktBuf.msg, sizeof(PktBuf.cmd), UT_TPID_CFE_EVS_SEND_HK);
+    UT_CallTaskPipe(CFE_EVS_ProcessCommandPacket, &PktBuf.msg, sizeof(PktBuf.sendhkcmd), UT_TPID_CFE_EVS_SEND_HK);
     UtAssert_UINT32_EQ(HK_SnapshotData.Count, 1);
 
     /* Test sending a packet with the message counter and the event counter
