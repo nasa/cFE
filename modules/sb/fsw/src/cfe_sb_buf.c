@@ -145,6 +145,8 @@ CFE_SB_BufferD_t *CFE_SB_GetBufferFromPool(size_t MaxMsgSize)
  *-----------------------------------------------------------------*/
 void CFE_SB_ReturnBufferToPool(CFE_SB_BufferD_t *bd)
 {
+    int32 Status;
+
     /* Remove from any tracking list (no effect if not in a list) */
     CFE_SB_TrackingListRemove(&bd->Link);
 
@@ -152,7 +154,14 @@ void CFE_SB_ReturnBufferToPool(CFE_SB_BufferD_t *bd)
     CFE_SB_Global.StatTlmMsg.Payload.MemInUse -= bd->AllocatedSize;
 
     /* finally give the buf descriptor back to the buf descriptor pool */
-    CFE_ES_PutPoolBuf(CFE_SB_Global.Mem.PoolHdl, bd);
+    Status = CFE_ES_PutPoolBuf(CFE_SB_Global.Mem.PoolHdl, bd);
+
+    if (Status < 0)
+    {
+        CFE_ES_WriteToSysLog("%s: PutPoolBuf Fail Stat=0x%08X, Hndl=0x%08lX, Buf=0x%08lX\n", __func__,
+                             (unsigned int)Status, CFE_RESOURCEID_TO_ULONG(CFE_SB_Global.Mem.PoolHdl),
+                             (unsigned long)bd);
+    }
 }
 
 /*----------------------------------------------------------------
