@@ -3,6 +3,10 @@ name: "Functional Test"
 on:
   push:
   pull_request:
+  workflow_dispatch:
+  schedule:
+    # 11:45 PM UTC every Sunday
+    - cron:  '45 23 * * 0'
 
 env:
   SIMULATION: native

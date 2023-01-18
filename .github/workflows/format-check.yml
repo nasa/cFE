@@ -4,6 +4,10 @@ name: Format Check
 on:
   push:
   pull_request:
+  workflow_dispatch:
+  schedule:
+    # 11:30 PM UTC every Sunday
+    - cron:  '30 23 * * 0'
 
 jobs:
   format-check:
