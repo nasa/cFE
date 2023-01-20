@@ -4,6 +4,10 @@ name: Static Analysis
 on:
   push:
   pull_request:
+  workflow_dispatch:
+  schedule:
+    # 11:59 PM UTC every Sunday
+    - cron:  '59 23 * * 0'
 
 jobs:
   static-analysis:

@@ -3,6 +3,10 @@ name: "CodeQL Analysis"
 on:
   push:
   pull_request:
+  workflow_dispatch:
+  schedule:
+    # 11:15 PM UTC every Sunday
+    - cron:  '15 23 * * 0'
 
 jobs:
   codeql:

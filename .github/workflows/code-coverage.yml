@@ -3,6 +3,10 @@ name: "Code Coverage Analysis"
 on:
   push:
   pull_request:
+  workflow_dispatch:
+  schedule:
+    # 11:00 PM UTC every Sunday
+    - cron:  '0 23 * * 0'
 
 env:
   SIMULATION: native
