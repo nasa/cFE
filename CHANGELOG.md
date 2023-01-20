@@ -1,5 +1,9 @@
 # Changelog
 
+## Development Build: v7.0.0-rc4+dev246
+- Adds workflow_dispatch to all workflows
+- See <https://github.com/nasa/cFE/pull/2236>
+
 ## Development Build: v7.0.0-rc4+dev242
 - EDS Updates to match the current mainline
 - Update UTs to use correct cmd types
