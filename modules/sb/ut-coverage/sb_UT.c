@@ -620,12 +620,12 @@ void Test_SB_Cmds_RoutingInfoDef(void)
 
     CFE_UtAssert_EVENTSENT(CFE_SB_SUBSCRIPTION_RCVD_EID);
 
-    /* Also test with a bad file name - should generate CFE_SB_SND_RTG_ERR1_EID */
+    /* Also test with a bad file name - should generate CFE_SB_FILE_WRITE_CR_ERR_EID */
     UT_SetDeferredRetcode(UT_KEY(CFE_FS_ParseInputFileNameEx), 1, CFE_FS_INVALID_PATH);
     UT_CallTaskPipe(CFE_SB_ProcessCmdPipePkt, &WriteRoutingInfo.SBBuf.Msg, sizeof(WriteRoutingInfo.Cmd),
                     UT_TPID_CFE_SB_CMD_WRITE_ROUTING_INFO_CC);
 
-    CFE_UtAssert_EVENTSENT(CFE_SB_SND_RTG_ERR1_EID);
+    CFE_UtAssert_EVENTSENT(CFE_SB_FILE_WRITE_CR_ERR_EID);
 
     UT_CallTaskPipe(CFE_SB_ProcessCmdPipePkt, &WriteRoutingInfo.SBBuf.Msg, 0, UT_TPID_CFE_SB_CMD_WRITE_ROUTING_INFO_CC);
     CFE_UtAssert_EVENTSENT(CFE_SB_LEN_ERR_EID);
@@ -656,7 +656,7 @@ void Test_SB_Cmds_RoutingInfoAlreadyPending(void)
 
     CFE_UtAssert_EVENTCOUNT(1);
 
-    CFE_UtAssert_EVENTSENT(CFE_SB_SND_RTG_ERR1_EID);
+    CFE_UtAssert_EVENTSENT(CFE_SB_FILE_WRITE_CR_ERR_EID);
 }
 
 /*
@@ -765,11 +765,11 @@ void Test_SB_Cmds_PipeInfoDef(void)
 
     CFE_UtAssert_EVENTSENT(CFE_SB_PIPE_ADDED_EID);
 
-    /* Also test with a bad file name - should generate CFE_SB_SND_RTG_ERR1_EID */
+    /* Also test with a bad file name - should generate CFE_SB_FILE_WRITE_CR_ERR_EID */
     UT_SetDeferredRetcode(UT_KEY(CFE_FS_ParseInputFileNameEx), 1, CFE_FS_INVALID_PATH);
     UT_CallTaskPipe(CFE_SB_ProcessCmdPipePkt, &WritePipeInfo.SBBuf.Msg, sizeof(WritePipeInfo.Cmd),
                     UT_TPID_CFE_SB_CMD_WRITE_PIPE_INFO_CC);
-    CFE_UtAssert_EVENTSENT(CFE_SB_SND_RTG_ERR1_EID);
+    CFE_UtAssert_EVENTSENT(CFE_SB_FILE_WRITE_CR_ERR_EID);
 
     UT_CallTaskPipe(CFE_SB_ProcessCmdPipePkt, &WritePipeInfo.SBBuf.Msg, 0, UT_TPID_CFE_SB_CMD_WRITE_PIPE_INFO_CC);
     CFE_UtAssert_EVENTSENT(CFE_SB_LEN_ERR_EID);
@@ -802,7 +802,7 @@ void Test_SB_Cmds_PipeInfoAlreadyPending(void)
 
     CFE_UtAssert_EVENTCOUNT(1);
 
-    CFE_UtAssert_EVENTSENT(CFE_SB_SND_RTG_ERR1_EID);
+    CFE_UtAssert_EVENTSENT(CFE_SB_FILE_WRITE_CR_ERR_EID);
 }
 
 /*
@@ -857,19 +857,19 @@ void Test_SB_Cmds_BackgroundFileWriteEvents(void)
 
     UT_ClearEventHistory();
     CFE_SB_BackgroundFileEventHandler(&State, CFE_FS_FileWriteEvent_COMPLETE, CFE_SUCCESS, 10, 0, 1000);
-    CFE_UtAssert_EVENTSENT(CFE_SB_SND_RTG_EID);
+    CFE_UtAssert_EVENTSENT(CFE_SB_FILE_WRITE_EID);
 
     UT_ClearEventHistory();
     CFE_SB_BackgroundFileEventHandler(&State, CFE_FS_FileWriteEvent_RECORD_WRITE_ERROR, CFE_SUCCESS, 10, 10, 1000);
-    CFE_UtAssert_EVENTSENT(CFE_SB_FILEWRITE_ERR_EID);
+    CFE_UtAssert_EVENTSENT(CFE_SB_FILE_WRITE_ERR_EID);
 
     UT_ClearEventHistory();
     CFE_SB_BackgroundFileEventHandler(&State, CFE_FS_FileWriteEvent_HEADER_WRITE_ERROR, CFE_SUCCESS, 10, 10, 1000);
-    CFE_UtAssert_EVENTSENT(CFE_SB_FILEWRITE_ERR_EID);
+    CFE_UtAssert_EVENTSENT(CFE_SB_FILE_WRITE_ERR_EID);
 
     UT_ClearEventHistory();
     CFE_SB_BackgroundFileEventHandler(&State, CFE_FS_FileWriteEvent_CREATE_ERROR, OS_ERROR, 10, 0, 0);
-    CFE_UtAssert_EVENTSENT(CFE_SB_SND_RTG_ERR1_EID);
+    CFE_UtAssert_EVENTSENT(CFE_SB_FILE_WRITE_CR_ERR_EID);
 
     UT_ClearEventHistory();
     CFE_SB_BackgroundFileEventHandler(&State, CFE_FS_FileWriteEvent_UNDEFINED, OS_ERROR, 0, 0, 0);
@@ -969,11 +969,11 @@ void Test_SB_Cmds_MapInfoDef(void)
 
     CFE_UtAssert_EVENTSENT(CFE_SB_SUBSCRIPTION_RCVD_EID);
 
-    /* Also test with a bad file name - should generate CFE_SB_SND_RTG_ERR1_EID */
+    /* Also test with a bad file name - should generate CFE_SB_FILE_WRITE_CR_ERR_EID */
     UT_SetDeferredRetcode(UT_KEY(CFE_FS_ParseInputFileNameEx), 1, CFE_FS_INVALID_PATH);
     UT_CallTaskPipe(CFE_SB_ProcessCmdPipePkt, &WriteMapInfo.SBBuf.Msg, sizeof(WriteMapInfo.Cmd),
                     UT_TPID_CFE_SB_CMD_WRITE_MAP_INFO_CC);
-    CFE_UtAssert_EVENTSENT(CFE_SB_SND_RTG_ERR1_EID);
+    CFE_UtAssert_EVENTSENT(CFE_SB_FILE_WRITE_CR_ERR_EID);
 
     /* Bad Size */
     UT_CallTaskPipe(CFE_SB_ProcessCmdPipePkt, &WriteMapInfo.SBBuf.Msg, 0, UT_TPID_CFE_SB_CMD_WRITE_MAP_INFO_CC);
@@ -1007,7 +1007,7 @@ void Test_SB_Cmds_MapInfoAlreadyPending(void)
 
     CFE_UtAssert_EVENTCOUNT(1);
 
-    CFE_UtAssert_EVENTSENT(CFE_SB_SND_RTG_ERR1_EID);
+    CFE_UtAssert_EVENTSENT(CFE_SB_FILE_WRITE_CR_ERR_EID);
 }
 
 /*

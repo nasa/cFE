@@ -435,7 +435,7 @@
  *
  *  An SB file write successfully completed. OVERLOADED
  */
-#define CFE_SB_SND_RTG_EID 39
+#define CFE_SB_FILE_WRITE_EID 39
 
 /**
  * \brief SB File Write Create File Failure Event ID
@@ -446,7 +446,7 @@
  *
  *  An SB file write failure due to file creation error. OVERLOADED
  */
-#define CFE_SB_SND_RTG_ERR1_EID 40
+#define CFE_SB_FILE_WRITE_CR_ERR_EID 40
 
 /**
  * \brief SB Invalid Command Code Received Event ID
@@ -537,7 +537,7 @@
  *
  *  An SB file write failure encountered when writing to the file.
  */
-#define CFE_SB_FILEWRITE_ERR_EID 49
+#define CFE_SB_FILE_WRITE_ERR_EID 49
 
 /**
  * \brief SB Subscribe API Invalid Pipe Event ID

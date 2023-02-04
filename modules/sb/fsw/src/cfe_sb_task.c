@@ -734,20 +734,20 @@ void CFE_SB_BackgroundFileEventHandler(void *Meta, CFE_FS_FileWriteEvent_t Event
     switch (Event)
     {
         case CFE_FS_FileWriteEvent_COMPLETE:
-            CFE_EVS_SendEventWithAppID(CFE_SB_SND_RTG_EID, CFE_EVS_EventType_DEBUG, CFE_SB_Global.AppId,
+            CFE_EVS_SendEventWithAppID(CFE_SB_FILE_WRITE_EID, CFE_EVS_EventType_DEBUG, CFE_SB_Global.AppId,
                                        "%s written:Size=%d,Entries=%d", BgFilePtr->FileWrite.FileName, (int)Position,
                                        (int)RecordNum);
             break;
 
         case CFE_FS_FileWriteEvent_HEADER_WRITE_ERROR:
         case CFE_FS_FileWriteEvent_RECORD_WRITE_ERROR:
-            CFE_EVS_SendEventWithAppID(CFE_SB_FILEWRITE_ERR_EID, CFE_EVS_EventType_ERROR, CFE_SB_Global.AppId,
+            CFE_EVS_SendEventWithAppID(CFE_SB_FILE_WRITE_ERR_EID, CFE_EVS_EventType_ERROR, CFE_SB_Global.AppId,
                                        "File write,byte cnt err,file %s,request=%d,actual=%d",
                                        BgFilePtr->FileWrite.FileName, (int)BlockSize, (int)Status);
             break;
 
         case CFE_FS_FileWriteEvent_CREATE_ERROR:
-            CFE_EVS_SendEventWithAppID(CFE_SB_SND_RTG_ERR1_EID, CFE_EVS_EventType_ERROR, CFE_SB_Global.AppId,
+            CFE_EVS_SendEventWithAppID(CFE_SB_FILE_WRITE_CR_ERR_EID, CFE_EVS_EventType_ERROR, CFE_SB_Global.AppId,
                                        "Error creating file %s, stat=0x%x", BgFilePtr->FileWrite.FileName, (int)Status);
             break;
 
