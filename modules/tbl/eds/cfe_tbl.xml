@@ -292,14 +292,9 @@
               \cfetlmmnemonic  \TBL_TIMELASTUPD
             </LongDescription>
           </Entry>
-          <Entry name="FileCreateTimeSecs" type="BASE_TYPES/uint32" shortDescription="File creation time from last file loaded into table">
+          <Entry name="FileCreateTime" type="CFE_TIME/SysTime" shortDescription="File creation time from last file loaded into table">
             <LongDescription>
-              \cfetlmmnemonic \TBL_FILECSECONDS
-            </LongDescription>
-          </Entry>
-          <Entry name="FileCreateTimeSubSecs" type="BASE_TYPES/uint32" shortDescription="File creation time from last file loaded into table">
-            <LongDescription>
-              \cfetlmmnemonic \TBL_FILECSUBSECONDS
+              \cfetlmmnemonic  \TBL_FILECRTIME
             </LongDescription>
           </Entry>
           <Entry name="TableLoadedOnce" type="BASE_TYPES/uint8" shortDescription="Flag indicating whether table has been loaded once or not">

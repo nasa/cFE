@@ -111,10 +111,8 @@ void CFE_FS_InitHeader(CFE_FS_Header_t *Hdr, const char *Description, uint32 Sub
 **      -# \link #CFE_FS_Header_t::SpacecraftID \c SpacecraftID \endlink - Filled with the Spacecraft ID
 **      -# \link #CFE_FS_Header_t::ProcessorID \c ProcessorID \endlink - Filled with the Processor ID
 **      -# \link #CFE_FS_Header_t::ApplicationID \c ApplicationID \endlink -  Filled with the Application ID
-**      -# \link #CFE_FS_Header_t::TimeSeconds \c TimeSeconds \endlink - Filled with the Time, in seconds, as obtained
-**                                                                       by #CFE_TIME_GetTime
-**      -# \link #CFE_FS_Header_t::TimeSubSeconds \c TimeSubSeconds \endlink - Filled with the Time, subseconds, as
-**                                                                             obtained by #CFE_TIME_GetTime
+**      -# \link #CFE_FS_Header_t::FileCreateTime \c FileCreateTime \endlink - Filled with the Time, in seconds,
+**                                                                             as obtained by #CFE_TIME_GetTime
 **
 ** \par Assumptions, External Events, and Notes:
 **        -# The File has already been successfully opened using #OS_OpenCreate and
@@ -148,7 +146,7 @@ CFE_Status_t CFE_FS_WriteHeader(osal_id_t FileDes, CFE_FS_Header_t *Hdr);
 ** \brief Modifies the Time Stamp field in the Standard cFE File Header for the specified file
 **
 ** \par Description
-**        This API will modify the \link #CFE_FS_Header_t::TimeSeconds timestamp \endlink found
+**        This API will modify the \link #CFE_FS_Header_t::FileCreateTime timestamp \endlink found
 **        in the Standard cFE File Header of the specified file.  The timestamp will be replaced
 **        with the time specified by the caller.
 **

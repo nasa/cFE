@@ -195,14 +195,14 @@ void Test_CFE_FS_ByteSwapCFEHeader(void)
     UtPrintf("Begin Test Byte Swap cFE Header");
 
     UT_InitData();
-    Hdr.ContentType    = 0x11223344;
-    Hdr.SubType        = 0x22334455;
-    Hdr.Length         = 0x33445566;
-    Hdr.SpacecraftID   = 0x44556677;
-    Hdr.ProcessorID    = 0x55667788;
-    Hdr.ApplicationID  = 0x66778899;
-    Hdr.TimeSeconds    = 0x778899aa;
-    Hdr.TimeSubSeconds = 0x8899aabb;
+    Hdr.ContentType               = 0x11223344;
+    Hdr.SubType                   = 0x22334455;
+    Hdr.Length                    = 0x33445566;
+    Hdr.SpacecraftID              = 0x44556677;
+    Hdr.ProcessorID               = 0x55667788;
+    Hdr.ApplicationID             = 0x66778899;
+    Hdr.FileCreateTime.Seconds    = 0x778899aa;
+    Hdr.FileCreateTime.Subseconds = 0x8899aabb;
 
     /* Test byte-swapping the header values */
     CFE_FS_ByteSwapCFEHeader(&Hdr);
@@ -213,8 +213,8 @@ void Test_CFE_FS_ByteSwapCFEHeader(void)
     UtAssert_UINT32_EQ(Hdr.SpacecraftID, 0x77665544);
     UtAssert_UINT32_EQ(Hdr.ProcessorID, 0x88776655);
     UtAssert_UINT32_EQ(Hdr.ApplicationID, 0x99887766);
-    UtAssert_UINT32_EQ(Hdr.TimeSeconds, 0xaa998877);
-    UtAssert_UINT32_EQ(Hdr.TimeSubSeconds, 0xbbaa9988);
+    UtAssert_UINT32_EQ(Hdr.FileCreateTime.Seconds, 0xaa998877);
+    UtAssert_UINT32_EQ(Hdr.FileCreateTime.Subseconds, 0xbbaa9988);
 }
 
 /*

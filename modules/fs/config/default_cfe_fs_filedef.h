@@ -26,7 +26,8 @@
 #define CFE_FS_FILEHDR_H
 
 #include "common_types.h"
-#include "cfe_fs_interface_cfg.h" /* to define CFE_FS_HDR_DESC_MAX_LEN */
+#include "cfe_fs_interface_cfg.h"     /* to define CFE_FS_HDR_DESC_MAX_LEN */
+#include "cfe_time_extern_typedefs.h" /* To get the definition of CFE_TIME_SysTime_t */
 
 /**
  * @brief File subtypes used within cFE
@@ -189,8 +190,7 @@ typedef struct CFE_FS_Header
     uint32 ProcessorID;   /**< \brief Processor that generated the file */
     uint32 ApplicationID; /**< \brief Application that generated the file */
 
-    uint32 TimeSeconds;    /**< \brief File creation timestamp (seconds) */
-    uint32 TimeSubSeconds; /**< \brief File creation timestamp (sub-seconds) */
+    CFE_TIME_SysTime_t FileCreateTime; /**< \brief File creation timestamp */
 
     char Description[CFE_FS_HDR_DESC_MAX_LEN]; /**< \brief File description */
 } CFE_FS_Header_t;

@@ -96,8 +96,8 @@ int32 CFE_TBL_SendHkCmd(const CFE_TBL_SendHkCmd_t *data)
             /* is the time of the actual capturing of the data, NOT the time when it was written to the file */
             if (Status == CFE_TBL_INC_CMD_CTR)
             {
-                DumpTime.Seconds    = DumpCtrlPtr->DumpBufferPtr->FileCreateTimeSecs;
-                DumpTime.Subseconds = DumpCtrlPtr->DumpBufferPtr->FileCreateTimeSubSecs;
+                DumpTime.Seconds    = DumpCtrlPtr->DumpBufferPtr->FileCreateTime.Seconds;
+                DumpTime.Subseconds = DumpCtrlPtr->DumpBufferPtr->FileCreateTime.Subseconds;
 
                 OsStatus = OS_OpenCreate(&FileDescriptor, DumpCtrlPtr->DumpBufferPtr->DataSource, OS_FILE_FLAG_NONE,
                                          OS_READ_WRITE);
@@ -287,10 +287,10 @@ void CFE_TBL_GetTblRegData(void)
     CFE_TBL_Global.TblRegPacket.Payload.LoadPending       = RegRecPtr->LoadPending;
     CFE_TBL_Global.TblRegPacket.Payload.DumpOnly          = RegRecPtr->DumpOnly;
     CFE_TBL_Global.TblRegPacket.Payload.DoubleBuffered    = RegRecPtr->DoubleBuffered;
-    CFE_TBL_Global.TblRegPacket.Payload.FileCreateTimeSecs =
-        RegRecPtr->Buffers[RegRecPtr->ActiveBufferIndex].FileCreateTimeSecs;
-    CFE_TBL_Global.TblRegPacket.Payload.FileCreateTimeSubSecs =
-        RegRecPtr->Buffers[RegRecPtr->ActiveBufferIndex].FileCreateTimeSubSecs;
+    CFE_TBL_Global.TblRegPacket.Payload.FileCreateTime.Seconds =
+        RegRecPtr->Buffers[RegRecPtr->ActiveBufferIndex].FileCreateTime.Seconds;
+    CFE_TBL_Global.TblRegPacket.Payload.FileCreateTime.Subseconds =
+        RegRecPtr->Buffers[RegRecPtr->ActiveBufferIndex].FileCreateTime.Subseconds;
     CFE_TBL_Global.TblRegPacket.Payload.Crc      = RegRecPtr->Buffers[RegRecPtr->ActiveBufferIndex].Crc;
     CFE_TBL_Global.TblRegPacket.Payload.Critical = RegRecPtr->CriticalTable;
 
@@ -444,8 +444,9 @@ int32 CFE_TBL_LoadCmd(const CFE_TBL_LoadCmd_t *data)
                                     memcpy(WorkingBufferPtr->DataSource, LoadFilename, OS_MAX_PATH_LEN);
 
                                     /* Save file creation time for later storage into Registry */
-                                    WorkingBufferPtr->FileCreateTimeSecs    = StdFileHeader.TimeSeconds;
-                                    WorkingBufferPtr->FileCreateTimeSubSecs = StdFileHeader.TimeSubSeconds;
+                                    WorkingBufferPtr->FileCreateTime.Seconds = StdFileHeader.FileCreateTime.Seconds;
+                                    WorkingBufferPtr->FileCreateTime.Subseconds =
+                                        StdFileHeader.FileCreateTime.Subseconds;
 
                                     /* Compute the CRC on the specified table buffer */
                                     WorkingBufferPtr->Crc = CFE_ES_CalculateCRC(
@@ -1053,10 +1054,10 @@ bool CFE_TBL_DumpRegistryGetter(void *Meta, uint32 RecordNum, void **Buffer, siz
             StatePtr->DumpRecord.LoadPending      = RegRecPtr->LoadPending;
             StatePtr->DumpRecord.DumpOnly         = RegRecPtr->DumpOnly;
             StatePtr->DumpRecord.DoubleBuffered   = RegRecPtr->DoubleBuffered;
-            StatePtr->DumpRecord.FileCreateTimeSecs =
-                RegRecPtr->Buffers[RegRecPtr->ActiveBufferIndex].FileCreateTimeSecs;
-            StatePtr->DumpRecord.FileCreateTimeSubSecs =
-                RegRecPtr->Buffers[RegRecPtr->ActiveBufferIndex].FileCreateTimeSubSecs;
+            StatePtr->DumpRecord.FileCreateTime.Seconds =
+                RegRecPtr->Buffers[RegRecPtr->ActiveBufferIndex].FileCreateTime.Seconds;
+            StatePtr->DumpRecord.FileCreateTime.Subseconds =
+                RegRecPtr->Buffers[RegRecPtr->ActiveBufferIndex].FileCreateTime.Subseconds;
             StatePtr->DumpRecord.Crc           = RegRecPtr->Buffers[RegRecPtr->ActiveBufferIndex].Crc;
             StatePtr->DumpRecord.CriticalTable = RegRecPtr->CriticalTable;
 
