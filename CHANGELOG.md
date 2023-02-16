@@ -1,5 +1,9 @@
 # Changelog
 
+## Development Build: v7.0.0-rc4+dev250
+- CFE_TBL_FILEDEF does not need static
+- See <https://github.com/nasa/cFE/pull/2244>
+
 ## Development Build: v7.0.0-rc4+dev246
 - Adds workflow_dispatch to all workflows
 - See <https://github.com/nasa/cFE/pull/2236>
