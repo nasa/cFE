@@ -457,7 +457,7 @@ bool CFE_ES_RunPerfLogDump(uint32 ElapsedTime, void *Arg)
 
             if (BlockSize != 0)
             {
-                if (Status != BlockSize)
+                if (Status != (int)BlockSize)
                 {
                     CFE_ES_FileWriteByteCntErr(State->DataFileName, BlockSize, Status);
 
