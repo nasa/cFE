@@ -323,4 +323,14 @@ int32 CFE_EVS_WriteAppDataFileCmd(const CFE_EVS_WriteAppDataFileCmd_t *data);
  */
 int32 CFE_EVS_ResetAllFiltersCmd(const CFE_EVS_ResetAllFiltersCmd_t *data);
 
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Internal helper function to check if command bitmask is in range
+ *
+ * This routine checks if the given command bitmask is zero, or out of range (> 4 bits).
+ *
+ * @returns CFE_EVS_INVALID_PARAMETER if out of range, CFE_SUCCESS if within valid range
+ */
+CFE_Status_t CFE_EVS_CheckBitmaskInRange(const CFE_EVS_BitMaskCmd_Payload_t *CmdPtr, uint16 CommandCode);
+
 #endif /* CFE_EVS_TASK_H */
