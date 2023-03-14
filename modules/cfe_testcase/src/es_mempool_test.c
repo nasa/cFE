@@ -185,10 +185,10 @@ void TestMemPoolDelete(void)
     UtAssert_INT32_EQ(CFE_ES_PoolCreateEx(&PoolID, Buffer, sizeof(Buffer), 0, NULL, CFE_ES_NO_MUTEX), CFE_SUCCESS);
     UtAssert_INT32_EQ(CFE_ES_GetMemPoolStats(&Stats, PoolID), CFE_SUCCESS);
 
-    UtAssert_UINT32_EQ(Stats.PoolSize, sizeof(Buffer));
+    UtAssert_EQ(size_t, CFE_ES_MEMOFFSET_TO_SIZET(Stats.PoolSize), sizeof(Buffer));
     UtAssert_UINT32_EQ(Stats.NumBlocksRequested, 0);
     UtAssert_UINT32_EQ(Stats.CheckErrCtr, 0);
-    UtAssert_UINT32_EQ(Stats.NumFreeBytes, sizeof(Buffer));
+    UtAssert_EQ(size_t, CFE_ES_MEMOFFSET_TO_SIZET(Stats.NumFreeBytes), sizeof(Buffer));
 
     UtAssert_INT32_EQ(CFE_ES_GetMemPoolStats(NULL, PoolID), CFE_ES_BAD_ARGUMENT);
     UtAssert_INT32_EQ(CFE_ES_GetMemPoolStats(&Stats, CFE_ES_MEMHANDLE_UNDEFINED), CFE_ES_ERR_RESOURCEID_NOT_VALID);

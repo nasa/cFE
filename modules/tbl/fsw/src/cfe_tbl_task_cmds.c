@@ -715,8 +715,8 @@ CFE_TBL_CmdProcRet_t CFE_TBL_DumpToFile(const char *DumpFilename, const char *Ta
             /* Initialize the Table Image Header for the Dump File */
             strncpy(TblFileHeader.TableName, TableName, sizeof(TblFileHeader.TableName) - 1);
             TblFileHeader.TableName[sizeof(TblFileHeader.TableName) - 1] = 0;
-            TblFileHeader.Offset                                         = CFE_ES_MEMOFFSET_C(0);
-            TblFileHeader.NumBytes                                       = CFE_ES_MEMOFFSET_C(TblSizeInBytes);
+            TblFileHeader.Offset                                         = 0;
+            TblFileHeader.NumBytes                                       = TblSizeInBytes;
             TblFileHeader.Reserved                                       = 0;
 
             /* Determine if this is a little endian processor */

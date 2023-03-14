@@ -697,7 +697,8 @@ bool CFE_ES_ValidateHandle(CFE_ES_MemHandle_t Handle)
 
     /* Test #3) Check memory address in PSP (allows both RAM and EEPROM) */
     CFE_ES_GenPoolGetUsage(&PoolRecPtr->Pool, NULL, &TotalSize);
-    if (CFE_PSP_MemValidateRange(PoolRecPtr->BaseAddr, TotalSize, CFE_PSP_MEM_ANY) != CFE_PSP_SUCCESS)
+    if (CFE_PSP_MemValidateRange(PoolRecPtr->BaseAddr, CFE_ES_MEMOFFSET_TO_SIZET(TotalSize), CFE_PSP_MEM_ANY) !=
+        CFE_PSP_SUCCESS)
     {
         return false;
     }

@@ -66,13 +66,17 @@ typedef uint16 CFE_TBL_BufferSelect_Enum_t;
  * @brief The definition of the header fields that are included in CFE Table Data files.
  *
  * This header follows the CFE_FS header and precedes the actual table data.
+ *
+ * @note The Offset and NumBytes fields in the table header are to 32 bits for
+ * backward compatibility with existing CFE versions.  This means that even on
+ * 64-bit CPUs, individual table files will be limited to 4GiB in size.
  */
 typedef struct CFE_TBL_File_Hdr
 {
-    uint32             Reserved;                                     /**< Future Use: NumTblSegments in File?   */
-    CFE_ES_MemOffset_t Offset;                                       /**< Byte Offset at which load should commence */
-    CFE_ES_MemOffset_t NumBytes;                                     /**< Number of bytes to load into table */
-    char               TableName[CFE_MISSION_TBL_MAX_FULL_NAME_LEN]; /**< Fully qualified name of table to load */
+    uint32 Reserved;                                     /**< Future Use: NumTblSegments in File?   */
+    uint32 Offset;                                       /**< Byte Offset at which load should commence */
+    uint32 NumBytes;                                     /**< Number of bytes to load into table */
+    char   TableName[CFE_MISSION_TBL_MAX_FULL_NAME_LEN]; /**< Fully qualified name of table to load */
 } CFE_TBL_File_Hdr_t;
 
 #endif /* CFE_EDS_ENABLED_BUILD */
