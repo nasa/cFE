@@ -1,5 +1,9 @@
 # Changelog
 
+## Development Build: v7.0.0-rc4+dev254
+- improve 64-bit memory address handling in CMD/TLM
+- See <https://github.com/nasa/cFE/pull/2256>
+
 ## Development Build: v7.0.0-rc4+dev250
 - CFE_TBL_FILEDEF does not need static
 - See <https://github.com/nasa/cFE/pull/2244>
