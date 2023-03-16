@@ -102,6 +102,34 @@
       <StringDataType name="ApiName" length="${CFE_MISSION/MAX_API_LEN}" />
       <StringDataType name="PathName" length="${CFE_MISSION/MAX_PATH_LEN}" />
 
+      <!--
+          Memory addresses in CMD/TLM: These are integer types based on the
+          CFE_MISSION/MEM_ADDR_SIZE_BITS configuration setting.  This allows
+          the user to select 32-bit (traditional) or 64-bit (modern) integer
+          values to be used in CMD/TLM fields that store a memory address.
+
+          Note that changing from 32 to 64 will extend all containers that
+          use/reference this type by a proportional amount, so traditional
+          non-EDS 32-bit CMD/TLM definitions will NOT match when this is 64 bits.
+       -->
+      <IntegerDataType name="MemReference" shortDescription="Integer type used for CPU memory addresses, sizes and offsets">
+        <LongDescription>
+          For backward compatibility with existing CFS code this should be uint32,
+          but all telemetry information will be limited to 4GB in size as a result.
+
+          On 64-bit platforms this can be expanded to 64 bits which will allow larger
+          memory objects, but this will break compatibility with existing control
+          systems, and may also change the alignment/padding of some messages.
+
+          In either case this must be an unsigned type, and should be large enough
+          to represent the largest memory address/size in use in the CFS system.
+        </LongDescription>
+        <IntegerDataEncoding sizeInBits="${CFE_MISSION/MEM_REFERENCE_SIZE_BITS}" encoding="unsigned" />
+        <Range>
+          <MinMaxRange max="2 ^ ${CFE_MISSION/MEM_REFERENCE_SIZE_BITS}" min="0" rangeType="inclusiveMinExclusiveMax"/>
+        </Range>
+      </IntegerDataType>
+
    </DataTypeSet>
 
 </Package>

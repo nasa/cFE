@@ -67,7 +67,7 @@ void Test_MSG_Init(void)
     CFE_UtAssert_SUCCESS(CFE_MSG_GetMsgId(CFE_MSG_PTR(cmd), &msgid_act));
     UtAssert_INT32_EQ(CFE_SB_MsgIdToValue(msgid_act), msgidval_exp);
     CFE_UtAssert_SUCCESS(CFE_MSG_GetSize(CFE_MSG_PTR(cmd), &size));
-    CFE_UtAssert_MEMOFFSET_EQ(size, sizeof(cmd));
+    UtAssert_EQ(size_t, size, sizeof(cmd));
     CFE_UtAssert_SUCCESS(CFE_MSG_GetSegmentationFlag(CFE_MSG_PTR(cmd), &segflag));
     UtAssert_INT32_EQ(segflag, CFE_MSG_SegFlag_Unsegmented);
 

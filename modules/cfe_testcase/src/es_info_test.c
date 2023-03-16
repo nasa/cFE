@@ -70,24 +70,17 @@ void TestGetAppInfo(void)
                   TestAppInfo.FileName);
     UtAssert_True(strlen(ESAppInfo.FileName) == 0, "ES App Info -> FileName  = %s", ESAppInfo.FileName);
 
-    UtAssert_True(TestAppInfo.StackSize > 0, "Test App Info -> StackSz  = %d", (int)TestAppInfo.StackSize);
-    UtAssert_True(ESAppInfo.StackSize > 0, "ES App Info -> StackSz  = %d", (int)ESAppInfo.StackSize);
+    UtAssert_NONZERO(CFE_ES_MEMOFFSET_TO_SIZET(TestAppInfo.StackSize));
+    UtAssert_NONZERO(CFE_ES_MEMOFFSET_TO_SIZET(ESAppInfo.StackSize));
 
     if (TestAppInfo.AddressesAreValid)
     {
-        UtAssert_True(TestAppInfo.AddressesAreValid > 0, "Test App Info -> AddrsValid?  = %d",
-                      (int)TestAppInfo.AddressesAreValid);
-        UtAssert_True(TestAppInfo.CodeAddress > 0, "Test App Info -> CodeAddress  = %ld",
-                      (unsigned long)TestAppInfo.CodeAddress);
-        UtAssert_True(TestAppInfo.CodeSize > 0, "Test App Info -> CodeSize  = %ld",
-                      (unsigned long)TestAppInfo.CodeSize);
-        UtAssert_True(TestAppInfo.DataAddress > 0, "Test App Info -> DataAddress  = %ld",
-                      (unsigned long)TestAppInfo.DataAddress);
-        UtAssert_True(TestAppInfo.DataSize > 0, "Test App Info -> DataSize  = %ld",
-                      (unsigned long)TestAppInfo.DataSize);
-        UtAssert_True(TestAppInfo.BSSAddress > 0, "Test App Info -> BSSAddress  = %ld",
-                      (unsigned long)TestAppInfo.BSSAddress);
-        UtAssert_True(TestAppInfo.BSSSize > 0, "Test App Info -> BSSSize  = %ld", (unsigned long)TestAppInfo.BSSSize);
+        UtAssert_NOT_NULL(CFE_ES_MEMADDRESS_TO_PTR(TestAppInfo.CodeAddress));
+        UtAssert_NONZERO(CFE_ES_MEMOFFSET_TO_SIZET(TestAppInfo.CodeSize));
+        UtAssert_NOT_NULL(CFE_ES_MEMADDRESS_TO_PTR(TestAppInfo.DataAddress));
+        UtAssert_NONZERO(CFE_ES_MEMOFFSET_TO_SIZET(TestAppInfo.DataSize));
+        UtAssert_NOT_NULL(CFE_ES_MEMADDRESS_TO_PTR(TestAppInfo.BSSAddress));
+        UtAssert_NONZERO(CFE_ES_MEMOFFSET_TO_SIZET(TestAppInfo.BSSSize));
     }
     else
     {
@@ -102,10 +95,8 @@ void TestGetAppInfo(void)
     UtAssert_True(ESAppInfo.AddressesAreValid == 0, "ES App Info -> AddrsValid?  = %d",
                   (int)ESAppInfo.AddressesAreValid);
 
-    UtAssert_True(TestAppInfo.StartAddress > 0, "Test App Info -> StartAddress  = 0x%8lx",
-                  (unsigned long)TestAppInfo.StartAddress);
-    UtAssert_True(ESAppInfo.StartAddress == 0, "ES App Info -> StartAddress  = 0x%8lx",
-                  (unsigned long)ESAppInfo.StartAddress);
+    UtAssert_NOT_NULL(CFE_ES_MEMADDRESS_TO_PTR(TestAppInfo.StartAddress));
+    UtAssert_NULL(CFE_ES_MEMADDRESS_TO_PTR(ESAppInfo.StartAddress));
 
     UtAssert_INT32_EQ(TestAppInfo.ExceptionAction, 0);
     UtAssert_INT32_EQ(ESAppInfo.ExceptionAction, 1);
@@ -180,18 +171,17 @@ void TestGetLibInfo(void)
     UtAssert_StrCmp(LibInfo.EntryPoint, "CFE_Assert_LibInit", "Lib Info -> EntryPt  = %s", LibInfo.EntryPoint);
     UtAssert_True(strstr(LibInfo.FileName, FileName) != NULL, "Lib Info -> FileName = %s contains %s", LibInfo.FileName,
                   FileName);
-    UtAssert_True(LibInfo.StackSize == 0, "Lib Info -> StackSz  = %d", (int)LibInfo.StackSize);
+
+    UtAssert_ZERO(CFE_ES_MEMOFFSET_TO_SIZET(LibInfo.StackSize));
 
     if (LibInfo.AddressesAreValid)
     {
-        UtAssert_True(LibInfo.AddressesAreValid > 0, "Lib Info -> AddrsValid?  = %ld",
-                      (unsigned long)LibInfo.AddressesAreValid);
-        UtAssert_True(LibInfo.CodeAddress > 0, "Lib Info -> CodeAddress  = %ld", (unsigned long)LibInfo.CodeAddress);
-        UtAssert_True(LibInfo.CodeSize > 0, "Lib Info -> CodeSize  = %ld", (unsigned long)LibInfo.CodeSize);
-        UtAssert_True(LibInfo.DataAddress > 0, "Lib Info -> DataAddress  = %ld", (unsigned long)LibInfo.DataAddress);
-        UtAssert_True(LibInfo.DataSize > 0, "Lib Info -> DataSize  = %ld", (unsigned long)LibInfo.DataSize);
-        UtAssert_True(LibInfo.BSSAddress > 0, "Lib Info -> BSSAddress  = %ld", (unsigned long)LibInfo.BSSAddress);
-        UtAssert_True(LibInfo.BSSSize > 0, "Lib Info -> BSSSize  = %ld", (unsigned long)LibInfo.BSSSize);
+        UtAssert_NOT_NULL(CFE_ES_MEMADDRESS_TO_PTR(LibInfo.CodeAddress));
+        UtAssert_NONZERO(CFE_ES_MEMOFFSET_TO_SIZET(LibInfo.CodeSize));
+        UtAssert_NOT_NULL(CFE_ES_MEMADDRESS_TO_PTR(LibInfo.DataAddress));
+        UtAssert_NONZERO(CFE_ES_MEMOFFSET_TO_SIZET(LibInfo.DataSize));
+        UtAssert_NOT_NULL(CFE_ES_MEMADDRESS_TO_PTR(LibInfo.BSSAddress));
+        UtAssert_NONZERO(CFE_ES_MEMOFFSET_TO_SIZET(LibInfo.BSSSize));
     }
     else
     {

@@ -112,21 +112,6 @@ typedef void (*CFE_Assert_StatusCallback_t)(uint8 MessageType, const char *Prefi
 
 /*****************************************************************************/
 /**
-** \brief Macro to check CFE memory size/offset for equality
-**
-** \par Description
-**        A macro that checks two memory offset/size values for equality.
-**
-** \par Assumptions, External Events, and Notes:
-**        This is a simple unsigned comparison which logs the values as hexadecimal
-**
-******************************************************************************/
-#define CFE_Assert_MEMOFFSET_EQ(off1, off2)                                                                  \
-    UtAssert_GenericUnsignedCompare(off1, UtAssert_Compare_EQ, off2, UtAssert_Radix_HEX, __FILE__, __LINE__, \
-                                    "Offset Check: ", #off1, #off2)
-
-/*****************************************************************************/
-/**
 ** \brief Macro to check CFE message ID for equality
 **
 ** \par Description

@@ -3911,26 +3911,26 @@ void Test_CFE_SB_MsgHdrSize(void)
     type   = CFE_MSG_Type_Invalid;
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetHasSecondaryHeader), &hassec, sizeof(hassec), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &type, sizeof(type), false);
-    CFE_UtAssert_MEMOFFSET_EQ(CFE_SB_MsgHdrSize(&msg), sizeof(CFE_MSG_Message_t));
+    UtAssert_EQ(size_t, CFE_SB_MsgHdrSize(&msg), sizeof(CFE_MSG_Message_t));
 
     /* Has secondary, tlm type */
     hassec = true;
     type   = CFE_MSG_Type_Tlm;
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetHasSecondaryHeader), &hassec, sizeof(hassec), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &type, sizeof(type), false);
-    CFE_UtAssert_MEMOFFSET_EQ(CFE_SB_MsgHdrSize(&msg), sizeof(CFE_MSG_TelemetryHeader_t));
+    UtAssert_EQ(size_t, CFE_SB_MsgHdrSize(&msg), sizeof(CFE_MSG_TelemetryHeader_t));
 
     /* Has secondary, cmd type */
     type = CFE_MSG_Type_Cmd;
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetHasSecondaryHeader), &hassec, sizeof(hassec), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &type, sizeof(type), false);
-    CFE_UtAssert_MEMOFFSET_EQ(CFE_SB_MsgHdrSize(&msg), sizeof(CFE_MSG_CommandHeader_t));
+    UtAssert_EQ(size_t, CFE_SB_MsgHdrSize(&msg), sizeof(CFE_MSG_CommandHeader_t));
 
     /* Has secondary, invalid type */
     type = CFE_MSG_Type_Invalid;
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetHasSecondaryHeader), &hassec, sizeof(hassec), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &type, sizeof(type), false);
-    CFE_UtAssert_MEMOFFSET_EQ(CFE_SB_MsgHdrSize(&msg), 0);
+    UtAssert_ZERO(CFE_SB_MsgHdrSize(&msg));
 
     /*
      * Note, this function currently has a type mismatch - it attempts to

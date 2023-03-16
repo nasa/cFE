@@ -2109,7 +2109,7 @@ void TestERLog(void)
 
     UT_SetDeferredRetcode(UT_KEY(CFE_PSP_Exception_CopyContext), 1, 128);
     UtAssert_BOOL_FALSE(CFE_ES_BackgroundERLogFileDataGetter(&State, 0, &LocalBuffer, &LocalBufSize));
-    CFE_UtAssert_MEMOFFSET_EQ(State.EntryBuffer.ContextSize, 128);
+    UtAssert_UINT32_EQ(State.EntryBuffer.ContextSize, 128);
     UtAssert_NOT_NULL(LocalBuffer);
     UtAssert_NONZERO(LocalBufSize);
 
@@ -2208,7 +2208,7 @@ void TestGenericPool(void)
 
     /* Free a buffer and attempt to reallocate */
     CFE_UtAssert_SUCCESS(CFE_ES_GenPoolPutBlock(&Pool1, &BlockSize, Offset2));
-    CFE_UtAssert_MEMOFFSET_EQ(BlockSize, 72);
+    UtAssert_EQ(size_t, BlockSize, 72);
 
     /* Should not be able to free more than once */
     /* This should increment the validation error count */
@@ -2217,7 +2217,7 @@ void TestGenericPool(void)
     UtAssert_NONZERO(Pool1.ValidationErrorCount);
 
     CFE_UtAssert_SUCCESS(CFE_ES_GenPoolGetBlock(&Pool1, &Offset4, 100));
-    CFE_UtAssert_MEMOFFSET_EQ(Offset4, Offset2);
+    UtAssert_EQ(size_t, Offset4, Offset2);
 
     /* Attempt Bigger than the largest bucket */
     UtAssert_INT32_EQ(CFE_ES_GenPoolGetBlock(&Pool1, &Offset1, 1000), CFE_ES_ERR_MEM_BLOCK_SIZE);
@@ -2235,9 +2235,9 @@ void TestGenericPool(void)
     UtAssert_VOIDCALL(CFE_ES_GenPoolGetBucketUsage(&Pool1, Pool1.NumBuckets + 1, &BlockStats));
 
     /* Check various outputs to ensure correctness */
-    CFE_UtAssert_MEMOFFSET_EQ(TotalSize, OffsetEnd);
+    UtAssert_EQ(size_t, CFE_ES_MEMOFFSET_TO_SIZET(TotalSize), OffsetEnd);
     UtAssert_UINT32_EQ(CountBuf, 3);
-    UtAssert_NONZERO(FreeSize);
+    UtAssert_NONZERO(CFE_ES_MEMOFFSET_TO_SIZET(FreeSize));
 
     /* put blocks so the pool has a mixture of allocated and deallocated blocks */
     CFE_UtAssert_SUCCESS(CFE_ES_GenPoolPutBlock(&Pool1, &BlockSize, Offset1));
@@ -2251,7 +2251,7 @@ void TestGenericPool(void)
     CFE_UtAssert_SUCCESS(CFE_ES_GenPoolRebuild(&Pool2));
 
     /* After rebuilding, Pool2 should have similar state data to Pool1. */
-    CFE_UtAssert_MEMOFFSET_EQ(Pool1.TailPosition, Pool2.TailPosition);
+    UtAssert_EQ(size_t, Pool1.TailPosition, Pool2.TailPosition);
     UtAssert_UINT32_EQ(Pool1.AllocationCount, Pool2.AllocationCount);
 
     for (i = 0; i < Pool1.NumBuckets; ++i)
@@ -2270,10 +2270,10 @@ void TestGenericPool(void)
     /* Get blocks again, from the recovered pool, to demonstrate that
      * the pool is functional after recovery. */
     CFE_UtAssert_SUCCESS(CFE_ES_GenPoolGetBlock(&Pool2, &Offset3, 44));
-    CFE_UtAssert_MEMOFFSET_EQ(Offset3, Offset1);
+    UtAssert_EQ(size_t, Offset3, Offset1);
 
     CFE_UtAssert_SUCCESS(CFE_ES_GenPoolGetBlock(&Pool2, &Offset4, 72));
-    CFE_UtAssert_MEMOFFSET_EQ(Offset4, Offset2);
+    UtAssert_EQ(size_t, Offset4, Offset2);
 
     /* Test successfully creating indirect memory pool, no alignment, with mutex */
     memset(&UT_MemPoolIndirectBuffer, 0xee, sizeof(UT_MemPoolIndirectBuffer));
@@ -2287,19 +2287,19 @@ void TestGenericPool(void)
     CFE_UtAssert_SUCCESS(CFE_ES_GenPoolGetBlock(&Pool2, &Offset1, 1));
 
     /* With no alignment adjustments, the result offset should be exactly matching */
-    CFE_UtAssert_MEMOFFSET_EQ(Offset1, 2 + sizeof(CFE_ES_GenPoolBD_t));
+    UtAssert_EQ(size_t, Offset1, 2 + sizeof(CFE_ES_GenPoolBD_t));
 
     CFE_UtAssert_SUCCESS(CFE_ES_GenPoolGetBlock(&Pool2, &Offset2, 55));
     /* the previous block should be 4 in size (smallest block) */
-    CFE_UtAssert_MEMOFFSET_EQ(Offset2, Offset1 + 4 + sizeof(CFE_ES_GenPoolBD_t));
+    UtAssert_EQ(size_t, Offset2, Offset1 + 4 + sizeof(CFE_ES_GenPoolBD_t));
 
     CFE_UtAssert_SUCCESS(CFE_ES_GenPoolGetBlock(&Pool2, &Offset3, 15));
     /* the previous block should be 56 in size */
-    CFE_UtAssert_MEMOFFSET_EQ(Offset3, Offset2 + 56 + sizeof(CFE_ES_GenPoolBD_t));
+    UtAssert_EQ(size_t, Offset3, Offset2 + 56 + sizeof(CFE_ES_GenPoolBD_t));
 
     CFE_UtAssert_SUCCESS(CFE_ES_GenPoolGetBlock(&Pool2, &Offset4, 54));
     /* the previous block should be 16 in size */
-    CFE_UtAssert_MEMOFFSET_EQ(Offset4, Offset3 + 16 + sizeof(CFE_ES_GenPoolBD_t));
+    UtAssert_EQ(size_t, Offset4, Offset3 + 16 + sizeof(CFE_ES_GenPoolBD_t));
 
     CFE_UtAssert_SUCCESS(CFE_ES_GenPoolPutBlock(&Pool2, &BlockSize, Offset1));
     CFE_UtAssert_SUCCESS(CFE_ES_GenPoolPutBlock(&Pool2, &BlockSize, Offset2));
@@ -2308,12 +2308,12 @@ void TestGenericPool(void)
     CFE_UtAssert_SUCCESS(CFE_ES_GenPoolGetBlock(&Pool2, &Offset1, 56));
 
     /* should re-issue previous block */
-    CFE_UtAssert_MEMOFFSET_EQ(Offset4, Offset1);
+    UtAssert_EQ(size_t, Offset4, Offset1);
 
     CFE_UtAssert_SUCCESS(CFE_ES_GenPoolGetBlock(&Pool2, &Offset3, 56));
 
     /* should re-issue previous block */
-    CFE_UtAssert_MEMOFFSET_EQ(Offset3, Offset2);
+    UtAssert_EQ(size_t, Offset3, Offset2);
 
     /* Getting another will fail, despite being enough space,
      * because its now fragmented. */
@@ -2346,8 +2346,8 @@ void TestGenericPool(void)
     CFE_ES_GenPoolGetCounts(&Pool1, &NumBlocks, &CountBuf, &ErrBuf);
 
     /* Check various outputs to ensure correctness */
-    CFE_UtAssert_MEMOFFSET_EQ(TotalSize, OffsetEnd);
-    CFE_UtAssert_MEMOFFSET_EQ(FreeSize, 0);
+    UtAssert_EQ(size_t, CFE_ES_MEMOFFSET_TO_SIZET(TotalSize), OffsetEnd);
+    UtAssert_ZERO(CFE_ES_MEMOFFSET_TO_SIZET(FreeSize));
     UtAssert_UINT32_EQ(CountBuf, 2);
 
     /*
@@ -2590,13 +2590,13 @@ void TestTask(void)
     /* Test a successful HK request */
     ES_ResetUnitTest();
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.SendHkCmd), UT_TPID_CFE_ES_SEND_HK);
-    UtAssert_NONZERO(CFE_ES_Global.TaskData.HkPacket.Payload.HeapBytesFree);
+    UtAssert_NONZERO(CFE_ES_MEMOFFSET_TO_SIZET(CFE_ES_Global.TaskData.HkPacket.Payload.HeapBytesFree));
 
     /* Test the HK request with a get heap failure */
     ES_ResetUnitTest();
     UT_SetDeferredRetcode(UT_KEY(OS_HeapGetInfo), 1, -1);
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.SendHkCmd), UT_TPID_CFE_ES_SEND_HK);
-    UtAssert_ZERO(CFE_ES_Global.TaskData.HkPacket.Payload.HeapBytesFree);
+    UtAssert_ZERO(CFE_ES_MEMOFFSET_TO_SIZET(CFE_ES_Global.TaskData.HkPacket.Payload.HeapBytesFree));
 
     /* Test successful no-op command */
     ES_ResetUnitTest();
@@ -5533,8 +5533,8 @@ void TestSysLog(void)
 
     CFE_ES_SysLogReadStart_Unsync(&SysLogBuffer);
 
-    CFE_UtAssert_MEMOFFSET_EQ(SysLogBuffer.EndIdx, sizeof(CFE_ES_Global.ResetDataPtr->SystemLog) - 1);
-    CFE_UtAssert_MEMOFFSET_EQ(SysLogBuffer.LastOffset, sizeof(CFE_ES_Global.ResetDataPtr->SystemLog) - 1);
+    UtAssert_EQ(size_t, SysLogBuffer.EndIdx, sizeof(CFE_ES_Global.ResetDataPtr->SystemLog) - 1);
+    UtAssert_EQ(size_t, SysLogBuffer.LastOffset, sizeof(CFE_ES_Global.ResetDataPtr->SystemLog) - 1);
     UtAssert_ZERO(SysLogBuffer.BlockSize);
     UtAssert_ZERO(SysLogBuffer.SizeLeft);
 
@@ -5561,8 +5561,8 @@ void TestSysLog(void)
     CFE_ES_SysLogReadData(&SysLogBuffer);
 
     UtAssert_UINT32_EQ(SysLogBuffer.EndIdx, 3);
-    CFE_UtAssert_MEMOFFSET_EQ(SysLogBuffer.LastOffset, 1);
-    CFE_UtAssert_MEMOFFSET_EQ(SysLogBuffer.BlockSize, 1);
+    UtAssert_EQ(size_t, SysLogBuffer.LastOffset, 1);
+    UtAssert_EQ(size_t, SysLogBuffer.BlockSize, 1);
     UtAssert_ZERO(SysLogBuffer.SizeLeft);
 
     /* Test case where calculated blocksize results in 0 */
@@ -5573,8 +5573,8 @@ void TestSysLog(void)
     CFE_ES_SysLogReadData(&SysLogBuffer);
 
     UtAssert_UINT32_EQ(SysLogBuffer.EndIdx, 0);
-    CFE_UtAssert_MEMOFFSET_EQ(SysLogBuffer.LastOffset, 0);
-    CFE_UtAssert_MEMOFFSET_EQ(SysLogBuffer.BlockSize, 0);
+    UtAssert_EQ(size_t, SysLogBuffer.LastOffset, 0);
+    UtAssert_EQ(size_t, SysLogBuffer.BlockSize, 0);
     UtAssert_INT32_EQ(SysLogBuffer.SizeLeft, 1);
 
     /* Test nominal flow through CFE_ES_SysLogDump
