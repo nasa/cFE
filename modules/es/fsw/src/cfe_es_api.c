@@ -1044,7 +1044,7 @@ CFE_Status_t CFE_ES_GetAppInfo(CFE_ES_AppInfo_t *AppInfo, CFE_ES_AppId_t AppId)
                     strncpy(AppInfo->MainTaskName, TaskRecPtr->TaskName, sizeof(AppInfo->MainTaskName) - 1);
                     AppInfo->MainTaskName[sizeof(AppInfo->MainTaskName) - 1] = '\0';
 
-                    AppInfo->StackSize = TaskRecPtr->StartParams.StackSize;
+                    AppInfo->StackSize = CFE_ES_MEMOFFSET_C(TaskRecPtr->StartParams.StackSize);
                     AppInfo->Priority  = TaskRecPtr->StartParams.Priority;
                 }
                 else
@@ -1213,7 +1213,7 @@ CFE_Status_t CFE_ES_GetTaskInfo(CFE_ES_TaskInfo_t *TaskInfo, CFE_ES_TaskId_t Tas
         ** Get the other stats for the task
         */
         TaskInfo->ExecutionCounter = TaskRecPtr->ExecutionCounter;
-        TaskInfo->StackSize        = TaskRecPtr->StartParams.StackSize;
+        TaskInfo->StackSize        = CFE_ES_MEMOFFSET_C(TaskRecPtr->StartParams.StackSize);
         TaskInfo->Priority         = TaskRecPtr->StartParams.Priority;
 
         /*

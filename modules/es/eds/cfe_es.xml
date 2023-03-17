@@ -165,7 +165,7 @@
         </Range>
       </IntegerDataType>
 
-      <IntegerDataType name="MemOffset" shortDescription="Type used for memory sizes and offsets in commands and telemetry">
+      <ContainerDataType name="MemOffset" shortDescription="Type used for memory sizes and offsets in commands and telemetry">
         <LongDescription>
           For backward compatibility with existing CFE code this should be uint32,
           but all telemetry information will be limited to 4GB in size as a result.
@@ -176,13 +176,12 @@
 
           In either case this must be an unsigned type.
         </LongDescription>
-        <IntegerDataEncoding sizeInBits="${CFE_ES/MEM_OFFSET_SIZE_BITS}" encoding="unsigned" />
-        <Range>
-          <MinMaxRange max="2 ^ ${CFE_ES/MEM_OFFSET_SIZE_BITS}" min="0" rangeType="inclusiveMinExclusiveMax"/>
-        </Range>
-      </IntegerDataType>
+        <EntryList>
+          <Entry name="Offset" type="BASE_TYPES/MemReference" shortDescription="Memory Offset" />
+        </EntryList>
+      </ContainerDataType>
 
-      <IntegerDataType name="MemAddress" shortDescription="Type used for memory addresses in command and telemetry messages">
+      <ContainerDataType name="MemAddress" shortDescription="Type used for memory addresses in command and telemetry messages">
         <LongDescription>
           For backward compatibility with existing CFE code this should be uint32,
           but if running on a 64-bit platform, addresses in telemetry will be
@@ -200,11 +199,10 @@
           provides independence between the message representation and local
           representation of a memory address.
         </LongDescription>
-        <IntegerDataEncoding sizeInBits="${CFE_ES/MEM_OFFSET_SIZE_BITS}" encoding="unsigned" />
-        <Range>
-          <MinMaxRange max="2 ^ ${CFE_ES/MEM_OFFSET_SIZE_BITS}" min="0" rangeType="inclusiveMinExclusiveMax"/>
-        </Range>
-      </IntegerDataType>
+        <EntryList>
+          <Entry name="Addr" type="BASE_TYPES/MemReference" shortDescription="Memory Address" />
+        </EntryList>
+      </ContainerDataType>
 
       <StringDataType name="char_x_CFE_ES_CDS_MAX_FULL_NAME_LEN" length="${CFE_MISSION/ES_CDS_MAX_FULL_NAME_LEN}" />
 
@@ -246,7 +244,7 @@
                \cfetlmmnemonic  \ES_APPFILENAME
             </LongDescription>
           </Entry>
-          <Entry name="StackSize" type="BASE_TYPES/uint32" shortDescription="The Stack Size of the Application">
+          <Entry name="StackSize" type="MemOffset" shortDescription="The Stack Size of the Application">
             <LongDescription>
                \cfetlmmnemonic  \ES_STACKSIZE
             </LongDescription>
@@ -353,7 +351,7 @@
 
       <ContainerDataType name="BlockStats" shortDescription="Memory Pool Statistics data type">
         <EntryList>
-          <Entry name="BlockSize" type="BASE_TYPES/uint32" shortDescription="Number of bytes in each of these blocks" />
+          <Entry name="BlockSize" type="MemOffset" shortDescription="Number of bytes in each of these blocks" />
           <Entry name="NumCreated" type="BASE_TYPES/uint32" shortDescription="Number of Memory Blocks of this size created" />
           <Entry name="NumFree" type="BASE_TYPES/uint32" shortDescription="Number of Memory Blocks of this size that are free" />
         </EntryList>
@@ -432,7 +430,7 @@
           <Entry name="Application" type="BASE_TYPES/ApiName" shortDescription="Name of Application to be started" />
           <Entry name="AppEntryPoint" type="BASE_TYPES/ApiName" shortDescription="Symbolic name of Application's entry point" />
           <Entry name="AppFileName" type="BASE_TYPES/PathName" shortDescription="Full path and filename of Application's executable image" />
-          <Entry name="StackSize" type="BASE_TYPES/uint32" shortDescription="Desired stack size for the new application" />
+          <Entry name="StackSize" type="MemOffset" shortDescription="Desired stack size for the new application" />
           <Entry name="ExceptionAction" type="ExceptionAction">
             <LongDescription>
                \brief  #CFE_ES_ExceptionAction_RESTART_APP=On exception, restart Application,
@@ -632,12 +630,12 @@
                \cfetlmmnemonic  \ES_PSPMISSIONREV
             </LongDescription>
           </Entry>
-          <Entry name="SysLogBytesUsed" type="BASE_TYPES/uint32" shortDescription="Total number of bytes used in system log">
+          <Entry name="SysLogBytesUsed" type="MemOffset" shortDescription="Total number of bytes used in system log">
             <LongDescription>
                \cfetlmmnemonic  \ES_SYSLOGBYTEUSED
             </LongDescription>
           </Entry>
-          <Entry name="SysLogSize" type="BASE_TYPES/uint32" shortDescription="Total size of the system log">
+          <Entry name="SysLogSize" type="MemOffset" shortDescription="Total size of the system log">
             <LongDescription>
                \cfetlmmnemonic  \ES_SYSLOGSIZE
             </LongDescription>
@@ -752,17 +750,17 @@
                \cfetlmmnemonic  \ES_PERFDATA2WRITE
             </LongDescription>
           </Entry>
-          <Entry name="HeapBytesFree" type="BASE_TYPES/uint32" shortDescription="Number of free bytes remaining in the OS heap">
+          <Entry name="HeapBytesFree" type="MemOffset" shortDescription="Number of free bytes remaining in the OS heap">
             <LongDescription>
                \cfetlmmnemonic  \ES_HEAPBYTESFREE
             </LongDescription>
           </Entry>
-          <Entry name="HeapBlocksFree" type="BASE_TYPES/uint32" shortDescription="Number of free blocks remaining in the OS heap">
+          <Entry name="HeapBlocksFree" type="MemOffset" shortDescription="Number of free blocks remaining in the OS heap">
             <LongDescription>
                \cfetlmmnemonic  \ES_HEAPBLKSFREE
             </LongDescription>
           </Entry>
-          <Entry name="HeapMaxBlockSize" type="BASE_TYPES/uint32" shortDescription="Number of bytes in the largest free block">
+          <Entry name="HeapMaxBlockSize" type="MemOffset" shortDescription="Number of bytes in the largest free block">
             <LongDescription>
                \cfetlmmnemonic  \ES_HEAPMAXBLK
             </LongDescription>

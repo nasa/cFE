@@ -852,7 +852,7 @@ int32 CFE_TBL_LoadFromFile(const char *AppName, CFE_TBL_LoadBuff_t *WorkingBuffe
         OS_read(FileDescriptor, ((uint8 *)WorkingBufferPtr->BufferPtr) + TblFileHeader.Offset, TblFileHeader.NumBytes);
     if (OsStatus >= OS_SUCCESS)
     {
-        NumBytes = (long)OsStatus; /* status code conversion (size) */
+        NumBytes = OsStatus; /* status code conversion (size) */
     }
     else
     {
@@ -873,7 +873,7 @@ int32 CFE_TBL_LoadFromFile(const char *AppName, CFE_TBL_LoadBuff_t *WorkingBuffe
     OsStatus = OS_read(FileDescriptor, &ExtraByte, 1);
     if (OsStatus >= OS_SUCCESS)
     {
-        NumBytes = (long)OsStatus; /* status code conversion (size) */
+        NumBytes = OsStatus; /* status code conversion (size) */
     }
     else
     {

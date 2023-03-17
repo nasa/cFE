@@ -744,9 +744,9 @@ int32 CFE_ES_HousekeepingCmd(const CFE_ES_SendHkCmd_t *data)
     }
     else
     {
-        CFE_ES_Global.TaskData.HkPacket.Payload.HeapBytesFree    = 0;
-        CFE_ES_Global.TaskData.HkPacket.Payload.HeapBlocksFree   = 0;
-        CFE_ES_Global.TaskData.HkPacket.Payload.HeapMaxBlockSize = 0;
+        CFE_ES_Global.TaskData.HkPacket.Payload.HeapBytesFree    = CFE_ES_MEMOFFSET_C(0);
+        CFE_ES_Global.TaskData.HkPacket.Payload.HeapBlocksFree   = CFE_ES_MEMOFFSET_C(0);
+        CFE_ES_Global.TaskData.HkPacket.Payload.HeapMaxBlockSize = CFE_ES_MEMOFFSET_C(0);
     }
 
     /*
@@ -900,13 +900,10 @@ int32 CFE_ES_StartAppCmd(const CFE_ES_StartAppCmd_t *data)
     else
     {
         /* If stack size was provided, use it, otherwise use default. */
-        if (cmd->StackSize == 0)
+        StartParams.MainTaskInfo.StackSize = CFE_ES_MEMOFFSET_TO_SIZET(cmd->StackSize);
+        if (StartParams.MainTaskInfo.StackSize == 0)
         {
             StartParams.MainTaskInfo.StackSize = CFE_PLATFORM_ES_DEFAULT_STACK_SIZE;
-        }
-        else
-        {
-            StartParams.MainTaskInfo.StackSize = cmd->StackSize;
         }
 
         StartParams.MainTaskInfo.Priority = cmd->Priority;

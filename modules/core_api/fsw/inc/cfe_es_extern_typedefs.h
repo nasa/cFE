@@ -381,11 +381,21 @@ typedef uint16 CFE_ES_TaskPriority_Atom_t;
  */
 typedef uint32 CFE_ES_MemOffset_t;
 
-/*
+/**
+ * @brief Memory Offset initializer wrapper
+ *
  * A converter macro to use when initializing a CFE_ES_MemOffset_t
  * from an integer value of a different type.
  */
-#define CFE_ES_MEMOFFSET_C(x)  ((CFE_ES_MemOffset_t)(x))
+#define CFE_ES_MEMOFFSET_C(x)        ((CFE_ES_MemOffset_t)(x))
+
+/**
+ * @brief Memory Offset to integer value (size_t) wrapper
+ *
+ * A converter macro to use when interpreting a CFE_ES_MemOffset_t
+ * value as a "size_t" type
+ */
+#define CFE_ES_MEMOFFSET_TO_SIZET(x) ((size_t)(x))
 
 /**
  * @brief Type used for memory addresses in command and telemetry messages
@@ -408,15 +418,21 @@ typedef uint32 CFE_ES_MemOffset_t;
  */
 typedef uint32 CFE_ES_MemAddress_t;
 
-/*
+/**
+ * @brief Memory Address initializer wrapper
+ *
  * A converter macro to use when initializing a CFE_ES_MemAddress_t
  * from a pointer value of a different type.
- *
- * @note on a 64 bit platform, this macro will truncate the address such
- * that it will fit into a 32-bit telemetry field.  Obviously, the resulting
- * value is no longer usable as a memory address after this.
  */
-#define CFE_ES_MEMADDRESS_C(x) ((CFE_ES_MemAddress_t)((cpuaddr)(x)&0xFFFFFFFF))
+#define CFE_ES_MEMADDRESS_C(x)       ((CFE_ES_MemAddress_t)((cpuaddr)(x)&0xFFFFFFFF))
+
+/**
+ * @brief Memory Address to pointer wrapper
+ *
+ * A converter macro to use when interpreting a CFE_ES_MemAddress_t
+ * as a pointer value.
+ */
+#define CFE_ES_MEMADDRESS_TO_PTR(x)  ((void *)(cpuaddr)(x))
 
 /*
  * Data Structures shared between API and Message (CMD/TLM) interfaces
