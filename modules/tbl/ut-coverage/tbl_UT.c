@@ -2243,7 +2243,7 @@ void Test_CFE_TBL_Load(void)
     /* c. Perform test */
     UT_InitData();
     UT_SetAppID(UT_TBL_APPID_1);
-    UtAssert_INT32_EQ(CFE_TBL_Load(App1TblHandle1, CFE_TBL_SRC_ADDRESS, &TestTable1), CFE_TBL_INFO_TABLE_LOCKED);
+    UtAssert_INT32_EQ(CFE_TBL_Load(App1TblHandle1, CFE_TBL_SRC_ADDRESS, &TestTable1), CFE_TBL_ERR_TABLE_LOCKED);
     CFE_UtAssert_EVENTCOUNT(1);
 
     /* d. Test cleanup */
@@ -2725,8 +2725,8 @@ void Test_CFE_TBL_Manage(void)
 
     /* Configure table for update */
     RegRecPtr->LoadPending = true;
-    UtAssert_INT32_EQ(CFE_TBL_Manage(App1TblHandle1), CFE_TBL_INFO_TABLE_LOCKED);
-    CFE_UtAssert_EVENTCOUNT(0);
+    UtAssert_INT32_EQ(CFE_TBL_Manage(App1TblHandle1), CFE_TBL_ERR_TABLE_LOCKED);
+    CFE_UtAssert_EVENTCOUNT(1);
 
     /* Save the previous table's information for a subsequent test */
     AccessDescPtr  = &CFE_TBL_Global.Handles[App1TblHandle1];

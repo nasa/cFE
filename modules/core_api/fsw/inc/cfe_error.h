@@ -1053,7 +1053,7 @@ char *CFE_ES_StatusToString(CFE_Status_t status, CFE_StatusString_t *status_stri
  *  The calling Application tried to update a table that is locked by another user.
  *
  */
-#define CFE_TBL_INFO_TABLE_LOCKED ((CFE_Status_t)0x4c000018)
+#define CFE_TBL_ERR_TABLE_LOCKED ((CFE_Status_t)0xcc000018)
 
 /**
  * Validation Pending
