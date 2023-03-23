@@ -72,18 +72,6 @@ typedef enum
     CFE_TBL_CMD_MSGTYPE       /**< \brief Command Type (requires Message ID and Command Code match) */
 } CFE_TBL_MsgType_t;
 
-/**
-** Data structure of a single record in #CFE_TBL_CmdHandlerTbl
-*/
-typedef struct
-{
-    CFE_SB_MsgId_t           MsgId;          /**< \brief Acceptable Message ID */
-    CFE_MSG_FcnCode_t        CmdCode;        /**< \brief Acceptable Command Code (if necessary) */
-    size_t                   ExpectedLength; /**< \brief Expected Message Length (in bytes) including message header */
-    CFE_TBL_MsgProcFuncPtr_t MsgProcFuncPtr; /**< \brief Pointer to function to handle message  */
-    CFE_TBL_MsgType_t        MsgTypes;       /**< \brief Message Type (i.e. - with/without Cmd Code)   */
-} CFE_TBL_CmdHandlerTblRec_t;
-
 /* Command Message Processing Functions */
 /*****************************************************************************/
 
