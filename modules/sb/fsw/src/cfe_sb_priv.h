@@ -295,7 +295,7 @@ typedef struct
  *
  * \return Execution status, see \ref CFEReturnCodes
  */
-int32 CFE_SB_AppInit(void);
+CFE_Status_t CFE_SB_AppInit(void);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -303,7 +303,7 @@ int32 CFE_SB_AppInit(void);
  *
  * \return Execution status, see \ref CFEReturnCodes
  */
-int32 CFE_SB_InitBuffers(void);
+CFE_Status_t CFE_SB_InitBuffers(void);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -358,7 +358,7 @@ char *CFE_SB_GetAppTskName(CFE_ES_TaskId_t TaskId, char *FullName);
  * @param AppId   The application that owns the pipe
  * \return Execution status, see \ref CFEReturnCodes
  */
-int32 CFE_SB_DeletePipeWithAppId(CFE_SB_PipeId_t PipeId, CFE_ES_AppId_t AppId);
+CFE_Status_t CFE_SB_DeletePipeWithAppId(CFE_SB_PipeId_t PipeId, CFE_ES_AppId_t AppId);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -368,7 +368,7 @@ int32 CFE_SB_DeletePipeWithAppId(CFE_SB_PipeId_t PipeId, CFE_ES_AppId_t AppId);
  *
  * \return Execution status, see \ref CFEReturnCodes
  */
-int32 CFE_SB_DeletePipeFull(CFE_SB_PipeId_t PipeId, CFE_ES_AppId_t AppId);
+CFE_Status_t CFE_SB_DeletePipeFull(CFE_SB_PipeId_t PipeId, CFE_ES_AppId_t AppId);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -386,8 +386,8 @@ int32 CFE_SB_DeletePipeFull(CFE_SB_PipeId_t PipeId, CFE_ES_AppId_t AppId);
  *
  * \return Execution status, see \ref CFEReturnCodes
  */
-int32 CFE_SB_SubscribeFull(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId, CFE_SB_Qos_t Quality, uint16 MsgLim,
-                           uint8 Scope);
+CFE_Status_t CFE_SB_SubscribeFull(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId, CFE_SB_Qos_t Quality, uint16 MsgLim,
+                                  uint8 Scope);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -398,7 +398,7 @@ int32 CFE_SB_SubscribeFull(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId, CFE_SB_
  *
  * \return Execution status, see \ref CFEReturnCodes
  */
-int32 CFE_SB_UnsubscribeWithAppId(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId, CFE_ES_AppId_t AppId);
+CFE_Status_t CFE_SB_UnsubscribeWithAppId(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId, CFE_ES_AppId_t AppId);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -408,7 +408,7 @@ int32 CFE_SB_UnsubscribeWithAppId(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId, 
  *
  * \return Execution status, see \ref CFEReturnCodes
  */
-int32 CFE_SB_UnsubscribeFull(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId, uint8 Scope, CFE_ES_AppId_t AppId);
+CFE_Status_t CFE_SB_UnsubscribeFull(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId, uint8 Scope, CFE_ES_AppId_t AppId);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -421,8 +421,8 @@ int32 CFE_SB_UnsubscribeFull(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId, uint8
  *
  * \return Execution status, see \ref CFEReturnCodes
  */
-int32 CFE_SB_TransmitMsgValidate(const CFE_MSG_Message_t *MsgPtr, CFE_SB_MsgId_t *MsgIdPtr, CFE_MSG_Size_t *SizePtr,
-                                 CFE_SBR_RouteId_t *RouteIdPtr);
+CFE_Status_t CFE_SB_TransmitMsgValidate(const CFE_MSG_Message_t *MsgPtr, CFE_SB_MsgId_t *MsgIdPtr,
+                                        CFE_MSG_Size_t *SizePtr, CFE_SBR_RouteId_t *RouteIdPtr);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -436,7 +436,7 @@ int32 CFE_SB_TransmitMsgValidate(const CFE_MSG_Message_t *MsgPtr, CFE_SB_MsgId_t
  *
  * \return Execution status, see \ref CFEReturnCodes
  */
-int32 CFE_SB_ZeroCopyReleaseAppId(CFE_ES_AppId_t AppId);
+CFE_Status_t CFE_SB_ZeroCopyReleaseAppId(CFE_ES_AppId_t AppId);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -472,7 +472,7 @@ void CFE_SB_DecrBufUseCnt(CFE_SB_BufferD_t *bd);
  * SB internal function to validate a given MsgId.
  * \return Execution status, see \ref CFEReturnCodes
  */
-int32 CFE_SB_ValidateMsgId(CFE_SB_MsgId_t MsgId);
+CFE_Status_t CFE_SB_ValidateMsgId(CFE_SB_MsgId_t MsgId);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -500,7 +500,7 @@ void CFE_SB_SetSubscriptionReporting(uint32 state);
  *
  * \return Execution status, see \ref CFEReturnCodes
  */
-int32 CFE_SB_SendSubscriptionReport(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId, CFE_SB_Qos_t Quality);
+CFE_Status_t CFE_SB_SendSubscriptionReport(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId, CFE_SB_Qos_t Quality);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -541,7 +541,7 @@ CFE_SB_DestinationD_t *CFE_SB_GetDestinationBlk(void);
  *
  * \return Execution status, see \ref CFEReturnCodes
  */
-int32 CFE_SB_PutDestinationBlk(CFE_SB_DestinationD_t *Dest);
+CFE_Status_t CFE_SB_PutDestinationBlk(CFE_SB_DestinationD_t *Dest);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -663,7 +663,7 @@ void CFE_SB_BroadcastBufferToRoute(CFE_SB_BufferD_t *BufDscPtr, CFE_SBR_RouteId_
  *
  * \returns CFE_SUCCESS if validation passed, or error code.
  */
-int32 CFE_SB_ZeroCopyBufferValidate(CFE_SB_Buffer_t *BufPtr, CFE_SB_BufferD_t **BufDscPtr);
+CFE_Status_t CFE_SB_ZeroCopyBufferValidate(CFE_SB_Buffer_t *BufPtr, CFE_SB_BufferD_t **BufDscPtr);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -676,7 +676,7 @@ int32 CFE_SB_ZeroCopyBufferValidate(CFE_SB_Buffer_t *BufPtr, CFE_SB_BufferD_t **
  * \param[in] RouteId The route ID to add destination node to
  * \param[in] NewNode Pointer to the destination to add
  */
-int32 CFE_SB_AddDestNode(CFE_SBR_RouteId_t RouteId, CFE_SB_DestinationD_t *NewNode);
+CFE_Status_t CFE_SB_AddDestNode(CFE_SBR_RouteId_t RouteId, CFE_SB_DestinationD_t *NewNode);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -756,7 +756,7 @@ size_t CFE_SB_MsgHdrSize(const CFE_MSG_Message_t *MsgPtr);
  * \param[in] data Pointer to command structure
  * \return Execution status, see \ref CFEReturnCodes
  */
-int32 CFE_SB_NoopCmd(const CFE_SB_NoopCmd_t *data);
+CFE_Status_t CFE_SB_NoopCmd(const CFE_SB_NoopCmd_t *data);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -765,7 +765,7 @@ int32 CFE_SB_NoopCmd(const CFE_SB_NoopCmd_t *data);
  * \param[in] data Pointer to command structure
  * \return Execution status, see \ref CFEReturnCodes
  */
-int32 CFE_SB_ResetCountersCmd(const CFE_SB_ResetCountersCmd_t *data);
+CFE_Status_t CFE_SB_ResetCountersCmd(const CFE_SB_ResetCountersCmd_t *data);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -774,7 +774,7 @@ int32 CFE_SB_ResetCountersCmd(const CFE_SB_ResetCountersCmd_t *data);
  * \param[in] data Pointer to command structure
  * \return Execution status, see \ref CFEReturnCodes
  */
-int32 CFE_SB_EnableSubReportingCmd(const CFE_SB_EnableSubReportingCmd_t *data);
+CFE_Status_t CFE_SB_EnableSubReportingCmd(const CFE_SB_EnableSubReportingCmd_t *data);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -783,7 +783,7 @@ int32 CFE_SB_EnableSubReportingCmd(const CFE_SB_EnableSubReportingCmd_t *data);
  * \param[in] data Pointer to command structure
  * \return Execution status, see \ref CFEReturnCodes
  */
-int32 CFE_SB_DisableSubReportingCmd(const CFE_SB_DisableSubReportingCmd_t *data);
+CFE_Status_t CFE_SB_DisableSubReportingCmd(const CFE_SB_DisableSubReportingCmd_t *data);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -794,7 +794,7 @@ int32 CFE_SB_DisableSubReportingCmd(const CFE_SB_DisableSubReportingCmd_t *data)
  * \param[in] data Pointer to command structure
  * \return Execution status, see \ref CFEReturnCodes
  */
-int32 CFE_SB_SendHKTlmCmd(const CFE_SB_SendHkCmd_t *data);
+CFE_Status_t CFE_SB_SendHKTlmCmd(const CFE_SB_SendHkCmd_t *data);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -806,7 +806,7 @@ int32 CFE_SB_SendHKTlmCmd(const CFE_SB_SendHkCmd_t *data);
  * \param[in] data Pointer to command structure
  * \return Execution status, see \ref CFEReturnCodes
  */
-int32 CFE_SB_EnableRouteCmd(const CFE_SB_EnableRouteCmd_t *data);
+CFE_Status_t CFE_SB_EnableRouteCmd(const CFE_SB_EnableRouteCmd_t *data);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -818,7 +818,7 @@ int32 CFE_SB_EnableRouteCmd(const CFE_SB_EnableRouteCmd_t *data);
  * \param[in] data Pointer to command structure
  * \return Execution status, see \ref CFEReturnCodes
  */
-int32 CFE_SB_DisableRouteCmd(const CFE_SB_DisableRouteCmd_t *data);
+CFE_Status_t CFE_SB_DisableRouteCmd(const CFE_SB_DisableRouteCmd_t *data);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -829,7 +829,7 @@ int32 CFE_SB_DisableRouteCmd(const CFE_SB_DisableRouteCmd_t *data);
  * \param[in] data Pointer to command structure
  * \return Execution status, see \ref CFEReturnCodes
  */
-int32 CFE_SB_SendStatsCmd(const CFE_SB_SendSbStatsCmd_t *data);
+CFE_Status_t CFE_SB_SendStatsCmd(const CFE_SB_SendSbStatsCmd_t *data);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -840,7 +840,7 @@ int32 CFE_SB_SendStatsCmd(const CFE_SB_SendSbStatsCmd_t *data);
  * \param[in] data Pointer to command structure
  * \return Execution status, see \ref CFEReturnCodes
  */
-int32 CFE_SB_WriteRoutingInfoCmd(const CFE_SB_WriteRoutingInfoCmd_t *data);
+CFE_Status_t CFE_SB_WriteRoutingInfoCmd(const CFE_SB_WriteRoutingInfoCmd_t *data);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -851,7 +851,7 @@ int32 CFE_SB_WriteRoutingInfoCmd(const CFE_SB_WriteRoutingInfoCmd_t *data);
  * \param[in] data Pointer to command structure
  * \return Execution status, see \ref CFEReturnCodes
  */
-int32 CFE_SB_WritePipeInfoCmd(const CFE_SB_WritePipeInfoCmd_t *data);
+CFE_Status_t CFE_SB_WritePipeInfoCmd(const CFE_SB_WritePipeInfoCmd_t *data);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -862,7 +862,7 @@ int32 CFE_SB_WritePipeInfoCmd(const CFE_SB_WritePipeInfoCmd_t *data);
  * \param[in] data Pointer to command structure
  * \return Execution status, see \ref CFEReturnCodes
  */
-int32 CFE_SB_WriteMapInfoCmd(const CFE_SB_WriteMapInfoCmd_t *data);
+CFE_Status_t CFE_SB_WriteMapInfoCmd(const CFE_SB_WriteMapInfoCmd_t *data);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -875,7 +875,7 @@ int32 CFE_SB_WriteMapInfoCmd(const CFE_SB_WriteMapInfoCmd_t *data);
  * \param[in] data Pointer to command structure
  * \return Execution status, see \ref CFEReturnCodes
  */
-int32 CFE_SB_SendPrevSubsCmd(const CFE_SB_SendPrevSubsCmd_t *data);
+CFE_Status_t CFE_SB_SendPrevSubsCmd(const CFE_SB_SendPrevSubsCmd_t *data);
 
 /*---------------------------------------------------------------------------------------*/
 /**

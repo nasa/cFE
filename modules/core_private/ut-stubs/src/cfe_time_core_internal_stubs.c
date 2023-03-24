@@ -30,15 +30,15 @@
  * Generated stub function for CFE_TIME_CleanUpApp()
  * ----------------------------------------------------
  */
-int32 CFE_TIME_CleanUpApp(CFE_ES_AppId_t AppId)
+CFE_Status_t CFE_TIME_CleanUpApp(CFE_ES_AppId_t AppId)
 {
-    UT_GenStub_SetupReturnBuffer(CFE_TIME_CleanUpApp, int32);
+    UT_GenStub_SetupReturnBuffer(CFE_TIME_CleanUpApp, CFE_Status_t);
 
     UT_GenStub_AddParam(CFE_TIME_CleanUpApp, CFE_ES_AppId_t, AppId);
 
     UT_GenStub_Execute(CFE_TIME_CleanUpApp, Basic, NULL);
 
-    return UT_GenStub_GetReturnValue(CFE_TIME_CleanUpApp, int32);
+    return UT_GenStub_GetReturnValue(CFE_TIME_CleanUpApp, CFE_Status_t);
 }
 
 /*
@@ -46,13 +46,13 @@ int32 CFE_TIME_CleanUpApp(CFE_ES_AppId_t AppId)
  * Generated stub function for CFE_TIME_EarlyInit()
  * ----------------------------------------------------
  */
-int32 CFE_TIME_EarlyInit(void)
+CFE_Status_t CFE_TIME_EarlyInit(void)
 {
-    UT_GenStub_SetupReturnBuffer(CFE_TIME_EarlyInit, int32);
+    UT_GenStub_SetupReturnBuffer(CFE_TIME_EarlyInit, CFE_Status_t);
 
     UT_GenStub_Execute(CFE_TIME_EarlyInit, Basic, NULL);
 
-    return UT_GenStub_GetReturnValue(CFE_TIME_EarlyInit, int32);
+    return UT_GenStub_GetReturnValue(CFE_TIME_EarlyInit, CFE_Status_t);
 }
 
 /*

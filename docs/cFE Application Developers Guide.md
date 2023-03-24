@@ -930,20 +930,20 @@ the newly-created resource.  This ID is used in all other functions that use
 the binary semaphore.
 
 ```c
-int32 OS_BinSemCreate(uint32 *xxx_SEM_ID, const char *xxx_SEM_NAME,
+CFE_Status_t OS_BinSemCreate(uint32 *xxx_SEM_ID, const char *xxx_SEM_NAME,
  			       uint32 sem_initial_value, uint32 options);
 ```
 
 There are two options for pending on a binary semaphore:
 
 ```c
-int32 OS_BinSemTake( uint32 xxx_SEM_ID );
+CFE_Status_t OS_BinSemTake( uint32 xxx_SEM_ID );
 ```
 
 which waits indefinitely for a semaphore to become available, and
 
 ```c
-int32 OS_BinSemTimedWait( uint32 xxx_SEM_ID , uint32 timeout_in_milliseconds );
+CFE_Status_t OS_BinSemTimedWait( uint32 xxx_SEM_ID , uint32 timeout_in_milliseconds );
 ```
 
 which waits for a specified timeout period and quits if the semaphore
@@ -952,7 +952,7 @@ has not become available.
 A binary semaphore is given by using this function:
 
 ```c
-int32 OS_BinSemGive( uint32 xxx_SEM_ID );
+CFE_Status_t OS_BinSemGive( uint32 xxx_SEM_ID );
 ```
 
 For more detail on these functions (including arguments and return codes, refer
@@ -977,26 +977,26 @@ ID of the newly-created resource. This ID is used in all other functions that
 use the binary semaphore.
 
 ```c
-int32 OS_CountSemCreate(uint32 *xxx_SEM_ID, const char *xxx_SEM_NAME,
+CFE_Status_t OS_CountSemCreate(uint32 *xxx_SEM_ID, const char *xxx_SEM_NAME,
  			       uint32 sem_initial_value, uint32 options);
 ```
 
 There are two options for pending on a counting semaphore:
 
 ```c
-int32 OS_CountSemTake( uint32 xxx_SEM_ID );
+CFE_Status_t OS_CountSemTake( uint32 xxx_SEM_ID );
 ```
 
 which waits indefinitely for a semaphore to become available, and
 
 ```c
-int32 OS_CountSemTimedWait( uint32 xxx_SEM_ID , uint32 timeout_in_milliseconds );
+CFE_Status_t OS_CountSemTimedWait( uint32 xxx_SEM_ID , uint32 timeout_in_milliseconds );
 ```
 
 A counting semaphore is given by using this function:
 
 ```c
-int32 OS_CountSemGive( uint32 xxx_SEM_ID );
+CFE_Status_t OS_CountSemGive( uint32 xxx_SEM_ID );
 ```
 
 For more detail on these functions (including arguments and return codes, refer
@@ -1032,12 +1032,12 @@ have the same level of indentation, and there should be exactly one
 entry point and one exit point to the protected region.
 
 ```c
-int32 OS_MutSemTake( uint32 xxx_MUT_ID );
+CFE_Status_t OS_MutSemTake( uint32 xxx_MUT_ID );
 
    /* protected region */
    Use the resource...
 
-int32 OS_MutSemGive( uint32 xxx_MUT_ID );
+CFE_Status_t OS_MutSemGive( uint32 xxx_MUT_ID );
 ```
 
 The code in the protected region should be kept as short as possible;
@@ -1057,25 +1057,25 @@ of the entire system.
 An application creates a mutex by calling:
 
 ```c
-int32 OS_MutSemCreate (uint32 *sem_id, const char *sem_name, uint32 options);
+CFE_Status_t OS_MutSemCreate (uint32 *sem_id, const char *sem_name, uint32 options);
 ```
 
 and deletes it by calling:
 
 ```c
-int32 OS_MutSemDelete (uint32 sem_id);
+CFE_Status_t OS_MutSemDelete (uint32 sem_id);
 ```
 
 An application takes a mutex by calling:
 
 ```c
-int32 OS_MutSemTake( uint32 xxx_MUT_ID );
+CFE_Status_t OS_MutSemTake( uint32 xxx_MUT_ID );
 ```
 
 and gives it by calling:
 
 ```c
-int32 OS_MutSemGive( uint32 xxx_MUT_ID );
+CFE_Status_t OS_MutSemGive( uint32 xxx_MUT_ID );
 ```
 
 There is no function for taking a mutex with a timeout limit since
@@ -1471,7 +1471,7 @@ function, then the Developer can use the CFE_ES_WriteToSysLog
 function. This function has the following prototype:
 
 ```c
-int32 CFE_ES_WriteToSysLog(const char *pSpecString, ...);
+CFE_Status_t CFE_ES_WriteToSysLog(const char *pSpecString, ...);
 ```
 
 The function acts just like a standard 'C' printf function and records

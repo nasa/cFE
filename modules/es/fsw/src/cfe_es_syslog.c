@@ -129,12 +129,12 @@ void CFE_ES_SysLogReadStart_Unsync(CFE_ES_SysLogReadBuffer_t *Buffer)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_SysLogAppend_Unsync(const char *LogString)
+CFE_Status_t CFE_ES_SysLogAppend_Unsync(const char *LogString)
 {
-    int32  ReturnCode;
-    size_t MessageLen;
-    size_t WriteIdx;
-    size_t EndIdx;
+    CFE_Status_t ReturnCode;
+    size_t       MessageLen;
+    size_t       WriteIdx;
+    size_t       EndIdx;
 
     /*
      * Sanity check - Make sure the message length is actually reasonable
@@ -251,7 +251,7 @@ int32 CFE_ES_SysLogAppend_Unsync(const char *LogString)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_SysLogWrite_Unsync(const char *SpecStringPtr, ...)
+CFE_Status_t CFE_ES_SysLogWrite_Unsync(const char *SpecStringPtr, ...)
 {
     char    TmpString[CFE_ES_MAX_SYSLOG_MSG_SIZE];
     va_list ArgPtr;
@@ -332,9 +332,9 @@ void CFE_ES_SysLogReadData(CFE_ES_SysLogReadBuffer_t *Buffer)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_SysLogSetMode(CFE_ES_LogMode_Enum_t Mode)
+CFE_Status_t CFE_ES_SysLogSetMode(CFE_ES_LogMode_Enum_t Mode)
 {
-    int32 Status;
+    CFE_Status_t Status;
 
     if ((Mode == CFE_ES_LogMode_OVERWRITE) || (Mode == CFE_ES_LogMode_DISCARD))
     {
@@ -432,14 +432,14 @@ void CFE_ES_SysLog_vsnprintf(char *Buffer, size_t BufferSize, const char *SpecSt
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_SysLogDump(const char *Filename)
+CFE_Status_t CFE_ES_SysLogDump(const char *Filename)
 {
-    osal_id_t fd = OS_OBJECT_ID_UNDEFINED;
-    int32     OsStatus;
-    int32     Status;
-    size_t    WritePos;
-    size_t    TotalSize;
-    size_t    LastReqSize;
+    osal_id_t    fd = OS_OBJECT_ID_UNDEFINED;
+    int32        OsStatus;
+    CFE_Status_t Status;
+    size_t       WritePos;
+    size_t       TotalSize;
+    size_t       LastReqSize;
     union
     {
         CFE_ES_SysLogReadBuffer_t LogData;

@@ -43,7 +43,7 @@ void CFE_Assert_RegisterCallback(CFE_Assert_StatusCallback_t Callback)
 /*
  * Opens a log file to "tee" the test output to
  */
-int32 CFE_Assert_OpenLogFile(const char *Filename)
+CFE_Status_t CFE_Assert_OpenLogFile(const char *Filename)
 {
     int32  OsStatus;
     char * Ext;
@@ -104,7 +104,7 @@ void CFE_Assert_CloseLogFile(void)
 /*
  * Initialization Function for this library
  */
-int32 CFE_Assert_LibInit(CFE_ES_LibId_t LibId)
+CFE_Status_t CFE_Assert_LibInit(CFE_ES_LibId_t LibId)
 {
     int32 OsStatus;
 

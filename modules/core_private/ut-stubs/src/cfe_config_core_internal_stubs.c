@@ -30,13 +30,13 @@
  * Generated stub function for CFE_Config_Init()
  * ----------------------------------------------------
  */
-int32 CFE_Config_Init(void)
+CFE_Status_t CFE_Config_Init(void)
 {
-    UT_GenStub_SetupReturnBuffer(CFE_Config_Init, int32);
+    UT_GenStub_SetupReturnBuffer(CFE_Config_Init, CFE_Status_t);
 
     UT_GenStub_Execute(CFE_Config_Init, Basic, NULL);
 
-    return UT_GenStub_GetReturnValue(CFE_Config_Init, int32);
+    return UT_GenStub_GetReturnValue(CFE_Config_Init, CFE_Status_t);
 }
 
 /*

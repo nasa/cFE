@@ -366,18 +366,18 @@ void CFE_FS_ByteSwapUint32(uint32 *Uint32ToSwapPtr)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_FS_ParseInputFileNameEx(char *OutputBuffer, const char *InputBuffer, size_t OutputBufSize,
-                                  size_t InputBufSize, const char *DefaultInput, const char *DefaultPath,
-                                  const char *DefaultExtension)
+CFE_Status_t CFE_FS_ParseInputFileNameEx(char *OutputBuffer, const char *InputBuffer, size_t OutputBufSize,
+                                         size_t InputBufSize, const char *DefaultInput, const char *DefaultPath,
+                                         const char *DefaultExtension)
 {
-    int32       Status;
-    const char *InputPtr;
-    const char *ComponentPtr;
-    size_t      ComponentLen;
-    char        ComponentTerm;
-    size_t      OutputLen;
-    size_t      InputLen;
-    bool        LastPathReached;
+    CFE_Status_t Status;
+    const char * InputPtr;
+    const char * ComponentPtr;
+    size_t       ComponentLen;
+    char         ComponentTerm;
+    size_t       OutputLen;
+    size_t       InputLen;
+    bool         LastPathReached;
 
     /* The filename consists of a pathname, filename, and extension component. */
     enum
@@ -579,8 +579,8 @@ int32 CFE_FS_ParseInputFileNameEx(char *OutputBuffer, const char *InputBuffer, s
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_FS_ParseInputFileName(char *OutputBuffer, const char *InputName, size_t OutputBufSize,
-                                CFE_FS_FileCategory_t FileCategory)
+CFE_Status_t CFE_FS_ParseInputFileName(char *OutputBuffer, const char *InputName, size_t OutputBufSize,
+                                       CFE_FS_FileCategory_t FileCategory)
 {
     return CFE_FS_ParseInputFileNameEx(OutputBuffer, NULL, OutputBufSize, 0, InputName,
                                        CFE_FS_GetDefaultMountPoint(FileCategory),
@@ -828,10 +828,10 @@ bool CFE_FS_RunBackgroundFileDump(uint32 ElapsedTime, void *Arg)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_FS_BackgroundFileDumpRequest(CFE_FS_FileWriteMetaData_t *Meta)
+CFE_Status_t CFE_FS_BackgroundFileDumpRequest(CFE_FS_FileWriteMetaData_t *Meta)
 {
     CFE_FS_BackgroundFileDumpEntry_t *Curr;
-    int32                             Status;
+    CFE_Status_t                      Status;
     uint32                            PendingRequestCount;
 
     /* Pre-validate inputs */

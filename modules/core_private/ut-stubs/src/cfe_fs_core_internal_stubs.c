@@ -32,13 +32,13 @@ void UT_DefaultHandler_CFE_FS_RunBackgroundFileDump(void *, UT_EntryKey_t, const
  * Generated stub function for CFE_FS_EarlyInit()
  * ----------------------------------------------------
  */
-int32 CFE_FS_EarlyInit(void)
+CFE_Status_t CFE_FS_EarlyInit(void)
 {
-    UT_GenStub_SetupReturnBuffer(CFE_FS_EarlyInit, int32);
+    UT_GenStub_SetupReturnBuffer(CFE_FS_EarlyInit, CFE_Status_t);
 
     UT_GenStub_Execute(CFE_FS_EarlyInit, Basic, NULL);
 
-    return UT_GenStub_GetReturnValue(CFE_FS_EarlyInit, int32);
+    return UT_GenStub_GetReturnValue(CFE_FS_EarlyInit, CFE_Status_t);
 }
 
 /*

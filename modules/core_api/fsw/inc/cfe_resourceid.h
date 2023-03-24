@@ -37,6 +37,8 @@
 #ifndef CFE_RESOURCEID_H
 #define CFE_RESOURCEID_H
 
+#include "cfe_error.h"
+
 /*
  * The basic resource ID API definitions
  */
@@ -216,6 +218,6 @@ CFE_ResourceId_t CFE_ResourceId_FindNext(CFE_ResourceId_t StartId, uint32 TableS
  * @retval #CFE_ES_BAD_ARGUMENT             @copybrief CFE_ES_BAD_ARGUMENT
  * @retval #CFE_ES_ERR_RESOURCEID_NOT_VALID @copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
  */
-int32 CFE_ResourceId_ToIndex(CFE_ResourceId_t Id, uint32 BaseValue, uint32 TableSize, uint32 *Idx);
+CFE_Status_t CFE_ResourceId_ToIndex(CFE_ResourceId_t Id, uint32 BaseValue, uint32 TableSize, uint32 *Idx);
 
 #endif /* CFE_RESOURCEID_H */

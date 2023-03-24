@@ -167,7 +167,7 @@ void CFE_ES_SysLogReadStart_Unsync(CFE_ES_SysLogReadBuffer_t *Buffer);
  *
  * \note This function requires external thread synchronization
  */
-int32 CFE_ES_SysLogWrite_Unsync(const char *SpecStringPtr, ...);
+CFE_Status_t CFE_ES_SysLogWrite_Unsync(const char *SpecStringPtr, ...);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -188,7 +188,7 @@ int32 CFE_ES_SysLogWrite_Unsync(const char *SpecStringPtr, ...);
  * \note This function requires external thread synchronization
  * \sa CFE_ES_SysLogSetMode()
  */
-int32 CFE_ES_SysLogAppend_Unsync(const char *LogString);
+CFE_Status_t CFE_ES_SysLogAppend_Unsync(const char *LogString);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -235,7 +235,7 @@ void CFE_ES_SysLogReadData(CFE_ES_SysLogReadBuffer_t *Buffer);
  * \param Mode   The desired operating mode
  * \return CFE_SUCCESS if set successfully
  */
-int32 CFE_ES_SysLogSetMode(CFE_ES_LogMode_Enum_t Mode);
+CFE_Status_t CFE_ES_SysLogSetMode(CFE_ES_LogMode_Enum_t Mode);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -287,7 +287,7 @@ void CFE_ES_SysLog_vsnprintf(char *Buffer, size_t BufferSize, const char *SpecSt
  * \sa CFE_ES_SYSLOG_READ_BUFFER_SIZE
  *
  */
-int32 CFE_ES_SysLogDump(const char *Filename);
+CFE_Status_t CFE_ES_SysLogDump(const char *Filename);
 
 /*
 ** Exception and Reset Log API
@@ -307,8 +307,8 @@ int32 CFE_ES_SysLogDump(const char *Filename);
  *
  * \return CFE_SUCCESS if successful, or an appropriate error code from cfe_error.h
  */
-int32 CFE_ES_WriteToERLog(CFE_ES_LogEntryType_Enum_t EntryType, uint32 ResetType, uint32 ResetSubtype,
-                          const char *Description);
+CFE_Status_t CFE_ES_WriteToERLog(CFE_ES_LogEntryType_Enum_t EntryType, uint32 ResetType, uint32 ResetSubtype,
+                                 const char *Description);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -321,7 +321,7 @@ int32 CFE_ES_WriteToERLog(CFE_ES_LogEntryType_Enum_t EntryType, uint32 ResetType
  * \param AppId The Application ID associated with the task that caused the exception
  * \param PspContextId Identifier of extended context info stored in the PSP (if available)
  */
-int32 CFE_ES_WriteToERLogWithContext(CFE_ES_LogEntryType_Enum_t EntryType, uint32 ResetType, uint32 ResetSubtype,
-                                     const char *Description, CFE_ES_AppId_t AppId, uint32 PspContextId);
+CFE_Status_t CFE_ES_WriteToERLogWithContext(CFE_ES_LogEntryType_Enum_t EntryType, uint32 ResetType, uint32 ResetSubtype,
+                                            const char *Description, CFE_ES_AppId_t AppId, uint32 PspContextId);
 
 #endif /* CFE_ES_LOG_H */
