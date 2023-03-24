@@ -930,20 +930,20 @@ the newly-created resource.  This ID is used in all other functions that use
 the binary semaphore.
 
 ```c
-int32 OS_BinSemCreate(uint32 *xxx_SEM_ID, const char *xxx_SEM_NAME,
+CFE_Status_t OS_BinSemCreate(uint32 *xxx_SEM_ID, const char *xxx_SEM_NAME,
  			       uint32 sem_initial_value, uint32 options);
 ```
 
 There are two options for pending on a binary semaphore:
 
 ```c
-int32 OS_BinSemTake( uint32 xxx_SEM_ID );
+CFE_Status_t OS_BinSemTake( uint32 xxx_SEM_ID );
 ```
 
 which waits indefinitely for a semaphore to become available, and
 
 ```c
-int32 OS_BinSemTimedWait( uint32 xxx_SEM_ID , uint32 timeout_in_milliseconds );
+CFE_Status_t OS_BinSemTimedWait( uint32 xxx_SEM_ID , uint32 timeout_in_milliseconds );
 ```
 
 which waits for a specified timeout period and quits if the semaphore
@@ -952,7 +952,7 @@ has not become available.
 A binary semaphore is given by using this function:
 
 ```c
-int32 OS_BinSemGive( uint32 xxx_SEM_ID );
+CFE_Status_t OS_BinSemGive( uint32 xxx_SEM_ID );
 ```
 
 For more detail on these functions (including arguments and return codes, refer
@@ -977,26 +977,26 @@ ID of the newly-created resource. This ID is used in all other functions that
 use the binary semaphore.
 
 ```c
-int32 OS_CountSemCreate(uint32 *xxx_SEM_ID, const char *xxx_SEM_NAME,
+CFE_Status_t OS_CountSemCreate(uint32 *xxx_SEM_ID, const char *xxx_SEM_NAME,
  			       uint32 sem_initial_value, uint32 options);
 ```
 
 There are two options for pending on a counting semaphore:
 
 ```c
-int32 OS_CountSemTake( uint32 xxx_SEM_ID );
+CFE_Status_t OS_CountSemTake( uint32 xxx_SEM_ID );
 ```
 
 which waits indefinitely for a semaphore to become available, and
 
 ```c
-int32 OS_CountSemTimedWait( uint32 xxx_SEM_ID , uint32 timeout_in_milliseconds );
+CFE_Status_t OS_CountSemTimedWait( uint32 xxx_SEM_ID , uint32 timeout_in_milliseconds );
 ```
 
 A counting semaphore is given by using this function:
 
 ```c
-int32 OS_CountSemGive( uint32 xxx_SEM_ID );
+CFE_Status_t OS_CountSemGive( uint32 xxx_SEM_ID );
 ```
 
 For more detail on these functions (including arguments and return codes, refer
@@ -1032,12 +1032,12 @@ have the same level of indentation, and there should be exactly one
 entry point and one exit point to the protected region.
 
 ```c
-int32 OS_MutSemTake( uint32 xxx_MUT_ID );
+CFE_Status_t OS_MutSemTake( uint32 xxx_MUT_ID );
 
    /* protected region */
    Use the resource...
 
-int32 OS_MutSemGive( uint32 xxx_MUT_ID );
+CFE_Status_t OS_MutSemGive( uint32 xxx_MUT_ID );
 ```
 
 The code in the protected region should be kept as short as possible;
@@ -1057,25 +1057,25 @@ of the entire system.
 An application creates a mutex by calling:
 
 ```c
-int32 OS_MutSemCreate (uint32 *sem_id, const char *sem_name, uint32 options);
+CFE_Status_t OS_MutSemCreate (uint32 *sem_id, const char *sem_name, uint32 options);
 ```
 
 and deletes it by calling:
 
 ```c
-int32 OS_MutSemDelete (uint32 sem_id);
+CFE_Status_t OS_MutSemDelete (uint32 sem_id);
 ```
 
 An application takes a mutex by calling:
 
 ```c
-int32 OS_MutSemTake( uint32 xxx_MUT_ID );
+CFE_Status_t OS_MutSemTake( uint32 xxx_MUT_ID );
 ```
 
 and gives it by calling:
 
 ```c
-int32 OS_MutSemGive( uint32 xxx_MUT_ID );
+CFE_Status_t OS_MutSemGive( uint32 xxx_MUT_ID );
 ```
 
 There is no function for taking a mutex with a timeout limit since
@@ -1297,8 +1297,8 @@ SAMPLE_TaskData_t SAMPLE_TaskData;
 
 int32 SAMPLE_TaskInit(void)
 {
-    int32  Status = CFE_SUCCESS;
-    uint32 CDSCrc;
+    CFE_Status_t Status = CFE_SUCCESS;
+    uint32       CDSCrc;
 
     /* Create the Critical Data Store */
     Status = CFE_ES_RegisterCDS(&SAMPLE_TaskData.MyCDSHandle,
@@ -1345,7 +1345,7 @@ int32 SAMPLE_TaskInit(void)
 
 void SAMPLE_TaskMain(void)
 {
-    int32 Status = CFE_SUCCESS;
+    CFE_Status_t Status = CFE_SUCCESS;
 
     ...
 
@@ -1471,7 +1471,7 @@ function, then the Developer can use the `CFE_ES_WriteToSysLog`
 function. This function has the following prototype:
 
 ```c
-int32 CFE_ES_WriteToSysLog(const char *pSpecString, ...);
+CFE_Status_t CFE_ES_WriteToSysLog(const char *pSpecString, ...);
 ```
 
 The function acts just like a standard 'C' printf function and records
@@ -1500,9 +1500,9 @@ FILE: xx_app.c
 
 void XX_AppMain(void)
 {
-    uint32 RunStatus = CFE_ES_RunStatus_APP_RUN;
+    uint32           RunStatus = CFE_ES_RunStatus_APP_RUN;
     CFE_SB_Buffer_t *SBBufPtr;
-    int32  Result = CFE_SUCCESS;
+    CFE_Status_t     Result = CFE_SUCCESS;
 
     /* Performance Log (start time counter) */
     CFE_ES_PerfLogEntry(XX_APPMAIN_PERF_ID);
@@ -1735,7 +1735,7 @@ SAMPLE_AppData_t;  SAMPLE_AppData;
 ...
 
 {
-   int32 Status;
+   CFE_Status_t Status;
 
    ...
    Status = CFE_SB_CreatePipe( &SAMPLE_AppData.SAMPLE_Pipe_1, /* Variable to hold Pipe ID */
@@ -1775,7 +1775,7 @@ follows:
 FILE: sample_app.c
 
 {
-   int32 Status;
+   CFE_Status_t Status;
 
    ...
    Status = CFE_SB_DeletePipe(SAMPLE_Pipe_1); /* Delete pipe created earlier */
@@ -1830,7 +1830,7 @@ SAMPLE_AppData_t SAMPLE_AppData;
 
 ...
 {
-   int32 Status;
+   CFE_Status_t Status;
 
    ...
    Status = CFE_SB_SubscribeEX(SAMPLE_CMDID_1,               /* Msg Id to Receive */
@@ -1878,7 +1878,7 @@ Message IDs. The following is a sample of the API to accomplish this:
 
 ```c
 {
-   int32 Status;
+   CFE_Status_t Status;
 
    ...
    Status = CFE_SB_Unsubscribe(SAMPLE_CMDID_1,                 /* Msg Id to Not Receive */
@@ -1946,7 +1946,7 @@ SAMPLE_AppData_t  SAMPLE_AppData;  /* Instantiate Task Data */
 
 ...
 {
-   int32 Status;
+   CFE_Status_t Status;
 
    ...
    Status = CFE_MSG_Init(CFE_MSG_PTR(SAMPLE_AppData.HkPacket.TelemetryHeader), /* Location of SB Message Data Buffer */
@@ -2473,7 +2473,7 @@ SAMPLE_AppData_t  SAMPLE_AppData;  /* Instantiate Task Data */
 
 ...
 {
-   int32 Status;
+   CFE_Status_t Status;
 
    ...
     /*
@@ -2516,7 +2516,7 @@ resetting a specific Event ID filter counter is shown below:
 FILE: sample_app.c
 
 {
-   int32 Status;
+   CFE_Status_t Status;
 
    ...
    Status = CFE_EVS_ResetFilter(SAMPLE_MID_ERR_EID); /* Reset filter for command pkt errors */
@@ -2748,7 +2748,7 @@ CFE_TBL_Handle_t  MyTableHandle;  /* Handle to MyTable */
 
 ...
 {
-   int32 Status;
+   CFE_Status_t Status;
 
    ...
     /*
@@ -2778,7 +2778,7 @@ of this is shown in Section 8.5.1.
 
 ```c
 {
-   int32 Status = CFE_SUCCESS;
+   CFE_Status_t      Status = CFE_SUCCESS;
    SAMPLE_MyTable_t *MyTblPtr;
 
    ...
@@ -2871,8 +2871,8 @@ Table Validation Request has been made as shown below:
 
 ```c
 {
-    int32   Status = CFE_SUCCESS;
-    boolean FinishedManaging = FALSE;
+    CFE_Status_t Status           = CFE_SUCCESS;
+    boolean      FinishedManaging = FALSE;
 
     while (!FinishedManaging)
     {
@@ -2926,7 +2926,7 @@ CFE_TBL_Handle_t  MyTableHandle  /* Handle to MyTable */
 SAMPLE_MyTable_t MyTblInitData = { 0x1234, 0x5678, { 2, 3, 4, ... }, ...};
 ...
 {
-   int32 Status;
+   CFE_Status_t Status;
 
    ...
     /*
@@ -2946,7 +2946,7 @@ memory image, the code would look something like the following:
 
 ```c
 {
-   int32 Status;
+   CFE_Status_t Status;
 
    ...
     /*
@@ -3074,7 +3074,7 @@ FILE: xx_tbl.c
 
 int32 XX_TableInit(void)
 {
-   int32 Status = CFE_SUCCESS;
+   CFE_Status_t Status = CFE_SUCCESS;
 
    ...
     /*
@@ -3111,8 +3111,8 @@ int32 XX_TableInit(void)
 int32 XX_ValidateTable(void *TableData)
 {
     /* Default to successful validation */
-    int32 Status = CFE_SUCCESS;
-    int32 i = 0;
+    CFE_Status_t Status = CFE_SUCCESS;
+    int32        i      = 0;
 
     XX_MyTable_t *MyTblPtr = (XX_MyTable_t *)TblPtr;
 

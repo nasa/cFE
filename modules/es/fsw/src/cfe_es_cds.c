@@ -48,13 +48,13 @@
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_CDS_EarlyInit(void)
+CFE_Status_t CFE_ES_CDS_EarlyInit(void)
 {
     CFE_ES_CDS_Instance_t *CDS = &CFE_ES_Global.CDSVars;
     uint32                 PlatformSize;
     size_t                 MinRequiredSize;
     int32                  OsStatus;
-    int32                  Status;
+    CFE_Status_t           Status;
     int32                  PspStatus;
 
     CFE_ES_Global.CDSIsAvailable = false;
@@ -151,7 +151,7 @@ int32 CFE_ES_CDS_EarlyInit(void)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_CDSHandle_ToIndex(CFE_ES_CDSHandle_t BlockID, uint32 *Idx)
+CFE_Status_t CFE_ES_CDSHandle_ToIndex(CFE_ES_CDSHandle_t BlockID, uint32 *Idx)
 {
     return CFE_ResourceId_ToIndex(CFE_RESOURCEID_UNWRAP(BlockID), CFE_ES_CDSBLOCKID_BASE,
                                   CFE_PLATFORM_ES_CDS_MAX_NUM_ENTRIES, Idx);
@@ -205,9 +205,9 @@ CFE_ES_CDS_RegRec_t *CFE_ES_LocateCDSBlockRecordByID(CFE_ES_CDSHandle_t BlockID)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_CDS_CacheFetch(CFE_ES_CDS_AccessCache_t *Cache, size_t Offset, size_t Size)
+CFE_Status_t CFE_ES_CDS_CacheFetch(CFE_ES_CDS_AccessCache_t *Cache, size_t Offset, size_t Size)
 {
-    int32 Status;
+    CFE_Status_t Status;
 
     if (Size > 0 && Size <= sizeof(Cache->Data))
     {
@@ -238,9 +238,9 @@ int32 CFE_ES_CDS_CacheFetch(CFE_ES_CDS_AccessCache_t *Cache, size_t Offset, size
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_CDS_CacheFlush(CFE_ES_CDS_AccessCache_t *Cache)
+CFE_Status_t CFE_ES_CDS_CacheFlush(CFE_ES_CDS_AccessCache_t *Cache)
 {
-    int32 Status;
+    CFE_Status_t Status;
 
     if (Cache->Size > 0 && Cache->Size <= sizeof(Cache->Data))
     {
@@ -269,9 +269,9 @@ int32 CFE_ES_CDS_CacheFlush(CFE_ES_CDS_AccessCache_t *Cache)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_CDS_CachePreload(CFE_ES_CDS_AccessCache_t *Cache, const void *Source, size_t Offset, size_t Size)
+CFE_Status_t CFE_ES_CDS_CachePreload(CFE_ES_CDS_AccessCache_t *Cache, const void *Source, size_t Offset, size_t Size)
 {
-    int32 Status;
+    CFE_Status_t Status;
 
     if (Size > 0 && Size <= sizeof(Cache->Data))
     {
@@ -303,11 +303,12 @@ int32 CFE_ES_CDS_CachePreload(CFE_ES_CDS_AccessCache_t *Cache, const void *Sourc
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_RegisterCDSEx(CFE_ES_CDSHandle_t *HandlePtr, size_t UserBlockSize, const char *Name, bool CriticalTbl)
+CFE_Status_t CFE_ES_RegisterCDSEx(CFE_ES_CDSHandle_t *HandlePtr, size_t UserBlockSize, const char *Name,
+                                  bool CriticalTbl)
 {
     CFE_ES_CDS_Instance_t *CDS = &CFE_ES_Global.CDSVars;
-    int32                  Status;
-    int32                  RegUpdateStatus;
+    CFE_Status_t           Status;
+    CFE_Status_t           RegUpdateStatus;
     CFE_ES_CDS_RegRec_t *  RegRecPtr;
     size_t                 BlockOffset;
     size_t                 OldBlockSize;
@@ -461,12 +462,12 @@ int32 CFE_ES_RegisterCDSEx(CFE_ES_CDSHandle_t *HandlePtr, size_t UserBlockSize, 
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_ValidateCDS(void)
+CFE_Status_t CFE_ES_ValidateCDS(void)
 {
     CFE_ES_CDS_Instance_t *CDS = &CFE_ES_Global.CDSVars;
     size_t                 TrailerOffset;
     const size_t           SIG_CDS_SIZE = {CFE_ES_CDS_SIGNATURE_LEN};
-    int32                  Status;
+    CFE_Status_t           Status;
 
     /* Perform 2 checks to validate the CDS Memory Pool */
     /* First, determine if the first validity check field is correct */
@@ -510,11 +511,11 @@ int32 CFE_ES_ValidateCDS(void)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_ClearCDS(void)
+CFE_Status_t CFE_ES_ClearCDS(void)
 {
     CFE_ES_CDS_Instance_t *CDS = &CFE_ES_Global.CDSVars;
     size_t                 RemainSize;
-    int32                  Status;
+    CFE_Status_t           Status;
 
     Status = CFE_SUCCESS;
 
@@ -555,11 +556,11 @@ int32 CFE_ES_ClearCDS(void)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_InitCDSSignatures(void)
+CFE_Status_t CFE_ES_InitCDSSignatures(void)
 {
     CFE_ES_CDS_Instance_t *CDS = &CFE_ES_Global.CDSVars;
     size_t                 SigOffset;
-    int32                  Status;
+    CFE_Status_t           Status;
 
     /* Initialize the Validity Check strings */
     SigOffset = 0;
@@ -594,10 +595,10 @@ int32 CFE_ES_InitCDSSignatures(void)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_InitCDSRegistry(void)
+CFE_Status_t CFE_ES_InitCDSRegistry(void)
 {
     CFE_ES_CDS_Instance_t *CDS = &CFE_ES_Global.CDSVars;
-    int32                  Status;
+    CFE_Status_t           Status;
     uint32                 RegSize;
 
     /* Initialize the local CDS Registry */
@@ -626,7 +627,7 @@ int32 CFE_ES_InitCDSRegistry(void)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_UpdateCDSRegistry(void)
+CFE_Status_t CFE_ES_UpdateCDSRegistry(void)
 {
     CFE_ES_CDS_Instance_t *CDS = &CFE_ES_Global.CDSVars;
     int32                  PspStatus;
@@ -668,11 +669,11 @@ void CFE_ES_FormCDSName(char *FullCDSName, const char *CDSName, CFE_ES_AppId_t T
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_LockCDS(void)
+CFE_Status_t CFE_ES_LockCDS(void)
 {
     CFE_ES_CDS_Instance_t *CDS = &CFE_ES_Global.CDSVars;
     int32                  OsStatus;
-    int32                  Status;
+    CFE_Status_t           Status;
 
     OsStatus = OS_MutSemTake(CDS->GenMutex);
 
@@ -695,11 +696,11 @@ int32 CFE_ES_LockCDS(void)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_UnlockCDS(void)
+CFE_Status_t CFE_ES_UnlockCDS(void)
 {
     CFE_ES_CDS_Instance_t *CDS = &CFE_ES_Global.CDSVars;
     int32                  OsStatus;
-    int32                  Status;
+    CFE_Status_t           Status;
 
     OsStatus = OS_MutSemGive(CDS->GenMutex);
 
@@ -761,10 +762,10 @@ CFE_ES_CDS_RegRec_t *CFE_ES_LocateCDSBlockRecordByName(const char *CDSName)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_RebuildCDS(void)
+CFE_Status_t CFE_ES_RebuildCDS(void)
 {
     CFE_ES_CDS_Instance_t *CDS = &CFE_ES_Global.CDSVars;
-    int32                  Status;
+    CFE_Status_t           Status;
     int32                  PspStatus;
 
     /* First, determine if the CDS registry stored in the CDS is smaller or equal */
@@ -809,10 +810,10 @@ int32 CFE_ES_RebuildCDS(void)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_DeleteCDS(const char *CDSName, bool CalledByTblServices)
+CFE_Status_t CFE_ES_DeleteCDS(const char *CDSName, bool CalledByTblServices)
 {
     CFE_ES_CDS_Instance_t *CDS = &CFE_ES_Global.CDSVars;
-    int32                  Status;
+    CFE_Status_t           Status;
     CFE_ES_CDS_RegRec_t *  RegRecPtr;
     char                   OwnerName[OS_MAX_API_NAME];
     CFE_ES_AppId_t         AppId;

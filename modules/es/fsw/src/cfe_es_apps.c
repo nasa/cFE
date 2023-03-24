@@ -77,7 +77,7 @@ void CFE_ES_StartApplications(uint32 ResetType, const char *StartFilePath)
     uint32      NumLines;
     uint32      BuffLen; /* Length of the current buffer */
     osal_id_t   AppFile = OS_OBJECT_ID_UNDEFINED;
-    int32       Status;
+    CFE_Status_t Status;
     int32       OsStatus;
     char        c           = 0;
     bool        LineTooLong = false;
@@ -282,7 +282,7 @@ void CFE_ES_StartApplications(uint32 ResetType, const char *StartFilePath)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_ParseFileEntry(const char **TokenList, uint32 NumTokens)
+CFE_Status_t CFE_ES_ParseFileEntry(const char **TokenList, uint32 NumTokens)
 {
     const char *  ModuleName;
     const char *  EntryType;
@@ -292,7 +292,7 @@ int32 CFE_ES_ParseFileEntry(const char **TokenList, uint32 NumTokens)
         CFE_ES_AppId_t AppId;
         CFE_ES_LibId_t LibId;
     } IdBuf;
-    int32                   Status;
+    CFE_Status_t            Status;
     CFE_ES_AppStartParams_t ParamBuf;
 
     memset(&ParamBuf, 0, sizeof(ParamBuf));
@@ -393,14 +393,14 @@ int32 CFE_ES_ParseFileEntry(const char **TokenList, uint32 NumTokens)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_LoadModule(CFE_ResourceId_t ParentResourceId, const char *ModuleName,
-                        const CFE_ES_ModuleLoadParams_t *LoadParams, CFE_ES_ModuleLoadStatus_t *LoadStatus)
+CFE_Status_t CFE_ES_LoadModule(CFE_ResourceId_t ParentResourceId, const char *ModuleName,
+                               const CFE_ES_ModuleLoadParams_t *LoadParams, CFE_ES_ModuleLoadStatus_t *LoadStatus)
 {
-    osal_id_t ModuleId = OS_OBJECT_ID_UNDEFINED;
-    cpuaddr   InitSymbolAddress;
-    int32     ReturnCode;
-    int32     OsStatus;
-    uint32    LoadFlags;
+    osal_id_t    ModuleId = OS_OBJECT_ID_UNDEFINED;
+    cpuaddr      InitSymbolAddress;
+    CFE_Status_t ReturnCode;
+    int32        OsStatus;
+    uint32       LoadFlags;
 
     LoadFlags         = 0;
     InitSymbolAddress = 0;
@@ -493,11 +493,11 @@ int32 CFE_ES_LoadModule(CFE_ResourceId_t ParentResourceId, const char *ModuleNam
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_GetTaskFunction(CFE_ES_TaskEntryFuncPtr_t *FuncPtr)
+CFE_Status_t CFE_ES_GetTaskFunction(CFE_ES_TaskEntryFuncPtr_t *FuncPtr)
 {
     CFE_ES_TaskRecord_t *     TaskRecPtr;
     CFE_ES_TaskEntryFuncPtr_t EntryFunc;
-    int32                     ReturnCode;
+    CFE_Status_t              ReturnCode;
     int32                     Timeout;
 
     /*
@@ -575,14 +575,14 @@ void CFE_ES_TaskEntryPoint(void)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_StartAppTask(CFE_ES_TaskId_t *TaskIdPtr, const char *TaskName, CFE_ES_TaskEntryFuncPtr_t EntryFunc,
-                          const CFE_ES_TaskStartParams_t *Params, CFE_ES_AppId_t ParentAppId)
+CFE_Status_t CFE_ES_StartAppTask(CFE_ES_TaskId_t *TaskIdPtr, const char *TaskName, CFE_ES_TaskEntryFuncPtr_t EntryFunc,
+                                 const CFE_ES_TaskStartParams_t *Params, CFE_ES_AppId_t ParentAppId)
 {
     CFE_ES_TaskRecord_t *TaskRecPtr;
     osal_id_t            OsalTaskId = OS_OBJECT_ID_UNDEFINED;
     CFE_ES_TaskId_t      LocalTaskId;
     int32                OsStatus;
-    int32                ReturnCode;
+    CFE_Status_t         ReturnCode;
 
     /*
      * Create the primary task for the newly loaded task
@@ -653,7 +653,8 @@ int32 CFE_ES_StartAppTask(CFE_ES_TaskId_t *TaskIdPtr, const char *TaskName, CFE_
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_AppCreate(CFE_ES_AppId_t *ApplicationIdPtr, const char *AppName, const CFE_ES_AppStartParams_t *Params)
+CFE_Status_t CFE_ES_AppCreate(CFE_ES_AppId_t *ApplicationIdPtr, const char *AppName,
+                              const CFE_ES_AppStartParams_t *Params)
 {
     CFE_Status_t        Status;
     CFE_ES_AppRecord_t *AppRecPtr;
@@ -816,11 +817,12 @@ int32 CFE_ES_AppCreate(CFE_ES_AppId_t *ApplicationIdPtr, const char *AppName, co
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_LoadLibrary(CFE_ES_LibId_t *LibraryIdPtr, const char *LibName, const CFE_ES_ModuleLoadParams_t *Params)
+CFE_Status_t CFE_ES_LoadLibrary(CFE_ES_LibId_t *LibraryIdPtr, const char *LibName,
+                                const CFE_ES_ModuleLoadParams_t *Params)
 {
     CFE_ES_LibraryEntryFuncPtr_t FunctionPointer;
     CFE_ES_LibRecord_t *         LibSlotPtr;
-    int32                        Status;
+    CFE_Status_t                 Status;
     CFE_ResourceId_t             PendingResourceId;
 
     /*
@@ -1314,12 +1316,12 @@ void CFE_ES_ProcessControlRequest(CFE_ES_AppId_t AppId)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_CleanUpApp(CFE_ES_AppId_t AppId)
+CFE_Status_t CFE_ES_CleanUpApp(CFE_ES_AppId_t AppId)
 {
     uint32                  i;
     int32                   OsStatus;
-    int32                   Status;
-    int32                   ReturnCode;
+    CFE_Status_t            Status;
+    CFE_Status_t            ReturnCode;
     CFE_ES_TaskId_t         TaskList[OS_MAX_TASKS];
     CFE_ES_MemHandle_t      PoolList[CFE_PLATFORM_ES_MAX_MEMORY_POOLS];
     osal_id_t               ModuleId;
@@ -1656,11 +1658,11 @@ void CFE_ES_CleanupObjectCallback(osal_id_t ObjectId, void *arg)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_CleanupTaskResources(CFE_ES_TaskId_t TaskId)
+CFE_Status_t CFE_ES_CleanupTaskResources(CFE_ES_TaskId_t TaskId)
 {
     CFE_ES_CleanupState_t CleanState;
     int32                 OsStatus;
-    int32                 Result;
+    CFE_Status_t          Result;
     osal_id_t             OsalId;
 
     /* Get the Task ID for calling OSAL APIs (convert type) */

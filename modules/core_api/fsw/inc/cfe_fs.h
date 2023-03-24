@@ -254,9 +254,9 @@ const char *CFE_FS_GetDefaultExtension(CFE_FS_FileCategory_t FileCategory);
 ** \retval #CFE_SUCCESS            \copybrief CFE_SUCCESS
 **
 ******************************************************************************/
-int32 CFE_FS_ParseInputFileNameEx(char *OutputBuffer, const char *InputBuffer, size_t OutputBufSize,
-                                  size_t InputBufSize, const char *DefaultInput, const char *DefaultPath,
-                                  const char *DefaultExtension);
+CFE_Status_t CFE_FS_ParseInputFileNameEx(char *OutputBuffer, const char *InputBuffer, size_t OutputBufSize,
+                                         size_t InputBufSize, const char *DefaultInput, const char *DefaultPath,
+                                         const char *DefaultExtension);
 
 /*****************************************************************************/
 /**
@@ -284,8 +284,8 @@ int32 CFE_FS_ParseInputFileNameEx(char *OutputBuffer, const char *InputBuffer, s
 **
 **---------------------------------------------------------------------------------------
 */
-int32 CFE_FS_ParseInputFileName(char *OutputBuffer, const char *InputName, size_t OutputBufSize,
-                                CFE_FS_FileCategory_t FileCategory);
+CFE_Status_t CFE_FS_ParseInputFileName(char *OutputBuffer, const char *InputName, size_t OutputBufSize,
+                                       CFE_FS_FileCategory_t FileCategory);
 
 /*****************************************************************************/
 /**
@@ -334,7 +334,7 @@ CFE_Status_t CFE_FS_ExtractFilenameFromPath(const char *OriginalPath, char *File
 ** \retval #CFE_SUCCESS                         \copybrief CFE_SUCCESS
 **
 ******************************************************************************/
-int32 CFE_FS_BackgroundFileDumpRequest(CFE_FS_FileWriteMetaData_t *Meta);
+CFE_Status_t CFE_FS_BackgroundFileDumpRequest(CFE_FS_FileWriteMetaData_t *Meta);
 
 /*****************************************************************************/
 /**

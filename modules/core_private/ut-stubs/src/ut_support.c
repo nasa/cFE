@@ -338,7 +338,8 @@ void UT_CallTaskPipe(void (*TaskPipeFunc)(const CFE_SB_Buffer_t *), const CFE_MS
     UT_SetupBasicMsgDispatch(NULL, 0, false);
 }
 
-int32 UT_SoftwareBusSnapshotHook(void *UserObj, int32 StubRetcode, uint32 CallCount, const UT_StubContext_t *Context)
+int32 UT_SoftwareBusSnapshotHook(void *UserObj, int32 StubRetcode, uint32 CallCount,
+                                        const UT_StubContext_t *Context)
 {
     UT_SoftwareBusSnapshot_Entry_t *Snapshot = UserObj;
     const CFE_MSG_Message_t *       MsgPtr   = UT_Hook_GetArgValueByName(Context, "MsgPtr", CFE_MSG_Message_t *);

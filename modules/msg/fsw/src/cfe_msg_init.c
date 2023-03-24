@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------*/
 CFE_Status_t CFE_MSG_Init(CFE_MSG_Message_t *MsgPtr, CFE_SB_MsgId_t MsgId, CFE_MSG_Size_t Size)
 {
-    int32 status;
+    CFE_Status_t status;
 
     if (MsgPtr == NULL)
     {

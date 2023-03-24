@@ -68,11 +68,11 @@ EVS_AppData_t *EVS_GetAppDataByID(CFE_ES_AppId_t AppID)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 EVS_GetCurrentContext(EVS_AppData_t **AppDataOut, CFE_ES_AppId_t *AppIDOut)
+CFE_Status_t EVS_GetCurrentContext(EVS_AppData_t **AppDataOut, CFE_ES_AppId_t *AppIDOut)
 {
     CFE_ES_AppId_t AppID;
     EVS_AppData_t *AppDataPtr;
-    int32          Status;
+    CFE_Status_t   Status;
 
     /* Get the caller's AppID */
     Status = CFE_ES_GetAppID(&AppID);
@@ -109,9 +109,9 @@ int32 EVS_GetCurrentContext(EVS_AppData_t **AppDataOut, CFE_ES_AppId_t *AppIDOut
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 EVS_GetApplicationInfo(EVS_AppData_t **AppDataOut, const char *pAppName)
+CFE_Status_t EVS_GetApplicationInfo(EVS_AppData_t **AppDataOut, const char *pAppName)
 {
-    int32          Status;
+    CFE_Status_t   Status;
     CFE_ES_AppId_t AppID;
     EVS_AppData_t *AppDataPtr;
 
@@ -150,7 +150,7 @@ int32 EVS_GetApplicationInfo(EVS_AppData_t **AppDataOut, const char *pAppName)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 EVS_NotRegistered(EVS_AppData_t *AppDataPtr, CFE_ES_AppId_t CallerID)
+CFE_Status_t EVS_NotRegistered(EVS_AppData_t *AppDataPtr, CFE_ES_AppId_t CallerID)
 {
     char AppName[OS_MAX_API_NAME];
 
@@ -591,7 +591,7 @@ void EVS_OutputPort(uint8 PortNum, char *Message)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 EVS_SendEvent(uint16 EventID, uint16 EventType, const char *Spec, ...)
+CFE_Status_t EVS_SendEvent(uint16 EventID, uint16 EventType, const char *Spec, ...)
 {
     CFE_TIME_SysTime_t Time;
     va_list            Ptr;

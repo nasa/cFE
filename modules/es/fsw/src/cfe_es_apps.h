@@ -189,7 +189,7 @@ void CFE_ES_StartApplications(uint32 ResetType, const char *StartFilePath);
 /**
  * This function parses the startup file line for an individual cFE application.
  */
-int32 CFE_ES_ParseFileEntry(const char **TokenList, uint32 NumTokens);
+CFE_Status_t CFE_ES_ParseFileEntry(const char **TokenList, uint32 NumTokens);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -200,8 +200,8 @@ int32 CFE_ES_ParseFileEntry(const char **TokenList, uint32 NumTokens);
  * This only loads the code and looks up relevant runtime information.
  * It does not start any tasks.
  */
-int32 CFE_ES_LoadModule(CFE_ResourceId_t ParentResourceId, const char *ModuleName,
-                        const CFE_ES_ModuleLoadParams_t *LoadParams, CFE_ES_ModuleLoadStatus_t *LoadStatus);
+CFE_Status_t CFE_ES_LoadModule(CFE_ResourceId_t ParentResourceId, const char *ModuleName,
+                               const CFE_ES_ModuleLoadParams_t *LoadParams, CFE_ES_ModuleLoadStatus_t *LoadStatus);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -210,7 +210,7 @@ int32 CFE_ES_LoadModule(CFE_ResourceId_t ParentResourceId, const char *ModuleNam
  * If the app isn't fully registered in the global app table, then this delays until
  * the app is completely configured and the entry point is confirmed to be valid.
  */
-int32 CFE_ES_GetTaskFunction(CFE_ES_TaskEntryFuncPtr_t *FuncPtr);
+CFE_Status_t CFE_ES_GetTaskFunction(CFE_ES_TaskEntryFuncPtr_t *FuncPtr);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -234,8 +234,8 @@ void CFE_ES_TaskEntryPoint(void);
  * Therefore this calls a dedicated CFE_ES_AppEntryPoint which then will wait until
  * the task is fully registered in the global, before calling the actual app entry point.
  */
-int32 CFE_ES_StartAppTask(CFE_ES_TaskId_t *TaskIdPtr, const char *TaskName, CFE_ES_TaskEntryFuncPtr_t EntryFunc,
-                          const CFE_ES_TaskStartParams_t *Params, CFE_ES_AppId_t ParentAppId);
+CFE_Status_t CFE_ES_StartAppTask(CFE_ES_TaskId_t *TaskIdPtr, const char *TaskName, CFE_ES_TaskEntryFuncPtr_t EntryFunc,
+                                 const CFE_ES_TaskStartParams_t *Params, CFE_ES_AppId_t ParentAppId);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -245,13 +245,15 @@ int32 CFE_ES_StartAppTask(CFE_ES_TaskId_t *TaskIdPtr, const char *TaskName, CFE_
  * loads the cFE Applications from the disk using the startup script, or it
  * can be called when the ES Start Application command is executed.
  */
-int32 CFE_ES_AppCreate(CFE_ES_AppId_t *ApplicationIdPtr, const char *AppName, const CFE_ES_AppStartParams_t *Params);
+CFE_Status_t CFE_ES_AppCreate(CFE_ES_AppId_t *ApplicationIdPtr, const char *AppName,
+                              const CFE_ES_AppStartParams_t *Params);
 
 /*---------------------------------------------------------------------------------------*/
 /**
  * This function loads and initializes a cFE Shared Library.
  */
-int32 CFE_ES_LoadLibrary(CFE_ES_LibId_t *LibraryIdPtr, const char *LibName, const CFE_ES_ModuleLoadParams_t *Params);
+CFE_Status_t CFE_ES_LoadLibrary(CFE_ES_LibId_t *LibraryIdPtr, const char *LibName,
+                                const CFE_ES_ModuleLoadParams_t *Params);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -300,7 +302,7 @@ void CFE_ES_ProcessControlRequest(CFE_ES_AppId_t AppId);
 /**
  * Clean up all app resources and delete it
  */
-int32 CFE_ES_CleanUpApp(CFE_ES_AppId_t AppId);
+CFE_Status_t CFE_ES_CleanUpApp(CFE_ES_AppId_t AppId);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -311,7 +313,7 @@ int32 CFE_ES_CleanUpApp(CFE_ES_AppId_t AppId);
  * Note: This is called when the ES global is UNLOCKED  so it should not touch
  * any ES global data structures.  It should only clean up at the OSAL level.
  */
-int32 CFE_ES_CleanupTaskResources(CFE_ES_TaskId_t TaskId);
+CFE_Status_t CFE_ES_CleanupTaskResources(CFE_ES_TaskId_t TaskId);
 
 /*---------------------------------------------------------------------------------------*/
 /**

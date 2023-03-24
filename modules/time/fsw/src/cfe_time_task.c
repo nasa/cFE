@@ -46,7 +46,7 @@ CFE_TIME_Global_t CFE_TIME_Global;
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_TIME_EarlyInit(void)
+CFE_Status_t CFE_TIME_EarlyInit(void)
 {
     /*
     ** Initialize global Time Services nonzero data...
@@ -64,7 +64,7 @@ int32 CFE_TIME_EarlyInit(void)
  *-----------------------------------------------------------------*/
 void CFE_TIME_TaskMain(void)
 {
-    int32            Status;
+    CFE_Status_t     Status;
     CFE_SB_Buffer_t *SBBufPtr;
 
     CFE_ES_PerfLogEntry(CFE_MISSION_TIME_MAIN_PERF_ID);
@@ -122,13 +122,13 @@ void CFE_TIME_TaskMain(void)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_TIME_TaskInit(void)
+CFE_Status_t CFE_TIME_TaskInit(void)
 {
-    int32     Status;
-    int32     OsStatus;
-    osal_id_t TimeBaseId;
-    osal_id_t TimerId;
-    char      VersionString[CFE_CFG_MAX_VERSION_STR_LEN];
+    CFE_Status_t Status;
+    int32        OsStatus;
+    osal_id_t    TimeBaseId;
+    osal_id_t    TimerId;
+    char         VersionString[CFE_CFG_MAX_VERSION_STR_LEN];
 
     Status = CFE_EVS_Register(NULL, 0, 0);
     if (Status != CFE_SUCCESS)
@@ -315,7 +315,7 @@ int32 CFE_TIME_TaskInit(void)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_TIME_SendHkCmd(const CFE_TIME_SendHkCmd_t *data)
+CFE_Status_t CFE_TIME_SendHkCmd(const CFE_TIME_SendHkCmd_t *data)
 {
     CFE_TIME_Reference_t Reference;
 
@@ -353,7 +353,7 @@ int32 CFE_TIME_SendHkCmd(const CFE_TIME_SendHkCmd_t *data)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_TIME_ToneSignalCmd(const CFE_TIME_ToneSignalCmd_t *data)
+CFE_Status_t CFE_TIME_ToneSignalCmd(const CFE_TIME_ToneSignalCmd_t *data)
 {
     /*
     ** Indication that tone signal occurred recently...
@@ -373,7 +373,7 @@ int32 CFE_TIME_ToneSignalCmd(const CFE_TIME_ToneSignalCmd_t *data)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_TIME_ToneDataCmd(const CFE_TIME_ToneDataCmd_t *data)
+CFE_Status_t CFE_TIME_ToneDataCmd(const CFE_TIME_ToneDataCmd_t *data)
 {
     /*
     ** This command packet contains "time at the tone" data...
@@ -393,7 +393,7 @@ int32 CFE_TIME_ToneDataCmd(const CFE_TIME_ToneDataCmd_t *data)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_TIME_OneHzCmd(const CFE_TIME_OneHzCmd_t *data)
+CFE_Status_t CFE_TIME_OneHzCmd(const CFE_TIME_OneHzCmd_t *data)
 {
     /*
      * Run the state machine updates required at 1Hz.
@@ -424,7 +424,7 @@ int32 CFE_TIME_OneHzCmd(const CFE_TIME_OneHzCmd_t *data)
  *
  *-----------------------------------------------------------------*/
 #if (CFE_PLATFORM_TIME_CFG_SERVER == true)
-int32 CFE_TIME_ToneSendCmd(const CFE_TIME_FakeToneCmd_t *data)
+CFE_Status_t CFE_TIME_ToneSendCmd(const CFE_TIME_FakeToneCmd_t *data)
 {
     /*
     ** Request for "time at tone" data packet (probably scheduler)...
@@ -445,7 +445,7 @@ int32 CFE_TIME_ToneSendCmd(const CFE_TIME_FakeToneCmd_t *data)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_TIME_NoopCmd(const CFE_TIME_NoopCmd_t *data)
+CFE_Status_t CFE_TIME_NoopCmd(const CFE_TIME_NoopCmd_t *data)
 {
     char VersionString[CFE_CFG_MAX_VERSION_STR_LEN];
 
@@ -464,7 +464,7 @@ int32 CFE_TIME_NoopCmd(const CFE_TIME_NoopCmd_t *data)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_TIME_ResetCountersCmd(const CFE_TIME_ResetCountersCmd_t *data)
+CFE_Status_t CFE_TIME_ResetCountersCmd(const CFE_TIME_ResetCountersCmd_t *data)
 {
     CFE_TIME_Global.CommandCounter      = 0;
     CFE_TIME_Global.CommandErrorCounter = 0;
@@ -502,7 +502,7 @@ int32 CFE_TIME_ResetCountersCmd(const CFE_TIME_ResetCountersCmd_t *data)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_TIME_SendDiagnosticTlm(const CFE_TIME_SendDiagnosticCmd_t *data)
+CFE_Status_t CFE_TIME_SendDiagnosticTlm(const CFE_TIME_SendDiagnosticCmd_t *data)
 {
     CFE_TIME_Global.CommandCounter++;
 
@@ -528,7 +528,7 @@ int32 CFE_TIME_SendDiagnosticTlm(const CFE_TIME_SendDiagnosticCmd_t *data)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_TIME_SetStateCmd(const CFE_TIME_SetStateCmd_t *data)
+CFE_Status_t CFE_TIME_SetStateCmd(const CFE_TIME_SetStateCmd_t *data)
 {
     const CFE_TIME_StateCmd_Payload_t *CommandPtr = &data->Payload;
     const char *                       ClockStateText;
@@ -577,7 +577,7 @@ int32 CFE_TIME_SetStateCmd(const CFE_TIME_SetStateCmd_t *data)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_TIME_SetSourceCmd(const CFE_TIME_SetSourceCmd_t *data)
+CFE_Status_t CFE_TIME_SetSourceCmd(const CFE_TIME_SetSourceCmd_t *data)
 {
     const CFE_TIME_SourceCmd_Payload_t *CommandPtr = &data->Payload;
 
@@ -644,7 +644,7 @@ int32 CFE_TIME_SetSourceCmd(const CFE_TIME_SetSourceCmd_t *data)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_TIME_SetSignalCmd(const CFE_TIME_SetSignalCmd_t *data)
+CFE_Status_t CFE_TIME_SetSignalCmd(const CFE_TIME_SetSignalCmd_t *data)
 {
     const CFE_TIME_SignalCmd_Payload_t *CommandPtr = &data->Payload;
 
@@ -759,7 +759,7 @@ void CFE_TIME_SetDelayImpl(const CFE_TIME_TimeCmd_Payload_t *CommandPtr, CFE_TIM
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_TIME_AddDelayCmd(const CFE_TIME_AddDelayCmd_t *data)
+CFE_Status_t CFE_TIME_AddDelayCmd(const CFE_TIME_AddDelayCmd_t *data)
 {
     CFE_TIME_SetDelayImpl(&data->Payload, CFE_TIME_AdjustDirection_ADD);
     return CFE_SUCCESS;
@@ -771,7 +771,7 @@ int32 CFE_TIME_AddDelayCmd(const CFE_TIME_AddDelayCmd_t *data)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_TIME_SubDelayCmd(const CFE_TIME_SubDelayCmd_t *data)
+CFE_Status_t CFE_TIME_SubDelayCmd(const CFE_TIME_SubDelayCmd_t *data)
 {
     CFE_TIME_SetDelayImpl(&data->Payload, CFE_TIME_AdjustDirection_SUBTRACT);
     return CFE_SUCCESS;
@@ -783,7 +783,7 @@ int32 CFE_TIME_SubDelayCmd(const CFE_TIME_SubDelayCmd_t *data)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_TIME_SetTimeCmd(const CFE_TIME_SetTimeCmd_t *data)
+CFE_Status_t CFE_TIME_SetTimeCmd(const CFE_TIME_SetTimeCmd_t *data)
 {
     const CFE_TIME_TimeCmd_Payload_t *CommandPtr = &data->Payload;
 
@@ -834,7 +834,7 @@ int32 CFE_TIME_SetTimeCmd(const CFE_TIME_SetTimeCmd_t *data)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_TIME_SetMETCmd(const CFE_TIME_SetMETCmd_t *data)
+CFE_Status_t CFE_TIME_SetMETCmd(const CFE_TIME_SetMETCmd_t *data)
 {
     const CFE_TIME_TimeCmd_Payload_t *CommandPtr = &data->Payload;
 
@@ -885,7 +885,7 @@ int32 CFE_TIME_SetMETCmd(const CFE_TIME_SetMETCmd_t *data)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_TIME_SetSTCFCmd(const CFE_TIME_SetSTCFCmd_t *data)
+CFE_Status_t CFE_TIME_SetSTCFCmd(const CFE_TIME_SetSTCFCmd_t *data)
 {
     const CFE_TIME_TimeCmd_Payload_t *CommandPtr = &data->Payload;
 
@@ -936,7 +936,7 @@ int32 CFE_TIME_SetSTCFCmd(const CFE_TIME_SetSTCFCmd_t *data)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_TIME_SetLeapSecondsCmd(const CFE_TIME_SetLeapSecondsCmd_t *data)
+CFE_Status_t CFE_TIME_SetLeapSecondsCmd(const CFE_TIME_SetLeapSecondsCmd_t *data)
 {
 #if (CFE_PLATFORM_TIME_CFG_SERVER == true)
 
@@ -1020,7 +1020,7 @@ void CFE_TIME_AdjustImpl(const CFE_TIME_TimeCmd_Payload_t *CommandPtr, CFE_TIME_
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_TIME_AddAdjustCmd(const CFE_TIME_AddAdjustCmd_t *data)
+CFE_Status_t CFE_TIME_AddAdjustCmd(const CFE_TIME_AddAdjustCmd_t *data)
 {
     CFE_TIME_AdjustImpl(&data->Payload, CFE_TIME_AdjustDirection_ADD);
     return CFE_SUCCESS;
@@ -1032,7 +1032,7 @@ int32 CFE_TIME_AddAdjustCmd(const CFE_TIME_AddAdjustCmd_t *data)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_TIME_SubAdjustCmd(const CFE_TIME_SubAdjustCmd_t *data)
+CFE_Status_t CFE_TIME_SubAdjustCmd(const CFE_TIME_SubAdjustCmd_t *data)
 {
     CFE_TIME_AdjustImpl(&data->Payload, CFE_TIME_AdjustDirection_SUBTRACT);
     return CFE_SUCCESS;
@@ -1081,7 +1081,7 @@ void CFE_TIME_1HzAdjImpl(const CFE_TIME_OneHzAdjustmentCmd_Payload_t *CommandPtr
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_TIME_AddOneHzAdjustmentCmd(const CFE_TIME_AddOneHzAdjustmentCmd_t *data)
+CFE_Status_t CFE_TIME_AddOneHzAdjustmentCmd(const CFE_TIME_AddOneHzAdjustmentCmd_t *data)
 {
     CFE_TIME_1HzAdjImpl(&data->Payload, CFE_TIME_AdjustDirection_ADD);
     return CFE_SUCCESS;
@@ -1093,7 +1093,7 @@ int32 CFE_TIME_AddOneHzAdjustmentCmd(const CFE_TIME_AddOneHzAdjustmentCmd_t *dat
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_TIME_SubOneHzAdjustmentCmd(const CFE_TIME_SubOneHzAdjustmentCmd_t *data)
+CFE_Status_t CFE_TIME_SubOneHzAdjustmentCmd(const CFE_TIME_SubOneHzAdjustmentCmd_t *data)
 {
     CFE_TIME_1HzAdjImpl(&data->Payload, CFE_TIME_AdjustDirection_SUBTRACT);
     return CFE_SUCCESS;

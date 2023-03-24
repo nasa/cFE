@@ -66,12 +66,12 @@ static void CFE_TBL_CheckInactiveBufferHelper(CFE_TBL_AccessDescriptor_t *AccDes
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_TBL_EarlyInit(void)
+CFE_Status_t CFE_TBL_EarlyInit(void)
 {
-    uint16 i;
-    uint32 j;
-    int32  OsStatus;
-    int32  Status;
+    uint16       i;
+    uint32       j;
+    int32        OsStatus;
+    CFE_Status_t Status;
 
     /* Clear task global */
     memset(&CFE_TBL_Global, 0, sizeof(CFE_TBL_Global));
@@ -278,10 +278,10 @@ void CFE_TBL_FormTableName(char *FullTblName, const char *TblName, CFE_ES_AppId_
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_TBL_LockRegistry(void)
+CFE_Status_t CFE_TBL_LockRegistry(void)
 {
-    int32 OsStatus;
-    int32 Status;
+    int32        OsStatus;
+    CFE_Status_t Status;
 
     OsStatus = OS_MutSemTake(CFE_TBL_Global.RegistryMutex);
 
@@ -303,10 +303,10 @@ int32 CFE_TBL_LockRegistry(void)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_TBL_UnlockRegistry(void)
+CFE_Status_t CFE_TBL_UnlockRegistry(void)
 {
-    int32 OsStatus;
-    int32 Status;
+    int32        OsStatus;
+    CFE_Status_t Status;
 
     OsStatus = OS_MutSemGive(CFE_TBL_Global.RegistryMutex);
 
@@ -328,10 +328,10 @@ int32 CFE_TBL_UnlockRegistry(void)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_TBL_GetWorkingBuffer(CFE_TBL_LoadBuff_t **WorkingBufferPtr, CFE_TBL_RegistryRec_t *RegRecPtr,
-                               bool CalledByApp)
+CFE_Status_t CFE_TBL_GetWorkingBuffer(CFE_TBL_LoadBuff_t **WorkingBufferPtr, CFE_TBL_RegistryRec_t *RegRecPtr,
+                                      bool CalledByApp)
 {
-    int32                         Status = CFE_SUCCESS;
+    CFE_Status_t                  Status = CFE_SUCCESS;
     int32                         OsStatus;
     int32                         i;
     CFE_TBL_CheckInactiveBuffer_t CheckStat;
@@ -457,10 +457,10 @@ int32 CFE_TBL_GetWorkingBuffer(CFE_TBL_LoadBuff_t **WorkingBufferPtr, CFE_TBL_Re
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_TBL_LoadFromFile(const char *AppName, CFE_TBL_LoadBuff_t *WorkingBufferPtr, CFE_TBL_RegistryRec_t *RegRecPtr,
-                           const char *Filename)
+CFE_Status_t CFE_TBL_LoadFromFile(const char *AppName, CFE_TBL_LoadBuff_t *WorkingBufferPtr,
+                                  CFE_TBL_RegistryRec_t *RegRecPtr, const char *Filename)
 {
-    int32              Status = CFE_SUCCESS;
+    CFE_Status_t       Status = CFE_SUCCESS;
     int32              OsStatus;
     CFE_FS_Header_t    StdFileHeader;
     CFE_TBL_File_Hdr_t TblFileHeader;
@@ -615,11 +615,11 @@ static void CFE_TBL_CheckLockHelper(CFE_TBL_AccessDescriptor_t *AccDescPtr, void
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_TBL_UpdateInternal(CFE_TBL_Handle_t TblHandle, CFE_TBL_RegistryRec_t *RegRecPtr,
-                             CFE_TBL_AccessDescriptor_t *AccessDescPtr)
+CFE_Status_t CFE_TBL_UpdateInternal(CFE_TBL_Handle_t TblHandle, CFE_TBL_RegistryRec_t *RegRecPtr,
+                                    CFE_TBL_AccessDescriptor_t *AccessDescPtr)
 {
-    int32 Status     = CFE_SUCCESS;
-    bool  LockStatus = false;
+    CFE_Status_t Status     = CFE_SUCCESS;
+    bool         LockStatus = false;
 
     if ((!RegRecPtr->LoadPending) || (RegRecPtr->LoadInProgress == CFE_TBL_NO_LOAD_IN_PROGRESS))
     {
@@ -737,12 +737,12 @@ void CFE_TBL_NotifyTblUsersOfUpdate(CFE_TBL_RegistryRec_t *RegRecPtr)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_TBL_ReadHeaders(osal_id_t FileDescriptor, CFE_FS_Header_t *StdFileHeaderPtr,
-                          CFE_TBL_File_Hdr_t *TblFileHeaderPtr, const char *LoadFilename)
+CFE_Status_t CFE_TBL_ReadHeaders(osal_id_t FileDescriptor, CFE_FS_Header_t *StdFileHeaderPtr,
+                                 CFE_TBL_File_Hdr_t *TblFileHeaderPtr, const char *LoadFilename)
 {
-    int32 Status;
-    int32 OsStatus;
-    int32 EndianCheck = 0x01020304;
+    CFE_Status_t Status;
+    int32        OsStatus;
+    int32        EndianCheck = 0x01020304;
 
 #if (CFE_PLATFORM_TBL_VALID_SCID_COUNT > 0)
     static uint32 ListSC[2] = {CFE_PLATFORM_TBL_VALID_SCID_1, CFE_PLATFORM_TBL_VALID_SCID_2};
@@ -916,7 +916,7 @@ void CFE_TBL_ByteSwapUint32(uint32 *Uint32ToSwapPtr)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_TBL_CleanUpApp(CFE_ES_AppId_t AppId)
+CFE_Status_t CFE_TBL_CleanUpApp(CFE_ES_AppId_t AppId)
 {
     uint32             i;
     CFE_TBL_TxnState_t Txn;
@@ -1004,7 +1004,7 @@ void CFE_TBL_UpdateCriticalTblCDS(CFE_TBL_RegistryRec_t *RegRecPtr)
 {
     CFE_TBL_CritRegRec_t *CritRegRecPtr = NULL;
 
-    int32 Status;
+    CFE_Status_t Status;
 
     /* Copy an image of the updated table to the CDS for safekeeping */
     Status = CFE_ES_CopyToCDS(RegRecPtr->CDSHandle, RegRecPtr->Buffers[RegRecPtr->ActiveBufferIndex].BufferPtr);
@@ -1052,9 +1052,9 @@ void CFE_TBL_UpdateCriticalTblCDS(CFE_TBL_RegistryRec_t *RegRecPtr)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_TBL_SendNotificationMsg(CFE_TBL_RegistryRec_t *RegRecPtr)
+CFE_Status_t CFE_TBL_SendNotificationMsg(CFE_TBL_RegistryRec_t *RegRecPtr)
 {
-    int32 Status = CFE_SUCCESS;
+    CFE_Status_t Status = CFE_SUCCESS;
 
     /* First, determine if a message should be sent */
     if (RegRecPtr->NotifyByMsg)

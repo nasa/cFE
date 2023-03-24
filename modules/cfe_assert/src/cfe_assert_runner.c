@@ -183,9 +183,9 @@ void CFE_Assert_StatusReport(uint8 MessageType, const char *Prefix, const char *
     CFE_EVS_SendEvent(MessageType, EventType, "[%5s] %s", Prefix, OutputMessage);
 }
 
-int32 CFE_Assert_RegisterTest(const char *TestName)
+CFE_Status_t CFE_Assert_RegisterTest(const char *TestName)
 {
-    int32          rc;
+    CFE_Status_t   rc;
     char           SetupSegmentName[64];
     CFE_ES_AppId_t SelfId;
 
@@ -280,7 +280,7 @@ int32 CFE_Assert_RegisterTest(const char *TestName)
 
 void CFE_Assert_ExecuteTest(void)
 {
-    int32          rc;
+    CFE_Status_t   rc;
     CFE_ES_AppId_t AppId;
 
     /*

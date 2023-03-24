@@ -141,7 +141,7 @@ extern CFE_EVS_Global_t CFE_EVS_Global;
  *
  * This function performs any necessary EVS task initialization.
  */
-int32 CFE_EVS_TaskInit(void);
+CFE_Status_t CFE_EVS_TaskInit(void);
 
 /*
  * EVS Message Handler Functions
@@ -153,7 +153,7 @@ int32 CFE_EVS_TaskInit(void);
  *
  * Request for housekeeping status telemetry packet.
  */
-int32 CFE_EVS_SendHkCmd(const CFE_EVS_SendHkCmd_t *data);
+CFE_Status_t CFE_EVS_SendHkCmd(const CFE_EVS_SendHkCmd_t *data);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -161,7 +161,7 @@ int32 CFE_EVS_SendHkCmd(const CFE_EVS_SendHkCmd_t *data);
  *
  * This function processes "noop" commands received on the EVS command pipe.
  */
-int32 CFE_EVS_NoopCmd(const CFE_EVS_NoopCmd_t *data);
+CFE_Status_t CFE_EVS_NoopCmd(const CFE_EVS_NoopCmd_t *data);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -169,7 +169,7 @@ int32 CFE_EVS_NoopCmd(const CFE_EVS_NoopCmd_t *data);
  *
  * This function processes "clear log" commands received on the EVS command pipe.
  */
-int32 CFE_EVS_ClearLogCmd(const CFE_EVS_ClearLogCmd_t *data);
+CFE_Status_t CFE_EVS_ClearLogCmd(const CFE_EVS_ClearLogCmd_t *data);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -177,7 +177,7 @@ int32 CFE_EVS_ClearLogCmd(const CFE_EVS_ClearLogCmd_t *data);
  *
  * This function resets all the global counter variables that are part of the task telemetry.
  */
-int32 CFE_EVS_ResetCountersCmd(const CFE_EVS_ResetCountersCmd_t *data);
+CFE_Status_t CFE_EVS_ResetCountersCmd(const CFE_EVS_ResetCountersCmd_t *data);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -186,7 +186,7 @@ int32 CFE_EVS_ResetCountersCmd(const CFE_EVS_ResetCountersCmd_t *data);
  * This routine sets the filter mask for the given event_id in the
  * calling task's filter array
  */
-int32 CFE_EVS_SetFilterCmd(const CFE_EVS_SetFilterCmd_t *data);
+CFE_Status_t CFE_EVS_SetFilterCmd(const CFE_EVS_SetFilterCmd_t *data);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -196,7 +196,7 @@ int32 CFE_EVS_SetFilterCmd(const CFE_EVS_SetFilterCmd_t *data);
  * @note Shifting is done so the value not masked off is placed in the ones spot:
  * necessary for comparing with true.
  */
-int32 CFE_EVS_EnablePortsCmd(const CFE_EVS_EnablePortsCmd_t *data);
+CFE_Status_t CFE_EVS_EnablePortsCmd(const CFE_EVS_EnablePortsCmd_t *data);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -206,7 +206,7 @@ int32 CFE_EVS_EnablePortsCmd(const CFE_EVS_EnablePortsCmd_t *data);
  * @note Shifting is done so the value not masked off is placed in the ones spot:
  * necessary for comparing with true.
  */
-int32 CFE_EVS_DisablePortsCmd(const CFE_EVS_DisablePortsCmd_t *data);
+CFE_Status_t CFE_EVS_DisablePortsCmd(const CFE_EVS_DisablePortsCmd_t *data);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -215,7 +215,7 @@ int32 CFE_EVS_DisablePortsCmd(const CFE_EVS_DisablePortsCmd_t *data);
  * This routine sets the given event types to an enabled state across all
  * registered applications
  */
-int32 CFE_EVS_EnableEventTypeCmd(const CFE_EVS_EnableEventTypeCmd_t *data);
+CFE_Status_t CFE_EVS_EnableEventTypeCmd(const CFE_EVS_EnableEventTypeCmd_t *data);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -224,7 +224,7 @@ int32 CFE_EVS_EnableEventTypeCmd(const CFE_EVS_EnableEventTypeCmd_t *data);
  * This routine sets the given event types to a disabled state across all
  * registered applications
  */
-int32 CFE_EVS_DisableEventTypeCmd(const CFE_EVS_DisableEventTypeCmd_t *data);
+CFE_Status_t CFE_EVS_DisableEventTypeCmd(const CFE_EVS_DisableEventTypeCmd_t *data);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -232,7 +232,7 @@ int32 CFE_EVS_DisableEventTypeCmd(const CFE_EVS_DisableEventTypeCmd_t *data);
  *
  * This routine sets the Event Format Mode
  */
-int32 CFE_EVS_SetEventFormatModeCmd(const CFE_EVS_SetEventFormatModeCmd_t *data);
+CFE_Status_t CFE_EVS_SetEventFormatModeCmd(const CFE_EVS_SetEventFormatModeCmd_t *data);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -241,7 +241,7 @@ int32 CFE_EVS_SetEventFormatModeCmd(const CFE_EVS_SetEventFormatModeCmd_t *data)
  * This routine sets the given event type for the given application identifier to an
  * enabled state
  */
-int32 CFE_EVS_EnableAppEventTypeCmd(const CFE_EVS_EnableAppEventTypeCmd_t *data);
+CFE_Status_t CFE_EVS_EnableAppEventTypeCmd(const CFE_EVS_EnableAppEventTypeCmd_t *data);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -250,7 +250,7 @@ int32 CFE_EVS_EnableAppEventTypeCmd(const CFE_EVS_EnableAppEventTypeCmd_t *data)
  * This routine sets the given event type for the given application identifier to a
  * disabled state
  */
-int32 CFE_EVS_DisableAppEventTypeCmd(const CFE_EVS_DisableAppEventTypeCmd_t *data);
+CFE_Status_t CFE_EVS_DisableAppEventTypeCmd(const CFE_EVS_DisableAppEventTypeCmd_t *data);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -258,7 +258,7 @@ int32 CFE_EVS_DisableAppEventTypeCmd(const CFE_EVS_DisableAppEventTypeCmd_t *dat
  *
  * This routine enables application events for the given application identifier
  */
-int32 CFE_EVS_EnableAppEventsCmd(const CFE_EVS_EnableAppEventsCmd_t *data);
+CFE_Status_t CFE_EVS_EnableAppEventsCmd(const CFE_EVS_EnableAppEventsCmd_t *data);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -266,7 +266,7 @@ int32 CFE_EVS_EnableAppEventsCmd(const CFE_EVS_EnableAppEventsCmd_t *data);
  *
  * This routine disables application events for the given application identifier
  */
-int32 CFE_EVS_DisableAppEventsCmd(const CFE_EVS_DisableAppEventsCmd_t *data);
+CFE_Status_t CFE_EVS_DisableAppEventsCmd(const CFE_EVS_DisableAppEventsCmd_t *data);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -275,7 +275,7 @@ int32 CFE_EVS_DisableAppEventsCmd(const CFE_EVS_DisableAppEventsCmd_t *data);
  * This routine sets the application event counter to zero for the given
  * application identifier
  */
-int32 CFE_EVS_ResetAppCounterCmd(const CFE_EVS_ResetAppCounterCmd_t *data);
+CFE_Status_t CFE_EVS_ResetAppCounterCmd(const CFE_EVS_ResetAppCounterCmd_t *data);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -284,7 +284,7 @@ int32 CFE_EVS_ResetAppCounterCmd(const CFE_EVS_ResetAppCounterCmd_t *data);
  * This routine sets the application event filter counter to zero for the given
  * application identifier and event identifier
  */
-int32 CFE_EVS_ResetFilterCmd(const CFE_EVS_ResetFilterCmd_t *data);
+CFE_Status_t CFE_EVS_ResetFilterCmd(const CFE_EVS_ResetFilterCmd_t *data);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -293,7 +293,7 @@ int32 CFE_EVS_ResetFilterCmd(const CFE_EVS_ResetFilterCmd_t *data);
  * This routine adds the given event filter for the given application
  * identifier and event identifier.
  */
-int32 CFE_EVS_AddEventFilterCmd(const CFE_EVS_AddEventFilterCmd_t *data);
+CFE_Status_t CFE_EVS_AddEventFilterCmd(const CFE_EVS_AddEventFilterCmd_t *data);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -302,7 +302,7 @@ int32 CFE_EVS_AddEventFilterCmd(const CFE_EVS_AddEventFilterCmd_t *data);
  * This routine deletes the event filter for the given application
  * identifier and event identifier
  */
-int32 CFE_EVS_DeleteEventFilterCmd(const CFE_EVS_DeleteEventFilterCmd_t *data);
+CFE_Status_t CFE_EVS_DeleteEventFilterCmd(const CFE_EVS_DeleteEventFilterCmd_t *data);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -312,7 +312,7 @@ int32 CFE_EVS_DeleteEventFilterCmd(const CFE_EVS_DeleteEventFilterCmd_t *data);
  * have registered with the EVS.  The application data includes the Application ID,
  * Active Flag, Event Count, Event Types Active Flag, and Filter Data.
  */
-int32 CFE_EVS_WriteAppDataFileCmd(const CFE_EVS_WriteAppDataFileCmd_t *data);
+CFE_Status_t CFE_EVS_WriteAppDataFileCmd(const CFE_EVS_WriteAppDataFileCmd_t *data);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -321,6 +321,6 @@ int32 CFE_EVS_WriteAppDataFileCmd(const CFE_EVS_WriteAppDataFileCmd_t *data);
  * This routine sets all application event filter counters to zero for the given
  * application identifier
  */
-int32 CFE_EVS_ResetAllFiltersCmd(const CFE_EVS_ResetAllFiltersCmd_t *data);
+CFE_Status_t CFE_EVS_ResetAllFiltersCmd(const CFE_EVS_ResetAllFiltersCmd_t *data);
 
 #endif /* CFE_EVS_TASK_H */

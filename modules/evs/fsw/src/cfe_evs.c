@@ -43,7 +43,7 @@ CFE_Status_t CFE_EVS_Register(const void *Filters, uint16 NumEventFilters, uint1
 {
     uint16               FilterLimit;
     uint16               i;
-    int32                Status;
+    CFE_Status_t         Status;
     CFE_ES_AppId_t       AppID;
     CFE_EVS_BinFilter_t *AppFilters;
     EVS_AppData_t *      AppDataPtr;
@@ -118,7 +118,7 @@ CFE_Status_t CFE_EVS_Register(const void *Filters, uint16 NumEventFilters, uint1
  *-----------------------------------------------------------------*/
 CFE_Status_t CFE_EVS_SendEvent(uint16 EventID, uint16 EventType, const char *Spec, ...)
 {
-    int32              Status;
+    CFE_Status_t       Status;
     CFE_ES_AppId_t     AppID;
     CFE_TIME_SysTime_t Time;
     va_list            Ptr;
@@ -168,7 +168,7 @@ CFE_Status_t CFE_EVS_SendEvent(uint16 EventID, uint16 EventType, const char *Spe
  *-----------------------------------------------------------------*/
 CFE_Status_t CFE_EVS_SendEventWithAppID(uint16 EventID, uint16 EventType, CFE_ES_AppId_t AppID, const char *Spec, ...)
 {
-    int32              Status = CFE_SUCCESS;
+    CFE_Status_t       Status = CFE_SUCCESS;
     CFE_TIME_SysTime_t Time;
     va_list            Ptr;
     EVS_AppData_t *    AppDataPtr;
@@ -217,7 +217,7 @@ CFE_Status_t CFE_EVS_SendEventWithAppID(uint16 EventID, uint16 EventType, CFE_ES
  *-----------------------------------------------------------------*/
 CFE_Status_t CFE_EVS_SendTimedEvent(CFE_TIME_SysTime_t Time, uint16 EventID, uint16 EventType, const char *Spec, ...)
 {
-    int32          Status;
+    CFE_Status_t   Status;
     CFE_ES_AppId_t AppID;
     va_list        Ptr;
     EVS_AppData_t *AppDataPtr;
@@ -261,9 +261,9 @@ CFE_Status_t CFE_EVS_SendTimedEvent(CFE_TIME_SysTime_t Time, uint16 EventID, uin
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_EVS_ResetFilter(uint16 EventID)
+CFE_Status_t CFE_EVS_ResetFilter(uint16 EventID)
 {
-    int32            Status;
+    CFE_Status_t     Status;
     EVS_BinFilter_t *FilterPtr = NULL;
     CFE_ES_AppId_t   AppID;
     EVS_AppData_t *  AppDataPtr;
@@ -302,7 +302,7 @@ int32 CFE_EVS_ResetFilter(uint16 EventID)
  *-----------------------------------------------------------------*/
 CFE_Status_t CFE_EVS_ResetAllFilters(void)
 {
-    int32          Status;
+    CFE_Status_t   Status;
     CFE_ES_AppId_t AppID;
     uint32         i;
     EVS_AppData_t *AppDataPtr;

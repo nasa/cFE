@@ -111,10 +111,10 @@ void EVS_ClearLog(void)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_EVS_WriteLogDataFileCmd(const CFE_EVS_WriteLogDataFileCmd_t *data)
+CFE_Status_t CFE_EVS_WriteLogDataFileCmd(const CFE_EVS_WriteLogDataFileCmd_t *data)
 {
     const CFE_EVS_LogFileCmd_Payload_t *CmdPtr = &data->Payload;
-    int32                               Result;
+    CFE_Status_t                        Result;
     int32                               LogIndex;
     int32                               OsStatus;
     int32                               BytesWritten;
@@ -235,10 +235,10 @@ int32 CFE_EVS_WriteLogDataFileCmd(const CFE_EVS_WriteLogDataFileCmd_t *data)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_EVS_SetLogModeCmd(const CFE_EVS_SetLogModeCmd_t *data)
+CFE_Status_t CFE_EVS_SetLogModeCmd(const CFE_EVS_SetLogModeCmd_t *data)
 {
     const CFE_EVS_SetLogMode_Payload_t *CmdPtr = &data->Payload;
-    int32                               Status;
+    CFE_Status_t                        Status;
 
     if ((CmdPtr->LogMode == CFE_EVS_LogMode_OVERWRITE) || (CmdPtr->LogMode == CFE_EVS_LogMode_DISCARD))
     {

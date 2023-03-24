@@ -65,7 +65,7 @@ void TestGetTypeFromMsgId(void)
     UtPrintf("Testing: CFE_MSG_GetTypeFromMsgId");
     CFE_SB_MsgId_t msgid = CFE_SB_INVALID_MSG_ID;
     CFE_MSG_Type_t msgtype;
-    int32          status;
+    CFE_Status_t   status;
 
     /*
      * Response not verified because msgid 0 could be out of range based on implementation and

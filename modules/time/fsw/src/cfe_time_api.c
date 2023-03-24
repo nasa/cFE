@@ -731,7 +731,7 @@ void CFE_TIME_ExternalTone(void)
  *-----------------------------------------------------------------*/
 CFE_Status_t CFE_TIME_RegisterSynchCallback(CFE_TIME_SynchCallbackPtr_t CallbackFuncPtr)
 {
-    int32          Status;
+    CFE_Status_t   Status;
     CFE_ES_AppId_t AppId;
     uint32         AppIndex;
 
@@ -770,7 +770,7 @@ CFE_Status_t CFE_TIME_RegisterSynchCallback(CFE_TIME_SynchCallbackPtr_t Callback
  *-----------------------------------------------------------------*/
 CFE_Status_t CFE_TIME_UnregisterSynchCallback(CFE_TIME_SynchCallbackPtr_t CallbackFuncPtr)
 {
-    int32          Status;
+    CFE_Status_t   Status;
     CFE_ES_AppId_t AppId;
     uint32         AppIndex;
 

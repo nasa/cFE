@@ -32,7 +32,7 @@
 CFE_Status_t CFE_MSG_GetTypeFromMsgId(CFE_SB_MsgId_t MsgId, CFE_MSG_Type_t *Type)
 {
     CFE_MSG_Message_t msg;
-    int32             Status;
+    CFE_Status_t      Status;
 
     /* Memset to initialize avoids possible GCC bug 53119 */
     memset(&msg, 0, sizeof(msg));

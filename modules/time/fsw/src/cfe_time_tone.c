@@ -166,7 +166,7 @@ void CFE_TIME_ToneSend(void)
  *
  *-----------------------------------------------------------------*/
 #if (CFE_PLATFORM_TIME_CFG_SRC_MET == true)
-int32 CFE_TIME_ToneSendMET(CFE_TIME_SysTime_t NewMET)
+CFE_Status_t CFE_TIME_ToneSendMET(CFE_TIME_SysTime_t NewMET)
 {
     CFE_TIME_Reference_t Reference;
     CFE_TIME_SysTime_t   Expected;
@@ -175,8 +175,8 @@ int32 CFE_TIME_ToneSendMET(CFE_TIME_SysTime_t NewMET)
     CFE_TIME_Compare_t   MinResult;
     CFE_TIME_Compare_t   MaxResult;
 
-    int16 ClockState;
-    int32 Result = CFE_SUCCESS;
+    int16        ClockState;
+    CFE_Status_t Result = CFE_SUCCESS;
 
     /* Start Performance Monitoring */
     CFE_ES_PerfLogEntry(CFE_MISSION_TIME_SENDMET_PERF_ID);
@@ -297,7 +297,7 @@ int32 CFE_TIME_ToneSendMET(CFE_TIME_SysTime_t NewMET)
  *
  *-----------------------------------------------------------------*/
 #if (CFE_PLATFORM_TIME_CFG_SRC_GPS == true)
-int32 CFE_TIME_ToneSendGPS(CFE_TIME_SysTime_t NewTime, int16 NewLeaps)
+CFE_Status_t CFE_TIME_ToneSendGPS(CFE_TIME_SysTime_t NewTime, int16 NewLeaps)
 {
     CFE_TIME_Reference_t Reference;
     CFE_TIME_SysTime_t   NewSTCF;
@@ -307,8 +307,8 @@ int32 CFE_TIME_ToneSendGPS(CFE_TIME_SysTime_t NewTime, int16 NewLeaps)
     CFE_TIME_Compare_t   MinResult;
     CFE_TIME_Compare_t   MaxResult;
 
-    int16 ClockState;
-    int32 Result = CFE_SUCCESS;
+    int16        ClockState;
+    CFE_Status_t Result = CFE_SUCCESS;
 
     /* Zero out the Reference variable because we pass it into
      * a function before using it
@@ -435,7 +435,7 @@ int32 CFE_TIME_ToneSendGPS(CFE_TIME_SysTime_t NewTime, int16 NewLeaps)
  *
  *-----------------------------------------------------------------*/
 #if (CFE_PLATFORM_TIME_CFG_SRC_TIME == true)
-int32 CFE_TIME_ToneSendTime(CFE_TIME_SysTime_t NewTime)
+CFE_Status_t CFE_TIME_ToneSendTime(CFE_TIME_SysTime_t NewTime)
 {
     CFE_TIME_Reference_t Reference;
     CFE_TIME_SysTime_t   NewSTCF;
@@ -445,8 +445,8 @@ int32 CFE_TIME_ToneSendTime(CFE_TIME_SysTime_t NewTime)
     CFE_TIME_Compare_t   MinResult;
     CFE_TIME_Compare_t   MaxResult;
 
-    int16 ClockState;
-    int32 Result = CFE_SUCCESS;
+    int16        ClockState;
+    CFE_Status_t Result = CFE_SUCCESS;
 
     /* Zero out the Reference variable because we pass it into
      * a function before using it

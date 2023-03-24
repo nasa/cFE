@@ -139,9 +139,9 @@ struct CFE_ES_GenPoolRecord
  *
  * \return #CFE_SUCCESS, or error code \ref CFEReturnCodes
  */
-int32 CFE_ES_GenPoolInitialize(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t StartOffset, size_t PoolSize,
-                               size_t AlignSize, uint16 NumBlockSizes, const size_t *BlockSizeList,
-                               CFE_ES_PoolRetrieve_Func_t RetrieveFunc, CFE_ES_PoolCommit_Func_t CommitFunc);
+CFE_Status_t CFE_ES_GenPoolInitialize(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t StartOffset, size_t PoolSize,
+                                      size_t AlignSize, uint16 NumBlockSizes, const size_t *BlockSizeList,
+                                      CFE_ES_PoolRetrieve_Func_t RetrieveFunc, CFE_ES_PoolCommit_Func_t CommitFunc);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -156,7 +156,7 @@ int32 CFE_ES_GenPoolInitialize(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t StartO
  *
  * \return #CFE_SUCCESS, or error code \ref CFEReturnCodes
  */
-int32 CFE_ES_GenPoolGetBlock(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t *BlockOffsetPtr, size_t ReqSize);
+CFE_Status_t CFE_ES_GenPoolGetBlock(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t *BlockOffsetPtr, size_t ReqSize);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -167,13 +167,13 @@ int32 CFE_ES_GenPoolGetBlock(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t *BlockOf
  * \param[inout] PoolRecPtr      Pointer to pool structure
  * \param[in]    BucketId        Bucket ID
  * \param[in]    NewSize         Size of block
- * \param[out]   BlockOffsetPtr  Location to output new block offset 
+ * \param[out]   BlockOffsetPtr  Location to output new block offset
  *
  * \return #CFE_SUCCESS, or error code #CFE_ES_BUFFER_NOT_IN_POOL #CFE_ES_ERR_MEM_BLOCK_SIZE
  *         \ref CFEReturnCodes
  */
-int32 CFE_ES_GenPoolCreatePoolBlock(CFE_ES_GenPoolRecord_t *PoolRecPtr, uint16 BucketId, size_t NewSize, 
-                                    size_t *BlockOffsetPtr);
+CFE_Status_t CFE_ES_GenPoolCreatePoolBlock(CFE_ES_GenPoolRecord_t *PoolRecPtr, uint16 BucketId, size_t NewSize,
+                                           size_t *BlockOffsetPtr);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -184,12 +184,12 @@ int32 CFE_ES_GenPoolCreatePoolBlock(CFE_ES_GenPoolRecord_t *PoolRecPtr, uint16 B
  * \param[inout] PoolRecPtr      Pointer to pool structure
  * \param[in]    BucketId        Bucket ID
  * \param[in]    NewSize         Size of block
- * \param[out]   BlockOffsetPtr  Location to output new block offset 
+ * \param[out]   BlockOffsetPtr  Location to output new block offset
  *
  * \return #CFE_SUCCESS, or error code #CFE_ES_BUFFER_NOT_IN_POOL \ref CFEReturnCodes
  */
-int32 CFE_ES_GenPoolRecyclePoolBlock(CFE_ES_GenPoolRecord_t *PoolRecPtr, uint16 BucketId, size_t NewSize,
-                                     size_t *BlockOffsetPtr);
+CFE_Status_t CFE_ES_GenPoolRecyclePoolBlock(CFE_ES_GenPoolRecord_t *PoolRecPtr, uint16 BucketId, size_t NewSize,
+                                            size_t *BlockOffsetPtr);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -204,7 +204,7 @@ int32 CFE_ES_GenPoolRecyclePoolBlock(CFE_ES_GenPoolRecord_t *PoolRecPtr, uint16 
  *
  * \return #CFE_SUCCESS, or error code \ref CFEReturnCodes
  */
-int32 CFE_ES_GenPoolPutBlock(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t *BlockSizePtr, size_t BlockOffset);
+CFE_Status_t CFE_ES_GenPoolPutBlock(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t *BlockSizePtr, size_t BlockOffset);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -225,7 +225,7 @@ int32 CFE_ES_GenPoolPutBlock(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t *BlockSi
  *
  * \return #CFE_SUCCESS, or error code \ref CFEReturnCodes
  */
-int32 CFE_ES_GenPoolRebuild(CFE_ES_GenPoolRecord_t *PoolRecPtr);
+CFE_Status_t CFE_ES_GenPoolRebuild(CFE_ES_GenPoolRecord_t *PoolRecPtr);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -240,7 +240,7 @@ int32 CFE_ES_GenPoolRebuild(CFE_ES_GenPoolRecord_t *PoolRecPtr);
  *
  * \return #CFE_SUCCESS, or error code \ref CFEReturnCodes
  */
-int32 CFE_ES_GenPoolGetBlockSize(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t *BlockSizePtr, size_t BlockOffset);
+CFE_Status_t CFE_ES_GenPoolGetBlockSize(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t *BlockSizePtr, size_t BlockOffset);
 
 /*---------------------------------------------------------------------------------------*/
 /**

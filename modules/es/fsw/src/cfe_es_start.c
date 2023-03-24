@@ -706,7 +706,7 @@ void CFE_ES_InitializeFileSystems(uint32 StartType)
  *-----------------------------------------------------------------*/
 void CFE_ES_CreateObjects(void)
 {
-    int32               ReturnCode;
+    CFE_Status_t        ReturnCode;
     uint16              i;
     CFE_ES_AppRecord_t *AppRecPtr;
     CFE_ResourceId_t    PendingAppId;
@@ -878,9 +878,9 @@ void CFE_ES_CreateObjects(void)
  * reach the indicated state, by polling the app counters in a delay loop.
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_MainTaskSyncDelay(uint32 AppStateId, uint32 TimeOutMilliseconds)
+CFE_Status_t CFE_ES_MainTaskSyncDelay(uint32 AppStateId, uint32 TimeOutMilliseconds)
 {
-    int32               Status;
+    CFE_Status_t        Status;
     uint32              i;
     uint32              WaitTime;
     uint32              WaitRemaining;

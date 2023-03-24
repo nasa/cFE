@@ -225,9 +225,9 @@ CFE_SB_DestinationD_t *CFE_SB_GetDestinationBlk(void)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_SB_PutDestinationBlk(CFE_SB_DestinationD_t *Dest)
+CFE_Status_t CFE_SB_PutDestinationBlk(CFE_SB_DestinationD_t *Dest)
 {
-    int32 Stat;
+    CFE_Status_t Stat;
 
     if (Dest == NULL)
     {

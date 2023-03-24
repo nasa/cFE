@@ -283,10 +283,10 @@ CFE_SB_MsgId_Atom_t CFE_SB_LocalTlmTopicIdToMsgId(uint16 TopicId)
  * Generated stub function for CFE_SB_MessageStringGet()
  * ----------------------------------------------------
  */
-int32 CFE_SB_MessageStringGet(char *DestStringPtr, const char *SourceStringPtr, const char *DefaultString,
-                              size_t DestMaxSize, size_t SourceMaxSize)
+CFE_Status_t CFE_SB_MessageStringGet(char *DestStringPtr, const char *SourceStringPtr, const char *DefaultString,
+                                     size_t DestMaxSize, size_t SourceMaxSize)
 {
-    UT_GenStub_SetupReturnBuffer(CFE_SB_MessageStringGet, int32);
+    UT_GenStub_SetupReturnBuffer(CFE_SB_MessageStringGet, CFE_Status_t);
 
     UT_GenStub_AddParam(CFE_SB_MessageStringGet, char *, DestStringPtr);
     UT_GenStub_AddParam(CFE_SB_MessageStringGet, const char *, SourceStringPtr);
@@ -296,7 +296,7 @@ int32 CFE_SB_MessageStringGet(char *DestStringPtr, const char *SourceStringPtr, 
 
     UT_GenStub_Execute(CFE_SB_MessageStringGet, Basic, UT_DefaultHandler_CFE_SB_MessageStringGet);
 
-    return UT_GenStub_GetReturnValue(CFE_SB_MessageStringGet, int32);
+    return UT_GenStub_GetReturnValue(CFE_SB_MessageStringGet, CFE_Status_t);
 }
 
 /*
@@ -304,10 +304,10 @@ int32 CFE_SB_MessageStringGet(char *DestStringPtr, const char *SourceStringPtr, 
  * Generated stub function for CFE_SB_MessageStringSet()
  * ----------------------------------------------------
  */
-int32 CFE_SB_MessageStringSet(char *DestStringPtr, const char *SourceStringPtr, size_t DestMaxSize,
-                              size_t SourceMaxSize)
+CFE_Status_t CFE_SB_MessageStringSet(char *DestStringPtr, const char *SourceStringPtr, size_t DestMaxSize,
+                                     size_t SourceMaxSize)
 {
-    UT_GenStub_SetupReturnBuffer(CFE_SB_MessageStringSet, int32);
+    UT_GenStub_SetupReturnBuffer(CFE_SB_MessageStringSet, CFE_Status_t);
 
     UT_GenStub_AddParam(CFE_SB_MessageStringSet, char *, DestStringPtr);
     UT_GenStub_AddParam(CFE_SB_MessageStringSet, const char *, SourceStringPtr);
@@ -316,7 +316,7 @@ int32 CFE_SB_MessageStringSet(char *DestStringPtr, const char *SourceStringPtr, 
 
     UT_GenStub_Execute(CFE_SB_MessageStringSet, Basic, UT_DefaultHandler_CFE_SB_MessageStringSet);
 
-    return UT_GenStub_GetReturnValue(CFE_SB_MessageStringSet, int32);
+    return UT_GenStub_GetReturnValue(CFE_SB_MessageStringSet, CFE_Status_t);
 }
 
 /*

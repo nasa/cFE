@@ -113,7 +113,7 @@ void CFE_TBL_FormTableName(char *FullTblName, const char *TblName, CFE_ES_AppId_
 **
 ** \retval #CFE_SUCCESS                     \copydoc CFE_SUCCESS
 */
-int32 CFE_TBL_LockRegistry(void);
+CFE_Status_t CFE_TBL_LockRegistry(void);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -129,7 +129,7 @@ int32 CFE_TBL_LockRegistry(void);
 ** \retval #CFE_SUCCESS                     \copydoc CFE_SUCCESS
 **
 */
-int32 CFE_TBL_UnlockRegistry(void);
+CFE_Status_t CFE_TBL_UnlockRegistry(void);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -162,8 +162,8 @@ int32 CFE_TBL_UnlockRegistry(void);
 ** \retval #CFE_TBL_ERR_NO_BUFFER_AVAIL     \copydoc CFE_TBL_ERR_NO_BUFFER_AVAIL
 **
 */
-int32 CFE_TBL_GetWorkingBuffer(CFE_TBL_LoadBuff_t **WorkingBufferPtr, CFE_TBL_RegistryRec_t *RegRecPtr,
-                               bool CalledByApp);
+CFE_Status_t CFE_TBL_GetWorkingBuffer(CFE_TBL_LoadBuff_t **WorkingBufferPtr, CFE_TBL_RegistryRec_t *RegRecPtr,
+                                      bool CalledByApp);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -205,8 +205,8 @@ int32 CFE_TBL_GetWorkingBuffer(CFE_TBL_LoadBuff_t **WorkingBufferPtr, CFE_TBL_Re
 ** \retval #CFE_TBL_ERR_BAD_SUBTYPE_ID       \copydoc CFE_TBL_ERR_BAD_SUBTYPE_ID
 **
 */
-int32 CFE_TBL_LoadFromFile(const char *AppName, CFE_TBL_LoadBuff_t *WorkingBufferPtr, CFE_TBL_RegistryRec_t *RegRecPtr,
-                           const char *Filename);
+CFE_Status_t CFE_TBL_LoadFromFile(const char *AppName, CFE_TBL_LoadBuff_t *WorkingBufferPtr,
+                                  CFE_TBL_RegistryRec_t *RegRecPtr, const char *Filename);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -230,8 +230,8 @@ int32 CFE_TBL_LoadFromFile(const char *AppName, CFE_TBL_LoadBuff_t *WorkingBuffe
 **
 ** \retval #CFE_SUCCESS                     \copydoc CFE_SUCCESS
 */
-int32 CFE_TBL_UpdateInternal(CFE_TBL_Handle_t TblHandle, CFE_TBL_RegistryRec_t *RegRecPtr,
-                             CFE_TBL_AccessDescriptor_t *AccessDescPtr);
+CFE_Status_t CFE_TBL_UpdateInternal(CFE_TBL_Handle_t TblHandle, CFE_TBL_RegistryRec_t *RegRecPtr,
+                                    CFE_TBL_AccessDescriptor_t *AccessDescPtr);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -283,8 +283,8 @@ void CFE_TBL_NotifyTblUsersOfUpdate(CFE_TBL_RegistryRec_t *RegRecPtr);
 ** \retval #CFE_TBL_ERR_BAD_PROCESSOR_ID    \copydoc CFE_TBL_ERR_BAD_PROCESSOR_ID
 **
 */
-int32 CFE_TBL_ReadHeaders(osal_id_t FileDescriptor, CFE_FS_Header_t *StdFileHeaderPtr,
-                          CFE_TBL_File_Hdr_t *TblFileHeaderPtr, const char *LoadFilename);
+CFE_Status_t CFE_TBL_ReadHeaders(osal_id_t FileDescriptor, CFE_FS_Header_t *StdFileHeaderPtr,
+                                 CFE_TBL_File_Hdr_t *TblFileHeaderPtr, const char *LoadFilename);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -375,7 +375,7 @@ void CFE_TBL_UpdateCriticalTblCDS(CFE_TBL_RegistryRec_t *RegRecPtr);
 ** \param[in]  RegRecPtr Pointer to Registry Record of Table whose owner needs notifying.
 **
 */
-int32 CFE_TBL_SendNotificationMsg(CFE_TBL_RegistryRec_t *RegRecPtr);
+CFE_Status_t CFE_TBL_SendNotificationMsg(CFE_TBL_RegistryRec_t *RegRecPtr);
 
 /*---------------------------------------------------------------------------------------*/
 /**

@@ -139,7 +139,7 @@ uint32 CFE_ES_GetPerfLogDumpRemaining(void)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_StartPerfDataCmd(const CFE_ES_StartPerfDataCmd_t *data)
+CFE_Status_t CFE_ES_StartPerfDataCmd(const CFE_ES_StartPerfDataCmd_t *data)
 {
     const CFE_ES_StartPerfCmd_Payload_t *CmdPtr        = &data->Payload;
     CFE_ES_PerfDumpGlobal_t *            PerfDumpState = &CFE_ES_Global.BackgroundPerfDumpState;
@@ -199,12 +199,12 @@ int32 CFE_ES_StartPerfDataCmd(const CFE_ES_StartPerfDataCmd_t *data)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_StopPerfDataCmd(const CFE_ES_StopPerfDataCmd_t *data)
+CFE_Status_t CFE_ES_StopPerfDataCmd(const CFE_ES_StopPerfDataCmd_t *data)
 {
     const CFE_ES_StopPerfCmd_Payload_t *CmdPtr        = &data->Payload;
     CFE_ES_PerfDumpGlobal_t *           PerfDumpState = &CFE_ES_Global.BackgroundPerfDumpState;
     CFE_ES_PerfData_t *                 Perf;
-    int32                               Status;
+    CFE_Status_t                        Status;
 
     /*
     ** Set the pointer to the data area
@@ -266,7 +266,7 @@ bool CFE_ES_RunPerfLogDump(uint32 ElapsedTime, void *Arg)
 {
     CFE_ES_PerfDumpGlobal_t *State = (CFE_ES_PerfDumpGlobal_t *)Arg;
     int32                    OsStatus;
-    int32                    Status;
+    CFE_Status_t             Status;
     CFE_FS_Header_t          FileHdr;
     size_t                   BlockSize;
     CFE_ES_PerfData_t *      Perf;
@@ -485,7 +485,7 @@ bool CFE_ES_RunPerfLogDump(uint32 ElapsedTime, void *Arg)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_SetPerfFilterMaskCmd(const CFE_ES_SetPerfFilterMaskCmd_t *data)
+CFE_Status_t CFE_ES_SetPerfFilterMaskCmd(const CFE_ES_SetPerfFilterMaskCmd_t *data)
 {
     const CFE_ES_SetPerfFilterMaskCmd_Payload_t *cmd = &data->Payload;
     CFE_ES_PerfData_t *                          Perf;
@@ -523,7 +523,7 @@ int32 CFE_ES_SetPerfFilterMaskCmd(const CFE_ES_SetPerfFilterMaskCmd_t *data)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_SetPerfTriggerMaskCmd(const CFE_ES_SetPerfTriggerMaskCmd_t *data)
+CFE_Status_t CFE_ES_SetPerfTriggerMaskCmd(const CFE_ES_SetPerfTriggerMaskCmd_t *data)
 {
     const CFE_ES_SetPerfTrigMaskCmd_Payload_t *cmd = &data->Payload;
     CFE_ES_PerfData_t *                        Perf;

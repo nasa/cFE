@@ -255,7 +255,7 @@ typedef void (*CFE_Assert_StatusCallback_t)(uint8 MessageType, const char *Prefi
 **  \return #CFE_SUCCESS if successful, or error code
 **
 *************************************************************************/
-int32 CFE_Assert_LibInit(CFE_ES_LibId_t LibId);
+CFE_Status_t CFE_Assert_LibInit(CFE_ES_LibId_t LibId);
 
 /************************************************************************/
 /** \brief Start Test
@@ -268,7 +268,7 @@ int32 CFE_Assert_LibInit(CFE_ES_LibId_t LibId);
 **  \return #CFE_SUCCESS if successful, or error code
 **
 *************************************************************************/
-int32 CFE_Assert_RegisterTest(const char *TestName);
+CFE_Status_t CFE_Assert_RegisterTest(const char *TestName);
 
 /************************************************************************/
 /** \brief Execute Test and Exit
@@ -315,7 +315,7 @@ void CFE_Assert_RegisterCallback(CFE_Assert_StatusCallback_t Callback);
  * \retval #CFE_SUCCESS if file was opened successfully
  *
  */
-int32 CFE_Assert_OpenLogFile(const char *Filename);
+CFE_Status_t CFE_Assert_OpenLogFile(const char *Filename);
 
 /************************************************************************/
 /** \brief Complete a test log file

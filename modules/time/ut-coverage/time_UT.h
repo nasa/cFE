@@ -156,7 +156,7 @@ void Test_Print(void);
 ** \returns
 **        This function returns CFE_SUCCESS
 ******************************************************************************/
-int32 ut_time_MyCallbackFunc(void);
+CFE_Status_t ut_time_MyCallbackFunc(void);
 
 /*****************************************************************************/
 /**

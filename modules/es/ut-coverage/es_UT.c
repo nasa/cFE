@@ -393,31 +393,32 @@ void ES_UT_SetupSingleLibId(const char *LibName, CFE_ES_LibRecord_t **OutLibRec)
     ++CFE_ES_Global.RegisteredLibs;
 }
 
-int32 ES_UT_PoolDirectRetrieve(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t Offset, CFE_ES_GenPoolBD_t **BdPtr)
+CFE_Status_t ES_UT_PoolDirectRetrieve(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t Offset, CFE_ES_GenPoolBD_t **BdPtr)
 {
     *BdPtr = (CFE_ES_GenPoolBD_t *)((void *)&UT_MemPoolDirectBuffer.Data[Offset]);
     return CFE_SUCCESS;
 }
 
-int32 ES_UT_PoolDirectCommit(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t Offset, const CFE_ES_GenPoolBD_t *BdPtr)
+CFE_Status_t ES_UT_PoolDirectCommit(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t Offset, const CFE_ES_GenPoolBD_t *BdPtr)
 {
     return CFE_SUCCESS;
 }
 
-int32 ES_UT_PoolIndirectRetrieve(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t Offset, CFE_ES_GenPoolBD_t **BdPtr)
+CFE_Status_t ES_UT_PoolIndirectRetrieve(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t Offset, CFE_ES_GenPoolBD_t **BdPtr)
 {
     memcpy(&UT_MemPoolIndirectBuffer.BD, &UT_MemPoolIndirectBuffer.Data[Offset], sizeof(CFE_ES_GenPoolBD_t));
     *BdPtr = &UT_MemPoolIndirectBuffer.BD;
     return CFE_SUCCESS;
 }
 
-int32 ES_UT_PoolIndirectCommit(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t Offset, const CFE_ES_GenPoolBD_t *BdPtr)
+CFE_Status_t ES_UT_PoolIndirectCommit(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t Offset,
+                                      const CFE_ES_GenPoolBD_t *BdPtr)
 {
     memcpy(&UT_MemPoolIndirectBuffer.Data[Offset], BdPtr, sizeof(CFE_ES_GenPoolBD_t));
     return CFE_SUCCESS;
 }
 
-int32 ES_UT_CDSPoolRetrieve(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t Offset, CFE_ES_GenPoolBD_t **BdPtr)
+CFE_Status_t ES_UT_CDSPoolRetrieve(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t Offset, CFE_ES_GenPoolBD_t **BdPtr)
 {
     static CFE_ES_GenPoolBD_t BdBuf;
 
@@ -425,19 +426,19 @@ int32 ES_UT_CDSPoolRetrieve(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t Offset, C
     return CFE_PSP_ReadFromCDS(&BdBuf, Offset, sizeof(BdBuf));
 }
 
-int32 ES_UT_CDSPoolCommit(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t Offset, const CFE_ES_GenPoolBD_t *BdPtr)
+CFE_Status_t ES_UT_CDSPoolCommit(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t Offset, const CFE_ES_GenPoolBD_t *BdPtr)
 {
     return CFE_PSP_WriteToCDS(BdPtr, Offset, sizeof(*BdPtr));
 }
 
 /* Commit failure routine for pool coverage testing */
-int32 ES_UT_PoolCommitFail(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t Offset, const CFE_ES_GenPoolBD_t *BdPtr)
+CFE_Status_t ES_UT_PoolCommitFail(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t Offset, const CFE_ES_GenPoolBD_t *BdPtr)
 {
     return CFE_ES_CDS_ACCESS_ERROR;
 }
 
 /* Retrieve failure routine for pool coverage testing */
-int32 ES_UT_PoolRetrieveFail(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t Offset, CFE_ES_GenPoolBD_t **BdPtr)
+CFE_Status_t ES_UT_PoolRetrieveFail(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t Offset, CFE_ES_GenPoolBD_t **BdPtr)
 {
     return CFE_ES_CDS_ACCESS_ERROR;
 }
@@ -559,7 +560,8 @@ void ES_UT_SetupSingleCDSRegistry(const char *CDSName, size_t BlockSize, bool Is
     }
 }
 
-int32 ES_UT_SetupOSCleanupHook(void *UserObj, int32 StubRetcode, uint32 CallCount, const UT_StubContext_t *Context)
+CFE_Status_t ES_UT_SetupOSCleanupHook(void *UserObj, int32 StubRetcode, uint32 CallCount,
+                                      const UT_StubContext_t *Context)
 {
     osal_id_t ObjList[8];
 
