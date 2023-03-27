@@ -374,22 +374,22 @@ int32 CFE_ES_TaskInit(void)
     /*
     ** Initialize the version numbers in the ES Housekeeping pkt
     */
-    CFE_ES_Global.TaskData.HkPacket.Payload.CFEMajorVersion    = CFE_MAJOR_VERSION;
-    CFE_ES_Global.TaskData.HkPacket.Payload.CFEMinorVersion    = CFE_MINOR_VERSION;
-    CFE_ES_Global.TaskData.HkPacket.Payload.CFERevision        = CFE_REVISION;
-    CFE_ES_Global.TaskData.HkPacket.Payload.CFEMissionRevision = CFE_MISSION_REV;
+    CFE_ES_Global.TaskData.HkPacket.Payload.CFEVersion.Major           = CFE_MAJOR_VERSION;
+    CFE_ES_Global.TaskData.HkPacket.Payload.CFEVersion.Minor           = CFE_MINOR_VERSION;
+    CFE_ES_Global.TaskData.HkPacket.Payload.CFEVersion.Revision        = CFE_REVISION;
+    CFE_ES_Global.TaskData.HkPacket.Payload.CFEVersion.MissionRevision = CFE_MISSION_REV;
 
     OS_GetVersionNumber(VersionNumber);
-    CFE_ES_Global.TaskData.HkPacket.Payload.OSALMajorVersion    = VersionNumber[0];
-    CFE_ES_Global.TaskData.HkPacket.Payload.OSALMinorVersion    = VersionNumber[1];
-    CFE_ES_Global.TaskData.HkPacket.Payload.OSALRevision        = VersionNumber[2];
-    CFE_ES_Global.TaskData.HkPacket.Payload.OSALMissionRevision = VersionNumber[3];
+    CFE_ES_Global.TaskData.HkPacket.Payload.OSALVersion.Major           = VersionNumber[0];
+    CFE_ES_Global.TaskData.HkPacket.Payload.OSALVersion.Minor           = VersionNumber[1];
+    CFE_ES_Global.TaskData.HkPacket.Payload.OSALVersion.Revision        = VersionNumber[2];
+    CFE_ES_Global.TaskData.HkPacket.Payload.OSALVersion.MissionRevision = VersionNumber[3];
 
     CFE_PSP_GetVersionNumber(VersionNumber);
-    CFE_ES_Global.TaskData.HkPacket.Payload.PSPMajorVersion    = VersionNumber[0];
-    CFE_ES_Global.TaskData.HkPacket.Payload.PSPMinorVersion    = VersionNumber[1];
-    CFE_ES_Global.TaskData.HkPacket.Payload.PSPRevision        = VersionNumber[2];
-    CFE_ES_Global.TaskData.HkPacket.Payload.PSPMissionRevision = VersionNumber[3];
+    CFE_ES_Global.TaskData.HkPacket.Payload.PSPVersion.Major           = VersionNumber[0];
+    CFE_ES_Global.TaskData.HkPacket.Payload.PSPVersion.Minor           = VersionNumber[1];
+    CFE_ES_Global.TaskData.HkPacket.Payload.PSPVersion.Revision        = VersionNumber[2];
+    CFE_ES_Global.TaskData.HkPacket.Payload.PSPVersion.MissionRevision = VersionNumber[3];
 
     /*
     ** Task startup event message.
