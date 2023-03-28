@@ -41,7 +41,6 @@
  *-----------------------------------------------------------------*/
 CFE_Status_t CFE_EVS_Register(const void *Filters, uint16 NumEventFilters, uint16 FilterScheme)
 {
-    uint16               FilterLimit;
     uint16               i;
     int32                Status;
     CFE_ES_AppId_t       AppID;
@@ -71,15 +70,14 @@ CFE_Status_t CFE_EVS_Register(const void *Filters, uint16 NumEventFilters, uint1
             AppDataPtr->EventTypesActiveFlag = CFE_PLATFORM_EVS_DEFAULT_TYPE_FLAG;
             AppDataPtr->SquelchTokens        = CFE_PLATFORM_EVS_MAX_APP_EVENT_BURST * 1000;
 
-            /* Set limit for number of provided filters */
-            if (NumEventFilters < CFE_PLATFORM_EVS_MAX_EVENT_FILTERS)
+            /* Limit the number of event message filters if over maximum allowed */
+            if (NumEventFilters > CFE_PLATFORM_EVS_MAX_EVENT_FILTERS)
             {
-                FilterLimit = NumEventFilters;
-            }
-            else
-            {
-                FilterLimit = CFE_PLATFORM_EVS_MAX_EVENT_FILTERS;
-                CFE_ES_WriteToSysLog("%s: Filter limit truncated to %d\n", __func__, (int)FilterLimit);
+                NumEventFilters = CFE_PLATFORM_EVS_MAX_EVENT_FILTERS;
+                CFE_ES_WriteToSysLog("%s: Number of event message filters truncated to %d\n", __func__,
+                                     (int)NumEventFilters);
+                EVS_SendEvent(CFE_EVS_FILTER_LIMIT_TRUNC_ERR_EID, CFE_EVS_EventType_ERROR,
+                              "Number of event message filters truncated to %d", (int)NumEventFilters);
             }
 
             if (Filters != NULL)
@@ -87,7 +85,7 @@ CFE_Status_t CFE_EVS_Register(const void *Filters, uint16 NumEventFilters, uint1
                 AppFilters = (CFE_EVS_BinFilter_t *)Filters;
 
                 /* Copy provided filters */
-                for (i = 0; i < FilterLimit; i++)
+                for (i = 0; i < NumEventFilters; i++)
                 {
                     AppDataPtr->BinFilters[i].EventID = AppFilters[i].EventID;
                     AppDataPtr->BinFilters[i].Mask    = AppFilters[i].Mask;
@@ -96,7 +94,7 @@ CFE_Status_t CFE_EVS_Register(const void *Filters, uint16 NumEventFilters, uint1
             }
 
             /* Initialize remainder of filters as unused */
-            for (i = FilterLimit; i < CFE_PLATFORM_EVS_MAX_EVENT_FILTERS; i++)
+            for (i = NumEventFilters; i < CFE_PLATFORM_EVS_MAX_EVENT_FILTERS; i++)
             {
                 AppDataPtr->BinFilters[i].EventID = CFE_EVS_FREE_SLOT;
                 AppDataPtr->BinFilters[i].Mask    = 0;
