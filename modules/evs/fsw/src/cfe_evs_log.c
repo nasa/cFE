@@ -167,7 +167,7 @@ int32 CFE_EVS_WriteLogDataFileCmd(const CFE_EVS_WriteLogDataFileCmd_t *data)
             OS_MutSemTake(CFE_EVS_Global.EVS_SharedDataMutexID);
 
             /* Is the log full? -- Doesn't matter if wrap mode is enabled */
-            if (CFE_EVS_Global.EVS_LogPtr->LogCount == CFE_PLATFORM_EVS_LOG_MAX)
+            if (CFE_EVS_Global.EVS_LogPtr->LogFullFlag)
             {
                 /* Start with log entry that will be overwritten next (oldest) */
                 LogIndex = CFE_EVS_Global.EVS_LogPtr->Next;
