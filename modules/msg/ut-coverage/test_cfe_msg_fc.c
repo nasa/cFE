@@ -80,7 +80,7 @@ void Test_MSG_FcnCode(void)
         CFE_UtAssert_SUCCESS(CFE_MSG_GetFcnCode(msgptr, &actual));
         UtAssert_INT32_EQ(actual, TEST_FCNCODE_MAX);
         CFE_UtAssert_SUCCESS(CFE_MSG_SetFcnCode(msgptr, input[i]));
-        UT_DisplayPkt(msgptr, sizeof(cmd));
+        UtPrintx(msgptr, sizeof(cmd));
         CFE_UtAssert_SUCCESS(CFE_MSG_GetFcnCode(msgptr, &actual));
         UtAssert_INT32_EQ(actual, input[i]);
         UtAssert_INT32_EQ(Test_MSG_NotF(msgptr), 0);
@@ -95,7 +95,7 @@ void Test_MSG_FcnCode(void)
         CFE_UtAssert_SUCCESS(CFE_MSG_GetFcnCode(msgptr, &actual));
         UtAssert_INT32_EQ(actual, 0);
         CFE_UtAssert_SUCCESS(CFE_MSG_SetFcnCode(msgptr, input[i]));
-        UT_DisplayPkt(msgptr, sizeof(cmd));
+        UtPrintx(msgptr, sizeof(cmd));
         CFE_UtAssert_SUCCESS(CFE_MSG_GetFcnCode(msgptr, &actual));
         UtAssert_INT32_EQ(actual, input[i]);
         UtAssert_INT32_EQ(Test_MSG_NotZero(msgptr), MSG_HASSEC_FLAG | MSG_TYPE_FLAG);

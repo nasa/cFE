@@ -69,7 +69,7 @@ void Test_MSG_Size(void)
         CFE_UtAssert_SUCCESS(CFE_MSG_GetSize(&msg, &actual));
         UtAssert_INT32_EQ(actual, 0xFFFF + TEST_MSG_SIZE_OFFSET);
         CFE_UtAssert_SUCCESS(CFE_MSG_SetSize(&msg, input[i]));
-        UT_DisplayPkt(&msg, sizeof(msg));
+        UtPrintx(&msg, sizeof(msg));
         CFE_UtAssert_SUCCESS(CFE_MSG_GetSize(&msg, &actual));
         UtAssert_INT32_EQ(actual, input[i]);
         if (input[i] == 0xFFFF + TEST_MSG_SIZE_OFFSET)
@@ -89,7 +89,7 @@ void Test_MSG_Size(void)
         CFE_UtAssert_SUCCESS(CFE_MSG_GetSize(&msg, &actual));
         UtAssert_INT32_EQ(actual, TEST_MSG_SIZE_OFFSET);
         CFE_UtAssert_SUCCESS(CFE_MSG_SetSize(&msg, input[i]));
-        UT_DisplayPkt(&msg, sizeof(msg));
+        UtPrintx(&msg, sizeof(msg));
         CFE_UtAssert_SUCCESS(CFE_MSG_GetSize(&msg, &actual));
         UtAssert_INT32_EQ(actual, input[i]);
         if (input[i] == TEST_MSG_SIZE_OFFSET)
@@ -129,7 +129,7 @@ void Test_MSG_Type(void)
         CFE_UtAssert_SUCCESS(CFE_MSG_GetType(&msg, &actual));
         UtAssert_INT32_EQ(actual, CFE_MSG_Type_Cmd);
         CFE_UtAssert_SUCCESS(CFE_MSG_SetType(&msg, input[i]));
-        UT_DisplayPkt(&msg, sizeof(msg));
+        UtPrintx(&msg, sizeof(msg));
         CFE_UtAssert_SUCCESS(CFE_MSG_GetType(&msg, &actual));
         UtAssert_INT32_EQ(actual, input[i]);
         if (input[i] == CFE_MSG_Type_Cmd)
@@ -149,7 +149,7 @@ void Test_MSG_Type(void)
         CFE_UtAssert_SUCCESS(CFE_MSG_GetType(&msg, &actual));
         UtAssert_INT32_EQ(actual, CFE_MSG_Type_Tlm);
         CFE_UtAssert_SUCCESS(CFE_MSG_SetType(&msg, input[i]));
-        UT_DisplayPkt(&msg, sizeof(msg));
+        UtPrintx(&msg, sizeof(msg));
         CFE_UtAssert_SUCCESS(CFE_MSG_GetType(&msg, &actual));
         UtAssert_INT32_EQ(actual, input[i]);
         if (input[i] == CFE_MSG_Type_Tlm)
@@ -189,7 +189,7 @@ void Test_MSG_HeaderVersion(void)
         CFE_UtAssert_SUCCESS(CFE_MSG_GetHeaderVersion(&msg, &actual));
         UtAssert_INT32_EQ(actual, TEST_CCSDSVER_MAX);
         CFE_UtAssert_SUCCESS(CFE_MSG_SetHeaderVersion(&msg, input[i]));
-        UT_DisplayPkt(&msg, sizeof(msg));
+        UtPrintx(&msg, sizeof(msg));
         CFE_UtAssert_SUCCESS(CFE_MSG_GetHeaderVersion(&msg, &actual));
         UtAssert_INT32_EQ(actual, input[i]);
         if (input[i] == TEST_CCSDSVER_MAX)
@@ -209,7 +209,7 @@ void Test_MSG_HeaderVersion(void)
         CFE_UtAssert_SUCCESS(CFE_MSG_GetHeaderVersion(&msg, &actual));
         UtAssert_INT32_EQ(actual, 0);
         CFE_UtAssert_SUCCESS(CFE_MSG_SetHeaderVersion(&msg, input[i]));
-        UT_DisplayPkt(&msg, sizeof(msg));
+        UtPrintx(&msg, sizeof(msg));
         CFE_UtAssert_SUCCESS(CFE_MSG_GetHeaderVersion(&msg, &actual));
         UtAssert_INT32_EQ(actual, input[i]);
         if (input[i] == 0)
@@ -242,13 +242,13 @@ void Test_MSG_HasSecondaryHeader(void)
     UtAssert_BOOL_TRUE(actual);
 
     CFE_UtAssert_SUCCESS(CFE_MSG_SetHasSecondaryHeader(&msg, true));
-    UT_DisplayPkt(&msg, sizeof(msg));
+    UtPrintx(&msg, sizeof(msg));
     CFE_UtAssert_SUCCESS(CFE_MSG_GetHasSecondaryHeader(&msg, &actual));
     UtAssert_BOOL_TRUE(actual);
     UtAssert_INT32_EQ(Test_MSG_NotF(&msg), 0);
 
     CFE_UtAssert_SUCCESS(CFE_MSG_SetHasSecondaryHeader(&msg, false));
-    UT_DisplayPkt(&msg, sizeof(msg));
+    UtPrintx(&msg, sizeof(msg));
     CFE_UtAssert_SUCCESS(CFE_MSG_GetHasSecondaryHeader(&msg, &actual));
     UtAssert_BOOL_FALSE(actual);
     UtAssert_INT32_EQ(Test_MSG_NotF(&msg), MSG_HASSEC_FLAG);
@@ -259,13 +259,13 @@ void Test_MSG_HasSecondaryHeader(void)
     UtAssert_BOOL_FALSE(actual);
 
     CFE_UtAssert_SUCCESS(CFE_MSG_SetHasSecondaryHeader(&msg, false));
-    UT_DisplayPkt(&msg, sizeof(msg));
+    UtPrintx(&msg, sizeof(msg));
     CFE_UtAssert_SUCCESS(CFE_MSG_GetHasSecondaryHeader(&msg, &actual));
     UtAssert_BOOL_FALSE(actual);
     UtAssert_INT32_EQ(Test_MSG_NotZero(&msg), 0);
 
     CFE_UtAssert_SUCCESS(CFE_MSG_SetHasSecondaryHeader(&msg, true));
-    UT_DisplayPkt(&msg, sizeof(msg));
+    UtPrintx(&msg, sizeof(msg));
     CFE_UtAssert_SUCCESS(CFE_MSG_GetHasSecondaryHeader(&msg, &actual));
     UtAssert_BOOL_TRUE(actual);
     UtAssert_INT32_EQ(Test_MSG_NotZero(&msg), MSG_HASSEC_FLAG);
@@ -297,7 +297,7 @@ void Test_MSG_ApId(void)
         CFE_UtAssert_SUCCESS(CFE_MSG_GetApId(&msg, &actual));
         UtAssert_INT32_EQ(actual, TEST_APID_MAX);
         CFE_UtAssert_SUCCESS(CFE_MSG_SetApId(&msg, input[i]));
-        UT_DisplayPkt(&msg, sizeof(msg));
+        UtPrintx(&msg, sizeof(msg));
         CFE_UtAssert_SUCCESS(CFE_MSG_GetApId(&msg, &actual));
         UtAssert_INT32_EQ(actual, input[i]);
         if (input[i] == TEST_APID_MAX)
@@ -317,7 +317,7 @@ void Test_MSG_ApId(void)
         CFE_UtAssert_SUCCESS(CFE_MSG_GetApId(&msg, &actual));
         UtAssert_INT32_EQ(actual, 0);
         CFE_UtAssert_SUCCESS(CFE_MSG_SetApId(&msg, input[i]));
-        UT_DisplayPkt(&msg, sizeof(msg));
+        UtPrintx(&msg, sizeof(msg));
         CFE_UtAssert_SUCCESS(CFE_MSG_GetApId(&msg, &actual));
         UtAssert_INT32_EQ(actual, input[i]);
         if (input[i] == 0)
@@ -358,7 +358,7 @@ void Test_MSG_SegmentationFlag(void)
         CFE_UtAssert_SUCCESS(CFE_MSG_GetSegmentationFlag(&msg, &actual));
         UtAssert_INT32_EQ(actual, CFE_MSG_SegFlag_Unsegmented);
         CFE_UtAssert_SUCCESS(CFE_MSG_SetSegmentationFlag(&msg, input[i]));
-        UT_DisplayPkt(&msg, sizeof(msg));
+        UtPrintx(&msg, sizeof(msg));
         CFE_UtAssert_SUCCESS(CFE_MSG_GetSegmentationFlag(&msg, &actual));
         UtAssert_INT32_EQ(actual, input[i]);
         if (input[i] == CFE_MSG_SegFlag_Unsegmented)
@@ -378,7 +378,7 @@ void Test_MSG_SegmentationFlag(void)
         CFE_UtAssert_SUCCESS(CFE_MSG_GetSegmentationFlag(&msg, &actual));
         UtAssert_INT32_EQ(actual, CFE_MSG_SegFlag_Continue);
         CFE_UtAssert_SUCCESS(CFE_MSG_SetSegmentationFlag(&msg, input[i]));
-        UT_DisplayPkt(&msg, sizeof(msg));
+        UtPrintx(&msg, sizeof(msg));
         CFE_UtAssert_SUCCESS(CFE_MSG_GetSegmentationFlag(&msg, &actual));
         UtAssert_INT32_EQ(actual, input[i]);
         if (input[i] == CFE_MSG_SegFlag_Continue)
@@ -421,7 +421,7 @@ void Test_MSG_SequenceCount(void)
         CFE_UtAssert_SUCCESS(CFE_MSG_GetSequenceCount(&msg, &actual));
         UtAssert_INT32_EQ(actual, TEST_SEQUENCE_MAX);
         CFE_UtAssert_SUCCESS(CFE_MSG_SetSequenceCount(&msg, input[i]));
-        UT_DisplayPkt(&msg, sizeof(msg));
+        UtPrintx(&msg, sizeof(msg));
         CFE_UtAssert_SUCCESS(CFE_MSG_GetSequenceCount(&msg, &actual));
         UtAssert_INT32_EQ(actual, input[i]);
         if (input[i] == TEST_SEQUENCE_MAX)
@@ -441,7 +441,7 @@ void Test_MSG_SequenceCount(void)
         CFE_UtAssert_SUCCESS(CFE_MSG_GetSequenceCount(&msg, &actual));
         UtAssert_INT32_EQ(actual, 0);
         CFE_UtAssert_SUCCESS(CFE_MSG_SetSequenceCount(&msg, input[i]));
-        UT_DisplayPkt(&msg, sizeof(msg));
+        UtPrintx(&msg, sizeof(msg));
         CFE_UtAssert_SUCCESS(CFE_MSG_GetSequenceCount(&msg, &actual));
         UtAssert_INT32_EQ(actual, input[i]);
         if (input[i] == 0)

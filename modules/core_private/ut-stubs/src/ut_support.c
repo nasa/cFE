@@ -532,30 +532,6 @@ uint16 UT_GetNumEventsSent(void)
     return Total;
 }
 
-/*
-** Display the contents of a packet
-*/
-void UT_DisplayPkt(CFE_MSG_Message_t *MsgPtr, size_t size)
-{
-    uint8 *BytePtr = (uint8 *)MsgPtr;
-    size_t i;
-    size_t BufSize = UT_MAX_MESSAGE_LENGTH;
-    char   DisplayMsg[UT_MAX_MESSAGE_LENGTH];
-    char * msgPtr = DisplayMsg;
-
-    DisplayMsg[0] = '\0';
-
-    for (i = 0; i < size && BufSize > 3; i++)
-    {
-        snprintf(msgPtr, BufSize, "%02x ", *BytePtr);
-        msgPtr += 3;
-        BufSize -= 3;
-        ++BytePtr;
-    }
-
-    UtPrintf("%s", DisplayMsg);
-}
-
 CFE_ES_ResetData_t *UT_GetResetDataPtr(void)
 {
     return &UT_CFE_ES_ResetData.ResetData;

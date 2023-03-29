@@ -65,7 +65,7 @@ void Test_MSG_MsgId(void)
     CFE_UtAssert_SUCCESS(CFE_MSG_GetMsgId(&msg, &msgid));
     UtAssert_INT32_EQ(CFE_SB_MsgIdToValue(msgid), 0xFFFF);
     CFE_UtAssert_SUCCESS(CFE_MSG_SetMsgId(&msg, 0));
-    UT_DisplayPkt(&msg, sizeof(msg));
+    UtPrintx(&msg, sizeof(msg));
     CFE_UtAssert_SUCCESS(CFE_MSG_GetMsgId(&msg, &msgid));
     UtAssert_INT32_EQ(CFE_SB_MsgIdToValue(msgid), 0);
     UtAssert_INT32_EQ(Test_MSG_NotF(&msg), MSG_APID_FLAG | MSG_TYPE_FLAG | local_subsys_flag);
@@ -75,7 +75,7 @@ void Test_MSG_MsgId(void)
     CFE_UtAssert_SUCCESS(CFE_MSG_GetMsgId(&msg, &msgid));
     UtAssert_INT32_EQ(CFE_SB_MsgIdToValue(msgid), 0);
     CFE_UtAssert_SUCCESS(CFE_MSG_SetMsgId(&msg, CFE_PLATFORM_SB_HIGHEST_VALID_MSGID));
-    UT_DisplayPkt(&msg, sizeof(msg));
+    UtPrintx(&msg, sizeof(msg));
     CFE_UtAssert_SUCCESS(CFE_MSG_GetMsgId(&msg, &msgid));
     UtAssert_INT32_EQ(CFE_SB_MsgIdToValue(msgid), CFE_PLATFORM_SB_HIGHEST_VALID_MSGID);
     UtAssert_INT32_EQ(Test_MSG_NotZero(&msg), MSG_APID_FLAG | MSG_TYPE_FLAG | local_subsys_flag);

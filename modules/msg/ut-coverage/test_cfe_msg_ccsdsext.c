@@ -219,7 +219,7 @@ void Test_MSG_Endian(void)
         CFE_UtAssert_SUCCESS(CFE_MSG_GetEndian(&msg, &actual));
         UtAssert_INT32_EQ(actual, CFE_MSG_Endian_Little);
         CFE_UtAssert_SUCCESS(CFE_MSG_SetEndian(&msg, input[i]));
-        UT_DisplayPkt(&msg, sizeof(msg));
+        UtPrintx(&msg, sizeof(msg));
         CFE_UtAssert_SUCCESS(CFE_MSG_GetEndian(&msg, &actual));
         UtAssert_INT32_EQ(actual, input[i]);
         if (input[i] == CFE_MSG_Endian_Little)
@@ -239,7 +239,7 @@ void Test_MSG_Endian(void)
         CFE_UtAssert_SUCCESS(CFE_MSG_GetEndian(&msg, &actual));
         UtAssert_INT32_EQ(actual, CFE_MSG_Endian_Big);
         CFE_UtAssert_SUCCESS(CFE_MSG_SetEndian(&msg, input[i]));
-        UT_DisplayPkt(&msg, sizeof(msg));
+        UtPrintx(&msg, sizeof(msg));
         CFE_UtAssert_SUCCESS(CFE_MSG_GetEndian(&msg, &actual));
         UtAssert_INT32_EQ(actual, input[i]);
         if (input[i] == CFE_MSG_Endian_Big)
@@ -279,7 +279,7 @@ void Test_MSG_PlaybackFlag(void)
         CFE_UtAssert_SUCCESS(CFE_MSG_GetPlaybackFlag(&msg, &actual));
         UtAssert_INT32_EQ(actual, CFE_MSG_PlayFlag_Playback);
         CFE_UtAssert_SUCCESS(CFE_MSG_SetPlaybackFlag(&msg, input[i]));
-        UT_DisplayPkt(&msg, sizeof(msg));
+        UtPrintx(&msg, sizeof(msg));
         CFE_UtAssert_SUCCESS(CFE_MSG_GetPlaybackFlag(&msg, &actual));
         UtAssert_INT32_EQ(actual, input[i]);
         if (input[i] == CFE_MSG_PlayFlag_Playback)
@@ -299,7 +299,7 @@ void Test_MSG_PlaybackFlag(void)
         CFE_UtAssert_SUCCESS(CFE_MSG_GetPlaybackFlag(&msg, &actual));
         UtAssert_INT32_EQ(actual, CFE_MSG_PlayFlag_Original);
         CFE_UtAssert_SUCCESS(CFE_MSG_SetPlaybackFlag(&msg, input[i]));
-        UT_DisplayPkt(&msg, sizeof(msg));
+        UtPrintx(&msg, sizeof(msg));
         CFE_UtAssert_SUCCESS(CFE_MSG_GetPlaybackFlag(&msg, &actual));
         UtAssert_INT32_EQ(actual, input[i]);
         if (input[i] == CFE_MSG_PlayFlag_Original)
@@ -339,7 +339,7 @@ void Test_MSG_Subsystem(void)
         CFE_UtAssert_SUCCESS(CFE_MSG_GetSubsystem(&msg, &actual));
         UtAssert_INT32_EQ(actual, TEST_SUBSYS_MAX);
         CFE_UtAssert_SUCCESS(CFE_MSG_SetSubsystem(&msg, input[i]));
-        UT_DisplayPkt(&msg, sizeof(msg));
+        UtPrintx(&msg, sizeof(msg));
         CFE_UtAssert_SUCCESS(CFE_MSG_GetSubsystem(&msg, &actual));
         UtAssert_INT32_EQ(actual, input[i]);
         if (input[i] == TEST_SUBSYS_MAX)
@@ -359,7 +359,7 @@ void Test_MSG_Subsystem(void)
         CFE_UtAssert_SUCCESS(CFE_MSG_GetSubsystem(&msg, &actual));
         UtAssert_INT32_EQ(actual, 0);
         CFE_UtAssert_SUCCESS(CFE_MSG_SetSubsystem(&msg, input[i]));
-        UT_DisplayPkt(&msg, sizeof(msg));
+        UtPrintx(&msg, sizeof(msg));
         CFE_UtAssert_SUCCESS(CFE_MSG_GetSubsystem(&msg, &actual));
         UtAssert_INT32_EQ(actual, input[i]);
         if (input[i] == 0)
@@ -396,7 +396,7 @@ void Test_MSG_System(void)
         CFE_UtAssert_SUCCESS(CFE_MSG_GetSystem(&msg, &actual));
         UtAssert_INT32_EQ(actual, TEST_SYSTEM_MAX);
         CFE_UtAssert_SUCCESS(CFE_MSG_SetSystem(&msg, input[i]));
-        UT_DisplayPkt(&msg, sizeof(msg));
+        UtPrintx(&msg, sizeof(msg));
         CFE_UtAssert_SUCCESS(CFE_MSG_GetSystem(&msg, &actual));
         UtAssert_INT32_EQ(actual, input[i]);
         if (input[i] == TEST_SYSTEM_MAX)
@@ -416,7 +416,7 @@ void Test_MSG_System(void)
         CFE_UtAssert_SUCCESS(CFE_MSG_GetSystem(&msg, &actual));
         UtAssert_INT32_EQ(actual, 0);
         CFE_UtAssert_SUCCESS(CFE_MSG_SetSystem(&msg, input[i]));
-        UT_DisplayPkt(&msg, sizeof(msg));
+        UtPrintx(&msg, sizeof(msg));
         CFE_UtAssert_SUCCESS(CFE_MSG_GetSystem(&msg, &actual));
         UtAssert_INT32_EQ(actual, input[i]);
         if (input[i] == 0)
