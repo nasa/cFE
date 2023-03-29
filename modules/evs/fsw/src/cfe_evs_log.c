@@ -212,8 +212,8 @@ int32 CFE_EVS_WriteLogDataFileCmd(const CFE_EVS_WriteLogDataFileCmd_t *data)
             else
             {
                 EVS_SendEvent(CFE_EVS_ERR_WRLOGFILE_EID, CFE_EVS_EventType_ERROR,
-                              "Write Log File Command Error: OS_write = %ld, filename = %s", (long)OsStatus,
-                              LogFilename);
+                              "Write Log File Command Error on entry %d of %d: OS_write = %ld, filename = %s", (int)i,
+                              (int)CFE_EVS_Global.EVS_LogPtr->LogCount, (long)OsStatus, LogFilename);
             }
         }
 
