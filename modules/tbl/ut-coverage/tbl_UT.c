@@ -1472,7 +1472,7 @@ void Test_CFE_TBL_Register(void)
         CFE_TBL_Register(&TblHandle1, "UT_Table1", CFE_PLATFORM_TBL_MAX_SNGL_TABLE_SIZE, CFE_TBL_OPT_DEFAULT, NULL));
     CFE_UtAssert_EVENTNOTSENT(CFE_TBL_REGISTER_ERR_EID);
     CFE_UtAssert_SUCCESS(CFE_TBL_Unregister(TblHandle1));
-    CFE_UtAssert_EVENTCOUNT(0);
+    CFE_UtAssert_EVENTCOUNT(1);
 
     /* Test response to a double-buffered table size larger than the
      * maximum allowed
@@ -1490,7 +1490,7 @@ void Test_CFE_TBL_Register(void)
         CFE_TBL_Register(&TblHandle1, "UT_Table1", CFE_PLATFORM_TBL_MAX_DBL_TABLE_SIZE, CFE_TBL_OPT_DBL_BUFFER, NULL));
     CFE_UtAssert_EVENTNOTSENT(CFE_TBL_REGISTER_ERR_EID);
     CFE_UtAssert_SUCCESS(CFE_TBL_Unregister(TblHandle1));
-    CFE_UtAssert_EVENTCOUNT(0);
+    CFE_UtAssert_EVENTCOUNT(1);
 
     /* Test response to an invalid table option combination
      * (CFE_TBL_OPT_USR_DEF_ADDR | CFE_TBL_OPT_DBL_BUFFER)
@@ -1540,7 +1540,7 @@ void Test_CFE_TBL_Register(void)
     UtAssert_INT32_EQ(CFE_TBL_Register(&TblHandle1, "UT_Table1", sizeof(UT_Table1_t), CFE_TBL_OPT_DEFAULT, NULL),
                       CFE_ES_ERR_RESOURCEID_NOT_VALID);
     CFE_UtAssert_EVENTSENT(CFE_TBL_REGISTER_ERR_EID);
-    CFE_UtAssert_EVENTCOUNT(1);
+    CFE_UtAssert_EVENTCOUNT(2);
 
     /* Test response to a memory block size error */
     UT_InitData();
@@ -1548,7 +1548,7 @@ void Test_CFE_TBL_Register(void)
     UtAssert_INT32_EQ(CFE_TBL_Register(&TblHandle1, "UT_Table1", sizeof(UT_Table1_t), CFE_TBL_OPT_DEFAULT, NULL),
                       CFE_ES_ERR_MEM_BLOCK_SIZE);
     CFE_UtAssert_EVENTSENT(CFE_TBL_REGISTER_ERR_EID);
-    CFE_UtAssert_EVENTCOUNT(1);
+    CFE_UtAssert_EVENTCOUNT(2);
 
     /* Test response to a memory block size error (for a second buffer) */
     UT_InitData();
@@ -1556,13 +1556,13 @@ void Test_CFE_TBL_Register(void)
     UtAssert_INT32_EQ(CFE_TBL_Register(&TblHandle1, "UT_Table1", sizeof(UT_Table1_t), CFE_TBL_OPT_DBL_BUFFER, NULL),
                       CFE_ES_ERR_MEM_BLOCK_SIZE);
     CFE_UtAssert_EVENTSENT(CFE_TBL_REGISTER_ERR_EID);
-    CFE_UtAssert_EVENTCOUNT(1);
+    CFE_UtAssert_EVENTCOUNT(2);
 
     /* Test successfully getting a double buffered table */
     UT_InitData();
     CFE_UtAssert_SUCCESS(CFE_TBL_Register(&TblHandle1, "UT_Table1", sizeof(UT_Table1_t), CFE_TBL_OPT_DBL_BUFFER, NULL));
     CFE_UtAssert_EVENTNOTSENT(CFE_TBL_REGISTER_ERR_EID);
-    CFE_UtAssert_EVENTCOUNT(0);
+    CFE_UtAssert_EVENTCOUNT(1);
 
     /* Test attempt to register table owned by another application */
     UT_InitData();
@@ -1609,7 +1609,7 @@ void Test_CFE_TBL_Register(void)
     UT_SetAppID(UT_TBL_APPID_1);
     CFE_UtAssert_SUCCESS(CFE_TBL_Register(&TblHandle1, "UT_Table1", sizeof(UT_Table1_t), CFE_TBL_OPT_DEFAULT, NULL));
     CFE_UtAssert_EVENTNOTSENT(CFE_TBL_REGISTER_ERR_EID);
-    CFE_UtAssert_EVENTCOUNT(0);
+    CFE_UtAssert_EVENTCOUNT(1);
 
     /* b. Test cleanup: unregister table */
     UT_ClearEventHistory();
@@ -1622,7 +1622,7 @@ void Test_CFE_TBL_Register(void)
     CFE_UtAssert_SUCCESS(CFE_TBL_Register(&TblHandle1, "UT_Table1", sizeof(UT_Table1_t),
                                           (CFE_TBL_OPT_SNGL_BUFFER | CFE_TBL_OPT_DUMP_ONLY), NULL));
     CFE_UtAssert_EVENTNOTSENT(CFE_TBL_REGISTER_ERR_EID);
-    CFE_UtAssert_EVENTCOUNT(0);
+    CFE_UtAssert_EVENTCOUNT(1);
 
     /* b. Test cleanup: unregister table */
     UT_ClearEventHistory();
@@ -1635,7 +1635,7 @@ void Test_CFE_TBL_Register(void)
     CFE_UtAssert_SUCCESS(
         CFE_TBL_Register(&TblHandle1, "UT_Table1", sizeof(UT_Table1_t), CFE_TBL_OPT_USR_DEF_ADDR, NULL));
     CFE_UtAssert_EVENTNOTSENT(CFE_TBL_REGISTER_ERR_EID);
-    CFE_UtAssert_EVENTCOUNT(0);
+    CFE_UtAssert_EVENTCOUNT(1);
 
     /* b. Test cleanup: unregister table */
     UT_ClearEventHistory();
@@ -1647,7 +1647,7 @@ void Test_CFE_TBL_Register(void)
     UT_InitData();
     CFE_UtAssert_SUCCESS(CFE_TBL_Register(&TblHandle1, "UT_Table1", sizeof(UT_Table1_t), CFE_TBL_OPT_CRITICAL, NULL));
     CFE_UtAssert_EVENTNOTSENT(CFE_TBL_REGISTER_ERR_EID);
-    CFE_UtAssert_EVENTCOUNT(0);
+    CFE_UtAssert_EVENTCOUNT(1);
 
     /* b. Test cleanup: unregister table */
     UT_ClearEventHistory();
@@ -1662,7 +1662,7 @@ void Test_CFE_TBL_Register(void)
     UtAssert_INT32_EQ(CFE_TBL_Register(&TblHandle1, "UT_Table1", sizeof(UT_Table1_t), CFE_TBL_OPT_CRITICAL, NULL),
                       CFE_TBL_INFO_RECOVERED_TBL);
     CFE_UtAssert_EVENTNOTSENT(CFE_TBL_REGISTER_ERR_EID);
-    CFE_UtAssert_EVENTCOUNT(0);
+    CFE_UtAssert_EVENTCOUNT(1);
 
     /* b. Test cleanup: unregister table */
     UT_ClearEventHistory();
@@ -1678,7 +1678,7 @@ void Test_CFE_TBL_Register(void)
     CFE_TBL_Global.CritReg[0].TableLoadedOnce = false;
     CFE_UtAssert_SUCCESS(CFE_TBL_Register(&TblHandle1, "UT_Table1", sizeof(UT_Table1_t), CFE_TBL_OPT_CRITICAL, NULL));
     CFE_UtAssert_EVENTNOTSENT(CFE_TBL_REGISTER_ERR_EID);
-    CFE_UtAssert_EVENTCOUNT(0);
+    CFE_UtAssert_EVENTCOUNT(1);
 
     /* b. Test cleanup: unregister table */
     UT_ClearEventHistory();
@@ -1694,7 +1694,7 @@ void Test_CFE_TBL_Register(void)
     UT_SetDeferredRetcode(UT_KEY(CFE_ES_RestoreFromCDS), 1, CFE_ES_ERR_RESOURCEID_NOT_VALID);
     CFE_UtAssert_SUCCESS(CFE_TBL_Register(&TblHandle1, "UT_Table1", sizeof(UT_Table1_t), CFE_TBL_OPT_CRITICAL, NULL));
     CFE_UtAssert_EVENTNOTSENT(CFE_TBL_REGISTER_ERR_EID);
-    CFE_UtAssert_EVENTCOUNT(0);
+    CFE_UtAssert_EVENTCOUNT(1);
 
     /* b. Test cleanup: unregister table */
     UT_ClearEventHistory();
@@ -1716,7 +1716,7 @@ void Test_CFE_TBL_Register(void)
 
     CFE_UtAssert_SUCCESS(CFE_TBL_Register(&TblHandle1, "UT_Table1", sizeof(UT_Table1_t), CFE_TBL_OPT_CRITICAL, NULL));
     CFE_UtAssert_EVENTNOTSENT(CFE_TBL_REGISTER_ERR_EID);
-    CFE_UtAssert_EVENTCOUNT(0);
+    CFE_UtAssert_EVENTCOUNT(1);
 
     /* b. Test cleanup: unregister table */
     UT_ClearEventHistory();
@@ -1738,7 +1738,7 @@ void Test_CFE_TBL_Register(void)
 
     CFE_UtAssert_SUCCESS(CFE_TBL_Register(&TblHandle1, "UT_Table1", sizeof(UT_Table1_t), CFE_TBL_OPT_CRITICAL, NULL));
     CFE_UtAssert_EVENTNOTSENT(CFE_TBL_REGISTER_ERR_EID);
-    CFE_UtAssert_EVENTCOUNT(0);
+    CFE_UtAssert_EVENTCOUNT(1);
 
     /* b. Test cleanup: unregister table */
     UT_ClearEventHistory();
@@ -1753,7 +1753,7 @@ void Test_CFE_TBL_Register(void)
     UtAssert_INT32_EQ(CFE_TBL_Register(&TblHandle1, "UT_Table1", sizeof(UT_Table1_t), CFE_TBL_OPT_CRITICAL, NULL),
                       CFE_TBL_WARN_NOT_CRITICAL);
     CFE_UtAssert_EVENTNOTSENT(CFE_TBL_REGISTER_ERR_EID);
-    CFE_UtAssert_EVENTCOUNT(0);
+    CFE_UtAssert_EVENTCOUNT(1);
 
     /* Test attempt to register a table when the registry is full */
     /* a. Test setup */
@@ -1775,7 +1775,7 @@ void Test_CFE_TBL_Register(void)
     UtAssert_INT32_EQ(CFE_TBL_Register(&TblHandle2, TblName, sizeof(UT_Table1_t), CFE_TBL_OPT_DEFAULT, NULL),
                       CFE_TBL_ERR_REGISTRY_FULL);
     CFE_UtAssert_EVENTSENT(CFE_TBL_REGISTER_ERR_EID);
-    CFE_UtAssert_EVENTCOUNT(1);
+    CFE_UtAssert_EVENTCOUNT(2);
 
     /* c. Test cleanup: unregister table */
     UT_ClearEventHistory();
@@ -1793,7 +1793,7 @@ void Test_CFE_TBL_Register(void)
     /* b. Perform test */
     CFE_UtAssert_SUCCESS(CFE_TBL_Register(&TblHandle1, "NOTABLE", sizeof(UT_Table1_t), CFE_TBL_OPT_CRITICAL, NULL));
     CFE_UtAssert_EVENTNOTSENT(CFE_TBL_REGISTER_ERR_EID);
-    CFE_UtAssert_EVENTCOUNT(0);
+    CFE_UtAssert_EVENTCOUNT(1);
 
     /* c. Test cleanup: unregister table */
     UT_ClearEventHistory();
@@ -1818,7 +1818,7 @@ void Test_CFE_TBL_Register(void)
     UtAssert_INT32_EQ(CFE_TBL_Register(&TblHandle1, TblName, sizeof(UT_Table1_t), CFE_TBL_OPT_DEFAULT, NULL),
                       CFE_TBL_ERR_HANDLES_FULL);
     CFE_UtAssert_EVENTSENT(CFE_TBL_REGISTER_ERR_EID);
-    CFE_UtAssert_EVENTCOUNT(1);
+    CFE_UtAssert_EVENTCOUNT(2);
 
     /* Test response to an invalid table option combination
      * (CFE_TBL_OPT_USR_DEF_ADDR | CFE_TBL_OPT_CRITICAL)
@@ -1917,7 +1917,7 @@ void Test_CFE_TBL_Share(void)
     UT_SetAppID(UT_TBL_APPID_1);
     UtAssert_INT32_EQ(CFE_TBL_Share(&App1TblHandle1, "ut_cfe_tbl.NOT_Table2"), CFE_TBL_ERR_INVALID_NAME);
     CFE_UtAssert_EVENTSENT(CFE_TBL_SHARE_ERR_EID);
-    CFE_UtAssert_EVENTCOUNT(1);
+    CFE_UtAssert_EVENTCOUNT(2);
 
     /* Test response when there are no available table handles */
     UT_InitData();
@@ -2010,7 +2010,7 @@ void Test_CFE_TBL_NotifyByMessage(void)
 
     CFE_UtAssert_SUCCESS(
         CFE_TBL_Register(&App1TblHandle1, "NBMsg_Tbl", sizeof(UT_Table1_t), CFE_TBL_OPT_CRITICAL, NULL));
-    CFE_UtAssert_EVENTCOUNT(0);
+    CFE_UtAssert_EVENTCOUNT(1);
 
     /* Test successful notification */
     UT_InitData();
@@ -2062,7 +2062,7 @@ void Test_CFE_TBL_Load(void)
     CFE_UtAssert_SUCCESS(CFE_TBL_Register(&App1TblHandle1, "UT_Table1", sizeof(UT_Table1_t), CFE_TBL_OPT_DEFAULT,
                                           Test_CFE_TBL_ValidationFunc));
     CFE_UtAssert_EVENTNOTSENT(CFE_TBL_REGISTER_ERR_EID);
-    CFE_UtAssert_EVENTCOUNT(0);
+    CFE_UtAssert_EVENTCOUNT(1);
 
     /* Test response to a null source data pointer */
     UT_InitData();
@@ -2127,7 +2127,7 @@ void Test_CFE_TBL_Load(void)
     CFE_UtAssert_SUCCESS(CFE_TBL_Register(&App1TblHandle2, "UT_Table2x", sizeof(UT_Table1_t), CFE_TBL_OPT_DBL_BUFFER,
                                           Test_CFE_TBL_ValidationFunc));
     CFE_UtAssert_EVENTNOTSENT(CFE_TBL_REGISTER_ERR_EID);
-    CFE_UtAssert_EVENTCOUNT(0);
+    CFE_UtAssert_EVENTCOUNT(1);
 
     /* Test attempt to load a file that has incompatible data for the
      * specified double buffered table that is already loaded
@@ -2198,7 +2198,7 @@ void Test_CFE_TBL_Load(void)
     CFE_UtAssert_SUCCESS(
         CFE_TBL_Register(&DumpOnlyTblHandle, "UT_Table2", sizeof(UT_Table1_t), CFE_TBL_OPT_DUMP_ONLY, NULL));
     CFE_UtAssert_EVENTNOTSENT(CFE_TBL_REGISTER_ERR_EID);
-    CFE_UtAssert_EVENTCOUNT(0);
+    CFE_UtAssert_EVENTCOUNT(1);
 
     /* b. Perform test */
     UT_InitData();
@@ -2221,7 +2221,7 @@ void Test_CFE_TBL_Load(void)
     UT_InitData();
     CFE_UtAssert_SUCCESS(
         CFE_TBL_Register(&UserDefTblHandle, "UT_Table3", sizeof(UT_Table1_t), CFE_TBL_OPT_USR_DEF_ADDR, NULL));
-    CFE_UtAssert_EVENTCOUNT(0);
+    CFE_UtAssert_EVENTCOUNT(1);
 
     /* Perform test */
     UT_InitData();
@@ -2317,7 +2317,7 @@ void Test_CFE_TBL_ReleaseAddress(void)
     CFE_UtAssert_SUCCESS(CFE_TBL_Register(&App1TblHandle1, "UT_Table1", sizeof(UT_Table1_t), CFE_TBL_OPT_DEFAULT,
                                           Test_CFE_TBL_ValidationFunc));
     CFE_UtAssert_EVENTNOTSENT(CFE_TBL_REGISTER_ERR_EID);
-    CFE_UtAssert_EVENTCOUNT(0);
+    CFE_UtAssert_EVENTCOUNT(1);
 
     /* b. Perform test */
     UT_InitData();
@@ -2340,7 +2340,7 @@ void Test_CFE_TBL_GetAddresses(void)
     CFE_UtAssert_SUCCESS(CFE_TBL_Register(&App1TblHandle2, "UT_Table2", sizeof(UT_Table1_t), CFE_TBL_OPT_DBL_BUFFER,
                                           Test_CFE_TBL_ValidationFunc));
     CFE_UtAssert_EVENTNOTSENT(CFE_TBL_REGISTER_ERR_EID);
-    CFE_UtAssert_EVENTCOUNT(0);
+    CFE_UtAssert_EVENTCOUNT(1);
 
     /* b. Perform test */
     UT_InitData();
@@ -3016,7 +3016,7 @@ void Test_CFE_TBL_GetInfo(void)
     /* Test response to attempt to get information on a non-existent table */
     UT_InitData();
     UtAssert_INT32_EQ(CFE_TBL_GetInfo(&TblInfo, "ut_cfe_tbl.UT_Table_Not"), CFE_TBL_ERR_INVALID_NAME);
-    CFE_UtAssert_EVENTCOUNT(0);
+    CFE_UtAssert_EVENTCOUNT(1);
 }
 
 /*
@@ -3057,7 +3057,7 @@ void Test_CFE_TBL_TblMod(void)
     /* Test setup for CFE_TBL_Modified; register a non critical table */
     CFE_UtAssert_SUCCESS(
         CFE_TBL_Register(&App1TblHandle1, "UT_Table1", sizeof(UT_Table1_t), CFE_TBL_OPT_CRITICAL, NULL));
-    CFE_UtAssert_EVENTCOUNT(0);
+    CFE_UtAssert_EVENTCOUNT(1);
 
     /* b. Perform test */
     UT_ClearEventHistory();
@@ -3123,7 +3123,7 @@ void Test_CFE_TBL_TblMod(void)
     /* Register a non critical table */
     CFE_UtAssert_SUCCESS(
         CFE_TBL_Register(&App1TblHandle1, "UT_Table2", sizeof(UT_Table1_t), CFE_TBL_OPT_DEFAULT, NULL));
-    CFE_UtAssert_EVENTCOUNT(0);
+    CFE_UtAssert_EVENTCOUNT(1);
 
     /* Reset the current table entry pointer to a previous table in order to
      * exercise the path where one of the application IDs don't match
@@ -3160,7 +3160,7 @@ void Test_CFE_TBL_TblMod(void)
 
     CFE_UtAssert_SUCCESS(CFE_TBL_Load(App1TblHandle1, CFE_TBL_SRC_FILE, MyFilename));
     CFE_UtAssert_EVENTSENT(CFE_TBL_LOAD_SUCCESS_INF_EID);
-    CFE_UtAssert_EVENTCOUNT(1);
+    CFE_UtAssert_EVENTCOUNT(2);
 
     /*
      * Notify Table Services that the table has been modified. Verify CRC has been
@@ -3217,7 +3217,7 @@ void Test_CFE_TBL_Internal(void)
     CFE_UtAssert_SUCCESS(CFE_TBL_Register(&App1TblHandle2, "UT_Table3", sizeof(UT_Table1_t), CFE_TBL_OPT_DBL_BUFFER,
                                           Test_CFE_TBL_ValidationFunc));
     CFE_UtAssert_EVENTNOTSENT(CFE_TBL_REGISTER_ERR_EID);
-    CFE_UtAssert_EVENTCOUNT(0);
+    CFE_UtAssert_EVENTCOUNT(1);
 
     /* Test successful initial load of double buffered table */
     UT_InitData();

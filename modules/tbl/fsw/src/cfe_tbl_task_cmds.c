@@ -373,12 +373,7 @@ int32 CFE_TBL_LoadCmd(const CFE_TBL_LoadCmd_t *data)
             /* Locate specified table in registry */
             RegIndex = CFE_TBL_FindTableInRegistry(TblFileHeader.TableName);
 
-            if (RegIndex == CFE_TBL_NOT_FOUND)
-            {
-                CFE_EVS_SendEvent(CFE_TBL_NO_SUCH_TABLE_ERR_EID, CFE_EVS_EventType_ERROR,
-                                  "Unable to locate '%s' in Table Registry", TblFileHeader.TableName);
-            }
-            else
+            if (RegIndex != CFE_TBL_NOT_FOUND)
             {
                 /* Translate the registry index into a record pointer */
                 RegRecPtr = &CFE_TBL_Global.Registry[RegIndex];
@@ -655,11 +650,6 @@ int32 CFE_TBL_DumpCmd(const CFE_TBL_DumpCmd_t *data)
             }
         }
     }
-    else /* Table could not be found in Registry */
-    {
-        CFE_EVS_SendEvent(CFE_TBL_NO_SUCH_TABLE_ERR_EID, CFE_EVS_EventType_ERROR,
-                          "Unable to locate '%s' in Table Registry", TableName);
-    }
 
     return ReturnCode;
 }
@@ -920,11 +910,6 @@ int32 CFE_TBL_ValidateCmd(const CFE_TBL_ValidateCmd_t *data)
             }
         }
     }
-    else /* Table could not be found in Registry */
-    {
-        CFE_EVS_SendEvent(CFE_TBL_NO_SUCH_TABLE_ERR_EID, CFE_EVS_EventType_ERROR,
-                          "Unable to locate '%s' in Table Registry", TableName);
-    }
 
     return ReturnCode;
 }
@@ -997,11 +982,6 @@ int32 CFE_TBL_ActivateCmd(const CFE_TBL_ActivateCmd_t *data)
             CFE_EVS_SendEvent(CFE_TBL_ACTIVATE_ERR_EID, CFE_EVS_EventType_ERROR,
                               "Cannot activate table '%s'. No Inactive image available", TableName);
         }
-    }
-    else /* Table could not be found in Registry */
-    {
-        CFE_EVS_SendEvent(CFE_TBL_NO_SUCH_TABLE_ERR_EID, CFE_EVS_EventType_ERROR,
-                          "Unable to locate '%s' in Table Registry", TableName);
     }
 
     return ReturnCode;
@@ -1278,11 +1258,6 @@ int32 CFE_TBL_SendRegistryCmd(const CFE_TBL_SendRegistryCmd_t *data)
         /* Increment Successful Command Counter */
         ReturnCode = CFE_TBL_INC_CMD_CTR;
     }
-    else /* Table could not be found in Registry */
-    {
-        CFE_EVS_SendEvent(CFE_TBL_NO_SUCH_TABLE_ERR_EID, CFE_EVS_EventType_ERROR,
-                          "Unable to locate '%s' in Table Registry", TableName);
-    }
 
     return ReturnCode;
 }
@@ -1415,11 +1390,6 @@ int32 CFE_TBL_AbortLoadCmd(const CFE_TBL_AbortLoadCmd_t *data)
             CFE_EVS_SendEvent(CFE_TBL_LOAD_ABORT_ERR_EID, CFE_EVS_EventType_ERROR,
                               "Cannot abort load of '%s'. No load started.", TableName);
         }
-    }
-    else /* Table could not be found in Registry */
-    {
-        CFE_EVS_SendEvent(CFE_TBL_NO_SUCH_TABLE_ERR_EID, CFE_EVS_EventType_ERROR,
-                          "Unable to locate '%s' in Table Registry", TableName);
     }
 
     return ReturnCode;
