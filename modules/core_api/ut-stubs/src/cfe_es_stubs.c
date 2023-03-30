@@ -907,11 +907,15 @@ CFE_Status_t CFE_ES_TaskID_ToIndex(CFE_ES_TaskId_t TaskID, uint32 *Idx)
  * Generated stub function for CFE_ES_WaitForStartupSync()
  * ----------------------------------------------------
  */
-void CFE_ES_WaitForStartupSync(uint32 TimeOutMilliseconds)
+CFE_Status_t CFE_ES_WaitForStartupSync(uint32 TimeOutMilliseconds)
 {
+    UT_GenStub_SetupReturnBuffer(CFE_ES_WaitForStartupSync, CFE_Status_t);
+
     UT_GenStub_AddParam(CFE_ES_WaitForStartupSync, uint32, TimeOutMilliseconds);
 
     UT_GenStub_Execute(CFE_ES_WaitForStartupSync, Basic, NULL);
+
+    return UT_GenStub_GetReturnValue(CFE_ES_WaitForStartupSync, CFE_Status_t);
 }
 
 /*

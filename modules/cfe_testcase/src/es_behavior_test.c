@@ -74,7 +74,7 @@ void TestWaitBehavior(void)
     UtAssert_INT32_EQ(CFE_ES_WaitForSystemState(CFE_ES_SystemState_CORE_READY, 10000), CFE_SUCCESS);
     UtAssert_INT32_EQ(CFE_ES_WaitForSystemState(CFE_ES_SystemState_APPS_INIT, 10000), CFE_SUCCESS);
     UtAssert_INT32_EQ(CFE_ES_WaitForSystemState(CFE_ES_SystemState_OPERATIONAL, 10000), CFE_SUCCESS);
-    UtAssert_VOIDCALL(CFE_ES_WaitForStartupSync(10000));
+    UtAssert_INT32_EQ(CFE_ES_WaitForStartupSync(10000), CFE_SUCCESS);
 
     end        = CFE_TIME_GetTime();
     TimePassed = CFE_TIME_Subtract(end, start);
