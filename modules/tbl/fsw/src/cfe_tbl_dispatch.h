@@ -19,30 +19,37 @@
 /**
  * @file
  *
- * Encapsulates all EVS module internal header files, as well
- * as the public API from all other CFE core modules, OSAL, and PSP.
+ * Purpose:  cFE Table Services (TBL) utility function interface file
  *
- * This simplifies the set of include files that need to be put at the
- * start of every source file.
+ * Author:   D. Kobe/the Hammers Company, Inc.
+ *
+ * Notes:
+ *
  */
 
-#ifndef CFE_EVS_MODULE_ALL_H
-#define CFE_EVS_MODULE_ALL_H
+#ifndef CFE_TBL_DISPATCH_H
+#define CFE_TBL_DISPATCH_H
 
-/********************* Include Files  ************************/
+/*
+** Required header files...
+*/
+#include "cfe_tbl_api_typedefs.h"
+#include "cfe_sb_api_typedefs.h"
+#include "cfe_msg_api_typedefs.h"
 
-#include "cfe.h" /* All CFE+OSAL public API definitions */
-#include "cfe_platform_cfg.h"
+/*---------------------------------------------------------------------------------------*/
+/**
+** \brief Processes command pipe messages
+**
+** \par Description
+**          Processes messages obtained from the command pipe.
+**
+** \par Assumptions, External Events, and Notes:
+**          None
+**
+** \param[in] SBBufPtr Pointer to the message received from the command pipe
+**
+*/
+void CFE_TBL_TaskPipe(const CFE_SB_Buffer_t *SBBufPtr);
 
-#include "cfe_msgids.h"
-#include "cfe_perfids.h"
-
-#include "cfe_evs_core_internal.h"
-
-#include "cfe_evs_events.h" /* EVS event IDs */
-#include "cfe_evs_task.h"   /* EVS internal definitions */
-#include "cfe_evs_log.h"    /* EVS log file definitions */
-#include "cfe_evs_utils.h"  /* EVS utility function definitions */
-#include "cfe_evs_dispatch.h"
-
-#endif /* CFE_EVS_MODULE_ALL_H */
+#endif /* CFE_TBL_DISPATCH_H */

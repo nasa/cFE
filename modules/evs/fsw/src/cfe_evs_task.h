@@ -143,14 +143,6 @@ extern CFE_EVS_Global_t CFE_EVS_Global;
  */
 int32 CFE_EVS_TaskInit(void);
 
-/*---------------------------------------------------------------------------------------*/
-/**
- * @brief Command Pipe Processing
- *
- * This function processes packets received on the EVS command pipe.
- */
-void CFE_EVS_ProcessCommandPacket(CFE_SB_Buffer_t *SBBufPtr);
-
 /*
  * EVS Message Handler Functions
  */

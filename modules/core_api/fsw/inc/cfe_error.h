@@ -203,6 +203,30 @@ char *CFE_ES_StatusToString(CFE_Status_t status, CFE_StatusString_t *status_stri
 #define CFE_STATUS_REQUEST_ALREADY_PENDING ((int32)0xc8000006)
 
 /**
+ * @brief Request or input value failed basic structural validation
+ *
+ * A message or table input was not in the proper format to be understood
+ * and processed by an application, and was rejected.
+ */
+#define CFE_STATUS_VALIDATION_FAILURE ((int32)0xc8000007)
+
+/**
+ * @brief Request or input value is out of range
+ *
+ * A message, table, or function call input contained a value that was outside
+ * the acceptable range, and the request was rejected.
+ */
+#define CFE_STATUS_RANGE_ERROR ((int32)0xc8000008)
+
+/**
+ * @brief Cannot process request at this time
+ *
+ * The system is not currently in the correct state to accept the request at
+ * this time.
+ */
+#define CFE_STATUS_INCORRECT_STATE ((int32)0xc8000009)
+
+/**
  * @brief Not Implemented
  *
  *  Current version does not have the function or the feature

@@ -19,30 +19,24 @@
 /**
  * @file
  *
- * Encapsulates all EVS module internal header files, as well
- * as the public API from all other CFE core modules, OSAL, and PSP.
- *
- * This simplifies the set of include files that need to be put at the
- * start of every source file.
+ *  Event Services API - Dispatch API
  */
 
-#ifndef CFE_EVS_MODULE_ALL_H
-#define CFE_EVS_MODULE_ALL_H
+#ifndef CFE_EVS_DISPATCH_H
+#define CFE_EVS_DISPATCH_H
 
-/********************* Include Files  ************************/
+/********************************** Include Files  ************************************/
+#include "common_types.h"
+#include "cfe_evs_api_typedefs.h"
+#include "cfe_sb_api_typedefs.h"
+#include "cfe_msg_api_typedefs.h"
 
-#include "cfe.h" /* All CFE+OSAL public API definitions */
-#include "cfe_platform_cfg.h"
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Command Pipe Processing
+ *
+ * This function processes packets received on the EVS command pipe.
+ */
+void CFE_EVS_ProcessCommandPacket(const CFE_SB_Buffer_t *SBBufPtr);
 
-#include "cfe_msgids.h"
-#include "cfe_perfids.h"
-
-#include "cfe_evs_core_internal.h"
-
-#include "cfe_evs_events.h" /* EVS event IDs */
-#include "cfe_evs_task.h"   /* EVS internal definitions */
-#include "cfe_evs_log.h"    /* EVS log file definitions */
-#include "cfe_evs_utils.h"  /* EVS utility function definitions */
-#include "cfe_evs_dispatch.h"
-
-#endif /* CFE_EVS_MODULE_ALL_H */
+#endif /* CFE_EVS_DISPATCH_H */

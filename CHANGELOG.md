@@ -1,5 +1,10 @@
 # Changelog
 
+## Development Build: v7.0.0-rc4+dev260
+- add more generic status codes
+- separate dispatcher for messages
+- See <https://github.com/nasa/cFE/pull/2259> and <https://github.com/nasa/cFE/pull/2263>
+
 ## Development Build: v7.0.0-rc4+dev254
 - improve 64-bit memory address handling in CMD/TLM
 - See <https://github.com/nasa/cFE/pull/2256>

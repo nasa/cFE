@@ -333,14 +333,6 @@ void CFE_SB_UnlockSharedData(const char *FuncName, int32 LineNumber);
 
 /*---------------------------------------------------------------------------------------*/
 /**
- * Processes a single message buffer that has been received from the command pipe
- *
- * @param SBBufPtr Software bus buffer pointer
- */
-void CFE_SB_ProcessCmdPipePkt(CFE_SB_Buffer_t *SBBufPtr);
-
-/*---------------------------------------------------------------------------------------*/
-/**
  * Function to reset the SB housekeeping counters.
  * @note Command counter not incremented for this command
  */

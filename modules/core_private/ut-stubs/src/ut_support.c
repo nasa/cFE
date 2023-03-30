@@ -236,7 +236,7 @@ void UT_SetupBasicMsgDispatch(const UT_TaskPipeDispatchId_t *DispatchReq, CFE_MS
 ** This first sets up the various stubs according to the test case,
 ** then invokes the pipe function.
 */
-void UT_CallTaskPipe(void (*TaskPipeFunc)(CFE_SB_Buffer_t *), CFE_MSG_Message_t *MsgPtr, size_t MsgSize,
+void UT_CallTaskPipe(void (*TaskPipeFunc)(const CFE_SB_Buffer_t *), const CFE_MSG_Message_t *MsgPtr, size_t MsgSize,
                      UT_TaskPipeDispatchId_t DispatchId)
 {
     union
