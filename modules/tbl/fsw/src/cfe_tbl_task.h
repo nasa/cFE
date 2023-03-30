@@ -391,21 +391,6 @@ int32 CFE_TBL_TaskInit(void);
 
 /*---------------------------------------------------------------------------------------*/
 /**
-** \brief Processes command pipe messages
-**
-** \par Description
-**          Processes messages obtained from the command pipe.
-**
-** \par Assumptions, External Events, and Notes:
-**          None
-**
-** \param[in] SBBufPtr Pointer to the message received from the command pipe
-**
-*/
-void CFE_TBL_TaskPipe(CFE_SB_Buffer_t *SBBufPtr);
-
-/*---------------------------------------------------------------------------------------*/
-/**
 ** \brief Table Service Application Data Initialization
 **
 ** \par Description

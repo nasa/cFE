@@ -12,10 +12,7 @@ set(time_SOURCES
     fsw/src/cfe_time_task.c
     fsw/src/cfe_time_tone.c
     fsw/src/cfe_time_utils.c
-    fsw/src/cfe_time_api.c
-    fsw/src/cfe_time_task.c
-    fsw/src/cfe_time_tone.c
-    fsw/src/cfe_time_utils.c
+    fsw/src/cfe_time_dispatch.c
 )
 add_library(time STATIC ${time_SOURCES})
 

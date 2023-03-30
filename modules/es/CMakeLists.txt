@@ -13,6 +13,7 @@ set(es_SOURCES
     fsw/src/cfe_es_backgroundtask.c
     fsw/src/cfe_es_cds.c
     fsw/src/cfe_es_cds_mempool.c
+    fsw/src/cfe_es_dispatch.c
     fsw/src/cfe_es_erlog.c
     fsw/src/cfe_es_generic_pool.c
     fsw/src/cfe_es_mempool.c

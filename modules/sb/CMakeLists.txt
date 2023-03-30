@@ -13,13 +13,7 @@ set(sb_SOURCES
     fsw/src/cfe_sb_init.c
     fsw/src/cfe_sb_msg_id_util.c
     fsw/src/cfe_sb_priv.c
-    fsw/src/cfe_sb_task.c
-    fsw/src/cfe_sb_util.c
-    fsw/src/cfe_sb_api.c
-    fsw/src/cfe_sb_buf.c
-    fsw/src/cfe_sb_init.c
-    fsw/src/cfe_sb_msg_id_util.c
-    fsw/src/cfe_sb_priv.c
+    fsw/src/cfe_sb_dispatch.c
     fsw/src/cfe_sb_task.c
     fsw/src/cfe_sb_util.c
 )

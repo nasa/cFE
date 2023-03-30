@@ -12,10 +12,7 @@ set(evs_SOURCES
     fsw/src/cfe_evs_log.c
     fsw/src/cfe_evs_task.c
     fsw/src/cfe_evs_utils.c
-    fsw/src/cfe_evs.c
-    fsw/src/cfe_evs_log.c
-    fsw/src/cfe_evs_task.c
-    fsw/src/cfe_evs_utils.c
+    fsw/src/cfe_evs_dispatch.c
 )
 add_library(evs STATIC ${evs_SOURCES})
 
