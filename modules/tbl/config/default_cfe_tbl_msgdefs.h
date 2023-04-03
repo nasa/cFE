@@ -218,8 +218,8 @@ typedef struct CFE_TBL_HousekeepingTlm_Payload
     */
     uint8 NumFreeSharedBufs;                                  /**< \cfetlmmnemonic \TBL_NUMFREESHRBUF
                                                                    \brief Number of free Shared Working Buffers */
-    uint8 ByteAlignPad1;                                      /**< \cfetlmmnemonic \TBL_BYTEALIGNPAD1
-                                                                   \brief Spare byte to ensure longword alignment */
+    uint8 HkPadding[3];                                       /**< \cfetlmmnemonic \TBL_HKPADDING
+                                                                   \brief Structure Padding to align to 32-bit boundaries */
     CFE_ES_MemHandle_t MemPoolHandle;                         /**< \cfetlmmnemonic \TBL_MEMPOOLHANDLE
                                                                    \brief Handle to TBL's memory pool */
     CFE_TIME_SysTime_t LastUpdateTime;                        /**< \cfetlmmnemonic \TBL_LASTUPDTIME
@@ -271,8 +271,8 @@ typedef struct CFE_TBL_TblRegPacket_Payload
                                                 \brief Name of owning application */
     bool Critical;                                 /**< \cfetlmmnemonic \TBL_CRITICAL
                                                         \brief Indicates whether table is Critical or not */
-    uint8 ByteAlign4;                              /**< \cfetlmmnemonic \TBL_SPARE4
-                                                        \brief Spare byte to maintain byte alignment */
+    uint8 RegPadding[3];                           /**< \cfetlmmnemonic \TBL_REGPADDING
+                                                        \brief Structure Padding to align to 32-bit boundaries */
 } CFE_TBL_TblRegPacket_Payload_t;
 
 #endif
