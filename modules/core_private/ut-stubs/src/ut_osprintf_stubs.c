@@ -109,4 +109,6 @@ const char *UT_OSP_MESSAGES[] = {
     [UT_OSP_FORMAT_VOLATILE]            = "%s: Formatting Volatile(RAM) Volume.\n",
     [UT_OSP_RELOAD_NO_FILE]             = "%s: Cannot Reload Application %s, File %s does not exist.\n",
     [UT_OSP_EXTERNAL_APP_EXIT]          = "%s: Application %s called CFE_ES_ExitApp\n",
+    [UT_OSP_INVALID_ID_AND_FILENAME]    = "%s: Application ID and AppFileName Parameters are NULL, , AppID = %lu\n",
+    [UT_OSP_INVALID_FILENAME]           = "%s: AppFileName Parameter is NULL\n",
 };
