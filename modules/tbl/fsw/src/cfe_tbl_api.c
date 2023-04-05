@@ -357,13 +357,14 @@ CFE_Status_t CFE_TBL_Register(CFE_TBL_Handle_t *TblHandlePtr, const char *Name, 
                         {
                             Status = CFE_TBL_GetWorkingBuffer(&WorkingBufferPtr, RegRecPtr, true);
 
+                            CFE_ES_GetAppName(AppName, ThisAppId, sizeof(AppName));
+
                             if (Status != CFE_SUCCESS)
                             {
                                 /* Unable to get a working buffer - this error is not really */
                                 /* possible at this point during table registration.  But we */
                                 /* do need to handle the error case because if the function */
                                 /* call did fail, WorkingBufferPtr would be a NULL pointer. */
-                                CFE_ES_GetAppName(AppName, ThisAppId, sizeof(AppName));
                                 CFE_ES_WriteToSysLog("%s: Failed to get work buffer for '%s.%s' (ErrCode=0x%08X)\n",
                                                      __func__, AppName, Name, (unsigned int)Status);
                             }
@@ -374,7 +375,6 @@ CFE_Status_t CFE_TBL_Register(CFE_TBL_Handle_t *TblHandlePtr, const char *Name, 
 
                                 if (Status != CFE_SUCCESS)
                                 {
-                                    CFE_ES_GetAppName(AppName, ThisAppId, sizeof(AppName));
                                     CFE_ES_WriteToSysLog("%s: Failed to recover '%s.%s' from CDS (ErrCode=0x%08X)\n",
                                                          __func__, AppName, Name, (unsigned int)Status);
                                 }
@@ -419,7 +419,6 @@ CFE_Status_t CFE_TBL_Register(CFE_TBL_Handle_t *TblHandlePtr, const char *Name, 
                                 {
                                     /* If an error occurred while trying to get the previous contents registry info, */
                                     /* Log the error in the System Log and pretend like we created a new CDS */
-                                    CFE_ES_GetAppName(AppName, ThisAppId, sizeof(AppName));
                                     CFE_ES_WriteToSysLog("%s: Failed to recover '%s.%s' info from CDS TblReg\n",
                                                          __func__, AppName, Name);
                                     Status = CFE_SUCCESS;
