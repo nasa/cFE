@@ -1676,13 +1676,13 @@ void CFE_SB_BroadcastBufferToRoute(CFE_SB_BufferD_t *BufDscPtr, CFE_SBR_RouteId_
     /* send an event for each pipe write error that may have occurred */
     for (i = 0; i < SBSndErr.EvtsToSnd; i++)
     {
+        CFE_SB_GetPipeName(PipeName, sizeof(PipeName), SBSndErr.EvtBuf[i].PipeId);
+
         if (SBSndErr.EvtBuf[i].EventId == CFE_SB_MSGID_LIM_ERR_EID)
         {
             /* Determine if event can be sent without causing recursive event problem */
             if (CFE_SB_RequestToSendEvent(TskId, CFE_SB_MSGID_LIM_ERR_EID_BIT) == CFE_SB_GRANTED)
             {
-                CFE_SB_GetPipeName(PipeName, sizeof(PipeName), SBSndErr.EvtBuf[i].PipeId);
-
                 CFE_ES_PerfLogEntry(CFE_MISSION_SB_MSG_LIM_PERF_ID);
                 CFE_ES_PerfLogExit(CFE_MISSION_SB_MSG_LIM_PERF_ID);
 
@@ -1700,8 +1700,6 @@ void CFE_SB_BroadcastBufferToRoute(CFE_SB_BufferD_t *BufDscPtr, CFE_SBR_RouteId_
             /* Determine if event can be sent without causing recursive event problem */
             if (CFE_SB_RequestToSendEvent(TskId, CFE_SB_Q_FULL_ERR_EID_BIT) == CFE_SB_GRANTED)
             {
-                CFE_SB_GetPipeName(PipeName, sizeof(PipeName), SBSndErr.EvtBuf[i].PipeId);
-
                 CFE_ES_PerfLogEntry(CFE_MISSION_SB_PIPE_OFLOW_PERF_ID);
                 CFE_ES_PerfLogExit(CFE_MISSION_SB_PIPE_OFLOW_PERF_ID);
 
@@ -1719,8 +1717,6 @@ void CFE_SB_BroadcastBufferToRoute(CFE_SB_BufferD_t *BufDscPtr, CFE_SBR_RouteId_
             /* Determine if event can be sent without causing recursive event problem */
             if (CFE_SB_RequestToSendEvent(TskId, CFE_SB_Q_WR_ERR_EID_BIT) == CFE_SB_GRANTED)
             {
-                CFE_SB_GetPipeName(PipeName, sizeof(PipeName), SBSndErr.EvtBuf[i].PipeId);
-
                 CFE_EVS_SendEventWithAppID(CFE_SB_Q_WR_ERR_EID, CFE_EVS_EventType_ERROR, CFE_SB_Global.AppId,
                                            "Pipe Write Err,MsgId 0x%x,pipe %s,sender %s,stat %ld",
                                            (unsigned int)CFE_SB_MsgIdToValue(BufDscPtr->MsgId), PipeName,
