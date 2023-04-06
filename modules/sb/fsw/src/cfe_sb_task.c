@@ -765,55 +765,10 @@ void CFE_SB_BackgroundFileEventHandler(void *Meta, CFE_FS_FileWriteEvent_t Event
  *-----------------------------------------------------------------*/
 int32 CFE_SB_WriteRoutingInfoCmd(const CFE_SB_WriteRoutingInfoCmd_t *data)
 {
-    const CFE_SB_WriteFileInfoCmd_Payload_t *CmdPtr;
-    CFE_SB_BackgroundFileStateInfo_t *       StatePtr;
-    int32                                    Status;
+    const char *FileDescription = "SB Routing Information";
 
-    StatePtr = &CFE_SB_Global.BackgroundFile;
-    CmdPtr   = &data->Payload;
-
-    /* If a routing info dump was already pending, do not overwrite the current request */
-    if (!CFE_FS_BackgroundFileDumpIsPending(&StatePtr->FileWrite))
-    {
-        /* Reset the entire state object (just for good measure, ensure no stale data) */
-        memset(StatePtr, 0, sizeof(*StatePtr));
-
-        /*
-         * Fill out the remainder of meta data.
-         * This data is currently the same for every request
-         */
-        StatePtr->FileWrite.FileSubType = CFE_FS_SubType_SB_ROUTEDATA;
-        snprintf(StatePtr->FileWrite.Description, sizeof(StatePtr->FileWrite.Description), "SB Routing Information");
-
-        StatePtr->FileWrite.GetData = CFE_SB_WriteRouteInfoDataGetter;
-        StatePtr->FileWrite.OnEvent = CFE_SB_BackgroundFileEventHandler;
-
-        /*
-        ** Copy the filename into local buffer with default name/path/extension if not specified
-        */
-        Status = CFE_FS_ParseInputFileNameEx(StatePtr->FileWrite.FileName, CmdPtr->Filename,
-                                             sizeof(StatePtr->FileWrite.FileName), sizeof(CmdPtr->Filename),
-                                             CFE_PLATFORM_SB_DEFAULT_ROUTING_FILENAME,
-                                             CFE_FS_GetDefaultMountPoint(CFE_FS_FileCategory_BINARY_DATA_DUMP),
-                                             CFE_FS_GetDefaultExtension(CFE_FS_FileCategory_BINARY_DATA_DUMP));
-
-        if (Status == CFE_SUCCESS)
-        {
-            Status = CFE_FS_BackgroundFileDumpRequest(&StatePtr->FileWrite);
-        }
-    }
-    else
-    {
-        Status = CFE_STATUS_REQUEST_ALREADY_PENDING;
-    }
-
-    if (Status != CFE_SUCCESS)
-    {
-        /* generate the same event as is generated when unable to create the file (same thing, really) */
-        CFE_SB_BackgroundFileEventHandler(StatePtr, CFE_FS_FileWriteEvent_CREATE_ERROR, Status, 0, 0, 0);
-    }
-
-    CFE_SB_IncrCmdCtr(Status);
+    CFE_SB_WriteInfo(data, CFE_FS_SubType_SB_ROUTEDATA, FileDescription, CFE_SB_WriteRouteInfoDataGetter,
+                     CFE_PLATFORM_SB_DEFAULT_ROUTING_FILENAME);
 
     return CFE_SUCCESS;
 }
@@ -904,55 +859,10 @@ bool CFE_SB_WritePipeInfoDataGetter(void *Meta, uint32 RecordNum, void **Buffer,
  *-----------------------------------------------------------------*/
 int32 CFE_SB_WritePipeInfoCmd(const CFE_SB_WritePipeInfoCmd_t *data)
 {
-    const CFE_SB_WriteFileInfoCmd_Payload_t *CmdPtr;
-    CFE_SB_BackgroundFileStateInfo_t *       StatePtr;
-    int32                                    Status;
+    const char *FileDescription = "SB Pipe Information";
 
-    StatePtr = &CFE_SB_Global.BackgroundFile;
-    CmdPtr   = &data->Payload;
-
-    /* If a pipe info dump was already pending, do not overwrite the current request */
-    if (!CFE_FS_BackgroundFileDumpIsPending(&StatePtr->FileWrite))
-    {
-        /* Reset the entire state object (just for good measure, ensure no stale data) */
-        memset(StatePtr, 0, sizeof(*StatePtr));
-
-        /*
-         * Fill out the remainder of meta data.
-         * This data is currently the same for every request
-         */
-        StatePtr->FileWrite.FileSubType = CFE_FS_SubType_SB_PIPEDATA;
-        snprintf(StatePtr->FileWrite.Description, sizeof(StatePtr->FileWrite.Description), "SB Pipe Information");
-
-        StatePtr->FileWrite.GetData = CFE_SB_WritePipeInfoDataGetter;
-        StatePtr->FileWrite.OnEvent = CFE_SB_BackgroundFileEventHandler;
-
-        /*
-        ** Copy the filename into local buffer with default name/path/extension if not specified
-        */
-        Status = CFE_FS_ParseInputFileNameEx(StatePtr->FileWrite.FileName, CmdPtr->Filename,
-                                             sizeof(StatePtr->FileWrite.FileName), sizeof(CmdPtr->Filename),
-                                             CFE_PLATFORM_SB_DEFAULT_PIPE_FILENAME,
-                                             CFE_FS_GetDefaultMountPoint(CFE_FS_FileCategory_BINARY_DATA_DUMP),
-                                             CFE_FS_GetDefaultExtension(CFE_FS_FileCategory_BINARY_DATA_DUMP));
-
-        if (Status == CFE_SUCCESS)
-        {
-            Status = CFE_FS_BackgroundFileDumpRequest(&StatePtr->FileWrite);
-        }
-    }
-    else
-    {
-        Status = CFE_STATUS_REQUEST_ALREADY_PENDING;
-    }
-
-    if (Status != CFE_SUCCESS)
-    {
-        /* generate the same event as is generated when unable to create the file (same thing, really) */
-        CFE_SB_BackgroundFileEventHandler(StatePtr, CFE_FS_FileWriteEvent_CREATE_ERROR, Status, 0, 0, 0);
-    }
-
-    CFE_SB_IncrCmdCtr(Status);
+    CFE_SB_WriteInfo(data, CFE_FS_SubType_SB_PIPEDATA, FileDescription, CFE_SB_WritePipeInfoDataGetter,
+                     CFE_PLATFORM_SB_DEFAULT_PIPE_FILENAME);
 
     return CFE_SUCCESS;
 }
@@ -1028,6 +938,23 @@ bool CFE_SB_WriteMsgMapInfoDataGetter(void *Meta, uint32 RecordNum, void **Buffe
  *-----------------------------------------------------------------*/
 int32 CFE_SB_WriteMapInfoCmd(const CFE_SB_WriteMapInfoCmd_t *data)
 {
+    const char *FileDescription = "SB Map Information";
+
+    CFE_SB_WriteInfo(data, CFE_FS_SubType_SB_MAPDATA, FileDescription, CFE_SB_WriteMsgMapInfoDataGetter,
+                     CFE_PLATFORM_SB_DEFAULT_MAP_FILENAME);
+
+    return CFE_SUCCESS;
+}
+
+/*----------------------------------------------------------------
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+void CFE_SB_WriteInfo(const CFE_SB_WriteFileInfoCmd_t *data, enum CFE_FS_SubType InfoType, const char *FileDescription,
+                      CFE_FS_FileWriteGetData_t DataCallback, const char *FileName)
+{
     const CFE_SB_WriteFileInfoCmd_Payload_t *CmdPtr;
     CFE_SB_BackgroundFileStateInfo_t *       StatePtr;
     int32                                    Status;
@@ -1035,28 +962,22 @@ int32 CFE_SB_WriteMapInfoCmd(const CFE_SB_WriteMapInfoCmd_t *data)
     StatePtr = &CFE_SB_Global.BackgroundFile;
     CmdPtr   = &data->Payload;
 
-    /* If a pipe info dump was already pending, do not overwrite the current request */
+    /* If an info dump was already pending, do not overwrite the current request */
     if (!CFE_FS_BackgroundFileDumpIsPending(&StatePtr->FileWrite))
     {
         /* Reset the entire state object (just for good measure, ensure no stale data) */
         memset(StatePtr, 0, sizeof(*StatePtr));
 
-        /*
-         * Fill out the remainder of meta data.
-         * This data is currently the same for every request
-         */
-        StatePtr->FileWrite.FileSubType = CFE_FS_SubType_SB_MAPDATA;
-        snprintf(StatePtr->FileWrite.Description, sizeof(StatePtr->FileWrite.Description), "SB Map Information");
+        /* Fill out the remainder of meta data. */
+        StatePtr->FileWrite.FileSubType = InfoType;
+        snprintf(StatePtr->FileWrite.Description, sizeof(StatePtr->FileWrite.Description), "%s", FileDescription);
 
-        StatePtr->FileWrite.GetData = CFE_SB_WriteMsgMapInfoDataGetter;
+        StatePtr->FileWrite.GetData = DataCallback;
         StatePtr->FileWrite.OnEvent = CFE_SB_BackgroundFileEventHandler;
 
-        /*
-        ** Copy the filename into local buffer with default name/path/extension if not specified
-        */
+        /* Copy the filename into local buffer with default name/path/extension if not specified */
         Status = CFE_FS_ParseInputFileNameEx(StatePtr->FileWrite.FileName, CmdPtr->Filename,
-                                             sizeof(StatePtr->FileWrite.FileName), sizeof(CmdPtr->Filename),
-                                             CFE_PLATFORM_SB_DEFAULT_MAP_FILENAME,
+                                             sizeof(StatePtr->FileWrite.FileName), sizeof(CmdPtr->Filename), FileName,
                                              CFE_FS_GetDefaultMountPoint(CFE_FS_FileCategory_BINARY_DATA_DUMP),
                                              CFE_FS_GetDefaultExtension(CFE_FS_FileCategory_BINARY_DATA_DUMP));
 
@@ -1077,8 +998,6 @@ int32 CFE_SB_WriteMapInfoCmd(const CFE_SB_WriteMapInfoCmd_t *data)
     }
 
     CFE_SB_IncrCmdCtr(Status);
-
-    return CFE_SUCCESS;
 }
 
 /*----------------------------------------------------------------
