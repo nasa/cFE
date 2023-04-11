@@ -468,7 +468,6 @@ static inline void CFE_ES_TaskRecordSetUsed(CFE_ES_TaskRecord_t *TaskRecPtr, CFE
  * that are known to refer to an actual table location (i.e. non-null).
  *
  * @param[in]   TaskRecPtr   pointer to task table entry
- * @returns true if the entry is in use/configured, or false if it is free/empty
  */
 static inline void CFE_ES_TaskRecordSetFree(CFE_ES_TaskRecord_t *TaskRecPtr)
 {
