@@ -1,5 +1,11 @@
 # Changelog
 
+## Development Build: v7.0.0-rc4+dev268
+- update naming convention document
+- remove return value doxygen markup
+- implement common search routine for config files
+- See <https://github.com/nasa/cFE/pull/2254>, <https://github.com/nasa/cFE/pull/2288>, and <https://github.com/nasa/cFE/pull/2290>
+
 ## Development Build: v7.0.0-rc4+dev260
 - add more generic status codes
 - separate dispatcher for messages
