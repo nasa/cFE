@@ -4392,7 +4392,7 @@ void Test_SB_TransmitMsgPaths_Nominal(void)
 
     /* Repress sending the no subscriptions event and process request */
     CFE_SB_Global.HKTlmMsg.Payload.NoSubscribersCounter = 0;
-    CFE_SB_Global.StopRecurseFlags[1] |= CFE_BIT(CFE_SB_SEND_NO_SUBS_EID_BIT);
+    CFE_SB_Global.StopRecurseFlags[1] |= (1 << CFE_SB_SEND_NO_SUBS_EID_BIT);
     CFE_SB_ProcessCmdPipePkt(&Housekeeping.SBBuf);
 
     /* The no subs event should not be in history but count should increment */
@@ -4401,7 +4401,7 @@ void Test_SB_TransmitMsgPaths_Nominal(void)
 
     /* Repress get buffer error */
     CFE_SB_Global.HKTlmMsg.Payload.MsgSendErrorCounter = 0;
-    CFE_SB_Global.StopRecurseFlags[1] |= CFE_BIT(CFE_SB_GET_BUF_ERR_EID_BIT);
+    CFE_SB_Global.StopRecurseFlags[1] |= (1 << CFE_SB_GET_BUF_ERR_EID_BIT);
 
     /* Set up for dispatch FIRST */
     UT_SetupBasicMsgDispatch(&UT_TPID_CFE_SB_SEND_HK, sizeof(Housekeeping.SendHkCmd), false);
@@ -4449,7 +4449,7 @@ void Test_SB_TransmitMsgPaths_Nominal(void)
     Size                                               = CFE_MISSION_SB_MAX_SB_MSG_SIZE + 1;
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
-    CFE_SB_Global.StopRecurseFlags[1] |= CFE_BIT(CFE_SB_MSG_TOO_BIG_EID_BIT);
+    CFE_SB_Global.StopRecurseFlags[1] |= (1 << CFE_SB_MSG_TOO_BIG_EID_BIT);
     CFE_SB_TransmitMsg(CFE_MSG_PTR(Housekeeping.SBBuf), true);
     CFE_UtAssert_EVENTNOTSENT(CFE_SB_MSG_TOO_BIG_EID);
     UtAssert_UINT32_EQ(CFE_SB_Global.HKTlmMsg.Payload.MsgSendErrorCounter, 1);
@@ -4458,14 +4458,14 @@ void Test_SB_TransmitMsgPaths_Nominal(void)
     CFE_SB_Global.HKTlmMsg.Payload.MsgSendErrorCounter = 0;
     MsgId                                              = CFE_SB_INVALID_MSG_ID;
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);
-    CFE_SB_Global.StopRecurseFlags[1] |= CFE_BIT(CFE_SB_SEND_INV_MSGID_EID_BIT);
+    CFE_SB_Global.StopRecurseFlags[1] |= (1 << CFE_SB_SEND_INV_MSGID_EID_BIT);
     CFE_SB_TransmitMsg(CFE_MSG_PTR(Housekeeping.SBBuf), true);
     CFE_UtAssert_EVENTNOTSENT(CFE_SB_SEND_INV_MSGID_EID);
     UtAssert_UINT32_EQ(CFE_SB_Global.HKTlmMsg.Payload.MsgSendErrorCounter, 1);
 
     /* CFE_SB_SEND_BAD_ARG_EID loop filter */
     CFE_SB_Global.HKTlmMsg.Payload.MsgSendErrorCounter = 0;
-    CFE_SB_Global.StopRecurseFlags[1] |= CFE_BIT(CFE_SB_SEND_BAD_ARG_EID_BIT);
+    CFE_SB_Global.StopRecurseFlags[1] |= (1 << CFE_SB_SEND_BAD_ARG_EID_BIT);
     CFE_SB_TransmitMsg(NULL, true);
     CFE_UtAssert_EVENTNOTSENT(CFE_SB_SEND_BAD_ARG_EID);
     UtAssert_UINT32_EQ(CFE_SB_Global.HKTlmMsg.Payload.MsgSendErrorCounter, 1);
@@ -4502,7 +4502,7 @@ void Test_SB_TransmitMsgPaths_LimitErr(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &Type, sizeof(Type), false);
 
-    CFE_SB_Global.StopRecurseFlags[1] |= CFE_BIT(CFE_SB_MSGID_LIM_ERR_EID_BIT);
+    CFE_SB_Global.StopRecurseFlags[1] |= (1 << CFE_SB_MSGID_LIM_ERR_EID_BIT);
     CFE_UtAssert_SUCCESS(CFE_SB_TransmitMsg(CFE_MSG_PTR(TlmPkt.TelemetryHeader), true));
     CFE_SB_Global.StopRecurseFlags[1] = 0;
 
@@ -4540,7 +4540,7 @@ void Test_SB_TransmitMsgPaths_FullErr(void)
 
     /* Tell the QueuePut stub to return OS_QUEUE_FULL on its next call */
     UT_SetDeferredRetcode(UT_KEY(OS_QueuePut), 1, OS_QUEUE_FULL);
-    CFE_SB_Global.StopRecurseFlags[1] |= CFE_BIT(CFE_SB_Q_FULL_ERR_EID_BIT);
+    CFE_SB_Global.StopRecurseFlags[1] |= (1 << CFE_SB_Q_FULL_ERR_EID_BIT);
     CFE_UtAssert_SUCCESS(CFE_SB_TransmitMsg(CFE_MSG_PTR(TlmPkt.TelemetryHeader), true));
     CFE_SB_Global.StopRecurseFlags[1] = 0;
 
@@ -4572,7 +4572,7 @@ void Test_SB_TransmitMsgPaths_WriteErr(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &Type, sizeof(Type), false);
 
-    CFE_SB_Global.StopRecurseFlags[1] |= CFE_BIT(CFE_SB_Q_WR_ERR_EID_BIT);
+    CFE_SB_Global.StopRecurseFlags[1] |= (1 << CFE_SB_Q_WR_ERR_EID_BIT);
     CFE_UtAssert_SUCCESS(CFE_SB_TransmitMsg(CFE_MSG_PTR(TlmPkt.TelemetryHeader), true));
     CFE_SB_Global.StopRecurseFlags[1] = 0;
 
