@@ -151,7 +151,7 @@ endfunction(generate_c_headerfile)
 #
 function(generate_config_includefile)
 
-    cmake_parse_arguments(GENCONFIG_ARG "" "OUTPUT_DIRECTORY;FILE_NAME;FALLBACK_FILE;MATCH_SUFFIX" "PREFIXES" ${ARGN} )
+    cmake_parse_arguments(GENCONFIG_ARG "" "OUTPUT_DIRECTORY;FILE_NAME;FALLBACK_FILE;MATCH_SUFFIX" "PREFIXES;GENERATED_FILE" ${ARGN} )
     if (NOT GENCONFIG_ARG_OUTPUT_DIRECTORY)
         set(GENCONFIG_ARG_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/inc")
     endif (NOT GENCONFIG_ARG_OUTPUT_DIRECTORY)
@@ -168,13 +168,20 @@ function(generate_config_includefile)
       set(TGTFILE ${GENCONFIG_ARG_FILE_NAME})
     endif()
 
-    # Use the common search function to find the candidate(s)
-    cfe_locate_implementation_file(SRC_LOCAL_PATH_LIST "${TGTFILE}"
-      ALLOW_LIST
-      FALLBACK_FILE "${GENCONFIG_ARG_FALLBACK_FILE}"
-      PREFIX ${GENCONFIG_ARG_PREFIXES} ${ARCH_PREFIXES}
-      SUBDIR config
-    )
+    if (GENCONFIG_ARG_GENERATED_FILE)
+      # A generated file may not yet exist at the time this runs, so just use
+      # what the caller said, no searching.
+      set(SRC_LOCAL_PATH_LIST ${GENCONFIG_ARG_GENERATED_FILE})
+      message(STATUS "Using file: [generated] ${SRC_LOCAL_PATH_LIST} for ${TGTFILE}")
+    else()
+      # Use the common search function to find the candidate(s)
+      cfe_locate_implementation_file(SRC_LOCAL_PATH_LIST "${TGTFILE}"
+        ALLOW_LIST
+        FALLBACK_FILE "${GENCONFIG_ARG_FALLBACK_FILE}"
+        PREFIX ${GENCONFIG_ARG_PREFIXES} ${ARCH_PREFIXES}
+        SUBDIR config
+      )
+    endif()
 
     set(WRAPPER_FILE_CONTENT)
     foreach(SELECTED_FILE ${SRC_LOCAL_PATH_LIST})
