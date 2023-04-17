@@ -122,6 +122,7 @@ typedef struct
     osal_id_t                 EVS_SharedDataMutexID;
     CFE_ES_AppId_t            EVS_AppID;
     uint32                    EVS_EventBurstMax;
+    bool                      IncludeTimeInPortSend; /* Includes time in message sent out ports */
 } CFE_EVS_Global_t;
 
 /*

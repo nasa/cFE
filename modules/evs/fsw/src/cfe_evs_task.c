@@ -76,7 +76,8 @@ int32 CFE_EVS_EarlyInit(void)
     CFE_EVS_Global.EVS_TlmPkt.Payload.OutputPort        = CFE_PLATFORM_EVS_PORT_DEFAULT;
     CFE_EVS_Global.EVS_TlmPkt.Payload.LogMode           = CFE_PLATFORM_EVS_DEFAULT_LOG_MODE;
 
-    CFE_EVS_Global.EVS_EventBurstMax = CFE_PLATFORM_EVS_MAX_APP_EVENT_BURST;
+    CFE_EVS_Global.EVS_EventBurstMax     = CFE_PLATFORM_EVS_MAX_APP_EVENT_BURST;
+    CFE_EVS_Global.IncludeTimeInPortSend = CFE_PLATFORM_EVS_INCLUDE_TIME_IN_PORT_SEND;
 
     /* Get a pointer to the CFE reset area from the BSP */
     PspStatus = CFE_PSP_GetResetArea(&resetAreaAddr, &resetAreaSize);
@@ -491,22 +492,7 @@ int32 CFE_EVS_EnablePortsCmd(const CFE_EVS_EnablePortsCmd_t *data)
     else
     {
         /* Process command data */
-        if (((CmdPtr->BitMask & CFE_EVS_PORT1_BIT) >> 0) == true)
-        {
-            CFE_EVS_Global.EVS_TlmPkt.Payload.OutputPort |= CFE_EVS_PORT1_BIT;
-        }
-        if (((CmdPtr->BitMask & CFE_EVS_PORT2_BIT) >> 1) == true)
-        {
-            CFE_EVS_Global.EVS_TlmPkt.Payload.OutputPort |= CFE_EVS_PORT2_BIT;
-        }
-        if (((CmdPtr->BitMask & CFE_EVS_PORT3_BIT) >> 2) == true)
-        {
-            CFE_EVS_Global.EVS_TlmPkt.Payload.OutputPort |= CFE_EVS_PORT3_BIT;
-        }
-        if (((CmdPtr->BitMask & CFE_EVS_PORT4_BIT) >> 3) == true)
-        {
-            CFE_EVS_Global.EVS_TlmPkt.Payload.OutputPort |= CFE_EVS_PORT4_BIT;
-        }
+        CFE_EVS_Global.EVS_TlmPkt.Payload.OutputPort |= CmdPtr->BitMask;
 
         EVS_SendEvent(CFE_EVS_ENAPORT_EID, CFE_EVS_EventType_DEBUG,
                       "Enable Ports Command Received with Port Bit Mask = 0x%02x", (unsigned int)CmdPtr->BitMask);
@@ -538,22 +524,7 @@ int32 CFE_EVS_DisablePortsCmd(const CFE_EVS_DisablePortsCmd_t *data)
     else
     {
         /* Process command data */
-        if (((CmdPtr->BitMask & CFE_EVS_PORT1_BIT) >> 0) == true)
-        {
-            CFE_EVS_Global.EVS_TlmPkt.Payload.OutputPort &= ~CFE_EVS_PORT1_BIT;
-        }
-        if (((CmdPtr->BitMask & CFE_EVS_PORT2_BIT) >> 1) == true)
-        {
-            CFE_EVS_Global.EVS_TlmPkt.Payload.OutputPort &= ~CFE_EVS_PORT2_BIT;
-        }
-        if (((CmdPtr->BitMask & CFE_EVS_PORT3_BIT) >> 2) == true)
-        {
-            CFE_EVS_Global.EVS_TlmPkt.Payload.OutputPort &= ~CFE_EVS_PORT3_BIT;
-        }
-        if (((CmdPtr->BitMask & CFE_EVS_PORT4_BIT) >> 3) == true)
-        {
-            CFE_EVS_Global.EVS_TlmPkt.Payload.OutputPort &= ~CFE_EVS_PORT4_BIT;
-        }
+        CFE_EVS_Global.EVS_TlmPkt.Payload.OutputPort &= ~CmdPtr->BitMask;
 
         EVS_SendEvent(CFE_EVS_DISPORT_EID, CFE_EVS_EventType_DEBUG,
                       "Disable Ports Command Received with Port Bit Mask = 0x%02x", (unsigned int)CmdPtr->BitMask);

@@ -279,6 +279,7 @@ void Test_Init(void)
     UT_SetDeferredRetcode(UT_KEY(OS_MutSemCreate), 1, OS_SUCCESS);
     UT_SetDeferredRetcode(UT_KEY(CFE_ES_GetResetType), 1, CFE_PSP_RST_TYPE_POWERON);
     CFE_EVS_EarlyInit();
+    CFE_EVS_Global.IncludeTimeInPortSend = false; /* Do generic testing without time in port message */
     CFE_UtAssert_SYSLOG(EVS_SYSLOG_MSGS[4]);
 
     /* Task main with init failure */
@@ -359,6 +360,7 @@ void Test_Init(void)
     UT_SetDeferredRetcode(UT_KEY(OS_MutSemCreate), 1, OS_SUCCESS);
     UT_SetDeferredRetcode(UT_KEY(CFE_ES_GetResetType), 1, CFE_PSP_RST_TYPE_POWERON);
     CFE_EVS_EarlyInit();
+    CFE_EVS_Global.IncludeTimeInPortSend = false; /* Do generic testing without time in port message */
     CFE_UtAssert_SYSLOG(EVS_SYSLOG_MSGS[4]);
 
     /* Test task initialization where event services fails */
@@ -812,7 +814,9 @@ void Test_Ports(void)
 {
     CFE_EVS_BitMaskCmd_t           bitmaskcmd;
     UT_SoftwareBusSnapshot_Entry_t LocalSnapshotData = {.MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_EVS_LONG_EVENT_MSG_MID)};
+    CFE_TIME_SysTime_t             PacketTime;
 
+    memset(&PacketTime, 0, sizeof(PacketTime));
     memset(&bitmaskcmd, 0, sizeof(bitmaskcmd));
 
     UtPrintf("Begin Test Ports");
@@ -829,8 +833,17 @@ void Test_Ports(void)
     /* Test that ports are enabled by sending a message */
     UT_InitData();
     UT_SetHookFunction(UT_KEY(CFE_SB_TransmitMsg), UT_SoftwareBusSnapshotHook, &LocalSnapshotData);
-    CFE_EVS_SendEvent(0, CFE_EVS_EventType_INFORMATION, "Test ports message");
+    UtAssert_UINT32_EQ(CFE_EVS_SendEvent(0, CFE_EVS_EventType_INFORMATION, "Test ports message"), CFE_SUCCESS);
     UtAssert_UINT32_EQ(LocalSnapshotData.Count, 1);
+    UtAssert_STUB_COUNT(CFE_TIME_Print, 0);
+
+    /* Test with time included */
+    UT_InitData();
+    CFE_EVS_Global.IncludeTimeInPortSend = true;
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgTime), &PacketTime, sizeof(PacketTime), false);
+    UtAssert_UINT32_EQ(CFE_EVS_SendEvent(0, CFE_EVS_EventType_INFORMATION, "Test ports message"), CFE_SUCCESS);
+    UtAssert_STUB_COUNT(CFE_TIME_Print, 1);
+    CFE_EVS_Global.IncludeTimeInPortSend = false; /* Do generic testing without time in port message */
 
     /* Disable all ports to cut down on unneeded output */
     UT_InitData();
