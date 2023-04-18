@@ -72,6 +72,7 @@ void CFE_TIME_TaskPipe(const CFE_SB_Buffer_t *SBBufPtr)
 {
     CFE_SB_MsgId_t    MessageID   = CFE_SB_INVALID_MSG_ID;
     CFE_MSG_FcnCode_t CommandCode = 0;
+    CFE_Status_t      Status      = CFE_STATUS_NO_COUNTER_INCREMENT;
 
     CFE_MSG_GetMsgId(&SBBufPtr->Msg, &MessageID);
 
@@ -125,42 +126,42 @@ void CFE_TIME_TaskPipe(const CFE_SB_Buffer_t *SBBufPtr)
                 case CFE_TIME_NOOP_CC:
                     if (CFE_TIME_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_TIME_NoopCmd_t)))
                     {
-                        CFE_TIME_NoopCmd((const CFE_TIME_NoopCmd_t *)SBBufPtr);
+                        Status = CFE_TIME_NoopCmd((const CFE_TIME_NoopCmd_t *)SBBufPtr);
                     }
                     break;
 
                 case CFE_TIME_RESET_COUNTERS_CC:
                     if (CFE_TIME_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_TIME_ResetCountersCmd_t)))
                     {
-                        CFE_TIME_ResetCountersCmd((const CFE_TIME_ResetCountersCmd_t *)SBBufPtr);
+                        Status = CFE_TIME_ResetCountersCmd((const CFE_TIME_ResetCountersCmd_t *)SBBufPtr);
                     }
                     break;
 
                 case CFE_TIME_SEND_DIAGNOSTIC_CC:
                     if (CFE_TIME_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_TIME_SendDiagnosticCmd_t)))
                     {
-                        CFE_TIME_SendDiagnosticTlm((const CFE_TIME_SendDiagnosticCmd_t *)SBBufPtr);
+                        Status = CFE_TIME_SendDiagnosticTlm((const CFE_TIME_SendDiagnosticCmd_t *)SBBufPtr);
                     }
                     break;
 
                 case CFE_TIME_SET_STATE_CC:
                     if (CFE_TIME_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_TIME_SetStateCmd_t)))
                     {
-                        CFE_TIME_SetStateCmd((const CFE_TIME_SetStateCmd_t *)SBBufPtr);
+                        Status = CFE_TIME_SetStateCmd((const CFE_TIME_SetStateCmd_t *)SBBufPtr);
                     }
                     break;
 
                 case CFE_TIME_SET_SOURCE_CC:
                     if (CFE_TIME_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_TIME_SetSourceCmd_t)))
                     {
-                        CFE_TIME_SetSourceCmd((const CFE_TIME_SetSourceCmd_t *)SBBufPtr);
+                        Status = CFE_TIME_SetSourceCmd((const CFE_TIME_SetSourceCmd_t *)SBBufPtr);
                     }
                     break;
 
                 case CFE_TIME_SET_SIGNAL_CC:
                     if (CFE_TIME_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_TIME_SetSignalCmd_t)))
                     {
-                        CFE_TIME_SetSignalCmd((const CFE_TIME_SetSignalCmd_t *)SBBufPtr);
+                        Status = CFE_TIME_SetSignalCmd((const CFE_TIME_SetSignalCmd_t *)SBBufPtr);
                     }
                     break;
 
@@ -170,14 +171,14 @@ void CFE_TIME_TaskPipe(const CFE_SB_Buffer_t *SBBufPtr)
                 case CFE_TIME_ADD_DELAY_CC:
                     if (CFE_TIME_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_TIME_AddDelayCmd_t)))
                     {
-                        CFE_TIME_AddDelayCmd((const CFE_TIME_AddDelayCmd_t *)SBBufPtr);
+                        Status = CFE_TIME_AddDelayCmd((const CFE_TIME_AddDelayCmd_t *)SBBufPtr);
                     }
                     break;
 
                 case CFE_TIME_SUB_DELAY_CC:
                     if (CFE_TIME_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_TIME_SubDelayCmd_t)))
                     {
-                        CFE_TIME_SubDelayCmd((const CFE_TIME_SubDelayCmd_t *)SBBufPtr);
+                        Status = CFE_TIME_SubDelayCmd((const CFE_TIME_SubDelayCmd_t *)SBBufPtr);
                     }
                     break;
 
@@ -187,67 +188,80 @@ void CFE_TIME_TaskPipe(const CFE_SB_Buffer_t *SBBufPtr)
                 case CFE_TIME_SET_TIME_CC:
                     if (CFE_TIME_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_TIME_SetTimeCmd_t)))
                     {
-                        CFE_TIME_SetTimeCmd((const CFE_TIME_SetTimeCmd_t *)SBBufPtr);
+                        Status = CFE_TIME_SetTimeCmd((const CFE_TIME_SetTimeCmd_t *)SBBufPtr);
                     }
                     break;
 
                 case CFE_TIME_SET_MET_CC:
                     if (CFE_TIME_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_TIME_SetMETCmd_t)))
                     {
-                        CFE_TIME_SetMETCmd((const CFE_TIME_SetMETCmd_t *)SBBufPtr);
+                        Status = CFE_TIME_SetMETCmd((const CFE_TIME_SetMETCmd_t *)SBBufPtr);
                     }
                     break;
 
                 case CFE_TIME_SET_STCF_CC:
                     if (CFE_TIME_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_TIME_SetSTCFCmd_t)))
                     {
-                        CFE_TIME_SetSTCFCmd((const CFE_TIME_SetSTCFCmd_t *)SBBufPtr);
+                        Status = CFE_TIME_SetSTCFCmd((const CFE_TIME_SetSTCFCmd_t *)SBBufPtr);
                     }
                     break;
 
                 case CFE_TIME_SET_LEAP_SECONDS_CC:
                     if (CFE_TIME_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_TIME_SetLeapSecondsCmd_t)))
                     {
-                        CFE_TIME_SetLeapSecondsCmd((const CFE_TIME_SetLeapSecondsCmd_t *)SBBufPtr);
+                        Status = CFE_TIME_SetLeapSecondsCmd((const CFE_TIME_SetLeapSecondsCmd_t *)SBBufPtr);
                     }
                     break;
 
                 case CFE_TIME_ADD_ADJUST_CC:
                     if (CFE_TIME_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_TIME_AddAdjustCmd_t)))
                     {
-                        CFE_TIME_AddAdjustCmd((const CFE_TIME_AddAdjustCmd_t *)SBBufPtr);
+                        Status = CFE_TIME_AddAdjustCmd((const CFE_TIME_AddAdjustCmd_t *)SBBufPtr);
                     }
                     break;
 
                 case CFE_TIME_SUB_ADJUST_CC:
                     if (CFE_TIME_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_TIME_SubAdjustCmd_t)))
                     {
-                        CFE_TIME_SubAdjustCmd((const CFE_TIME_SubAdjustCmd_t *)SBBufPtr);
+                        Status = CFE_TIME_SubAdjustCmd((const CFE_TIME_SubAdjustCmd_t *)SBBufPtr);
                     }
                     break;
 
                 case CFE_TIME_ADD_ONE_HZ_ADJUSTMENT_CC:
                     if (CFE_TIME_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_TIME_AddOneHzAdjustmentCmd_t)))
                     {
-                        CFE_TIME_AddOneHzAdjustmentCmd((const CFE_TIME_AddOneHzAdjustmentCmd_t *)SBBufPtr);
+                        Status = CFE_TIME_AddOneHzAdjustmentCmd((const CFE_TIME_AddOneHzAdjustmentCmd_t *)SBBufPtr);
                     }
                     break;
 
                 case CFE_TIME_SUB_ONE_HZ_ADJUSTMENT_CC:
                     if (CFE_TIME_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_TIME_SubOneHzAdjustmentCmd_t)))
                     {
-                        CFE_TIME_SubOneHzAdjustmentCmd((const CFE_TIME_SubOneHzAdjustmentCmd_t *)SBBufPtr);
+                        Status = CFE_TIME_SubOneHzAdjustmentCmd((const CFE_TIME_SubOneHzAdjustmentCmd_t *)SBBufPtr);
                     }
                     break;
 
                 default:
-
-                    CFE_TIME_Global.CommandErrorCounter++;
+                    Status = CFE_STATUS_BAD_COMMAND_CODE;
                     CFE_EVS_SendEvent(CFE_TIME_CC_ERR_EID, CFE_EVS_EventType_ERROR,
                                       "Invalid command code -- ID = 0x%X, CC = %d",
                                       (unsigned int)CFE_SB_MsgIdToValue(MessageID), (int)CommandCode);
                     break;
             } /* switch (CFE_TIME_CMD_MID -- command code)*/
+
+            /*
+             * Any command functions returning a Status of CFE_STATUS_NO_COUNTER_INCREMENT
+             * will not increment either counter
+             */
+            if (Status == CFE_SUCCESS)
+            {
+                CFE_TIME_Global.CommandCounter++;
+            }
+            else if ((Status == CFE_STATUS_COMMAND_FAILURE) || (Status == CFE_STATUS_BAD_COMMAND_CODE))
+            {
+                CFE_TIME_Global.CommandErrorCounter++;
+            }
+
             break;
 
         default:

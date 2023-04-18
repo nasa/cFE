@@ -77,6 +77,7 @@ void CFE_SB_ProcessCmdPipePkt(const CFE_SB_Buffer_t *SBBufPtr)
 {
     CFE_SB_MsgId_t    MessageID = CFE_SB_INVALID_MSG_ID;
     CFE_MSG_FcnCode_t FcnCode   = 0;
+    CFE_Status_t      Status    = CFE_STATUS_NO_COUNTER_INCREMENT;
 
     CFE_MSG_GetMsgId(&SBBufPtr->Msg, &MessageID);
 
@@ -128,7 +129,7 @@ void CFE_SB_ProcessCmdPipePkt(const CFE_SB_Buffer_t *SBBufPtr)
                 case CFE_SB_NOOP_CC:
                     if (CFE_SB_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_SB_NoopCmd_t)))
                     {
-                        CFE_SB_NoopCmd((const CFE_SB_NoopCmd_t *)SBBufPtr);
+                        Status = CFE_SB_NoopCmd((const CFE_SB_NoopCmd_t *)SBBufPtr);
                     }
                     break;
 
@@ -136,58 +137,71 @@ void CFE_SB_ProcessCmdPipePkt(const CFE_SB_Buffer_t *SBBufPtr)
                     if (CFE_SB_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_SB_ResetCountersCmd_t)))
                     {
                         /* Note: Command counter not incremented for this command */
-                        CFE_SB_ResetCountersCmd((const CFE_SB_ResetCountersCmd_t *)SBBufPtr);
+                        Status = CFE_SB_ResetCountersCmd((const CFE_SB_ResetCountersCmd_t *)SBBufPtr);
                     }
                     break;
 
                 case CFE_SB_SEND_SB_STATS_CC:
                     if (CFE_SB_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_SB_SendSbStatsCmd_t)))
                     {
-                        CFE_SB_SendStatsCmd((const CFE_SB_SendSbStatsCmd_t *)SBBufPtr);
+                        Status = CFE_SB_SendStatsCmd((const CFE_SB_SendSbStatsCmd_t *)SBBufPtr);
                     }
                     break;
 
                 case CFE_SB_WRITE_ROUTING_INFO_CC:
                     if (CFE_SB_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_SB_WriteRoutingInfoCmd_t)))
                     {
-                        CFE_SB_WriteRoutingInfoCmd((const CFE_SB_WriteRoutingInfoCmd_t *)SBBufPtr);
+                        Status = CFE_SB_WriteRoutingInfoCmd((const CFE_SB_WriteRoutingInfoCmd_t *)SBBufPtr);
                     }
                     break;
 
                 case CFE_SB_ENABLE_ROUTE_CC:
                     if (CFE_SB_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_SB_EnableRouteCmd_t)))
                     {
-                        CFE_SB_EnableRouteCmd((const CFE_SB_EnableRouteCmd_t *)SBBufPtr);
+                        Status = CFE_SB_EnableRouteCmd((const CFE_SB_EnableRouteCmd_t *)SBBufPtr);
                     }
                     break;
 
                 case CFE_SB_DISABLE_ROUTE_CC:
                     if (CFE_SB_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_SB_DisableRouteCmd_t)))
                     {
-                        CFE_SB_DisableRouteCmd((const CFE_SB_DisableRouteCmd_t *)SBBufPtr);
+                        Status = CFE_SB_DisableRouteCmd((const CFE_SB_DisableRouteCmd_t *)SBBufPtr);
                     }
                     break;
 
                 case CFE_SB_WRITE_PIPE_INFO_CC:
                     if (CFE_SB_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_SB_WritePipeInfoCmd_t)))
                     {
-                        CFE_SB_WritePipeInfoCmd((const CFE_SB_WritePipeInfoCmd_t *)SBBufPtr);
+                        Status = CFE_SB_WritePipeInfoCmd((const CFE_SB_WritePipeInfoCmd_t *)SBBufPtr);
                     }
                     break;
 
                 case CFE_SB_WRITE_MAP_INFO_CC:
                     if (CFE_SB_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_SB_WriteMapInfoCmd_t)))
                     {
-                        CFE_SB_WriteMapInfoCmd((const CFE_SB_WriteMapInfoCmd_t *)SBBufPtr);
+                        Status = CFE_SB_WriteMapInfoCmd((const CFE_SB_WriteMapInfoCmd_t *)SBBufPtr);
                     }
                     break;
 
                 default:
                     CFE_EVS_SendEvent(CFE_SB_BAD_CMD_CODE_EID, CFE_EVS_EventType_ERROR,
                                       "Invalid Cmd, Unexpected Command Code %u", FcnCode);
-                    CFE_SB_Global.HKTlmMsg.Payload.CommandErrorCounter++;
+                    Status = CFE_STATUS_BAD_COMMAND_CODE;
                     break;
             } /* end switch on cmd code */
+
+            /*
+             * Any command functions returning a Status of CFE_STATUS_NO_COUNTER_INCREMENT
+             * will not increment either counter
+             */
+            if (Status == CFE_SUCCESS)
+            {
+                CFE_SB_Global.HKTlmMsg.Payload.CommandCounter++;
+            }
+            else if ((Status == CFE_STATUS_COMMAND_FAILURE) || (Status == CFE_STATUS_BAD_COMMAND_CODE))
+            {
+                CFE_SB_Global.HKTlmMsg.Payload.CommandErrorCounter++;
+            }
             break;
 
         default:

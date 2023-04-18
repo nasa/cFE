@@ -144,6 +144,7 @@ int32 CFE_ES_StartPerfDataCmd(const CFE_ES_StartPerfDataCmd_t *data)
     const CFE_ES_StartPerfCmd_Payload_t *CmdPtr        = &data->Payload;
     CFE_ES_PerfDumpGlobal_t *            PerfDumpState = &CFE_ES_Global.BackgroundPerfDumpState;
     CFE_ES_PerfData_t *                  Perf;
+    CFE_Status_t                         ReturnCode = CFE_STATUS_COMMAND_FAILURE;
 
     /*
     ** Set the pointer to the data area
@@ -157,7 +158,7 @@ int32 CFE_ES_StartPerfDataCmd(const CFE_ES_StartPerfDataCmd_t *data)
         /* Make sure Trigger Mode is valid */
         if (CmdPtr->TriggerMode <= CFE_ES_PerfTrigger_END)
         {
-            CFE_ES_Global.TaskData.CommandCounter++;
+            ReturnCode = CFE_SUCCESS;
 
             /* Taking lock here as this might be changing states from one active mode to another.
              * In that case, need to make sure that the log is not written to while resetting the counters. */
@@ -177,7 +178,6 @@ int32 CFE_ES_StartPerfDataCmd(const CFE_ES_StartPerfDataCmd_t *data)
         }
         else
         {
-            CFE_ES_Global.TaskData.CommandErrorCounter++;
             CFE_EVS_SendEvent(CFE_ES_PERF_STARTCMD_TRIG_ERR_EID, CFE_EVS_EventType_ERROR,
                               "Cannot start collecting performance data, trigger mode (%d) out of range (%d to %d)",
                               (int)CmdPtr->TriggerMode, (int)CFE_ES_PerfTrigger_START, (int)CFE_ES_PerfTrigger_END);
@@ -185,12 +185,11 @@ int32 CFE_ES_StartPerfDataCmd(const CFE_ES_StartPerfDataCmd_t *data)
     }
     else
     {
-        CFE_ES_Global.TaskData.CommandErrorCounter++;
         CFE_EVS_SendEvent(CFE_ES_PERF_STARTCMD_ERR_EID, CFE_EVS_EventType_ERROR,
                           "Cannot start collecting performance data,perf data write in progress");
     }
 
-    return CFE_SUCCESS;
+    return ReturnCode;
 }
 
 /*----------------------------------------------------------------
@@ -205,6 +204,7 @@ int32 CFE_ES_StopPerfDataCmd(const CFE_ES_StopPerfDataCmd_t *data)
     CFE_ES_PerfDumpGlobal_t *           PerfDumpState = &CFE_ES_Global.BackgroundPerfDumpState;
     CFE_ES_PerfData_t *                 Perf;
     int32                               Status;
+    CFE_Status_t                        ReturnCode = CFE_STATUS_COMMAND_FAILURE;
 
     /*
     ** Set the pointer to the data area
@@ -231,8 +231,7 @@ int32 CFE_ES_StopPerfDataCmd(const CFE_ES_StopPerfDataCmd_t *data)
             PerfDumpState->PendingState = CFE_ES_PerfDumpState_INIT;
             CFE_ES_BackgroundWakeup();
 
-            CFE_ES_Global.TaskData.CommandCounter++;
-
+            ReturnCode = CFE_SUCCESS;
             CFE_EVS_SendEvent(CFE_ES_PERF_STOPCMD_EID, CFE_EVS_EventType_DEBUG,
                               "Perf Stop Cmd Rcvd, will write %d entries.%dmS dly every %d entries",
                               (int)Perf->MetaData.DataCount, (int)CFE_PLATFORM_ES_PERF_CHILD_MS_DELAY,
@@ -240,7 +239,6 @@ int32 CFE_ES_StopPerfDataCmd(const CFE_ES_StopPerfDataCmd_t *data)
         }
         else
         {
-            CFE_ES_Global.TaskData.CommandErrorCounter++;
             CFE_EVS_SendEvent(CFE_ES_PERF_LOG_ERR_EID, CFE_EVS_EventType_ERROR, "Error parsing filename, RC = %d",
                               (int)Status);
         }
@@ -248,12 +246,11 @@ int32 CFE_ES_StopPerfDataCmd(const CFE_ES_StopPerfDataCmd_t *data)
     } /* if data to write == 0 */
     else
     {
-        CFE_ES_Global.TaskData.CommandErrorCounter++;
         CFE_EVS_SendEvent(CFE_ES_PERF_STOPCMD_ERR2_EID, CFE_EVS_EventType_ERROR,
                           "Stop performance data cmd ignored,perf data write in progress");
     }
 
-    return CFE_SUCCESS;
+    return ReturnCode;
 }
 
 /*----------------------------------------------------------------
@@ -489,6 +486,7 @@ int32 CFE_ES_SetPerfFilterMaskCmd(const CFE_ES_SetPerfFilterMaskCmd_t *data)
 {
     const CFE_ES_SetPerfFilterMaskCmd_Payload_t *cmd = &data->Payload;
     CFE_ES_PerfData_t *                          Perf;
+    CFE_Status_t                                 ReturnCode = CFE_STATUS_COMMAND_FAILURE;
 
     /*
     ** Set the pointer to the data area
@@ -503,18 +501,16 @@ int32 CFE_ES_SetPerfFilterMaskCmd(const CFE_ES_SetPerfFilterMaskCmd_t *data)
                           "Set Performance Filter Mask Cmd rcvd, num %u, val 0x%08X", (unsigned int)cmd->FilterMaskNum,
                           (unsigned int)cmd->FilterMask);
 
-        CFE_ES_Global.TaskData.CommandCounter++;
+        ReturnCode = CFE_SUCCESS;
     }
     else
     {
         CFE_EVS_SendEvent(CFE_ES_PERF_FILTMSKERR_EID, CFE_EVS_EventType_ERROR,
                           "Performance Filter Mask Cmd Error,Index(%u)out of range(%u)",
                           (unsigned int)cmd->FilterMaskNum, (unsigned int)CFE_ES_PERF_32BIT_WORDS_IN_MASK);
-
-        CFE_ES_Global.TaskData.CommandErrorCounter++;
     }
 
-    return CFE_SUCCESS;
+    return ReturnCode;
 }
 
 /*----------------------------------------------------------------
@@ -527,6 +523,7 @@ int32 CFE_ES_SetPerfTriggerMaskCmd(const CFE_ES_SetPerfTriggerMaskCmd_t *data)
 {
     const CFE_ES_SetPerfTrigMaskCmd_Payload_t *cmd = &data->Payload;
     CFE_ES_PerfData_t *                        Perf;
+    CFE_Status_t                               ReturnCode = CFE_STATUS_COMMAND_FAILURE;
 
     /*
     ** Set the pointer to the data area
@@ -541,18 +538,16 @@ int32 CFE_ES_SetPerfTriggerMaskCmd(const CFE_ES_SetPerfTriggerMaskCmd_t *data)
                           "Set Performance Trigger Mask Cmd rcvd,num %u, val 0x%08X", (unsigned int)cmd->TriggerMaskNum,
                           (unsigned int)cmd->TriggerMask);
 
-        CFE_ES_Global.TaskData.CommandCounter++;
+        ReturnCode = CFE_SUCCESS;
     }
     else
     {
         CFE_EVS_SendEvent(CFE_ES_PERF_TRIGMSKERR_EID, CFE_EVS_EventType_ERROR,
                           "Performance Trigger Mask Cmd Error,Index(%u)out of range(%u)",
                           (unsigned int)cmd->TriggerMaskNum, (unsigned int)CFE_ES_PERF_32BIT_WORDS_IN_MASK);
-
-        CFE_ES_Global.TaskData.CommandErrorCounter++;
     }
 
-    return CFE_SUCCESS;
+    return ReturnCode;
 }
 
 /*----------------------------------------------------------------

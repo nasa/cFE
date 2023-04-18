@@ -42,20 +42,6 @@
 
 /*********************  Macro and Constant Type Definitions   ***************************/
 
-/*
- * For backward compatibility, keep this enumeration for now but map the
- * values to the globally-defined codes in cfe_error.h, so it won't be confusing
- * if intermixed with a typical CFE int32 return code.
- */
-typedef enum
-{
-    CFE_TBL_INC_ERR_CTR =
-        CFE_TBL_MESSAGE_ERROR, /**< Error detected in (or while processing) message, increment command error counter */
-    CFE_TBL_DONT_INC_CTR =
-        CFE_STATUS_NO_COUNTER_INCREMENT, /**< No errors detected but don't increment command counter */
-    CFE_TBL_INC_CMD_CTR = CFE_SUCCESS    /**< No errors detected and increment command counter */
-} CFE_TBL_CmdProcRet_t;
-
 typedef int32 (*CFE_TBL_MsgProcFuncPtr_t)(const void *MsgPtr);
 
 #define CFE_TBL_BAD_CMD_CODE (-1) /**< Command Code found in Message does not match any in #CFE_TBL_CmdHandlerTbl */
@@ -119,7 +105,7 @@ void CFE_TBL_GetTblRegData(void);
 **
 ** \param[in] data points to the message received via command pipe that needs processing
 **
-** \retval #CFE_TBL_DONT_INC_CTR \copydoc CFE_TBL_DONT_INC_CTR
+** \retval #CFE_STATUS_NO_COUNTER_INCREMENT \copydoc CFE_STATUS_NO_COUNTER_INCREMENT
 */
 int32 CFE_TBL_SendHkCmd(const CFE_TBL_SendHkCmd_t *data);
 
@@ -135,8 +121,7 @@ int32 CFE_TBL_SendHkCmd(const CFE_TBL_SendHkCmd_t *data);
 **
 ** \param[in] data points to the message received via command pipe that needs processing
 **
-** \retval #CFE_TBL_INC_ERR_CTR  \copydoc CFE_TBL_INC_ERR_CTR
-** \retval #CFE_TBL_INC_CMD_CTR  \copydoc CFE_TBL_INC_CMD_CTR
+** \retval #CFE_SUCCESS  \copydoc CFE_SUCCESS
 */
 int32 CFE_TBL_NoopCmd(const CFE_TBL_NoopCmd_t *data);
 
@@ -152,7 +137,7 @@ int32 CFE_TBL_NoopCmd(const CFE_TBL_NoopCmd_t *data);
 **
 ** \param[in] data points to the message received via command pipe that needs processing
 **
-** \retval #CFE_TBL_DONT_INC_CTR \copydoc CFE_TBL_DONT_INC_CTR
+** \retval #CFE_STATUS_NO_COUNTER_INCREMENT \copydoc CFE_STATUS_NO_COUNTER_INCREMENT
 */
 int32 CFE_TBL_ResetCountersCmd(const CFE_TBL_ResetCountersCmd_t *data);
 
@@ -169,8 +154,8 @@ int32 CFE_TBL_ResetCountersCmd(const CFE_TBL_ResetCountersCmd_t *data);
 **
 ** \param[in] data points to the message received via command pipe that needs processing
 **
-** \retval #CFE_TBL_INC_ERR_CTR  \copydoc CFE_TBL_INC_ERR_CTR
-** \retval #CFE_TBL_INC_CMD_CTR  \copydoc CFE_TBL_INC_CMD_CTR
+** \retval #CFE_STATUS_COMMAND_FAILURE  \copydoc CFE_STATUS_COMMAND_FAILURE
+** \retval #CFE_SUCCESS  \copydoc CFE_SUCCESS
 */
 int32 CFE_TBL_LoadCmd(const CFE_TBL_LoadCmd_t *data);
 
@@ -187,8 +172,8 @@ int32 CFE_TBL_LoadCmd(const CFE_TBL_LoadCmd_t *data);
 **
 ** \param[in] data points to the message received via command pipe that needs processing
 **
-** \retval #CFE_TBL_INC_ERR_CTR  \copydoc CFE_TBL_INC_ERR_CTR
-** \retval #CFE_TBL_INC_CMD_CTR  \copydoc CFE_TBL_INC_CMD_CTR
+** \retval #CFE_STATUS_COMMAND_FAILURE  \copydoc CFE_STATUS_COMMAND_FAILURE
+** \retval #CFE_SUCCESS  \copydoc CFE_SUCCESS
 */
 int32 CFE_TBL_DumpCmd(const CFE_TBL_DumpCmd_t *data);
 
@@ -206,8 +191,8 @@ int32 CFE_TBL_DumpCmd(const CFE_TBL_DumpCmd_t *data);
 **
 ** \param[in] data points to the message received via command pipe that needs processing
 **
-** \retval #CFE_TBL_INC_ERR_CTR  \copydoc CFE_TBL_INC_ERR_CTR
-** \retval #CFE_TBL_INC_CMD_CTR  \copydoc CFE_TBL_INC_CMD_CTR
+** \retval #CFE_STATUS_COMMAND_FAILURE  \copydoc CFE_STATUS_COMMAND_FAILURE
+** \retval #CFE_SUCCESS  \copydoc CFE_SUCCESS
 */
 int32 CFE_TBL_ValidateCmd(const CFE_TBL_ValidateCmd_t *data);
 
@@ -224,8 +209,8 @@ int32 CFE_TBL_ValidateCmd(const CFE_TBL_ValidateCmd_t *data);
 **
 ** \param[in] data points to the message received via command pipe that needs processing
 **
-** \retval #CFE_TBL_INC_ERR_CTR  \copydoc CFE_TBL_INC_ERR_CTR
-** \retval #CFE_TBL_INC_CMD_CTR  \copydoc CFE_TBL_INC_CMD_CTR
+** \retval #CFE_STATUS_COMMAND_FAILURE  \copydoc CFE_STATUS_COMMAND_FAILURE
+** \retval #CFE_SUCCESS  \copydoc CFE_SUCCESS
 */
 int32 CFE_TBL_ActivateCmd(const CFE_TBL_ActivateCmd_t *data);
 
@@ -241,8 +226,8 @@ int32 CFE_TBL_ActivateCmd(const CFE_TBL_ActivateCmd_t *data);
 **
 ** \param[in] data points to the message received via command pipe that needs processing
 **
-** \retval #CFE_TBL_INC_ERR_CTR  \copydoc CFE_TBL_INC_ERR_CTR
-** \retval #CFE_TBL_INC_CMD_CTR  \copydoc CFE_TBL_INC_CMD_CTR
+** \retval #CFE_STATUS_COMMAND_FAILURE  \copydoc CFE_STATUS_COMMAND_FAILURE
+** \retval #CFE_SUCCESS  \copydoc CFE_SUCCESS
 */
 int32 CFE_TBL_DumpRegistryCmd(const CFE_TBL_DumpRegistryCmd_t *data);
 
@@ -259,8 +244,8 @@ int32 CFE_TBL_DumpRegistryCmd(const CFE_TBL_DumpRegistryCmd_t *data);
 **
 ** \param[in] data points to the message received via command pipe that needs processing
 **
-** \retval #CFE_TBL_INC_ERR_CTR  \copydoc CFE_TBL_INC_ERR_CTR
-** \retval #CFE_TBL_INC_CMD_CTR  \copydoc CFE_TBL_INC_CMD_CTR
+** \retval #CFE_STATUS_COMMAND_FAILURE  \copydoc CFE_STATUS_COMMAND_FAILURE
+** \retval #CFE_SUCCESS  \copydoc CFE_SUCCESS
 */
 int32 CFE_TBL_SendRegistryCmd(const CFE_TBL_SendRegistryCmd_t *data);
 
@@ -276,8 +261,8 @@ int32 CFE_TBL_SendRegistryCmd(const CFE_TBL_SendRegistryCmd_t *data);
 **
 ** \param[in] data points to the message received via command pipe that needs processing
 **
-** \retval #CFE_TBL_INC_ERR_CTR  \copydoc CFE_TBL_INC_ERR_CTR
-** \retval #CFE_TBL_INC_CMD_CTR  \copydoc CFE_TBL_INC_CMD_CTR
+** \retval #CFE_STATUS_COMMAND_FAILURE  \copydoc CFE_STATUS_COMMAND_FAILURE
+** \retval #CFE_SUCCESS  \copydoc CFE_SUCCESS
 */
 int32 CFE_TBL_DeleteCDSCmd(const CFE_TBL_DeleteCDSCmd_t *data);
 
@@ -293,8 +278,8 @@ int32 CFE_TBL_DeleteCDSCmd(const CFE_TBL_DeleteCDSCmd_t *data);
 **
 ** \param[in] data points to the message received via command pipe that needs processing
 **
-** \retval #CFE_TBL_INC_ERR_CTR  \copydoc CFE_TBL_INC_ERR_CTR
-** \retval #CFE_TBL_INC_CMD_CTR  \copydoc CFE_TBL_INC_CMD_CTR
+** \retval #CFE_STATUS_COMMAND_FAILURE  \copydoc CFE_STATUS_COMMAND_FAILURE
+** \retval #CFE_SUCCESS  \copydoc CFE_SUCCESS
 */
 int32 CFE_TBL_AbortLoadCmd(const CFE_TBL_AbortLoadCmd_t *data);
 
@@ -319,11 +304,11 @@ int32 CFE_TBL_AbortLoadCmd(const CFE_TBL_AbortLoadCmd_t *data);
 **
 ** \param[in] TblSizeInBytes  Size of block of data to be written to the file
 **
-** \retval #CFE_TBL_INC_ERR_CTR  \copydoc CFE_TBL_INC_ERR_CTR
-** \retval #CFE_TBL_INC_CMD_CTR  \copydoc CFE_TBL_INC_CMD_CTR
+** \retval #CFE_STATUS_COMMAND_FAILURE  \copydoc CFE_STATUS_COMMAND_FAILURE
+** \retval #CFE_SUCCESS  \copydoc CFE_SUCCESS
 */
-CFE_TBL_CmdProcRet_t CFE_TBL_DumpToFile(const char *DumpFilename, const char *TableName, const void *DumpDataAddr,
-                                        size_t TblSizeInBytes);
+CFE_Status_t CFE_TBL_DumpToFile(const char *DumpFilename, const char *TableName, const void *DumpDataAddr,
+                                size_t TblSizeInBytes);
 
 /*---------------------------------------------------------------------------------------*/
 /**

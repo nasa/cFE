@@ -268,10 +268,9 @@ int32 CFE_SB_AppInit(void)
         return Status;
     }
 
-    CFE_Config_GetVersionString(VersionString, CFE_CFG_MAX_VERSION_STR_LEN, "cFE",
-        CFE_SRC_VERSION, CFE_BUILD_CODENAME, CFE_LAST_OFFICIAL);
-    Status =
-        CFE_EVS_SendEvent(CFE_SB_INIT_EID, CFE_EVS_EventType_INFORMATION, "cFE SB Initialized: %s", VersionString);
+    CFE_Config_GetVersionString(VersionString, CFE_CFG_MAX_VERSION_STR_LEN, "cFE", CFE_SRC_VERSION, CFE_BUILD_CODENAME,
+                                CFE_LAST_OFFICIAL);
+    Status = CFE_EVS_SendEvent(CFE_SB_INIT_EID, CFE_EVS_EventType_INFORMATION, "cFE SB Initialized: %s", VersionString);
     if (Status != CFE_SUCCESS)
     {
         CFE_ES_WriteToSysLog("%s: Error sending init event:RC=0x%08X\n", __func__, (unsigned int)Status);
@@ -290,10 +289,9 @@ int32 CFE_SB_AppInit(void)
 int32 CFE_SB_NoopCmd(const CFE_SB_NoopCmd_t *data)
 {
     char VersionString[CFE_CFG_MAX_VERSION_STR_LEN];
-    CFE_Config_GetVersionString(VersionString, CFE_CFG_MAX_VERSION_STR_LEN, "cFE",
-        CFE_SRC_VERSION, CFE_BUILD_CODENAME, CFE_LAST_OFFICIAL);
+    CFE_Config_GetVersionString(VersionString, CFE_CFG_MAX_VERSION_STR_LEN, "cFE", CFE_SRC_VERSION, CFE_BUILD_CODENAME,
+                                CFE_LAST_OFFICIAL);
     CFE_EVS_SendEvent(CFE_SB_CMD0_RCVD_EID, CFE_EVS_EventType_INFORMATION, "No-op Cmd Rcvd: %s", VersionString);
-    CFE_SB_Global.HKTlmMsg.Payload.CommandCounter++;
 
     return CFE_SUCCESS;
 }
@@ -310,7 +308,7 @@ int32 CFE_SB_ResetCountersCmd(const CFE_SB_ResetCountersCmd_t *data)
 
     CFE_SB_ResetCounters();
 
-    return CFE_SUCCESS;
+    return CFE_STATUS_NO_COUNTER_INCREMENT;
 }
 
 /*----------------------------------------------------------------
@@ -393,6 +391,7 @@ int32 CFE_SB_EnableRouteCmd(const CFE_SB_EnableRouteCmd_t *data)
     CFE_SB_DestinationD_t *          DestPtr;
     const CFE_SB_RouteCmd_Payload_t *CmdPtr;
     uint16                           PendingEventID;
+    CFE_Status_t                     ReturnCode = CFE_STATUS_COMMAND_FAILURE;
 
     PendingEventID = 0;
     CmdPtr         = &data->Payload;
@@ -406,7 +405,6 @@ int32 CFE_SB_EnableRouteCmd(const CFE_SB_EnableRouteCmd_t *data)
     if (!CFE_SB_IsValidMsgId(MsgId) || !CFE_SB_PipeDescIsMatch(PipeDscPtr, CmdPtr->Pipe))
     {
         PendingEventID = CFE_SB_ENBL_RTE3_EID;
-        CFE_SB_Global.HKTlmMsg.Payload.CommandErrorCounter++;
     }
     else
     {
@@ -414,13 +412,12 @@ int32 CFE_SB_EnableRouteCmd(const CFE_SB_EnableRouteCmd_t *data)
         if (DestPtr == NULL)
         {
             PendingEventID = CFE_SB_ENBL_RTE1_EID;
-            CFE_SB_Global.HKTlmMsg.Payload.CommandErrorCounter++;
         }
         else
         {
             DestPtr->Active = CFE_SB_ACTIVE;
             PendingEventID  = CFE_SB_ENBL_RTE2_EID;
-            CFE_SB_Global.HKTlmMsg.Payload.CommandCounter++;
+            ReturnCode      = CFE_SUCCESS;
         }
     }
 
@@ -444,7 +441,7 @@ int32 CFE_SB_EnableRouteCmd(const CFE_SB_EnableRouteCmd_t *data)
             break;
     }
 
-    return CFE_SUCCESS;
+    return ReturnCode;
 }
 
 /*----------------------------------------------------------------
@@ -460,6 +457,7 @@ int32 CFE_SB_DisableRouteCmd(const CFE_SB_DisableRouteCmd_t *data)
     CFE_SB_DestinationD_t *          DestPtr;
     const CFE_SB_RouteCmd_Payload_t *CmdPtr;
     uint16                           PendingEventID;
+    CFE_Status_t                     ReturnCode = CFE_STATUS_COMMAND_FAILURE;
 
     PendingEventID = 0;
     CmdPtr         = &data->Payload;
@@ -473,7 +471,6 @@ int32 CFE_SB_DisableRouteCmd(const CFE_SB_DisableRouteCmd_t *data)
     if (!CFE_SB_IsValidMsgId(MsgId) || !CFE_SB_PipeDescIsMatch(PipeDscPtr, CmdPtr->Pipe))
     {
         PendingEventID = CFE_SB_DSBL_RTE3_EID;
-        CFE_SB_Global.HKTlmMsg.Payload.CommandErrorCounter++;
     }
     else
     {
@@ -481,13 +478,12 @@ int32 CFE_SB_DisableRouteCmd(const CFE_SB_DisableRouteCmd_t *data)
         if (DestPtr == NULL)
         {
             PendingEventID = CFE_SB_DSBL_RTE1_EID;
-            CFE_SB_Global.HKTlmMsg.Payload.CommandErrorCounter++;
         }
         else
         {
             DestPtr->Active = CFE_SB_INACTIVE;
             PendingEventID  = CFE_SB_DSBL_RTE2_EID;
-            CFE_SB_Global.HKTlmMsg.Payload.CommandCounter++;
+            ReturnCode      = CFE_SUCCESS;
         }
     }
 
@@ -511,7 +507,7 @@ int32 CFE_SB_DisableRouteCmd(const CFE_SB_DisableRouteCmd_t *data)
             break;
     }
 
-    return CFE_SUCCESS;
+    return ReturnCode;
 }
 
 /*----------------------------------------------------------------
@@ -568,8 +564,6 @@ int32 CFE_SB_SendStatsCmd(const CFE_SB_SendSbStatsCmd_t *data)
     CFE_SB_TransmitMsg(CFE_MSG_PTR(CFE_SB_Global.StatTlmMsg.TelemetryHeader), true);
 
     CFE_EVS_SendEvent(CFE_SB_SND_STATS_EID, CFE_EVS_EventType_DEBUG, "Software Bus Statistics packet sent");
-
-    CFE_SB_Global.HKTlmMsg.Payload.CommandCounter++;
 
     return CFE_SUCCESS;
 }
@@ -775,6 +769,7 @@ int32 CFE_SB_WriteRoutingInfoCmd(const CFE_SB_WriteRoutingInfoCmd_t *data)
     const CFE_SB_WriteFileInfoCmd_Payload_t *CmdPtr;
     CFE_SB_BackgroundFileStateInfo_t *       StatePtr;
     int32                                    Status;
+    CFE_Status_t                             Returncode = CFE_STATUS_COMMAND_FAILURE;
 
     StatePtr = &CFE_SB_Global.BackgroundFile;
     CmdPtr   = &data->Payload;
@@ -814,15 +809,17 @@ int32 CFE_SB_WriteRoutingInfoCmd(const CFE_SB_WriteRoutingInfoCmd_t *data)
         Status = CFE_STATUS_REQUEST_ALREADY_PENDING;
     }
 
-    if (Status != CFE_SUCCESS)
+    if (Status == CFE_SUCCESS)
+    {
+        Returncode = CFE_SUCCESS;
+    }
+    else
     {
         /* generate the same event as is generated when unable to create the file (same thing, really) */
         CFE_SB_BackgroundFileEventHandler(StatePtr, CFE_FS_FileWriteEvent_CREATE_ERROR, Status, 0, 0, 0);
     }
 
-    CFE_SB_IncrCmdCtr(Status);
-
-    return CFE_SUCCESS;
+    return Returncode;
 }
 
 /*----------------------------------------------------------------
@@ -914,6 +911,7 @@ int32 CFE_SB_WritePipeInfoCmd(const CFE_SB_WritePipeInfoCmd_t *data)
     const CFE_SB_WriteFileInfoCmd_Payload_t *CmdPtr;
     CFE_SB_BackgroundFileStateInfo_t *       StatePtr;
     int32                                    Status;
+    CFE_Status_t                             ReturnCode = CFE_STATUS_COMMAND_FAILURE;
 
     StatePtr = &CFE_SB_Global.BackgroundFile;
     CmdPtr   = &data->Payload;
@@ -953,15 +951,17 @@ int32 CFE_SB_WritePipeInfoCmd(const CFE_SB_WritePipeInfoCmd_t *data)
         Status = CFE_STATUS_REQUEST_ALREADY_PENDING;
     }
 
-    if (Status != CFE_SUCCESS)
+    if (Status == CFE_SUCCESS)
+    {
+        ReturnCode = CFE_SUCCESS;
+    }
+    else
     {
         /* generate the same event as is generated when unable to create the file (same thing, really) */
         CFE_SB_BackgroundFileEventHandler(StatePtr, CFE_FS_FileWriteEvent_CREATE_ERROR, Status, 0, 0, 0);
     }
 
-    CFE_SB_IncrCmdCtr(Status);
-
-    return CFE_SUCCESS;
+    return ReturnCode;
 }
 
 /*----------------------------------------------------------------
@@ -1038,6 +1038,7 @@ int32 CFE_SB_WriteMapInfoCmd(const CFE_SB_WriteMapInfoCmd_t *data)
     const CFE_SB_WriteFileInfoCmd_Payload_t *CmdPtr;
     CFE_SB_BackgroundFileStateInfo_t *       StatePtr;
     int32                                    Status;
+    CFE_Status_t                             ReturnCode = CFE_STATUS_COMMAND_FAILURE;
 
     StatePtr = &CFE_SB_Global.BackgroundFile;
     CmdPtr   = &data->Payload;
@@ -1077,15 +1078,17 @@ int32 CFE_SB_WriteMapInfoCmd(const CFE_SB_WriteMapInfoCmd_t *data)
         Status = CFE_STATUS_REQUEST_ALREADY_PENDING;
     }
 
-    if (Status != CFE_SUCCESS)
+    if (Status == CFE_SUCCESS)
+    {
+        ReturnCode = CFE_SUCCESS;
+    }
+    else
     {
         /* generate the same event as is generated when unable to create the file (same thing, really) */
         CFE_SB_BackgroundFileEventHandler(StatePtr, CFE_FS_FileWriteEvent_CREATE_ERROR, Status, 0, 0, 0);
     }
 
-    CFE_SB_IncrCmdCtr(Status);
-
-    return CFE_SUCCESS;
+    return ReturnCode;
 }
 
 /*----------------------------------------------------------------
@@ -1175,24 +1178,6 @@ int32 CFE_SB_SendPrevSubsCmd(const CFE_SB_SendPrevSubsCmd_t *data)
     }
 
     return CFE_SUCCESS;
-}
-
-/*----------------------------------------------------------------
- *
- * Application-scope internal function
- * See description in header file for argument/return detail
- *
- *-----------------------------------------------------------------*/
-void CFE_SB_IncrCmdCtr(int32 status)
-{
-    if (status == CFE_SUCCESS)
-    {
-        CFE_SB_Global.HKTlmMsg.Payload.CommandCounter++;
-    }
-    else
-    {
-        CFE_SB_Global.HKTlmMsg.Payload.CommandErrorCounter++;
-    }
 }
 
 /*----------------------------------------------------------------
