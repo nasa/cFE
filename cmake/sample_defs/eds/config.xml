@@ -58,7 +58,7 @@
   </Package>
 
   <Package name="CFE_FS" shortDescription="File Services Configuration">
-     <Define name="FILE_CONTENT_ID" value="0x63464531" shortDescription="Magic Number for cFE compliant files (= cFE1)" />
+     <Define name="FILE_CONTENT_ID" value="0x63464531" shortDescription="Magic Number for cFE-compliant files (= cFE1)" />
      <Define name="HDR_DESC_MAX_LEN" value="32"/>
   </Package>
 
