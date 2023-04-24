@@ -346,18 +346,6 @@
 #define CFE_TBL_NO_WORK_BUFFERS_ERR_EID 60
 
 /**
- * \brief TBL Load Table Command Get Working Buffer Internal Failure Event ID
- *
- *  \par Type: ERROR
- *
- *  \par Cause:
- *
- *  \link #CFE_TBL_LOAD_CC TBL Load Table Command \endlink failure due to
- *  internal get working buffer error.
- */
-#define CFE_TBL_INTERNAL_ERROR_ERR_EID 61
-
-/**
  * \brief TBL Write File Creation Failure Event ID
  *
  *  \par Type: ERROR
