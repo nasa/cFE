@@ -21,22 +21,22 @@
  *
  * This header file contains the mission configuration parameters and
  * typedefs with mission scope.
- * 
+ *
  * This provides values for configurable items that affect
  * the interface(s) of this module.  This includes the CMD/TLM message
  * interface, tables definitions, and any other data products that
  * serve to exchange information with other entities.
- * 
+ *
  * @note It is no longer necessary to provide this file directly in the defs
- * directory, but if present, this file is still supported/usable for backward 
+ * directory, but if present, this file is still supported/usable for backward
  * compatibility.  To use this file, is should be called "cfe_mission_cfg.h".
- * 
+ *
  * Going forward, more fine-grained (module/purposes-specific) header files are
  * included with each submodule.  These may be overridden as necessary, but only
  * if a definition within that file needs to be changed from the default.  This
- * approach will reduce the amount of duplicate/cloned definitions and better 
+ * approach will reduce the amount of duplicate/cloned definitions and better
  * support alternative build configurations in the future.
- * 
+ *
  * Note that if this file is present, the fine-grained header files noted above
  * will _not_ be used.
  */
@@ -310,7 +310,7 @@
 
 #define CFE_FS_HDR_DESC_MAX_LEN 32 /**< \brief Max length of description field in a standard cFE File Header */
 
-#define CFE_FS_FILE_CONTENT_ID 0x63464531 /**< \brief Magic Number for cFE compliant files (= 'cFE1') */
+#define CFE_FS_FILE_CONTENT_ID 0x63464531 /**< \brief Magic Number for cFE-compliant files (= 'cFE1') */
 
 
 /******************************************************************************
