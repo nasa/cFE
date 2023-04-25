@@ -1,0 +1,10 @@
+# Template for table configuration
+
+cfetables: ${TABLE_BINARY}
+
+${TABLE_BINARY}: CFE_TABLE_CPUNAME   := ${TARGET_NAME}
+${TABLE_BINARY}: CFE_TABLE_APPNAME   := ${APP_NAME}
+${TABLE_BINARY}: CFE_TABLE_BASENAME  := ${TABLE_NAME}
+
+# Rules to build ${TABLE_BINARY}
+${TABLE_RULES}
