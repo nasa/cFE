@@ -33,7 +33,7 @@ list(APPEND CFE_CONFIG_IDS
 )
 
 # Generate config ID for source version of modules that are included in the build
-# NOTE: the presence in this list does not necesarily mean it will have a value at runtime,
+# NOTE: the presence in this list does not necessarily mean it will have a value at runtime,
 # which may be the case for dynamic apps which are not loaded, for instance.
 foreach(DEP ${MISSION_CORE_INTERFACES} ${MISSION_APPS} ${MISSION_CORE_MODULES} ${MISSION_PSPMODULES})
   string(TOUPPER "${DEP}" DEPNAME)

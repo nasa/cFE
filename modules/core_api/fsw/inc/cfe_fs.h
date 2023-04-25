@@ -243,7 +243,7 @@ const char *CFE_FS_GetDefaultExtension(CFE_FS_FileCategory_t FileCategory);
 ** \param[in]  InputBuffer      A input buffer that may contain a file name (e.g. from command) @nonnull.
 ** \param[in]  OutputBufSize    Maximum Size of output buffer @nonzero.
 ** \param[in]  InputBufSize     Maximum Size of input buffer.
-** \param[in]  DefaultInput     Default value to use for input if InputBffer is empty
+** \param[in]  DefaultInput     Default value to use for input if InputBuffer is empty
 ** \param[in]  DefaultPath      Default value to use for pathname if omitted from input
 ** \param[in]  DefaultExtension Default value to use for extension if omitted from input
 **
