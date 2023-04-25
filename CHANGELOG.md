@@ -1,5 +1,11 @@
 # Changelog
 
+## Development Build: v7.0.0-rc4+dev276
+- improve add_cfe_tables function
+- add option to link to generated files
+- Create Workflow for IC Bundle Generation
+- See <https://github.com/nasa/cFE/pull/2299>, <https://github.com/nasa/cFE/pull/2300>, and <https://github.com/nasa/cFE/pull/2298>
+
 ## Development Build: v7.0.0-rc4+dev268
 - update naming convention document
 - remove return value doxygen markup
