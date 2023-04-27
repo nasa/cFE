@@ -76,8 +76,7 @@ int32 CFE_EVS_EarlyInit(void)
     CFE_EVS_Global.EVS_TlmPkt.Payload.OutputPort        = CFE_PLATFORM_EVS_PORT_DEFAULT;
     CFE_EVS_Global.EVS_TlmPkt.Payload.LogMode           = CFE_PLATFORM_EVS_DEFAULT_LOG_MODE;
 
-    CFE_EVS_Global.EVS_EventBurstMax     = CFE_PLATFORM_EVS_MAX_APP_EVENT_BURST;
-    CFE_EVS_Global.IncludeTimeInPortSend = CFE_PLATFORM_EVS_INCLUDE_TIME_IN_PORT_SEND;
+    CFE_EVS_Global.EVS_EventBurstMax = CFE_PLATFORM_EVS_MAX_APP_EVENT_BURST;
 
     /* Get a pointer to the CFE reset area from the BSP */
     PspStatus = CFE_PSP_GetResetArea(&resetAreaAddr, &resetAreaSize);

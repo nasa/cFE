@@ -539,18 +539,13 @@ void EVS_GenerateEventTelemetry(EVS_AppData_t *AppDataPtr, uint16 EventID, uint1
 void EVS_SendViaPorts(CFE_EVS_LongEventTlm_t *EVS_PktPtr)
 {
     char               PortMessage[CFE_EVS_MAX_PORT_MSG_LENGTH];
-    char               TimeBuffer[CFE_TIME_PRINTED_STRING_SIZE] = "";
-    char               Separator[2]                             = "";
+    char               TimeBuffer[CFE_TIME_PRINTED_STRING_SIZE];
     CFE_TIME_SysTime_t PktTime;
 
-    if (CFE_EVS_Global.IncludeTimeInPortSend)
-    {
-        CFE_MSG_GetMsgTime(CFE_MSG_PTR(EVS_PktPtr->TelemetryHeader), &PktTime);
-        CFE_TIME_Print(TimeBuffer, PktTime);
-        snprintf(Separator, sizeof(Separator), " ");
-    }
+    CFE_MSG_GetMsgTime(CFE_MSG_PTR(EVS_PktPtr->TelemetryHeader), &PktTime);
+    CFE_TIME_Print(TimeBuffer, PktTime);
 
-    snprintf(PortMessage, sizeof(PortMessage), "%s%s%u/%u/%s %u: %s", TimeBuffer, Separator,
+    snprintf(PortMessage, sizeof(PortMessage), "%s %u/%u/%s %u: %s", TimeBuffer,
              (unsigned int)EVS_PktPtr->Payload.PacketID.SpacecraftID,
              (unsigned int)EVS_PktPtr->Payload.PacketID.ProcessorID, EVS_PktPtr->Payload.PacketID.AppName,
              (unsigned int)EVS_PktPtr->Payload.PacketID.EventID, EVS_PktPtr->Payload.Message);

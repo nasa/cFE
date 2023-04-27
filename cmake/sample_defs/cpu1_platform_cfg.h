@@ -1462,17 +1462,6 @@
 */
 #define CFE_PLATFORM_EVS_DEFAULT_MSG_FORMAT_MODE CFE_EVS_MsgFormat_LONG
 
-/**
-**  \cfeevscfg Include time in port send
-**
-**  \par Description:
-**       Includes the time when sending events out a port
-**
-**  \par Limits
-**       Set as true or false
-*/
-#define CFE_PLATFORM_EVS_INCLUDE_TIME_IN_PORT_SEND false
-
 /* Platform Configuration Parameters for Table Service (TBL) */
 
 /**
