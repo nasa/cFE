@@ -128,6 +128,7 @@
         <EntryList>
           <Entry name="MsgId" type="MsgId" shortDescription="Message ID of route to be enabled or disabled #CFE_SB_MsgId_t" />
           <Entry name="Pipe" type="PipeId" shortDescription="Pipe ID of route to be enabled or disabled #CFE_SB_PipeId_t" />
+          <PaddingEntry sizeInBits="32" shortDescription="Spare bytes for alignment"/>
         </EntryList>
       </ContainerDataType>
 
@@ -266,7 +267,7 @@
               \cfetlmmnemonic  \SB_SMPMIDIU
             </LongDescription>
           </Entry>
-          <Entry name="MaxMsgIdsAllowed" type="BASE_TYPES/uint32" shortDescription="cFE Cfg Param \link #CFE_PLATFORM_SB_MAX_MSG_IDS \endlink">
+          <Entry name="MaxMsgIdsAllowed" type="BASE_TYPES/uint32" shortDescription="cFE Cfg Param #CFE_PLATFORM_SB_MAX_MSG_IDS">
             <LongDescription>
               \cfetlmmnemonic  \SB_SMMMIDALW
             </LongDescription>
@@ -281,7 +282,7 @@
               \cfetlmmnemonic  \SB_SMPPIU
             </LongDescription>
           </Entry>
-          <Entry name="MaxPipesAllowed" type="BASE_TYPES/uint32" shortDescription="cFE Cfg Param \link #CFE_PLATFORM_SB_MAX_PIPES \endlink">
+          <Entry name="MaxPipesAllowed" type="BASE_TYPES/uint32" shortDescription="cFE Cfg Param #CFE_PLATFORM_SB_MAX_PIPES">
             <LongDescription>
               \cfetlmmnemonic  \SB_SMMPALW
             </LongDescription>
@@ -296,7 +297,7 @@
               \cfetlmmnemonic  \SB_SMPBMIU
             </LongDescription>
           </Entry>
-          <Entry name="MaxMemAllowed" type="BASE_TYPES/uint32" shortDescription="cFE Cfg Param \link #CFE_PLATFORM_SB_BUF_MEMORY_BYTES \endlink">
+          <Entry name="MaxMemAllowed" type="BASE_TYPES/uint32" shortDescription="cFE Cfg Param #CFE_PLATFORM_SB_BUF_MEMORY_BYTES">
             <LongDescription>
               \cfetlmmnemonic  \SB_SMMBMALW
             </LongDescription>
@@ -328,7 +329,7 @@
               \cfetlmmnemonic  \SB_SMPSBBIU
             </LongDescription>
           </Entry>
-          <Entry name="MaxPipeDepthAllowed" type="BASE_TYPES/uint32" shortDescription="cFE Cfg Param \link #CFE_PLATFORM_SB_MAX_PIPE_DEPTH \endlink">
+          <Entry name="MaxPipeDepthAllowed" type="BASE_TYPES/uint32" shortDescription="cFE Cfg Param #CFE_PLATFORM_SB_MAX_PIPE_DEPTH">
             <LongDescription>
               \cfetlmmnemonic  \SB_SMMPDALW
             </LongDescription>

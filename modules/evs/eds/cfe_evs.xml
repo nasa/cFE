@@ -98,6 +98,7 @@
         </LongDescription>
         <EntryList>
           <Entry name="LogMode" type="LogMode" shortDescription="Mode to use in the command" />
+          <PaddingEntry sizeInBits="8" shortDescription="Spare bytes for alignment"/>
         </EntryList>
       </ContainerDataType>
 
@@ -107,6 +108,7 @@
         </LongDescription>
         <EntryList>
           <Entry name="MsgFormat" type="MsgFormat" shortDescription="Format to use in the command" />
+          <PaddingEntry sizeInBits="8" shortDescription="Spare bytes for alignment"/>
         </EntryList>
       </ContainerDataType>
 
@@ -117,6 +119,7 @@
         </LongDescription>
         <EntryList>
           <Entry name="BitMask" type="BASE_TYPES/uint8" shortDescription="BitMask to use in the command" />
+          <PaddingEntry sizeInBits="8" shortDescription="Spare bytes for alignment"/>
         </EntryList>
       </ContainerDataType>
 
@@ -147,6 +150,7 @@
         <EntryList>
           <Entry name="AppName" type="BASE_TYPES/ApiName" shortDescription="Application name to use in the command" />
           <Entry name="BitMask" type="BASE_TYPES/uint8" shortDescription="BitMask to use in the command" />
+          <PaddingEntry sizeInBits="8" shortDescription="Spare bytes for alignment"/>
         </EntryList>
       </ContainerDataType>
 
@@ -250,6 +254,7 @@
               \cfetlmmnemonic  \EVS_LOGENABLED
             </LongDescription>
           </Entry>
+          <PaddingEntry sizeInBits="24" shortDescription="Spare bytes for alignment"/>
           <Entry name="AppData" type="AppTlmData_x_CFE_ES_MAX_APPLICATIONS">
             <LongDescription>
               \cfetlmmnemonic  \EVS_APP
