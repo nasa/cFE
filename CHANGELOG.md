@@ -1,5 +1,12 @@
 # Changelog
 
+## Development Build: v7.0.0-rc4+dev287
+- document CFS component file naming
+- Add EVS port timestamp and simplify port selection
+- remove else statement that was unreachable by unit tests
+- correct fallback file case
+- See <https://github.com/nasa/cFE/pull/2306>, <https://github.com/nasa/cFE/pull/2295>, <https://github.com/nasa/cFE/pull/2303>, and <https://github.com/nasa/cFE/pull/2312>
+
 ## Development Build: v7.0.0-rc4+dev276
 - improve add_cfe_tables function
 - add option to link to generated files
