@@ -318,14 +318,14 @@ directory is described as a note under each folder.
     |   |-- The flight software is all configured and built under this directory
     |   |-- All mission and platform configuration files are placed here
     |-- apps
-    |   |-- Contains application source code. 
+    |   |-- Contains application source code.
     |   |-- Application source code may be shared amoung multiple build CPUs
     |-- libs
     |   |-- Contains Core Flight System (cFS) Sample Library (sample_lib)
     |-- tools
     |   |-- Contains Core Flight System (cFS) tools
-``` 
-Module descriptions are provided in the table below. 
+```
+Module descriptions are provided in the table below.
 ```
 -- missionxyz/cfe
    |-- cmake
@@ -353,7 +353,7 @@ Module descriptions are provided in the table below.
 ```
 -- missionxyz/build
    |-- CMakeFiles
-   |   |-- Cmake fore cfe core build and all apps
+   |   |-- Cmake for cfe core build and all apps
    |-- cpu1
    |   |-- Contains start up script "cfe_es_startup.scr"
    |   |-- Where build.o and executable files, etc. are placed
@@ -364,12 +364,12 @@ Module descriptions are provided in the table below.
    |   |-- Where the cpu1 platform configuration include files go
    |-- src
    |-- tools
-```  
+```
 ```
 -- missionxyz/build/cpu1
    |-- default_cpu1
    |   |-- CMakeFiles
-   |   |   | Cmake fore cfe core build and all apps
+   |   |   | Cmake for cfe core build and all apps
    |   |-- apps
    |   |    |-- Where application makefiles go
    |   |    |-- One directory per application
@@ -392,19 +392,19 @@ Module descriptions are provided in the table below.
    |   |-- tbl
    |   |-- time
 ```
-``` 
+```
 -- missionxyz/apps
    |-- ci_lab
    |-- sample_app
    |-- sch_lab
    |-- to_lab
-``` 
-``` 
+```
+```
 -- missionxyz/tools
    |-- cFS-GroundSystem
    |-- elf2cfetbl
    |-- tblCRCTool
-``` 
+```
 ```
 -- missionxyz/cf/modules/es
    |-- eds
@@ -599,33 +599,109 @@ Child Tasks can be useful in both "Software Only" and "Hardware Servicing"
 applications.
 
 ## 4.2 Best Practices
+
 ### 4.2.1 cFS Application Template
 
 Applications designed to interface with the cFE should follow standard templates.
 Reference sample_app on Github for “live” example.
 
-| **Directory**                         | **Descriptions**                                                                                             |
-|:--------------------------------------|:-------------------------------------------------------------------------------------------------------------|
-| fsw/                                  | All components which are used on/deployed to the actual target or define the interface to those components   |
-| fsw/inc/                              | Public/Interface headers for the component                                                                   |
-| fsw/src/                              | Source files and private headers for the component                                                           |
-| tables/                               | Example/Initial table definitions                                                                            |
+__File Organization and Directory Structure__
 
+| **Directory**                         | **Content**                                                                    |
+|:--------------------------------------|:-------------------------------------------------------------------------------|
+| config/                               | Example configuration files for the component                                  |
+| eds/                                  | CCSDS Electronic Data Sheet package for the component (defined per book 876.0) |
+| fsw/                                  | Source units that comprise the flight software that executes on the target     |
+| fsw/inc/                              | Public/Interface headers for the component                                     |
+| fsw/src/                              | Source files and private headers for the component                             |
+| tables/                               | Example table definitions for the component                                    |
 
+__Source File Naming Convention__
 
-| **Files**                             | **Descriptions**                                                                                             |
-|:--------------------------------------|:-------------------------------------------------------------------------------------------------------------|
-| fsw/src/sample_app.c                  | Main source code for sample_app. Located in src directory.                                                   |
-| fsw/src/sample_app.h                  | Main header file for sample_app. It contains your main global typedef, prototypes, and miscellaneous define. |
-| fsw/src/sample_app_events.h           | Defines sample_app event IDs                                                                                 |
-| fsw/src/sample_app_msg.h              | Defines sample_app commands and its structures                                                               |
-| fsw/tables/sample_app_table.c             | Define sample_app table(s)                                                                                   |
-| fsw/platform_inc/sample_app_msgids.h  | Define sample_app message IDs                                                                                |
-| fsw/mission_inc/sample_app_perfids.h  | Define sample_app performance IDs                                                                            |
+All source files associated with a component should begin with the component name as a prefix, to help ensure uniqueness
+of file names across all flight software packages once imported into a combined software tree.  All of the configuration header
+files should also be overridable at the mission level; that is, a component only provides a default file (with a `default_` prefix,
+for distinction) that can be "cloned and owned" by placing a copy, without the `default_` prefix, into the `_defs` directory
+for the CFE/CFS mission build.  Any customized file(s) in the `_defs` directory will be seen by the CMake build system and used
+instead of the default version of the file that is provided from the orignal source tree.
 
-In addition to showing the standard structure of a cFS application, the
-sample_app also demonstrates how to interface with cFS libraries and table
-services.
+| **File Name Pattern**      | **Scope** | **Content**                                                                                         |
+|:---------------------------|:---------:|:----------------------------------------------------------------------------------------------------|
+| _module_`_fcncodes.h`      | INTERFACE | Function Codes and associated documentation for the CMD interface of the component (see note)       |
+| _module_`_msgdefs.h`       | INTERFACE | Constant definitions for the CMD/TLM interface(s) of the component (see note)                       |
+| _module_`_tbldefs.h`       | INTERFACE | Constant definitions that affect the table file interface(s) of the component                       |
+| _module_`_msgstruct.h`     | INTERFACE | Structures that define the CMD/TLM message interface(s) of the component                            |
+| _module_`_tblstruct.h`     | INTERFACE | Structures that define the table file interface(s) of the component                                 |
+| _module_`_interface_cfg.h` | INTERFACE | Other configuration that affects the interface(s) of the component (table files and/or messages)    |
+| _module_`_eventids.h`      | INTERFACE | CFE EVS Event IDs for the component, with descriptions/documentation                                |
+| _module_`_global_cfg.h`    |  MISSION  | Constants that need to be consistent across all instances, but do not directly affect interface(s)  |
+| _module_`_version.h`       |  MISSION  | Version number of the component                                                                     |
+| _module_`_msgids.h`        | PLATFORM  | CFE Software Bus Message ID definitions for CMD/TLM interface(s) of the component                   |
+| _module_`_internal_cfg.h`  | PLATFORM  | Software configuration that does not affect interfaces, and may be different per instance/platform  |
+| _module_`_perfids.h`       | PLATFORM  | CFE ES Performance monitor IDs for the component, with descriptions/documentation                   |
+| _module_`_verify.h`        |    FSW    | Compile-time configuration validation (typically included from only one source file)                |
+| _module_`_app.[ch]`        |    FSW    | Application entry point, initialization, and main task loop                                         |
+| _module_`_cmds.[ch]`       |    FSW    | Application command processor functions                                                             |
+| _module_`_dispatch.[ch]`   |    FSW    | Dispatch table for validating incoming commands and invoking appropriate command processor          |
+
+**NOTE**: For backward compatibility, the `_msgdefs.h` header should also provide the function code definitions from `_fcncodes.h`, such that
+inclusion of the `_msgdefs.h` file alone provides the command codes as well as any other required definitions for message interpretation.
+However, the `_fcncodes.h` header should be strictly limited to defining command/function codes for the command interface and should not contain
+any other information.
+
+**IMPORANT**: All of the header files above with "INTERFACE" scope control the table/message interface of the component.  Changing any of the
+values or definitions in these files will affect the inter-processor communication - either table files, exported data products, commands, or
+telementry messages.  Due caution should be exercised when customizing any of these files, as any changes will need to be propagated to all
+other CFE instances, ground systems, test software or scripts, or any other tools that interact with the flight softare.
+
+Also note that Electronic Data Sheets (EDS) definitions will supercede the "INTERFACE" header files listed above.  These headers are not
+used by the software when building FSW based on EDS.  Instead, the EDS tool will generate these headers based on the content of the EDS file(s)
+and the software will be configured to use the generated headers during the build.
+
+__Combination Headers__
+
+The header files in this section combine two or more files from the above set for simplicity of usage in source code, as well as backward
+compatiblity with traditional file names from older versions of CFS apps.  Although these files may also be overridden directly, it is
+recommended to only override/modify the more granular headers defined above.
+
+| **File Name Pattern**      | **Content**                                                                                |
+|:---------------------------|:-------------------------------------------------------------------------------------------|
+| _module_`_mission_cfg.h`   | Combination of `global_cfg.h` and `interface_cfg.h` (mission scope configuration)          |
+| _module_`_platform_cfg.h`  | Combination of `mission_cfg.h` (above), `internal_cfg.h` and any other dependencies        |
+| _module_`_msg.h`           | Complete message interface: Combination of `msgdefs.h`, `msgstruct.h` and all dependencies |
+| _module_`_tbl.h`           | Complete table interface: Combination of `tbldefs.h`, `tblstruct.h` and all dependencies   |
+
+**IMPORANT**: Files from a limited scope may depend on files from a broader scope, but not the other way around.  For example,
+the `platform_cfg.h` may depend on items defined in `mission_cfg.h`, but items in `mission_cfg.h` must **not** depend on items
+defined in `platform_cfg.h`.
+
+__Example for SAMPLE_APP__
+
+The sample application (SAMPLE_APP) provides a concrete example of the currently-recommended patterns for CFE/CFS applications.
+This section provides a summary the naming conventions put into practice for the sample application.
+
+| **Files**                                   | **Description**                                                                                   |
+|:--------------------------------------------|:--------------------------------------------------------------------------------------------------|
+| `config/default_sample_app_msgids.h`        | CFE Software Bus Message ID definitions for SAMPLE_APP (CMD, SEND_HK, and HK_TLM)                 |
+| `config/default_sample_app_msgdefs.h`       | Not needed                                                                                        |
+| `config/default_sample_app_tbldefs.h`       | Not needed                                                                                        |
+| `config/default_sample_app_msgstruct.h`     | Defines NoopCmd, ResetCountersCmd, ProcessCmd, and HkTlm message structures                       |
+| `config/default_sample_app_tblstruct.h`     | Defines the example table content structure                                                       |
+| `config/default_sample_app_interface_cfg.h` | Not needed                                                                                        |
+| `config/default_sample_app_global_cfg.h`    | Not needed                                                                                        |
+| `config/default_sample_app_internal_cfg.h`  | Not needed                                                                                        |
+| `eds/sample_app.xml`                        | EDS `<PackageFile>` for the SAMPLE_APP component (supercedes headers above, if enabled)           |
+| `fsw/inc/sample_app_events.h`               | Defines sample_app event IDs                                                                      |
+| `fsw/inc/sample_app_perfids.h`              | Define sample_app performance IDs                                                                 |
+| `fsw/src/sample_app.c`                      | Application entry point, initialization, and main task loop                                       |
+| `fsw/inc/sample_app.h`                      | Declarations/Prototypes for `sample_app.c` that are needed by other source units                  |
+| `fsw/src/sample_app_cmds.c`                 | Application command processor functions                                                           |
+| `fsw/inc/sample_app_cmds.h`                 | Declarations/Prototypes for `sample_app_cmds.c` that are needed by other source units             |
+| `fsw/src/sample_app_dispatch.c`             | Application command dispatcher ("TaskPipe"; identification and validation of all message inputs)  |
+| `fsw/inc/sample_app_dispatch.h`             | Declarations/Prototypes for `sample_app_dispatch.c` that are needed by other source units         |
+
+In addition to showing the standard structure of a cFS application, the sample_app also demonstrates how to interface with cFS libraries
+and table services.
 
 ### 4.2.2 Avoid "Endian-ness" Dependencies
 

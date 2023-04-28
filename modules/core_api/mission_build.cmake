@@ -13,12 +13,12 @@
 generate_config_includefile(
     FILE_NAME           "cfe_mission_cfg.h"
     MATCH_SUFFIX        "mission_cfg.h"
-    PREFIXES            ${MISSIONCONFIG}
+    PREFIXES            ${MISSIONCONFIG} cfe
 )
 
 generate_config_includefile(
     FILE_NAME           "cfe_perfids.h"
     MATCH_SUFFIX        "perfids.h"
-    PREFIXES            ${MISSIONCONFIG}
+    PREFIXES            ${MISSIONCONFIG} cfe
 )
 
