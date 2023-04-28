@@ -28,14 +28,17 @@ function(cfe_locate_implementation_file OUTPUT_VAR FILE_NAME)
 
   cmake_parse_arguments(LOCATEIMPL_ARG "OPTIONAL;ALLOW_LIST" "FALLBACK_FILE" "PREFIX;SUBDIR" ${ARGN})
 
-  # Always check for filename matches directly in the MISSION_DEFS dir
-  set(IMPL_SEARCH_BASEDIRS "${MISSION_DEFS}/")
+  set(IMPL_SEARCH_BASEDIRS)
   # The prefix could also be a subdir, but do not repeat the mission name
   foreach (PREFIX ${LOCATEIMPL_ARG_PREFIX})
     if (NOT "${MISSIONCONFIG}" STREQUAL "${PREFIX}")
       list(APPEND IMPL_SEARCH_BASEDIRS "${MISSION_DEFS}/${PREFIX}/")
     endif()
   endforeach()
+  # Always check for filename matches directly in the MISSION_DEFS dir
+  list(APPEND IMPL_SEARCH_BASEDIRS "${MISSION_DEFS}/")
+  list(REVERSE IMPL_SEARCH_BASEDIRS)
+
   set(ADD_SUBDIRS)
   foreach (SUBDIR ${LOCATEIMPL_ARG_SUBDIR})
     foreach (BASEDIR ${IMPL_SEARCH_BASEDIRS})
@@ -43,17 +46,10 @@ function(cfe_locate_implementation_file OUTPUT_VAR FILE_NAME)
     endforeach()
   endforeach()
   list(APPEND IMPL_SEARCH_BASEDIRS ${ADD_SUBDIRS})
+  list(REMOVE_DUPLICATES IMPL_SEARCH_BASEDIRS)
 
   # Build the list of possible locations for this file in REVERSE priority order
   set(IMPL_SEARCH_PATH)
-  if (LOCATEIMPL_ARG_FALLBACK_FILE)
-    if (IS_ABSOLUTE "${LOCATEIMPL_ARG_FALLBACK_FILE}")
-      list(APPEND IMPL_SEARCH_PATH "${LOCATEIMPL_ARG_FALLBACK_FILE}")
-    else()
-      list(APPEND IMPL_SEARCH_PATH "${CMAKE_CURRENT_LIST_DIR}/${LOCATEIMPL_ARG_FALLBACK_FILE}")
-    endif()
-  endif()
-
   # Check for the existence of the file in each of the dirs
   foreach(BASEDIR ${IMPL_SEARCH_BASEDIRS})
     list(APPEND IMPL_SEARCH_PATH "${BASEDIR}${FILE_NAME}")
@@ -73,6 +69,14 @@ function(cfe_locate_implementation_file OUTPUT_VAR FILE_NAME)
       list(APPEND SELECTED_FILE ${CHECK_FILE})
     endif()
   endforeach()
+
+  if (NOT SELECTED_FILE AND LOCATEIMPL_ARG_FALLBACK_FILE)
+    if (IS_ABSOLUTE "${LOCATEIMPL_ARG_FALLBACK_FILE}")
+      set(SELECTED_FILE "${LOCATEIMPL_ARG_FALLBACK_FILE}")
+    else()
+      set(SELECTED_FILE "${CMAKE_CURRENT_LIST_DIR}/${LOCATEIMPL_ARG_FALLBACK_FILE}")
+    endif()
+  endif()
 
   if (SELECTED_FILE)
     message(STATUS "Using file: ${SELECTED_FILE} for ${FILE_NAME}")
@@ -156,7 +160,7 @@ function(generate_config_includefile)
         set(GENCONFIG_ARG_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/inc")
     endif (NOT GENCONFIG_ARG_OUTPUT_DIRECTORY)
 
-    if (IS_CFS_ARCH_BUILD)
+    if (IS_CFS_ARCH_BUILD AND NOT GENCONFIG_ARG_PREFIXES)
       set(ARCH_PREFIXES ${BUILD_CONFIG})
     else()
       set(ARCH_PREFIXES)
@@ -176,7 +180,6 @@ function(generate_config_includefile)
     else()
       # Use the common search function to find the candidate(s)
       cfe_locate_implementation_file(SRC_LOCAL_PATH_LIST "${TGTFILE}"
-        ALLOW_LIST
         FALLBACK_FILE "${GENCONFIG_ARG_FALLBACK_FILE}"
         PREFIX ${GENCONFIG_ARG_PREFIXES} ${ARCH_PREFIXES}
         SUBDIR config
