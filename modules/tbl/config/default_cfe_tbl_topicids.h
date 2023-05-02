@@ -18,37 +18,33 @@
 
 /**
  * @file
- *
- * Encapsulates all TBL module internal header files, as well
- * as the public API from all other CFE core modules, OSAL, and PSP.
- *
- * This simplifies the set of include files that need to be put at the
- * start of every source file.
+ *   CFE Table Services (CFE_TBL) Application Topic IDs
  */
+#ifndef CFE_TBL_TOPICIDS_H
+#define CFE_TBL_TOPICIDS_H
 
-#ifndef CFE_TBL_MODULE_ALL_H
-#define CFE_TBL_MODULE_ALL_H
-
-/*
-** Includes
+/**
+**  \cfemissioncfg cFE Portable Message Numbers for Commands
+**
+**  \par Description:
+**      Portable message numbers for the cFE command messages
+**
+**  \par Limits
+**      Not Applicable
 */
-#include "cfe.h"
-#include "cfe_platform_cfg.h"
-#include "cfe_msgids.h"
-#include "cfe_perfids.h"
+#define CFE_MISSION_TBL_CMD_MSG     4
+#define CFE_MISSION_TBL_SEND_HK_MSG 12
 
-#include "cfe_tbl_core_internal.h"
+/**
+**  \cfemissioncfg cFE Portable Message Numbers for Telemetry
+**
+**  \par Description:
+**      Portable message numbers for the cFE telemetry messages
+**
+**  \par Limits
+**      Not Applicable
+*/
+#define CFE_MISSION_TBL_HK_TLM_MSG  4
+#define CFE_MISSION_TBL_REG_TLM_MSG 12
 
-#include "cfe_tbl_eventids.h"
-#include "cfe_tbl_msg.h"
-#include "cfe_tbl_internal.h"
-#include "cfe_tbl_task.h"
-#include "cfe_tbl_task_cmds.h"
-#include "cfe_tbl_dispatch.h"
-
-/*
- * Additionally TBL needs to use special/extra CDS APIs that are not in the normal API
- */
-#include "cfe_es_core_internal.h"
-
-#endif /* CFE_TBL_MODULE_ALL_H */
+#endif

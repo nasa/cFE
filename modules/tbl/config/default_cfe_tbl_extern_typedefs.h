@@ -25,16 +25,6 @@
 #ifndef CFE_TBL_EXTERN_TYPEDEFS_H
 #define CFE_TBL_EXTERN_TYPEDEFS_H
 
-/* This header may be generated from an EDS file,
- * tools are available and the feature is enabled */
-#ifdef CFE_EDS_ENABLED_BUILD
-
-/* Use the EDS generated version of these types */
-#include "cfe_tbl_eds_typedefs.h"
-
-#else
-/* Use the local definitions of these types */
-
 #include "common_types.h"
 #include "cfe_es_extern_typedefs.h"
 #include "cfe_mission_cfg.h" /* for CFE_MISSION_TBL_MAX_FULL_NAME_LEN */
@@ -78,7 +68,5 @@ typedef struct CFE_TBL_File_Hdr
     uint32 NumBytes;                                     /**< Number of bytes to load into table */
     char   TableName[CFE_MISSION_TBL_MAX_FULL_NAME_LEN]; /**< Fully qualified name of table to load */
 } CFE_TBL_File_Hdr_t;
-
-#endif /* CFE_EDS_ENABLED_BUILD */
 
 #endif /* CFE_TBL_EXTERN_TYPEDEFS_H */

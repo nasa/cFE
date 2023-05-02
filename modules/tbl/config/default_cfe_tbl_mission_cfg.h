@@ -19,36 +19,18 @@
 /**
  * @file
  *
- * Encapsulates all TBL module internal header files, as well
- * as the public API from all other CFE core modules, OSAL, and PSP.
+ * CFE Event Services (CFE_TBL) Application Mission Configuration Header File
  *
- * This simplifies the set of include files that need to be put at the
- * start of every source file.
+ * This is a compatibility header for the "mission_cfg.h" file that has
+ * traditionally provided public config definitions for each CFS app.
+ *
+ * @note This file may be overridden/superceded by mission-provided defintions
+ * either by overriding this header or by generating definitions from a command/data
+ * dictionary tool.
  */
+#ifndef CFE_TBL_MISSION_CFG_H
+#define CFE_TBL_MISSION_CFG_H
 
-#ifndef CFE_TBL_MODULE_ALL_H
-#define CFE_TBL_MODULE_ALL_H
+#include "cfe_tbl_interface_cfg.h"
 
-/*
-** Includes
-*/
-#include "cfe.h"
-#include "cfe_platform_cfg.h"
-#include "cfe_msgids.h"
-#include "cfe_perfids.h"
-
-#include "cfe_tbl_core_internal.h"
-
-#include "cfe_tbl_eventids.h"
-#include "cfe_tbl_msg.h"
-#include "cfe_tbl_internal.h"
-#include "cfe_tbl_task.h"
-#include "cfe_tbl_task_cmds.h"
-#include "cfe_tbl_dispatch.h"
-
-/*
- * Additionally TBL needs to use special/extra CDS APIs that are not in the normal API
- */
-#include "cfe_es_core_internal.h"
-
-#endif /* CFE_TBL_MODULE_ALL_H */
+#endif

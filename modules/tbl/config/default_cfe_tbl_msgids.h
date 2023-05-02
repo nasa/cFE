@@ -18,37 +18,24 @@
 
 /**
  * @file
- *
- * Encapsulates all TBL module internal header files, as well
- * as the public API from all other CFE core modules, OSAL, and PSP.
- *
- * This simplifies the set of include files that need to be put at the
- * start of every source file.
+ *   CFE Event Services (CFE_TBL) Application Message IDs
  */
+#ifndef CFE_TBL_MSGIDS_H
+#define CFE_TBL_MSGIDS_H
 
-#ifndef CFE_TBL_MODULE_ALL_H
-#define CFE_TBL_MODULE_ALL_H
+#include "cfe_core_api_base_msgids.h"
+#include "cfe_tbl_topicids.h"
 
 /*
-** Includes
+** cFE Command Message Id's
 */
-#include "cfe.h"
-#include "cfe_platform_cfg.h"
-#include "cfe_msgids.h"
-#include "cfe_perfids.h"
-
-#include "cfe_tbl_core_internal.h"
-
-#include "cfe_tbl_eventids.h"
-#include "cfe_tbl_msg.h"
-#include "cfe_tbl_internal.h"
-#include "cfe_tbl_task.h"
-#include "cfe_tbl_task_cmds.h"
-#include "cfe_tbl_dispatch.h"
+#define CFE_TBL_CMD_MID     CFE_PLATFORM_CMD_MID_BASE + CFE_MISSION_TBL_CMD_MSG     /* 0x1804 */
+#define CFE_TBL_SEND_HK_MID CFE_PLATFORM_CMD_MID_BASE + CFE_MISSION_TBL_SEND_HK_MSG /* 0x180C */
 
 /*
- * Additionally TBL needs to use special/extra CDS APIs that are not in the normal API
- */
-#include "cfe_es_core_internal.h"
+** CFE Telemetry Message Id's
+*/
+#define CFE_TBL_HK_TLM_MID  CFE_PLATFORM_TLM_MID_BASE + CFE_MISSION_TBL_HK_TLM_MSG  /* 0x0804 */
+#define CFE_TBL_REG_TLM_MID CFE_PLATFORM_TLM_MID_BASE + CFE_MISSION_TBL_REG_TLM_MSG /* 0x080C */
 
-#endif /* CFE_TBL_MODULE_ALL_H */
+#endif
