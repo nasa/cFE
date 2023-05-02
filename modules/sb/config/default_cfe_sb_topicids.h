@@ -11,40 +11,43 @@
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * WITHOUT WARRANTISB OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ************************************************************************/
 
 /**
  * @file
- *
- * Encapsulates all SB module internal header files, as well
- * as the public API from all other CFE core modules, OSAL, and PSP.
- *
- * This simplifies the set of include files that need to be put at the
- * start of every source file.
+ *   CFE Software Bus (CFE_SB) Application Topic IDs
  */
+#ifndef CFE_SB_TOPICIDS_H
+#define CFE_SB_TOPICIDS_H
 
-#ifndef CFE_SB_MODULE_ALL_H
-#define CFE_SB_MODULE_ALL_H
-
-/*
-** Includes
+/**
+**  \cfemissioncfg cFE Portable Message Numbers for Commands
+**
+**  \par Description:
+**      Portable message numbers for the cFE command messages
+**
+**  \par Limits
+**      Not Applicable
 */
-#include "cfe.h"
-#include "cfe_platform_cfg.h"
-#include "cfe_msgids.h"
-#include "cfe_perfids.h"
+#define CFE_MISSION_SB_CMD_MSG          3
+#define CFE_MISSION_SB_SEND_HK_MSG      11
+#define CFE_MISSION_SB_SUB_RPT_CTRL_MSG 14
 
-#include "cfe_sb_core_internal.h"
+/**
+**  \cfemissioncfg cFE Portable Message Numbers for Telemetry
+**
+**  \par Description:
+**      Portable message numbers for the cFE telemetry messages
+**
+**  \par Limits
+**      Not Applicable
+*/
+#define CFE_MISSION_SB_HK_TLM_MSG      3
+#define CFE_MISSION_SB_STATS_TLM_MSG   10
+#define CFE_MISSION_SB_ALLSUBS_TLM_MSG 13
+#define CFE_MISSION_SB_ONESUB_TLM_MSG  14
 
-#include "cfe_sb_priv.h"
-#include "cfe_sb_eventids.h"
-#include "cfe_sb_destination_typedef.h"
-#include "cfe_sb_msg.h"
-#include "cfe_sb_dispatch.h"
-#include "cfe_sbr.h"
-#include "cfe_core_resourceid_basevalues.h"
-
-#endif /* CFE_SB_MODULE_ALL_H */
+#endif

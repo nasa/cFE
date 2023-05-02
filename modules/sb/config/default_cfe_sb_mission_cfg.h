@@ -11,7 +11,7 @@
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * WITHOUT WARRANTISB OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ************************************************************************/
@@ -19,32 +19,18 @@
 /**
  * @file
  *
- * Encapsulates all SB module internal header files, as well
- * as the public API from all other CFE core modules, OSAL, and PSP.
+ * CFE Event Services (CFE_SB) Application Mission Configuration Header File
  *
- * This simplifies the set of include files that need to be put at the
- * start of every source file.
+ * This is a compatibility header for the "mission_cfg.h" file that has
+ * traditionally provided public config definitions for each CFS app.
+ *
+ * @note This file may be overridden/superceded by mission-provided defintions
+ * either by overriding this header or by generating definitions from a command/data
+ * dictionary tool.
  */
+#ifndef CFE_SB_MISSION_CFG_H
+#define CFE_SB_MISSION_CFG_H
 
-#ifndef CFE_SB_MODULE_ALL_H
-#define CFE_SB_MODULE_ALL_H
+#include "cfe_sb_interface_cfg.h"
 
-/*
-** Includes
-*/
-#include "cfe.h"
-#include "cfe_platform_cfg.h"
-#include "cfe_msgids.h"
-#include "cfe_perfids.h"
-
-#include "cfe_sb_core_internal.h"
-
-#include "cfe_sb_priv.h"
-#include "cfe_sb_eventids.h"
-#include "cfe_sb_destination_typedef.h"
-#include "cfe_sb_msg.h"
-#include "cfe_sb_dispatch.h"
-#include "cfe_sbr.h"
-#include "cfe_core_resourceid_basevalues.h"
-
-#endif /* CFE_SB_MODULE_ALL_H */
+#endif

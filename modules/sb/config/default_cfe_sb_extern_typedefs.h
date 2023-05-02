@@ -25,16 +25,6 @@
 #ifndef CFE_SB_EXTERN_TYPEDEFS_H
 #define CFE_SB_EXTERN_TYPEDEFS_H
 
-/* This header may be generated from an EDS file,
- * tools are available and the feature is enabled */
-#ifdef CFE_EDS_ENABLED_BUILD
-
-/* Use the EDS generated version of these types */
-#include "cfe_sb_eds_typedefs.h"
-
-#else
-/* Use the local definitions of these types */
-
 #include "common_types.h"
 #include "cfe_mission_cfg.h"
 #include "cfe_resourceid_typedef.h"
@@ -134,7 +124,5 @@ typedef struct
     uint8 Reliability; /**< \brief  Specify high(1) or low(0) message transfer reliability for off-board routing,
                           currently unused */
 } CFE_SB_Qos_t;
-
-#endif /* CFE_EDS_ENABLED_BUILD */
 
 #endif /* CFE_SB_EXTERN_TYPEDEFS_H */
