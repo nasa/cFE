@@ -194,6 +194,23 @@ function(add_cfe_tables TABLE_FQNAME TBL_DEFAULT_SRC_FILES)
 
     get_filename_component(APP_NAME ${TABLE_FQNAME} NAME_WE)
 
+    # The passed-in name allows for a qualifier (in the form of APP_NAME.QUALIFIER) to get
+    # uniqueness in the generated target names.  If there is no qualifier, then there
+    # will potentially be a target name conflict.  To avoid this, generate a hash of the
+    # context of this call - the current directory, app/tgt names, and source files.  This
+    # should be unique but also produce the same hash when CMake is re-run.  The hash
+    # can then be used as a qualifier.
+    if (TABLE_FQNAME STREQUAL APP_NAME)
+      string(SHA1 CONTEXT_HASH
+        "${CMAKE_CURRENT_LIST_DIR}+${TGTNAME}+${APP_NAME}+${TBL_DEFAULT_SRC_FILES};${ARGN}"
+      )
+      set(TABLE_FQNAME "${APP_NAME}.tbl${CONTEXT_HASH}")
+
+      if ($ENV{VERBOSE})
+        message("No suffix specified, table build using ${TABLE_FQNAME} for ${APP_NAME} table")
+      endif()
+    endif()
+
     # If "TGTNAME" is set, then use it directly
     set(TABLE_TGTLIST ${TGTNAME})
     set(TABLE_TEMPLATE "${CFE_SOURCE_DIR}/cmake/tables/table_rule_template.d.in")
