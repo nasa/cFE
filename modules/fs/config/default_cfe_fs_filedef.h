@@ -22,33 +22,11 @@
  * Declarations and prototypes for cfe_fs_extern_typedefs module
  */
 
-#ifndef CFE_FS_EXTERN_TYPEDEFS_H
-#define CFE_FS_EXTERN_TYPEDEFS_H
-
-/* This header may be generated from an EDS file,
- * tools are available and the feature is enabled */
-#ifdef CFE_EDS_ENABLED_BUILD
-
-/* Use the EDS generated version of these types */
-#include "cfe_fs_eds_typedefs.h"
-
-#else
-/* Use the local definitions of these types */
+#ifndef CFE_FS_FILEHDR_H
+#define CFE_FS_FILEHDR_H
 
 #include "common_types.h"
-
-/******************* Macro Definitions ***********************/
-
-/*
- * NOTE: the value of CFE_FS_HDR_DESC_MAX_LEN, if modified, should
- * be constrained to multiples of 4, as it is used within a structure that
- * also contains uint32 types.  This ensures that the entire structure
- * remains 32-bit aligned without the need for implicit padding bytes.
- */
-
-#define CFE_FS_HDR_DESC_MAX_LEN 32 /**< \brief Max length of description field in a standard cFE File Header */
-
-#define CFE_FS_FILE_CONTENT_ID 0x63464531 /**< \brief Magic Number for cFE compliant files (= 'cFE1') */
+#include "cfe_fs_interface_cfg.h" /* to define CFE_FS_HDR_DESC_MAX_LEN */
 
 /**
  * @brief File subtypes used within cFE
@@ -216,7 +194,5 @@ typedef struct CFE_FS_Header
 
     char Description[CFE_FS_HDR_DESC_MAX_LEN]; /**< \brief File description */
 } CFE_FS_Header_t;
-
-#endif /* CFE_EDS_ENABLED_BUILD */
 
 #endif /* CFE_FS_EXTERN_TYPEDEFS_H */
