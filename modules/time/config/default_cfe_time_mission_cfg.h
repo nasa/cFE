@@ -19,29 +19,18 @@
 /**
  * @file
  *
- * Encapsulates all TIME module internal header files, as well
- * as the public API from all other CFE core modules, OSAL, and PSP.
+ * CFE Time Services (CFE_TIME) Application Mission Configuration Header File
  *
- * This simplifies the set of include files that need to be put at the
- * start of every source file.
+ * This is a compatibility header for the "mission_cfg.h" file that has
+ * traditionally provided public config definitions for each CFS app.
+ *
+ * @note This file may be overridden/superceded by mission-provided defintions
+ * either by overriding this header or by generating definitions from a command/data
+ * dictionary tool.
  */
+#ifndef CFE_TIME_MISSION_CFG_H
+#define CFE_TIME_MISSION_CFG_H
 
-#ifndef CFE_TIME_MODULE_ALL_H
-#define CFE_TIME_MODULE_ALL_H
+#include "cfe_time_interface_cfg.h"
 
-/********************* Include Files  ************************/
-
-#include "cfe.h" /* All CFE+OSAL public API definitions */
-#include "cfe_platform_cfg.h"
-
-#include "cfe_msgids.h"
-#include "cfe_perfids.h"
-
-#include "cfe_time_core_internal.h"
-
-#include "cfe_time_msg.h"
-#include "cfe_time_eventids.h"
-#include "cfe_time_utils.h"
-#include "cfe_time_dispatch.h"
-
-#endif /* CFE_TIME_MODULE_ALL_H */
+#endif

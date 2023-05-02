@@ -18,30 +18,21 @@
 
 /**
  * @file
+ *   Specification for the CFE Time Services (CFE_TIME) command and telemetry
+ *   message data types.
  *
- * Encapsulates all TIME module internal header files, as well
- * as the public API from all other CFE core modules, OSAL, and PSP.
+ * This is a compatibility header for the "cfe_time_msg.h" file that has
+ * traditionally provided the message definitions for cFS apps.
  *
- * This simplifies the set of include files that need to be put at the
- * start of every source file.
+ * @note This file may be overridden/superceded by mission-provided defintions
+ * either by overriding this header or by generating definitions from a command/data
+ * dictionary tool.
  */
+#ifndef CFE_TIME_MSG_H
+#define CFE_TIME_MSG_H
 
-#ifndef CFE_TIME_MODULE_ALL_H
-#define CFE_TIME_MODULE_ALL_H
+#include "cfe_mission_cfg.h"
+#include "cfe_time_msgdefs.h"
+#include "cfe_time_msgstruct.h"
 
-/********************* Include Files  ************************/
-
-#include "cfe.h" /* All CFE+OSAL public API definitions */
-#include "cfe_platform_cfg.h"
-
-#include "cfe_msgids.h"
-#include "cfe_perfids.h"
-
-#include "cfe_time_core_internal.h"
-
-#include "cfe_time_msg.h"
-#include "cfe_time_eventids.h"
-#include "cfe_time_utils.h"
-#include "cfe_time_dispatch.h"
-
-#endif /* CFE_TIME_MODULE_ALL_H */
+#endif

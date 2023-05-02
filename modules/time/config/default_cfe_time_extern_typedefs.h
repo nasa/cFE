@@ -25,16 +25,6 @@
 #ifndef CFE_TIME_EXTERN_TYPEDEFS_H
 #define CFE_TIME_EXTERN_TYPEDEFS_H
 
-/* This header may be generated from an EDS file,
- * tools are available and the feature is enabled */
-#ifdef CFE_EDS_ENABLED_BUILD
-
-/* Use the EDS generated version of these types */
-#include "cfe_time_eds_typedefs.h"
-
-#else
-/* Use the local definitions of these types */
-
 #include "common_types.h"
 
 /**
@@ -288,7 +278,5 @@ enum CFE_TIME_SetState
  * @sa enum CFE_TIME_SetState
  */
 typedef uint8 CFE_TIME_SetState_Enum_t;
-
-#endif /* CFE_EDS_ENABLED_BUILD */
 
 #endif /* CFE_TIME_EXTERN_TYPEDEFS_H */
