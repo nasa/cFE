@@ -19,30 +19,18 @@
 /**
  * @file
  *
- * Encapsulates all EVS module internal header files, as well
- * as the public API from all other CFE core modules, OSAL, and PSP.
+ * CFE Event Services (CFE_EVS) Application Mission Configuration Header File
  *
- * This simplifies the set of include files that need to be put at the
- * start of every source file.
+ * This is a compatibility header for the "mission_cfg.h" file that has
+ * traditionally provided public config definitions for each CFS app.
+ *
+ * @note This file may be overridden/superceded by mission-provided defintions
+ * either by overriding this header or by generating definitions from a command/data
+ * dictionary tool.
  */
+#ifndef CFE_EVS_MISSION_CFG_H
+#define CFE_EVS_MISSION_CFG_H
 
-#ifndef CFE_EVS_MODULE_ALL_H
-#define CFE_EVS_MODULE_ALL_H
+#include "cfe_evs_interface_cfg.h"
 
-/********************* Include Files  ************************/
-
-#include "cfe.h" /* All CFE+OSAL public API definitions */
-#include "cfe_platform_cfg.h"
-
-#include "cfe_msgids.h"
-#include "cfe_perfids.h"
-
-#include "cfe_evs_core_internal.h"
-
-#include "cfe_evs_eventids.h" /* EVS event IDs */
-#include "cfe_evs_task.h"     /* EVS internal definitions */
-#include "cfe_evs_log.h"      /* EVS log file definitions */
-#include "cfe_evs_utils.h"    /* EVS utility function definitions */
-#include "cfe_evs_dispatch.h"
-
-#endif /* CFE_EVS_MODULE_ALL_H */
+#endif

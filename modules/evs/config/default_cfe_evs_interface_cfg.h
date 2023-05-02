@@ -18,31 +18,32 @@
 
 /**
  * @file
+ *   CFE Event Services (CFE_EVS) Application Public Definitions
  *
- * Encapsulates all EVS module internal header files, as well
- * as the public API from all other CFE core modules, OSAL, and PSP.
+ * This provides default values for configurable items that affect
+ * the interface(s) of this module.  This includes the CMD/TLM message
+ * interface, tables definitions, and any other data products that
+ * serve to exchange information with other entities.
  *
- * This simplifies the set of include files that need to be put at the
- * start of every source file.
+ * @note This file may be overridden/superceded by mission-provided defintions
+ * either by overriding this header or by generating definitions from a command/data
+ * dictionary tool.
  */
+#ifndef CFE_EVS_INTERFACE_CFG_H
+#define CFE_EVS_INTERFACE_CFG_H
 
-#ifndef CFE_EVS_MODULE_ALL_H
-#define CFE_EVS_MODULE_ALL_H
+/**
+**  \cfeevscfg Maximum Event Message Length
+**
+**  \par Description:
+**      Indicates the maximum length (in characters) of the formatted text
+**      string portion of an event message
+**
+**      This length does not need to include an extra character for NULL termination.
+**
+**  \par Limits
+**      Not Applicable
+*/
+#define CFE_MISSION_EVS_MAX_MESSAGE_LENGTH 122
 
-/********************* Include Files  ************************/
-
-#include "cfe.h" /* All CFE+OSAL public API definitions */
-#include "cfe_platform_cfg.h"
-
-#include "cfe_msgids.h"
-#include "cfe_perfids.h"
-
-#include "cfe_evs_core_internal.h"
-
-#include "cfe_evs_eventids.h" /* EVS event IDs */
-#include "cfe_evs_task.h"     /* EVS internal definitions */
-#include "cfe_evs_log.h"      /* EVS log file definitions */
-#include "cfe_evs_utils.h"    /* EVS utility function definitions */
-#include "cfe_evs_dispatch.h"
-
-#endif /* CFE_EVS_MODULE_ALL_H */
+#endif

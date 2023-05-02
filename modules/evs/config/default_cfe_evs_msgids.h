@@ -18,31 +18,25 @@
 
 /**
  * @file
- *
- * Encapsulates all EVS module internal header files, as well
- * as the public API from all other CFE core modules, OSAL, and PSP.
- *
- * This simplifies the set of include files that need to be put at the
- * start of every source file.
+ *   CFE Event Services (CFE_EVS) Application Message IDs
  */
+#ifndef CFE_EVS_MSGIDS_H
+#define CFE_EVS_MSGIDS_H
 
-#ifndef CFE_EVS_MODULE_ALL_H
-#define CFE_EVS_MODULE_ALL_H
+#include "cfe_core_api_base_msgids.h"
+#include "cfe_evs_topicids.h"
 
-/********************* Include Files  ************************/
+/*
+** cFE Command Message Id's
+*/
+#define CFE_EVS_CMD_MID     CFE_PLATFORM_CMD_MID_BASE + CFE_MISSION_EVS_CMD_MSG     /* 0x1801 */
+#define CFE_EVS_SEND_HK_MID CFE_PLATFORM_CMD_MID_BASE + CFE_MISSION_EVS_SEND_HK_MSG /* 0x1809 */
 
-#include "cfe.h" /* All CFE+OSAL public API definitions */
-#include "cfe_platform_cfg.h"
+/*
+** CFE Telemetry Message Id's
+*/
+#define CFE_EVS_HK_TLM_MID          CFE_PLATFORM_TLM_MID_BASE + CFE_MISSION_EVS_HK_TLM_MSG          /* 0x0801 */
+#define CFE_EVS_LONG_EVENT_MSG_MID  CFE_PLATFORM_TLM_MID_BASE + CFE_MISSION_EVS_LONG_EVENT_MSG_MSG  /* 0x0808 */
+#define CFE_EVS_SHORT_EVENT_MSG_MID CFE_PLATFORM_TLM_MID_BASE + CFE_MISSION_EVS_SHORT_EVENT_MSG_MSG /* 0x0809 */
 
-#include "cfe_msgids.h"
-#include "cfe_perfids.h"
-
-#include "cfe_evs_core_internal.h"
-
-#include "cfe_evs_eventids.h" /* EVS event IDs */
-#include "cfe_evs_task.h"     /* EVS internal definitions */
-#include "cfe_evs_log.h"      /* EVS log file definitions */
-#include "cfe_evs_utils.h"    /* EVS utility function definitions */
-#include "cfe_evs_dispatch.h"
-
-#endif /* CFE_EVS_MODULE_ALL_H */
+#endif

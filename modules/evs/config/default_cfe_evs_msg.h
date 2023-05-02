@@ -18,31 +18,21 @@
 
 /**
  * @file
+ *   Specification for the CFE Event Services (CFE_EVS) command and telemetry
+ *   message data types.
  *
- * Encapsulates all EVS module internal header files, as well
- * as the public API from all other CFE core modules, OSAL, and PSP.
+ * This is a compatibility header for the "cfe_evs_msg.h" file that has
+ * traditionally provided the message definitions for cFS apps.
  *
- * This simplifies the set of include files that need to be put at the
- * start of every source file.
+ * @note This file may be overridden/superceded by mission-provided defintions
+ * either by overriding this header or by generating definitions from a command/data
+ * dictionary tool.
  */
+#ifndef CFE_EVS_MSG_H
+#define CFE_EVS_MSG_H
 
-#ifndef CFE_EVS_MODULE_ALL_H
-#define CFE_EVS_MODULE_ALL_H
+#include "cfe_mission_cfg.h"
+#include "cfe_evs_fcncodes.h"
+#include "cfe_evs_msgstruct.h"
 
-/********************* Include Files  ************************/
-
-#include "cfe.h" /* All CFE+OSAL public API definitions */
-#include "cfe_platform_cfg.h"
-
-#include "cfe_msgids.h"
-#include "cfe_perfids.h"
-
-#include "cfe_evs_core_internal.h"
-
-#include "cfe_evs_eventids.h" /* EVS event IDs */
-#include "cfe_evs_task.h"     /* EVS internal definitions */
-#include "cfe_evs_log.h"      /* EVS log file definitions */
-#include "cfe_evs_utils.h"    /* EVS utility function definitions */
-#include "cfe_evs_dispatch.h"
-
-#endif /* CFE_EVS_MODULE_ALL_H */
+#endif

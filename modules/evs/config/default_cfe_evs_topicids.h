@@ -18,31 +18,34 @@
 
 /**
  * @file
- *
- * Encapsulates all EVS module internal header files, as well
- * as the public API from all other CFE core modules, OSAL, and PSP.
- *
- * This simplifies the set of include files that need to be put at the
- * start of every source file.
+ *   CFE Event Services (CFE_EVS) Application Topic IDs
  */
+#ifndef CFE_EVS_TOPICIDS_H
+#define CFE_EVS_TOPICIDS_H
 
-#ifndef CFE_EVS_MODULE_ALL_H
-#define CFE_EVS_MODULE_ALL_H
+/**
+**  \cfemissioncfg cFE Portable Message Numbers for Commands
+**
+**  \par Description:
+**      Portable message numbers for the cFE EVS command messages
+**
+**  \par Limits
+**      Not Applicable
+*/
+#define CFE_MISSION_EVS_CMD_MSG     1
+#define CFE_MISSION_EVS_SEND_HK_MSG 9
 
-/********************* Include Files  ************************/
+/**
+**  \cfemissioncfg cFE Portable Message Numbers for Telemetry
+**
+**  \par Description:
+**      Portable message numbers for the cFE EVS telemetry messages
+**
+**  \par Limits
+**      Not Applicable
+*/
+#define CFE_MISSION_EVS_HK_TLM_MSG          1
+#define CFE_MISSION_EVS_LONG_EVENT_MSG_MSG  8
+#define CFE_MISSION_EVS_SHORT_EVENT_MSG_MSG 9
 
-#include "cfe.h" /* All CFE+OSAL public API definitions */
-#include "cfe_platform_cfg.h"
-
-#include "cfe_msgids.h"
-#include "cfe_perfids.h"
-
-#include "cfe_evs_core_internal.h"
-
-#include "cfe_evs_eventids.h" /* EVS event IDs */
-#include "cfe_evs_task.h"     /* EVS internal definitions */
-#include "cfe_evs_log.h"      /* EVS log file definitions */
-#include "cfe_evs_utils.h"    /* EVS utility function definitions */
-#include "cfe_evs_dispatch.h"
-
-#endif /* CFE_EVS_MODULE_ALL_H */
+#endif

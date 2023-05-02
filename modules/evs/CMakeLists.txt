@@ -26,5 +26,5 @@ endif(ENABLE_UNIT_TESTS)
 
 cfs_app_check_intf(${DEP}
     cfe_evs_msg.h
-    cfe_evs_events.h
+    cfe_evs_eventids.h
 )
