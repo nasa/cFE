@@ -18,39 +18,21 @@
 
 /**
  * @file
+ *   Specification for the CFE Executive Services (CFE_ES) command and telemetry
+ *   message data types.
  *
- * Encapsulates all ES module internal header files, as well
- * as the public API from all other CFE core modules, OSAL, and PSP.
+ * This is a compatibility header for the "cfe_es_msg.h" file that has
+ * traditionally provided the message definitions for cFS apps.
  *
- * This simplifies the set of include files that need to be put at the
- * start of every source file.
+ * @note This file may be overridden/superceded by mission-provided defintions
+ * either by overriding this header or by generating definitions from a command/data
+ * dictionary tool.
  */
+#ifndef CFE_ES_MSG_H
+#define CFE_ES_MSG_H
 
-#ifndef CFE_ES_MODULE_ALL_H
-#define CFE_ES_MODULE_ALL_H
+#include "cfe_mission_cfg.h"
+#include "cfe_es_msgdefs.h"
+#include "cfe_es_msgstruct.h"
 
-/*
-** Includes
-*/
-#include "cfe.h"
-#include "cfe_platform_cfg.h"
-
-#include "cfe_msgids.h"
-#include "cfe_perfids.h"
-
-#include "cfe_es_core_internal.h"
-#include "cfe_es_apps.h"
-#include "cfe_es_cds.h"
-#include "cfe_es_perf.h"
-#include "cfe_es_generic_pool.h"
-#include "cfe_es_mempool.h"
-#include "cfe_es_global.h"
-#include "cfe_es_cds_mempool.h"
-#include "cfe_es_eventids.h"
-#include "cfe_es_start.h"
-#include "cfe_es_task.h"
-#include "cfe_es_dispatch.h"
-#include "cfe_es_resource.h"
-#include "cfe_es_log.h"
-
-#endif /* CFE_ES_MODULE_ALL_H */
+#endif

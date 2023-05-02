@@ -18,39 +18,34 @@
 
 /**
  * @file
- *
- * Encapsulates all ES module internal header files, as well
- * as the public API from all other CFE core modules, OSAL, and PSP.
- *
- * This simplifies the set of include files that need to be put at the
- * start of every source file.
+ *   CFE Executive Services (CFE_ES) Application Topic IDs
  */
+#ifndef CFE_ES_TOPICIDS_H
+#define CFE_ES_TOPICIDS_H
 
-#ifndef CFE_ES_MODULE_ALL_H
-#define CFE_ES_MODULE_ALL_H
-
-/*
-** Includes
+/**
+**  \cfemissioncfg cFE Portable Message Numbers for Commands
+**
+**  \par Description:
+**      Portable message numbers for the cFE ES command messages
+**
+**  \par Limits
+**      Not Applicable
 */
-#include "cfe.h"
-#include "cfe_platform_cfg.h"
+#define CFE_MISSION_ES_CMD_MSG     6
+#define CFE_MISSION_ES_SEND_HK_MSG 8
 
-#include "cfe_msgids.h"
-#include "cfe_perfids.h"
+/**
+**  \cfemissioncfg cFE Portable Message Numbers for Telemetry
+**
+**  \par Description:
+**      Portable message numbers for the cFE ES telemetry messages
+**
+**  \par Limits
+**      Not Applicable
+*/
+#define CFE_MISSION_ES_HK_TLM_MSG       0
+#define CFE_MISSION_ES_APP_TLM_MSG      11
+#define CFE_MISSION_ES_MEMSTATS_TLM_MSG 16
 
-#include "cfe_es_core_internal.h"
-#include "cfe_es_apps.h"
-#include "cfe_es_cds.h"
-#include "cfe_es_perf.h"
-#include "cfe_es_generic_pool.h"
-#include "cfe_es_mempool.h"
-#include "cfe_es_global.h"
-#include "cfe_es_cds_mempool.h"
-#include "cfe_es_eventids.h"
-#include "cfe_es_start.h"
-#include "cfe_es_task.h"
-#include "cfe_es_dispatch.h"
-#include "cfe_es_resource.h"
-#include "cfe_es_log.h"
-
-#endif /* CFE_ES_MODULE_ALL_H */
+#endif

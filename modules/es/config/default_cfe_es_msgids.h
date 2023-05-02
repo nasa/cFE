@@ -18,39 +18,25 @@
 
 /**
  * @file
- *
- * Encapsulates all ES module internal header files, as well
- * as the public API from all other CFE core modules, OSAL, and PSP.
- *
- * This simplifies the set of include files that need to be put at the
- * start of every source file.
+ *   CFE Executive Services (CFE_ES) Application Message IDs
  */
+#ifndef CFE_ES_MSGIDS_H
+#define CFE_ES_MSGIDS_H
 
-#ifndef CFE_ES_MODULE_ALL_H
-#define CFE_ES_MODULE_ALL_H
+#include "cfe_core_api_base_msgids.h"
+#include "cfe_es_topicids.h"
 
 /*
-** Includes
+** cFE ES Command Message Id's
 */
-#include "cfe.h"
-#include "cfe_platform_cfg.h"
+#define CFE_ES_CMD_MID     CFE_PLATFORM_CMD_MID_BASE + CFE_MISSION_ES_CMD_MSG     /* 0x1806 */
+#define CFE_ES_SEND_HK_MID CFE_PLATFORM_CMD_MID_BASE + CFE_MISSION_ES_SEND_HK_MSG /* 0x1808 */
 
-#include "cfe_msgids.h"
-#include "cfe_perfids.h"
+/*
+** CFE ES Telemetry Message Id's
+*/
+#define CFE_ES_HK_TLM_MID       CFE_PLATFORM_TLM_MID_BASE + CFE_MISSION_ES_HK_TLM_MSG       /* 0x0800 */
+#define CFE_ES_APP_TLM_MID      CFE_PLATFORM_TLM_MID_BASE + CFE_MISSION_ES_APP_TLM_MSG      /* 0x080B */
+#define CFE_ES_MEMSTATS_TLM_MID CFE_PLATFORM_TLM_MID_BASE + CFE_MISSION_ES_MEMSTATS_TLM_MSG /* 0x0810 */
 
-#include "cfe_es_core_internal.h"
-#include "cfe_es_apps.h"
-#include "cfe_es_cds.h"
-#include "cfe_es_perf.h"
-#include "cfe_es_generic_pool.h"
-#include "cfe_es_mempool.h"
-#include "cfe_es_global.h"
-#include "cfe_es_cds_mempool.h"
-#include "cfe_es_eventids.h"
-#include "cfe_es_start.h"
-#include "cfe_es_task.h"
-#include "cfe_es_dispatch.h"
-#include "cfe_es_resource.h"
-#include "cfe_es_log.h"
-
-#endif /* CFE_ES_MODULE_ALL_H */
+#endif

@@ -25,16 +25,6 @@
 #ifndef CFE_ES_EXTERN_TYPEDEFS_H
 #define CFE_ES_EXTERN_TYPEDEFS_H
 
-/* This header may be generated from an EDS file,
- * tools are available and the feature is enabled */
-#ifdef CFE_EDS_ENABLED_BUILD
-
-/* Use the EDS generated version of these types */
-#include "cfe_es_eds_typedefs.h"
-
-#else
-/* Use the local definitions of these types */
-
 #include "common_types.h"
 #include "cfe_resourceid_typedef.h"
 #include "cfe_mission_cfg.h"
@@ -387,7 +377,7 @@ typedef uint32 CFE_ES_MemOffset_t;
  * A converter macro to use when initializing a CFE_ES_MemOffset_t
  * from an integer value of a different type.
  */
-#define CFE_ES_MEMOFFSET_C(x)        ((CFE_ES_MemOffset_t)(x))
+#define CFE_ES_MEMOFFSET_C(x) ((CFE_ES_MemOffset_t)(x))
 
 /**
  * @brief Memory Offset to integer value (size_t) wrapper
@@ -424,7 +414,7 @@ typedef uint32 CFE_ES_MemAddress_t;
  * A converter macro to use when initializing a CFE_ES_MemAddress_t
  * from a pointer value of a different type.
  */
-#define CFE_ES_MEMADDRESS_C(x)       ((CFE_ES_MemAddress_t)((cpuaddr)(x)&0xFFFFFFFF))
+#define CFE_ES_MEMADDRESS_C(x) ((CFE_ES_MemAddress_t)((cpuaddr)(x)&0xFFFFFFFF))
 
 /**
  * @brief Memory Address to pointer wrapper
@@ -432,7 +422,7 @@ typedef uint32 CFE_ES_MemAddress_t;
  * A converter macro to use when interpreting a CFE_ES_MemAddress_t
  * as a pointer value.
  */
-#define CFE_ES_MEMADDRESS_TO_PTR(x)  ((void *)(cpuaddr)(x))
+#define CFE_ES_MEMADDRESS_TO_PTR(x) ((void *)(cpuaddr)(x))
 
 /*
  * Data Structures shared between API and Message (CMD/TLM) interfaces
@@ -573,7 +563,5 @@ typedef struct CFE_ES_MemPoolStats
     CFE_ES_BlockStats_t BlockStats[CFE_MISSION_ES_POOL_MAX_BUCKETS]; /**< \cfetlmmnemonic \ES_BLKSTATS
                                                                           \brief Contains stats on each block size */
 } CFE_ES_MemPoolStats_t;
-
-#endif /* CFE_EDS_ENABLED_BUILD */
 
 #endif /* CFE_ES_EXTERN_TYPEDEFS_H */
