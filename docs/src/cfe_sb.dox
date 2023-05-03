@@ -484,7 +484,7 @@
      the condition is happening by viewing the counter in SB HK telemetry. If the
      condition is happening, you can view the SB filter information through the EVS
      App Data Main page by clicking the 'go to' button for SB. The event Id for these
-     events can be learned through a previous event or from the cfe_sb_events.h file.
+     events can be learned through a previous event or from the cfe_sb_eventids.h file.
   </I>
 
   <B> (Q)
