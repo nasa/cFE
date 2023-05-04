@@ -236,6 +236,7 @@
               \cfetlmmnemonic  \TBL_NUMFREESHRBUF
             </LongDescription>
           </Entry>
+          <PaddingEntry sizeInBits="24" shortDescription="Spare bytes for alignment"/>
           <Entry name="MemPoolHandle" type="CFE_ES/MemHandle" shortDescription="Handle to TBL's memory pool">
             <LongDescription>
               \cfetlmmnemonic  \TBL_MEMPOOLHANDLE

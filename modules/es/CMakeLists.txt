@@ -36,5 +36,5 @@ endif (ENABLE_UNIT_TESTS)
 
 cfs_app_check_intf(${DEP}
     cfe_es_msg.h
-    cfe_es_events.h
+    cfe_es_eventids.h
 )

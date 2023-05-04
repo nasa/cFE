@@ -87,7 +87,7 @@
       </EnumeratedDataType>
 
       <EnumeratedDataType name="SourceSelect" shortDescription="Clock Source Selection Parameters">
-        <IntegerDataEncoding sizeInBits="8" encoding="unsigned" />
+        <IntegerDataEncoding sizeInBits="16" encoding="unsigned" />
         <EnumerationList>
           <Enumeration label="INTERNAL" value="1" shortDescription="Use Internal Source" />
           <Enumeration label="EXTERNAL" value="2" shortDescription="Use External Source"  />
@@ -103,7 +103,7 @@
       </EnumeratedDataType>
 
       <EnumeratedDataType name="AdjustDirection" shortDescription="STCF adjustment direction (for both one-time and 1Hz adjustments)">
-        <IntegerDataEncoding sizeInBits="8" encoding="unsigned" />
+        <IntegerDataEncoding sizeInBits="16" encoding="unsigned" />
         <EnumerationList>
           <Enumeration label="ADD" value="1" shortDescription="Add time adjustment" />
           <Enumeration label="SUBTRACT" value="2" shortDescription="Subtract time adjustment" />
@@ -111,7 +111,7 @@
       </EnumeratedDataType>
 
       <EnumeratedDataType name="FlywheelState" shortDescription="Fly-wheel status values" >
-        <IntegerDataEncoding sizeInBits="8" encoding="unsigned" />
+        <IntegerDataEncoding sizeInBits="16" encoding="unsigned" />
         <EnumerationList>
           <Enumeration label="NO_FLY" value="0" shortDescription="Not in flywheel state" />
           <Enumeration label="IS_FLY" value="1" shortDescription="In flywheel state" />
@@ -119,7 +119,7 @@
       </EnumeratedDataType>
 
       <EnumeratedDataType name="SetState" shortDescription="Clock status values (has the clock been set to correct time)">
-        <IntegerDataEncoding sizeInBits="8" encoding="unsigned" />
+        <IntegerDataEncoding sizeInBits="16" encoding="unsigned" />
         <EnumerationList>
           <Enumeration label="NOT_SET" value="0" shortDescription="Spacecraft time has not been set" />
           <Enumeration label="WAS_SET" value="1" shortDescription="Spacecraft time has been set"  />

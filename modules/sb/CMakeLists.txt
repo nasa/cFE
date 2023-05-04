@@ -29,5 +29,5 @@ endif(ENABLE_UNIT_TESTS)
 
 cfs_app_check_intf(${DEP}
     cfe_sb_msg.h
-    cfe_sb_events.h
+    cfe_sb_eventids.h
 )

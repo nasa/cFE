@@ -1,5 +1,11 @@
 # Changelog
 
+## Development Build: v7.0.0-rc4+dev304
+- reorganize headers
+- Update XML files per interoperability testing
+- uniqueness of tbl target names
+- See <https://github.com/nasa/cFE/pull/2321>, <https://github.com/nasa/cFE/pull/2314>, and <https://github.com/nasa/cFE/pull/2319>
+
 ## Development Build: v7.0.0-rc4+dev287
 - document CFS component file naming
 - Add EVS port timestamp and simplify port selection
