@@ -30,7 +30,7 @@
     <DataTypeSet>
 
       <EnumeratedDataType name="LogMode" shortDescription="Identifies handling of log messages after storage is filled" >
-        <IntegerDataEncoding sizeInBits="8" encoding="unsigned" />
+        <IntegerDataEncoding sizeInBits="32" encoding="unsigned" />
         <EnumerationList>
           <Enumeration label="OVERWRITE" value="0" shortDescription="Overwrite Log Mode" />
           <Enumeration label="DISCARD" value="1" shortDescription="Discard Log Mode" />
@@ -38,7 +38,7 @@
       </EnumeratedDataType>
 
       <EnumeratedDataType name="ExceptionAction" shortDescription="Identifies action to take if exception occurs" >
-        <IntegerDataEncoding sizeInBits="8" encoding="unsigned" />
+        <IntegerDataEncoding sizeInBits="16" encoding="unsigned" />
         <EnumerationList>
           <Enumeration label="RESTART_APP" value="0" shortDescription="Restart application if exception occurs" />
           <Enumeration label="PROC_RESTART"  value="1" shortDescription="Restart processor if exception occurs" />
@@ -46,7 +46,7 @@
       </EnumeratedDataType>
 
       <EnumeratedDataType name="AppType" shortDescription="Identifies type of CFE application">
-        <IntegerDataEncoding sizeInBits="8" encoding="unsigned" />
+        <IntegerDataEncoding sizeInBits="32" encoding="unsigned" />
         <EnumerationList>
           <Enumeration label="CORE" value="1" shortDescription="CFE core application" />
           <Enumeration label="EXTERNAL"  value="2" shortDescription="CFE external application" />
@@ -165,44 +165,41 @@
         </Range>
       </IntegerDataType>
 
-      <ContainerDataType name="MemOffset" shortDescription="Type used for memory sizes and offsets in commands and telemetry">
+      <IntegerDataType name="MemOffset" shortDescription="Integer type used for CPU memory addresses, sizes and offsets">
         <LongDescription>
-          For backward compatibility with existing CFE code this should be uint32,
+          For backward compatibility with existing CFS code this should be uint32,
           but all telemetry information will be limited to 4GB in size as a result.
 
-          On 64-bit platforms this can be a 64-bit value which will allow larger
+          On 64-bit platforms this can be expanded to 64 bits which will allow larger
           memory objects, but this will break compatibility with existing control
-          systems, and may also change the alignment/padding of messages.
+          systems, and may also change the alignment/padding of some messages.
 
-          In either case this must be an unsigned type.
+          In either case this must be an unsigned type, and should be large enough
+          to represent the largest memory address/size in use in the CFS system.
         </LongDescription>
-        <EntryList>
-          <Entry name="Offset" type="BASE_TYPES/MemReference" shortDescription="Memory Offset" />
-        </EntryList>
-      </ContainerDataType>
+        <IntegerDataEncoding sizeInBits="${CFE_MISSION/MEM_REFERENCE_SIZE_BITS}" encoding="unsigned" />
+        <Range>
+          <MinMaxRange max="2 ^ ${CFE_MISSION/MEM_REFERENCE_SIZE_BITS}" min="0" rangeType="inclusiveMinExclusiveMax"/>
+        </Range>
+      </IntegerDataType>
 
-      <ContainerDataType name="MemAddress" shortDescription="Type used for memory addresses in command and telemetry messages">
+      <IntegerDataType name="MemAddress" shortDescription="Integer type used for CPU memory addresses, sizes and offsets">
         <LongDescription>
-          For backward compatibility with existing CFE code this should be uint32,
-          but if running on a 64-bit platform, addresses in telemetry will be
-          truncated to 32 bits and therefore will not be valid.
+          For backward compatibility with existing CFS code this should be uint32,
+          but all telemetry information will be limited to 4GB in size as a result.
 
-          On 64-bit platforms this can be a 64-bit address which will allow the
-          full memory address in commands and telemetry, but this will break
-          compatibility with existing control systems, and may also change
-          the alignment/padding of messages.
+          On 64-bit platforms this can be expanded to 64 bits which will allow larger
+          memory objects, but this will break compatibility with existing control
+          systems, and may also change the alignment/padding of some messages.
 
-          In either case this must be an unsigned type.
-
-          FSW code should access this value via the macros provided, which
-          converts to the native "cpuaddr" type provided by OSAL.  This macro
-          provides independence between the message representation and local
-          representation of a memory address.
+          In either case this must be an unsigned type, and should be large enough
+          to represent the largest memory address/size in use in the CFS system.
         </LongDescription>
-        <EntryList>
-          <Entry name="Addr" type="BASE_TYPES/MemReference" shortDescription="Memory Address" />
-        </EntryList>
-      </ContainerDataType>
+        <IntegerDataEncoding sizeInBits="${CFE_MISSION/MEM_REFERENCE_SIZE_BITS}" encoding="unsigned" />
+        <Range>
+          <MinMaxRange max="2 ^ ${CFE_MISSION/MEM_REFERENCE_SIZE_BITS}" min="0" rangeType="inclusiveMinExclusiveMax"/>
+        </Range>
+      </IntegerDataType>
 
       <StringDataType name="char_x_CFE_ES_CDS_MAX_FULL_NAME_LEN" length="${CFE_MISSION/ES_CDS_MAX_FULL_NAME_LEN}" />
 
@@ -247,11 +244,6 @@
           <Entry name="StackSize" type="MemOffset" shortDescription="The Stack Size of the Application">
             <LongDescription>
                \cfetlmmnemonic  \ES_STACKSIZE
-            </LongDescription>
-          </Entry>
-          <Entry name="ModuleId" type="BASE_TYPES/uint32" shortDescription="The ID of the Loadable Module for the Application">
-            <LongDescription>
-               \cfetlmmnemonic  \ES_MODULEID
             </LongDescription>
           </Entry>
           <Entry name="AddressesAreValid" type="BASE_TYPES/uint32" shortDescription="Indicates that the Code, Data, and BSS addresses/sizes are valid">
