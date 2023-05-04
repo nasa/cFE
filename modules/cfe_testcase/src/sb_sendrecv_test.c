@@ -29,6 +29,7 @@
 
 #include "cfe_test.h"
 #include "cfe_msgids.h"
+#include "cfe_test_msgids.h"
 
 #define CFE_FT_STRINGBUF_SIZE 12
 
