@@ -39,10 +39,10 @@
 
 #include "cfe_evs_core_internal.h"
 
-#include "cfe_evs_events.h" /* EVS event IDs */
-#include "cfe_evs_task.h"   /* EVS internal definitions */
-#include "cfe_evs_log.h"    /* EVS log file definitions */
-#include "cfe_evs_utils.h"  /* EVS utility function definitions */
+#include "cfe_evs_eventids.h" /* EVS event IDs */
+#include "cfe_evs_task.h"     /* EVS internal definitions */
+#include "cfe_evs_log.h"      /* EVS log file definitions */
+#include "cfe_evs_utils.h"    /* EVS utility function definitions */
 #include "cfe_evs_dispatch.h"
 
 #endif /* CFE_EVS_MODULE_ALL_H */

@@ -40,7 +40,7 @@
 #include "cfe_time_core_internal.h"
 
 #include "cfe_time_msg.h"
-#include "cfe_time_events.h"
+#include "cfe_time_eventids.h"
 #include "cfe_time_utils.h"
 #include "cfe_time_dispatch.h"
 

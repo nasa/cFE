@@ -308,7 +308,12 @@ function(prepare)
     "${psp_MISSION_DIR}/psp/fsw/inc/*.h"
   )
   foreach(MODULE core_api ${MISSION_CORE_MODULES})
-    list(APPEND SUBMODULE_HEADER_PATHS "${${MODULE}_MISSION_DIR}/fsw/inc/*.h")
+    if (IS_DIRECTORY "${${MODULE}_MISSION_DIR}/fsw/inc")
+      list(APPEND SUBMODULE_HEADER_PATHS "${${MODULE}_MISSION_DIR}/fsw/inc/*.h")
+    endif()
+    if (IS_DIRECTORY "${${MODULE}_MISSION_DIR}/config")
+      list(APPEND SUBMODULE_HEADER_PATHS "${${MODULE}_MISSION_DIR}/config/default_*.h")
+    endif()
   endforeach()
   file(GLOB MISSION_USERGUIDE_HEADERFILES
     ${SUBMODULE_HEADER_PATHS}

@@ -48,7 +48,7 @@
 #include "cfe_evs_api_typedefs.h"
 #include "cfe_evs_log_typedef.h"
 #include "cfe_sb_api_typedefs.h"
-#include "cfe_evs_events.h"
+#include "cfe_evs_eventids.h"
 
 /*********************  Macro and Constant Type Definitions   ***************************/
 
