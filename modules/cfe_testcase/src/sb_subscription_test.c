@@ -29,6 +29,7 @@
 
 #include "cfe_test.h"
 #include "cfe_msgids.h"
+#include "cfe_test_msgids.h"
 
 /*
  * This test procedure should be agnostic to specific MID values, but it should
