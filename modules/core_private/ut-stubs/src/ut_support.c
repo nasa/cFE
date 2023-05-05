@@ -50,7 +50,7 @@ typedef union
     long long int AlignLong;
     long double   AlignDbl;
     void *        AlignPtr;
-    char          Content[128 * 1024];
+    char          Content[2 * CFE_PLATFORM_ES_MAX_BLOCK_SIZE];
 } UT_Buffer_t;
 
 static UT_Buffer_t UT_CFE_ES_MemoryPool;
