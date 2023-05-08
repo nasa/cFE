@@ -329,29 +329,6 @@
 #define CFE_PLATFORM_ES_USER_RESERVED_SIZE (1024 * 1024)
 
 /**
-**  \cfeescfg Define ES Reset Area Size
-**
-**  \par Description:
-**       The ES Reset Area Size. This is the size in bytes of the cFE Reset variable
-**       and log area. This is a block of memory used by the cFE to store the system
-**       log ER Log and critical reset variables. This is 4 of 4 of the memory areas
-**       that are preserved during a processor reset.
-**       Note: This area must be sized large enough to hold all of the data
-**       structures. It should be automatically sized based on the CFE_ES_ResetData_t
-**       type, but circular dependencies in the headers prevent it from being defined
-**       this way.
-**       NOTE: Changing this value changes memory allocation, and may
-**       require changes to platform specific values (in CFE_PSP) such as
-**       USER_RESERVED_MEM in VxWorks depending on the memory areas
-**       being used for preserved data and on OS specific behavior.
-**
-**  \par Limits
-**       There is a lower limit of 153600 (150KBytes) and an upper limit of UINT_MAX
-**       (4 Gigabytes) on this configuration parameter.
-*/
-#define CFE_PLATFORM_ES_RESET_AREA_SIZE (170 * 1024)
-
-/**
 **  \cfeescfg Define Memory Pool Alignment Size
 **
 **  \par Description:
