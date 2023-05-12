@@ -1,5 +1,10 @@
 # Changelog
 
+## Development Build: v7.0.0-rc4+dev312
+- adjust UT pool buffer size for platform config
+- Remove unused CFE_PLATFORM_ES_RESET_AREA_SIZE
+- See <https://github.com/nasa/cFE/pull/2328> and <https://github.com/nasa/cFE/pull/2331>
+
 ## Development Build: v7.0.0-rc4+dev304
 - reorganize headers
 - Update XML files per interoperability testing

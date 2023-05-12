@@ -420,6 +420,8 @@ void UT_DefaultHandler_CFE_ES_GetPoolBuf(void *UserObj, UT_EntryKey_t FuncKey, c
              */
             UtAssert_Failed("Pool buffer empty in %s: need at least %lu bytes, given %lu", __func__,
                             (unsigned long)PositionEnd, (unsigned long)PoolSize);
+
+            UtAssert_Abort("Configuration error, pool buffer too small for test cases");
         }
     }
 
