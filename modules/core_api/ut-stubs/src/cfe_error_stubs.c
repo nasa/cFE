@@ -19,20 +19,25 @@
 /**
  * @file
  *
- * cfe_msg_init test header
+ * Auto-Generated stub implementations for functions defined in cfe_error header
  */
-#ifndef TEST_CFE_MSG_INIT_H
-#define TEST_CFE_MSG_INIT_H
+
+#include "cfe_error.h"
+#include "utgenstub.h"
 
 /*
- * Includes
+ * ----------------------------------------------------
+ * Generated stub function for CFE_ES_StatusToString()
+ * ----------------------------------------------------
  */
+char *CFE_ES_StatusToString(CFE_Status_t status, CFE_StatusString_t *status_string)
+{
+    UT_GenStub_SetupReturnBuffer(CFE_ES_StatusToString, char *);
 
-/*
- * Functions
- */
-/* Test extended header mission functionality */
-void Test_MSG_Init(void);
-void Test_MSG_UpdateHeader(void);
+    UT_GenStub_AddParam(CFE_ES_StatusToString, CFE_Status_t, status);
+    UT_GenStub_AddParam(CFE_ES_StatusToString, CFE_StatusString_t *, status_string);
 
-#endif /* TEST_CFE_MSG_INIT_H */
+    UT_GenStub_Execute(CFE_ES_StatusToString, Basic, NULL);
+
+    return UT_GenStub_GetReturnValue(CFE_ES_StatusToString, char *);
+}
