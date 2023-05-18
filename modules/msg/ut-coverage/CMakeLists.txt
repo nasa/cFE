@@ -7,23 +7,23 @@
 #
 ##################################################################
 
-# Unit test object library sources, options, and includes
-add_library(ut_${DEP}_objs OBJECT ${${DEP}_SRC})
-target_compile_options(ut_${DEP}_objs PRIVATE ${UT_COVERAGE_COMPILE_FLAGS})
-target_include_directories(ut_${DEP}_objs PRIVATE
-     $<TARGET_PROPERTY:${DEP},INCLUDE_DIRECTORIES>)
+set(UNIT_SRCS)
+foreach(SRC ${${DEP}_SRC})
+    get_filename_component(UNITNAME "${SRC}" NAME)
+    list(APPEND UNIT_SRCS "../${SRC}")
+endforeach()
 
 set (ut_${DEP}_tests
     msg_UT.c
     test_msg_not.c
     test_msg_pri_not.c
     test_cfe_msg_init.c
+    test_cfe_msg_verify.c
     test_cfe_msg_ccsdspri.c
     test_cfe_msg_msgid_shared.c
     test_cfe_msg_checksum.c
     test_cfe_msg_fc.c
-    test_cfe_msg_time.c
-    $<TARGET_OBJECTS:ut_${DEP}_objs>)
+    test_cfe_msg_time.c)
 
 # Add extended header tests if appropriate
 if (MISSION_INCLUDE_CCSDSEXT_HEADER)
@@ -44,21 +44,15 @@ else (MISSION_MSGID_V2)
         test_cfe_msg_msgid_v1.c)
 endif (MISSION_MSGID_V2)
 
-# Add executable
-add_executable(${DEP}_UT ${ut_${DEP}_tests})
 
-# Add include to get private defaults
-target_include_directories(${DEP}_UT PRIVATE ../fsw/src)
+add_cfe_coverage_test(${DEP} ALL
+    "msg_UT.c;${ut_${DEP}_tests}"  # This list needs to be passed as a single argument
+    "${UNIT_SRCS}"
+)
 
-# Also add the UT_COVERAGE_LINK_FLAGS to the link command
-# This should enable coverage analysis on platforms that support this
-target_link_libraries(${DEP}_UT
-    ${UT_COVERAGE_LINK_FLAGS}
-    ut_core_private_stubs
-    ut_core_api_stubs
-    ut_assert)
+# This permits UT test cases to directly access private headers in the fsw/src dir
+target_include_directories(coverage-${DEP}-ALL-testrunner PRIVATE
+    ../fsw/src
+)
 
-add_test(${DEP}_UT ${DEP}_UT)
-foreach(TGT ${INSTALL_TARGET_LIST})
-    install(TARGETS ${DEP}_UT DESTINATION ${TGT}/${UT_INSTALL_SUBDIR})
-endforeach()
+target_link_libraries(coverage-${DEP}-ALL-testrunner ut_core_private_stubs)

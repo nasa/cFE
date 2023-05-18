@@ -700,4 +700,30 @@ CFE_Status_t CFE_MSG_GetTypeFromMsgId(CFE_SB_MsgId_t MsgId, CFE_MSG_Type_t *Type
 
 /**\}*/
 
+/** \defgroup CFEAPIMSGMsgVerify cFE Message Checking APIs
+ * \{
+ */
+/*****************************************************************************/
+/**
+ * \brief Checks message headers against expected values
+ *
+ * \par Description
+ *        This routine validates that any error-control field(s) in the message header
+ *        matches the expected value.
+ *
+ *        The specific function of this API is entirely dependent on the header fields
+ *        and may be a no-op if no error checking is implemented.  In that case, it
+ *        will always output "true".
+ *
+ * \param[in]  MsgPtr        Message Pointer @nonnull
+ * \param[out] VerifyStatus  Output variable to be set to verification result @nonnull
+ *
+ * \return Execution status, see \ref CFEReturnCodes
+ * \retval #CFE_SUCCESS            \copybrief CFE_SUCCESS
+ * \retval #CFE_MSG_BAD_ARGUMENT   \copybrief CFE_MSG_BAD_ARGUMENT
+ */
+CFE_Status_t CFE_MSG_Verify(const CFE_MSG_Message_t *MsgPtr, bool *VerifyStatus);
+
+/**\}*/
+
 #endif /* CFE_MSG_H */
