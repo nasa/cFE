@@ -57,12 +57,12 @@ CFE_TIME_SysTime_t CFE_TIME_Add(CFE_TIME_SysTime_t Time1, CFE_TIME_SysTime_t Tim
  * Generated stub function for CFE_TIME_Compare()
  * ----------------------------------------------------
  */
-CFE_TIME_Compare_t CFE_TIME_Compare(CFE_TIME_SysTime_t TimeA, CFE_TIME_SysTime_t TimeB)
+CFE_TIME_Compare_t CFE_TIME_Compare(CFE_TIME_SysTime_t Time1, CFE_TIME_SysTime_t Time2)
 {
     UT_GenStub_SetupReturnBuffer(CFE_TIME_Compare, CFE_TIME_Compare_t);
 
-    UT_GenStub_AddParam(CFE_TIME_Compare, CFE_TIME_SysTime_t, TimeA);
-    UT_GenStub_AddParam(CFE_TIME_Compare, CFE_TIME_SysTime_t, TimeB);
+    UT_GenStub_AddParam(CFE_TIME_Compare, CFE_TIME_SysTime_t, Time1);
+    UT_GenStub_AddParam(CFE_TIME_Compare, CFE_TIME_SysTime_t, Time2);
 
     UT_GenStub_Execute(CFE_TIME_Compare, Basic, NULL);
 

@@ -614,7 +614,7 @@ void CFE_TIME_GetReference(CFE_TIME_Reference_t *Reference)
     /*
     ** Compute the amount of time "since" the tone...
     */
-    if (CFE_TIME_Compare(Reference->CurrentLatch, Reference->AtToneLatch) == CFE_TIME_A_LT_B)
+    if (CFE_TIME_Compare(Reference->CurrentLatch, Reference->AtToneLatch) == CFE_TIME_1_LT_2)
     {
         /*
         ** Local clock has rolled over since last tone...
