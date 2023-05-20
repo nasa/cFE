@@ -79,7 +79,7 @@ void TestWaitBehavior(void)
     end        = CFE_TIME_GetTime();
     TimePassed = CFE_TIME_Subtract(end, start);
 
-    UtAssert_UINT32_EQ(CFE_TIME_Compare(TimePassed, TimeExpected), CFE_TIME_A_LT_B);
+    UtAssert_UINT32_EQ(CFE_TIME_Compare(TimePassed, TimeExpected), CFE_TIME_1_LT_2);
 }
 
 void ESBehaviorestSetup(void)

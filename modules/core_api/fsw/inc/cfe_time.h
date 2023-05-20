@@ -372,27 +372,27 @@ CFE_TIME_SysTime_t CFE_TIME_Subtract(CFE_TIME_SysTime_t Time1, CFE_TIME_SysTime_
 **        strange cases that result from these situations can be handled by defining
 **        the comparison function for times as follows:
 **        Plot the two times on the circumference of a circle where 0 is at the
-**        top and 0x80000000 is at the bottom.  If the shortest arc from time A
-**        to time B runs clockwise around the circle, then time A is less than
-**        time B.  If the shortest arc from A to B runs counter-clockwise, then
-**        time A is greater than time B.
+**        top and 0x80000000 is at the bottom.  If the shortest arc from time 1
+**        to time 2 runs clockwise around the circle, then time 1 is less than
+**        time 2.  If the shortest arc from 1 to 2 runs counter-clockwise, then
+**        time 1 is greater than time 2.
 **
 ** \par Assumptions, External Events, and Notes:
 **          None
 **
-** \param[in] TimeA   The first time to compare.
+** \param[in] Time1   The first time to compare.
 **
-** \param[in] TimeB   The second time to compare.
+** \param[in] Time2   The second time to compare.
 **
 ** \return The result of comparing the two times.
 ** \retval #CFE_TIME_EQUAL  \copybrief CFE_TIME_EQUAL
-** \retval #CFE_TIME_A_GT_B \copybrief CFE_TIME_A_GT_B
-** \retval #CFE_TIME_A_LT_B \copybrief CFE_TIME_A_LT_B
+** \retval #CFE_TIME_1_GT_2 \copybrief CFE_TIME_1_GT_2
+** \retval #CFE_TIME_1_LT_2 \copybrief CFE_TIME_1_LT_2
 **
 ** \sa #CFE_TIME_Add, #CFE_TIME_Subtract
 **
 ******************************************************************************/
-CFE_TIME_Compare_t CFE_TIME_Compare(CFE_TIME_SysTime_t TimeA, CFE_TIME_SysTime_t TimeB);
+CFE_TIME_Compare_t CFE_TIME_Compare(CFE_TIME_SysTime_t Time1, CFE_TIME_SysTime_t Time2);
 /**@}*/
 
 /** @defgroup CFEAPITIMEConvert cFE Time Conversion APIs

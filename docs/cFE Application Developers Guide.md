@@ -3496,10 +3496,10 @@ hours later.
 The rule that is used by the `CFE_TIME_Compare` function is that if the
 smaller delta time is found going in a counter-clockwise direction, then
 the first time is considered greater than the second and the comparison
-function would return `CFE_TIME_A_GT_B`. Likewise, if the smaller
+function would return `CFE_TIME_1_GT_2`. Likewise, if the smaller
 delta time is found going in a clockwise direction, as demonstrated in
 the example above, then the first time is less than the second and the
-comparison function would return `CFE_TIME_A_LT_B`. This rule was
+comparison function would return `CFE_TIME_1_LT_2`. This rule was
 chosen because it seemed unlikely that someone would require the ability
 to compare two times whose delta time was greater than or equal to
 2,147,483,647 seconds (approximately 68 years). If a mission does
@@ -3519,18 +3519,18 @@ time between two absolute times could either be 5 hours or 7 hours. An
 example of a delta time computation function is shown below:
 
 ```c
-CFE_TIME_SysTime_t ComputeDeltaTime(CFE_TIME_SysTime_t TimeA,
-                                    CFE_TIME_SysTime_t TimeB)
+CFE_TIME_SysTime_t ComputeDeltaTime(CFE_TIME_SysTime_t Time1,
+                                    CFE_TIME_SysTime_t Time2)
 {
     CFE_TIME_SysTime_t Result;
 
-    if (CFE_TIME_Compare(TimeA, TimeB) == CFE_TIME_A_GT_B)
+    if (CFE_TIME_Compare(Time1, Time2) == CFE_TIME_1_GT_2)
     {
-        Result = CFE_TIME_Subtract(TimeA, TimeB);
+        Result = CFE_TIME_Subtract(Time1, Time2);
     }
     else
     {
-        Result = CFE_TIME_Subtract(TimeB, TimeA);
+        Result = CFE_TIME_Subtract(Time2, Time1);
     }
 
     return Result;
