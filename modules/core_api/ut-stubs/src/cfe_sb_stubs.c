@@ -384,12 +384,12 @@ void CFE_SB_TimeStampMsg(CFE_MSG_Message_t *MsgPtr)
  * Generated stub function for CFE_SB_TransmitBuffer()
  * ----------------------------------------------------
  */
-CFE_Status_t CFE_SB_TransmitBuffer(CFE_SB_Buffer_t *BufPtr, bool IncrementSequenceCount)
+CFE_Status_t CFE_SB_TransmitBuffer(CFE_SB_Buffer_t *BufPtr, bool UpdateHeader)
 {
     UT_GenStub_SetupReturnBuffer(CFE_SB_TransmitBuffer, CFE_Status_t);
 
     UT_GenStub_AddParam(CFE_SB_TransmitBuffer, CFE_SB_Buffer_t *, BufPtr);
-    UT_GenStub_AddParam(CFE_SB_TransmitBuffer, bool, IncrementSequenceCount);
+    UT_GenStub_AddParam(CFE_SB_TransmitBuffer, bool, UpdateHeader);
 
     UT_GenStub_Execute(CFE_SB_TransmitBuffer, Basic, UT_DefaultHandler_CFE_SB_TransmitBuffer);
 
@@ -401,12 +401,12 @@ CFE_Status_t CFE_SB_TransmitBuffer(CFE_SB_Buffer_t *BufPtr, bool IncrementSequen
  * Generated stub function for CFE_SB_TransmitMsg()
  * ----------------------------------------------------
  */
-CFE_Status_t CFE_SB_TransmitMsg(const CFE_MSG_Message_t *MsgPtr, bool IncrementSequenceCount)
+CFE_Status_t CFE_SB_TransmitMsg(const CFE_MSG_Message_t *MsgPtr, bool UpdateHeader)
 {
     UT_GenStub_SetupReturnBuffer(CFE_SB_TransmitMsg, CFE_Status_t);
 
     UT_GenStub_AddParam(CFE_SB_TransmitMsg, const CFE_MSG_Message_t *, MsgPtr);
-    UT_GenStub_AddParam(CFE_SB_TransmitMsg, bool, IncrementSequenceCount);
+    UT_GenStub_AddParam(CFE_SB_TransmitMsg, bool, UpdateHeader);
 
     UT_GenStub_Execute(CFE_SB_TransmitMsg, Basic, UT_DefaultHandler_CFE_SB_TransmitMsg);
 

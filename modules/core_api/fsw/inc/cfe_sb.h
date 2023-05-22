@@ -402,18 +402,26 @@ CFE_Status_t CFE_SB_UnsubscribeLocal(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeI
 **          software bus will read the message ID from the message header to
 **          determine which pipes should receive the message.
 **
+**          In general, the "UpdateHeader" parameter should be passed as "true"
+**          if the message was newly constructed by the sender and is being sent
+**          for the first time.  When forwarding a message that originated from
+**          an external entity (e.g. messages passing through CI or SBN), the
+**          parameter should be passed as "false" to not overwrite existing data.
+**
 ** \par Assumptions, External Events, and Notes:
 **          - This routine will not normally wait for the receiver tasks to
 **            process the message before returning control to the caller's task.
 **          - However, if a higher priority task is pending and subscribed to
 **            this message, that task may get to run before returning
 **            control to the caller.
+**          - In previous versions of CFE, the boolean parameter referred to the
+**            sequence number header of telemetry messages only.  This has been
+**            extended to apply more generically to any headers, as determined by
+**            the CFE MSG implementation.
 **
 ** \param[in]  MsgPtr       A pointer to the message to be sent @nonnull.  This must point
 **                          to the first byte of the message header.
-** \param[in] IncrementSequenceCount Boolean to increment the internally tracked
-**                                   sequence count and update the message if the
-**                                   buffer contains a telemetry message
+** \param[in] UpdateHeader  Update the headers of the message
 **
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS         \copybrief CFE_SUCCESS
@@ -421,7 +429,7 @@ CFE_Status_t CFE_SB_UnsubscribeLocal(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeI
 ** \retval #CFE_SB_MSG_TOO_BIG  \copybrief CFE_SB_MSG_TOO_BIG
 ** \retval #CFE_SB_BUF_ALOC_ERR \covtest \copybrief CFE_SB_BUF_ALOC_ERR
 **/
-CFE_Status_t CFE_SB_TransmitMsg(const CFE_MSG_Message_t *MsgPtr, bool IncrementSequenceCount);
+CFE_Status_t CFE_SB_TransmitMsg(const CFE_MSG_Message_t *MsgPtr, bool UpdateHeader);
 
 /*****************************************************************************/
 /**
@@ -536,6 +544,12 @@ CFE_Status_t CFE_SB_ReleaseMessageBuffer(CFE_SB_Buffer_t *BufPtr);
 **          internal buffer.  The "zero copy" interface can be used to improve
 **          performance in high-rate, high-volume software bus traffic.
 **
+**          In general, the "UpdateHeader" parameter should be passed as "true"
+**          if the message was newly constructed by the sender and is being sent
+**          for the first time.  When forwarding a message that originated from
+**          an external entity (e.g. messages passing through CI or SBN), the
+**          parameter should be passed as "false" to not overwrite existing data.
+**
 ** \par Assumptions, External Events, and Notes:
 **          -# A handle returned by #CFE_SB_AllocateMessageBuffer is "consumed" by
 **             a _successful_ call to #CFE_SB_TransmitBuffer.
@@ -553,17 +567,15 @@ CFE_Status_t CFE_SB_ReleaseMessageBuffer(CFE_SB_Buffer_t *BufPtr);
 **          -# This function will increment and apply the internally tracked
 **             sequence counter if set to do so.
 **
-** \param[in] BufPtr                 A pointer to the buffer to be sent @nonnull.
-** \param[in] IncrementSequenceCount Boolean to increment the internally tracked
-**                                   sequence count and update the message if the
-**                                   buffer contains a telemetry message
+** \param[in] BufPtr        A pointer to the buffer to be sent @nonnull.
+** \param[in] UpdateHeader  Update the headers of the message
 **
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS         \copybrief CFE_SUCCESS
 ** \retval #CFE_SB_BAD_ARGUMENT \copybrief CFE_SB_BAD_ARGUMENT
 ** \retval #CFE_SB_MSG_TOO_BIG  \copybrief CFE_SB_MSG_TOO_BIG
 **/
-CFE_Status_t CFE_SB_TransmitBuffer(CFE_SB_Buffer_t *BufPtr, bool IncrementSequenceCount);
+CFE_Status_t CFE_SB_TransmitBuffer(CFE_SB_Buffer_t *BufPtr, bool UpdateHeader);
 
 /** @} */
 

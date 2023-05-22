@@ -150,7 +150,7 @@ typedef struct CFE_SB_BufferD
     size_t         ContentSize;   /**< Actual size of message content currently stored in the buffer */
     CFE_MSG_Type_t ContentType;   /**< Type of message content currently stored in the buffer */
 
-    bool AutoSequence; /**< If message should get its sequence number assigned from the route */
+    bool NeedsUpdate; /**< If message should get its header fields automatically updated */
 
     uint16 UseCount; /**< Number of active references to this buffer in the system */
 

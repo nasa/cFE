@@ -16,41 +16,28 @@
  * limitations under the License.
  ************************************************************************/
 
-/*
- * Message header unit tests
+/**
+ * @file
+ *
+ * Auto-Generated stub implementations for functions defined in cfe_error header
  */
 
-/*
- * Includes
- */
-#include "utassert.h"
-#include "ut_support.h"
-#include "test_cfe_msg_init.h"
-#include "test_cfe_msg_ccsdspri.h"
-#include "test_cfe_msg_ccsdsext.h"
-#include "test_cfe_msg_verify.h"
-#include "test_cfe_msg_msgid_shared.h"
-#include "test_cfe_msg_msgid.h"
-#include "test_cfe_msg_fc.h"
-#include "test_cfe_msg_checksum.h"
-#include "test_cfe_msg_time.h"
+#include "cfe_error.h"
+#include "utgenstub.h"
 
 /*
- * Functions
+ * ----------------------------------------------------
+ * Generated stub function for CFE_ES_StatusToString()
+ * ----------------------------------------------------
  */
-void UtTest_Setup(void)
+char *CFE_ES_StatusToString(CFE_Status_t status, CFE_StatusString_t *status_string)
 {
-    UT_Init("msg");
-    UtPrintf("Message header coverage test...");
+    UT_GenStub_SetupReturnBuffer(CFE_ES_StatusToString, char *);
 
-    UT_ADD_TEST(Test_MSG_Init);
-    UT_ADD_TEST(Test_MSG_UpdateHeader);
-    Test_MSG_CCSDSPri();
-    Test_MSG_CCSDSExt();
-    Test_MSG_MsgId_Shared();
-    UT_ADD_TEST(Test_MSG_Verify);
-    UT_ADD_TEST(Test_MSG_MsgId);
-    UT_ADD_TEST(Test_MSG_Checksum);
-    UT_ADD_TEST(Test_MSG_FcnCode);
-    UT_ADD_TEST(Test_MSG_Time);
+    UT_GenStub_AddParam(CFE_ES_StatusToString, CFE_Status_t, status);
+    UT_GenStub_AddParam(CFE_ES_StatusToString, CFE_StatusString_t *, status_string);
+
+    UT_GenStub_Execute(CFE_ES_StatusToString, Basic, NULL);
+
+    return UT_GenStub_GetReturnValue(CFE_ES_StatusToString, char *);
 }
