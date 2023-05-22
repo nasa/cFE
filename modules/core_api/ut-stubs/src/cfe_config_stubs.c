@@ -25,8 +25,8 @@
 #include "cfe_config.h"
 #include "utgenstub.h"
 
-extern void UT_DefaultHandler_CFE_Config_GetObjPointer(void *, UT_EntryKey_t, const UT_StubContext_t *);
-extern void UT_DefaultHandler_CFE_Config_GetString(void *, UT_EntryKey_t, const UT_StubContext_t *);
+void UT_DefaultHandler_CFE_Config_GetObjPointer(void *, UT_EntryKey_t, const UT_StubContext_t *);
+void UT_DefaultHandler_CFE_Config_GetString(void *, UT_EntryKey_t, const UT_StubContext_t *);
 
 /*
  * ----------------------------------------------------

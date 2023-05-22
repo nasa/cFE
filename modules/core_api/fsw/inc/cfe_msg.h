@@ -59,6 +59,31 @@
  * \retval #CFE_MSG_BAD_ARGUMENT    \copybrief CFE_MSG_BAD_ARGUMENT
  */
 CFE_Status_t CFE_MSG_Init(CFE_MSG_Message_t *MsgPtr, CFE_SB_MsgId_t MsgId, CFE_MSG_Size_t Size);
+
+/*****************************************************************************/
+/**
+ * \brief Set/compute all dynamically-updated headers on a message
+ *
+ * \par Description
+ *          This routine updates all dynamic header fields on a message, and is typically
+ *          invoked via SB just prior to broadcasting the message.  Dynamic headers include
+ *          are values that should be computed/updated per message, including:
+ *                  - the sequence number
+ *                  - the timestamp, if present
+ *                  - any error control or checksum fields, if present
+ *
+ *          The MSG module implementation determines which header fields meet this criteria
+ *          and how they should be computed.
+ *
+ * \param[inout] MsgPtr  A pointer to the buffer that contains the message @nonnull.
+ * \param[in]    SeqCnt  The current sequence number from the message route
+ *
+ * \return Execution status, see \ref CFEReturnCodes
+ * \retval #CFE_SUCCESS             \copybrief CFE_SUCCESS
+ * \retval #CFE_MSG_BAD_ARGUMENT    \copybrief CFE_MSG_BAD_ARGUMENT
+ */
+CFE_Status_t CFE_MSG_UpdateHeader(CFE_MSG_Message_t *MsgPtr, CFE_MSG_SequenceCount_t SeqCnt);
+
 /**\}*/
 
 /** \defgroup CFEAPIMSGHeaderPri cFE Message Primary Header APIs

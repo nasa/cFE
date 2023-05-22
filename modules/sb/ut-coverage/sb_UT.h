@@ -1854,7 +1854,7 @@ void Test_TransmitMsg_BasicSend(void);
 
 /*****************************************************************************/
 /**
-** \brief Test successful send/receive for packet sequence count
+** \brief Test successful send of messages with header update
 **
 ** \par Description
 **        This function tests successful send/receive for packet sequence
@@ -1866,7 +1866,7 @@ void Test_TransmitMsg_BasicSend(void);
 ** \returns
 **        This function does not return a value.
 ******************************************************************************/
-void Test_TransmitMsg_SequenceCount(void);
+void Test_TransmitMsg_UpdateHeader(void);
 
 /*****************************************************************************/
 /**

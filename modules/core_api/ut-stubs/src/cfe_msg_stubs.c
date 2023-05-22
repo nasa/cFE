@@ -623,6 +623,23 @@ CFE_Status_t CFE_MSG_SetType(CFE_MSG_Message_t *MsgPtr, CFE_MSG_Type_t Type)
 
 /*
  * ----------------------------------------------------
+ * Generated stub function for CFE_MSG_UpdateHeader()
+ * ----------------------------------------------------
+ */
+CFE_Status_t CFE_MSG_UpdateHeader(CFE_MSG_Message_t *MsgPtr, CFE_MSG_SequenceCount_t SeqCnt)
+{
+    UT_GenStub_SetupReturnBuffer(CFE_MSG_UpdateHeader, CFE_Status_t);
+
+    UT_GenStub_AddParam(CFE_MSG_UpdateHeader, CFE_MSG_Message_t *, MsgPtr);
+    UT_GenStub_AddParam(CFE_MSG_UpdateHeader, CFE_MSG_SequenceCount_t, SeqCnt);
+
+    UT_GenStub_Execute(CFE_MSG_UpdateHeader, Basic, NULL);
+
+    return UT_GenStub_GetReturnValue(CFE_MSG_UpdateHeader, CFE_Status_t);
+}
+
+/*
+ * ----------------------------------------------------
  * Generated stub function for CFE_MSG_ValidateChecksum()
  * ----------------------------------------------------
  */

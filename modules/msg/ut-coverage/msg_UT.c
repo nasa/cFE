@@ -43,6 +43,7 @@ void UtTest_Setup(void)
     UtPrintf("Message header coverage test...");
 
     UT_ADD_TEST(Test_MSG_Init);
+    UT_ADD_TEST(Test_MSG_UpdateHeader);
     Test_MSG_CCSDSPri();
     Test_MSG_CCSDSExt();
     Test_MSG_MsgId_Shared();

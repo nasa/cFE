@@ -2850,7 +2850,7 @@ void Test_TransmitMsg_API(void)
     SB_UT_ADD_SUBTEST(Test_TransmitMsg_NoSubscribers);
     SB_UT_ADD_SUBTEST(Test_TransmitMsg_MaxMsgSizePlusOne);
     SB_UT_ADD_SUBTEST(Test_TransmitMsg_BasicSend);
-    SB_UT_ADD_SUBTEST(Test_TransmitMsg_SequenceCount);
+    SB_UT_ADD_SUBTEST(Test_TransmitMsg_UpdateHeader);
     SB_UT_ADD_SUBTEST(Test_TransmitMsg_QueuePutError);
     SB_UT_ADD_SUBTEST(Test_TransmitMsg_PipeFull);
     SB_UT_ADD_SUBTEST(Test_TransmitMsg_MsgLimitExceeded);
@@ -2962,9 +2962,9 @@ static int32 UT_CheckSetSequenceCount(void *UserObj, int32 StubRetcode, uint32 C
 }
 
 /*
-** Test successful send/receive for packet sequence count
+** Test successful send with header update
 */
-void Test_TransmitMsg_SequenceCount(void)
+void Test_TransmitMsg_UpdateHeader(void)
 {
     CFE_SB_PipeId_t         PipeId = CFE_SB_INVALID_PIPE;
     CFE_SB_MsgId_t          MsgId  = SB_UT_TLM_MID;
@@ -2977,8 +2977,8 @@ void Test_TransmitMsg_SequenceCount(void)
 
     memset(&TlmPkt, 0, sizeof(TlmPkt));
 
-    /* Set up hook for checking CFE_MSG_SetSequenceCount calls */
-    UT_SetHookFunction(UT_KEY(CFE_MSG_SetSequenceCount), UT_CheckSetSequenceCount, &SeqCnt);
+    /* Set up hook for checking CFE_MSG_UpdateHeader calls */
+    UT_SetHookFunction(UT_KEY(CFE_MSG_UpdateHeader), UT_CheckSetSequenceCount, &SeqCnt);
 
     CFE_UtAssert_SETUP(CFE_SB_CreatePipe(&PipeId, PipeDepth, "SeqCntTestPipe"));
     CFE_UtAssert_SETUP(CFE_SB_Subscribe(MsgId, PipeId));
@@ -2991,7 +2991,7 @@ void Test_TransmitMsg_SequenceCount(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &Type, sizeof(Type), false);
 
     CFE_UtAssert_SETUP(CFE_SB_TransmitMsg(CFE_MSG_PTR(TlmPkt.TelemetryHeader), true));
-    UtAssert_STUB_COUNT(CFE_MSG_SetSequenceCount, 1);
+    UtAssert_STUB_COUNT(CFE_MSG_UpdateHeader, 1);
     UtAssert_STUB_COUNT(CFE_MSG_GetNextSequenceCount, 1);
     UtAssert_INT32_EQ(SeqCnt, SeqCntExpected);
 
@@ -3002,7 +3002,7 @@ void Test_TransmitMsg_SequenceCount(void)
 
     /* Assert sequence count wasn't set */
     UtAssert_STUB_COUNT(CFE_MSG_GetNextSequenceCount, 1);
-    UtAssert_STUB_COUNT(CFE_MSG_SetSequenceCount, 1);
+    UtAssert_STUB_COUNT(CFE_MSG_UpdateHeader, 1);
 
     SeqCntExpected = 2;
     UT_SetDefaultReturnValue(UT_KEY(CFE_MSG_GetNextSequenceCount), SeqCntExpected);
@@ -3011,7 +3011,7 @@ void Test_TransmitMsg_SequenceCount(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &Type, sizeof(Type), false);
     CFE_UtAssert_SUCCESS(CFE_SB_TransmitMsg(CFE_MSG_PTR(TlmPkt.TelemetryHeader), true));
     UtAssert_INT32_EQ(SeqCnt, SeqCntExpected);
-    UtAssert_STUB_COUNT(CFE_MSG_SetSequenceCount, 2);
+    UtAssert_STUB_COUNT(CFE_MSG_UpdateHeader, 2);
     UtAssert_STUB_COUNT(CFE_MSG_GetNextSequenceCount, 2);
 
     CFE_UtAssert_EVENTCOUNT(2);
@@ -3025,7 +3025,7 @@ void Test_TransmitMsg_SequenceCount(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &Type, sizeof(Type), false);
     CFE_UtAssert_SETUP(CFE_SB_TransmitMsg(CFE_MSG_PTR(TlmPkt.TelemetryHeader), true)); /* increment to 3 */
-    UtAssert_STUB_COUNT(CFE_MSG_SetSequenceCount, 3);
+    UtAssert_STUB_COUNT(CFE_MSG_UpdateHeader, 3);
     UtAssert_STUB_COUNT(CFE_MSG_GetNextSequenceCount, 3);
 
     CFE_UtAssert_SETUP(CFE_SB_Subscribe(MsgId, PipeId)); /* resubscribe so we can receive a msg */
@@ -3037,7 +3037,7 @@ void Test_TransmitMsg_SequenceCount(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &Type, sizeof(Type), false);
     CFE_UtAssert_SETUP(CFE_SB_TransmitMsg(CFE_MSG_PTR(TlmPkt.TelemetryHeader), true)); /* increment to 4 */
     UtAssert_INT32_EQ(SeqCnt, SeqCntExpected);
-    UtAssert_STUB_COUNT(CFE_MSG_SetSequenceCount, 4);
+    UtAssert_STUB_COUNT(CFE_MSG_UpdateHeader, 4);
     UtAssert_STUB_COUNT(CFE_MSG_GetNextSequenceCount, 4);
 
     CFE_UtAssert_TEARDOWN(CFE_SB_DeletePipe(PipeId));
@@ -3288,8 +3288,8 @@ void Test_TransmitBuffer_IncrementSeqCnt(void)
     CFE_MSG_Size_t          Size = sizeof(SB_UT_Test_Tlm_t);
     CFE_MSG_Type_t          Type = CFE_MSG_Type_Tlm;
 
-    /* Set up hook for checking CFE_MSG_SetSequenceCount calls */
-    UT_SetHookFunction(UT_KEY(CFE_MSG_SetSequenceCount), UT_CheckSetSequenceCount, &SeqCnt);
+    /* Set up hook for checking CFE_MSG_UpdateHeader calls */
+    UT_SetHookFunction(UT_KEY(CFE_MSG_UpdateHeader), UT_CheckSetSequenceCount, &SeqCnt);
 
     CFE_UtAssert_SETUP(CFE_SB_CreatePipe(&PipeId, PipeDepth, "ZeroCpyTestPipe"));
 
