@@ -1,5 +1,10 @@
 # Changelog
 
+## Development Build: v7.0.0-rc4+dev318
+- generalize update header parameter
+- add msg verify capability
+- See <https://github.com/nasa/cFE/pull/2336> and <https://github.com/nasa/cFE/pull/2338>
+
 ## Development Build: v7.0.0-rc4+dev312
 - adjust UT pool buffer size for platform config
 - Remove unused CFE_PLATFORM_ES_RESET_AREA_SIZE
