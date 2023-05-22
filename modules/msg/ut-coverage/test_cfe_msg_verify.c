@@ -17,7 +17,7 @@
  ************************************************************************/
 
 /*
- * Message header unit tests
+ * Test message verify
  */
 
 /*
@@ -25,32 +25,35 @@
  */
 #include "utassert.h"
 #include "ut_support.h"
-#include "test_cfe_msg_init.h"
-#include "test_cfe_msg_ccsdspri.h"
-#include "test_cfe_msg_ccsdsext.h"
+#include "cfe_msg.h"
 #include "test_cfe_msg_verify.h"
-#include "test_cfe_msg_msgid_shared.h"
-#include "test_cfe_msg_msgid.h"
-#include "test_cfe_msg_fc.h"
-#include "test_cfe_msg_checksum.h"
-#include "test_cfe_msg_time.h"
+#include "cfe_error.h"
+#include "cfe_msg_defaults.h"
+
+#include <string.h>
 
 /*
- * Functions
+ * Test MSG Verify
  */
-void UtTest_Setup(void)
+void Test_MSG_Verify(void)
 {
-    UT_Init("msg");
-    UtPrintf("Message header coverage test...");
+    union
+    {
+        CFE_MSG_Message_t         msg;
+        CFE_MSG_CommandHeader_t   cmd;
+        CFE_MSG_TelemetryHeader_t tlm;
+    } LocalBuf;
+    bool Result;
 
-    UT_ADD_TEST(Test_MSG_Init);
-    UT_ADD_TEST(Test_MSG_UpdateHeader);
-    Test_MSG_CCSDSPri();
-    Test_MSG_CCSDSExt();
-    Test_MSG_MsgId_Shared();
-    UT_ADD_TEST(Test_MSG_Verify);
-    UT_ADD_TEST(Test_MSG_MsgId);
-    UT_ADD_TEST(Test_MSG_Checksum);
-    UT_ADD_TEST(Test_MSG_FcnCode);
-    UT_ADD_TEST(Test_MSG_Time);
+    memset(&LocalBuf, 0, sizeof(LocalBuf));
+    Result = false;
+
+    /* bad buffer */
+    UtAssert_INT32_EQ(CFE_MSG_Verify(NULL, &Result), CFE_MSG_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_MSG_Verify(&LocalBuf.msg, NULL), CFE_MSG_BAD_ARGUMENT);
+
+    /* nominal */
+    Result = false;
+    CFE_UtAssert_SUCCESS(CFE_MSG_Verify(&LocalBuf.msg, &Result));
+    UtAssert_BOOL_TRUE(Result);
 }

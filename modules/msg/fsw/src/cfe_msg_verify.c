@@ -16,41 +16,33 @@
  * limitations under the License.
  ************************************************************************/
 
-/*
- * Message header unit tests
- */
+#include "cfe_msg.h"
+#include "cfe_msg_priv.h"
+#include "cfe_msg_defaults.h"
+#include "cfe_time.h"
 
-/*
- * Includes
- */
-#include "utassert.h"
-#include "ut_support.h"
-#include "test_cfe_msg_init.h"
-#include "test_cfe_msg_ccsdspri.h"
-#include "test_cfe_msg_ccsdsext.h"
-#include "test_cfe_msg_verify.h"
-#include "test_cfe_msg_msgid_shared.h"
-#include "test_cfe_msg_msgid.h"
-#include "test_cfe_msg_fc.h"
-#include "test_cfe_msg_checksum.h"
-#include "test_cfe_msg_time.h"
-
-/*
- * Functions
- */
-void UtTest_Setup(void)
+/*----------------------------------------------------------------
+ *
+ * Implemented per public API
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+CFE_Status_t CFE_MSG_Verify(const CFE_MSG_Message_t *MsgPtr, bool *VerifyStatus)
 {
-    UT_Init("msg");
-    UtPrintf("Message header coverage test...");
+    if (MsgPtr == NULL || VerifyStatus == NULL)
+    {
+        return CFE_MSG_BAD_ARGUMENT;
+    }
 
-    UT_ADD_TEST(Test_MSG_Init);
-    UT_ADD_TEST(Test_MSG_UpdateHeader);
-    Test_MSG_CCSDSPri();
-    Test_MSG_CCSDSExt();
-    Test_MSG_MsgId_Shared();
-    UT_ADD_TEST(Test_MSG_Verify);
-    UT_ADD_TEST(Test_MSG_MsgId);
-    UT_ADD_TEST(Test_MSG_Checksum);
-    UT_ADD_TEST(Test_MSG_FcnCode);
-    UT_ADD_TEST(Test_MSG_Time);
+    /*
+     * In the default implementation, there is not anything to check here.
+     * Only commands have a checksum, but the value of that checksum was historically
+     * not enforced by CFE.
+     *
+     * This is mainly a hook for user expansion, in case a custom implementation
+     * has message verification capability.
+     */
+    *VerifyStatus = true;
+
+    return CFE_SUCCESS;
 }
