@@ -219,10 +219,10 @@ typedef struct CFE_EVS_HousekeepingTlm_Payload
 
 /** Telemetry packet structures */
 
-typedef struct CFE_EVS_PacketID
+typedef struct CFE_EVS_EventContext
 {
     char AppName[CFE_MISSION_MAX_API_LEN]; /**< \cfetlmmnemonic \EVS_APPNAME
-                                        \brief Application name */
+                                                \brief Application name */
     uint16 EventID;                        /**< \cfetlmmnemonic \EVS_EVENTID
                                                 \brief Numerical event identifier */
     uint16 EventType;                      /**< \cfetlmmnemonic \EVS_EVENTTYPE
@@ -231,20 +231,20 @@ typedef struct CFE_EVS_PacketID
                                                 \brief Spacecraft identifier */
     uint32 ProcessorID;                    /**< \cfetlmmnemonic \EVS_PROCESSORID
                                                 \brief Numerical processor identifier */
-} CFE_EVS_PacketID_t;
+} CFE_EVS_EventContext_t;
 
 /**
 **  \cfeevstlm Event Message Telemetry Packet (Long format)
 **/
 typedef struct CFE_EVS_LongEventTlm_Payload
 {
-    CFE_EVS_PacketID_t PacketID;                                    /**< \brief Event packet information */
-    char               Message[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH]; /**< \cfetlmmnemonic \EVS_EVENT
-                                                                 \brief Event message string */
-    uint8 Spare1;                                                   /**< \cfetlmmnemonic \EVS_SPARE1
-                                                                         \brief Structure padding */
-    uint8 Spare2;                                                   /**< \cfetlmmnemonic \EVS_SPARE2
-                                                                     \brief Structure padding */
+    CFE_EVS_EventContext_t EventContext;                                /**< \brief Event packet context */
+    char                   Message[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH]; /**< \cfetlmmnemonic \EVS_EVENT
+                                                                             \brief Event message string */
+    uint8 Spare1;                                                       /**< \cfetlmmnemonic \EVS_SPARE1
+                                                                             \brief Structure padding */
+    uint8 Spare2;                                                       /**< \cfetlmmnemonic \EVS_SPARE2
+                                                                             \brief Structure padding */
 } CFE_EVS_LongEventTlm_Payload_t;
 
 /**
@@ -252,7 +252,7 @@ typedef struct CFE_EVS_LongEventTlm_Payload
 **/
 typedef struct CFE_EVS_ShortEventTlm_Payload
 {
-    CFE_EVS_PacketID_t PacketID; /**< \brief Event packet information */
+    CFE_EVS_EventContext_t EventContext; /**< \brief Event packet context */
 } CFE_EVS_ShortEventTlm_Payload_t;
 
 #endif
