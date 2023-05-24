@@ -126,6 +126,10 @@ void UT_BSP_DoText(uint8 MessageType, const char *OutputMessage)
 
 void UT_BSP_EndTest(const UtAssert_TestCounter_t *TestCounters)
 {
+
+    CFE_ES_WriteToSysLog("TEST COMPLETE: %u tests Segment(s) executed\n\n",
+                         (unsigned int)TestCounters->TestSegmentCount);
+
     /*
      * Only output a "summary" if there is more than one test Segment.
      * Otherwise it is a duplicate of the report already given.
@@ -134,7 +138,4 @@ void UT_BSP_EndTest(const UtAssert_TestCounter_t *TestCounters)
     {
         UtAssert_DoTestSegmentReport("SUMMARY", TestCounters);
     }
-
-    CFE_ES_WriteToSysLog("TEST COMPLETE: %u tests Segment(s) executed\n\n",
-                         (unsigned int)TestCounters->TestSegmentCount);
 }
