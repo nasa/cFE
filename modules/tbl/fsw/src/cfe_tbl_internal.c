@@ -653,7 +653,7 @@ int32 CFE_TBL_GetWorkingBuffer(CFE_TBL_LoadBuff_t **WorkingBufferPtr, CFE_TBL_Re
     {
         if (RegRecPtr->DoubleBuffered)
         {
-            *WorkingBufferPtr = &RegRecPtr->Buffers[(1U - RegRecPtr->ActiveBufferIndex)];
+            *WorkingBufferPtr = &RegRecPtr->Buffers[(RegRecPtr->ActiveBufferIndex ^ 1)];
         }
         else
         {
@@ -684,7 +684,7 @@ int32 CFE_TBL_GetWorkingBuffer(CFE_TBL_LoadBuff_t **WorkingBufferPtr, CFE_TBL_Re
             if (RegRecPtr->DoubleBuffered)
             {
                 /* Determine the index of the Inactive Buffer Pointer */
-                InactiveBufferIndex = 1 - RegRecPtr->ActiveBufferIndex;
+                InactiveBufferIndex = RegRecPtr->ActiveBufferIndex ^ 1;
 
                 /* Scan the access descriptor table to determine if anyone is still using the inactive buffer */
                 AccessIterator = RegRecPtr->HeadOfAccessList;
