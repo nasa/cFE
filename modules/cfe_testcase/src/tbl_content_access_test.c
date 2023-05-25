@@ -45,7 +45,7 @@ void TestGetAddress(void)
     TBL_TEST_Table_t  TestTable = {1, 2};
 
     CFE_TBL_Handle_t SharedTblHandle = CFE_TBL_BAD_TABLE_HANDLE;
-    const char *     SharedTblName   = "SAMPLE_APP.SampleAppTable";
+    const char *     SharedTblName   = CFE_ASSERT_SHARED_TBL_NAME;
 
     UtPrintf("Testing: CFE_TBL_GetAddress");
 
