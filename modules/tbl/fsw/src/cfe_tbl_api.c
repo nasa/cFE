@@ -867,12 +867,12 @@ CFE_Status_t CFE_TBL_Validate(CFE_TBL_Handle_t TblHandle)
             {
                 /* Call the Application's Validation function for the Inactive Buffer */
                 Status =
-                    (RegRecPtr->ValidationFuncPtr)(RegRecPtr->Buffers[(1U - RegRecPtr->ActiveBufferIndex)].BufferPtr);
+                    (RegRecPtr->ValidationFuncPtr)(RegRecPtr->Buffers[(RegRecPtr->ActiveBufferIndex ^ 1)].BufferPtr);
 
                 /* Allow buffer to be activated after passing validation */
                 if (Status == CFE_SUCCESS)
                 {
-                    RegRecPtr->Buffers[(1U - RegRecPtr->ActiveBufferIndex)].Validated = true;
+                    RegRecPtr->Buffers[(RegRecPtr->ActiveBufferIndex ^ 1)].Validated = true;
                 }
             }
             else
