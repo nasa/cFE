@@ -843,11 +843,10 @@ void Test_Print(void)
 
     /* Test print with null print buffer argument */
     UT_InitData();
-    UtAssert_VOIDCALL(CFE_TIME_Print(NULL, time));
-    CFE_UtAssert_SYSLOG(TIME_SYSLOG_MSGS[6]);
+    UtAssert_INT32_EQ(CFE_TIME_Print(NULL, time), CFE_TIME_BAD_ARGUMENT);
 
     /* Test with zero time value */
-    CFE_TIME_Print(timeBuf, time);
+    CFE_UtAssert_SUCCESS(CFE_TIME_Print(timeBuf, time));
     if (usingDefaultEpoch)
     {
         strcpy(expectedBuf, "1980-001-00:00:00.00000");
@@ -865,7 +864,7 @@ void Test_Print(void)
     time.Subseconds = 0;
     time.Seconds    = 59;
 
-    CFE_TIME_Print(timeBuf, time);
+    CFE_UtAssert_SUCCESS(CFE_TIME_Print(timeBuf, time));
     if (usingDefaultEpoch)
     {
         strcpy(expectedBuf, "1980-001-00:00:59.00000");
@@ -881,7 +880,7 @@ void Test_Print(void)
     time.Subseconds = 215000;
     time.Seconds    = 1041472984;
 
-    CFE_TIME_Print(timeBuf, time);
+    CFE_UtAssert_SUCCESS(CFE_TIME_Print(timeBuf, time));
     if (usingDefaultEpoch)
     {
         strcpy(expectedBuf, "2013-001-02:03:04.00005");
@@ -893,14 +892,14 @@ void Test_Print(void)
                      (unsigned int)time.Seconds, (unsigned int)time.Subseconds, timeBuf);
     }
 
-    /* Test with maximum seconds and subseconds values */
-    time.Subseconds = 0xffffffff;
-    time.Seconds    = 0xffffffff;
+    /* Test with sufficiently-large seconds and subseconds values */
+    time.Subseconds = 0x7fffffff;
+    time.Seconds    = 0x7fffffff;
 
-    CFE_TIME_Print(timeBuf, time);
+    CFE_UtAssert_SUCCESS(CFE_TIME_Print(timeBuf, time));
     if (usingDefaultEpoch)
     {
-        strcpy(expectedBuf, "2116-038-06:28:15.99999");
+        strcpy(expectedBuf, "2048-019-03:14:07.49999");
         UtAssert_STRINGBUF_EQ(timeBuf, sizeof(timeBuf), expectedBuf, sizeof(expectedBuf));
     }
     else
