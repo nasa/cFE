@@ -43,6 +43,7 @@ void UT_DefaultHandler_CFE_MSG_GetSystem(void *, UT_EntryKey_t, const UT_StubCon
 void UT_DefaultHandler_CFE_MSG_GetType(void *, UT_EntryKey_t, const UT_StubContext_t *);
 void UT_DefaultHandler_CFE_MSG_GetTypeFromMsgId(void *, UT_EntryKey_t, const UT_StubContext_t *);
 void UT_DefaultHandler_CFE_MSG_ValidateChecksum(void *, UT_EntryKey_t, const UT_StubContext_t *);
+void UT_DefaultHandler_CFE_MSG_Verify(void *, UT_EntryKey_t, const UT_StubContext_t *);
 
 /*
  * ----------------------------------------------------
@@ -626,12 +627,13 @@ CFE_Status_t CFE_MSG_SetType(CFE_MSG_Message_t *MsgPtr, CFE_MSG_Type_t Type)
  * Generated stub function for CFE_MSG_UpdateHeader()
  * ----------------------------------------------------
  */
-CFE_Status_t CFE_MSG_UpdateHeader(CFE_MSG_Message_t *MsgPtr, CFE_MSG_SequenceCount_t SeqCnt)
+CFE_Status_t CFE_MSG_UpdateHeader(CFE_MSG_Message_t *MsgPtr, CFE_MSG_SequenceCount_t SeqCnt, CFE_MSG_Size_t MsgSize)
 {
     UT_GenStub_SetupReturnBuffer(CFE_MSG_UpdateHeader, CFE_Status_t);
 
     UT_GenStub_AddParam(CFE_MSG_UpdateHeader, CFE_MSG_Message_t *, MsgPtr);
     UT_GenStub_AddParam(CFE_MSG_UpdateHeader, CFE_MSG_SequenceCount_t, SeqCnt);
+    UT_GenStub_AddParam(CFE_MSG_UpdateHeader, CFE_MSG_Size_t, MsgSize);
 
     UT_GenStub_Execute(CFE_MSG_UpdateHeader, Basic, NULL);
 
@@ -653,4 +655,21 @@ CFE_Status_t CFE_MSG_ValidateChecksum(const CFE_MSG_Message_t *MsgPtr, bool *IsV
     UT_GenStub_Execute(CFE_MSG_ValidateChecksum, Basic, UT_DefaultHandler_CFE_MSG_ValidateChecksum);
 
     return UT_GenStub_GetReturnValue(CFE_MSG_ValidateChecksum, CFE_Status_t);
+}
+
+/*
+ * ----------------------------------------------------
+ * Generated stub function for CFE_MSG_Verify()
+ * ----------------------------------------------------
+ */
+CFE_Status_t CFE_MSG_Verify(const CFE_MSG_Message_t *MsgPtr, bool *VerifyStatus)
+{
+    UT_GenStub_SetupReturnBuffer(CFE_MSG_Verify, CFE_Status_t);
+
+    UT_GenStub_AddParam(CFE_MSG_Verify, const CFE_MSG_Message_t *, MsgPtr);
+    UT_GenStub_AddParam(CFE_MSG_Verify, bool *, VerifyStatus);
+
+    UT_GenStub_Execute(CFE_MSG_Verify, Basic, UT_DefaultHandler_CFE_MSG_Verify);
+
+    return UT_GenStub_GetReturnValue(CFE_MSG_Verify, CFE_Status_t);
 }

@@ -759,6 +759,19 @@
  *  #CFE_SB_CreatePipe API failure due to no free queues.
  */
 #define CFE_SB_CR_PIPE_NO_FREE_EID 70
+
+/**
+ * \brief SB validation of received message failure event
+ *
+ *  \par Type: ERROR
+ *
+ *  \par Cause:
+ *
+ *  A CFE SB receive transaction has dropped a message due
+ *  to validation failure of the recevied buffer.
+ */
+#define CFE_SB_RCV_MESSAGE_VALIDATION_FAIL_EID 71
+
 /**\}*/
 
 #endif /* CFE_SB_EVENTS_H */

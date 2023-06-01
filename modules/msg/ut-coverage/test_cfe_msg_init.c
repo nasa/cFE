@@ -145,18 +145,18 @@ void Test_MSG_UpdateHeader(void)
     CheckCnt = 0;
 
     /* bad buffer */
-    UtAssert_INT32_EQ(CFE_MSG_UpdateHeader(NULL, SeqCnt), CFE_MSG_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_MSG_UpdateHeader(NULL, SeqCnt, sizeof(LocalBuf)), CFE_MSG_BAD_ARGUMENT);
 
     /* nominal, cmd */
     CFE_MSG_SetType(&LocalBuf.msg, CFE_MSG_Type_Cmd);
-    CFE_UtAssert_SUCCESS(CFE_MSG_UpdateHeader(&LocalBuf.msg, SeqCnt));
+    CFE_UtAssert_SUCCESS(CFE_MSG_UpdateHeader(&LocalBuf.msg, SeqCnt, sizeof(LocalBuf)));
     CFE_MSG_GetSequenceCount(&LocalBuf.msg, &CheckCnt);
     UtAssert_UINT32_EQ(CheckCnt, SeqCnt);
     ++SeqCnt;
 
     /* nominal, tlm */
     CFE_MSG_SetType(&LocalBuf.msg, CFE_MSG_Type_Tlm);
-    CFE_UtAssert_SUCCESS(CFE_MSG_UpdateHeader(&LocalBuf.msg, SeqCnt));
+    CFE_UtAssert_SUCCESS(CFE_MSG_UpdateHeader(&LocalBuf.msg, SeqCnt, sizeof(LocalBuf)));
     CFE_MSG_GetSequenceCount(&LocalBuf.msg, &CheckCnt);
     UtAssert_UINT32_EQ(CheckCnt, SeqCnt);
     ++SeqCnt;

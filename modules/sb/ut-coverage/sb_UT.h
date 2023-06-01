@@ -1805,6 +1805,21 @@ void Test_TransmitMsg_InvalidMsgId(void);
 
 /*****************************************************************************/
 /**
+** \brief Test response to sending a source-routed message
+**
+** \par Description
+**        This function tests the response to sending a source-routed message
+**
+** \par Assumptions, External Events, and Notes:
+**        None
+**
+** \returns
+**        This function does not return a value.
+******************************************************************************/
+void Test_TransmitBufferWithRoute(void);
+
+/*****************************************************************************/
+/**
 ** \brief Test response to sending a message which has no subscribers
 **
 ** \par Description
@@ -2032,7 +2047,7 @@ void Test_TransmitMsg_DisabledDestination(void);
 
 /*****************************************************************************/
 /**
-** \brief Test CFE_SB_BroadcastBufferToRoute
+** \brief Test CFE_SB_TransmitTxn_BroadcastToRoute
 **
 ** \par Description
 **        This function tests broadcasting a message buffer with the metadata.
@@ -2043,23 +2058,7 @@ void Test_TransmitMsg_DisabledDestination(void);
 ** \returns
 **        This function does not return a value.
 ******************************************************************************/
-void Test_BroadcastBufferToRoute(void);
-
-/*****************************************************************************/
-/**
-** \brief Test response to sending a message which has no subscribers
-**
-** \par Description
-**        This function tests the response to sending a message which has no
-**        subscribers.
-**
-** \par Assumptions, External Events, and Notes:
-**        None
-**
-** \returns
-**        This function does not return a value.
-******************************************************************************/
-void Test_TransmitMsgValidate_NoSubscribers(void);
+void Test_TransmitTxn_PipeHandler(void);
 
 /*****************************************************************************/
 /**
@@ -2075,7 +2074,7 @@ void Test_TransmitMsgValidate_NoSubscribers(void);
 ** \returns
 **        This function does not return a value.
 ******************************************************************************/
-void Test_TransmitMsgValidate_InvalidMsgId(void);
+void Test_TransmitTxn_SetupFromMsg_InvalidMsgId(void);
 
 /*****************************************************************************/
 /**
@@ -2092,7 +2091,7 @@ void Test_TransmitMsgValidate_InvalidMsgId(void);
 ** \returns
 **        This function does not return a value.
 ******************************************************************************/
-void Test_TransmitMsgValidate_MaxMsgSizePlusOne(void);
+void Test_TransmitTxn_SetupFromMsg_MaxMsgSizePlusOne(void);
 
 /*****************************************************************************/
 /**
@@ -2441,25 +2440,6 @@ void Test_CFE_SB_Buffers(void);
 **        This function does not return a value.
 ******************************************************************************/
 void Test_CFE_SB_BadPipeInfo(void);
-
-/*****************************************************************************/
-/**
-** \brief Test TransmitMsgFull function paths
-**
-** \par Description
-**        This function tests branch paths in the TransmitMsgFull function.
-**
-** \par Assumptions, External Events, and Notes:
-**        None
-**
-** \returns
-**        This function does not return a value.
-******************************************************************************/
-void Test_SB_TransmitMsgPaths_Nominal(void);
-void Test_SB_TransmitMsgPaths_LimitErr(void);
-void Test_SB_TransmitMsgPaths_FullErr(void);
-void Test_SB_TransmitMsgPaths_WriteErr(void);
-void Test_SB_TransmitMsgPaths_IgnoreOpt(void);
 
 /*****************************************************************************/
 /**
