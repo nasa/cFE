@@ -1,5 +1,15 @@
 # Changelog
 
+## Development Build: v7.0.0-rc4+dev334
+- Format update for additional counters in summary
+- make shared tbl configurable
+- Update README_Functionaltest.md
+- Increase CFE_PLATFORM_EVS_APP_EVENTS_PER_SEC to 15
+- Increase slp time in funct test workflow
+- CFE_TIME_Print() calls strftime()
+- Adds utassert message descriptions to README_Functionaltest.md
+- See <https://github.com/nasa/cFE/pull/2350>, <https://github.com/nasa/cFE/pull/2354>, <https://github.com/nasa/cFE/pull/2355>, <https://github.com/nasa/cFE/pull/2366>, <https://github.com/nasa/cFE/pull/2364>, <https://github.com/nasa/cFE/pull/2356>, and <https://github.com/nasa/cFE/pull/2361>
+
 ## Development Build: v7.0.0-rc4+dev318
 - generalize update header parameter
 - add msg verify capability

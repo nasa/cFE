@@ -60,6 +60,14 @@ extern CFE_FT_Global_t CFE_FT_Global;
  */
 #define CFE_ASSERT_LOG_FILE_NAME "/cf/cfe_test.log"
 
+/**
+ * Name of the shared table used by CFE_TEST_APP for requirements verification
+ *
+ * This filename was made configurable such that projects can replace the
+ * sample app table with a project specific table for the purpose of CI/CD.
+ */
+#define CFE_ASSERT_SHARED_TBL_NAME "SAMPLE_APP.SampleAppTable"
+
 void TimeInRange(CFE_TIME_SysTime_t Start, CFE_TIME_SysTime_t Time, CFE_TIME_SysTime_t Range, const char *Str);
 
 void CFE_TestMain(void);
