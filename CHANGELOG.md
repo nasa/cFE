@@ -1,5 +1,12 @@
 # Changelog
 
+## Development Build: v7.0.0-rc4+dev342
+- 'Fix #2368, cFE Functional Test 23'
+- 'Fix #1407, Add error report on EVS failure during log header write'
+- 'Fix #1515, Remove unnecessary memset from CFE_TBL_LoadFromFile'
+- See: <https://github.com/nasa/cFE/pull/2369> <https://github.com/nasa/cFE/pull/2272> <https://github.com/nasa/cFE/pull/2276>
+
+
 ## Development Build: v7.0.0-rc4+dev334
 - Format update for additional counters in summary
 - make shared tbl configurable
@@ -95,7 +102,14 @@
 - See <https://github.com/nasa/cFE/pull/2184>
 
 ## Development Build: v7.0.0-rc4+dev197
-- Remove Changelog in Doxygen Config
+- Remove # Changelog
+
+## Development Build: v7.0.0-rc4+dev342
+- 'Fix #2368, cFE Functional Test 23'
+- 'Fix #1407, Add error report on EVS failure during log header write'
+- 'Fix #1515, Remove unnecessary memset from CFE_TBL_LoadFromFile'
+- See: <https://github.com/nasa/cFE/pull/2369> <https://github.com/nasa/cFE/pull/2272> <https://github.com/nasa/cFE/pull/2276>
+ in Doxygen Config
 - See <https://github.com/nasa/cFE/pull/2165>
 
 ## Development Build: v7.0.0-rc4+dev193
