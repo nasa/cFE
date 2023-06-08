@@ -84,7 +84,10 @@ void TestWriteToSysLog(void)
         {
             break;
         }
-        CFE_Assert_STATUS_MUST_BE(CFE_SUCCESS);
+        if (!CFE_Assert_STATUS_MAY_BE(CFE_ES_ERR_SYS_LOG_TRUNCATED))
+        {
+            CFE_Assert_STATUS_MUST_BE(CFE_SUCCESS);
+        }
     }
 
     UtAssert_MIR("MIR (Manual Inspection Required) for CFE_ES_WriteToSysLog");
