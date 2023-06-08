@@ -180,6 +180,17 @@
 #define CFE_EVS_ERR_CRDATFILE_EID 13
 
 /**
+ * \brief EVS Write File Header to Log File Failure Event ID
+ *
+ *  \par Type: ERROR
+ *
+ *  \par Cause:
+ *
+ *  Bytes written during Write File Header to Log File was not equal to the expected header size.
+ */
+#define CFE_EVS_WRITE_HEADER_ERR_EID 14
+
+/**
  * \brief EVS Invalid Command Code Received Event ID
  *
  *  \par Type: ERROR

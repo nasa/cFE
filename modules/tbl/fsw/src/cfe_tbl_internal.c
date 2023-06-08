@@ -891,8 +891,8 @@ int32 CFE_TBL_LoadFromFile(const char *AppName, CFE_TBL_LoadBuff_t *WorkingBuffe
         return CFE_TBL_ERR_FILE_TOO_LARGE;
     }
 
-    memset(WorkingBufferPtr->DataSource, 0, sizeof(WorkingBufferPtr->DataSource));
     strncpy(WorkingBufferPtr->DataSource, Filename, sizeof(WorkingBufferPtr->DataSource) - 1);
+    WorkingBufferPtr->DataSource[sizeof(WorkingBufferPtr->DataSource) - 1] = '\0';
 
     /* Save file creation time for later storage into Registry */
     WorkingBufferPtr->FileCreateTimeSecs    = StdFileHeader.TimeSeconds;
