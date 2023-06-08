@@ -567,27 +567,78 @@ uint32 CFE_TIME_Micro2SubSecs(uint32 MicroSeconds)
  *-----------------------------------------------------------------*/
 CFE_Status_t CFE_TIME_Print(char *PrintBuffer, CFE_TIME_SysTime_t TimeToPrint)
 {
-    size_t    FmtLen = 0;
-    uint32    Micros = (CFE_TIME_Sub2MicroSecs(TimeToPrint.Subseconds) + CFE_MISSION_TIME_EPOCH_MICROS) / 10;
+    uint32 mic    = (CFE_TIME_Sub2MicroSecs(TimeToPrint.Subseconds) + CFE_MISSION_TIME_EPOCH_MICROS) / 10;
+    time_t sec    = TimeToPrint.Seconds + CFE_MISSION_TIME_EPOCH_SECONDS; // epoch is Jan 1, 1980
+    /* temporary buffer to store the format so we can modify it to blot '%f' */
+    char FmtBuf[CFE_TIME_FORMAT_SIZE];
+    char *FmtPtr = FmtBuf;
+    char *PctF;
+    size_t OutChrs = 0;
     struct tm tm;
+    size_t TimeSz;
 
     if (PrintBuffer == NULL)
     {
         return CFE_TIME_BAD_ARGUMENT;
     }
 
-    time_t sec = TimeToPrint.Seconds + CFE_MISSION_TIME_EPOCH_SECONDS; // epoch is Jan 1, 1980
-    gmtime_r(&sec, &tm);
-    FmtLen = strftime(PrintBuffer, CFE_TIME_PRINTED_STRING_SIZE - 6, "%Y-%j-%H:%M:%S", &tm);
-    PrintBuffer += FmtLen;
-    *(PrintBuffer++) = '.';
+    switch (CFE_TIME_Global.PrintState)
+    {
+        case CFE_TIME_PrintState_DateTime:
+            gmtime_r(&sec, &tm);
 
-    *(PrintBuffer++) = '0' + (char)((Micros % 100000) / 10000);
-    *(PrintBuffer++) = '0' + (char)((Micros % 10000) / 1000);
-    *(PrintBuffer++) = '0' + (char)((Micros % 1000) / 100);
-    *(PrintBuffer++) = '0' + (char)((Micros % 100) / 10);
-    *(PrintBuffer++) = '0' + (char)(Micros % 10);
-    *PrintBuffer     = '\0';
+            strncpy(FmtPtr, CFE_TIME_Global.PrintFormat, CFE_TIME_FORMAT_SIZE);
+
+            while(*FmtPtr != '\0' && OutChrs < CFE_TIME_PRINTED_STRING_SIZE)
+            {
+                /* if we have "%f", call strftime for string before and string after */
+                PctF = strstr(FmtBuf, "%f");
+                if (PctF)
+                {
+                    *PctF = '\0'; /* blot out "%f", for now */
+                }
+
+                TimeSz = strftime(PrintBuffer + OutChrs, CFE_TIME_PRINTED_STRING_SIZE - OutChrs, FmtPtr, &tm);
+
+                if (*FmtPtr && TimeSz == 0)
+                {
+                    /* strftime returns 0 if the buffer is too small */
+                    return CFE_TIME_FORMAT_TOO_LONG;
+                }
+
+                OutChrs += TimeSz;
+
+                /* we found/blotted %f above */
+                if (PctF)
+                {
+                    /* write %f value */
+                    if (OutChrs < CFE_TIME_PRINTED_STRING_SIZE - 5)
+                    {
+                        OutChrs += snprintf(PrintBuffer + OutChrs, CFE_TIME_PRINTED_STRING_SIZE - OutChrs, "%05d", mic);
+                    }
+                    else
+                    {
+                        return CFE_TIME_FORMAT_TOO_LONG;
+                    }
+
+                    /* go back through the loop with the remaining format */
+                    FmtPtr = PctF + 2;
+                }
+                else
+                {
+                    PrintBuffer[OutChrs] = '\0'; /* just in case, null-terminate the string */
+                    break; /* break while */
+                }
+            }
+            break;
+        case CFE_TIME_PrintState_SecsSinceStart:
+            OutChrs += snprintf(PrintBuffer, CFE_TIME_PRINTED_STRING_SIZE, "%ld.%06d", (long int)sec, mic);
+            PrintBuffer[OutChrs] = '\0';
+            break;
+        default:
+            PrintBuffer[0] = '\0';
+            break;
+    }
     return CFE_SUCCESS;
 }
 

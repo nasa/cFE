@@ -312,6 +312,16 @@ typedef struct
     ** One callback per app is allowed
     */
     CFE_TIME_SynchCallbackRegEntry_t SynchCallback[CFE_PLATFORM_ES_MAX_APPLICATIONS];
+
+    /*
+    ** What form should CFE_TIME_Print produce.
+    */
+    CFE_TIME_PrintState_Enum_t PrintState;
+
+    /*
+    ** For formatted CFE_TIME_Print output, use this format string.
+    */
+    char PrintFormat[CFE_TIME_FORMAT_SIZE];
 } CFE_TIME_Global_t;
 
 /*
@@ -866,5 +876,11 @@ int32 CFE_TIME_Sub1HZAdjustmentCmd(const CFE_TIME_Sub1HZAdjustmentCmd_t *data);
  * This is a wrapper around CFE_TIME_AdjustImpl()
  */
 int32 CFE_TIME_SubAdjustCmd(const CFE_TIME_SubAdjustCmd_t *data);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief  Time task ground command (print format adjust)
+ */
+int32 CFE_TIME_SetPrintCmd(const CFE_TIME_SetPrintCmd_t *data);
 
 #endif /* CFE_TIME_UTILS_H */

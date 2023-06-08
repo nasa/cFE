@@ -240,6 +240,13 @@ void CFE_TIME_TaskPipe(const CFE_SB_Buffer_t *SBBufPtr)
                     }
                     break;
 
+                case CFE_TIME_SET_PRINT_CC:
+                    if (CFE_TIME_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_TIME_SetPrintCmd_t)))
+                    {
+                        CFE_TIME_SetPrintCmd((const CFE_TIME_SetPrintCmd_t *)SBBufPtr);
+                    }
+                    break;
+
                 default:
 
                     CFE_TIME_Global.CommandErrorCounter++;

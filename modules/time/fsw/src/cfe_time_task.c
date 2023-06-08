@@ -1090,3 +1090,16 @@ int32 CFE_TIME_Sub1HZAdjustmentCmd(const CFE_TIME_Sub1HZAdjustmentCmd_t *data)
     CFE_TIME_1HzAdjImpl(&data->Payload, CFE_TIME_AdjustDirection_SUBTRACT);
     return CFE_SUCCESS;
 }
+
+/*----------------------------------------------------------------
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+int32 CFE_TIME_SetPrintCmd(const CFE_TIME_SetPrintCmd_t *data)
+{
+    CFE_TIME_Global.PrintState = data->Payload.PrintState;
+    strncpy(CFE_TIME_Global.PrintFormat, data->Payload.PrintFormat, CFE_TIME_FORMAT_SIZE);
+    return CFE_SUCCESS;
+}

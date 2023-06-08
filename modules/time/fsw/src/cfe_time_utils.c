@@ -353,6 +353,12 @@ void CFE_TIME_InitData(void)
     */
     CFE_MSG_Init(CFE_MSG_PTR(CFE_TIME_Global.Local1HzCmd.CommandHeader), CFE_SB_ValueToMsgId(CFE_TIME_1HZ_CMD_MID),
                  sizeof(CFE_TIME_Global.Local1HzCmd));
+
+    /*
+    ** Configure the default time print format.
+    */
+    CFE_TIME_Global.PrintState = CFE_TIME_PRINT_DEFAULT;
+    strncpy(CFE_TIME_Global.PrintFormat, CFE_TIME_PRINTFMT_DEFAULT, CFE_TIME_FORMAT_SIZE);
 }
 
 /*----------------------------------------------------------------
@@ -408,6 +414,9 @@ void CFE_TIME_GetHkData(const CFE_TIME_Reference_t *Reference)
     CFE_TIME_Global.HkPacket.Payload.SecondsDelay = Reference->AtToneDelay.Seconds;
     CFE_TIME_Global.HkPacket.Payload.SubsecsDelay = Reference->AtToneDelay.Subseconds;
 #endif
+
+    strncpy(CFE_TIME_Global.HkPacket.Payload.PrintFormat, CFE_TIME_Global.PrintFormat, CFE_TIME_FORMAT_SIZE);
+    CFE_TIME_Global.HkPacket.Payload.PrintState = CFE_TIME_Global.PrintState;
 }
 
 /*----------------------------------------------------------------

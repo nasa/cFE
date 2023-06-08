@@ -98,6 +98,8 @@ static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_CMD_SUB_1HZ_ADJUSTMENT_CC 
 static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_INVALID_MID = {.MsgId = CFE_SB_MSGID_RESERVED, .CommandCode = 0};
 static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_CMD_INVALID_CC = {
     .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_TIME_CMD_MID), .CommandCode = 0x7F};
+static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_SET_PRINT_CC = {
+    .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_TIME_CMD_MID), .CommandCode = CFE_TIME_SET_PRINT_CC};
 
 /*
 ** Global variables
@@ -906,6 +908,72 @@ void Test_Print(void)
         UtAssert_MIR("Confirm adding seconds = %u, subseconds = %u to configured EPOCH results in time %s",
                      (unsigned int)time.Seconds, (unsigned int)time.Subseconds, timeBuf);
     }
+
+    /* Test with different format */
+    strcpy(CFE_TIME_Global.PrintFormat, "%Y-%m-%d %H:%M");
+
+    CFE_UtAssert_SUCCESS(CFE_TIME_Print(timeBuf, time));
+    if (usingDefaultEpoch)
+    {
+        strcpy(expectedBuf, "2013-01-01 02:03");
+        UtAssert_STRINGBUF_EQ(timeBuf, sizeof(timeBuf), expectedBuf, sizeof(expectedBuf));
+    }
+    else
+    {
+        UtAssert_MIR("Confirm adding seconds = %u, subseconds = %u to configured EPOCH results in time %s",
+                     (unsigned int)time.Seconds, (unsigned int)time.Subseconds, timeBuf);
+    }
+
+    /* Test with three milliseconds for the win */
+    strcpy(CFE_TIME_Global.PrintFormat, "%f.%f.%f");
+
+    CFE_UtAssert_SUCCESS(CFE_TIME_Print(timeBuf, time));
+    if (usingDefaultEpoch)
+    {
+        strcpy(expectedBuf, "49999.49999.49999");
+        UtAssert_STRINGBUF_EQ(timeBuf, sizeof(timeBuf), expectedBuf, sizeof(expectedBuf));
+    }
+    else
+    {
+        UtAssert_MIR("Confirm adding seconds = %u, subseconds = %u to configured EPOCH results in time %s",
+                     (unsigned int)time.Seconds, (unsigned int)time.Subseconds, timeBuf);
+    }
+
+    CFE_TIME_Global.PrintState = CFE_TIME_PrintState_SecsSinceStart;
+
+    CFE_UtAssert_SUCCESS(CFE_TIME_Print(timeBuf, time));
+    if (usingDefaultEpoch)
+    {
+        strcpy(expectedBuf, "49999.49999");
+        UtAssert_STRINGBUF_EQ(timeBuf, sizeof(timeBuf), expectedBuf, sizeof(expectedBuf));
+    }
+    else
+    {
+        UtAssert_MIR("Confirm adding seconds = %u, subseconds = %u to configured EPOCH results in time %s",
+                     (unsigned int)time.Seconds, (unsigned int)time.Subseconds, timeBuf);
+    }
+
+    /* Test with too-long of a format */
+    strcpy(CFE_TIME_Global.PrintFormat, "%Y%Y%Y%Y%Y%Y%Y%Y%Y%Y%Y");
+    CFE_TIME_Global.PrintState = CFE_TIME_PrintState_DateTime;
+
+    UtAssert_INT32_EQ(CFE_TIME_Print(timeBuf, time), CFE_TIME_FORMAT_TOO_LONG);
+
+    /* Test with too-long of a %f format */
+    strcpy(CFE_TIME_Global.PrintFormat, "012345678901234567890123456%f");
+
+    UtAssert_INT32_EQ(CFE_TIME_Print(timeBuf, time), CFE_TIME_FORMAT_TOO_LONG);
+
+    /* Test with "none" option */
+    CFE_TIME_Global.PrintState = CFE_TIME_PrintState_None;
+    CFE_UtAssert_SUCCESS(CFE_TIME_Print(timeBuf, time));
+    UtAssert_STRINGBUF_EQ(timeBuf, sizeof(timeBuf), "", 1);
+
+    /* Test with DateTime option and empty format */
+    CFE_TIME_Global.PrintState = CFE_TIME_PrintState_DateTime;
+    strcpy(CFE_TIME_Global.PrintFormat, "");
+    CFE_UtAssert_SUCCESS(CFE_TIME_Print(timeBuf, time));
+    UtAssert_STRINGBUF_EQ(timeBuf, sizeof(timeBuf), "", 1);
 }
 
 /*
@@ -1331,6 +1399,7 @@ void Test_PipeCmds(void)
         CFE_TIME_SubAdjustCmd_t        subadjcmd;
         CFE_TIME_Add1HZAdjustmentCmd_t add1hzadjcmd;
         CFE_TIME_Sub1HZAdjustmentCmd_t sub1hzadjcmd;
+        CFE_TIME_SetPrintCmd_t         setprcmd;
     } CmdBuf;
 
     UT_SoftwareBusSnapshot_Entry_t LocalSnapshotData = {.MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_TIME_HK_TLM_MID)};
@@ -1928,6 +1997,17 @@ void Test_PipeCmds(void)
     UT_InitData();
     UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, sizeof(CmdBuf.onehzcmd), UT_TPID_CFE_TIME_1HZ_CMD);
     UtAssert_NONZERO(UT_GetStubCount(UT_KEY(CFE_PSP_GetTime)));
+
+    /* Test sending a print state command */
+    UT_InitData();
+    memset(&CmdBuf, 0, sizeof(CmdBuf));
+    CFE_TIME_Global.PrintState = 0;
+    strcpy(CFE_TIME_Global.PrintFormat, "");
+    CmdBuf.setprcmd.Payload.PrintState = CFE_TIME_PrintState_SecsSinceStart;
+    strcpy(CmdBuf.setprcmd.Payload.PrintFormat, "abcd");
+    UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, sizeof(CmdBuf.setprcmd), UT_TPID_CFE_TIME_SET_PRINT_CC);
+    UtAssert_UINT32_EQ(CFE_TIME_Global.PrintState, CFE_TIME_PrintState_SecsSinceStart);
+    UtAssert_StrCmp(CFE_TIME_Global.PrintFormat, CmdBuf.setprcmd.Payload.PrintFormat, "Print Format %s", CFE_TIME_Global.PrintFormat);
 }
 
 /*

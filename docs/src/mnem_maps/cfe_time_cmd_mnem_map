@@ -31,4 +31,5 @@ TIME_ADD1HZSTCF=$sc_$cpu_TIME_Add1HzSTCF \
 TIME_SUB1HZSTCF=$sc_$cpu_TIME_Sub1HzSTCF \
 TIME_STOPADD1HZ=$sc_$cpu_TIME_StopAdd1Hz \
 TIME_STOPSUB1HZ=$sc_$cpu_TIME_StopSub1Hz \
-TIME_SETSIGNAL=$sc_$cpu_TIME_SetSignal
+TIME_SETSIGNAL=$sc_$cpu_TIME_SetSignal \
+TIME_SETPRINT=$sc_$cpu_TIME_SetPrint

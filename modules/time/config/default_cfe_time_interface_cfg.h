@@ -198,4 +198,17 @@
 */
 #define CFE_MISSION_TIME_FS_FACTOR 789004800
 
+/**
+ ** \brief On boot, define the time print type.
+ */
+#define CFE_TIME_PRINT_DEFAULT CFE_TIME_PrintState_DateTime
+
+/**
+ ** \brief On boot, the CFE_TIME_Print() function will use
+ ** the following strftime-like (+ microseconds) format
+ ** when "printing" times. (Only relevant if CFE_TIME_PRINT_DEFAULT
+ ** is set to CFE_TIME_PrintState_DateTime.)
+ */
+#define CFE_TIME_PRINTFMT_DEFAULT "%Y-%j %H:%M:%S.%f"
+
 #endif
