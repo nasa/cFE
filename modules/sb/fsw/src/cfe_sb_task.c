@@ -669,6 +669,7 @@ int32 CFE_SB_SendSubscriptionReport(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId
         SubRptMsg.Payload.Qos     = Quality;
         SubRptMsg.Payload.SubType = CFE_SB_SUBSCRIPTION;
 
+        CFE_SB_TimeStampMsg(CFE_MSG_PTR(SubRptMsg.TelemetryHeader));
         Status = CFE_SB_TransmitMsg(CFE_MSG_PTR(SubRptMsg.TelemetryHeader), true);
         CFE_EVS_SendEventWithAppID(CFE_SB_SUBSCRIPTION_RPT_EID, CFE_EVS_EventType_DEBUG, CFE_SB_Global.AppId,
                                    "Sending Subscription Report Msg=0x%x,Pipe=%lu,Stat=0x%x",
@@ -1111,6 +1112,7 @@ void CFE_SB_SendRouteSub(CFE_SBR_RouteId_t RouteId, void *ArgPtr)
             if (CFE_SB_Global.PrevSubMsg.Payload.Entries >= CFE_SB_SUB_ENTRIES_PER_PKT)
             {
                 CFE_SB_UnlockSharedData(__func__, __LINE__);
+                CFE_SB_TimeStampMsg(CFE_MSG_PTR(CFE_SB_Global.PrevSubMsg.TelemetryHeader));
                 status = CFE_SB_TransmitMsg(CFE_MSG_PTR(CFE_SB_Global.PrevSubMsg.TelemetryHeader), true);
                 CFE_EVS_SendEvent(CFE_SB_FULL_SUB_PKT_EID, CFE_EVS_EventType_DEBUG,
                                   "Full Sub Pkt %d Sent,Entries=%d,Stat=0x%x\n",
@@ -1160,6 +1162,7 @@ int32 CFE_SB_SendPrevSubsCmd(const CFE_SB_SendPrevSubsCmd_t *data)
     /* if pkt has any number of entries, send it as a partial pkt */
     if (CFE_SB_Global.PrevSubMsg.Payload.Entries > 0)
     {
+        CFE_SB_TimeStampMsg(CFE_MSG_PTR(CFE_SB_Global.PrevSubMsg.TelemetryHeader));
         status = CFE_SB_TransmitMsg(CFE_MSG_PTR(CFE_SB_Global.PrevSubMsg.TelemetryHeader), true);
         CFE_EVS_SendEvent(CFE_SB_PART_SUB_PKT_EID, CFE_EVS_EventType_DEBUG,
                           "Partial Sub Pkt %d Sent,Entries=%d,Stat=0x%x",
