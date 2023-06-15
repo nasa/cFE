@@ -155,7 +155,7 @@ static int32 UT_EVS_MSGInitHook(void *UserObj, int32 StubRetcode, uint32 CallCou
     return StubRetcode;
 }
 
-static void UT_EVS_DoDispatchCheckEvents_Impl(void *MsgPtr, uint32 MsgSize, UT_TaskPipeDispatchId_t DispatchId,
+static void UT_EVS_DoDispatchCheckEvents_Impl(void *MsgPtr, size_t MsgSize, UT_TaskPipeDispatchId_t DispatchId,
                                               const UT_SoftwareBusSnapshot_Entry_t *SnapshotCfg,
                                               UT_EVS_EventCapture_t *               EventCapture)
 {
@@ -172,13 +172,13 @@ static void UT_EVS_DoDispatchCheckEvents_Impl(void *MsgPtr, uint32 MsgSize, UT_T
     UT_SetHookFunction(UT_KEY(CFE_SB_TransmitMsg), NULL, NULL);
 }
 
-static void UT_EVS_DoDispatchCheckEvents(void *MsgPtr, uint32 MsgSize, UT_TaskPipeDispatchId_t DispatchId,
+static void UT_EVS_DoDispatchCheckEvents(void *MsgPtr, size_t MsgSize, UT_TaskPipeDispatchId_t DispatchId,
                                          UT_EVS_EventCapture_t *EventCapture)
 {
     UT_EVS_DoDispatchCheckEvents_Impl(MsgPtr, MsgSize, DispatchId, &UT_EVS_LONGFMT_SNAPSHOTDATA, EventCapture);
 }
 
-static void UT_EVS_DoDispatchCheckEventsShort(void *MsgPtr, uint32 MsgSize, UT_TaskPipeDispatchId_t DispatchId,
+static void UT_EVS_DoDispatchCheckEventsShort(void *MsgPtr, size_t MsgSize, UT_TaskPipeDispatchId_t DispatchId,
                                               UT_EVS_EventCapture_t *EventCapture)
 {
     UT_EVS_DoDispatchCheckEvents_Impl(MsgPtr, MsgSize, DispatchId, &UT_EVS_SHORTFMT_SNAPSHOTDATA, EventCapture);

@@ -460,7 +460,7 @@ void ES_UT_SetupMemPoolId(CFE_ES_MemPoolRecord_t **OutPoolRecPtr)
     }
 }
 
-void ES_UT_SetupCDSGlobal(uint32 CDS_Size)
+void ES_UT_SetupCDSGlobal(size_t CDS_Size)
 {
     CFE_ES_CDS_Instance_t *CDS = &CFE_ES_Global.CDSVars;
 
@@ -1135,7 +1135,7 @@ static void ES_UT_Config_IterateAll(void *UserObj, UT_EntryKey_t FuncKey, const 
 
 void TestApps(void)
 {
-    int                     NumBytes;
+    size_t                  NumBytes;
     CFE_ES_AppInfo_t        AppInfo;
     CFE_ES_AppId_t          AppId;
     CFE_ES_TaskId_t         TaskId;
@@ -3935,7 +3935,7 @@ void TestAPI(void)
     osal_id_t            TestObjId;
     char                 AppName[OS_MAX_API_NAME + 12];
     char                 SysLogBuf[CFE_TIME_PRINTED_STRING_SIZE + 20];
-    uint32               SysLogBufSize;
+    size_t               SysLogBufSize;
     uint32               StackBuf[8];
     uint8                Data[12];
     uint32               ResetType;
@@ -4678,7 +4678,7 @@ void TestCDS()
     CFE_ES_CDSHandle_t   CDSHandle;
     CFE_ES_CDS_RegRec_t *UtCDSRegRecPtr;
     uint32               i;
-    uint32               TempSize;
+    size_t               TempSize;
     uint8                BlockData[ES_UT_CDS_BLOCK_SIZE];
 
     UtPrintf("Begin Test CDS");

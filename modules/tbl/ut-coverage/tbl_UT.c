@@ -603,7 +603,7 @@ void Test_CFE_TBL_ActivateCmd(void)
 */
 void Test_CFE_TBL_DumpToFile(void)
 {
-    uint32 TblSizeInBytes = 9;
+    size_t TblSizeInBytes = 9;
 
     UtPrintf("Begin Test Dump to File");
 

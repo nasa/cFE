@@ -39,8 +39,8 @@
 typedef struct
 {
     CFE_SB_MsgId_t     MsgId;
-    uint32             UserLength;
-    uint32             TotalLength;
+    size_t             UserLength;
+    size_t             TotalLength;
     uint16             CommandCode;
     CFE_TIME_SysTime_t TimeStamp;
 } CFE_SB_StubMsg_MetaData_t;
@@ -343,7 +343,7 @@ void UT_DefaultHandler_CFE_SB_GetUserData(void *UserObj, UT_EntryKey_t FuncKey, 
     CFE_MSG_Message_t *MsgPtr = UT_Hook_GetArgValueByName(Context, "MsgPtr", CFE_MSG_Message_t *);
     uint8 *            BytePtr;
     void *             Result;
-    uint16             HdrSize;
+    size_t             HdrSize;
 
     if (UT_Stub_CopyToLocal(UT_KEY(CFE_SB_GetUserData), &Result, sizeof(Result)) != sizeof(Result))
     {

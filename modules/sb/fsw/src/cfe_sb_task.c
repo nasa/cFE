@@ -43,7 +43,7 @@ typedef struct
 {
     const char *Filename;   /* File name for error reporting */
     osal_id_t   Fd;         /* File id for writing */
-    uint32      FileSize;   /* File size for reporting */
+    size_t      FileSize;   /* File size for reporting */
     uint32      EntryCount; /* Entry count for reporting */
     int32       Status;     /* File write status */
 } CFE_SB_FileWriteCallback_t;

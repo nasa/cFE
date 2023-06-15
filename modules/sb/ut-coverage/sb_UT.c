@@ -3202,7 +3202,7 @@ void Test_TransmitMsg_GetPoolBufErr(void)
 */
 void Test_AllocateMessageBuffer(void)
 {
-    uint16 MsgSize = 10;
+    size_t MsgSize = 10;
     uint32 MemUse;
 
     /* Attempt to allocate a message buffer greater than the max size */
@@ -3394,7 +3394,7 @@ void Test_ReleaseMessageBuffer(void)
     CFE_SB_Buffer_t *ZeroCpyMsgPtr2 = NULL;
     CFE_SB_Buffer_t *ZeroCpyMsgPtr3 = NULL;
     CFE_SB_BufferD_t BadBufferDesc;
-    uint16           MsgSize = 10;
+    size_t           MsgSize = 10;
 
     ZeroCpyMsgPtr1 = CFE_SB_AllocateMessageBuffer(MsgSize);
     ZeroCpyMsgPtr2 = CFE_SB_AllocateMessageBuffer(MsgSize);

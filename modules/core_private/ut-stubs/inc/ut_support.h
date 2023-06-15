@@ -102,7 +102,7 @@ typedef struct
 {
     CFE_SB_MsgId_t MsgId;
     uint16         SnapshotOffset;
-    uint16         SnapshotSize;
+    size_t         SnapshotSize;
     uint16         Count;
     void *         SnapshotBuffer;
 } UT_SoftwareBusSnapshot_Entry_t;
@@ -333,7 +333,7 @@ void UT_SetStatusBSPResetArea(int32 status, uint32 Signature, uint32 ClockSignal
 **        This function does not return a value.
 **
 ******************************************************************************/
-void UT_SetReadBuffer(void *Buff, int NumBytes);
+void UT_SetReadBuffer(void *Buff, size_t NumBytes);
 
 /*****************************************************************************/
 /**
@@ -353,7 +353,7 @@ void UT_SetReadBuffer(void *Buff, int NumBytes);
 **        This function does not return a value.
 **
 ******************************************************************************/
-void UT_SetReadHeader(void *Hdr, int NumBytes);
+void UT_SetReadHeader(void *Hdr, size_t NumBytes);
 
 /*****************************************************************************/
 /**
@@ -393,7 +393,7 @@ void UT_SetDummyFuncRtn(int Return);
 ** \sa
 **
 ******************************************************************************/
-void UT_SetSizeofESResetArea(int32 Size);
+void UT_SetSizeofESResetArea(size_t Size);
 
 /*****************************************************************************/
 /**
@@ -411,7 +411,7 @@ void UT_SetSizeofESResetArea(int32 Size);
 **        This function does not return a value.
 **
 ******************************************************************************/
-uint8 *UT_SetCDSSize(int32 Size);
+uint8 *UT_SetCDSSize(size_t Size);
 
 /*****************************************************************************/
 /**

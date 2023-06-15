@@ -279,8 +279,8 @@ void TblTest_GenerateTblFiles(void)
 {
     osal_id_t fh1 = OS_OBJECT_ID_UNDEFINED;
     osal_id_t fh2 = OS_OBJECT_ID_UNDEFINED;
-    uint32    PartialOffset;
-    uint32    PartialSize;
+    size_t    PartialOffset;
+    size_t    PartialSize;
     union
     {
         uint8              u8;
