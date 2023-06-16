@@ -1288,711 +1288,43 @@ int32 CFE_SB_UnsubscribeFull(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId, uint8
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-CFE_Status_t CFE_SB_TransmitMsg(const CFE_MSG_Message_t *MsgPtr, bool IsOrigination)
-{
-    int32             Status;
-    CFE_MSG_Size_t    Size  = 0;
-    CFE_SB_MsgId_t    MsgId = CFE_SB_INVALID_MSG_ID;
-    CFE_ES_TaskId_t   TskId;
-    char              FullName[(OS_MAX_API_NAME * 2)];
-    CFE_SB_BufferD_t *BufDscPtr;
-    CFE_SBR_RouteId_t RouteId;
-    uint16            PendingEventID;
-
-    PendingEventID = 0;
-    BufDscPtr      = NULL;
-    RouteId        = CFE_SBR_INVALID_ROUTE_ID;
-
-    Status = CFE_SB_TransmitMsgValidate(MsgPtr, &MsgId, &Size, &RouteId);
-
-    CFE_SB_LockSharedData(__func__, __LINE__);
-
-    if (Status == CFE_SUCCESS && CFE_SBR_IsValidRouteId(RouteId))
-    {
-        /* Get buffer - note this pre-initializes the returned buffer with
-         * a use count of 1, which refers to this task as it fills the buffer. */
-        BufDscPtr = CFE_SB_GetBufferFromPool(Size);
-        if (BufDscPtr == NULL)
-        {
-            PendingEventID = CFE_SB_GET_BUF_ERR_EID;
-            Status         = CFE_SB_BUF_ALOC_ERR;
-        }
-    }
-
-    /*
-     * Increment the MsgSendErrorCounter only if there was a real error,
-     * such as a validation issue or failure to allocate a buffer.
-     *
-     * (This should NOT be done if simply no route)
-     */
-    if (Status != CFE_SUCCESS)
-    {
-        CFE_SB_Global.HKTlmMsg.Payload.MsgSendErrorCounter++;
-    }
-
-    CFE_SB_UnlockSharedData(__func__, __LINE__);
-
-    /*
-     * If a buffer was obtained above, then copy the content into it
-     * and broadcast it to all subscribers in the route.
-     *
-     * Note - if there is no route / no subscribers, the "Status" will
-     * be CFE_SUCCESS because CFE_SB_TransmitMsgValidate() succeeded,
-     * but there will be no buffer because CFE_SBR_IsValidRouteId() returned
-     * false.
-     *
-     * But if the descriptor is non-null it means the message is valid and
-     * there is a route to send it to.
-     */
-    if (BufDscPtr != NULL)
-    {
-        /* Copy actual message content into buffer and set its metadata */
-        memcpy(&BufDscPtr->Content, MsgPtr, Size);
-        BufDscPtr->MsgId       = MsgId;
-        BufDscPtr->ContentSize = Size;
-        BufDscPtr->NeedsUpdate = IsOrigination;
-        CFE_MSG_GetType(MsgPtr, &BufDscPtr->ContentType);
-
-        /*
-         * This routine will use best-effort to send to all subscribers,
-         * increment the buffer use count for every successful delivery,
-         * and send an event/increment counter for any unsuccessful delivery.
-         */
-        CFE_SB_BroadcastBufferToRoute(BufDscPtr, RouteId);
-
-        /*
-         * The broadcast function consumes the buffer, so it should not be
-         * accessed in this function anymore
-         */
-        BufDscPtr = NULL;
-    }
-
-    if (PendingEventID == CFE_SB_GET_BUF_ERR_EID)
-    {
-        /* Get task id for events and Sender Info*/
-        CFE_ES_GetTaskID(&TskId);
-
-        if (CFE_SB_RequestToSendEvent(TskId, CFE_SB_GET_BUF_ERR_EID_BIT) == CFE_SB_GRANTED)
-        {
-            CFE_EVS_SendEventWithAppID(CFE_SB_GET_BUF_ERR_EID, CFE_EVS_EventType_ERROR, CFE_SB_Global.AppId,
-                                       "Send Err:Request for Buffer Failed. MsgId 0x%x,app %s,size %d",
-                                       (unsigned int)CFE_SB_MsgIdToValue(MsgId), CFE_SB_GetAppTskName(TskId, FullName),
-                                       (int)Size);
-
-            /* clear the bit so the task may send this event again */
-            CFE_SB_FinishSendEvent(TskId, CFE_SB_GET_BUF_ERR_EID_BIT);
-        }
-    }
-
-    return Status;
-}
-
-/*----------------------------------------------------------------
- *
- * Application-scope internal function
- * See description in header file for argument/return detail
- *
- *-----------------------------------------------------------------*/
-int32 CFE_SB_TransmitMsgValidate(const CFE_MSG_Message_t *MsgPtr, CFE_SB_MsgId_t *MsgIdPtr, CFE_MSG_Size_t *SizePtr,
-                                 CFE_SBR_RouteId_t *RouteIdPtr)
-{
-    CFE_ES_TaskId_t TskId;
-    char            FullName[(OS_MAX_API_NAME * 2)];
-    uint16          PendingEventID;
-    int32           Status;
-
-    PendingEventID = 0;
-    Status         = CFE_SUCCESS;
-
-    /* check input parameter */
-    if (MsgPtr == NULL)
-    {
-        PendingEventID = CFE_SB_SEND_BAD_ARG_EID;
-        Status         = CFE_SB_BAD_ARGUMENT;
-    }
-
-    if (Status == CFE_SUCCESS)
-    {
-        CFE_MSG_GetMsgId(MsgPtr, MsgIdPtr);
-
-        /* validate the msgid in the message */
-        if (!CFE_SB_IsValidMsgId(*MsgIdPtr))
-        {
-            PendingEventID = CFE_SB_SEND_INV_MSGID_EID;
-            Status         = CFE_SB_BAD_ARGUMENT;
-        }
-    }
-
-    if (Status == CFE_SUCCESS)
-    {
-        CFE_MSG_GetSize(MsgPtr, SizePtr);
-
-        /* Verify the size of the pkt is < or = the mission defined max */
-        if (*SizePtr > CFE_MISSION_SB_MAX_SB_MSG_SIZE)
-        {
-            PendingEventID = CFE_SB_MSG_TOO_BIG_EID;
-            Status         = CFE_SB_MSG_TOO_BIG;
-        }
-    }
-
-    if (Status == CFE_SUCCESS)
-    {
-        /* check the route, which should be done while locked */
-        CFE_SB_LockSharedData(__func__, __LINE__);
-
-        /* Get the routing id */
-        *RouteIdPtr = CFE_SBR_GetRouteId(*MsgIdPtr);
-
-        /* if there have been no subscriptions for this pkt, */
-        /* increment the dropped pkt cnt, send event and return success */
-        if (!CFE_SBR_IsValidRouteId(*RouteIdPtr))
-        {
-            CFE_SB_Global.HKTlmMsg.Payload.NoSubscribersCounter++;
-            PendingEventID = CFE_SB_SEND_NO_SUBS_EID;
-        }
-
-        CFE_SB_UnlockSharedData(__func__, __LINE__);
-    }
-
-    if (PendingEventID != 0)
-    {
-        /* get task id for events */
-        CFE_ES_GetTaskID(&TskId);
-
-        switch (PendingEventID)
-        {
-            case CFE_SB_SEND_BAD_ARG_EID:
-                if (CFE_SB_RequestToSendEvent(TskId, CFE_SB_SEND_BAD_ARG_EID_BIT) == CFE_SB_GRANTED)
-                {
-                    CFE_EVS_SendEventWithAppID(CFE_SB_SEND_BAD_ARG_EID, CFE_EVS_EventType_ERROR, CFE_SB_Global.AppId,
-                                               "Send Err:Bad input argument,Arg 0x%lx,App %s", (unsigned long)MsgPtr,
-                                               CFE_SB_GetAppTskName(TskId, FullName));
-
-                    /* clear the bit so the task may send this event again */
-                    CFE_SB_FinishSendEvent(TskId, CFE_SB_SEND_BAD_ARG_EID_BIT);
-                }
-                break;
-
-            case CFE_SB_SEND_INV_MSGID_EID:
-                if (CFE_SB_RequestToSendEvent(TskId, CFE_SB_SEND_INV_MSGID_EID_BIT) == CFE_SB_GRANTED)
-                {
-                    CFE_EVS_SendEventWithAppID(CFE_SB_SEND_INV_MSGID_EID, CFE_EVS_EventType_ERROR, CFE_SB_Global.AppId,
-                                               "Send Err:Invalid MsgId(0x%x)in msg,App %s",
-                                               (unsigned int)CFE_SB_MsgIdToValue(*MsgIdPtr),
-                                               CFE_SB_GetAppTskName(TskId, FullName));
-
-                    /* clear the bit so the task may send this event again */
-                    CFE_SB_FinishSendEvent(TskId, CFE_SB_SEND_INV_MSGID_EID_BIT);
-                }
-                break;
-
-            case CFE_SB_MSG_TOO_BIG_EID:
-                if (CFE_SB_RequestToSendEvent(TskId, CFE_SB_MSG_TOO_BIG_EID_BIT) == CFE_SB_GRANTED)
-                {
-                    CFE_EVS_SendEventWithAppID(CFE_SB_MSG_TOO_BIG_EID, CFE_EVS_EventType_ERROR, CFE_SB_Global.AppId,
-                                               "Send Err:Msg Too Big MsgId=0x%x,app=%s,size=%d,MaxSz=%d",
-                                               (unsigned int)CFE_SB_MsgIdToValue(*MsgIdPtr),
-                                               CFE_SB_GetAppTskName(TskId, FullName), (int)*SizePtr,
-                                               CFE_MISSION_SB_MAX_SB_MSG_SIZE);
-
-                    /* clear the bit so the task may send this event again */
-                    CFE_SB_FinishSendEvent(TskId, CFE_SB_MSG_TOO_BIG_EID_BIT);
-                }
-                break;
-
-            case CFE_SB_SEND_NO_SUBS_EID:
-                /* Determine if event can be sent without causing recursive event problem */
-                if (CFE_SB_RequestToSendEvent(TskId, CFE_SB_SEND_NO_SUBS_EID_BIT) == CFE_SB_GRANTED)
-                {
-                    CFE_EVS_SendEventWithAppID(CFE_SB_SEND_NO_SUBS_EID, CFE_EVS_EventType_INFORMATION,
-                                               CFE_SB_Global.AppId, "No subscribers for MsgId 0x%x,sender %s",
-                                               (unsigned int)CFE_SB_MsgIdToValue(*MsgIdPtr),
-                                               CFE_SB_GetAppTskName(TskId, FullName));
-
-                    /* clear the bit so the task may send this event again */
-                    CFE_SB_FinishSendEvent(TskId, CFE_SB_SEND_NO_SUBS_EID_BIT);
-                }
-                break;
-        }
-    }
-
-    return Status;
-}
-
-/*----------------------------------------------------------------
- *
- * Application-scope internal function
- * See description in header file for argument/return detail
- *
- *-----------------------------------------------------------------*/
-void CFE_SB_BroadcastBufferToRoute(CFE_SB_BufferD_t *BufDscPtr, CFE_SBR_RouteId_t RouteId)
-{
-    CFE_ES_AppId_t         AppId;
-    CFE_ES_TaskId_t        TskId;
-    CFE_SB_DestinationD_t *DestPtr;
-    CFE_SB_PipeD_t *       PipeDscPtr;
-    CFE_SB_EventBuf_t      SBSndErr;
-    int32                  OsStatus;
-    uint32                 i;
-    char                   FullName[(OS_MAX_API_NAME * 2)];
-    char                   PipeName[OS_MAX_API_NAME];
-    bool                   IsAcceptable;
-
-    SBSndErr.EvtsToSnd = 0;
-    IsAcceptable       = true;
-
-    /* get app id for loopback testing */
-    CFE_ES_GetAppID(&AppId);
-
-    /* get task id for events and Sender Info*/
-    CFE_ES_GetTaskID(&TskId);
-
-    /* take semaphore to prevent a task switch during processing */
-    CFE_SB_LockSharedData(__func__, __LINE__);
-
-    /* For an invalid route / no subscribers this whole logic can be skipped */
-    if (CFE_SBR_IsValidRouteId(RouteId))
-    {
-        /* Set the seq count if requested (while locked) before actually sending */
-        if (BufDscPtr->NeedsUpdate)
-        {
-            CFE_SBR_IncrementSequenceCounter(RouteId);
-
-            CFE_MSG_SetSequenceCount(&BufDscPtr->Content.Msg, CFE_SBR_GetSequenceCounter(RouteId));
-
-            /* Update all MSG headers based on the current sequence */
-            CFE_MSG_OriginationAction(&BufDscPtr->Content.Msg, BufDscPtr->ContentSize, &IsAcceptable);
-
-            /* Clear the flag, just in case */
-            BufDscPtr->NeedsUpdate = false;
-        }
-
-        /* Send the packet to all destinations  */
-        for (DestPtr = CFE_SBR_GetDestListHeadPtr(RouteId); DestPtr != NULL; DestPtr = DestPtr->Next)
-        {
-            if (DestPtr->Active == CFE_SB_ACTIVE) /* destination is active */
-            {
-                PipeDscPtr = CFE_SB_LocatePipeDescByID(DestPtr->PipeId);
-            }
-            else
-            {
-                PipeDscPtr = NULL;
-            }
-
-            if (!CFE_SB_PipeDescIsMatch(PipeDscPtr, DestPtr->PipeId))
-            {
-                continue;
-            }
-
-            if ((PipeDscPtr->Opts & CFE_SB_PIPEOPTS_IGNOREMINE) != 0 &&
-                CFE_RESOURCEID_TEST_EQUAL(PipeDscPtr->AppId, AppId))
-            {
-                continue;
-            }
-
-            /* if Msg limit exceeded, log event, increment counter */
-            /* and go to next destination */
-            if (DestPtr->BuffCount >= DestPtr->MsgId2PipeLim)
-            {
-                SBSndErr.EvtBuf[SBSndErr.EvtsToSnd].PipeId  = DestPtr->PipeId;
-                SBSndErr.EvtBuf[SBSndErr.EvtsToSnd].EventId = CFE_SB_MSGID_LIM_ERR_EID;
-                SBSndErr.EvtsToSnd++;
-                CFE_SB_Global.HKTlmMsg.Payload.MsgLimitErrorCounter++;
-                PipeDscPtr->SendErrors++;
-
-                continue;
-            }
-
-            /*
-            ** Write the buffer descriptor to the queue of the pipe.  If the write
-            ** failed, log info and increment the pipe's error counter.
-            */
-            OsStatus = OS_QueuePut(PipeDscPtr->SysQueueId, &BufDscPtr, sizeof(BufDscPtr), 0);
-
-            if (OsStatus == OS_SUCCESS)
-            {
-                /* The queue now holds a ref to the buffer, so increment its ref count. */
-                CFE_SB_IncrBufUseCnt(BufDscPtr);
-
-                DestPtr->BuffCount++; /* used for checking MsgId2PipeLimit */
-                DestPtr->DestCnt++;   /* used for statistics */
-                ++PipeDscPtr->CurrentQueueDepth;
-                if (PipeDscPtr->CurrentQueueDepth >= PipeDscPtr->PeakQueueDepth)
-                {
-                    PipeDscPtr->PeakQueueDepth = PipeDscPtr->CurrentQueueDepth;
-                }
-            }
-            else
-            {
-                SBSndErr.EvtBuf[SBSndErr.EvtsToSnd].PipeId = DestPtr->PipeId;
-                if (OsStatus == OS_QUEUE_FULL)
-                {
-                    SBSndErr.EvtBuf[SBSndErr.EvtsToSnd].EventId = CFE_SB_Q_FULL_ERR_EID;
-                    CFE_SB_Global.HKTlmMsg.Payload.PipeOverflowErrorCounter++;
-                }
-                else
-                {
-                    /* Unexpected error while writing to queue. */
-                    SBSndErr.EvtBuf[SBSndErr.EvtsToSnd].EventId  = CFE_SB_Q_WR_ERR_EID;
-                    SBSndErr.EvtBuf[SBSndErr.EvtsToSnd].OsStatus = OsStatus;
-                    CFE_SB_Global.HKTlmMsg.Payload.InternalErrorCounter++;
-                }
-                SBSndErr.EvtsToSnd++;
-                PipeDscPtr->SendErrors++;
-            } /*end if */
-
-        } /* end loop over destinations */
-    }
-
-    /*
-     * If any specific delivery issues occurred, also increment the
-     * general error count before releasing the lock.
-     */
-    if (SBSndErr.EvtsToSnd > 0)
-    {
-        CFE_SB_Global.HKTlmMsg.Payload.MsgSendErrorCounter++;
-    }
-
-    /*
-     * Remove this from whatever list it was in
-     *
-     * If it was a singleton/new buffer this has no effect.
-     * If it was a zero-copy buffer this removes it from the ZeroCopyList.
-     */
-    CFE_SB_TrackingListRemove(&BufDscPtr->Link);
-
-    /* clear the AppID field in case it was a zero copy buffer,
-     * as it is no longer owned by that app after broadcasting */
-    BufDscPtr->AppId = CFE_ES_APPID_UNDEFINED;
-
-    /* track the buffer as an in-transit message */
-    CFE_SB_TrackingListAdd(&CFE_SB_Global.InTransitList, &BufDscPtr->Link);
-
-    /*
-    ** Decrement the buffer UseCount and free buffer if cnt=0. This decrement is done
-    ** because the use cnt is initialized to 1 in CFE_SB_GetBufferFromPool.
-    ** Initializing the count to 1 (as opposed to zero) and decrementing it here are
-    ** done to ensure the buffer gets released when there are destinations that have
-    ** been disabled via ground command.
-    */
-    CFE_SB_DecrBufUseCnt(BufDscPtr);
-
-    /* release the semaphore */
-    CFE_SB_UnlockSharedData(__func__, __LINE__);
-
-    /* send an event for each pipe write error that may have occurred */
-    for (i = 0; i < SBSndErr.EvtsToSnd; i++)
-    {
-        if (SBSndErr.EvtBuf[i].EventId == CFE_SB_MSGID_LIM_ERR_EID)
-        {
-            /* Determine if event can be sent without causing recursive event problem */
-            if (CFE_SB_RequestToSendEvent(TskId, CFE_SB_MSGID_LIM_ERR_EID_BIT) == CFE_SB_GRANTED)
-            {
-                CFE_SB_GetPipeName(PipeName, sizeof(PipeName), SBSndErr.EvtBuf[i].PipeId);
-
-                CFE_ES_PerfLogEntry(CFE_MISSION_SB_MSG_LIM_PERF_ID);
-                CFE_ES_PerfLogExit(CFE_MISSION_SB_MSG_LIM_PERF_ID);
-
-                CFE_EVS_SendEventWithAppID(CFE_SB_MSGID_LIM_ERR_EID, CFE_EVS_EventType_ERROR, CFE_SB_Global.AppId,
-                                           "Msg Limit Err,MsgId 0x%x,pipe %s,sender %s",
-                                           (unsigned int)CFE_SB_MsgIdToValue(BufDscPtr->MsgId), PipeName,
-                                           CFE_SB_GetAppTskName(TskId, FullName));
-
-                /* clear the bit so the task may send this event again */
-                CFE_SB_FinishSendEvent(TskId, CFE_SB_MSGID_LIM_ERR_EID_BIT);
-            }
-        }
-        else if (SBSndErr.EvtBuf[i].EventId == CFE_SB_Q_FULL_ERR_EID)
-        {
-            /* Determine if event can be sent without causing recursive event problem */
-            if (CFE_SB_RequestToSendEvent(TskId, CFE_SB_Q_FULL_ERR_EID_BIT) == CFE_SB_GRANTED)
-            {
-                CFE_SB_GetPipeName(PipeName, sizeof(PipeName), SBSndErr.EvtBuf[i].PipeId);
-
-                CFE_ES_PerfLogEntry(CFE_MISSION_SB_PIPE_OFLOW_PERF_ID);
-                CFE_ES_PerfLogExit(CFE_MISSION_SB_PIPE_OFLOW_PERF_ID);
-
-                CFE_EVS_SendEventWithAppID(CFE_SB_Q_FULL_ERR_EID, CFE_EVS_EventType_ERROR, CFE_SB_Global.AppId,
-                                           "Pipe Overflow,MsgId 0x%x,pipe %s,sender %s",
-                                           (unsigned int)CFE_SB_MsgIdToValue(BufDscPtr->MsgId), PipeName,
-                                           CFE_SB_GetAppTskName(TskId, FullName));
-
-                /* clear the bit so the task may send this event again */
-                CFE_SB_FinishSendEvent(TskId, CFE_SB_Q_FULL_ERR_EID_BIT);
-            }
-        }
-        else
-        {
-            /* Determine if event can be sent without causing recursive event problem */
-            if (CFE_SB_RequestToSendEvent(TskId, CFE_SB_Q_WR_ERR_EID_BIT) == CFE_SB_GRANTED)
-            {
-                CFE_SB_GetPipeName(PipeName, sizeof(PipeName), SBSndErr.EvtBuf[i].PipeId);
-
-                CFE_EVS_SendEventWithAppID(CFE_SB_Q_WR_ERR_EID, CFE_EVS_EventType_ERROR, CFE_SB_Global.AppId,
-                                           "Pipe Write Err,MsgId 0x%x,pipe %s,sender %s,stat %ld",
-                                           (unsigned int)CFE_SB_MsgIdToValue(BufDscPtr->MsgId), PipeName,
-                                           CFE_SB_GetAppTskName(TskId, FullName), (long)(SBSndErr.EvtBuf[i].OsStatus));
-
-                /* clear the bit so the task may send this event again */
-                CFE_SB_FinishSendEvent(TskId, CFE_SB_Q_WR_ERR_EID_BIT);
-            }
-        }
-    }
-}
-
-/*----------------------------------------------------------------
- *
- * Implemented per public API
- * See description in header file for argument/return detail
- *
- *-----------------------------------------------------------------*/
 CFE_Status_t CFE_SB_ReceiveBuffer(CFE_SB_Buffer_t **BufPtr, CFE_SB_PipeId_t PipeId, int32 TimeOut)
 {
-    int32                  Status;
-    int32                  OsStatus;
-    CFE_SB_BufferD_t *     BufDscPtr;
-    size_t                 BufDscSize;
-    CFE_SB_PipeD_t *       PipeDscPtr;
-    CFE_SB_DestinationD_t *DestPtr;
-    CFE_SBR_RouteId_t      RouteId;
-    CFE_ES_TaskId_t        TskId;
-    uint16                 PendingEventID;
-    osal_id_t              SysQueueId;
-    int32                  SysTimeout;
-    char                   FullName[(OS_MAX_API_NAME * 2)];
+    CFE_SB_ReceiveTxn_State_t  TxnBuf;
+    CFE_SB_MessageTxn_State_t *Txn;
 
-    PendingEventID = 0;
-    Status         = CFE_SUCCESS;
-    SysTimeout     = OS_PEND;
-    SysQueueId     = OS_OBJECT_ID_UNDEFINED;
-    PipeDscPtr     = NULL;
-    BufDscPtr      = NULL;
-    DestPtr        = NULL;
-    BufDscSize     = 0;
-    OsStatus       = OS_SUCCESS;
+    Txn = CFE_SB_ReceiveTxn_Init(&TxnBuf, BufPtr);
 
-    /*
-     * Check input args and see if any are bad, which require
-     * a "BAD_ARG_EID" to be generated.
-     *
-     * Also translate the timeout here.  Timeouts greater than 0
-     * may be passed to OSAL directly, but the two fixed constants
-     * CFE_SB_PEND_FOREVER and CFE_SB_POLL are checked explicitly,
-     * to maintain API independence - even though the values are
-     * currently defined the same.
-     */
-
-    if (BufPtr == NULL)
+    if (CFE_SB_MessageTxn_IsOK(Txn))
     {
-        PendingEventID = CFE_SB_RCV_BAD_ARG_EID;
-        Status         = CFE_SB_BAD_ARGUMENT;
-    }
-    else if (TimeOut > 0)
-    {
-        /* time outs greater than 0 can be passed to OSAL directly */
-        SysTimeout = TimeOut;
-    }
-    else if (TimeOut == CFE_SB_POLL)
-    {
-        SysTimeout = OS_CHECK;
-    }
-    else if (TimeOut != CFE_SB_PEND_FOREVER)
-    {
-        /* any other timeout value is invalid */
-        PendingEventID = CFE_SB_RCV_BAD_ARG_EID;
-        Status         = CFE_SB_BAD_ARGUMENT;
+        CFE_SB_MessageTxn_SetTimeout(Txn, TimeOut);
     }
 
-    /* If OK, then lock and pull relevant info from Pipe Descriptor */
-    if (Status == CFE_SUCCESS)
+    if (CFE_SB_MessageTxn_IsOK(Txn))
     {
-        CFE_SB_LockSharedData(__func__, __LINE__);
-
-        PipeDscPtr = CFE_SB_LocatePipeDescByID(PipeId);
-
-        /* If the pipe does not exist or PipeId is out of range... */
-        if (!CFE_SB_PipeDescIsMatch(PipeDscPtr, PipeId))
-        {
-            PendingEventID = CFE_SB_BAD_PIPEID_EID;
-            Status         = CFE_SB_BAD_ARGUMENT;
-        }
-        else
-        {
-            /* Grab the queue ID */
-            SysQueueId = PipeDscPtr->SysQueueId;
-
-            /*
-             * Un-reference any previous buffer from the last call.
-             *
-             * NOTE: This is historical behavior where apps call CFE_SB_ReceiveBuffer()
-             * in the loop within the app's main task.  There is currently no separate
-             * API to "free" or unreference a buffer that was returned from SB.
-             *
-             * Instead, each time this function is invoked, it is implicitly interpreted
-             * as an indication that the caller is done with the previous buffer.
-             *
-             * Unfortunately this prevents pipe IDs from being serviced/shared across
-             * multiple child tasks in a worker pattern design.  This may be changed
-             * in a future version of CFE to decouple these actions, to allow for
-             * multiple workers to service the same pipe.
-             */
-            if (PipeDscPtr->LastBuffer != NULL)
-            {
-                /* Decrement the Buffer Use Count, which will Free buffer if it becomes 0 */
-                CFE_SB_DecrBufUseCnt(PipeDscPtr->LastBuffer);
-                PipeDscPtr->LastBuffer = NULL;
-            }
-        }
-
-        CFE_SB_UnlockSharedData(__func__, __LINE__);
-    }
-
-    /*
-     * If everything validated, then proceed to get a buffer from the queue.
-     * This must be done OUTSIDE the SB lock, as this call likely blocks.
-     */
-    if (Status == CFE_SUCCESS)
-    {
-        /* Read the buffer descriptor address from the queue.  */
-        OsStatus = OS_QueueGet(SysQueueId, &BufDscPtr, sizeof(BufDscPtr), &BufDscSize, SysTimeout);
+        CFE_SB_ReceiveTxn_SetPipeId(Txn, PipeId);
 
         /*
-         * translate the return value -
-         *
-         * CFE functions have their own set of RC values should not directly return OSAL codes
-         * The size should always match.  If it does not, then generate CFE_SB_Q_RD_ERR_EID.
+         * Set the verify flag true by default -
+         * in the default impl verify is a no-op that always succeeds.
+         * If an actual implementation is provided, it will be used here.
          */
-        if (OsStatus == OS_SUCCESS && BufDscPtr != NULL && BufDscSize == sizeof(BufDscPtr))
-        {
-            /* Pass through */
-        }
-        else if (OsStatus == OS_QUEUE_EMPTY)
-        {
-            /* normal if using CFE_SB_POLL */
-            Status = CFE_SB_NO_MESSAGE;
-        }
-        else if (OsStatus == OS_QUEUE_TIMEOUT)
-        {
-            /* normal if using a nonzero timeout */
-            Status = CFE_SB_TIME_OUT;
-        }
-        else
-        {
-            /* off-nominal condition, report an error event */
-            PendingEventID = CFE_SB_Q_RD_ERR_EID;
-            Status         = CFE_SB_PIPE_RD_ERR;
-        }
+        CFE_SB_MessageTxn_SetEndpoint(Txn, true);
     }
 
-    /* Now re-lock to store the buffer in the pipe descriptor */
-    CFE_SB_LockSharedData(__func__, __LINE__);
-
-    if (Status == CFE_SUCCESS)
+    if (BufPtr != NULL)
     {
         /*
-         * NOTE: This uses the same PipeDscPtr that was found earlier.
-         * Technically it is possible that the pipe was changed between now and then,
-         * but the current PipeID definition doesn't really allow this to be detected.
+         * Note - the API should qualify the parameter as "const", but this is
+         * kept non-const for backward compatibility.  Callers should never write to
+         * the returned buffer, it is const in practice.
          */
-        if (CFE_SB_PipeDescIsMatch(PipeDscPtr, PipeId))
-        {
-            /*
-            ** Load the pipe tables 'CurrentBuff' with the buffer descriptor
-            ** ptr corresponding to the message just read. This is done so that
-            ** the buffer can be released on the next receive call for this pipe.
-            **
-            ** This counts as a new reference as it is being stored in the PipeDsc
-            */
-            CFE_SB_IncrBufUseCnt(BufDscPtr);
-            PipeDscPtr->LastBuffer = BufDscPtr;
-
-            /*
-             * Also set the Receivers pointer to the address of the actual message
-             * (currently this is "borrowing" the ref above, not its own ref)
-             */
-            *BufPtr = &BufDscPtr->Content;
-
-            /* get pointer to destination to be used in decrementing msg limit cnt*/
-            RouteId = CFE_SBR_GetRouteId(BufDscPtr->MsgId);
-            DestPtr = CFE_SB_GetDestPtr(RouteId, PipeId);
-
-            /*
-            ** DestPtr would be NULL if the msg is unsubscribed to while it is on
-            ** the pipe. The BuffCount may be zero if the msg is unsubscribed to and
-            ** then resubscribed to while it is on the pipe. Both of these cases are
-            ** considered nominal and are handled by the code below.
-            */
-            if (DestPtr != NULL && DestPtr->BuffCount > 0)
-            {
-                DestPtr->BuffCount--;
-            }
-
-            if (PipeDscPtr->CurrentQueueDepth > 0)
-            {
-                --PipeDscPtr->CurrentQueueDepth;
-            }
-        }
-        else
-        {
-            /* should send the bad pipe ID event here too */
-            PendingEventID = CFE_SB_BAD_PIPEID_EID;
-            Status         = CFE_SB_PIPE_RD_ERR;
-        }
-
-        /* Always decrement the use count, for the ref that was in the queue */
-        CFE_SB_DecrBufUseCnt(BufDscPtr);
+        *BufPtr = (CFE_SB_Buffer_t *)CFE_SB_ReceiveTxn_Execute(Txn);
     }
 
-    /* Before unlocking, increment relevant error counter if needed */
-    if (Status != CFE_SUCCESS && Status != CFE_SB_NO_MESSAGE && Status != CFE_SB_TIME_OUT)
-    {
-        if (PendingEventID == CFE_SB_RCV_BAD_ARG_EID || PendingEventID == CFE_SB_BAD_PIPEID_EID)
-        {
-            ++CFE_SB_Global.HKTlmMsg.Payload.MsgReceiveErrorCounter;
-        }
-        else
-        {
-            /* For any other unexpected error (e.g. CFE_SB_Q_RD_ERR_EID) */
-            ++CFE_SB_Global.HKTlmMsg.Payload.InternalErrorCounter;
-        }
-    }
+    CFE_SB_MessageTxn_ReportEvents(Txn);
 
-    CFE_SB_UnlockSharedData(__func__, __LINE__);
-
-    /* Now actually send the event, after unlocking (do not call EVS with SB locked) */
-    if (PendingEventID != 0)
-    {
-        /* get task id for events */
-        CFE_ES_GetTaskID(&TskId);
-
-        switch (PendingEventID)
-        {
-            case CFE_SB_Q_RD_ERR_EID:
-                CFE_EVS_SendEventWithAppID(CFE_SB_Q_RD_ERR_EID, CFE_EVS_EventType_ERROR, CFE_SB_Global.AppId,
-                                           "Pipe Read Err,pipe %lu,app %s,stat %ld", CFE_RESOURCEID_TO_ULONG(PipeId),
-                                           CFE_SB_GetAppTskName(TskId, FullName), (long)OsStatus);
-                break;
-            case CFE_SB_RCV_BAD_ARG_EID:
-                CFE_EVS_SendEventWithAppID(CFE_SB_RCV_BAD_ARG_EID, CFE_EVS_EventType_ERROR, CFE_SB_Global.AppId,
-                                           "Rcv Err:Bad Input Arg:BufPtr 0x%lx,pipe %lu,t/o %d,app %s",
-                                           (unsigned long)BufPtr, CFE_RESOURCEID_TO_ULONG(PipeId), (int)TimeOut,
-                                           CFE_SB_GetAppTskName(TskId, FullName));
-                break;
-            case CFE_SB_BAD_PIPEID_EID:
-                CFE_EVS_SendEventWithAppID(CFE_SB_BAD_PIPEID_EID, CFE_EVS_EventType_ERROR, CFE_SB_Global.AppId,
-                                           "Rcv Err:PipeId %lu does not exist,app %s", CFE_RESOURCEID_TO_ULONG(PipeId),
-                                           CFE_SB_GetAppTskName(TskId, FullName));
-                break;
-        }
-    }
-
-    /* If not successful, set the output pointer to NULL */
-    if (Status != CFE_SUCCESS && BufPtr != NULL)
-    {
-        *BufPtr = NULL;
-    }
-
-    return Status;
+    return CFE_SB_MessageTxn_GetStatus(Txn);
 }
 
 /*----------------------------------------------------------------
@@ -2055,43 +1387,6 @@ CFE_SB_Buffer_t *CFE_SB_AllocateMessageBuffer(size_t MsgSize)
 
 /*----------------------------------------------------------------
  *
- * Application-scope internal function
- * See description in header file for argument/return detail
- *
- *-----------------------------------------------------------------*/
-int32 CFE_SB_ZeroCopyBufferValidate(CFE_SB_Buffer_t *BufPtr, CFE_SB_BufferD_t **BufDscPtr)
-{
-    cpuaddr BufDscAddr;
-
-    /*
-     * Sanity Check that the pointers are not NULL
-     */
-    if (BufPtr == NULL)
-    {
-        return CFE_SB_BAD_ARGUMENT;
-    }
-
-    /*
-     * Calculate descriptor pointer from buffer pointer -
-     * The buffer is just a member (offset) in the descriptor
-     */
-    BufDscAddr = (cpuaddr)BufPtr - offsetof(CFE_SB_BufferD_t, Content);
-    *BufDscPtr = (CFE_SB_BufferD_t *)BufDscAddr;
-
-    /*
-     * Check that the descriptor is actually a "zero copy" type,
-     */
-    if (!CFE_RESOURCEID_TEST_DEFINED((*BufDscPtr)->AppId))
-    {
-        return CFE_SB_BUFFER_INVALID;
-    }
-
-    /* Basic sanity check passed */
-    return CFE_SUCCESS;
-}
-
-/*----------------------------------------------------------------
- *
  * Implemented per public API
  * See description in header file for argument/return detail
  *
@@ -2101,10 +1396,17 @@ CFE_Status_t CFE_SB_ReleaseMessageBuffer(CFE_SB_Buffer_t *BufPtr)
     CFE_SB_BufferD_t *BufDscPtr;
     int32             Status;
 
-    Status = CFE_SB_ZeroCopyBufferValidate(BufPtr, &BufDscPtr);
+    /*
+     * Sanity Check that the pointers are not NULL
+     */
+    if (BufPtr == NULL)
+    {
+        return CFE_SB_BAD_ARGUMENT;
+    }
 
     CFE_SB_LockSharedData(__func__, __LINE__);
 
+    Status = CFE_SB_ZeroCopyBufferValidate(BufPtr, &BufDscPtr);
     if (Status == CFE_SUCCESS)
     {
         /* Clear the ownership app ID and decrement use count (may also free) */
@@ -2125,50 +1427,94 @@ CFE_Status_t CFE_SB_ReleaseMessageBuffer(CFE_SB_Buffer_t *BufPtr)
  *-----------------------------------------------------------------*/
 CFE_Status_t CFE_SB_TransmitBuffer(CFE_SB_Buffer_t *BufPtr, bool IsOrigination)
 {
-    int32             Status;
-    CFE_SB_BufferD_t *BufDscPtr;
-    CFE_SBR_RouteId_t RouteId;
+    CFE_SB_TransmitTxn_State_t TxnBuf;
+    CFE_SB_MessageTxn_State_t *Txn;
 
-    Status = CFE_SB_ZeroCopyBufferValidate(BufPtr, &BufDscPtr);
+    Txn = CFE_SB_TransmitTxn_Init(&TxnBuf, BufPtr);
 
-    if (Status == CFE_SUCCESS)
+    /* In this context, the user should have set the the size and MsgId in the content */
+    if (CFE_SB_MessageTxn_IsOK(Txn))
     {
-        /* Validate the content and get the MsgId, store it in the descriptor */
-        Status = CFE_SB_TransmitMsgValidate(&BufPtr->Msg, &BufDscPtr->MsgId, &BufDscPtr->ContentSize, &RouteId);
+        CFE_SB_TransmitTxn_SetupFromMsg(Txn, &BufPtr->Msg);
+    }
 
-        /*
-         * Broadcast the message if validation succeeded.
-         *
-         * Note that for the case of no subscribers, the validation returns CFE_SUCCESS
-         * but the actual route ID may be invalid.  This is OK and considered normal-
-         * the validation will increment the NoSubscribers count, but we should NOT
-         * increment the MsgSendErrorCounter here - it is not really a sending error to
-         * have no subscribers.  CFE_SB_BroadcastBufferToRoute() will not send to
-         * anything if the route is not valid (benign).
-         */
-        if (Status == CFE_SUCCESS)
+    if (CFE_SB_MessageTxn_IsOK(Txn))
+    {
+        /* Save passed-in parameters */
+        CFE_SB_MessageTxn_SetEndpoint(Txn, IsOrigination);
+
+        CFE_SB_TransmitTxn_Execute(Txn, BufPtr);
+    }
+
+    /* send an event for each pipe write error that may have occurred */
+    CFE_SB_MessageTxn_ReportEvents(Txn);
+
+    return CFE_SB_MessageTxn_GetStatus(Txn);
+}
+
+/*----------------------------------------------------------------
+ *
+ * Implemented per public API
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+CFE_Status_t CFE_SB_TransmitMsg(const CFE_MSG_Message_t *MsgPtr, bool IsOrigination)
+{
+    CFE_SB_TransmitTxn_State_t TxnBuf;
+    CFE_SB_MessageTxn_State_t *Txn;
+    CFE_SB_Buffer_t *          BufPtr;
+
+    BufPtr = NULL;
+    Txn    = CFE_SB_TransmitTxn_Init(&TxnBuf, MsgPtr);
+
+    /* In this context, the user should have set the the size and MsgId in the content */
+    if (CFE_SB_MessageTxn_IsOK(Txn))
+    {
+        CFE_SB_TransmitTxn_SetupFromMsg(Txn, MsgPtr);
+    }
+
+    if (CFE_SB_MessageTxn_IsOK(Txn))
+    {
+        /* Get buffer - note this pre-initializes the returned buffer with
+         * a use count of 1, which refers to this task as it fills the buffer. */
+        BufPtr = CFE_SB_AllocateMessageBuffer(CFE_SB_MessageTxn_GetContentSize(Txn));
+        if (BufPtr == NULL)
         {
-            BufDscPtr->NeedsUpdate = IsOrigination;
-            CFE_MSG_GetType(&BufPtr->Msg, &BufDscPtr->ContentType);
-
-            /* Now broadcast the message, which consumes the buffer */
-            CFE_SB_BroadcastBufferToRoute(BufDscPtr, RouteId);
-
-            /*
-             * IMPORTANT - the descriptor might be freed at any time after this,
-             * so the descriptor should not be accessed again after this point.
-             */
-            BufDscPtr = NULL;
+            CFE_SB_MessageTxn_SetEventAndStatus(Txn, CFE_SB_GET_BUF_ERR_EID, CFE_SB_BUF_ALOC_ERR);
         }
     }
 
-    if (Status != CFE_SUCCESS)
+    /*
+     * If a buffer was obtained above, then copy the content into it
+     * and broadcast it to all subscribers in the route.
+     *
+     * Note - if there is no route / no subscribers, the "Status" will
+     * be CFE_SUCCESS because CFE_SB_TransmitMsgValidate() succeeded,
+     * but there will be no buffer because CFE_SBR_IsValidRouteId() returned
+     * false.
+     *
+     * But if the descriptor is non-null it means the message is valid and
+     * there is a route to send it to.
+     */
+    if (CFE_SB_MessageTxn_IsOK(Txn))
     {
-        /* Increment send error counter for validation failure */
-        CFE_SB_LockSharedData(__func__, __LINE__);
-        CFE_SB_Global.HKTlmMsg.Payload.MsgSendErrorCounter++;
-        CFE_SB_UnlockSharedData(__func__, __LINE__);
+        /* Copy actual message content into buffer */
+        memcpy(&BufPtr->Msg, MsgPtr, CFE_SB_MessageTxn_GetContentSize(Txn));
+
+        /* Save passed-in parameters */
+        CFE_SB_MessageTxn_SetEndpoint(Txn, IsOrigination);
+
+        CFE_SB_TransmitTxn_Execute(Txn, BufPtr);
+
+        /*
+         * The broadcast function consumes the buffer, so it should not be
+         * accessed in this function anymore
+         */
+        BufPtr = NULL;
     }
 
-    return Status;
+    /* send an event for each pipe write error that may have occurred */
+    CFE_SB_MessageTxn_ReportEvents(Txn);
+
+    return CFE_SB_MessageTxn_GetStatus(Txn);
 }

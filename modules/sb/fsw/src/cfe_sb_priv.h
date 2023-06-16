@@ -124,16 +124,18 @@ typedef struct CFE_SB_BufferD
     CFE_SB_BufferLink_t Link; /**< Links for inclusion in the tracking lists */
 
     /**
-     * Actual MsgId of the content, cached here to avoid repeat
-     * calls into CFE_MSG API during traversal/delivery of the message.
+     * MsgId that should be used for routing/delivering the message.  Traditionally,
+     * this is the same as the MsgId inside the content, but cached for easier access.
+     * However, the user may also choose to route messages explicitly and thus this
+     * message ID could differ from the one inside the message content.
      *
-     * MsgId is set for buffers which contain actual data in transit.  AppId is unset
-     * while in transit, as it may be sent to multiple apps.
+     * MsgId is set for buffers in transit.  AppId is unset while in transit, as it
+     * may be sent to multiple apps.
      *
      * During zero copy buffer initial allocation, the MsgId is not known at this time
      * and should be set to the invalid msg ID.
      */
-    CFE_SB_MsgId_t MsgId;
+    CFE_SBR_RouteId_t DestRouteId;
 
     /**
      * Current owner of the buffer, if owned by a single app.
@@ -146,11 +148,10 @@ typedef struct CFE_SB_BufferD
      */
     CFE_ES_AppId_t AppId;
 
-    size_t         AllocatedSize; /**< Total size of this descriptor (including descriptor itself) */
-    size_t         ContentSize;   /**< Actual size of message content currently stored in the buffer */
-    CFE_MSG_Type_t ContentType;   /**< Type of message content currently stored in the buffer */
+    CFE_SB_MsgId_t MsgId;
 
-    bool NeedsUpdate; /**< If message should get its header fields automatically updated */
+    size_t AllocatedSize; /**< Total size of this descriptor (including descriptor itself) */
+    size_t ContentSize;   /**< Actual size of message content currently stored in the buffer */
 
     uint16 UseCount; /**< Number of active references to this buffer in the system */
 
@@ -168,10 +169,10 @@ typedef struct CFE_SB_BufferD
 typedef struct
 {
     CFE_SB_PipeId_t   PipeId;
-    uint8             Opts;
-    uint8             Spare;
     CFE_ES_AppId_t    AppId;
     osal_id_t         SysQueueId;
+    uint8             Opts;
+    uint8             Spare;
     uint16            SendErrors;
     uint16            MaxQueueDepth;
     uint16            CurrentQueueDepth;
@@ -259,29 +260,82 @@ typedef struct
 } CFE_SB_Global_t;
 
 /******************************************************************************
-**  Typedef:  CFE_SB_SendErrEventBuf_t
-**
-**  Purpose:
-**     This structure is used to store event information during a send.
-*/
+ *  Typedef:  CFE_SB_PipeSetEntry_t
+ */
 typedef struct
 {
-    uint32          EventId;
-    int32           OsStatus;
     CFE_SB_PipeId_t PipeId;
-} CFE_SB_SendErrEventBuf_t;
+    osal_id_t       SysQueueId;
+    uint16          PendingEventId;
+    int32           OsStatus;
+} CFE_SB_PipeSetEntry_t;
 
-/******************************************************************************
-**  Typedef:  CFE_SB_EventBuf_t
-**
-**  Purpose:
-**     This structure is used to store event information during a send.
-*/
+typedef enum
+{
+    CFE_SB_MessageTxn_TimeoutMode_POLL, /**< Transaction should not block */
+    CFE_SB_MessageTxn_TimeoutMode_PEND, /**< Transaction should block indefinitely */
+    CFE_SB_MessageTxn_TimeoutMode_TIMED /**< Transaction should block for a limited amount of time */
+} CFE_SB_MessageTxn_TimeoutMode_t;
+
+/**
+ * \brief Tracks the status of a message/buffer transmit transaction
+ *
+ * This includes the list of destinations to send to, and the status of each,
+ * as well as any pending event IDs from the transaction setup.
+ *
+ */
 typedef struct
 {
-    uint32                   EvtsToSnd;
-    CFE_SB_SendErrEventBuf_t EvtBuf[CFE_PLATFORM_SB_MAX_DEST_PER_PKT];
-} CFE_SB_EventBuf_t;
+    bool IsTransmit;
+    bool IsEndpoint;
+
+    uint16 NumPipes;
+    uint16 MaxPipes;
+    uint16 NumPipeErrs;
+    uint16 TransactionEventId;
+
+    CFE_SB_MessageTxn_TimeoutMode_t TimeoutMode;
+    int32_t                         UserTimeoutParam;
+    OS_time_t                       AbsTimeout;
+
+    CFE_Status_t   Status;
+    size_t         ContentSize;
+    CFE_SB_MsgId_t RoutingMsgId;
+
+    const void *RefMemPtr;
+
+    CFE_SB_PipeSetEntry_t *PipeSet;
+} CFE_SB_MessageTxn_State_t;
+
+/**
+ * \brief Tracks the status of a message/buffer transmit transaction
+ *
+ * This includes the list of destinations to send to, and the status of each,
+ * as well as any pending event IDs from the transaction setup.
+ *
+ */
+typedef struct
+{
+    CFE_SB_MessageTxn_State_t MessageTxn_State;
+
+    CFE_SB_PipeSetEntry_t DestSet[CFE_PLATFORM_SB_MAX_DEST_PER_PKT];
+} CFE_SB_TransmitTxn_State_t;
+
+/**
+ * \brief Tracks the status of a message/buffer transmit transaction
+ *
+ * This includes the list of destinations to send to, and the status of each,
+ * as well as any pending event IDs from the transaction setup.
+ *
+ */
+typedef struct
+{
+    CFE_SB_MessageTxn_State_t MessageTxn_State;
+
+    CFE_SB_PipeSetEntry_t Source;
+} CFE_SB_ReceiveTxn_State_t;
+
+typedef bool (*CFE_SB_MessageTxn_PipeHandler_t)(CFE_SB_MessageTxn_State_t *, CFE_SB_PipeSetEntry_t *, void *);
 
 /*
 ** Software Bus Function Prototypes
@@ -412,20 +466,6 @@ int32 CFE_SB_UnsubscribeFull(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId, uint8
 
 /*---------------------------------------------------------------------------------------*/
 /**
- * \brief Internal routine to validate a transmit message before sending
- *
- * \param[in]  MsgPtr     Pointer to the message to validate
- * \param[out] MsgIdPtr   Message Id of message
- * \param[out] SizePtr    Size of message
- * \param[out] RouteIdPtr Route ID of the message (invalid if none)
- *
- * \return Execution status, see \ref CFEReturnCodes
- */
-int32 CFE_SB_TransmitMsgValidate(const CFE_MSG_Message_t *MsgPtr, CFE_SB_MsgId_t *MsgIdPtr, CFE_MSG_Size_t *SizePtr,
-                                 CFE_SBR_RouteId_t *RouteIdPtr);
-
-/*---------------------------------------------------------------------------------------*/
-/**
  * Release all zero-copy buffers associated with the given app ID.
  *
  * API used for releasing all pointers to a buffers (for zero copy mode
@@ -513,7 +553,7 @@ int32 CFE_SB_SendSubscriptionReport(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId
  *
  * @returns grant/deny status
  */
-uint32 CFE_SB_RequestToSendEvent(CFE_ES_TaskId_t TaskId, uint32 Bit);
+uint32 CFE_SB_RequestToSendEvent(CFE_ES_TaskId_t TaskId, int32 Bit);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -521,7 +561,7 @@ uint32 CFE_SB_RequestToSendEvent(CFE_ES_TaskId_t TaskId, uint32 Bit);
  *
  * This should be called after a successful CFE_SB_RequestToSendEvent()
  */
-void CFE_SB_FinishSendEvent(CFE_ES_TaskId_t TaskId, uint32 Bit);
+void CFE_SB_FinishSendEvent(CFE_ES_TaskId_t TaskId, int32 Bit);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -621,41 +661,6 @@ void CFE_SB_ReturnBufferToPool(CFE_SB_BufferD_t *bd);
 
 /*---------------------------------------------------------------------------------------*/
 /**
- * \brief Broadcast a SB buffer descriptor to all destinations in route
- *
- * Internal routine that implements the logic of transmitting a message buffer
- * to all destinations subscribed in the SB route.
- *
- * As this function will broadcast the message to any number of destinations (0-many),
- * and some may be successful and some may fail, the status cannot be expressed
- * in any single error code, so this does not return any status.
- *
- * Instead, this routine handles all potential outcomes on its own, and does
- * not expect the caller to handle any delivery issues.  Also note that the general
- * design pattern of the software bus is a "send and forget" model where the sender does
- * not know (or care) what entities are subscribed to the data being generated.
- *
- *  - For any undeliverable destination (limit, OSAL error, etc), a proper event is generated.
- *  - For any successful queueing, the buffer use count is incremented
- *
- * The caller is expected to hold a reference (use count) of the buffer prior to invoking
- * this routine, representing itself, which is then consumed by this routine.
- *
- * \note  _This call will "consume" the buffer by decrementing the buffer use count_ after
- *        broadcasting the message to all subscribed pipes.
- *
- * The caller should not access the buffer again after calling this function, as it may
- * be deallocated at any time.  If the caller wishes to continue accessing the buffer,
- * it should explicitly increment the use count before calling this, which will prevent
- * deallocation.
- *
- * \param[in] BufDscPtr Pointer to the buffer descriptor to broadcast
- * \param[in] RouteId   Route to send to
- */
-void CFE_SB_BroadcastBufferToRoute(CFE_SB_BufferD_t *BufDscPtr, CFE_SBR_RouteId_t RouteId);
-
-/*---------------------------------------------------------------------------------------*/
-/**
  * \brief Perform basic sanity check on the Zero Copy handle
  *
  * \param[in]  BufPtr pointer to the content buffer
@@ -744,6 +749,440 @@ CFE_SB_DestinationD_t *CFE_SB_GetDestPtr(CFE_SBR_RouteId_t RouteId, CFE_SB_PipeI
 ** \retval 0 if an error occurs, such as if the MsgPtr argument is not valid or header type cannot be identified.
 **/
 size_t CFE_SB_MsgHdrSize(const CFE_MSG_Message_t *MsgPtr);
+
+/*
+ * Message Transmit/Receive Transaction implementation functions
+ */
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * \brief Set up transaction initial state
+ *
+ * Helper function to initialize the common parts of a transmit/receive transaction
+ *
+ * \param[out]   TxnPtr     Transaction object to initialize
+ * \param[inout] PipeSet    Pointer to pipe entry buffer
+ * \param[in]    MaxPipes   Number of entries in PipeSet
+ * \param[in]    RefMemPtr  User-supplied Opaque object pointer for event logging
+ */
+void CFE_SB_MessageTxn_Init(CFE_SB_MessageTxn_State_t *TxnPtr, CFE_SB_PipeSetEntry_t *PipeSet, uint16 MaxPipes,
+                            const void *RefMemPtr);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * \brief Check transaction current state
+ *
+ * Checks if the transaction is in a good state.
+ *
+ * \param[in] TxnPtr    Transaction object to check
+ * \returns   Boolean indicating transaction condition
+ * \retval    true if the transaction is OK
+ * \retval    false if the transaction has an error
+ */
+static inline bool CFE_SB_MessageTxn_IsOK(const CFE_SB_MessageTxn_State_t *TxnPtr)
+{
+    return (TxnPtr->Status == CFE_SUCCESS && TxnPtr->TransactionEventId == 0);
+}
+
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * \brief Get transaction content size
+ *
+ * Obtains the size of the object/message being passed in this transaction
+ *
+ * \param[in]   TxnPtr     Transaction object
+ * \returns Size of message/object being passed
+ */
+static inline size_t CFE_SB_MessageTxn_GetContentSize(const CFE_SB_MessageTxn_State_t *TxnPtr)
+{
+    return TxnPtr->ContentSize;
+}
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * \brief Get transaction MsgId used for routing
+ *
+ * Obtains the MsgId used for routing of the object/message being passed in this transaction
+ *
+ * \note This MsgId may be different than the one embedded within the message
+ *
+ * \param[in]   TxnPtr     Transaction object
+ * \returns MsgId used for routing of message/object being passed
+ */
+static inline CFE_SB_MsgId_t CFE_SB_MessageTxn_GetRoutingMsgId(CFE_SB_MessageTxn_State_t *TxnPtr)
+{
+    return TxnPtr->RoutingMsgId;
+}
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * \brief Get transaction status code
+ *
+ * Obtains the CFE status code associated with the transaction
+ *
+ * \param[in]   TxnPtr     Transaction object
+ * \returns CFE Status code
+ */
+static inline CFE_Status_t CFE_SB_MessageTxn_GetStatus(CFE_SB_MessageTxn_State_t *TxnPtr)
+{
+    return TxnPtr->Status;
+}
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * \brief Set transaction status code and event
+ *
+ * If an off-nominal condition occurs, this routine sets the specified status and/or event code
+ * that should be returned to the caller to indicate that condition.
+ *
+ * A value of 0 (which is an alias to #CFE_SUCCESS for status codes) can be passed for either
+ * parameter if there is no defined code for the particular condition.
+ *
+ * The transaction object stores the first non-zero value for event ID or status code.
+ *
+ * \param[inout]   TxnPtr     Transaction object
+ * \param[in]      EventId    The event ID to set
+ * \param[in]      Status     The status code to set
+ */
+void CFE_SB_MessageTxn_SetEventAndStatus(CFE_SB_MessageTxn_State_t *TxnPtr, uint16 EventId, CFE_Status_t Status);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * \brief Set transaction MsgId used for routing
+ *
+ * Configures the MsgId used for routing of the object/message being passed in this transaction
+ *
+ * \note This MsgId may be different than the one embedded within the message
+ *
+ * \param[inout]  TxnPtr         Transaction object
+ * \param[in]     RoutingMsgId   MsgId used for routing of message/object being passed
+ */
+void CFE_SB_MessageTxn_SetRoutingMsgId(CFE_SB_MessageTxn_State_t *TxnPtr, CFE_SB_MsgId_t RoutingMsgId);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * \brief Set transaction content size
+ *
+ * Configures the size of the object/message being passed in this transaction
+ *
+ * \param[inout] TxnPtr        Transaction object
+ * \param[in]    ContentSize   Size of message/object being passed
+ */
+void CFE_SB_MessageTxn_SetContentSize(CFE_SB_MessageTxn_State_t *TxnPtr, size_t ContentSize);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * \brief Configure transaction time out
+ *
+ * Configures the relative timeout (in milliseconds) for this transaction.  This is based
+ * on sampling the PSP clock at the time this function is invoked, and adding the relative
+ * time to it.
+ *
+ * This should be called early in the transaction configuration process.
+ *
+ * \param[inout]  TxnPtr   Transaction object
+ * \param[in]     Timeout  Timeout for message/object transaction
+ */
+void CFE_SB_MessageTxn_SetTimeout(CFE_SB_MessageTxn_State_t *TxnPtr, int32 Timeout);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * \brief Configure message endpoint (origination/termination) processing
+ *
+ * For a transmit transaction this enables origination processing.  If configured as
+ * true, then the CFE_MSG_OriginationAction() function is invoked prior to sending the message.
+ * The specific action(s) depend on the MSG module implementation, and may include:
+ *   - Updating the sequence number
+ *   - Updating the message timestamp
+ *   - Calculating/Appending any applicable CRC, checksum, or other error control field
+ *   - Any other system-specific message header updates
+ *
+ * For a receive transaction, this enables message verification.  If configured as
+ * true, then the CFE_MSG_VerificationAction() function will be invoked before the message buffer
+ * is returned to the caller.  The verification criteria depends on the MSG implementation, but
+ * is typically expected to be the inverse of the origination processing.  That is, items that
+ * were calculated or updated as part of the origination process can be verified during this step.
+ * If verification fails, then an event will be logged, the message will be dropped, and the
+ * implementation will get the next message in the queue (if any).
+ *
+ * \note The receive verification function in the default MSG implementation always returns
+ * success, thus should be backward compatible with previous CFE versions that did not perform
+ * any verification at the SB level, leaving it up to the individual app to check.  To make use
+ * of this feature, the implementer must also provide an alternate implemenation of
+ * CFE_MSG_VerificationAction() that performs the desired checks for their particular use-case.
+ *
+ * \sa CFE_MSG_OriginationAction()
+ * \sa CFE_MSG_VerificationAction()
+ *
+ * \param[inout] TxnPtr      Transaction object
+ * \param[in]    IsEndpoint  Pass as "true" to enable endpoint (origination/termination) message processing
+ */
+void CFE_SB_MessageTxn_SetEndpoint(CFE_SB_MessageTxn_State_t *TxnPtr, bool IsEndpoint);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * \brief Helper function to get the OSAL timeout to use
+ *
+ * Returns the relative timeout (in milliseconds) for any pending queue operation(s).
+ * This reflects the amount of time left from the initial call to CFE_SB_MessageTxn_SetTimeout().
+ *
+ * If the original timeout was to PEND, this always returns -1 (OS_PEND).
+ * If the original timeout was to POLL, this always returns 0 (OS_CHECK).
+ * If the original timeout was some nonzero value, this returns the time left, in milliseconds,
+ * based on the current time as obtained from the PSP.
+ *
+ * \param[in]   TxnPtr   Transaction object
+ * \returns Timeout to use for OSAL routines that may block
+ */
+int32 CFE_SB_MessageTxn_GetOsTimeout(const CFE_SB_MessageTxn_State_t *TxnPtr);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * \brief Facilitates reporting of a single event related to a transmit transaction
+ *
+ * Internal routine that assembles the following information about how an event should
+ * be reported:
+ *
+ *  - Complete message text (human-readable)
+ *  - The type of event (information, error, etc)
+ *  - The loop-detection bit to use (request to send/clear to send)
+ *
+ * \param[inout] TxnPtr     Transaction object
+ * \param[in]    TskId      Calling task identifier
+ * \param[in]    EventId    Event to report
+ * \param[out]   EvtMsg     Message buffer
+ * \param[in]    EvtMsgSize Size of EvtMsg buffer
+ * \param[in]    ContextPtr Context information (may be NULL for general transaction events)
+ * \param[out]   EventType  Buffer to store event type
+ * \param[out]   ReqBit     Buffer to store request/loop detect bit
+ */
+void CFE_SB_MessageTxn_GetEventDetails(const CFE_SB_MessageTxn_State_t *TxnPtr, const CFE_SB_PipeSetEntry_t *ContextPtr,
+                                       uint16 EventId, CFE_ES_TaskId_t TskId, char *EvtMsg, size_t EvtMsgSize,
+                                       CFE_EVS_EventType_Enum_t *EventType, int32 *ReqBit);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * \brief Reports a single event related to a transmit transaction
+ *
+ * Internal routine that performs the basic flow of sending a single event ID related
+ * to a transmit transaction.  This uses CFE_SB_TransmitTxn_GetEventDetails() to determine
+ * how the event should be reported, then checks/sets the Request bit (loop detect), sends the
+ * event, then clears the request bit.
+ *
+ * \param[in]   TxnPtr     Transaction object
+ * \param[in]   ContextPtr Context information (may be NULL for general transaction events)
+ * \param[in]   EventId    Event to report
+ *
+ * \returns Boolean indicating if the event constitutes a transaction failure
+ * \retval  true   if the transmit transaction failed as a result (event is an error)
+ * \retval  false  if this was informational (event is benign, e.g. no subscribers)
+ */
+bool CFE_SB_MessageTxn_ReportSingleEvent(const CFE_SB_MessageTxn_State_t *TxnPtr,
+                                         const CFE_SB_PipeSetEntry_t *ContextPtr, uint16 EventId);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * \brief Implements all reporting and accouting associated with a transmit transaction
+ *
+ * Internal routine that sends all events and increments any telemetry counters associated
+ * with the transaction.  This should be called as the last step of a transmit operation.
+ *
+ * \param[in]   TxnPtr     Transaction object
+ */
+void CFE_SB_MessageTxn_ReportEvents(const CFE_SB_MessageTxn_State_t *TxnPtr);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * \brief Process all pipes identified in the transaction object
+ *
+ * The provided HandlerFunc will be invoked for every item in the PipeSet within the transaction
+ * object.  The handler function can stop the loop by returning "false".
+ *
+ * \param[in]    HandlerFunc Handler function to call
+ * \param[inout] TxnPtr      Transaction object, passed through to handler
+ * \param[inout] Arg         Opaque argument to pass to handler
+ */
+void CFE_SB_MessageTxn_ProcessPipes(CFE_SB_MessageTxn_PipeHandler_t HandlerFunc, CFE_SB_MessageTxn_State_t *TxnPtr,
+                                    void *Arg);
+
+/*
+ * Receive Transaction implementation/helper functions
+ * These functions are specific to the receive-side operation
+ */
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * \brief Initialize a receive transaction
+ *
+ * This should be the first function called to initialize a transaction state object
+ * that has been newly allocated.  The object will be put into a safe initial state.
+ *
+ * The RefMemPtr should refer to the object/buffer that the user intends to receive from the
+ * software bus.  This is kept as part of the transaction mainly for logging/event purposes,
+ * the address may be reported in events if the transaction is unsuccessful.
+ *
+ * \param[out] TxnPtr    Transaction object to initialize
+ * \param[in]  RefMemPtr Pointer to user object/buffer being received (opaque)
+ */
+CFE_SB_MessageTxn_State_t *CFE_SB_ReceiveTxn_Init(CFE_SB_ReceiveTxn_State_t *TxnPtr, const void *RefMemPtr);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * \brief Sets the Pipe ID to read for a receive transaction
+ *
+ * Currently, receive transactions only deal with a single pipe.  This sets the pipe ID to
+ * read to receive the object.
+ *
+ * \param[inout] TxnPtr  Transaction object
+ * \param[in]    PipeId  Pipe ID to read from
+ */
+void CFE_SB_ReceiveTxn_SetPipeId(CFE_SB_MessageTxn_State_t *TxnPtr, CFE_SB_PipeId_t PipeId);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * \brief Pipe handler function for receive transactions
+ *
+ * Helper function to implement reading of a pipe during a receive transaction.  This
+ * is only used via CFE_SB_MessageTxn_ProcessPipes(), but declared here so it can be unit
+ * tested.
+ *
+ * This implements the logic of transmitting a message buffer to all destinations that were
+ * identified via CFE_SB_TransmitTxn_FindDestinations().
+ *
+ * As this function will broadcast the message to any number of destinations (0-many),
+ * and some may be successful and some may fail, this function always returns true
+ * to continue the loop inside CFE_SB_MessageTxn_ProcessPipes().
+ *
+ * The status/result of every queue write operation is kept as part of the transaction
+ * status object.  Event reporting related those operations is deferred to the
+ * CFE_SB_TransmitTxn_ReportEvents() function, which should be invoked at the end
+ * of the transaction to report any delivery issues.
+ *
+ * The caller is expected to hold a reference (use count) of the buffer prior to invoking
+ * this routine, representing itself, plus the number of active destinations.
+ *
+ * \note If any queue write operation is _not_ successful, the use count will be decremented.
+ * \sa CFE_SB_MessageTxn_ProcessPipes
+ *
+ * \param[inout] TxnPtr     Transaction object
+ * \param[in]    ContextPtr Pointer to pipe entry within transaction
+ * \param[inout] Arg        Opaque argument for API, should be a CFE_SB_BufferD_t**
+ * \returns always false to stop the parent loop (receive transactions only read a single pipe)
+ */
+bool CFE_SB_ReceiveTxn_PipeHandler(CFE_SB_MessageTxn_State_t *TxnPtr, CFE_SB_PipeSetEntry_t *ContextPtr, void *Arg);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * \brief Executes a receive transaction
+ *
+ * Implements reading of the pipe(s) and exporting information such as the content pointer, content size,
+ * and message ID.
+ *
+ * \param[inout] TxnPtr     Transaction object
+ * \returns Pointer to buffer that was read
+ * \retval  NULL if no message was read (e.g. if a timeout occurred or polling an empty queue)
+ */
+const CFE_SB_Buffer_t *CFE_SB_ReceiveTxn_Execute(CFE_SB_MessageTxn_State_t *TxnPtr);
+
+/*
+ * Transmit Transaction implementation/helper functions
+ * These functions are specific to the transmit-side operation
+ */
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * \brief Initialize a transmit transaction
+ *
+ * This should be the first function called to initialize a transaction state object
+ * that has been newly allocated.  The object will be put into a safe initial state.
+ *
+ * The RefMemPtr should refer to the object/buffer that the user intends to send on the
+ * software bus.  This is kept as part of the transaction mainly for logging/event purposes,
+ * the address may be reported in events if the transaction is unsuccessful.
+ *
+ * \param[out] TxnPtr    Transaction object to initialize
+ * \param[in]  RefMemPtr Pointer to user object/buffer being transmitted (opaque)
+ */
+CFE_SB_MessageTxn_State_t *CFE_SB_TransmitTxn_Init(CFE_SB_TransmitTxn_State_t *TxnPtr, const void *RefMemPtr);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * \brief Set up a transmit transaction from a CFE MSG object
+ *
+ * Extracts the routing information - specifically MsgId and Size - from the message content.
+ *
+ * Software Bus transmit operations typically operate based on the MsgId and Size information
+ * that the application stores the message header prior to transmission.  This function implements
+ * that traditional behavior by pulling this information out of the message and caching it in
+ * the transaction state object for use during routing and delivery of the object.
+ *
+ * The information is extracted from the message using the CFE MSG API calls.
+ *
+ * \param[inout] TxnPtr   Transaction object
+ * \param[in]    MsgPtr   Pointer to message being transmitted
+ */
+void CFE_SB_TransmitTxn_SetupFromMsg(CFE_SB_MessageTxn_State_t *TxnPtr, const CFE_MSG_Message_t *MsgPtr);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * \brief Find the complete set of destination pipes for the given transaction
+ *
+ * Looks up the routing information (via the SBR subsystem/module) and collects the set of
+ * active destinations (Pipe IDs) that the message will need to be broadcast to.
+ *
+ * If no destinations are found, then this sets the transaction status to generate a
+ * NO SUBSCRIBERS event, but it does not actually send the event from here.
+ *
+ * \sa CFE_SB_TransmitTxn_ReportEvents()
+ *
+ * \note This also increments the buffer use count for every destination found, in anticipation
+ * of writing the buffer address into the underlying queue.  If the subsequent write is not
+ * actually successful, then the count must be decremented accordingly, to keep the reference
+ * counts correct.
+ *
+ * \param[inout] TxnPtr    Transaction object
+ * \param[inout] BufDscPtr Buffer descriptor that is pending broadcast
+ */
+void CFE_SB_TransmitTxn_FindDestinations(CFE_SB_MessageTxn_State_t *TxnPtr, CFE_SB_BufferD_t *BufDscPtr);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * \brief Pipe handler function for transmit transactions
+ *
+ * Helper function to implement reading of a pipe during a transmit transaction.  This
+ * is only used via CFE_SB_MessageTxn_ProcessPipes(), but declared here so it can be unit
+ * tested.
+ *
+ * \sa CFE_SB_MessageTxn_ProcessPipes
+ *
+ * \param[inout] TxnPtr     Transaction object
+ * \param[in]    ContextPtr Pointer to pipe entry within transaction
+ * \param[inout] Arg        Opaque argument for API, should be a CFE_SB_BufferD_t*
+ * \returns always true to continue the parent loop (transmit transactions process all pipes)
+ */
+bool CFE_SB_TransmitTxn_PipeHandler(CFE_SB_MessageTxn_State_t *TxnPtr, CFE_SB_PipeSetEntry_t *ContextPtr, void *Arg);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * \brief Executes the transmit transaction
+ *
+ * Internal routine that finds all active destinations for the route  and broadcasts the
+ * buffer to those destinations. Any errors or off-nominal events that occur will be stored
+ * in the transaction object for deferred reporting via CFE_SB_TransmitTxn_ReportEvents().
+ *
+ * \note Upon successful operation, this function decrements the use count of the buffer.
+ * The calling routine is expected to hold one reference to the buffer being transmitted, which
+ * is then consumed by this call.  If the caller intends to retain a reference to the buffer,
+ * the use count must be incremented prior to invoking this function.
+ *
+ * However, if this returns a non-successful status code then the use count will _not_ be
+ * decremented - but this can generally only fail if the passed-in buffer does not validate.
+ *
+ * \param[inout] TxnPtr    Transaction object
+ * \param[inout] BufPtr    Buffer object that is pending to be broadcast
+ */
+void CFE_SB_TransmitTxn_Execute(CFE_SB_MessageTxn_State_t *TxnPtr, CFE_SB_Buffer_t *BufPtr);
 
 /*
  * Software Bus Message Handler Function prototypes
