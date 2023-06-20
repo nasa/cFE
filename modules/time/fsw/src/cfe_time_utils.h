@@ -312,6 +312,24 @@ typedef struct
     ** One callback per app is allowed
     */
     CFE_TIME_SynchCallbackRegEntry_t SynchCallback[CFE_PLATFORM_ES_MAX_APPLICATIONS];
+
+    /*
+    ** What form should CFE_TIME_Print produce.
+    */
+    CFE_TIME_PrintTimestamp_Enum_t PrintTimestamp;
+
+    /*
+    ** For formatted CFE_TIME_Print output, use this format string.
+    */
+    char PrintFormat[CFE_TIME_FORMAT_SIZE];
+
+    /*
+    ** For strftime-style formats, the `%f` conversion spec may be specified.
+    ** When the PrintFormat is specified/updated, this pointer will
+    ** point to the location of the `%f` in the PrintFormat string, or will
+    ** be NULL if `%f` is not being used.
+    */
+    char *PrintFormatMillis;
 } CFE_TIME_Global_t;
 
 /*
@@ -866,5 +884,17 @@ int32 CFE_TIME_Sub1HZAdjustmentCmd(const CFE_TIME_Sub1HZAdjustmentCmd_t *data);
  * This is a wrapper around CFE_TIME_AdjustImpl()
  */
 int32 CFE_TIME_SubAdjustCmd(const CFE_TIME_SubAdjustCmd_t *data);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief  Time task ground command (print format adjust)
+ */
+int32 CFE_TIME_SetPrintCmd(const CFE_TIME_SetPrintCmd_t *data);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief  Utility function to set the print format option.
+ */
+int32 CFE_TIME_SetPrintFormat(CFE_TIME_PrintTimestamp_Enum_t PrintTimestamp, const char *PrintFormat);
 
 #endif /* CFE_TIME_UTILS_H */

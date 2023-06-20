@@ -567,27 +567,77 @@ uint32 CFE_TIME_Micro2SubSecs(uint32 MicroSeconds)
  *-----------------------------------------------------------------*/
 CFE_Status_t CFE_TIME_Print(char *PrintBuffer, CFE_TIME_SysTime_t TimeToPrint)
 {
-    size_t    FmtLen = 0;
-    uint32    Micros = (CFE_TIME_Sub2MicroSecs(TimeToPrint.Subseconds) + CFE_MISSION_TIME_EPOCH_MICROS) / 10;
+    uint32 mic    = (CFE_TIME_Sub2MicroSecs(TimeToPrint.Subseconds) + CFE_MISSION_TIME_EPOCH_MICROS) / 10;
+    time_t sec    = TimeToPrint.Seconds + CFE_MISSION_TIME_EPOCH_SECONDS; // epoch is Jan 1, 1980
+    size_t OutChrs = 0; // tracks how many chars we've put into PrintBuffer
     struct tm tm;
+    size_t TimeSz;
 
     if (PrintBuffer == NULL)
     {
         return CFE_TIME_BAD_ARGUMENT;
     }
 
-    time_t sec = TimeToPrint.Seconds + CFE_MISSION_TIME_EPOCH_SECONDS; // epoch is Jan 1, 1980
-    gmtime_r(&sec, &tm);
-    FmtLen = strftime(PrintBuffer, CFE_TIME_PRINTED_STRING_SIZE - 6, "%Y-%j-%H:%M:%S", &tm);
-    PrintBuffer += FmtLen;
-    *(PrintBuffer++) = '.';
+    switch (CFE_TIME_Global.PrintTimestamp)
+    {
+        case CFE_TIME_PrintTimestamp_DateTime:
+            gmtime_r(&sec, &tm);
 
-    *(PrintBuffer++) = '0' + (char)((Micros % 100000) / 10000);
-    *(PrintBuffer++) = '0' + (char)((Micros % 10000) / 1000);
-    *(PrintBuffer++) = '0' + (char)((Micros % 1000) / 100);
-    *(PrintBuffer++) = '0' + (char)((Micros % 100) / 10);
-    *(PrintBuffer++) = '0' + (char)(Micros % 10);
-    *PrintBuffer     = '\0';
+            /*
+            ** `PrintFormatMillis` points at the `%f` in PrintFormat, if there is a `%f`.
+            */
+            if (CFE_TIME_Global.PrintFormatMillis)
+            {
+                /* ...blot out the `%f`, temporarily. */
+                CFE_TIME_Global.PrintFormatMillis[0] = '\0';
+            }
+
+            TimeSz = strftime(PrintBuffer, CFE_TIME_PRINTED_STRING_SIZE, CFE_TIME_Global.PrintFormat, &tm);
+
+            if (TimeSz == 0)
+            {
+                return CFE_TIME_FORMAT_TOO_LONG;
+            }
+
+            OutChrs += TimeSz;
+
+            if (CFE_TIME_Global.PrintFormatMillis)
+            {
+                /* unblot */
+                CFE_TIME_Global.PrintFormatMillis[0] = '%';
+
+                if (OutChrs + 6 > CFE_TIME_PRINTED_STRING_SIZE)
+                {
+                    return CFE_TIME_FORMAT_TOO_LONG;
+                }
+
+                OutChrs += snprintf(PrintBuffer + OutChrs, CFE_TIME_PRINTED_STRING_SIZE - OutChrs, "%05d", mic);
+
+                /* it's likely the `%f` is last in the format string, check if there's any remainder...*/
+                if (CFE_TIME_Global.PrintFormatMillis[2])
+                {
+                    TimeSz = strftime(PrintBuffer + OutChrs, CFE_TIME_PRINTED_STRING_SIZE, CFE_TIME_Global.PrintFormatMillis + 2, &tm);
+
+                    if (TimeSz == 0)
+                    {
+                        return CFE_TIME_FORMAT_TOO_LONG;
+                    }
+
+                    OutChrs += TimeSz;
+                }
+            }
+            PrintBuffer[OutChrs] = '\0';
+            break;
+
+        case CFE_TIME_PrintTimestamp_SecsSinceStart:
+            OutChrs += snprintf(PrintBuffer, CFE_TIME_PRINTED_STRING_SIZE, "%ld.%06d", (long int)sec, mic);
+            PrintBuffer[OutChrs] = '\0';
+            break;
+
+        default:
+            PrintBuffer[0] = '\0';
+            break;
+    }
     return CFE_SUCCESS;
 }
 

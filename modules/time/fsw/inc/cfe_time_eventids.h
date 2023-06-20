@@ -448,6 +448,17 @@
  *  message pipe.
  */
 #define CFE_TIME_LEN_ERR_EID 49
+
+/**
+ * \brief TIME Invalid Print Format Event ID
+ *
+ *  \par Type: ERROR
+ *
+ *  \par Cause:
+ *
+ *  Invalid print format string or other print option specified.
+ */
+#define CFE_TIME_PRINTFORMAT_ERR_EID 50
 /**\}*/
 
 #endif /* CFE_TIME_EVENTS_H */

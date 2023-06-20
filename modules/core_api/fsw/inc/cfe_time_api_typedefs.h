@@ -42,7 +42,10 @@
 */
 
 #define CFE_TIME_PRINTED_STRING_SIZE \
-    24 /**< \brief Required size of buffer to be passed into #CFE_TIME_Print (includes null terminator) */
+    32 /**< \brief Required size of buffer to be passed into #CFE_TIME_Print (includes null terminator) */
+
+#define CFE_TIME_FORMAT_SIZE \
+    32 /**< \brief The maximum length we will accept for the format string (incl. null)--affects cmd and tlm */
 
 /*****************************************************************************/
 /*

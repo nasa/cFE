@@ -353,6 +353,11 @@ void CFE_TIME_InitData(void)
     */
     CFE_MSG_Init(CFE_MSG_PTR(CFE_TIME_Global.Local1HzCmd.CommandHeader), CFE_SB_ValueToMsgId(CFE_TIME_1HZ_CMD_MID),
                  sizeof(CFE_TIME_Global.Local1HzCmd));
+
+    /*
+    ** Configure the default time print format.
+    */
+    CFE_TIME_SetPrintFormat(CFE_TIME_PRINT_DEFAULT, CFE_TIME_PRINTFMT_DEFAULT);
 }
 
 /*----------------------------------------------------------------
@@ -408,6 +413,9 @@ void CFE_TIME_GetHkData(const CFE_TIME_Reference_t *Reference)
     CFE_TIME_Global.HkPacket.Payload.SecondsDelay = Reference->AtToneDelay.Seconds;
     CFE_TIME_Global.HkPacket.Payload.SubsecsDelay = Reference->AtToneDelay.Subseconds;
 #endif
+
+    strncpy(CFE_TIME_Global.HkPacket.Payload.PrintFormat, CFE_TIME_Global.PrintFormat, CFE_TIME_FORMAT_SIZE);
+    CFE_TIME_Global.HkPacket.Payload.PrintTimestamp = CFE_TIME_Global.PrintTimestamp;
 }
 
 /*----------------------------------------------------------------
@@ -1034,4 +1042,56 @@ int32 CFE_TIME_CleanUpApp(CFE_ES_AppId_t AppId)
     }
 
     return Status;
+}
+
+/*----------------------------------------------------------------
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+int32 CFE_TIME_SetPrintFormat(CFE_TIME_PrintTimestamp_Enum_t PrintTimestamp, const char *PrintFormat)
+{
+    if (PrintTimestamp < 0 || PrintTimestamp > CFE_TIME_PrintTimestamp_None)
+    {
+        return CFE_TIME_BAD_ARGUMENT;
+    }
+
+    CFE_TIME_Global.PrintTimestamp = PrintTimestamp;
+
+    if (PrintTimestamp == CFE_TIME_PrintTimestamp_DateTime)
+    {
+        char *PctF;
+
+        /* null pointer or empty string */
+        if (PrintFormat == NULL || PrintFormat[0] == '\0')
+        {
+            return CFE_TIME_BAD_ARGUMENT;
+        }
+
+        CFE_TIME_Global.PrintFormatMillis = NULL;
+
+        strncpy(CFE_TIME_Global.PrintFormat, PrintFormat, CFE_TIME_FORMAT_SIZE);
+
+        /* find the (first) "%f", and mark it so that when we call CFE_TIME_Print() it can quickly process it. */
+        PctF = CFE_TIME_Global.PrintFormat;
+        while (PctF[0] != '\0') {
+            if (PctF[0] == '%')
+            {
+                switch (PctF[1])
+                {
+                    case 'f':
+                        CFE_TIME_Global.PrintFormatMillis = PctF;
+                        break;
+                    case '\0':
+                        break;
+                    default:
+                        PctF++; /* skip forward two chars */
+                }
+            }
+            PctF++;
+        }
+    }
+
+    return CFE_SUCCESS;
 }

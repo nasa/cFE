@@ -1362,6 +1362,15 @@ char *CFE_ES_StatusToString(CFE_Status_t status, CFE_StatusString_t *status_stri
  *
  */
 #define CFE_TIME_BAD_ARGUMENT ((CFE_Status_t)0xce000005)
+
+/**
+ * @brief Time Format Production Too Long
+ *
+ * The formatting of a time into a string would overflow the
+ * output buffer length of CFE_TIME_PRINTED_STRING_SIZE.
+ *
+ */
+#define CFE_TIME_FORMAT_TOO_LONG ((CFE_Status_t)0xce000006)
 /**@}*/
 
 #endif /* CFE_ERROR_H */

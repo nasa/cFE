@@ -98,6 +98,24 @@ typedef struct CFE_TIME_SetStateCmd
 } CFE_TIME_SetStateCmd_t;
 
 /**
+ * \brief Payload for the command to set the time print format
+ */
+typedef struct CFE_TIME_SetPrintCmd_Payload
+{
+    CFE_TIME_PrintTimestamp_Enum_t PrintTimestamp;
+    char PrintFormat[CFE_TIME_FORMAT_SIZE];
+} CFE_TIME_SetPrintCmd_Payload_t;
+
+/**
+ * \brief Command to set the time print format
+ */
+typedef struct CFE_TIME_SetPrintCmd
+{
+    CFE_MSG_CommandHeader_t        CommandHeader; /**< \brief Command header */
+    CFE_TIME_SetPrintCmd_Payload_t Payload;
+} CFE_TIME_SetPrintCmd_t;
+
+/**
  * \brief Set time data source command payload
  */
 typedef struct CFE_TIME_SourceCmd_Payload
@@ -273,6 +291,9 @@ typedef struct CFE_TIME_HousekeepingTlm_Payload
     uint32 SubsecsDelay; /**< \cfetlmmnemonic \TIME_1HZDLYSSECS
                               \brief Current 1 Hz SCTF Delay (sub-seconds) */
 #endif
+
+    CFE_TIME_PrintTimestamp_Enum_t PrintTimestamp;
+    char PrintFormat[CFE_TIME_FORMAT_SIZE];
 } CFE_TIME_HousekeepingTlm_Payload_t;
 
 typedef struct CFE_TIME_HousekeepingTlm

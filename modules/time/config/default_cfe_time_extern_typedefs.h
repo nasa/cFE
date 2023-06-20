@@ -279,4 +279,29 @@ enum CFE_TIME_SetState
  */
 typedef uint8 CFE_TIME_SetState_Enum_t;
 
+enum CFE_TIME_PrintTimestamp
+{
+    /**
+     * @brief Print timestamp using format string.
+     */
+    CFE_TIME_PrintTimestamp_DateTime       = 0,
+
+    /**
+     * @brief Print secs+micros since start/reset.
+     */
+    CFE_TIME_PrintTimestamp_SecsSinceStart = 1,
+
+    /**
+     * @brief Do not print timestamps at all.
+     */
+    CFE_TIME_PrintTimestamp_None           = 2
+};
+
+/**
+ * @brief Time print status values (how to print timestamps)
+ *
+ * @sa enum CFE_TIME_PrintTimestamp
+ */
+typedef uint8 CFE_TIME_PrintTimestamp_Enum_t;
+
 #endif /* CFE_TIME_EXTERN_TYPEDEFS_H */

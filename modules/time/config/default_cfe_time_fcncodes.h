@@ -689,6 +689,28 @@
 **  \sa #CFE_TIME_SET_STATE_CC, #CFE_TIME_SET_SOURCE_CC
 */
 #define CFE_TIME_SET_SIGNAL_CC 15 /* set clock signal (pri vs red) */
+
+/** \cfetimecmd Set Print Format Options
+**
+**  \par Description
+**       This command sets the time print mode/format (used by EVS when sending
+**       to stdout, and by ES for syslog messages).
+**
+**  \cfecmdmnemonic \TIME_SETPRINT
+**
+**  \par Command Structure
+**       #CFE_TIME_SetPrintCmd_t
+**
+**  \par Command Verification
+**       Successful execution of this command may be verified by examining
+**       housekeeping output from the TIME module.
+**
+**  \par Criticality
+**       This command is non-critical, usually used in ground systems and
+**       doing ground tests.
+*/
+#define CFE_TIME_SET_PRINT_CC 16 /* set print format command */
+
 /** \} */
 
 #endif

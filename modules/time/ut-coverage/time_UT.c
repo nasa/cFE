@@ -98,6 +98,8 @@ static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_CMD_SUB_1HZ_ADJUSTMENT_CC 
 static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_INVALID_MID = {.MsgId = CFE_SB_MSGID_RESERVED, .CommandCode = 0};
 static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_CMD_INVALID_CC = {
     .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_TIME_CMD_MID), .CommandCode = 0x7F};
+static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_SET_PRINT_CC = {
+    .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_TIME_CMD_MID), .CommandCode = CFE_TIME_SET_PRINT_CC};
 
 /*
 ** Global variables
@@ -906,6 +908,76 @@ void Test_Print(void)
         UtAssert_MIR("Confirm adding seconds = %u, subseconds = %u to configured EPOCH results in time %s",
                      (unsigned int)time.Seconds, (unsigned int)time.Subseconds, timeBuf);
     }
+
+    /* Test with different format */
+    CFE_TIME_SetPrintFormat(CFE_TIME_PrintTimestamp_DateTime, "%Y-%m-%d %H:%M");
+
+    CFE_UtAssert_SUCCESS(CFE_TIME_Print(timeBuf, time));
+    if (usingDefaultEpoch)
+    {
+        strcpy(expectedBuf, "2013-01-01 02:03");
+        UtAssert_STRINGBUF_EQ(timeBuf, sizeof(timeBuf), expectedBuf, sizeof(expectedBuf));
+    }
+    else
+    {
+        UtAssert_MIR("Confirm adding seconds = %u, subseconds = %u to configured EPOCH results in time %s",
+                     (unsigned int)time.Seconds, (unsigned int)time.Subseconds, timeBuf);
+    }
+
+    /* Test with three milliseconds spec, we only handle one and strftime ignores it */
+    CFE_TIME_SetPrintFormat(CFE_TIME_PrintTimestamp_DateTime, "%%f.%f.%f.%f");
+
+    CFE_UtAssert_SUCCESS(CFE_TIME_Print(timeBuf, time));
+    if (usingDefaultEpoch)
+    {
+        strcpy(expectedBuf, "%f.49999.%f.%f");
+        UtAssert_STRINGBUF_EQ(timeBuf, sizeof(timeBuf), expectedBuf, sizeof(expectedBuf));
+    }
+    else
+    {
+        UtAssert_MIR("Confirm adding seconds = %u, subseconds = %u to configured EPOCH results in time %s",
+                     (unsigned int)time.Seconds, (unsigned int)time.Subseconds, timeBuf);
+    }
+
+    CFE_TIME_SetPrintFormat(CFE_TIME_PrintTimestamp_SecsSinceStart, NULL);
+
+    CFE_UtAssert_SUCCESS(CFE_TIME_Print(timeBuf, time));
+    if (usingDefaultEpoch)
+    {
+        strcpy(expectedBuf, "49999.49999");
+        UtAssert_STRINGBUF_EQ(timeBuf, sizeof(timeBuf), expectedBuf, sizeof(expectedBuf));
+    }
+    else
+    {
+        UtAssert_MIR("Confirm adding seconds = %u, subseconds = %u to configured EPOCH results in time %s",
+                     (unsigned int)time.Seconds, (unsigned int)time.Subseconds, timeBuf);
+    }
+
+    /* Test with too-long of a format */
+    CFE_TIME_SetPrintFormat(CFE_TIME_PrintTimestamp_DateTime, "%Y%Y%Y%Y%Y%Y%Y%Y%Y%Y%Y");
+
+    UtAssert_INT32_EQ(CFE_TIME_Print(timeBuf, time), CFE_TIME_FORMAT_TOO_LONG);
+
+    /* Test with too-long of a %f format */
+    CFE_TIME_SetPrintFormat(CFE_TIME_PrintTimestamp_DateTime, "012345678901234567890123456%f");
+
+    UtAssert_INT32_EQ(CFE_TIME_Print(timeBuf, time), CFE_TIME_FORMAT_TOO_LONG);
+
+    /* Test with "none" option */
+    CFE_TIME_SetPrintFormat(CFE_TIME_PrintTimestamp_None, NULL);
+    CFE_TIME_Global.PrintTimestamp = CFE_TIME_PrintTimestamp_None;
+    CFE_UtAssert_SUCCESS(CFE_TIME_Print(timeBuf, time));
+    UtAssert_STRINGBUF_EQ(timeBuf, sizeof(timeBuf), "", 1);
+
+    /* Test with DateTime option and empty format */
+    UtAssert_INT32_NEQ(CFE_TIME_SetPrintFormat(CFE_TIME_PrintTimestamp_DateTime, ""), CFE_SUCCESS);
+
+    /* test some invalid PrintTimestamp options */
+    UtAssert_INT32_NEQ(CFE_TIME_SetPrintFormat(CFE_TIME_PrintTimestamp_None + 1, ""), CFE_SUCCESS);
+    UtAssert_INT32_NEQ(CFE_TIME_SetPrintFormat(-1, ""), CFE_SUCCESS);
+
+    /* reset to nominal */
+    CFE_UtAssert_SUCCESS(CFE_TIME_SetPrintFormat(CFE_TIME_PrintTimestamp_DateTime, "%Y-%j %H:%M:%S.%f"));
 }
 
 /*
@@ -1331,6 +1403,7 @@ void Test_PipeCmds(void)
         CFE_TIME_SubAdjustCmd_t        subadjcmd;
         CFE_TIME_Add1HZAdjustmentCmd_t add1hzadjcmd;
         CFE_TIME_Sub1HZAdjustmentCmd_t sub1hzadjcmd;
+        CFE_TIME_SetPrintCmd_t         setprcmd;
     } CmdBuf;
 
     UT_SoftwareBusSnapshot_Entry_t LocalSnapshotData = {.MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_TIME_HK_TLM_MID)};
@@ -1928,6 +2001,26 @@ void Test_PipeCmds(void)
     UT_InitData();
     UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, sizeof(CmdBuf.onehzcmd), UT_TPID_CFE_TIME_1HZ_CMD);
     UtAssert_NONZERO(UT_GetStubCount(UT_KEY(CFE_PSP_GetTime)));
+
+    /* Test sending a print timestamp command */
+    UT_InitData();
+    memset(&CmdBuf, 0, sizeof(CmdBuf));
+    CFE_TIME_Global.PrintTimestamp = -1;
+    strcpy(CFE_TIME_Global.PrintFormat, "");
+    CmdBuf.setprcmd.Payload.PrintTimestamp = CFE_TIME_PrintTimestamp_SecsSinceStart;
+    UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, sizeof(CmdBuf.setprcmd), UT_TPID_CFE_TIME_SET_PRINT_CC);
+    UtAssert_UINT32_EQ(CFE_TIME_Global.PrintTimestamp, CFE_TIME_PrintTimestamp_SecsSinceStart);
+
+    /* Test sending another print timestamp command */
+    UT_InitData();
+    memset(&CmdBuf, 0, sizeof(CmdBuf));
+    CFE_TIME_Global.PrintTimestamp = -1;
+    strcpy(CFE_TIME_Global.PrintFormat, "");
+    CmdBuf.setprcmd.Payload.PrintTimestamp = CFE_TIME_PrintTimestamp_DateTime;
+    strcpy(CmdBuf.setprcmd.Payload.PrintFormat, "%Y-%j %H:%M:%S.%f");
+    UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, sizeof(CmdBuf.setprcmd), UT_TPID_CFE_TIME_SET_PRINT_CC);
+    UtAssert_UINT32_EQ(CFE_TIME_Global.PrintTimestamp, CFE_TIME_PrintTimestamp_DateTime);
+    UtAssert_StrCmp(CFE_TIME_Global.PrintFormat, CmdBuf.setprcmd.Payload.PrintFormat, "Print Format '%s'", CFE_TIME_Global.PrintFormat);
 }
 
 /*
