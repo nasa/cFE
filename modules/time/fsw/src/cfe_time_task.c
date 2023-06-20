@@ -1099,7 +1099,5 @@ int32 CFE_TIME_Sub1HZAdjustmentCmd(const CFE_TIME_Sub1HZAdjustmentCmd_t *data)
  *-----------------------------------------------------------------*/
 int32 CFE_TIME_SetPrintCmd(const CFE_TIME_SetPrintCmd_t *data)
 {
-    CFE_TIME_Global.PrintState = data->Payload.PrintState;
-    strncpy(CFE_TIME_Global.PrintFormat, data->Payload.PrintFormat, CFE_TIME_FORMAT_SIZE);
-    return CFE_SUCCESS;
+    return CFE_TIME_SetPrintFormat(data->Payload.PrintTimestamp, data->Payload.PrintFormat);
 }

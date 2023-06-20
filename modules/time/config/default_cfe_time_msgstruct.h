@@ -102,7 +102,7 @@ typedef struct CFE_TIME_SetStateCmd
  */
 typedef struct CFE_TIME_SetPrintCmd_Payload
 {
-    CFE_TIME_PrintState_Enum_t PrintState;
+    CFE_TIME_PrintTimestamp_Enum_t PrintTimestamp;
     char PrintFormat[CFE_TIME_FORMAT_SIZE];
 } CFE_TIME_SetPrintCmd_Payload_t;
 
@@ -292,7 +292,7 @@ typedef struct CFE_TIME_HousekeepingTlm_Payload
                               \brief Current 1 Hz SCTF Delay (sub-seconds) */
 #endif
 
-    CFE_TIME_PrintState_Enum_t PrintState;
+    CFE_TIME_PrintTimestamp_Enum_t PrintTimestamp;
     char PrintFormat[CFE_TIME_FORMAT_SIZE];
 } CFE_TIME_HousekeepingTlm_Payload_t;
 

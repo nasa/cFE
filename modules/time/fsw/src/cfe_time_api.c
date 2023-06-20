@@ -569,11 +569,7 @@ CFE_Status_t CFE_TIME_Print(char *PrintBuffer, CFE_TIME_SysTime_t TimeToPrint)
 {
     uint32 mic    = (CFE_TIME_Sub2MicroSecs(TimeToPrint.Subseconds) + CFE_MISSION_TIME_EPOCH_MICROS) / 10;
     time_t sec    = TimeToPrint.Seconds + CFE_MISSION_TIME_EPOCH_SECONDS; // epoch is Jan 1, 1980
-    /* temporary buffer to store the format so we can modify it to blot '%f' */
-    char FmtBuf[CFE_TIME_FORMAT_SIZE];
-    char *FmtPtr = FmtBuf;
-    char *PctF;
-    size_t OutChrs = 0;
+    size_t OutChrs = 0; // tracks how many chars we've put into PrintBuffer
     struct tm tm;
     size_t TimeSz;
 
@@ -582,59 +578,62 @@ CFE_Status_t CFE_TIME_Print(char *PrintBuffer, CFE_TIME_SysTime_t TimeToPrint)
         return CFE_TIME_BAD_ARGUMENT;
     }
 
-    switch (CFE_TIME_Global.PrintState)
+    switch (CFE_TIME_Global.PrintTimestamp)
     {
-        case CFE_TIME_PrintState_DateTime:
+        case CFE_TIME_PrintTimestamp_DateTime:
             gmtime_r(&sec, &tm);
 
-            strncpy(FmtPtr, CFE_TIME_Global.PrintFormat, CFE_TIME_FORMAT_SIZE);
-
-            while(*FmtPtr != '\0' && OutChrs < CFE_TIME_PRINTED_STRING_SIZE)
+            /*
+            ** `PrintFormatMillis` points at the `%f` in PrintFormat, if there is a `%f`.
+            */
+            if (CFE_TIME_Global.PrintFormatMillis)
             {
-                /* if we have "%f", call strftime for string before and string after */
-                PctF = strstr(FmtBuf, "%f");
-                if (PctF)
-                {
-                    *PctF = '\0'; /* blot out "%f", for now */
-                }
+                /* ...blot out the `%f`, temporarily. */
+                CFE_TIME_Global.PrintFormatMillis[0] = '\0';
+            }
 
-                TimeSz = strftime(PrintBuffer + OutChrs, CFE_TIME_PRINTED_STRING_SIZE - OutChrs, FmtPtr, &tm);
+            TimeSz = strftime(PrintBuffer, CFE_TIME_PRINTED_STRING_SIZE, CFE_TIME_Global.PrintFormat, &tm);
 
-                if (*FmtPtr && TimeSz == 0)
+            if (TimeSz == 0)
+            {
+                return CFE_TIME_FORMAT_TOO_LONG;
+            }
+
+            OutChrs += TimeSz;
+
+            if (CFE_TIME_Global.PrintFormatMillis)
+            {
+                /* unblot */
+                CFE_TIME_Global.PrintFormatMillis[0] = '%';
+
+                if (OutChrs + 6 > CFE_TIME_PRINTED_STRING_SIZE)
                 {
-                    /* strftime returns 0 if the buffer is too small */
                     return CFE_TIME_FORMAT_TOO_LONG;
                 }
 
-                OutChrs += TimeSz;
+                OutChrs += snprintf(PrintBuffer + OutChrs, CFE_TIME_PRINTED_STRING_SIZE - OutChrs, "%05d", mic);
 
-                /* we found/blotted %f above */
-                if (PctF)
+                /* it's likely the `%f` is last in the format string, check if there's any remainder...*/
+                if (CFE_TIME_Global.PrintFormatMillis[2])
                 {
-                    /* write %f value */
-                    if (OutChrs < CFE_TIME_PRINTED_STRING_SIZE - 5)
-                    {
-                        OutChrs += snprintf(PrintBuffer + OutChrs, CFE_TIME_PRINTED_STRING_SIZE - OutChrs, "%05d", mic);
-                    }
-                    else
+                    TimeSz = strftime(PrintBuffer + OutChrs, CFE_TIME_PRINTED_STRING_SIZE, CFE_TIME_Global.PrintFormatMillis + 2, &tm);
+
+                    if (TimeSz == 0)
                     {
                         return CFE_TIME_FORMAT_TOO_LONG;
                     }
 
-                    /* go back through the loop with the remaining format */
-                    FmtPtr = PctF + 2;
-                }
-                else
-                {
-                    PrintBuffer[OutChrs] = '\0'; /* just in case, null-terminate the string */
-                    break; /* break while */
+                    OutChrs += TimeSz;
                 }
             }
+            PrintBuffer[OutChrs] = '\0';
             break;
-        case CFE_TIME_PrintState_SecsSinceStart:
+
+        case CFE_TIME_PrintTimestamp_SecsSinceStart:
             OutChrs += snprintf(PrintBuffer, CFE_TIME_PRINTED_STRING_SIZE, "%ld.%06d", (long int)sec, mic);
             PrintBuffer[OutChrs] = '\0';
             break;
+
         default:
             PrintBuffer[0] = '\0';
             break;
