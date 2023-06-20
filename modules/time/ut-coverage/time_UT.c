@@ -925,12 +925,12 @@ void Test_Print(void)
     }
 
     /* Test with three milliseconds spec, we only handle one and strftime ignores it */
-    CFE_TIME_SetPrintFormat(CFE_TIME_PrintTimestamp_DateTime, "%f.%f.%f");
+    CFE_TIME_SetPrintFormat(CFE_TIME_PrintTimestamp_DateTime, "%%f.%f.%f.%f");
 
     CFE_UtAssert_SUCCESS(CFE_TIME_Print(timeBuf, time));
     if (usingDefaultEpoch)
     {
-        strcpy(expectedBuf, "49999.%f.%f");
+        strcpy(expectedBuf, "%f.49999.%f.%f");
         UtAssert_STRINGBUF_EQ(timeBuf, sizeof(timeBuf), expectedBuf, sizeof(expectedBuf));
     }
     else
