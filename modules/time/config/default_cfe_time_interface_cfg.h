@@ -151,14 +151,23 @@
 **  \cfetimecfg Default EPOCH Values
 **
 **  \par Description:
-**      Default ground time epoch values (from Jan. 1, 1970 00:00:00)
+**      Default ground time epoch values
 **      Note: these values are used only by the CFE_TIME_Print() API function
 **
 **  \par Limits
+**      Year - must be within 136 years
+**      Day - Jan 1 = 1, Feb 1 = 32, etc.
+**      Hour - 0 to 23
+**      Minute - 0 to 59
+**      Second - 0 to 59
 **      Micros - 0 to 999999
 */
-#define CFE_MISSION_TIME_EPOCH_SECONDS 315532800 /* Jan. 1, 1980 00:00:00 */
-#define CFE_MISSION_TIME_EPOCH_MICROS  0
+#define CFE_MISSION_TIME_EPOCH_YEAR   1980
+#define CFE_MISSION_TIME_EPOCH_DAY    1
+#define CFE_MISSION_TIME_EPOCH_HOUR   0
+#define CFE_MISSION_TIME_EPOCH_MINUTE 0
+#define CFE_MISSION_TIME_EPOCH_SECOND 0
+#define CFE_MISSION_TIME_EPOCH_MICROS 0
 
 /**
 **  \cfetimecfg Time File System Factor
