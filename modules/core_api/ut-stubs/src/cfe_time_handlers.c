@@ -45,14 +45,13 @@
  * Default handler for CFE_TIME_Print coverage stub function
  *
  *------------------------------------------------------------*/
-CFE_Status_t UT_DefaultHandler_CFE_TIME_Print(void *UserObj, UT_EntryKey_t FuncKey, const UT_StubContext_t *Context)
+void UT_DefaultHandler_CFE_TIME_Print(void *UserObj, UT_EntryKey_t FuncKey, const UT_StubContext_t *Context)
 {
     char *             PrintBuffer = UT_Hook_GetArgValueByName(Context, "PrintBuffer", char *);
     CFE_TIME_SysTime_t TimeToPrint = UT_Hook_GetArgValueByName(Context, "TimeToPrint", CFE_TIME_SysTime_t);
 
     snprintf(PrintBuffer, CFE_TIME_PRINTED_STRING_SIZE, "UT %u.%u -", (unsigned int)TimeToPrint.Seconds,
              (unsigned int)TimeToPrint.Subseconds);
-    return CFE_SUCCESS;
 }
 
 /*------------------------------------------------------------
