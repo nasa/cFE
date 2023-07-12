@@ -15,7 +15,7 @@ generate_config_includefile(
     FILE_NAME           "cfe_platform_cfg.h"
     FALLBACK_FILE        "${CMAKE_CURRENT_LIST_DIR}/config/default_cfe_platform_cfg.h"
     MATCH_SUFFIX        "platform_cfg.h"
-    PREFIXES            ${BUILD_CONFIG}
+    PREFIXES            ${BUILD_CONFIG} cfe
 )
 
 generate_config_includefile(
