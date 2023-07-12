@@ -15,7 +15,7 @@ generate_config_includefile(
     FILE_NAME           "cfe_msgids.h"
     MATCH_SUFFIX        "msgids.h"
     FALLBACK_FILE        "${CMAKE_CURRENT_LIST_DIR}/config/default_cfe_msgids.h"
-    PREFIXES            ${BUILD_CONFIG}
+    PREFIXES            ${BUILD_CONFIG} cfe 
 )
 
 generate_config_includefile(
