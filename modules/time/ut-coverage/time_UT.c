@@ -1278,6 +1278,7 @@ void Test_External(void)
     CFE_TIME_Global.ReferenceState[0].AtToneDelay.Subseconds = 0;
     CFE_TIME_Global.ReferenceState[0].AtToneLatch.Seconds    = 0;
     CFE_TIME_Global.ReferenceState[0].AtToneLatch.Subseconds = 0;
+    CFE_TIME_Global.ReferenceState[0].AtToneLeapSeconds      = 0;
     CFE_TIME_Global.MaxDelta.Seconds                         = 0;
     CFE_TIME_Global.MaxDelta.Subseconds                      = 1;
     CFE_TIME_Global.MaxLocalClock.Seconds                    = 0;
