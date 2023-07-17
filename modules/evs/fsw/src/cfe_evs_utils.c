@@ -540,7 +540,7 @@ void EVS_SendViaPorts(CFE_EVS_LongEventTlm_t *EVS_PktPtr)
 {
     char               PortMessage[CFE_EVS_MAX_PORT_MSG_LENGTH];
     char               TimeBuffer[CFE_TIME_PRINTED_STRING_SIZE];
-    CFE_TIME_SysTime_t PktTime;
+    CFE_TIME_SysTime_t PktTime = {0};
 
     CFE_MSG_GetMsgTime(CFE_MSG_PTR(EVS_PktPtr->TelemetryHeader), &PktTime);
     CFE_TIME_Print(TimeBuffer, PktTime);
