@@ -30,7 +30,6 @@
 #include "cfe_test.h"
 #include "cfe_test_table.h"
 #include "cfe_msgids.h"
-#include "cfe_test_msgids.h"
 
 void TestGetStatus(void)
 {

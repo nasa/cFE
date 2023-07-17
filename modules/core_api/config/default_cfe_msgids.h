@@ -37,5 +37,6 @@
 #include "cfe_sb_msgids.h"
 #include "cfe_tbl_msgids.h"
 #include "cfe_time_msgids.h"
+#include "cfe_test_msgids.h"
 
 #endif /* CFE_MSGIDS_H */
