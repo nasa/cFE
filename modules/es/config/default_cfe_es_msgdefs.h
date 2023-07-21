@@ -151,7 +151,7 @@ typedef struct CFE_ES_DeleteCDSCmd_Payload
 **/
 typedef struct CFE_ES_StartPerfCmd_Payload
 {
-    uint32 TriggerMode; /**< \brief Desired trigger position (Start, Center, End) */
+    uint32 TriggerMode; /**< \brief Desired trigger position (Start, Center, End). Values defined by #CFE_ES_PerfMode. */
 } CFE_ES_StartPerfCmd_Payload_t;
 
 /**
