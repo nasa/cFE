@@ -1458,7 +1458,7 @@ CFE_Status_t CFE_ES_GetMemPoolStats(CFE_ES_MemPoolStats_t *BufPtr, CFE_ES_MemHan
 ** \par Description
 **        This macro logs the entry or start event/marker for the specified
 **        entry \c id. This macro, in conjunction with the #CFE_ES_PerfLogExit,
-**        is used by the Software Performance Analysis tool (see section 5.15).
+**        is used by the Software Performance Analysis tool.
 **
 ** \par Assumptions, External Events, and Notes:
 **        None
@@ -1477,7 +1477,7 @@ CFE_Status_t CFE_ES_GetMemPoolStats(CFE_ES_MemPoolStats_t *BufPtr, CFE_ES_MemHan
 ** \par Description
 **        This macro logs the exit or end event/marker for the specified
 **        entry \c id. This macro, in conjunction with the #CFE_ES_PerfLogEntry,
-**        is used by the Software Performance Analysis tool (see section 5.15).
+**        is used by the Software Performance Analysis tool.
 **
 ** \par Assumptions, External Events, and Notes:
 **        None
@@ -1498,7 +1498,7 @@ CFE_Status_t CFE_ES_GetMemPoolStats(CFE_ES_MemPoolStats_t *BufPtr, CFE_ES_MemHan
 ** \par Description
 **        This function logs the entry and exit marker for the specified
 **        \c id. This function is used by the Software Performance Analysis
-**        tool (see section 5.15).
+**        tool.
 **
 ** \par Assumptions, External Events, and Notes:
 
