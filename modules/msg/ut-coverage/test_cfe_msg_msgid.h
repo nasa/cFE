@@ -24,10 +24,26 @@
 #ifndef TEST_CFE_MSG_MSGID_H
 #define TEST_CFE_MSG_MSGID_H
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /*
  * Functions
  */
 /* Test msgid accessor functions */
 void Test_MSG_MsgId(void);
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* TEST_CFE_MSG_MSGID_H */

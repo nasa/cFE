@@ -23,6 +23,14 @@
 #ifndef CFE_TIME_TOPICIDS_H
 #define CFE_TIME_TOPICIDS_H
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /**
 **  \cfemissioncfg cFE Portable Message Numbers for Commands
 **
@@ -60,5 +68,13 @@
 */
 #define CFE_MISSION_TIME_HK_TLM_MSG   5
 #define CFE_MISSION_TIME_DIAG_TLM_MSG 6
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif

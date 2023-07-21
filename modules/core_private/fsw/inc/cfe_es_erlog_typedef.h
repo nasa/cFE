@@ -32,6 +32,14 @@
 #include "cfe_time_extern_typedefs.h" /* Needed for CFE_TIME_SysTime_t */
 #include "cfe_es_extern_typedefs.h"   /* Needed for CFE_ES_AppId_t */
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 #define CFE_ES_ERLOG_DESCRIPTION_MAX_LENGTH 80
 
 /*
@@ -91,5 +99,13 @@ typedef struct
     CFE_ES_AppId_t          AppID;        /* The application ID */
     uint32                  PspContextId; /**< Reference to context information stored in PSP */
 } CFE_ES_ERLog_MetaData_t;
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* CFE_ES_ERLOG_TYPEDEF_H */

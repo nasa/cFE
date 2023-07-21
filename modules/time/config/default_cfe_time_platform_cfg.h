@@ -38,4 +38,20 @@
 #include "cfe_time_mission_cfg.h"
 #include "cfe_time_internal_cfg.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
+
 #endif

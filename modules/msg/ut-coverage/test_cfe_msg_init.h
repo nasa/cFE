@@ -24,6 +24,14 @@
 #ifndef TEST_CFE_MSG_INIT_H
 #define TEST_CFE_MSG_INIT_H
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /*
  * Includes
  */
@@ -34,5 +42,13 @@
 /* Test extended header mission functionality */
 void Test_MSG_Init(void);
 void Test_MSG_UpdateHeader(void);
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* TEST_CFE_MSG_INIT_H */

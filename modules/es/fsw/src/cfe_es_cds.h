@@ -40,6 +40,14 @@
 #include "common_types.h"
 #include "cfe_es_generic_pool.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /*
 ** Macro Definitions
 */
@@ -684,5 +692,13 @@ int32 CFE_ES_ClearCDS(void);
 **
 ******************************************************************************/
 int32 CFE_ES_InitCDSSignatures(void);
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* CFE_ES_CDS_H */

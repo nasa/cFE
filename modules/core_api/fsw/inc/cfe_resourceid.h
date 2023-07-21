@@ -42,6 +42,14 @@
  */
 #include "cfe_resourceid_api_typedefs.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /** \name Resource ID test/conversion macros and inline functions */
 /** \{ */
 
@@ -217,5 +225,13 @@ CFE_ResourceId_t CFE_ResourceId_FindNext(CFE_ResourceId_t StartId, uint32 TableS
  * @retval #CFE_ES_ERR_RESOURCEID_NOT_VALID @copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
  */
 int32 CFE_ResourceId_ToIndex(CFE_ResourceId_t Id, uint32 BaseValue, uint32 TableSize, uint32 *Idx);
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* CFE_RESOURCEID_H */

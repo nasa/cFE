@@ -31,6 +31,14 @@
 
 #include "common_types.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /**
  * Prototype for the main system entry function implemented in CFE ES
  * The PSP should call this at start up.
@@ -203,5 +211,13 @@ typedef const struct
  * This object is always instantiated within this module
  */
 extern Target_ConfigData GLOBAL_CONFIGDATA;
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* TARGET_CONFIG_H */

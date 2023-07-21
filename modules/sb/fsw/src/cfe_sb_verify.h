@@ -32,6 +32,14 @@
 
 #include <stdint.h>
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 #if CFE_PLATFORM_SB_MAX_MSG_IDS < 1
 #error CFE_PLATFORM_SB_MAX_MSG_IDS cannot be less than 1!
 #endif
@@ -160,6 +168,14 @@
 */
 #if CFE_PLATFORM_SB_START_TASK_STACK_SIZE < 2048
 #error CFE_PLATFORM_SB_START_TASK_STACK_SIZE must be greater than or equal to 2048
+#endif
+
+
+
+#ifdef __cplusplus
+
+}
+
 #endif
 
 #endif /* CFE_SB_VERIFY_H */

@@ -38,6 +38,14 @@
 #include "common_types.h"
 #include "cfe_resourceid_api_typedefs.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /**
  * @brief A type for Configuration IDs
  *
@@ -49,5 +57,13 @@ typedef CFE_RESOURCEID_BASE_TYPE CFE_ConfigId_t;
 #define CFE_CONFIGID_UNDEFINED CFE_CONFIGID_C(CFE_RESOURCEID_UNDEFINED)
 
 typedef void (*CFE_Config_Callback_t)(void *Arg, CFE_ConfigId_t Id, const char *Name);
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* CFE_CONFIG_API_TYPEDEFS_H */

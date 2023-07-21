@@ -32,6 +32,14 @@
 #include "common_types.h"
 #include "cfe_error.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /*
  * Defines
  */
@@ -110,5 +118,13 @@ typedef struct CFE_MSG_CommandHeader CFE_MSG_CommandHeader_t;
  * \brief cFS telemetry header
  */
 typedef struct CFE_MSG_TelemetryHeader CFE_MSG_TelemetryHeader_t;
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* CFE_MSG_API_TYPEDEFS_H */

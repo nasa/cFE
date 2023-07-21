@@ -36,6 +36,14 @@
 #include "cfe_msg_sechdr.h"
 #include "cfe_msg_api_typedefs.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /*****************************************************************************/
 /**
  * \brief Convert from a CFE_MSG_TelemetryHeader_t or CFE_MSG_CommandHeader_t to a CFE_MSG_Message_t
@@ -121,5 +129,13 @@ struct CFE_MSG_TelemetryHeader
     CFE_MSG_Message_t                  Msg; /**< \brief Base message */
     CFE_MSG_TelemetrySecondaryHeader_t Sec; /**< \brief Secondary header */
 };
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* DEFAULT_CFE_MSG_HDR_PRIEXT_H */

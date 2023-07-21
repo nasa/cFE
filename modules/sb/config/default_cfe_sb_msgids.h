@@ -26,6 +26,14 @@
 #include "cfe_core_api_base_msgids.h"
 #include "cfe_sb_topicids.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /*
 ** cFE Command Message Id's
 */
@@ -40,5 +48,13 @@
 #define CFE_SB_STATS_TLM_MID   CFE_PLATFORM_TLM_MID_BASE + CFE_MISSION_SB_STATS_TLM_MSG   /* 0x080A */
 #define CFE_SB_ALLSUBS_TLM_MID CFE_PLATFORM_TLM_MID_BASE + CFE_MISSION_SB_ALLSUBS_TLM_MSG /* 0x080D */
 #define CFE_SB_ONESUB_TLM_MID  CFE_PLATFORM_TLM_MID_BASE + CFE_MISSION_SB_ONESUB_TLM_MSG  /* 0x080E */
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif

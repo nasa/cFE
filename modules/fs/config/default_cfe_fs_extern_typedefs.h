@@ -28,4 +28,20 @@
 #include "cfe_mission_cfg.h"
 #include "cfe_fs_filedef.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
+
 #endif /* CFE_FS_EXTERN_TYPEDEFS_H */

@@ -26,6 +26,14 @@
 #include "cfe_core_api_base_msgids.h"
 #include "cfe_evs_topicids.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /*
 ** cFE Command Message Id's
 */
@@ -38,5 +46,13 @@
 #define CFE_EVS_HK_TLM_MID          CFE_PLATFORM_TLM_MID_BASE + CFE_MISSION_EVS_HK_TLM_MSG          /* 0x0801 */
 #define CFE_EVS_LONG_EVENT_MSG_MID  CFE_PLATFORM_TLM_MID_BASE + CFE_MISSION_EVS_LONG_EVENT_MSG_MSG  /* 0x0808 */
 #define CFE_EVS_SHORT_EVENT_MSG_MID CFE_PLATFORM_TLM_MID_BASE + CFE_MISSION_EVS_SHORT_EVENT_MSG_MSG /* 0x0809 */
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif

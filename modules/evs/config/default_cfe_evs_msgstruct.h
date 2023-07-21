@@ -40,6 +40,14 @@
 #include "cfe_evs_extern_typedefs.h"
 #include "cfe_msg_hdr.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /******************  Structure Definitions *********************/
 
 /**
@@ -407,5 +415,13 @@ typedef struct CFE_EVS_ShortEventTlm
     CFE_MSG_TelemetryHeader_t       TelemetryHeader; /**< \brief Telemetry header */
     CFE_EVS_ShortEventTlm_Payload_t Payload;         /**< \brief Telemetry payload */
 } CFE_EVS_ShortEventTlm_t;
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif

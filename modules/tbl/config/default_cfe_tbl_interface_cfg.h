@@ -32,6 +32,14 @@
 #ifndef CFE_TBL_INTERFACE_CFG_H
 #define CFE_TBL_INTERFACE_CFG_H
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /**
 **  \cfetblcfg Maximum Table Name Length
 **
@@ -67,5 +75,13 @@
 **       any possible neighboring fields without implicit padding.
 */
 #define CFE_MISSION_TBL_MAX_FULL_NAME_LEN (CFE_MISSION_TBL_MAX_NAME_LENGTH + CFE_MISSION_MAX_API_LEN + 4)
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif

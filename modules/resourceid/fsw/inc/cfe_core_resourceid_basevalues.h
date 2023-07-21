@@ -34,6 +34,14 @@
 */
 #include "cfe_resourceid_basevalue.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /** @defgroup CFEESResourceIDBase cFE Resource ID base values
  * @{
  */
@@ -95,5 +103,13 @@ enum
 };
 
 /** @} */
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* CFE_CORE_RESOURCEID_BASEVALUES_H */

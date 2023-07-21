@@ -37,6 +37,14 @@
 #include "osconfig.h"
 #include "cfe_es_api_typedefs.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /*
 **  Defines
 */
@@ -136,5 +144,13 @@ uint32 CFE_ES_GetPerfLogDumpRemaining(void);
  * on the next iteration.  State is kept in a global structure.
  */
 bool CFE_ES_RunPerfLogDump(uint32 ElapsedTime, void *Arg);
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* CFE_ES_PERF_H */

@@ -42,6 +42,14 @@
 #include "cfe_evs_module_all.h"
 #include "ut_support.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /* EVS unit test functions */
 /*****************************************************************************/
 /**
@@ -278,5 +286,13 @@ void Test_Squelching(void);
 **        This function does not return a value.
 ******************************************************************************/
 void Test_Misc(void);
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* EVS_UT_H */

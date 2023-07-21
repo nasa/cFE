@@ -44,6 +44,14 @@
 #include "cfe_es_erlog_typedef.h"
 #include "cfe_msg_api_typedefs.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /*************************************************************************/
 
 #define CFE_ES_PIPE_NAME  "ES_CMD_PIPE"
@@ -285,5 +293,13 @@ bool CFE_ES_ValidateHandle(CFE_ES_MemHandle_t Handle);
  * detected during the file write
  */
 void CFE_ES_FileWriteByteCntErr(const char *Filename, size_t Requested, int32 Status);
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* CFE_ES_TASK_H */

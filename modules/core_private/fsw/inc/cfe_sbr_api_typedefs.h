@@ -33,6 +33,14 @@
 #include "common_types.h"
 #include "cfe_sb_extern_typedefs.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /*
  * Macro Definitions
  */
@@ -70,5 +78,13 @@ typedef struct
 
 /** \brief For each id callback function prototype */
 typedef void (*CFE_SBR_CallbackPtr_t)(CFE_SBR_RouteId_t RouteId, void *ArgPtr);
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* CFE_SBR_API_TYPEDEFS_H */

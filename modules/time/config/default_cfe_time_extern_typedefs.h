@@ -27,6 +27,14 @@
 
 #include "common_types.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /**
 **  \brief Data structure used to hold system time values
 **
@@ -278,5 +286,13 @@ enum CFE_TIME_SetState
  * @sa enum CFE_TIME_SetState
  */
 typedef uint8 CFE_TIME_SetState_Enum_t;
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* CFE_TIME_EXTERN_TYPEDEFS_H */

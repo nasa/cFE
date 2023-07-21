@@ -24,6 +24,14 @@
 #ifndef TEST_CFE_MSG_VERIFY_H
 #define TEST_CFE_MSG_VERIFY_H
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /*
  * Includes
  */
@@ -32,5 +40,13 @@
  * Functions
  */
 void Test_MSG_Verify(void);
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* TEST_CFE_MSG_VERIFY_H */

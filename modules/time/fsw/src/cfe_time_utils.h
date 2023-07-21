@@ -35,6 +35,14 @@
 */
 #include "cfe_time_module_all.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /*************************************************************************/
 
 #define CFE_TIME_NEGATIVE 0x80000000 /* ~ 68 * 31,536,000 seconds */
@@ -866,5 +874,13 @@ int32 CFE_TIME_Sub1HZAdjustmentCmd(const CFE_TIME_Sub1HZAdjustmentCmd_t *data);
  * This is a wrapper around CFE_TIME_AdjustImpl()
  */
 int32 CFE_TIME_SubAdjustCmd(const CFE_TIME_SubAdjustCmd_t *data);
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* CFE_TIME_UTILS_H */

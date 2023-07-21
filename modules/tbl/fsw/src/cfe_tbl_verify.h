@@ -30,6 +30,14 @@
 
 #include "cfe_platform_cfg.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 #if (2 * CFE_PLATFORM_TBL_MAX_DBL_TABLE_SIZE) > CFE_PLATFORM_TBL_BUF_MEMORY_BYTES
 #error Two buffers of size CFE_PLATFORM_TBL_MAX_DBL_TABLE_SIZE cannot be greater than memory pool size of CFE_PLATFORM_TBL_BUF_MEMORY_BYTES!
 #endif
@@ -80,6 +88,14 @@
 #endif
 #if ((CFE_MISSION_TBL_MAX_FULL_NAME_LEN % 4) != 0)
 #error CFE_MISSION_TBL_MAX_FULL_NAME_LEN must be a multiple of 4
+#endif
+
+
+
+#ifdef __cplusplus
+
+}
+
 #endif
 
 #endif /* CFE_TBL_VERIFY_H */

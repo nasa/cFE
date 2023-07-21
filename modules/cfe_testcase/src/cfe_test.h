@@ -35,6 +35,14 @@
 #include "utassert.h"
 #include "cfe_assert.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 typedef struct
 {
     CFE_FS_FileWriteMetaData_t FuncTestState;
@@ -101,5 +109,13 @@ void TimeConversionTestSetup(void);
 void TimeCurrentTestSetup(void);
 void TimeExternalTestSetup(void);
 void TimeMiscTestSetup(void);
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* CFE_TEST_H */

@@ -35,6 +35,14 @@
 */
 #include "cfe_tbl_msg.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /*************************************************************************/
 
 /*
@@ -401,5 +409,13 @@ int32 CFE_TBL_TaskInit(void);
 **
 */
 void CFE_TBL_InitData(void);
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* CFE_TBL_TASK_H */

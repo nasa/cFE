@@ -31,6 +31,14 @@
 #include "common_types.h"
 #include "cfe_config_ids.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 typedef enum CFE_ConfigType
 {
     CFE_ConfigType_UNDEFINED,
@@ -50,5 +58,13 @@ typedef struct CFE_Config_ValueEntry
     CFE_ConfigType_t         ActualType;
     CFE_Config_ValueBuffer_t Datum;
 } CFE_Config_ValueEntry_t;
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* CFE_CONFIG_TABLE_H */

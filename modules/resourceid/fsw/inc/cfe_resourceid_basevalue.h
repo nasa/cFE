@@ -50,6 +50,14 @@
  */
 #include "osapi-idmap.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /*
  * Limits/definitions related to CFE_ResourceId_t values.
  *
@@ -71,5 +79,13 @@
  * starting at OS_OBJECT_TYPE_USER.
  */
 #define CFE_RESOURCEID_MAKE_BASE(offset) (CFE_RESOURCEID_MARK | ((offset) << CFE_RESOURCEID_SHIFT))
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* CFE_RESOURCEID_BASEVALUE_H */

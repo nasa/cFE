@@ -31,6 +31,14 @@
 #include "common_types.h"
 #include "cfe_time_extern_typedefs.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 #define CFE_TIME_RESET_SIGNATURE 0xA5A55A5A
 
 /**
@@ -50,5 +58,13 @@ typedef struct CFE_TIME_ResetVars
     CFE_TIME_SysTime_t CurrentSTCF;  /**< \brief Current Spacecraft Time Correlation Factor (STCF) */
     CFE_TIME_SysTime_t CurrentDelay; /**< \brief Current time client delay value */
 } CFE_TIME_ResetVars_t;
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* CFE_TIME_RESETVARS_TYPEDEF_H */

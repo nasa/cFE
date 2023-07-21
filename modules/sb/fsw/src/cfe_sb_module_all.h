@@ -47,4 +47,20 @@
 #include "cfe_sbr.h"
 #include "cfe_core_resourceid_basevalues.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
+
 #endif /* CFE_SB_MODULE_ALL_H */

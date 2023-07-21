@@ -35,6 +35,14 @@
 #include "cfe_resourceid.h"
 #include "cfe_es_generic_pool.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 typedef struct
 {
     /*
@@ -240,5 +248,13 @@ static inline bool CFE_ES_MemPoolRecordIsMatch(const CFE_ES_MemPoolRecord_t *Poo
  * @returns true if the table slot for the ID is occupied, false if available
  */
 bool CFE_ES_CheckMemPoolSlotUsed(CFE_ResourceId_t CheckId);
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* CFE_ES_MEMPOOL_H */

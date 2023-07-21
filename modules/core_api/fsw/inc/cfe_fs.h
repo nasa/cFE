@@ -39,6 +39,14 @@
 #include "cfe_fs_extern_typedefs.h"
 #include "cfe_time_api_typedefs.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /** @defgroup CFEAPIFSHeader cFE File Header Management APIs
  * @{
  */
@@ -357,5 +365,13 @@ int32 CFE_FS_BackgroundFileDumpRequest(CFE_FS_FileWriteMetaData_t *Meta);
 bool CFE_FS_BackgroundFileDumpIsPending(const CFE_FS_FileWriteMetaData_t *Meta);
 
 /**@}*/
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* CFE_FS_H */

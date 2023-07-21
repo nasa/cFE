@@ -44,6 +44,14 @@
 
 #include <stdarg.h> /* required for "va_list" */
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /*
 ** Macro Definitions
 */
@@ -323,5 +331,13 @@ int32 CFE_ES_WriteToERLog(CFE_ES_LogEntryType_Enum_t EntryType, uint32 ResetType
  */
 int32 CFE_ES_WriteToERLogWithContext(CFE_ES_LogEntryType_Enum_t EntryType, uint32 ResetType, uint32 ResetSubtype,
                                      const char *Description, CFE_ES_AppId_t AppId, uint32 PspContextId);
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* CFE_ES_LOG_H */

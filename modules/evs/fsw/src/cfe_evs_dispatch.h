@@ -31,6 +31,14 @@
 #include "cfe_sb_api_typedefs.h"
 #include "cfe_msg_api_typedefs.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /*---------------------------------------------------------------------------------------*/
 /**
  * @brief Command Pipe Processing
@@ -38,5 +46,13 @@
  * This function processes packets received on the EVS command pipe.
  */
 void CFE_EVS_ProcessCommandPacket(const CFE_SB_Buffer_t *SBBufPtr);
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* CFE_EVS_DISPATCH_H */

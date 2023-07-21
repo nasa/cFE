@@ -31,6 +31,14 @@
 
 #include "cfe_evs_msg.h" /* Required for CFE_EVS_LongEventTlm_t definition */
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /*
 ** \brief  EVS Log type definition. This is declared here so ES can include it
 **  in the reset area structure
@@ -44,5 +52,13 @@ typedef struct
     uint16                 LogOverflowCounter; /**< \brief Local Event Log overflow counter */
     CFE_EVS_LongEventTlm_t LogEntry[CFE_PLATFORM_EVS_LOG_MAX]; /**< \brief The actual Local Event Log entry */
 } CFE_EVS_Log_t;
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* CFE_EVS_LOG_TYPEDEF_H */

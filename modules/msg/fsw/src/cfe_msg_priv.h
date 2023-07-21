@@ -32,6 +32,14 @@
 #include "common_types.h"
 #include "cfe_msg_hdr.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /*---------------------------------------------------------------------------------------*/
 /**
  * \brief get generic header field (uint8 array[2])
@@ -78,5 +86,13 @@ static inline void CFE_MSG_SetHeaderField(uint8 *Word, uint16 Val, uint16 Mask)
  * \param[out]     MsgPtr  Message to set
  */
 void CFE_MSG_InitDefaultHdr(CFE_MSG_Message_t *MsgPtr);
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* CFE_MSG_PRIV_H */

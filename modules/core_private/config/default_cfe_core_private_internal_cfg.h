@@ -32,6 +32,14 @@
 #ifndef CFE_CORE_PRIVATE_INTERNAL_CFG_H
 #define CFE_CORE_PRIVATE_INTERNAL_CFG_H
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /**
 **  \cfesbcfg Platform Endian Indicator
 **
@@ -66,5 +74,13 @@
 **
 */
 #define CFE_PLATFORM_CORE_MAX_STARTUP_MSEC 30000
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif

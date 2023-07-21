@@ -39,6 +39,14 @@
 */
 #include "common_types.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /*
 ** Macro Definitions
 */
@@ -287,5 +295,13 @@ void CFE_ES_GenPoolGetBucketUsage(CFE_ES_GenPoolRecord_t *PoolRecPtr, uint16 Buc
  * \return Minimum size required for requested number of blocks.
  */
 size_t CFE_ES_GenPoolCalcMinSize(uint16 NumBlockSizes, const size_t *BlockSizeList, uint32 NumBlocks);
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* CFE_ES_GENERIC_POOL_H */

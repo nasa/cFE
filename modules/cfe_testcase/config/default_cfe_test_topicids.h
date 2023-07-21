@@ -23,6 +23,14 @@
 #ifndef CFE_TESTCASE_TOPICIDS_H
 #define CFE_TESTCASE_TOPICIDS_H
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /**
 **  \cfemissioncfg cFE Portable Message Numbers for Commands
 **
@@ -44,5 +52,13 @@
 **      Not Applicable
 */
 #define CFE_MISSION_TEST_HK_TLM_MSG 2
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif

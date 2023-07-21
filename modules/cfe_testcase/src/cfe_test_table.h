@@ -30,7 +30,23 @@
  */
 #include "cfe_test.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 void RegisterTestTable(void);
 void UnregisterTestTable(void);
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* CFE_TEST_TABLE_H */

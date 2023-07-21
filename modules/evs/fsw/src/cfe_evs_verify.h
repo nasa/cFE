@@ -32,6 +32,14 @@
 #ifndef CFE_EVS_VERIFY_H
 #define CFE_EVS_VERIFY_H
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /* NOTE: Besides the checks in this file, there is one more in cfe_evs_task.h.
  * The check is not here because it is checking a local #define based on a
  * configuration parameter
@@ -67,6 +75,14 @@
 */
 #if CFE_PLATFORM_EVS_START_TASK_STACK_SIZE < 2048
 #error CFE_PLATFORM_EVS_START_TASK_STACK_SIZE must be greater than or equal to 2048
+#endif
+
+
+
+#ifdef __cplusplus
+
+}
+
 #endif
 
 #endif /* CFE_EVS_VERIFY_H */

@@ -38,6 +38,14 @@
 */
 #include "cfe_es_api_typedefs.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /*
 ** Macro Definitions
 */
@@ -116,5 +124,13 @@ void CFE_ES_InitializeFileSystems(uint32 StartType);
  * CFE_ES_PerfLogEntry() / CFE_ES_PerfLogExit() functions
  */
 void CFE_ES_SetupPerfVariables(uint32 ResetType);
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* CFE_ES_START_H */

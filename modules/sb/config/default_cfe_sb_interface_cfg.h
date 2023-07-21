@@ -32,6 +32,14 @@
 #ifndef CFE_SB_INTERFACE_CFG_H
 #define CFE_SB_INTERFACE_CFG_H
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /**
 **  \cfesbcfg Maximum SB Message Size
 **
@@ -65,5 +73,13 @@
 **
 */
 #define CFE_MISSION_SB_MAX_PIPES 64
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif

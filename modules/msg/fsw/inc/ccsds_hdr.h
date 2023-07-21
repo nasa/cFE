@@ -33,6 +33,14 @@
 
 #include "common_types.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /*
  * Type Definitions
  */
@@ -82,5 +90,13 @@ typedef struct CCSDS_ExtendedHeader
     uint8 SystemId[2]; /**< \brief system qualifier */
                        /* 0xFFFF   0  : System Id      mission defined             */
 } CCSDS_ExtendedHeader_t;
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* CCSDS_HDR_H */

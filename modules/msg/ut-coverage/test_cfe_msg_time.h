@@ -24,10 +24,26 @@
 #ifndef TEST_CFE_MSG_TIME_H
 #define TEST_CFE_MSG_TIME_H
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /*
  * Functions
  */
 /* Test time accessor functions */
 void Test_MSG_Time(void);
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* TEST_CFE_MSG_TIME_H */

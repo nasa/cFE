@@ -131,6 +131,14 @@ typedef struct CFE_TBL_FileDef
 
     #include "cfe_tbl_filedef.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
    typedef struct MyTblStruct
    {
        int     Int1;
@@ -150,5 +158,13 @@ typedef struct CFE_TBL_FileDef
     CFE_TBL_FileDef_t CFE_TBL_FileDef = {#ObjName "\0", #TblName "\0", #Desc "\0", #Filename "\0", sizeof(ObjName)};
 
 /*************************************************************************/
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* CFE_TBL_FILEDEF_H */

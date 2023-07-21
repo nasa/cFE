@@ -50,6 +50,14 @@
 #include "cfe_sb_api_typedefs.h"
 #include "cfe_evs_eventids.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /*********************  Macro and Constant Type Definitions   ***************************/
 
 #define CFE_EVS_MSG_TRUNCATED        '$'
@@ -322,5 +330,13 @@ int32 CFE_EVS_WriteAppDataFileCmd(const CFE_EVS_WriteAppDataFileCmd_t *data);
  * application identifier
  */
 int32 CFE_EVS_ResetAllFiltersCmd(const CFE_EVS_ResetAllFiltersCmd_t *data);
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* CFE_EVS_TASK_H */

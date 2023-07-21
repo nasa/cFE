@@ -53,4 +53,20 @@
 #include "cfe_es_resource.h"
 #include "cfe_es_log.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
+
 #endif /* CFE_ES_MODULE_ALL_H */

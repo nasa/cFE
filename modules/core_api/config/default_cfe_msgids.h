@@ -38,4 +38,20 @@
 #include "cfe_tbl_msgids.h"
 #include "cfe_time_msgids.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
+
 #endif /* CFE_MSGIDS_H */

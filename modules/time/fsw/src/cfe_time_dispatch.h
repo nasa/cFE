@@ -36,6 +36,14 @@
 #include "cfe_sb_api_typedefs.h"
 #include "cfe_msg_api_typedefs.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /*----------------------------------------------------------------
  *
  * Application-scope internal function
@@ -43,5 +51,13 @@
  *
  *-----------------------------------------------------------------*/
 void CFE_TIME_TaskPipe(const CFE_SB_Buffer_t *SBBufPtr);
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif

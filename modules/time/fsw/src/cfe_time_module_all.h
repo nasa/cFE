@@ -44,4 +44,20 @@
 #include "cfe_time_utils.h"
 #include "cfe_time_dispatch.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
+
 #endif /* CFE_TIME_MODULE_ALL_H */

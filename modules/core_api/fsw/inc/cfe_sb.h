@@ -38,6 +38,14 @@
 #include "cfe_sb_api_typedefs.h"
 #include "cfe_es_api_typedefs.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /*
 ** Macro Definitions
 */
@@ -841,5 +849,13 @@ static inline CFE_SB_MsgId_t CFE_SB_ValueToMsgId(CFE_SB_MsgId_Atom_t MsgIdValue)
     return Result;
 }
 /** @} */
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* CFE_SB_H */

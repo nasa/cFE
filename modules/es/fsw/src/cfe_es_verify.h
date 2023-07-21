@@ -37,6 +37,14 @@
 
 #include <stdint.h>
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 #if CFE_PLATFORM_ES_MAX_APPLICATIONS < 6
 #error CFE_PLATFORM_ES_MAX_APPLICATIONS cannot be less than 6!
 #endif
@@ -330,6 +338,14 @@
 #endif
 #if ((CFE_MISSION_ES_CDS_MAX_FULL_NAME_LEN % 4) != 0)
 #error CFE_MISSION_ES_CDS_MAX_FULL_NAME_LEN must be a multiple of 4
+#endif
+
+
+
+#ifdef __cplusplus
+
+}
+
 #endif
 
 #endif /* CFE_ES_VERIFY_H */

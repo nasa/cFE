@@ -33,6 +33,14 @@
 #include "cfe_config.h"
 #include "target_config.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /*
  * Actual definition of the config registry table
  *
@@ -94,5 +102,13 @@ void CFE_Config_SetupBasicBuildInfo(void);
  * @brief Gets the value record associated with a config ID
  */
 CFE_Config_ValueEntry_t *CFE_Config_LocateConfigRecordByID(CFE_ConfigId_t ConfigId);
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* CFE_CONFIG_PRIV_H */

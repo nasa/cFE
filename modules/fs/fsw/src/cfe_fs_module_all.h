@@ -36,4 +36,20 @@
 #include "cfe_fs_priv.h"
 #include "cfe_fs_core_internal.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
+
 #endif /* CFE_FS_MODULE_ALL_H */

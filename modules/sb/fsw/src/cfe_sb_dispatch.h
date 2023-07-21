@@ -36,6 +36,14 @@
 #include "common_types.h"
 #include "cfe_sb_api_typedefs.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /*---------------------------------------------------------------------------------------*/
 /**
  * Processes a single message buffer that has been received from the command pipe
@@ -43,5 +51,13 @@
  * @param SBBufPtr Software bus buffer pointer
  */
 void CFE_SB_ProcessCmdPipePkt(const CFE_SB_Buffer_t *SBBufPtr);
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* CFE_SB_DISPATCH_H */

@@ -38,6 +38,14 @@
 #include "cfe_mission_cfg.h"
 #include "cfe_msg_hdr.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /**
  * \brief Generic no argument command
  */
@@ -437,5 +445,13 @@ typedef struct CFE_TIME_DiagnosticTlm
     CFE_MSG_TelemetryHeader_t        TelemetryHeader; /**< \brief Telemetry header */
     CFE_TIME_DiagnosticTlm_Payload_t Payload;         /**< \brief Telemetry payload */
 } CFE_TIME_DiagnosticTlm_t;
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif

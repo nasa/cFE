@@ -37,6 +37,14 @@
 #include "common_types.h" /* Basic data types */
 #include "cfe_evs_extern_typedefs.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /** \name Common Event Filter Mask Values
  * Message is sent if (previous event count) & MASK == 0
  */
@@ -62,5 +70,13 @@ typedef struct CFE_EVS_BinFilter
     uint16 EventID; /**< \brief Numerical event identifier */
     uint16 Mask;    /**< \brief Binary filter mask value */
 } CFE_EVS_BinFilter_t;
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* CFE_EVS_API_TYPEDEFS_H */

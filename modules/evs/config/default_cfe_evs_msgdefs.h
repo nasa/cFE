@@ -28,6 +28,14 @@
 
 #include "cfe_evs_fcncodes.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /* Event Type bit masks */
 #define CFE_EVS_DEBUG_BIT       0x0001
 #define CFE_EVS_INFORMATION_BIT 0x0002
@@ -39,5 +47,13 @@
 #define CFE_EVS_PORT2_BIT 0x0002
 #define CFE_EVS_PORT3_BIT 0x0004
 #define CFE_EVS_PORT4_BIT 0x0008
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif

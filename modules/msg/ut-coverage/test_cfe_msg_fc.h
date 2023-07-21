@@ -24,10 +24,26 @@
 #ifndef TEST_CFE_MSG_FC_H
 #define TEST_CFE_MSG_FC_H
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /*
  * Functions
  */
 /* Test function code accessor functions */
 void Test_MSG_FcnCode(void);
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* TEST_CFE_MSG_FC_H */

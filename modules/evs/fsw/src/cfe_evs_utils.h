@@ -46,6 +46,14 @@
 #include "cfe_es_api_typedefs.h"
 #include "cfe_time_api_typedefs.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /* ==============   Section I: Macro and Constant Type Definitions   =========== */
 
 /* ==============   Section II: Internal Structures ============ */
@@ -251,5 +259,13 @@ void EVS_GenerateEventTelemetry(EVS_AppData_t *AppDataPtr, uint16 EventID, uint1
  * which can be time consuming on some platforms.
  */
 int32 EVS_SendEvent(uint16 EventID, uint16 EventType, const char *Spec, ...);
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* CFE_EVS_UTILS_H */

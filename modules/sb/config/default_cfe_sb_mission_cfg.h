@@ -33,4 +33,20 @@
 
 #include "cfe_sb_interface_cfg.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
+
 #endif

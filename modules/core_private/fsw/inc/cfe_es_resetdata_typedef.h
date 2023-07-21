@@ -34,6 +34,14 @@
 #include "cfe_evs_log_typedef.h"        /* Required for CFE_EVS_Log_t definition */
 #include "cfe_platform_cfg.h"           /* CFE_PLATFORM_ES_ER_LOG_ENTRIES, CFE_PLATFORM_ES_SYSTEM_LOG_SIZE */
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /*
 ** Reset Variables type
 */
@@ -92,5 +100,13 @@ typedef struct
     */
     CFE_EVS_Log_t EVS_Log;
 } CFE_ES_ResetData_t;
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* CFE_ES_RESETDATA_TYPEDEF_H */

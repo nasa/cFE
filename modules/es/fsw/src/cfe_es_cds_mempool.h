@@ -39,6 +39,14 @@
 */
 #include "cfe_es_cds.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /*
 ** Macro Definitions
 */
@@ -96,5 +104,13 @@ int32 CFE_ES_CDSBlockRead(void *DataRead, CFE_ES_CDSHandle_t Handle);
  * @brief Computes the minimum required size for a CDS pool
  */
 size_t CFE_ES_CDSReqdMinSize(uint32 MaxNumBlocksToSupport);
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* CFE_ES_CDS_MEMPOOL_H */

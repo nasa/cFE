@@ -25,6 +25,14 @@
 #ifndef CFE_TBL_EVENTS_H
 #define CFE_TBL_EVENTS_H
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /**
  * \name TBL event IDs
  */
@@ -816,5 +824,13 @@
  */
 #define CFE_TBL_HANDLE_ACCESS_ERR_EID 103
 /**\}*/
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* CFE_TBL_EVENTS_H */

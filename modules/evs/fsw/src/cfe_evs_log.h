@@ -44,6 +44,14 @@
 
 #include "cfe_evs_msg.h" /* EVS public definitions */
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /* ==============   Section I: Macro and Constant Type Definitions   =========== */
 
 /* ==============   Section II: Internal Structures ============ */
@@ -77,5 +85,13 @@ int32 CFE_EVS_WriteLogDataFileCmd(const CFE_EVS_WriteLogDataFileCmd_t *data);
  * This routine sets the internal event log mode.
  */
 int32 CFE_EVS_SetLogModeCmd(const CFE_EVS_SetLogModeCmd_t *data);
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* CFE_EVS_LOG_H */

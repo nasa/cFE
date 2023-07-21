@@ -25,6 +25,14 @@
 #ifndef CFE_ES_EVENTS_H
 #define CFE_ES_EVENTS_H
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /**
  * \name ES event IDs
  */
@@ -1058,5 +1066,13 @@
  */
 #define CFE_ES_ERLOG_PENDING_ERR_EID 93
 /**\}*/
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* CFE_ES_EVENTS_H */

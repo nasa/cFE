@@ -35,6 +35,14 @@
 #ifndef UT_OSPRINTF_STUBS_H
 #define UT_OSPRINTF_STUBS_H
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 #define UT_OSP_CORE_INIT                  11
 #define UT_OSP_POR_MAX_PROC_RESETS        12
 #define UT_OSP_CORE_RUNTIME               13
@@ -104,5 +112,13 @@
 #define UT_OSP_FORMAT_VOLATILE            78
 #define UT_OSP_RELOAD_NO_FILE             79
 #define UT_OSP_EXTERNAL_APP_EXIT          80
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* UT_OSPRINTF_STUBS_H */

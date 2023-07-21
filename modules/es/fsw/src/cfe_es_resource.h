@@ -36,6 +36,14 @@
 #include "cfe_core_resourceid_basevalues.h"
 #include "cfe_es_global.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /*---------------------------------------------------------------------------------------*/
 /**
  * @brief Locate the app table entry correlating with a given app ID.
@@ -813,5 +821,13 @@ bool CFE_ES_CheckLibIdSlotUsed(CFE_ResourceId_t CheckId);
  * @returns false if slot is unused/available, true if used/unavailable
  */
 bool CFE_ES_CheckCounterIdSlotUsed(CFE_ResourceId_t CheckId);
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* CFE_ES_RESOURCE_H */

@@ -33,4 +33,20 @@
 
 #include "cfe_fs_interface_cfg.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
+
 #endif

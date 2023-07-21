@@ -45,6 +45,14 @@
 #include "utbsp.h"
 #include "utstubs.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /*
  * Conversion from old-style OS_printf stub
  */
@@ -768,5 +776,13 @@ bool CFE_UtAssert_MessageCheck_Impl(bool Status, const char *File, uint32 Line, 
 #define CFE_UtAssert_MSGID_EQ(mid1, mid2)                                                                      \
     UtAssert_GenericUnsignedCompare(CFE_SB_MsgIdToValue(mid1), UtAssert_Compare_EQ, CFE_SB_MsgIdToValue(mid2), \
                                     UtAssert_Radix_HEX, __FILE__, __LINE__, "MsgId Check: ", #mid1, #mid2)
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* UT_SUPPORT_H */

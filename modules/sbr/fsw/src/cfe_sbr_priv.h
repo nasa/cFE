@@ -31,6 +31,14 @@
  */
 #include "cfe_sbr.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /******************************************************************************
  * Function prototypes
  */
@@ -57,5 +65,13 @@ void CFE_SBR_Init_Map(void);
  * \returns Number of collisions
  */
 uint32 CFE_SBR_SetRouteId(CFE_SB_MsgId_t MsgId, CFE_SBR_RouteId_t RouteId);
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* CFE_SBR_PRIV_H */

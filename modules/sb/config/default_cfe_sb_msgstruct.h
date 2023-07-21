@@ -38,6 +38,14 @@
 #include "cfe_sb_interface_cfg.h"
 #include "cfe_msg_hdr.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /****************************
 **  SB Command Formats     **
 *****************************/
@@ -358,5 +366,13 @@ typedef struct CFE_SB_AllSubscriptionsTlm
     CFE_MSG_TelemetryHeader_t            TelemetryHeader; /**< \brief Telemetry header */
     CFE_SB_AllSubscriptionsTlm_Payload_t Payload;         /**< \brief Telemetry payload */
 } CFE_SB_AllSubscriptionsTlm_t;
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif

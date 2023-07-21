@@ -32,6 +32,14 @@
 #ifndef CFE_ES_INTERFACE_CFG_H
 #define CFE_ES_INTERFACE_CFG_H
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /**
 **  \cfeescfg Mission Max Apps in a message
 **
@@ -145,6 +153,14 @@
 #define CFE_MISSION_ES_CRC_8  CFE_ES_CrcType_CRC_8  /* 1 */
 #define CFE_MISSION_ES_CRC_16 CFE_ES_CrcType_CRC_16 /* 2 */
 #define CFE_MISSION_ES_CRC_32 CFE_ES_CrcType_CRC_32 /* 3 */
+
+#endif
+
+
+
+#ifdef __cplusplus
+
+}
 
 #endif
 

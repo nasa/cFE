@@ -28,6 +28,14 @@
 #include "common_types.h"
 #include "cfe_fs_interface_cfg.h" /* to define CFE_FS_HDR_DESC_MAX_LEN */
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /**
  * @brief File subtypes used within cFE
  *
@@ -194,5 +202,13 @@ typedef struct CFE_FS_Header
 
     char Description[CFE_FS_HDR_DESC_MAX_LEN]; /**< \brief File description */
 } CFE_FS_Header_t;
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* CFE_FS_EXTERN_TYPEDEFS_H */

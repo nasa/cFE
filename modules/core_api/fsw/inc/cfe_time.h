@@ -38,6 +38,14 @@
 #include "cfe_time_api_typedefs.h"
 #include "cfe_es_api_typedefs.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /**
 ** \brief Time Copy
 **
@@ -725,5 +733,13 @@ void CFE_TIME_Print(char *PrintBuffer, CFE_TIME_SysTime_t TimeToPrint);
 ******************************************************************************/
 void CFE_TIME_Local1HzISR(void);
 /**@}*/
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* CFE_TIME_H */

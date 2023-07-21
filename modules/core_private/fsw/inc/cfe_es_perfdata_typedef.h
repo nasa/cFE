@@ -29,6 +29,14 @@
 #include "cfe_mission_cfg.h"  /* Required for CFE_MISSION_ES_PERF_MAX_IDS */
 #include "cfe_platform_cfg.h" /* Required for CFE_PLATFORM_ES_PERF_DATA_BUFFER_SIZE */
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 #define CFE_ES_PERF_32BIT_WORDS_IN_MASK ((CFE_MISSION_ES_PERF_MAX_IDS) / 32)
 
 typedef struct
@@ -69,5 +77,13 @@ typedef struct
     CFE_ES_PerfMetaData_t  MetaData;
     CFE_ES_PerfDataEntry_t DataBuffer[CFE_PLATFORM_ES_PERF_DATA_BUFFER_SIZE];
 } CFE_ES_PerfData_t;
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* CFE_ES_PERFDATA_TYPEDEF_H */

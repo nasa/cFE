@@ -25,6 +25,14 @@
 #ifndef CFE_TIME_EVENTS_H
 #define CFE_TIME_EVENTS_H
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /**
  * \name TIME event IDs
  */
@@ -449,5 +457,13 @@
  */
 #define CFE_TIME_LEN_ERR_EID 49
 /**\}*/
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* CFE_TIME_EVENTS_H */

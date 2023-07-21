@@ -33,6 +33,14 @@
 #include "utassert.h"
 #include "cfe_error.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /************************************************************************
 ** Type Definitions
 *************************************************************************/
@@ -376,5 +384,13 @@ CFE_Status_t CFE_Assert_Status_Store(CFE_Status_t Status, const char *File, uint
 */
 bool CFE_Assert_Status_DeferredCheck(CFE_Status_t Status, UtAssert_CaseType_t CaseType, const char *File, uint32 Line,
                                      const char *Text);
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* CFE_ASSERT_H */

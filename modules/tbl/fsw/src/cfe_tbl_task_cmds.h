@@ -40,6 +40,14 @@
 
 #include "cfe_sb_extern_typedefs.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /*********************  Macro and Constant Type Definitions   ***************************/
 
 /*
@@ -341,5 +349,13 @@ CFE_TBL_CmdProcRet_t CFE_TBL_DumpToFile(const char *DumpFilename, const char *Ta
 **
 */
 void CFE_TBL_AbortLoad(CFE_TBL_RegistryRec_t *RegRecPtr);
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* CFE_TBL_TASK_CMDS_H */

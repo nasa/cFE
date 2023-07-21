@@ -36,6 +36,14 @@
 #include "common_types.h"
 #include "cfe_es_extern_typedefs.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /*
  * The internal APIs prototyped within this block are only intended to be invoked from
  * other CFE core apps.  They still need to be prototyped in the shared header such that
@@ -85,5 +93,13 @@ int32 CFE_EVS_EarlyInit(void);
 int32 CFE_EVS_CleanUpApp(CFE_ES_AppId_t AppId);
 
 /**@}*/
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* CFE_EVS_CORE_INTERNAL_H */

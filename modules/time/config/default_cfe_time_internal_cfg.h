@@ -32,6 +32,14 @@
 #ifndef CFE_TIME_INTERNAL_CFG_H
 #define CFE_TIME_INTERNAL_CFG_H
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /**
 **  \cfetimecfg Time Server or Time Client Selection
 **
@@ -239,5 +247,13 @@
 #define CFE_PLATFORM_TIME_START_TASK_STACK_SIZE CFE_PLATFORM_ES_DEFAULT_STACK_SIZE
 #define CFE_PLATFORM_TIME_TONE_TASK_STACK_SIZE  4096
 #define CFE_PLATFORM_TIME_1HZ_TASK_STACK_SIZE   8192
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif

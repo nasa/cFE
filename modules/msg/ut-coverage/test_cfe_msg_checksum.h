@@ -24,10 +24,26 @@
 #ifndef TEST_CFE_MSG_CHECKSUM_H
 #define TEST_CFE_MSG_CHECKSUM_H
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /*
  * Functions
  */
 /* Test checksum accessor functions */
 void Test_MSG_Checksum(void);
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* TEST_CFE_MSG_CHECKSUM_H */

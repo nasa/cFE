@@ -42,6 +42,14 @@
 #include "cfe_time_module_all.h"
 #include "ut_support.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /*
 ** Function prototypes
 */
@@ -348,5 +356,13 @@ void Test_UnregisterSynchCallback(void);
 **        This function does not return a value.
 ******************************************************************************/
 void Test_CleanUpApp(void);
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* TIME_UT_H */

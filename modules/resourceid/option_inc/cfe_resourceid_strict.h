@@ -27,6 +27,14 @@
 
 #include "common_types.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /*
  * Inform other code that the "strict mode" is enabled for resource IDs
  *
@@ -87,5 +95,13 @@ typedef struct
         x                      \
     }
 #define CFE_RESOURCEID_UNWRAP(x) (x).id
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* CFE_RESOURCEID_STRICT_H */

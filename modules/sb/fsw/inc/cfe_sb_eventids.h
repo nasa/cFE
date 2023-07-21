@@ -25,6 +25,14 @@
 #ifndef CFE_SB_EVENTS_H
 #define CFE_SB_EVENTS_H
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /**
  * \name SB event IDs
  */
@@ -760,5 +768,13 @@
  */
 #define CFE_SB_CR_PIPE_NO_FREE_EID 70
 /**\}*/
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* CFE_SB_EVENTS_H */

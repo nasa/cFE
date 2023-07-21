@@ -45,4 +45,20 @@
 #include "cfe_evs_utils.h"    /* EVS utility function definitions */
 #include "cfe_evs_dispatch.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
+
 #endif /* CFE_EVS_MODULE_ALL_H */

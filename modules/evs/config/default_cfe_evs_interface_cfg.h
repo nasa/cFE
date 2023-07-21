@@ -32,6 +32,14 @@
 #ifndef CFE_EVS_INTERFACE_CFG_H
 #define CFE_EVS_INTERFACE_CFG_H
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /**
 **  \cfeevscfg Maximum Event Message Length
 **
@@ -45,5 +53,13 @@
 **      Not Applicable
 */
 #define CFE_MISSION_EVS_MAX_MESSAGE_LENGTH 122
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif

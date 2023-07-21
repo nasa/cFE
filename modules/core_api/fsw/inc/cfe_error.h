@@ -37,6 +37,14 @@
 /* Include Files */
 #include "osapi.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /**
  * \brief cFE Status type for readability and eventually type safety
  */
@@ -1363,5 +1371,13 @@ char *CFE_ES_StatusToString(CFE_Status_t status, CFE_StatusString_t *status_stri
  */
 #define CFE_TIME_BAD_ARGUMENT ((CFE_Status_t)0xce000005)
 /**@}*/
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* CFE_ERROR_H */

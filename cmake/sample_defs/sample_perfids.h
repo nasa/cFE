@@ -35,6 +35,14 @@
 #ifndef SAMPLE_PERFIDS_H
 #define SAMPLE_PERFIDS_H
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 #define CFE_MISSION_ES_PERF_EXIT_BIT 31 /**< \brief bit (31) is reserved by the perf utilities */
 
 /** \name cFE Performance Monitor IDs (Reserved IDs 0-31) */
@@ -55,5 +63,13 @@
 #define CFE_MISSION_TIME_TONE1HZTASK_PERF_ID  11 /**< \brief Performance ID for 1 Hz Tone Task */
 
 /** \} */
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* SAMPLE_PERFIDS_H */

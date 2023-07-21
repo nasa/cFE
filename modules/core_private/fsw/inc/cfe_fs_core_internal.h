@@ -30,6 +30,14 @@
 
 #include "common_types.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /*
  * The internal APIs prototyped within this block are only intended to be invoked from
  * other CFE core apps.  They still need to be prototyped in the shared header such that
@@ -73,5 +81,13 @@ int32 CFE_FS_EarlyInit(void);
 bool CFE_FS_RunBackgroundFileDump(uint32 ElapsedTime, void *Arg);
 
 /**@}*/
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* CFE_FS_CORE_INTERNAL_H */

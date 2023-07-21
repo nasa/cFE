@@ -25,6 +25,14 @@
 #ifndef CFE_EVS_EVENTS_H
 #define CFE_EVS_EVENTS_H
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /**
  * \name EVS event IDs
  */
@@ -491,5 +499,13 @@
  */
 #define CFE_EVS_SQUELCHED_ERR_EID 44
 /**\}*/
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* CFE_EVS_EVENTS_H */

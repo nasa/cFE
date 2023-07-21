@@ -29,6 +29,14 @@
 #include "cfe_resourceid_typedef.h"
 #include "cfe_mission_cfg.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /**
  * @brief Label definitions associated with CFE_ES_LogMode_Enum_t
  */
@@ -563,5 +571,13 @@ typedef struct CFE_ES_MemPoolStats
     CFE_ES_BlockStats_t BlockStats[CFE_MISSION_ES_POOL_MAX_BUCKETS]; /**< \cfetlmmnemonic \ES_BLKSTATS
                                                                           \brief Contains stats on each block size */
 } CFE_ES_MemPoolStats_t;
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* CFE_ES_EXTERN_TYPEDEFS_H */

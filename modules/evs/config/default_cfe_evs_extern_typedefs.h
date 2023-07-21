@@ -27,6 +27,14 @@
 
 #include "common_types.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /**
  * @brief Label definitions associated with CFE_EVS_MsgFormat_Enum_t
  */
@@ -156,5 +164,13 @@ enum CFE_EVS_EventOutput
  * @sa enum CFE_EVS_EventOutput
  */
 typedef uint8 CFE_EVS_EventOutput_Enum_t;
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* CFE_EVS_EXTERN_TYPEDEFS_H */

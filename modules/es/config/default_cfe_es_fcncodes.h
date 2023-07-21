@@ -28,6 +28,14 @@
 #ifndef CFE_ES_FCNCODES_H
 #define CFE_ES_FCNCODES_H
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /************************************************************************
  * Macro Definitions
  ************************************************************************/
@@ -1032,5 +1040,13 @@
 #define CFE_ES_QUERY_ALL_TASKS_CC 24
 
 /** \} */
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif

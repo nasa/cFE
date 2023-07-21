@@ -36,6 +36,14 @@
 #include "cfe_msg_sechdr.h"
 #include "cfe_msg_api_typedefs.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /*****************************************************************************/
 /**
  * \brief Convert from a CFE_MSG_TelemetryHeader_t or CFE_MSG_CommandHeader_t to a CFE_MSG_Message_t
@@ -118,5 +126,13 @@ struct CFE_MSG_TelemetryHeader
     uint8                              Spare[4]; /**< \brief Pad to avoid compiler padding if payload
                                                              requires 64 bit alignment */
 };
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* DEFAULT_CFE_MSG_HDR_PRI_H */

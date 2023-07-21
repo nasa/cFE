@@ -42,6 +42,14 @@
 #include "cfe_tbl_module_all.h"
 #include "ut_support.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 typedef struct
 {
     uint32 TblElement1;
@@ -679,5 +687,13 @@ void Test_CFE_TBL_Internal(void);
 **
 ******************************************************************************/
 int32 Test_CFE_TBL_ValidationFunc(void *TblPtr);
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* TBL_UT_H */

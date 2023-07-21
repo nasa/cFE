@@ -28,6 +28,14 @@
 #ifndef CFE_TIME_FCNCODES_H
 #define CFE_TIME_FCNCODES_H
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /*
 ** Time task command packet command codes...
 */
@@ -690,5 +698,13 @@
 */
 #define CFE_TIME_SET_SIGNAL_CC 15 /* set clock signal (pri vs red) */
 /** \} */
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif

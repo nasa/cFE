@@ -37,6 +37,14 @@
 #include "cfe_sb_api_typedefs.h"
 #include "cfe_time_api_typedefs.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /** \defgroup CFEAPIMSGHeader cFE Generic Message APIs
  * \{
  */
@@ -750,5 +758,13 @@ CFE_Status_t CFE_MSG_GetTypeFromMsgId(CFE_SB_MsgId_t MsgId, CFE_MSG_Type_t *Type
 CFE_Status_t CFE_MSG_Verify(const CFE_MSG_Message_t *MsgPtr, bool *VerifyStatus);
 
 /**\}*/
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* CFE_MSG_H */

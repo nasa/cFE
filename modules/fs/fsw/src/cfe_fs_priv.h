@@ -37,6 +37,14 @@
 #include "cfe_fs_api_typedefs.h"
 #include "cfe_es_api_typedefs.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /*
 ** Macro Definitions
 */
@@ -175,5 +183,13 @@ void CFE_FS_ByteSwapCFEHeader(CFE_FS_Header_t *Hdr);
  * @param Uint32ToSwapPtr The buffer to byte swap
  */
 void CFE_FS_ByteSwapUint32(uint32 *Uint32ToSwapPtr);
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* CFE_FS_PRIV_H */

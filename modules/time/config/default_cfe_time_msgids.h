@@ -26,6 +26,14 @@
 #include "cfe_core_api_base_msgids.h"
 #include "cfe_time_topicids.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /*
 ** cFE Command Message Id's
 */
@@ -45,5 +53,13 @@
 */
 #define CFE_TIME_HK_TLM_MID   CFE_PLATFORM_TLM_MID_BASE + CFE_MISSION_TIME_HK_TLM_MSG   /* 0x0805 */
 #define CFE_TIME_DIAG_TLM_MID CFE_PLATFORM_TLM_MID_BASE + CFE_MISSION_TIME_DIAG_TLM_MSG /* 0x0806 */
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif

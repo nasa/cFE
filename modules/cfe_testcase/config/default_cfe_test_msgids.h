@@ -26,6 +26,14 @@
 #include "cfe_core_api_base_msgids.h"
 #include "cfe_test_topicids.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /*
 ** cFE Command Message Id's
 */
@@ -35,5 +43,13 @@
 ** CFE Telemetry Message Id's
 */
 #define CFE_TEST_HK_TLM_MID CFE_PLATFORM_TLM_MID_BASE + CFE_MISSION_TEST_HK_TLM_MSG /* 0x0802 */
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif

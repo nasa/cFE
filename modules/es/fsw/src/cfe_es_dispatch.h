@@ -35,10 +35,26 @@
 #include "cfe_sb_api_typedefs.h"
 #include "cfe_msg_api_typedefs.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /*---------------------------------------------------------------------------------------*/
 /**
  * Reads and processes messages from the executive services command pipe
  */
 void CFE_ES_TaskPipe(const CFE_SB_Buffer_t *SBBufPtr);
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* CFE_ES_DISPATCH_H */

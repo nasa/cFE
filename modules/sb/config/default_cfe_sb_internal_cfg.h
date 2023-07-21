@@ -32,6 +32,14 @@
 #ifndef CFE_SB_INTERNAL_CFG_H
 #define CFE_SB_INTERNAL_CFG_H
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /**
 **  \cfesbcfg Maximum Number of Unique Message IDs SB Routing Table can hold
 **
@@ -286,5 +294,13 @@
 **       is always a good idea to verify that no more than 1/2 of the stack is used.
 */
 #define CFE_PLATFORM_SB_START_TASK_STACK_SIZE CFE_PLATFORM_ES_DEFAULT_STACK_SIZE
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif

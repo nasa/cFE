@@ -42,6 +42,14 @@
 #include "cfe_tbl_extern_typedefs.h"
 #include "cfe_time_extern_typedefs.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /** @defgroup CFETBLTypeOptions cFE Table Type Defines
  * @{
  */
@@ -121,5 +129,13 @@ typedef struct CFE_TBL_Info
     bool               Critical;         /**< \brief Flag indicating Table contents are maintained in a CDS */
     char               LastFileLoaded[CFE_MISSION_MAX_PATH_LEN]; /**< \brief Filename of last file loaded into table */
 } CFE_TBL_Info_t;
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* CFE_TBL_API_TYPEDEFS_H */

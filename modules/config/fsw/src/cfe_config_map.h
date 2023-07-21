@@ -31,11 +31,27 @@
 #include "common_types.h"
 #include "cfe_config_ids.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 typedef struct CFE_Config_IdNameEntry
 {
     const char *Name;
 } CFE_Config_IdNameEntry_t;
 
 extern const CFE_Config_IdNameEntry_t CFE_CONFIG_IDNAME_MAP[];
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* CFE_CONFIG_MAP_H */

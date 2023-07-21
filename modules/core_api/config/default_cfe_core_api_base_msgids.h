@@ -28,6 +28,14 @@
 #ifndef CFE_CORE_BASE_MSGIDS_H
 #define CFE_CORE_BASE_MSGIDS_H
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /**
  * \brief Platform command message ID base offset
  *
@@ -68,5 +76,13 @@
  * See #CFE_PLATFORM_CMD_MID_BASE for more information
  */
 #define CFE_PLATFORM_CMD_MID_BASE_GLOB 0x1860
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* CFE_CORE_BASE_MSGIDS_H */

@@ -32,6 +32,14 @@
 */
 #include "common_types.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /*
  * SOFTWARE_BIG/LITTLE_BIT_ORDER COMPATIBILITY MACRO -
  *
@@ -64,6 +72,14 @@
 #define CFE_MAKE_BIG16(n) ((((n)&0x00FF) << 8) | (((n)&0xFF00) >> 8))
 #define CFE_MAKE_BIG32(n) \
     ((((n)&0x000000FF) << 24) | (((n)&0x0000FF00) << 8) | (((n)&0x00FF0000) >> 8) | (((n)&0xFF000000) >> 24))
+#endif
+
+
+
+#ifdef __cplusplus
+
+}
+
 #endif
 
 #endif /* CFE_ENDIAN_H */

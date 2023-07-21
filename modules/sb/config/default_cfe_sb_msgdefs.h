@@ -28,4 +28,20 @@
 
 #include "cfe_sb_fcncodes.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
+
 #endif

@@ -39,6 +39,14 @@
 #include "common_types.h"
 #include "cfe_es_extern_typedefs.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /*
 ** Note about reset type and subtypes:
 **
@@ -199,5 +207,13 @@ typedef void *CFE_ES_MemPoolBuf_t;
 
 #define CFE_ES_NO_MUTEX  false /**< \brief Indicates that the memory pool selection will not use a semaphore */
 #define CFE_ES_USE_MUTEX true  /**< \brief Indicates that the memory pool selection will use a semaphore */
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* CFE_ES_API_TYPEDEFS_H */

@@ -39,6 +39,14 @@
 #include "cfe_resourceid_api_typedefs.h"
 #include "cfe_msg_hdr.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /*
 ** Defines
 */
@@ -145,5 +153,13 @@ typedef union CFE_SB_Msg
     long long int     LongInt;    /**< \brief Align to support Long Integer */
     long double       LongDouble; /**< \brief Align to support Long Double */
 } CFE_SB_Buffer_t;
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* CFE_SB_API_TYPEDEFS_H */

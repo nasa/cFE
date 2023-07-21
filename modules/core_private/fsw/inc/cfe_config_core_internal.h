@@ -33,6 +33,14 @@
 
 #include "common_types.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /** @defgroup CFEAPIConfigCoreInternal cFE Internal configuration APIs, internal to CFE core
  * @{
  */
@@ -47,5 +55,13 @@ void CFE_Config_SetString(CFE_ConfigId_t ConfigId, const char *Ptr);
 void CFE_Config_SetObjPointer(CFE_ConfigId_t ConfigId, const void *Ptr);
 
 /**@}*/
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* CFE_CONFIG_CORE_INTERNAL_H */

@@ -52,4 +52,20 @@
 
 #include "cfe_psp.h" /* Define Platform Support Package API */
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
+
 #endif /* CFE_H */

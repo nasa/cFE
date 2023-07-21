@@ -33,6 +33,14 @@
 #include "cfe_mission_cfg.h"
 #include "cfe_platform_cfg.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /*************************************************************************/
 
 /*
@@ -181,5 +189,13 @@
 #endif
 
 /*************************************************************************/
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* CFE_TIME_VERIFY_H */

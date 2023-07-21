@@ -36,6 +36,14 @@
 #include "common_types.h"
 #include "cfe_time_extern_typedefs.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /*****************************************************************************/
 /*
 ** Macro Definitions
@@ -73,5 +81,13 @@ typedef enum CFE_TIME_Compare
 **        #CFE_TIME_RegisterSynchCallback API.
 */
 typedef int32 (*CFE_TIME_SynchCallbackPtr_t)(void);
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* CFE_TIME_API_TYPEDEFS_H */

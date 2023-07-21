@@ -25,6 +25,14 @@
 #ifndef TEST_MSG_NOT_H
 #define TEST_MSG_NOT_H
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /*
  * Defines
  */
@@ -64,5 +72,13 @@ unsigned int Test_MSG_Ext_NotZero(const CFE_MSG_Message_t *MsgPtr);
 unsigned int Test_MSG_NotF(const CFE_MSG_Message_t *MsgPtr);
 unsigned int Test_MSG_Pri_NotF(const CFE_MSG_Message_t *MsgPtr);
 unsigned int Test_MSG_Ext_NotF(const CFE_MSG_Message_t *MsgPtr);
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* TEST_MSG_NOT_H */

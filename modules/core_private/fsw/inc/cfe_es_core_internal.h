@@ -36,6 +36,14 @@
 #include "common_types.h"
 #include "cfe_es_extern_typedefs.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /*
  * The internal APIs prototyped within this block are only intended to be invoked from
  * other CFE core apps.  They still need to be prototyped in the shared header such that
@@ -136,5 +144,13 @@ int32 CFE_ES_RegisterCDSEx(CFE_ES_CDSHandle_t *HandlePtr, size_t UserBlockSize, 
 int32 CFE_ES_DeleteCDS(const char *CDSName, bool CalledByTblServices);
 
 /**@}*/
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* CFE_ES_CORE_INTERNAL_H */

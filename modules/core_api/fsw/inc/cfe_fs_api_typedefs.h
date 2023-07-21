@@ -35,6 +35,14 @@
 #include "osconfig.h"
 #include "cfe_fs_extern_typedefs.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /**
  * \brief Generalized file types/categories known to FS
  *
@@ -133,5 +141,13 @@ typedef struct CFE_FS_FileWriteMetaData
     CFE_FS_FileWriteGetData_t GetData; /**< Application callback to get a data record */
     CFE_FS_FileWriteOnEvent_t OnEvent; /**< Application callback for abstract event processing */
 } CFE_FS_FileWriteMetaData_t;
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* CFE_FS_API_TYPEDEFS_H */

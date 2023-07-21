@@ -28,6 +28,14 @@
 #ifndef CFE_EVS_FCNCODES_H
 #define CFE_EVS_FCNCODES_H
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /** \name Event Services Command Codes */
 /** \{ */
 
@@ -872,5 +880,13 @@
 */
 #define CFE_EVS_CLEAR_LOG_CC 20
 /** \} */
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif

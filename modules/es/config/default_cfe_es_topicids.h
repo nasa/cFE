@@ -23,6 +23,14 @@
 #ifndef CFE_ES_TOPICIDS_H
 #define CFE_ES_TOPICIDS_H
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /**
 **  \cfemissioncfg cFE Portable Message Numbers for Commands
 **
@@ -47,5 +55,13 @@
 #define CFE_MISSION_ES_HK_TLM_MSG       0
 #define CFE_MISSION_ES_APP_TLM_MSG      11
 #define CFE_MISSION_ES_MEMSTATS_TLM_MSG 16
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif

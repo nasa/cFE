@@ -42,6 +42,14 @@
 #include "cfe_tbl_api_typedefs.h"
 #include "cfe_sb_api_typedefs.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /*************************** Function Prototypes ******************************/
 
 /** \defgroup CFEAPITBLRegistration cFE Registration APIs
@@ -745,5 +753,13 @@ CFE_Status_t CFE_TBL_GetInfo(CFE_TBL_Info_t *TblInfoPtr, const char *TblName);
 CFE_Status_t CFE_TBL_NotifyByMessage(CFE_TBL_Handle_t TblHandle, CFE_SB_MsgId_t MsgId, CFE_MSG_FcnCode_t CommandCode,
                                      uint32 Parameter);
 /**@}*/
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* CFE_TBL_H */

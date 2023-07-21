@@ -42,6 +42,14 @@
 #include "cfe_sb_module_all.h"
 #include "ut_support.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /*
 ** Structures
 */
@@ -2498,5 +2506,13 @@ void Test_SB_Macros(void);
 void Test_SB_CCSDSPriHdr_Macros(void);
 void Test_SB_CCSDSSecHdr_Macros(void);
 void Test_SB_IdxPushPop(void);
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* SB_UT_H */

@@ -28,6 +28,14 @@
 #ifndef CFE_SB_FCNCODES_H
 #define CFE_SB_FCNCODES_H
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /****************************************
 ** SB task command packet command codes
 ****************************************/
@@ -458,5 +466,13 @@
 **      #CFE_SB_DISABLE_SUB_REPORTING_CC
 */
 #define CFE_SB_SEND_PREV_SUBS_CC 11
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif

@@ -27,6 +27,14 @@
 #ifndef CFE_CORE_API_INTERFACE_CFG_H
 #define CFE_CORE_API_INTERFACE_CFG_H
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /**
 **  \cfemissioncfg cFE Maximum length for pathnames within data exchange structures
 **
@@ -128,5 +136,13 @@
 **
 */
 #define CFE_MISSION_MAX_NUM_FILES 50
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* SAMPLE_MISSION_CFG_H */

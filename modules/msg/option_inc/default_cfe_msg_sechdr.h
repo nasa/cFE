@@ -34,6 +34,14 @@
 #include "common_types.h"
 #include "cfe_mission_cfg.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /*
  * Defines
  */
@@ -74,5 +82,13 @@ typedef struct
 {
     uint8 Time[6]; /**< \brief Time, big endian: 4 byte seconds, 2 byte subseconds */
 } CFE_MSG_TelemetrySecondaryHeader_t;
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* DEFAULT_CFE_MSG_SECHDR_H */

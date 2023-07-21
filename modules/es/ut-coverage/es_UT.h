@@ -54,6 +54,14 @@
 #include "ut_support.h"
 #include "ut_osprintf_stubs.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /* ES unit test functions */
 /*****************************************************************************/
 /**
@@ -249,5 +257,13 @@ void TestGenericCounterAPI(void);
 void TestGenericPool(void);
 void TestLibs(void);
 void TestStatusToString(void);
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* ES_UT_H */

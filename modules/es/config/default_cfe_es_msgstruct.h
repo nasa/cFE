@@ -39,6 +39,14 @@
 #include "cfe_msg_hdr.h"
 #include "cfe_mission_cfg.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /********************************/
 /* Command Message Data Formats */
 /********************************/
@@ -539,5 +547,13 @@ typedef struct CFE_ES_HousekeepingTlm
     CFE_MSG_TelemetryHeader_t        TelemetryHeader; /**< \brief Telemetry header */
     CFE_ES_HousekeepingTlm_Payload_t Payload;         /**< \brief Telemetry payload */
 } CFE_ES_HousekeepingTlm_t;
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif

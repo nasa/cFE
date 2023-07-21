@@ -51,4 +51,20 @@
  */
 #include "cfe_es_core_internal.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
+
 #endif /* CFE_TBL_MODULE_ALL_H */

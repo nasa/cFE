@@ -42,6 +42,14 @@
 #include "cfe_tbl_eventids.h"
 #include "cfe_tbl_msg.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /*********************  Macro and Constant Type Definitions   ***************************/
 
 #define CFE_TBL_NOT_OWNED   CFE_ES_APPID_UNDEFINED
@@ -564,5 +572,13 @@ bool CFE_TBL_DumpRegistryGetter(void *Meta, uint32 RecordNum, void **Buffer, siz
 ** Globals specific to the TBL module
 */
 extern CFE_TBL_Global_t CFE_TBL_Global;
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* CFE_TBL_INTERNAL_H */

@@ -44,6 +44,14 @@
 
 #include <signal.h> /* for sig_atomic_t */
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /*
 ** Typedefs
 */
@@ -249,5 +257,13 @@ void CFE_ES_LockSharedData(const char *FunctionName, int32 LineNumber);
  * @param LineNumber     the line number of the caller
  */
 void CFE_ES_UnlockSharedData(const char *FunctionName, int32 LineNumber);
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* CFE_ES_GLOBAL_H */

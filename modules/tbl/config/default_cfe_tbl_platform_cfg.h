@@ -38,4 +38,20 @@
 #include "cfe_tbl_mission_cfg.h"
 #include "cfe_tbl_internal_cfg.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
+
 #endif

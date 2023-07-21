@@ -40,6 +40,14 @@
 #include "cfe_es_api_typedefs.h"
 #include "cfe_time_api_typedefs.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /*
 ** Utility macros to make for simpler/more compact/readable code.
 */
@@ -304,5 +312,13 @@ CFE_Status_t CFE_EVS_ResetFilter(uint16 EventID);
 **/
 CFE_Status_t CFE_EVS_ResetAllFilters(void);
 /**@}*/
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* CFE_EVS_H */

@@ -38,6 +38,14 @@
 
 #include "cfe_platform_cfg.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /******************************************************************************
  * Function prototypes
  */
@@ -170,5 +178,13 @@ static inline CFE_SB_RouteId_Atom_t CFE_SBR_RouteIdToValue(CFE_SBR_RouteId_t Rou
 {
     return (RouteId.RouteId - 1);
 }
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* CFE_SBR_H */

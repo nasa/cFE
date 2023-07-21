@@ -32,6 +32,14 @@
 #ifndef CFE_TIME_INTERFACE_CFG_H
 #define CFE_TIME_INTERFACE_CFG_H
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /**
 **  \cfetimecfg Default Time Format
 **
@@ -206,5 +214,13 @@
 **      Not Applicable
 */
 #define CFE_MISSION_TIME_FS_FACTOR 789004800
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif

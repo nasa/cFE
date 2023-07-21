@@ -32,6 +32,14 @@
 #ifndef CFE_TBL_INTERNAL_CFG_H
 #define CFE_TBL_INTERNAL_CFG_H
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /**
 **  \cfeescfg Define TBL Task Priority
 **
@@ -261,5 +269,13 @@
 #define CFE_PLATFORM_TBL_VALID_PRID_2 (CFE_PLATFORM_TBL_U32FROM4CHARS('a', 'b', 'c', 'd'))
 #define CFE_PLATFORM_TBL_VALID_PRID_3 0
 #define CFE_PLATFORM_TBL_VALID_PRID_4 0
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif

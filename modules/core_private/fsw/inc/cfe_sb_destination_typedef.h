@@ -29,6 +29,14 @@
 #include "common_types.h"
 #include "cfe_sb_extern_typedefs.h" /* Required for CFE_SB_PipeId_t definition */
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /******************************************************************************
  * This structure defines a DESTINATION DESCRIPTOR used to specify
  * each destination pipe for a message.
@@ -48,5 +56,13 @@ typedef struct CFE_SB_DestinationD
     struct CFE_SB_DestinationD *Prev;
     struct CFE_SB_DestinationD *Next;
 } CFE_SB_DestinationD_t;
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* CFE_SB_DESTINATION_TYPEDEF_H */

@@ -29,6 +29,14 @@
 #include "cfe_mission_cfg.h"
 #include "cfe_resourceid_typedef.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 #define CFE_SB_SUB_ENTRIES_PER_PKT 20 /**< \brief Configuration parameter used by SBN App */
 
 /**
@@ -124,5 +132,13 @@ typedef struct
     uint8 Reliability; /**< \brief  Specify high(1) or low(0) message transfer reliability for off-board routing,
                           currently unused */
 } CFE_SB_Qos_t;
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* CFE_SB_EXTERN_TYPEDEFS_H */

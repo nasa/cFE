@@ -45,6 +45,14 @@
  */
 #include "cfe_resourceid_typedef.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /*
 ** Defines
 */
@@ -74,5 +82,13 @@
 #define CFE_RESOURCEID_RESERVED ((CFE_ResourceId_t)CFE_RESOURCEID_WRAP(0xFFFFFFFF))
 
 /** \} */
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* CFE_RESOURCEID_API_TYPEDEFS_H */

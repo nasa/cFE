@@ -37,6 +37,14 @@
 #include "cfe_sb_api_typedefs.h"
 #include "cfe_msg_api_typedefs.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /*---------------------------------------------------------------------------------------*/
 /**
 ** \brief Processes command pipe messages
@@ -51,5 +59,13 @@
 **
 */
 void CFE_TBL_TaskPipe(const CFE_SB_Buffer_t *SBBufPtr);
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* CFE_TBL_DISPATCH_H */

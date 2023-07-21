@@ -45,6 +45,14 @@
 #include "cfe_fs_module_all.h"
 #include "ut_support.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /* FS unit test functions */
 /*****************************************************************************/
 /**
@@ -311,5 +319,13 @@ void Test_CFE_FS_GetUncompressedFile(void);
 **
 ******************************************************************************/
 void Test_CFE_FS_BackgroundFileDump(void);
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* FS_UT_H */

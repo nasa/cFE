@@ -33,6 +33,14 @@
 #include "osconfig.h"
 #include "cfe_mission_cfg.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /**
  * Maximum length of a single line in the test log file
  *
@@ -151,5 +159,13 @@ typedef struct
 } CFE_Assert_Global_t;
 
 extern CFE_Assert_Global_t CFE_Assert_Global;
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* CFE_ASSERT_PRIV_H */

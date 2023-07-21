@@ -35,4 +35,20 @@
 #include "cfe_evs_fcncodes.h"
 #include "cfe_evs_msgstruct.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
+
 #endif

@@ -33,6 +33,14 @@
 #include "cfe_mission_cfg.h"
 #include "cfe_msg_api_typedefs.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /*
  * Defines
  */
@@ -77,5 +85,13 @@ void CFE_MSG_SetDefaultCCSDSPri(CFE_MSG_Message_t *MsgPtr);
  * \param[out]     MsgPtr  Message to set
  */
 void CFE_MSG_SetDefaultCCSDSExt(CFE_MSG_Message_t *MsgPtr);
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* CFE_MSG_DEFAULTS_H */

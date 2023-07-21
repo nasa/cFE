@@ -32,6 +32,14 @@
 #ifndef CFE_ES_INTERNAL_CFG_H
 #define CFE_ES_INTERNAL_CFG_H
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /**
 **  \cfeescfg Define ES Task Priority
 **
@@ -812,5 +820,13 @@
 **       or equal to zero.
 */
 #define CFE_PLATFORM_ES_STARTUP_SCRIPT_TIMEOUT_MSEC 1000
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif

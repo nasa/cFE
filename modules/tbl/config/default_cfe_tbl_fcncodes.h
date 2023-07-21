@@ -28,6 +28,14 @@
 #ifndef CFE_TBL_FCNCODES_H
 #define CFE_TBL_FCNCODES_H
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /*
 ** Table task command packet command codes
 */
@@ -460,5 +468,13 @@
 */
 #define CFE_TBL_ABORT_LOAD_CC 9
 /** \} */
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif

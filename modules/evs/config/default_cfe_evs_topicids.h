@@ -23,6 +23,14 @@
 #ifndef CFE_EVS_TOPICIDS_H
 #define CFE_EVS_TOPICIDS_H
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /**
 **  \cfemissioncfg cFE Portable Message Numbers for Commands
 **
@@ -47,5 +55,13 @@
 #define CFE_MISSION_EVS_HK_TLM_MSG          1
 #define CFE_MISSION_EVS_LONG_EVENT_MSG_MSG  8
 #define CFE_MISSION_EVS_SHORT_EVENT_MSG_MSG 9
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif

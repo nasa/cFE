@@ -35,4 +35,20 @@
 #include "cfe_tbl_msgdefs.h"
 #include "cfe_tbl_msgstruct.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
+
 #endif

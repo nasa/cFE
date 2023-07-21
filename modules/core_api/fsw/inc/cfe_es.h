@@ -41,6 +41,14 @@
 #include "cfe_es_api_typedefs.h"
 #include "cfe_resourceid_api_typedefs.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /*
 ** The OS_PRINTF macro may be defined by OSAL to enable
 ** printf-style argument checking.  If using a version of OSAL
@@ -1698,5 +1706,13 @@ CFE_Status_t CFE_ES_GetGenCounterIDByName(CFE_ES_CounterId_t *CounterIdPtr, cons
 CFE_Status_t CFE_ES_GetGenCounterName(char *CounterName, CFE_ES_CounterId_t CounterId, size_t BufferLength);
 
 /**@}*/
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* CFE_ES_H */

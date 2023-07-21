@@ -35,4 +35,20 @@
 #include "cfe_es_msgdefs.h"
 #include "cfe_es_msgstruct.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
+
 #endif

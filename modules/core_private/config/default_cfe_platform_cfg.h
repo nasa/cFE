@@ -41,4 +41,20 @@
 #include "cfe_tbl_platform_cfg.h"
 #include "cfe_time_platform_cfg.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
+
 #endif /* CFE_PLATFORM_CFG_H */

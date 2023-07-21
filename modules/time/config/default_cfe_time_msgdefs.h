@@ -28,6 +28,14 @@
 
 #include "cfe_time_fcncodes.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /** \defgroup CFETIMEClkStates cFE Clock State Flag Defines
  * \{
  */
@@ -46,5 +54,13 @@
     0x0010 /**< \brief GetReference read error, will be set if unable to get a consistent ref value */
 #define CFE_TIME_FLAG_UNUSED 0x000F /**< \brief Reserved flags - should be zero */
 /** \} */
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif

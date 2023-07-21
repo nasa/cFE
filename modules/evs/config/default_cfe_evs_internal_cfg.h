@@ -32,6 +32,14 @@
 #ifndef CFE_EVS_INTERNAL_CFG_H
 #define CFE_EVS_INTERNAL_CFG_H
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /**
 **  \cfeescfg Define EVS Task Priority
 **
@@ -195,5 +203,13 @@
 **       The valid settings are #CFE_EVS_MsgFormat_LONG or #CFE_EVS_MsgFormat_SHORT
 */
 #define CFE_PLATFORM_EVS_DEFAULT_MSG_FORMAT_MODE CFE_EVS_MsgFormat_LONG
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif

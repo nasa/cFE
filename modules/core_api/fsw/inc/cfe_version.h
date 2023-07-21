@@ -25,6 +25,14 @@
 #ifndef CFE_VERSION_H
 #define CFE_VERSION_H
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /* Development Build Macro Definitions */
 #define CFE_BUILD_NUMBER   342 /**< @brief Development: Number of development git commits since CFE_BUILD_BASELINE */
 #define CFE_BUILD_BASELINE "v7.0.0-rc4" /**< @brief Development: Reference git tag for build number */
@@ -62,5 +70,13 @@
  */
 #define CFE_VERSION_STRING \
     " cFE DEVELOPMENT BUILD " CFE_SRC_VERSION " (Codename: Draco), Last Official Release: cfe v6.7.0"
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* CFE_VERSION_H */

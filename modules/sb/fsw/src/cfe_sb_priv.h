@@ -44,6 +44,14 @@
 #include "cfe_sb_destination_typedef.h"
 #include "cfe_sb_msg.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /*
 ** Macro Definitions
 */
@@ -1052,5 +1060,13 @@ void CFE_SB_BackgroundFileEventHandler(void *Meta, CFE_FS_FileWriteEvent_t Event
  */
 
 extern CFE_SB_Global_t CFE_SB_Global;
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* CFE_SB_PRIV_H */

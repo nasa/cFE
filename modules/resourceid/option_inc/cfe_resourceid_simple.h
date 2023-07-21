@@ -27,6 +27,14 @@
 
 #include "common_types.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /**
  * @brief A type that provides a common, abstract identifier for
  * all ES managed resources (e.g. apps, tasks, counters, etc).
@@ -61,5 +69,13 @@ typedef uint32 CFE_ResourceId_t;
  */
 #define CFE_RESOURCEID_WRAP(x)   x
 #define CFE_RESOURCEID_UNWRAP(x) x
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* CFE_RESOURCEID_SIMPLE_H */

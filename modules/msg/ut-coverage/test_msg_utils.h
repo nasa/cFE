@@ -30,11 +30,27 @@
  */
 #include "cfe_msg_api_typedefs.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /*
  * Defines
  */
 
 /* Subtest macro */
 #define MSG_UT_ADD_SUBTEST(Func) UtTest_AddSubTest(Func, NULL, NULL, __func__, #Func)
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* TEST_MSG_UTILS_H */

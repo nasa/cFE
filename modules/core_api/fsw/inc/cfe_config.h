@@ -39,6 +39,14 @@
 #include "cfe_config_api_typedefs.h"
 #include "cfe_config_ids.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /**
  * @brief Obtain an integer value correlating to an CFE configuration ID
  *
@@ -118,5 +126,13 @@ CFE_ConfigId_t CFE_Config_GetIdByName(const char *Name);
  * @param[in]   Callback  User-supplied callback function to invoke for each ID
  */
 void CFE_Config_IterateAll(void *Arg, CFE_Config_Callback_t Callback);
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif /* CFE_CONFIG_H */

@@ -39,6 +39,14 @@
 #include "cfe_tbl_msgdefs.h"
 #include "cfe_msg_hdr.h"
 
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+
 /********************************/
 /* Command Message Data Formats */
 /********************************/
@@ -397,5 +405,13 @@ typedef struct CFE_TBL_TableRegistryTlm
     CFE_MSG_TelemetryHeader_t      TelemetryHeader; /**< \brief Telemetry header */
     CFE_TBL_TblRegPacket_Payload_t Payload;         /**< \brief Telemetry payload */
 } CFE_TBL_TableRegistryTlm_t;
+
+
+
+#ifdef __cplusplus
+
+}
+
+#endif
 
 #endif
