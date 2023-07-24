@@ -162,7 +162,7 @@
 **
 **  \par Description
 **       This command will cause the Table Services to put the contents
-**       of the specified table buffer into the command specified file.
+**       of the specified table buffer into the command-specified file.
 **
 **  \cfecmdmnemonic \TBL_DUMP
 **
@@ -302,7 +302,7 @@
 **
 **  \par Description
 **       This command will cause Table Services to write some of the
-**       contents of the Table Registry to the command specified file.
+**       contents of the Table Registry to the command-specified file.
 **       This allows the operator to see the current state and configuration
 **       of all tables that have been registered with the cFE.
 **
@@ -346,7 +346,7 @@
 **
 **  \par Description
 **       This command will cause Table Services to telemeter the contents
-**       of the Table Registry for the command specified table.
+**       of the Table Registry for the command-specified table.
 **
 **  \cfecmdmnemonic \TBL_TLMREG
 **

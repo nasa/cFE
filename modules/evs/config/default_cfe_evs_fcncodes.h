@@ -106,7 +106,7 @@
 /** \cfeevscmd Enable Event Type
 **
 **  \par Description
-**       This command enables the command specified Event Type allowing event
+**       This command enables the command-specified Event Type allowing event
 **       messages of this type to be sent through Event Service.  An Event Type
 **       is defined to be a classification of an Event Message such as debug,
 **       informational, error and critical. This command is a global enable of a
@@ -154,7 +154,7 @@
 /** \cfeevscmd Disable Event Type
 **
 **  \par Description
-**      This command disables the command specified Event Type preventing event
+**      This command disables the command-specified Event Type preventing event
 **      messages of this type to be sent through Event Service.   An Event Type
 **      is defined to be a classification of an Event Message such as debug,
 **      informational, error and critical. This command is a global disable of a
@@ -203,7 +203,7 @@
 /** \cfeevscmd Set Event Format Mode
 **
 **  \par Description
-**  This command sets the event format mode to the command specified value.
+**  This command sets the event format mode to the command-specified value.
 **  The event format mode may be either short or long.  A short event format
 **  detaches the Event Data from the event message and only includes the
 **  following information in the event packet: Processor ID, Application ID,
@@ -250,9 +250,9 @@
 /** \cfeevscmd Enable Application Event Type
 **
 **  \par Description
-**      This command enables the command specified event type for the command
+**      This command enables the command-specified event type for the command
 **      specified application, allowing the application to send event messages
-**      of the command specified event type through Event Service.  An Event
+**      of the command-specified event type through Event Service.  An Event
 **      Type is defined to be a classification of an Event Message such as
 **      debug, informational, critical, and error.
 **      Note: In order for this command to take effect, applications must be
@@ -302,9 +302,9 @@
 /** \cfeevscmd Disable Application Event Type
 **
 **  \par Description
-**      This command disables the command specified event type for the command
+**      This command disables the command-specified event type for the command
 **      specified application, preventing the application from sending event
-**      messages of the command specified event type through Event Service.
+**      messages of the command-specified event type through Event Service.
 **      An Event Type is defined to be a classification of an Event Message such
 **      as debug, informational, critical, and error.  Note: In order for this
 **      command to take effect, applications must be registered for Event Service.
@@ -355,7 +355,7 @@
 /** \cfeevscmd Enable Event Services for an Application
 **
 **  \par Description
-**      This command enables the command specified application to send events
+**      This command enables the command-specified application to send events
 **      through the Event Service.  Note: In order for this command to take
 **      effect, applications must be registered for Event Service.
 **
@@ -394,7 +394,7 @@
 /** \cfeevscmd Disable Event Services for an Application
 **
 **  \par Description
-**      This command disables the command specified application from sending
+**      This command disables the command-specified application from sending
 **      events through Event Service.  Note: In order for this command to take
 **      effect, applications must be registered for Event Service.
 **
@@ -433,7 +433,7 @@
 /** \cfeevscmd Reset Application Event Counters
 **
 **  \par Description
-**      This command sets the command specified application's event counter to zero.
+**      This command sets the command-specified application's event counter to zero.
 **      Note: In order for this command to take effect, applications must be registered
 **      for Event Service.
 **
@@ -469,8 +469,8 @@
 /** \cfeevscmd Set Application Event Filter
 **
 **  \par Description
-**      This command sets the command specified application's event filter mask
-**      to the command specified value for the command specified event.  Note:
+**      This command sets the command-specified application's event filter mask
+**      to the command-specified value for the command-specified event.  Note:
 **      In order for this command to take effect, applications must be
 **      registered for Event Service.
 **
@@ -511,7 +511,7 @@
 /** \cfeevscmd Enable Event Services Output Ports
 **
 **  \par Description
-**      This command enables the command specified port to output event messages
+**      This command enables the command-specified port to output event messages
 **
 **  \cfecmdmnemonic \EVS_ENAPORT
 **
@@ -589,8 +589,8 @@
 /** \cfeevscmd Reset an Event Filter for an Application
 **
 **  \par Description
-**      This command resets the command specified application's event filter for
-**      the command specified event ID.  Note: In order for this command to take
+**      This command resets the command-specified application's event filter for
+**      the command-specified event ID.  Note: In order for this command to take
 **      effect, applications must be registered for Event Service.
 **
 **  \cfecmdmnemonic \EVS_RSTBINFLTRCTR
@@ -625,7 +625,7 @@
 /** \cfeevscmd Reset All Event Filters for an Application
 **
 **  \par Description
-**      This command resets all of the command specified applications event
+**      This command resets all of the command-specified applications event
 **      filters.  Note: In order for this command to take effect, applications
 **      must be registered for Event Service.
 **
@@ -804,7 +804,7 @@
 /** \cfeevscmd Set Logging Mode
 **
 **  \par Description
-**       This command sets the logging mode to the command specified value.
+**       This command sets the logging mode to the command-specified value.
 **
 **  \cfecmdmnemonic \EVS_SETLOGMODE
 **
