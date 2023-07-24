@@ -44,7 +44,7 @@
 **
 **      MsgIdkey - This is a unique numeric key within a mission namespace that is used with
 **                 cFS software bus internal structures.
-**                 It is algorithmically created in a mission defined way from the MsgId to support
+**                 It is algorithmically created in a mission-defined way from the MsgId to support
 **                 efficient lookup and mapping implementations
 **                 It is NOT exposed to user applications.
 **
@@ -1427,7 +1427,7 @@ int32 CFE_SB_TransmitMsgValidate(const CFE_MSG_Message_t *MsgPtr, CFE_SB_MsgId_t
     {
         CFE_MSG_GetSize(MsgPtr, SizePtr);
 
-        /* Verify the size of the pkt is < or = the mission defined max */
+        /* Verify the size of the pkt is < or = the mission-defined max */
         if (*SizePtr > CFE_MISSION_SB_MAX_SB_MSG_SIZE)
         {
             PendingEventID = CFE_SB_MSG_TOO_BIG_EID;

@@ -72,7 +72,7 @@ typedef struct
  */
 typedef struct
 {
-    uint8 Time[6]; /**< \brief Time, big endian: 4 byte seconds, 2 byte subseconds */
+    uint8 Time[6]; /**< \brief Time, big endian: 4-byte seconds, 2-byte subseconds */
 } CFE_MSG_TelemetrySecondaryHeader_t;
 
 #endif /* DEFAULT_CFE_MSG_SECHDR_H */
