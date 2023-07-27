@@ -22,7 +22,7 @@ set(TABLE_RULES)
 foreach(TBL_SRC ${SOURCES})
 
     get_filename_component(DEP_FILE ${TBL_SRC} NAME)
-    set(DEP_FILE "${TMP_DIR}/${DEP_FILE}.o")
+    set(DEP_FILE "${TMP_DIR}/${DEP_FILE}${OBJEXT}")
     string(APPEND TABLE_RULES
         "${DEP_FILE}: ${ARCHIVE_FILE}\n"
         "${TABLE_BINARY}: ${DEP_FILE}\n"

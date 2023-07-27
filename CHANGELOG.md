@@ -1,5 +1,10 @@
 # Changelog
 
+## Development Build: v7.0.0-rc4+dev356
+- 'Fix #2415, use correct object extension in table build'
+- See: <https://github.com/nasa/cFE/pull/2416>
+
+
 ## Development Build: v7.0.0-rc4+dev342
 - 'Fix #2368, cFE Functional Test 23'
 - 'Fix #1407, Add error report on EVS failure during log header write'
@@ -103,6 +108,11 @@
 
 ## Development Build: v7.0.0-rc4+dev197
 - Remove # Changelog
+
+## Development Build: v7.0.0-rc4+dev356
+- 'Fix #2415, use correct object extension in table build'
+- See: <https://github.com/nasa/cFE/pull/2416>
+
 
 ## Development Build: v7.0.0-rc4+dev342
 - 'Fix #2368, cFE Functional Test 23'
