@@ -312,6 +312,7 @@ function(add_cfe_tables TABLE_FQNAME TBL_DEFAULT_SRC_FILES)
             -DOUTPUT_FILE="${TABLE_RULEFILE}"
             -DTABLE_NAME="${TABLE_BASENAME}"
             -DSOURCES="${TBL_SRC}"
+            -DOBJEXT="${CMAKE_C_OUTPUT_EXTENSION}"
             -P "${TABLE_GENSCRIPT}"
           WORKING_DIRECTORY
             ${WORKING_DIRECTORY}
