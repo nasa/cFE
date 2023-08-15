@@ -1,5 +1,11 @@
 # Changelog
 
+## Development Build: v7.0.0-rc4+dev362
+- 'Fix #2421, adjust dependencies on table lib'
+- 'Fix #2423, avoid use of abspath make function'
+- See: <https://github.com/nasa/cFE/pull/2422> <https://github.com/nasa/cFE/pull/2424>
+
+
 ## Development Build: v7.0.0-rc4+dev356
 - 'Fix #2415, use correct object extension in table build'
 - See: <https://github.com/nasa/cFE/pull/2416>
@@ -108,6 +114,12 @@
 
 ## Development Build: v7.0.0-rc4+dev197
 - Remove # Changelog
+
+## Development Build: v7.0.0-rc4+dev362
+- 'Fix #2421, adjust dependencies on table lib'
+- 'Fix #2423, avoid use of abspath make function'
+- See: <https://github.com/nasa/cFE/pull/2422> <https://github.com/nasa/cFE/pull/2424>
+
 
 ## Development Build: v7.0.0-rc4+dev356
 - 'Fix #2415, use correct object extension in table build'
