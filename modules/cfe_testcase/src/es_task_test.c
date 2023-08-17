@@ -101,6 +101,7 @@ void TestCreateChild(void)
     size_t                     StackSize     = CFE_PLATFORM_ES_PERF_CHILD_STACK_SIZE;
     CFE_ES_TaskPriority_Atom_t Priority      = CFE_PLATFORM_ES_PERF_CHILD_PRIORITY;
     uint32                     Flags         = 0;
+    uint32                     Index         = 0;
     int32                      ExpectedCount = 5;
     int32                      RetryCount;
     char                       TaskNameBuf[16];
@@ -110,7 +111,11 @@ void TestCreateChild(void)
     CFE_FT_Global.Count = 0;
     UtAssert_INT32_EQ(CFE_ES_CreateChildTask(&TaskId, TaskName, TaskFunction, StackPointer, StackSize, Priority, Flags),
                       CFE_SUCCESS);
-    OS_TaskDelay(500);
+    while (CFE_FT_Global.Count != ExpectedCount && Index < 100)
+    {
+        OS_TaskDelay(10);
+        Index ++;
+    }
 
     UtAssert_INT32_GT(CFE_FT_Global.Count, ExpectedCount - 1);
     UtAssert_INT32_LT(CFE_FT_Global.Count, ExpectedCount + 1);
