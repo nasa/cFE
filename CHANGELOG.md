@@ -1,5 +1,10 @@
 # Changelog
 
+## Development Build: v7.0.0-rc4+dev366
+- 'Fix #2427, Race condition in TestCreateChild'
+- See: <https://github.com/nasa/cFE/pull/2428>
+
+
 ## Development Build: v7.0.0-rc4+dev362
 - 'Fix #2421, adjust dependencies on table lib'
 - 'Fix #2423, avoid use of abspath make function'
@@ -114,6 +119,11 @@
 
 ## Development Build: v7.0.0-rc4+dev197
 - Remove # Changelog
+
+## Development Build: v7.0.0-rc4+dev366
+- 'Fix #2427, Race condition in TestCreateChild'
+- See: <https://github.com/nasa/cFE/pull/2428>
+
 
 ## Development Build: v7.0.0-rc4+dev362
 - 'Fix #2421, adjust dependencies on table lib'
