@@ -1,5 +1,10 @@
 # Changelog
 
+## Development Build: v7.0.0-rc4+dev370
+- 'Fix #2430, reinstate example header files.'
+- See: <https://github.com/nasa/cFE/pull/2431>
+
+
 ## Development Build: v7.0.0-rc4+dev366
 - 'Fix #2427, Race condition in TestCreateChild'
 - See: <https://github.com/nasa/cFE/pull/2428>
