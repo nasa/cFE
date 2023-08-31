@@ -301,7 +301,7 @@ bool EVS_CheckAndIncrementSquelchTokens(EVS_AppData_t *AppDataPtr)
      * CFE_PLATFORM_EVS_APP_EVENTS_PER_SEC) seconds after flooding stops if
      * saturated
      */
-    const int32 LOWER_THRESHOLD = -CFE_EVS_Global.EVS_EventBurstMax * 1000;
+    const int32 LOWER_THRESHOLD = -(int32)CFE_EVS_Global.EVS_EventBurstMax * 1000;
 
     /*
      * Set this to 1000 to avoid integer division while computing CreditCount
