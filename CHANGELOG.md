@@ -1,5 +1,21 @@
 # Changelog
 
+## Development Build: v7.0.0-rc4+dev370
+- 'Fix #2430, reinstate example header files.'
+- See: <https://github.com/nasa/cFE/pull/2431>
+
+
+## Development Build: v7.0.0-rc4+dev366
+- 'Fix #2427, Race condition in TestCreateChild'
+- See: <https://github.com/nasa/cFE/pull/2428>
+
+
+## Development Build: v7.0.0-rc4+dev362
+- 'Fix #2421, adjust dependencies on table lib'
+- 'Fix #2423, avoid use of abspath make function'
+- See: <https://github.com/nasa/cFE/pull/2422> <https://github.com/nasa/cFE/pull/2424>
+
+
 ## Development Build: v7.0.0-rc4+dev356
 - 'Fix #2415, use correct object extension in table build'
 - See: <https://github.com/nasa/cFE/pull/2416>
@@ -108,6 +124,7 @@
 
 ## Development Build: v7.0.0-rc4+dev197
 - Remove Changelog in Doxygen Config
+- See <https://github.com/nasa/cFE/pull/2165>
 
 ## Development Build: v7.0.0-rc4+dev193
 - Remove redundant/inconsistent comments (/* end of function */, /* end if */ etc.) and clean up empty lines.
