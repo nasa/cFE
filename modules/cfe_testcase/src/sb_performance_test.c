@@ -138,7 +138,8 @@ void TestBulkTransmitRecv(void)
     CFE_PSP_GetTime(&ElapsedTime);
     ElapsedTime = OS_TimeSubtract(ElapsedTime, StartTime);
 
-    UtAssert_MIR("Elapsed time for SB bulk message test: %lu usec", OS_TimeGetTotalMicroseconds(ElapsedTime));
+    UtAssert_MIR("Elapsed time for SB bulk message test: %lu usec",
+                 (unsigned long)OS_TimeGetTotalMicroseconds(ElapsedTime));
 }
 
 void SBPerformanceTestSetup(void)
