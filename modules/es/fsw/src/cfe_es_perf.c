@@ -155,8 +155,7 @@ int32 CFE_ES_StartPerfDataCmd(const CFE_ES_StartPerfDataCmd_t *data)
         PerfDumpState->PendingState == CFE_ES_PerfDumpState_IDLE)
     {
         /* Make sure Trigger Mode is valid */
-        /* cppcheck-suppress unsignedPositive */
-        if ((CmdPtr->TriggerMode >= CFE_ES_PERF_TRIGGER_START) && (CmdPtr->TriggerMode < CFE_ES_PERF_MAX_MODES))
+        if (CmdPtr->TriggerMode < CFE_ES_PERF_MAX_MODES)
         {
             CFE_ES_Global.TaskData.CommandCounter++;
 

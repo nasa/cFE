@@ -163,6 +163,23 @@ typedef void (*CFE_Assert_StatusCallback_t)(uint8 MessageType, const char *Prefi
 */
 #define CFE_Assert_STATUS_STORE(FN) CFE_Assert_Status_Store(FN, __FILE__, __LINE__, #FN)
 
+/**
+** \brief Check if the stored status matches a possible value
+**
+** Allows the caller to check the value from a previous invocation of CFE_Assert_STATUS_STORE()
+** without directly asserting on the value or changing test state.
+**
+** This may be useful in situations where a large volume of tests are being performed, such as
+** during performance or load testing, where reporting all "PASS" cases may add signficant
+** extra CPU usage and log volume, interfering with the result.  This macro can be followed
+** or combined with CFE_Assert_STATUS_MAY_BE / CFE_Assert_STATUS_MUST_BE to do actual reporting.
+
+** \sa #CFE_Assert_STATUS_STORE, #CFE_Assert_STATUS_MAY_BE, #CFE_Assert_STATUS_MUST_BE
+**
+** \returns Actual CFE_Status_t value from the call
+*/
+#define CFE_Assert_STATUS_SILENTCHECK(expected) CFE_Assert_Status_SilentCheck(expected)
+
 /*****************************************************************************/
 /**
 ** \brief Retroactively check for an acceptable status value from CFE_Assert_STATUS_STORE
@@ -356,6 +373,17 @@ bool CFE_Assert_StatusCheck(CFE_Status_t Status, bool ExpectSuccess, UtAssert_Ca
 ** \returns Status value (pass through)
 */
 CFE_Status_t CFE_Assert_Status_Store(CFE_Status_t Status, const char *File, uint32 Line, const char *Text);
+
+/**
+** \brief Helper function to silently check status of a previously stored result
+**
+** \par Description
+**        This helper function will check the status previously stored to a
+**        temporary holding area, but does not assert on it.
+**
+** \returns true if status code matched, false if it did not match.
+*/
+bool CFE_Assert_Status_SilentCheck(CFE_Status_t Status);
 
 /**
 ** \brief Helper function for nominal CFE calls with deferred check

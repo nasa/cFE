@@ -1,5 +1,13 @@
 # Changelog
 
+## Development Build: v7.0.0-rc4+dev384
+- Uninitialized PktTime in EVS_SendViaPorts
+- Uninitialized ExceptionTaskID in CFE_ES_RunExceptionScan
+- implement SB bulk transfer test
+- TriggerMode unsigned compare with 0
+- Fixes errors in IC Bundle workflow file
+- See: <https://github.com/nasa/cFE/pull/2401>, <https://github.com/nasa/cFE/pull/2403>, <https://github.com/nasa/cFE/pull/2380>, <https://github.com/nasa/cFE/pull/2400>, and <https://github.com/nasa/cFE/pull/2420/>
+
 ## Development Build: v7.0.0-rc4+dev370
 - 'Fix #2430, reinstate example header files.'
 - See: <https://github.com/nasa/cFE/pull/2431>
@@ -123,30 +131,7 @@
 - See <https://github.com/nasa/cFE/pull/2184>
 
 ## Development Build: v7.0.0-rc4+dev197
-- Remove # Changelog
-
-## Development Build: v7.0.0-rc4+dev366
-- 'Fix #2427, Race condition in TestCreateChild'
-- See: <https://github.com/nasa/cFE/pull/2428>
-
-
-## Development Build: v7.0.0-rc4+dev362
-- 'Fix #2421, adjust dependencies on table lib'
-- 'Fix #2423, avoid use of abspath make function'
-- See: <https://github.com/nasa/cFE/pull/2422> <https://github.com/nasa/cFE/pull/2424>
-
-
-## Development Build: v7.0.0-rc4+dev356
-- 'Fix #2415, use correct object extension in table build'
-- See: <https://github.com/nasa/cFE/pull/2416>
-
-
-## Development Build: v7.0.0-rc4+dev342
-- 'Fix #2368, cFE Functional Test 23'
-- 'Fix #1407, Add error report on EVS failure during log header write'
-- 'Fix #1515, Remove unnecessary memset from CFE_TBL_LoadFromFile'
-- See: <https://github.com/nasa/cFE/pull/2369> <https://github.com/nasa/cFE/pull/2272> <https://github.com/nasa/cFE/pull/2276>
- in Doxygen Config
+- Remove Changelog in Doxygen Config
 - See <https://github.com/nasa/cFE/pull/2165>
 
 ## Development Build: v7.0.0-rc4+dev193

@@ -78,6 +78,7 @@ void CFE_TestMain(void)
     SBPipeMangSetup();
     SBSendRecvTestSetup();
     SBSubscriptionTestSetup();
+    SBPerformanceTestSetup();
     TBLContentAccessTestSetup();
     TBLContentMangTestSetup();
     TBLInformationTestSetup();

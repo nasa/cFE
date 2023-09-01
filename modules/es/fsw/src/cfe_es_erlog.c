@@ -274,7 +274,7 @@ bool CFE_ES_RunExceptionScan(uint32 ElapsedTime, void *Arg)
     uint32                     PspContextId;
     char                       ReasonString[CFE_ES_ERLOG_DESCRIPTION_MAX_LENGTH];
     CFE_ES_TaskInfo_t          EsTaskInfo;
-    osal_id_t                  ExceptionTaskID;
+    osal_id_t                  ExceptionTaskID = OS_OBJECT_ID_UNDEFINED;
     uint32                     ResetType;
     CFE_ES_LogEntryType_Enum_t LogType;
     CFE_ES_AppRecord_t *       AppRecPtr;
