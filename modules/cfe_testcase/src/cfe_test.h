@@ -89,6 +89,7 @@ void FSUtilTestSetup(void);
 void MessageIdTestSetup(void);
 void MsgApiTestSetup(void);
 void ResourceIdMiscTestSetup(void);
+void SBPerformanceTestSetup(void);
 void SBPipeMangSetup(void);
 void SBSendRecvTestSetup(void);
 void SBSubscriptionTestSetup(void);

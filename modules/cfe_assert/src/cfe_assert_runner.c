@@ -111,6 +111,11 @@ CFE_Status_t CFE_Assert_Status_Store(CFE_Status_t Status, const char *File, uint
     return Status;
 }
 
+bool CFE_Assert_Status_SilentCheck(CFE_Status_t Status)
+{
+    return (Status == CFE_Assert_Global.StoredStatus);
+}
+
 bool CFE_Assert_Status_DeferredCheck(CFE_Status_t Status, UtAssert_CaseType_t CaseType, const char *File, uint32 Line,
                                      const char *Text)
 {
@@ -125,7 +130,7 @@ bool CFE_Assert_Status_DeferredCheck(CFE_Status_t Status, UtAssert_CaseType_t Ca
     }
     else
     {
-        Result = (Status == CFE_Assert_Global.StoredStatus);
+        Result = CFE_Assert_Status_SilentCheck(Status);
         if (Result)
         {
             /* no extra tag added to "true" conditions */
