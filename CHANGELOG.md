@@ -1,5 +1,13 @@
 # Changelog
 
+## Development Build: v7.0.0-rc4+dev384
+- Uninitialized PktTime in EVS_SendViaPorts
+- Uninitialized ExceptionTaskID in CFE_ES_RunExceptionScan
+- implement SB bulk transfer test
+- TriggerMode unsigned compare with 0
+- Fixes errors in IC Bundle workflow file
+- See: <https://github.com/nasa/cFE/pull/2401>, <https://github.com/nasa/cFE/pull/2403>, <https://github.com/nasa/cFE/pull/2380>, <https://github.com/nasa/cFE/pull/2400>, and <https://github.com/nasa/cFE/pull/2420/>
+
 ## Development Build: v7.0.0-rc4+dev370
 - 'Fix #2430, reinstate example header files.'
 - See: <https://github.com/nasa/cFE/pull/2431>
