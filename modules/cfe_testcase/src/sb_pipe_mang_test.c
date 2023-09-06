@@ -47,6 +47,7 @@ void TestPipeCreate(void)
     UtAssert_INT32_EQ(CFE_SB_CreatePipe(&PipeId1, OS_QUEUE_MAX_DEPTH + 5, PipeName), CFE_SB_BAD_ARGUMENT);
     UtAssert_INT32_EQ(CFE_SB_CreatePipe(&PipeId1, 0, PipeName), CFE_SB_BAD_ARGUMENT);
     UtAssert_INT32_EQ(CFE_SB_CreatePipe(&PipeId1, PipeDepth, NULL), CFE_SB_PIPE_CR_ERR);
+    UtAssert_INT32_EQ(CFE_SB_CreatePipe(&PipeId1, PipeDepth, ""), CFE_SB_BAD_ARGUMENT);
 }
 
 void TestPipeCreateMax(void)

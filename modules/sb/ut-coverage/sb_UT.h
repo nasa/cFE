@@ -1200,6 +1200,21 @@ void Test_CreatePipe_EmptyPipeName(void);
 
 /*****************************************************************************/
 /**
+** \brief Test create pipe response to a NULL pipe name
+**
+** \par Description
+**        This function tests the create pipe response to a null pipe name pointer.
+**
+** \par Assumptions, External Events, and Notes:
+**        None
+**
+** \returns
+**        This function does not return a value.
+******************************************************************************/
+void Test_CreatePipe_PipeName_NullPtr(void);
+
+/*****************************************************************************/
+/**
 ** \brief Test create pipe response to a pipe name longer than allowed
 **
 ** \par Description
