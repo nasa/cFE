@@ -1,5 +1,9 @@
 # Changelog
 
+## Development Build: v7.0.0-rc4+dev389
+- Adds a cast to the negation of unsigned expression
+- See <https://github.com/nasa/cFE/pull/2437>
+
 ## Development Build: v7.0.0-rc4+dev384
 - Uninitialized PktTime in EVS_SendViaPorts
 - Uninitialized ExceptionTaskID in CFE_ES_RunExceptionScan
