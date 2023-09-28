@@ -18,40 +18,36 @@
 
 /**
  * @file
+ *  Implemention of the CRC algorithm(s) for CFE ES
  *
- * Encapsulates all ES module internal header files, as well
- * as the public API from all other CFE core modules, OSAL, and PSP.
+ *  Notes:
+ *    Historically only CRC-16/ARC is defined, but this can be expanded.
  *
- * This simplifies the set of include files that need to be put at the
- * start of every source file.
  */
 
-#ifndef CFE_ES_MODULE_ALL_H
-#define CFE_ES_MODULE_ALL_H
+#ifndef CFE_ES_CRC_H
+#define CFE_ES_CRC_H
 
 /*
-** Includes
+** Include Files
 */
-#include "cfe.h"
-#include "cfe_platform_cfg.h"
+#include "common_types.h"
+#include "cfe_es.h"
 
-#include "cfe_msgids.h"
-#include "cfe_perfids.h"
+typedef uint32 (*const CFE_ES_ComputeCRC_Algo_t)(const void *DataPtr, size_t DataLength, uint32 InputCRC);
 
-#include "cfe_es_core_internal.h"
-#include "cfe_es_apps.h"
-#include "cfe_es_cds.h"
-#include "cfe_es_crc.h"
-#include "cfe_es_perf.h"
-#include "cfe_es_generic_pool.h"
-#include "cfe_es_mempool.h"
-#include "cfe_es_global.h"
-#include "cfe_es_cds_mempool.h"
-#include "cfe_es_eventids.h"
-#include "cfe_es_start.h"
-#include "cfe_es_task.h"
-#include "cfe_es_dispatch.h"
-#include "cfe_es_resource.h"
-#include "cfe_es_log.h"
+typedef const struct CFE_ES_ComputeCRC_Params
+{
+    uint32 InitialValue;
+    uint32 FinalXOR;
 
-#endif /* CFE_ES_MODULE_ALL_H */
+    /**
+     * Function that implments the processing for this algorithm
+     */
+    CFE_ES_ComputeCRC_Algo_t Algorithm;
+
+} CFE_ES_ComputeCRC_Params_t;
+
+CFE_ES_ComputeCRC_Params_t *CFE_ES_ComputeCRC_GetParams(CFE_ES_CrcType_Enum_t CrcType);
+
+#endif /* CFE_ES_CRC_H */

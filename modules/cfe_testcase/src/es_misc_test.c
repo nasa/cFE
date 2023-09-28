@@ -31,29 +31,43 @@
 
 void TestCalculateCRC(void)
 {
-    const char *Data     = "Random Stuff";
-    uint32      inputCrc = 345353;
-    uint32      Result;
+    static const char CRC_CHECK_INPUT[] = "123456789";
+    static const char CRC_OTHER_INPUT[] = "Random Stuff";
+
+    uint32 inputCrc = 345353;
 
     UtPrintf("Testing: CFE_ES_CalculateCRC");
 
-    /* CRC is implementation specific, functional just checks that a result is produced and reports */
-    UtAssert_VOIDCALL(Result = CFE_ES_CalculateCRC(Data, sizeof(Data), 0, CFE_MISSION_ES_DEFAULT_CRC));
-    UtAssert_MIR("Confirm mission default CRC of \"%s\" is %lu", Data, (unsigned long)Result);
+    /* The CFE_ES_CrcType_NONE algorithm always returns 0. */
+    UtAssert_UINT32_EQ(CFE_ES_CalculateCRC(CRC_CHECK_INPUT, sizeof(CRC_CHECK_INPUT) - 1, 1, CFE_ES_CrcType_NONE), 0);
 
-    UtAssert_VOIDCALL(Result = CFE_ES_CalculateCRC(Data, sizeof(Data), inputCrc, CFE_ES_CrcType_CRC_16));
-    UtAssert_MIR("Confirm CRC16 of \"%s\" with input CRC of %lu is %lu", Data, (unsigned long)inputCrc,
-                 (unsigned long)Result);
+    /* Calling with an invalid type value should get aliased to NONE. */
+    UtAssert_UINT32_EQ(CFE_ES_CalculateCRC(CRC_CHECK_INPUT, sizeof(CRC_CHECK_INPUT) - 1, 1, CFE_ES_CrcType_MAX + 1), 0);
 
-    UtAssert_VOIDCALL(Result = CFE_ES_CalculateCRC(Data, sizeof(Data), 0, CFE_ES_CrcType_CRC_8));
-    UtAssert_MIR("Confirm CRC8 of \"%s\" is %lu", Data, (unsigned long)Result);
+    /* The CFE_ES_CrcType_16_ARC algorithm uses an input value of 0 and the check value result is 0xbb3d */
+    UtAssert_UINT32_EQ(CFE_ES_CalculateCRC(CRC_CHECK_INPUT, sizeof(CRC_CHECK_INPUT) - 1, 0, CFE_ES_CrcType_16_ARC),
+                       0xBB3D);
 
-    UtAssert_VOIDCALL(Result = CFE_ES_CalculateCRC(Data, sizeof(Data), 0, CFE_ES_CrcType_CRC_32));
-    UtAssert_MIR("Confirm CRC32 of \"%s\" is %lu", Data, (unsigned long)Result);
+    /*
+     * In this version of CFE, only CRC-16/ARC is defined, so the default must be the same.  In a future version of CFE,
+     * if more than one option is available, this can go back to an "MIR" case, and the user must compare the result
+     * to the check value for what they have actully configured as the default CRC.
+     */
+    UtAssert_UINT32_EQ(CFE_ES_CalculateCRC(CRC_CHECK_INPUT, sizeof(CRC_CHECK_INPUT) - 1, 0, CFE_MISSION_ES_DEFAULT_CRC),
+                       0xBB3D);
+
+    /* Compute a secondary string - the reference value obtained using 3rd party tool implementing same algorithm */
+    UtAssert_UINT32_EQ(CFE_ES_CalculateCRC(CRC_OTHER_INPUT, sizeof(CRC_OTHER_INPUT) - 1, 0, CFE_ES_CrcType_16_ARC),
+                       0x11E3);
+
+    /* Test of nonzero initial value, this is used for checking CRC in across non-contiguous chunks or across multiple
+     * cycles */
+    UtAssert_UINT32_EQ(CFE_ES_CalculateCRC(CRC_CHECK_INPUT, sizeof(CRC_CHECK_INPUT) - 1, 345353, CFE_ES_CrcType_16_ARC),
+                       0xE493);
 
     /* NULL input or 0 size returns input crc */
-    UtAssert_UINT32_EQ(CFE_ES_CalculateCRC(NULL, sizeof(Data), inputCrc, CFE_ES_CrcType_CRC_16), inputCrc);
-    UtAssert_UINT32_EQ(CFE_ES_CalculateCRC(Data, 0, inputCrc, CFE_ES_CrcType_CRC_16), inputCrc);
+    UtAssert_UINT32_EQ(CFE_ES_CalculateCRC(NULL, sizeof(CRC_OTHER_INPUT), inputCrc, CFE_ES_CrcType_16_ARC), inputCrc);
+    UtAssert_UINT32_EQ(CFE_ES_CalculateCRC(CRC_OTHER_INPUT, 0, inputCrc, CFE_ES_CrcType_16_ARC), inputCrc);
 }
 
 void TestWriteToSysLog(void)

@@ -112,10 +112,10 @@
 **      Table Image data integrity values.
 **
 **  \par Limits
-**      Currently only CFE_ES_CrcType_CRC_16 is supported (see brief in CFE_ES_CrcType_Enum
+**      Currently only CFE_ES_CrcType_16_ARC is supported (see brief in CFE_ES_CrcType_Enum
 **      definition in cfe_es_api_typedefs.h)
 */
-#define CFE_MISSION_ES_DEFAULT_CRC CFE_ES_CrcType_CRC_16
+#define CFE_MISSION_ES_DEFAULT_CRC CFE_ES_CrcType_16_ARC
 
 /**
 **  \cfeescfg Maximum Length of Full CDS Name in messages
@@ -142,9 +142,9 @@
 
 /** \name Checksum/CRC algorithm identifiers */
 
-#define CFE_MISSION_ES_CRC_8  CFE_ES_CrcType_CRC_8  /* 1 */
-#define CFE_MISSION_ES_CRC_16 CFE_ES_CrcType_CRC_16 /* 2 */
-#define CFE_MISSION_ES_CRC_32 CFE_ES_CrcType_CRC_32 /* 3 */
+#define CFE_MISSION_ES_CRC_8  CFE_ES_CrcType_CRC_8
+#define CFE_MISSION_ES_CRC_16 CFE_ES_CrcType_CRC_16
+#define CFE_MISSION_ES_CRC_32 CFE_ES_CrcType_CRC_32
 
 #endif
 
