@@ -86,13 +86,53 @@ typedef void *CFE_ES_StackPointer_t; /* aka osal_stackptr_t in proposed OSAL cha
 /**
  * \brief Checksum/CRC algorithm identifiers
  *
- * Currently only CFE_ES_CrcType_CRC_16 is supported.
+ * Currently only CFE_ES_CrcType_16_ARC is supported.
+ *
+ * All defined CRC algorithms should include a check value, which is the accepted
+ * result of computing the CRC across the fixed string "123456789"
  */
 typedef enum CFE_ES_CrcType_Enum
 {
-    CFE_ES_CrcType_CRC_8  = 1, /**< \brief CRC ( 8 bit additive - returns 32 bit total) (Not currently implemented) */
-    CFE_ES_CrcType_CRC_16 = 2, /**< \brief CRC (16 bit additive - returns 32 bit total) */
-    CFE_ES_CrcType_CRC_32 = 3  /**< \brief CRC (32 bit additive - returns 32 bit total) (Not currently implemented) */
+    /**
+     * \brief Reserved placeholder value
+     *
+     * No computation is performed, always returns 0 as a result.
+     */
+    CFE_ES_CrcType_NONE = 0,
+
+    /**
+     * \brief Implementation of CRC-16/ARC
+     *
+     * \par
+     *   Polynomial: 0x8005 <br>
+     *   Initialization: 0x0000 <br>
+     *   Reflect Input/Output: true <br>
+     *   Check value: 0xbb3d <br>
+     *   XorOut: 0x0000 <br>
+     */
+    CFE_ES_CrcType_16_ARC = 1,
+
+    /**
+     * Placeholder for end of normal enumeration list
+     * This should reflect the number of algorithms defined.
+     */
+    CFE_ES_CrcType_MAX = 2,
+
+    /*
+     * Backward compatibility values.
+     * For compatibility with apps, these simplified symbols need to be defined,
+     * and they also must map to nonzero values.
+     */
+
+    /** CRC-16 historically implied CRC-16/ARC */
+    CFE_ES_CrcType_CRC_16 = CFE_ES_CrcType_16_ARC,
+
+    /**< CRC-8 historically defined but not implemented, value must not be 0 */
+    CFE_ES_CrcType_CRC_8 = CFE_ES_CrcType_MAX + 1,
+
+    /**< CRC-32 historically defined but not implemented, value must not be 0 */
+    CFE_ES_CrcType_CRC_32 = CFE_ES_CrcType_MAX + 2,
+
 } CFE_ES_CrcType_Enum_t;
 
 /**
