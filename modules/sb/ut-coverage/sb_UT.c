@@ -1645,6 +1645,7 @@ void Test_CreatePipe_API(void)
     SB_UT_ADD_SUBTEST(Test_CreatePipe_InvalPipeDepth);
     SB_UT_ADD_SUBTEST(Test_CreatePipe_MaxPipes);
     SB_UT_ADD_SUBTEST(Test_CreatePipe_SamePipeName);
+    SB_UT_ADD_SUBTEST(Test_CreatePipe_EmptyPipeName);
 }
 
 /*
@@ -1796,6 +1797,21 @@ void Test_CreatePipe_SamePipeName(void)
 
     /* Call to CFE_SB_DeletePipe with the first pipe id created should work fine */
     CFE_UtAssert_TEARDOWN(CFE_SB_DeletePipe(PipeId));
+}
+
+/*
+** Test create pipe response to empty pipe name
+*/
+void Test_CreatePipe_EmptyPipeName(void)
+{
+    CFE_SB_PipeId_t PipeId = SB_UT_PIPEID_0;
+    uint16          PipeDepth   = 1;
+    char            PipeName[]  = "";
+
+    /* Call to CFE_SB_CreatePipe with empty PipeName should fail */
+    UtAssert_INT32_EQ(CFE_SB_CreatePipe(&PipeId, PipeDepth, PipeName), CFE_SB_BAD_ARGUMENT);
+
+    UtAssert_INT32_EQ(CFE_SB_Global.HKTlmMsg.Payload.CreatePipeErrorCounter, 1);
 }
 
 /*
