@@ -1645,6 +1645,8 @@ void Test_CreatePipe_API(void)
     SB_UT_ADD_SUBTEST(Test_CreatePipe_InvalPipeDepth);
     SB_UT_ADD_SUBTEST(Test_CreatePipe_MaxPipes);
     SB_UT_ADD_SUBTEST(Test_CreatePipe_SamePipeName);
+    SB_UT_ADD_SUBTEST(Test_CreatePipe_EmptyPipeName);
+    SB_UT_ADD_SUBTEST(Test_CreatePipe_PipeName_NullPtr);
 }
 
 /*
@@ -1799,6 +1801,42 @@ void Test_CreatePipe_SamePipeName(void)
 }
 
 /*
+** Test create pipe response to empty pipe name
+*/
+void Test_CreatePipe_EmptyPipeName(void)
+{
+    CFE_SB_PipeId_t PipeId     = SB_UT_PIPEID_0;
+    uint16          PipeDepth  = 1;
+    char            PipeName[] = "";
+
+    /* Call to CFE_SB_CreatePipe with empty PipeName should fail */
+    UtAssert_INT32_EQ(CFE_SB_CreatePipe(&PipeId, PipeDepth, PipeName), CFE_SB_BAD_ARGUMENT);
+
+    UtAssert_INT32_EQ(CFE_SB_Global.HKTlmMsg.Payload.CreatePipeErrorCounter, 1);
+}
+
+/*
+
+** Test create pipe response to a null pipe name pointer.
+*/
+void Test_CreatePipe_PipeName_NullPtr(void)
+{
+    CFE_SB_PipeId_t PipeId    = SB_UT_PIPEID_0;
+    uint16          PipeDepth = 1;
+
+    /* To fail the pipe create, force the OS_QueueCreate call to return some
+     * type of error code.
+     */
+    UT_SetDeferredRetcode(UT_KEY(OS_QueueCreate), 1, OS_ERR_NO_FREE_IDS);
+
+    /* Call to CFE_SB_CreatePipe with empty PipeName should fail */
+    UtAssert_INT32_EQ(CFE_SB_CreatePipe(&PipeId, PipeDepth, NULL), CFE_SB_PIPE_CR_ERR);
+
+    UtAssert_INT32_EQ(CFE_SB_Global.HKTlmMsg.Payload.CreatePipeErrorCounter, 1);
+}
+
+/*
+
 ** Function for calling SB delete pipe API test functions
 */
 void Test_DeletePipe_API(void)

@@ -1375,22 +1375,30 @@ uint32 CFE_ES_CalculateCRC(const void *DataPtr, size_t DataLength, uint32 InputC
 where DataPtr points to the first byte of an array of bytes that are to have
 the CRC calculated on, DataLength specifies the number of sequential bytes to
 include in the calculation, InputCRC is the initial value of the CRC and
-TypeCRC identifies which of the standard CRC polynomials to be used.  Currently,
-there are the following types available:
+TypeCRC identifies which of the standard CRC polynomials to be used.
 
-```
-CFE_ES_CrcType_CRC_8 – an 8-bit additive checksum calculation that returns a 32-bit value
-CFE_ES_CrcType_CRC_16 – a 16-bit additive checksum calculation that returns a 32-bit value
-CFE_ES_CrcType_CRC_32 – a 32-bit additive checksum calculation that returns a 32-bit value
-CFE_MISSION_ES_DEFAULT_CRC – the mission specified default CRC calculation (currently
-                             this is set to CFE_ES_CrcType_CRC_16 in sample_mission_cfg.h)
-```
+The set of available CRC algorithms for the TypeCRC parameter depends on the version
+of CFE and compile-time options selected.  Historically, CFE only has
+implemented a single algorithm which is CRC-16/ARC:
+
+ - Polynomial: 0x8005
+ - Initial Value: 0x0000
+ - Reflect In/Out: true
+ - Final XOR: 0x0000
+ - Check Value: 0xbb3d
+
+See the definition of the `CFE_ES_CrcType_Enum_t` type for complete documentation of all
+available values for this paramater and details of the algorithm used for each.  Note that
+this enumeration may be extended in future versions of CFE, as mission needs evolve.
+
+For application compatibility, the `CFE_MISSION_ES_DEFAULT_CRC` macro is defined as part of
+the CFE ES API configuration, which maps to the recommended CRC algorithm for applications
+to use.  By default this is set to CRC-16/ARC, but it can be configured based on mission
+preference and the set of available CRC algorithms.
 
 Unless there is a specific interface with a specified CRC calculation, applications
-must use the CFE_MISSION_ES_DEFAULT_CRC type.
+should use the `CFE_MISSION_ES_DEFAULT_CRC` value for TypeCRC when invoking this API.
 
-Currently only CFE_ES_CrcType_CRC_16 is supported. CFE_ES_CrcType_CRC_8 and CFE_ES_CrcType_CRC_32 are yet
-to be implemented.
 
 ## 5.11 File System Functions
 

@@ -123,7 +123,7 @@ CFE_Status_t CFE_SB_CreatePipe(CFE_SB_PipeId_t *PipeIdPtr, uint16 Depth, const c
     CFE_ES_GetTaskID(&TskId);
 
     /* check input parameters */
-    if ((PipeIdPtr == NULL) || (Depth > OS_QUEUE_MAX_DEPTH) || (Depth == 0))
+    if ((PipeIdPtr == NULL) || (Depth > OS_QUEUE_MAX_DEPTH) || (Depth == 0) || (PipeName != NULL && PipeName[0] == '\0'))
     {
         PendingEventId = CFE_SB_CR_PIPE_BAD_ARG_EID;
         Status         = CFE_SB_BAD_ARGUMENT;
