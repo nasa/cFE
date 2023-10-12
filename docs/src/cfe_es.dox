@@ -308,7 +308,7 @@
   the system resources are properly released.
 
   The format of the Stop Application command, is defined in the structure
-  #CFE_ES_AppNameCmd_t. The only parameter in the command is an application
+  #CFE_ES_StopAppCmd_t. The only parameter in the command is an application
   name.
 
   If the command fails for any reason, an error event will be sent stating

@@ -272,8 +272,8 @@ void UtTest_Setup(void)
 */
 void Test_Init(void)
 {
-    CFE_EVS_BitMaskCmd_t        bitmaskcmd;
-    CFE_EVS_AppNameBitMaskCmd_t appbitcmd;
+    CFE_EVS_EnablePortsCmd_t        bitmaskcmd;
+    CFE_EVS_EnableAppEventTypeCmd_t appbitcmd;
     CFE_SB_MsgId_t              msgid = CFE_SB_INVALID_MSG_ID;
 
     UtPrintf("Begin Test Init");
@@ -695,7 +695,7 @@ void Test_Format(void)
 
     CFE_TIME_SysTime_t              time = {0, 0};
     CFE_EVS_SetEventFormatModeCmd_t modecmd;
-    CFE_EVS_AppNameBitMaskCmd_t     appbitcmd;
+    CFE_EVS_EnableAppEventTypeCmd_t     appbitcmd;
     CFE_EVS_PacketID_t              CapturedMsg;
     UT_SoftwareBusSnapshot_Entry_t  LongFmtSnapshotData = {.MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_EVS_LONG_EVENT_MSG_MID),
                                                           .SnapshotBuffer = &CapturedMsg,
@@ -821,7 +821,7 @@ void Test_Format(void)
 */
 void Test_Ports(void)
 {
-    CFE_EVS_BitMaskCmd_t           bitmaskcmd;
+    CFE_EVS_EnablePortsCmd_t           bitmaskcmd;
     UT_SoftwareBusSnapshot_Entry_t LocalSnapshotData = {.MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_EVS_LONG_EVENT_MSG_MID)};
     CFE_TIME_SysTime_t             PacketTime;
 
@@ -1076,7 +1076,7 @@ void Test_WriteApp(void)
     {
         CFE_EVS_ResetCountersCmd_t    ResetCountersCmd;
         CFE_EVS_WriteAppDataFileCmd_t AppDataCmd;
-        CFE_EVS_AppNameBitMaskCmd_t   appbitcmd;
+        CFE_EVS_EnableAppEventTypeCmd_t   appbitcmd;
     } CmdBuf;
 
     UtPrintf("Begin Test Write App");
@@ -1157,10 +1157,10 @@ void Test_WriteApp(void)
 */
 void Test_BadAppCmd(void)
 {
-    CFE_EVS_AppNameBitMaskCmd_t     appbitcmd;
-    CFE_EVS_AppNameCmd_t            appnamecmd;
-    CFE_EVS_AppNameEventIDMaskCmd_t appmaskcmd;
-    CFE_EVS_AppNameEventIDCmd_t     appcmdcmd;
+    CFE_EVS_EnableAppEventTypeCmd_t     appbitcmd;
+    CFE_EVS_EnableAppEventsCmd_t            appnamecmd;
+    CFE_EVS_AddEventFilterCmd_t appmaskcmd;
+    CFE_EVS_ResetFilterCmd_t     appcmdcmd;
     uint32                          TestAppIndex;
 
     UtPrintf("Begin Test Bad App Command");
@@ -1426,9 +1426,9 @@ void Test_BadAppCmd(void)
 void Test_EventCmd(void)
 {
     uint16                         EventCount[4];
-    CFE_EVS_BitMaskCmd_t           bitmaskcmd;
-    CFE_EVS_AppNameBitMaskCmd_t    appbitcmd;
-    CFE_EVS_AppNameCmd_t           appnamecmd;
+    CFE_EVS_EnablePortsCmd_t           bitmaskcmd;
+    CFE_EVS_EnableAppEventTypeCmd_t    appbitcmd;
+    CFE_EVS_EnableAppEventsCmd_t           appnamecmd;
     UT_SoftwareBusSnapshot_Entry_t LocalSnapshotData = {.MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_EVS_LONG_EVENT_MSG_MID)};
 
     memset(&bitmaskcmd, 0, sizeof(bitmaskcmd));
@@ -1602,10 +1602,10 @@ void Test_EventCmd(void)
 void Test_FilterCmd(void)
 {
     int                             i;
-    CFE_EVS_AppNameCmd_t            appnamecmd;
-    CFE_EVS_AppNameEventIDMaskCmd_t appmaskcmd;
-    CFE_EVS_AppNameEventIDCmd_t     appcmdcmd;
-    CFE_EVS_AppNameBitMaskCmd_t     appbitcmd;
+    CFE_EVS_EnableAppEventsCmd_t            appnamecmd;
+    CFE_EVS_AddEventFilterCmd_t appmaskcmd;
+    CFE_EVS_ResetFilterCmd_t     appcmdcmd;
+    CFE_EVS_EnableAppEventTypeCmd_t     appbitcmd;
 
     UtPrintf("Begin Test Filter Command");
 

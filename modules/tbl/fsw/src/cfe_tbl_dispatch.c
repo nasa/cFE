@@ -59,7 +59,7 @@ typedef struct
 
 const CFE_TBL_CmdHandlerTblRec_t CFE_TBL_CmdHandlerTbl[] = {
     /* SEND_HK Entry */
-    CFE_TBL_ENTRY(CFE_TBL_SEND_HK_MID, 0, CFE_TBL_NoArgsCmd_t, CFE_TBL_HousekeepingCmd, CFE_TBL_MSG_MSGTYPE),
+    CFE_TBL_ENTRY(CFE_TBL_SEND_HK_MID, 0, CFE_TBL_SendHkCmd_t, CFE_TBL_HousekeepingCmd, CFE_TBL_MSG_MSGTYPE),
 
     /* Everything else */
     CFE_TBL_ENTRY(CFE_TBL_CMD_MID, CFE_TBL_NOOP_CC, CFE_TBL_NoopCmd_t, CFE_TBL_NoopCmd, CFE_TBL_CMD_MSGTYPE),
