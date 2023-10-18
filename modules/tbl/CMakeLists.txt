@@ -25,6 +25,16 @@ if(ENABLE_UNIT_TESTS)
 endif(ENABLE_UNIT_TESTS)
 
 cfs_app_check_intf(${DEP}
-    cfe_tbl_msg.h
     cfe_tbl_eventids.h
+    cfe_tbl_extern_typedefs.h
+    cfe_tbl_fcncodes.h
+    cfe_tbl_interface_cfg.h
+    cfe_tbl_internal_cfg.h
+    cfe_tbl_mission_cfg.h
+    cfe_tbl_msgdefs.h
+    cfe_tbl_msg.h
+    cfe_tbl_msgids.h
+    cfe_tbl_msgstruct.h
+    cfe_tbl_platform_cfg.h
+    cfe_tbl_topicids.h
 )

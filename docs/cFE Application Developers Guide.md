@@ -627,11 +627,11 @@ instead of the default version of the file that is provided from the orignal sou
 
 | **File Name Pattern**      | **Scope** | **Content**                                                                                         |
 |:---------------------------|:---------:|:----------------------------------------------------------------------------------------------------|
-| _module_`_fcncodes.h`      | INTERFACE | Function Codes and associated documentation for the CMD interface of the component (see note)       |
-| _module_`_msgdefs.h`       | INTERFACE | Constant definitions for the CMD/TLM interface(s) of the component (see note)                       |
-| _module_`_tbldefs.h`       | INTERFACE | Constant definitions that affect the table file interface(s) of the component                       |
-| _module_`_msgstruct.h`     | INTERFACE | Structures that define the CMD/TLM message interface(s) of the component                            |
-| _module_`_tblstruct.h`     | INTERFACE | Structures that define the table file interface(s) of the component                                 |
+| _module_`_fcncodes.h`      | INTERFACE | Function Codes and associated documentation for the CMD interface of the component (see note 1)     |
+| _module_`_msgdefs.h`       | INTERFACE | Definitions for the CMD/TLM message payload(s) of the component (see notes 1 & 2)                   |
+| _module_`_tbldefs.h`       | INTERFACE | Definitions for the table file payload(s) of the component (see note 2)                             |
+| _module_`_msgstruct.h`     | INTERFACE | Structures that define the CMD/TLM message interface(s) of the component (see note 2)               |
+| _module_`_tblstruct.h`     | INTERFACE | Structures that define the table file interface(s) of the component (see note 2)                    |
 | _module_`_interface_cfg.h` | INTERFACE | Other configuration that affects the interface(s) of the component (table files and/or messages)    |
 | _module_`_eventids.h`      | INTERFACE | CFE EVS Event IDs for the component, with descriptions/documentation                                |
 | _module_`_global_cfg.h`    |  MISSION  | Constants that need to be consistent across all instances, but do not directly affect interface(s)  |
@@ -644,10 +644,25 @@ instead of the default version of the file that is provided from the orignal sou
 | _module_`_cmds.[ch]`       |    FSW    | Application command processor functions                                                             |
 | _module_`_dispatch.[ch]`   |    FSW    | Dispatch table for validating incoming commands and invoking appropriate command processor          |
 
-**NOTE**: For backward compatibility, the `_msgdefs.h` header should also provide the function code definitions from `_fcncodes.h`, such that
+**NOTE 1**: For backward compatibility, the `_msgdefs.h` header should also provide the function code definitions from `_fcncodes.h`, such that
 inclusion of the `_msgdefs.h` file alone provides the command codes as well as any other required definitions for message interpretation.
 However, the `_fcncodes.h` header should be strictly limited to defining command/function codes for the command interface and should not contain
 any other information.
+
+**NOTE 2**: Table and message definitions are split across a `defs.h` and `struct.h` header file.  The distinction between these two is that the
+`defs.h` file contains those definitions that are coupled to the application source code, whereas the `struct.h` contains those defintions that
+are coupled to the message-passing interface.
+
+Specifically, the `defs.h` file should contain the "Payload" structure definitions - the content of commands that is consumed/produced by the
+application, as well as any constants needed to support those definitions.  In turn, the `struct.h` contains the structures that are actually
+passed via the software bus or messaging interface.  These structures should wrap/encapsulate the message (or table) payload into an object
+that is able to be passed across the interface.  In the case of messages and the software bus interface, this generally means prepending the
+appropriate header object (e.g. `CFE_MSG_CommandHeader_t` or `CFE_MSG_TelemetryHeader_t`) to the message payload object.
+
+The intent of this differentiation is to permit overriding/modification of the encapsulation of messages, without needing to also override
+the content (payload) of those messages.  This supports cases where target system has implemented a custom (non-CFE) encapsulation format
+and all messages and data files are desired to use those formats, as opposed to the normal/default CFE encapsulation formats.  In this case, it
+is important _not_ to change the payload formats, as this will make it more difficult to take a new application update in the future.
 
 **IMPORANT**: All of the header files above with "INTERFACE" scope control the table/message interface of the component.  Changing any of the
 values or definitions in these files will affect the inter-processor communication - either table files, exported data products, commands, or
