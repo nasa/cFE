@@ -84,7 +84,7 @@ void CFE_SB_ProcessCmdPipePkt(const CFE_SB_Buffer_t *SBBufPtr)
     {
         case CFE_SB_SEND_HK_MID:
             /* Note: Command counter not incremented for this command */
-            CFE_SB_SendHKTlmCmd((const CFE_MSG_CommandHeader_t *)SBBufPtr);
+            CFE_SB_SendHKTlmCmd((const CFE_SB_SendHkCmd_t *)SBBufPtr);
             break;
 
         case CFE_SB_SUB_RPT_CTRL_MID:

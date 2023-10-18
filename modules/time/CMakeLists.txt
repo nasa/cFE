@@ -26,5 +26,15 @@ endif(ENABLE_UNIT_TESTS)
 
 cfs_app_check_intf(${DEP}
     cfe_time_eventids.h
+    cfe_time_extern_typedefs.h
+    cfe_time_fcncodes.h
+    cfe_time_interface_cfg.h
+    cfe_time_internal_cfg.h
+    cfe_time_mission_cfg.h
+    cfe_time_msgdefs.h
     cfe_time_msg.h
+    cfe_time_msgids.h
+    cfe_time_msgstruct.h
+    cfe_time_platform_cfg.h
+    cfe_time_topicids.h
 )

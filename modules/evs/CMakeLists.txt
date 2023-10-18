@@ -25,6 +25,16 @@ if(ENABLE_UNIT_TESTS)
 endif(ENABLE_UNIT_TESTS)
 
 cfs_app_check_intf(${DEP}
-    cfe_evs_msg.h
     cfe_evs_eventids.h
+    cfe_evs_extern_typedefs.h
+    cfe_evs_fcncodes.h
+    cfe_evs_interface_cfg.h
+    cfe_evs_internal_cfg.h
+    cfe_evs_mission_cfg.h
+    cfe_evs_msgdefs.h
+    cfe_evs_msg.h
+    cfe_evs_msgids.h
+    cfe_evs_msgstruct.h
+    cfe_evs_platform_cfg.h
+    cfe_evs_topicids.h
 )
