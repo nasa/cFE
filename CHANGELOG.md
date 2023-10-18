@@ -1,5 +1,9 @@
 # Changelog
 
+## Development Build:v7.0.0-rc4+dev401
+- minor reorg of message headers
+- See <https://github.com/nasa/cFE/pull/2453>
+
 ## Development Build:v7.0.0-rc4+dev395
 - Adds an empty string or null pointer check for pipe creation
 - crc calculation refactor
