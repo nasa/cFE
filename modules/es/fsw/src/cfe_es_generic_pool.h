@@ -160,6 +160,39 @@ int32 CFE_ES_GenPoolGetBlock(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t *BlockOf
 
 /*---------------------------------------------------------------------------------------*/
 /**
+ * \brief Create a new block of the given size.
+ *
+ * \note Internal helper routine only, not part of API.
+ *
+ * \param[inout] PoolRecPtr      Pointer to pool structure
+ * \param[in]    BucketId        Bucket ID
+ * \param[in]    NewSize         Size of block
+ * \param[out]   BlockOffsetPtr  Location to output new block offset 
+ *
+ * \return #CFE_SUCCESS, or error code #CFE_ES_BUFFER_NOT_IN_POOL #CFE_ES_ERR_MEM_BLOCK_SIZE
+ *         \ref CFEReturnCodes
+ */
+int32 CFE_ES_GenPoolCreatePoolBlock(CFE_ES_GenPoolRecord_t *PoolRecPtr, uint16 BucketId, size_t NewSize, 
+                                    size_t *BlockOffsetPtr);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * \brief Find and re-allocate a previously returned block
+ *
+ * \note Internal helper routine only, not part of API.
+ *
+ * \param[inout] PoolRecPtr      Pointer to pool structure
+ * \param[in]    BucketId        Bucket ID
+ * \param[in]    NewSize         Size of block
+ * \param[out]   BlockOffsetPtr  Location to output new block offset 
+ *
+ * \return #CFE_SUCCESS, or error code #CFE_ES_BUFFER_NOT_IN_POOL \ref CFEReturnCodes
+ */
+int32 CFE_ES_GenPoolRecyclePoolBlock(CFE_ES_GenPoolRecord_t *PoolRecPtr, uint16 BucketId, size_t NewSize,
+                                     size_t *BlockOffsetPtr);
+
+/*---------------------------------------------------------------------------------------*/
+/**
  * \brief Returns a block to the pool
  *
  * This marks the previously allocated block as deallocated,
