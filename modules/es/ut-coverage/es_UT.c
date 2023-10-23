@@ -2457,6 +2457,16 @@ void TestGenericPool(void)
     /* Reset the structure so it will rebuild */
     Pool1.TailPosition = 0;
     CFE_UtAssert_SUCCESS(CFE_ES_GenPoolRebuild(&Pool1));
+
+    /* Branch coverage for no buffer in pool */
+    ES_ResetUnitTest();
+    UtAssert_INT32_EQ(CFE_ES_GenPoolCreatePoolBlock(&Pool1, 0, Pool1.Buckets[0].BlockSize, &Offset1),
+                      CFE_ES_BUFFER_NOT_IN_POOL);
+
+    ES_ResetUnitTest();
+    UtAssert_INT32_EQ(CFE_ES_GenPoolRecyclePoolBlock(&Pool1, 0, Pool1.Buckets[0].BlockSize, &Offset1),
+                      CFE_ES_BUFFER_NOT_IN_POOL);
+
 }
 
 void TestTask(void)
