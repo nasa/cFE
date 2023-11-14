@@ -191,7 +191,7 @@ void TestTableShare(void)
     UtPrintf("Testing: CFE_TBL_Share");
     CFE_TBL_Handle_t SharedTblHandle;
     const char *     SharedTblName = CFE_ASSERT_SHARED_TBL_NAME;
-    const char *     BadTblName    = "SampleAppTable";
+    const char *     BadTblName    = "ExampleTable";
 
     UtAssert_INT32_EQ(CFE_TBL_Share(NULL, SharedTblName), CFE_TBL_BAD_ARGUMENT);
     UtAssert_INT32_EQ(CFE_TBL_Share(&SharedTblHandle, SharedTblName), CFE_SUCCESS);

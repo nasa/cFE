@@ -1,5 +1,10 @@
 # Changelog
 
+## Development Build: v7.0.0-rc4+dev411
+- rename reference table
+- Remove nonexist reference for perf tool
+- See <https://github.com/nasa/cFE/pull/2462> and <https://github.com/nasa/cFE/pull/2408>
+
 ## Development Build: v7.0.0-rc4+dev405
 - add code coverage for null check
 - See <https://github.com/nasa/cFE/pull/2377>
