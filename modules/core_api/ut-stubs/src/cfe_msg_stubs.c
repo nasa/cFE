@@ -42,7 +42,9 @@ void UT_DefaultHandler_CFE_MSG_GetSubsystem(void *, UT_EntryKey_t, const UT_Stub
 void UT_DefaultHandler_CFE_MSG_GetSystem(void *, UT_EntryKey_t, const UT_StubContext_t *);
 void UT_DefaultHandler_CFE_MSG_GetType(void *, UT_EntryKey_t, const UT_StubContext_t *);
 void UT_DefaultHandler_CFE_MSG_GetTypeFromMsgId(void *, UT_EntryKey_t, const UT_StubContext_t *);
+void UT_DefaultHandler_CFE_MSG_OriginationAction(void *, UT_EntryKey_t, const UT_StubContext_t *);
 void UT_DefaultHandler_CFE_MSG_ValidateChecksum(void *, UT_EntryKey_t, const UT_StubContext_t *);
+void UT_DefaultHandler_CFE_MSG_VerificationAction(void *, UT_EntryKey_t, const UT_StubContext_t *);
 
 /*
  * ----------------------------------------------------
@@ -368,6 +370,24 @@ CFE_Status_t CFE_MSG_Init(CFE_MSG_Message_t *MsgPtr, CFE_SB_MsgId_t MsgId, CFE_M
 
 /*
  * ----------------------------------------------------
+ * Generated stub function for CFE_MSG_OriginationAction()
+ * ----------------------------------------------------
+ */
+CFE_Status_t CFE_MSG_OriginationAction(CFE_MSG_Message_t *MsgPtr, size_t BufferSize, bool *IsAcceptable)
+{
+    UT_GenStub_SetupReturnBuffer(CFE_MSG_OriginationAction, CFE_Status_t);
+
+    UT_GenStub_AddParam(CFE_MSG_OriginationAction, CFE_MSG_Message_t *, MsgPtr);
+    UT_GenStub_AddParam(CFE_MSG_OriginationAction, size_t, BufferSize);
+    UT_GenStub_AddParam(CFE_MSG_OriginationAction, bool *, IsAcceptable);
+
+    UT_GenStub_Execute(CFE_MSG_OriginationAction, Basic, UT_DefaultHandler_CFE_MSG_OriginationAction);
+
+    return UT_GenStub_GetReturnValue(CFE_MSG_OriginationAction, CFE_Status_t);
+}
+
+/*
+ * ----------------------------------------------------
  * Generated stub function for CFE_MSG_SetApId()
  * ----------------------------------------------------
  */
@@ -623,23 +643,6 @@ CFE_Status_t CFE_MSG_SetType(CFE_MSG_Message_t *MsgPtr, CFE_MSG_Type_t Type)
 
 /*
  * ----------------------------------------------------
- * Generated stub function for CFE_MSG_UpdateHeader()
- * ----------------------------------------------------
- */
-CFE_Status_t CFE_MSG_UpdateHeader(CFE_MSG_Message_t *MsgPtr, CFE_MSG_SequenceCount_t SeqCnt)
-{
-    UT_GenStub_SetupReturnBuffer(CFE_MSG_UpdateHeader, CFE_Status_t);
-
-    UT_GenStub_AddParam(CFE_MSG_UpdateHeader, CFE_MSG_Message_t *, MsgPtr);
-    UT_GenStub_AddParam(CFE_MSG_UpdateHeader, CFE_MSG_SequenceCount_t, SeqCnt);
-
-    UT_GenStub_Execute(CFE_MSG_UpdateHeader, Basic, NULL);
-
-    return UT_GenStub_GetReturnValue(CFE_MSG_UpdateHeader, CFE_Status_t);
-}
-
-/*
- * ----------------------------------------------------
  * Generated stub function for CFE_MSG_ValidateChecksum()
  * ----------------------------------------------------
  */
@@ -653,4 +656,22 @@ CFE_Status_t CFE_MSG_ValidateChecksum(const CFE_MSG_Message_t *MsgPtr, bool *IsV
     UT_GenStub_Execute(CFE_MSG_ValidateChecksum, Basic, UT_DefaultHandler_CFE_MSG_ValidateChecksum);
 
     return UT_GenStub_GetReturnValue(CFE_MSG_ValidateChecksum, CFE_Status_t);
+}
+
+/*
+ * ----------------------------------------------------
+ * Generated stub function for CFE_MSG_VerificationAction()
+ * ----------------------------------------------------
+ */
+CFE_Status_t CFE_MSG_VerificationAction(const CFE_MSG_Message_t *MsgPtr, size_t BufferSize, bool *IsAcceptable)
+{
+    UT_GenStub_SetupReturnBuffer(CFE_MSG_VerificationAction, CFE_Status_t);
+
+    UT_GenStub_AddParam(CFE_MSG_VerificationAction, const CFE_MSG_Message_t *, MsgPtr);
+    UT_GenStub_AddParam(CFE_MSG_VerificationAction, size_t, BufferSize);
+    UT_GenStub_AddParam(CFE_MSG_VerificationAction, bool *, IsAcceptable);
+
+    UT_GenStub_Execute(CFE_MSG_VerificationAction, Basic, UT_DefaultHandler_CFE_MSG_VerificationAction);
+
+    return UT_GenStub_GetReturnValue(CFE_MSG_VerificationAction, CFE_Status_t);
 }

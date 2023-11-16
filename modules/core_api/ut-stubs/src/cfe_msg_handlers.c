@@ -376,3 +376,35 @@ void UT_DefaultHandler_CFE_MSG_GetNextSequenceCount(void *UserObj, UT_EntryKey_t
 
     UT_Stub_SetReturnValue(FuncKey, return_value);
 }
+
+/*------------------------------------------------------------
+ *
+ * Default handler for CFE_MSG_OriginationAction coverage stub function
+ *
+ *------------------------------------------------------------*/
+void UT_DefaultHandler_CFE_MSG_OriginationAction(void *UserObj, UT_EntryKey_t FuncKey, const UT_StubContext_t *Context)
+{
+    bool *IsAcceptable = UT_Hook_GetArgValueByName(Context, "IsAcceptable", bool *);
+
+    /* by default just always return true -- a UT case that needs something else can override this handler */
+    if (IsAcceptable != NULL)
+    {
+        *IsAcceptable = true;
+    }
+}
+
+/*------------------------------------------------------------
+ *
+ * Default handler for CFE_MSG_VerificationAction coverage stub function
+ *
+ *------------------------------------------------------------*/
+void UT_DefaultHandler_CFE_MSG_VerificationAction(void *UserObj, UT_EntryKey_t FuncKey, const UT_StubContext_t *Context)
+{
+    bool *IsAcceptable = UT_Hook_GetArgValueByName(Context, "IsAcceptable", bool *);
+
+    /* by default just always return true -- a UT case that needs something else can override this handler */
+    if (IsAcceptable != NULL)
+    {
+        *IsAcceptable = true;
+    }
+}

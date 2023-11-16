@@ -145,7 +145,7 @@ void TestBasicTransmitRecv(void)
     UtAssert_INT32_EQ(CFE_SB_ReceiveBuffer(&MsgBuf, PipeId1, -100), CFE_SB_BAD_ARGUMENT);
 
     /*
-     * Note, the CFE_SB_TransmitMsg now adheres to the "UpdateHeader" flag.
+     * Note, the CFE_SB_TransmitMsg now adheres to the "IsOrigination" flag.
      * Thus, the sequence numbers should come back with the value from the Route (1-2)
      * rather than the value the message was filled with initially.
      *
