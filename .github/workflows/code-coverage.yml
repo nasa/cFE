@@ -83,18 +83,18 @@ jobs:
       - name: Test
         run: |
           lcov --capture --initial --directory build --output-file coverage_base.info
-          make -C build/native/default_cpu1/config test
-          make -C build/native/default_cpu1/core_api test
-          make -C build/native/default_cpu1/core_private test
-          make -C build/native/default_cpu1/es test
-          make -C build/native/default_cpu1/evs test
-          make -C build/native/default_cpu1/fs test
-          make -C build/native/default_cpu1/msg test
-          make -C build/native/default_cpu1/resourceid test
-          make -C build/native/default_cpu1/sb test
-          make -C build/native/default_cpu1/sbr test
-          make -C build/native/default_cpu1/tbl test
-          make -C build/native/default_cpu1/time test
+          (cd build/native/default_cpu1/config && ctest --output-on-failure)
+          (cd build/native/default_cpu1/core_api && ctest --output-on-failure)
+          (cd build/native/default_cpu1/core_private && ctest --output-on-failure)
+          (cd build/native/default_cpu1/es && ctest --output-on-failure)
+          (cd build/native/default_cpu1/evs && ctest --output-on-failure)
+          (cd build/native/default_cpu1/fs && ctest --output-on-failure)
+          (cd build/native/default_cpu1/msg && ctest --output-on-failure)
+          (cd build/native/default_cpu1/resourceid && ctest --output-on-failure)
+          (cd build/native/default_cpu1/sb && ctest --output-on-failure)
+          (cd build/native/default_cpu1/sbr && ctest --output-on-failure)
+          (cd build/native/default_cpu1/tbl && ctest --output-on-failure)
+          (cd build/native/default_cpu1/time && ctest --output-on-failure)
 
       - name: Calculate Coverage
         run: |
