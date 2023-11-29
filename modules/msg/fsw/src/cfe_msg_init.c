@@ -60,7 +60,7 @@ CFE_Status_t CFE_MSG_Init(CFE_MSG_Message_t *MsgPtr, CFE_SB_MsgId_t MsgId, CFE_M
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-CFE_Status_t CFE_MSG_UpdateHeader(CFE_MSG_Message_t *MsgPtr, CFE_MSG_SequenceCount_t SeqCnt)
+CFE_Status_t CFE_MSG_UpdateHeader(CFE_MSG_Message_t *MsgPtr, CFE_MSG_SequenceCount_t SeqCnt, CFE_MSG_Size_t MsgSize)
 {
     if (MsgPtr == NULL)
     {
@@ -69,6 +69,7 @@ CFE_Status_t CFE_MSG_UpdateHeader(CFE_MSG_Message_t *MsgPtr, CFE_MSG_SequenceCou
 
     /* Sequence count is in the basic CCSDS Primary Hdr, so all msgs have it */
     CFE_MSG_SetSequenceCount(MsgPtr, SeqCnt);
+    CFE_MSG_SetSize(MsgPtr, MsgSize);
 
     /*
      * TLM packets have a timestamp in the secondary header.

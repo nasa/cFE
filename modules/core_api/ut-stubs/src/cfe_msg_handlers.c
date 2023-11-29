@@ -376,3 +376,19 @@ void UT_DefaultHandler_CFE_MSG_GetNextSequenceCount(void *UserObj, UT_EntryKey_t
 
     UT_Stub_SetReturnValue(FuncKey, return_value);
 }
+
+/*------------------------------------------------------------
+ *
+ * Default handler for CFE_MSG_Verify coverage stub function
+ *
+ *------------------------------------------------------------*/
+void UT_DefaultHandler_CFE_MSG_Verify(void *UserObj, UT_EntryKey_t FuncKey, const UT_StubContext_t *Context)
+{
+    bool *VerifyStatus = UT_Hook_GetArgValueByName(Context, "VerifyStatus", bool *);
+
+    /* by default just always return true -- a UT case that needs something else can override this handler */
+    if (VerifyStatus != NULL)
+    {
+        *VerifyStatus = true;
+    }
+}

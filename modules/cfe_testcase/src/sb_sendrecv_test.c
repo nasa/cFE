@@ -145,7 +145,7 @@ void TestBasicTransmitRecv(void)
     UtAssert_INT32_EQ(CFE_SB_ReceiveBuffer(&MsgBuf, PipeId1, -100), CFE_SB_BAD_ARGUMENT);
 
     /*
-     * Note, the CFE_SB_TransmitMsg now adheres to the "UpdateHeader" flag.
+     * Note, the CFE_SB_TransmitMsg now adheres to the "EnableUpdate" flag.
      * Thus, the sequence numbers should come back with the value from the Route (1-2)
      * rather than the value the message was filled with initially.
      *
@@ -598,10 +598,44 @@ void TestMiscMessageUtils(void)
                       CFE_SB_BAD_ARGUMENT);
 }
 
+void TestSourceRouting(void)
+{
+    CFE_SB_Buffer_t *      TxBufPtr;
+    const CFE_SB_Buffer_t *RxBufPtr;
+    size_t                 RxSize;
+    CFE_SB_MsgId_t         RxMsgId;
+    CFE_SB_PipeId_t        PipeId;
+
+    /* Random data -- not a CCSDS header (this is intentional) */
+    const uint8_t Content[16] = {0xe9, 0xf2, 0x67, 0x3d, 0x5e, 0x54, 0x1a, 0xa5,
+                                 0xe9, 0xe2, 0x11, 0xe8, 0x71, 0x85, 0xb7, 0x0d};
+
+    /* Setup, create a pipe and subscribe (one cmd, one tlm) */
+    UtAssert_INT32_EQ(CFE_SB_CreatePipe(&PipeId, 5, "TestPipe"), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_SB_SubscribeEx(CFE_FT_CMD_MSGID, PipeId, CFE_SB_DEFAULT_QOS, 3), CFE_SUCCESS);
+
+    TxBufPtr = CFE_SB_AllocateMessageBuffer(sizeof(Content));
+    UtAssert_NOT_NULL(TxBufPtr);
+    memcpy(TxBufPtr, Content, sizeof(Content));
+
+    UtAssert_INT32_EQ(CFE_SB_TransmitBufferWithRoute(TxBufPtr, sizeof(Content), CFE_FT_CMD_MSGID, false, CFE_SB_POLL),
+                      CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_SB_ReceiveBufferWithRoute(PipeId, &RxBufPtr, &RxSize, &RxMsgId, false, CFE_SB_POLL),
+                      CFE_SUCCESS);
+
+    UtAssert_ADDRESS_EQ(RxBufPtr, TxBufPtr);
+    UtAssert_UINT32_EQ(RxSize, sizeof(Content));
+    CFE_Assert_MSGID_EQ(RxMsgId, CFE_FT_CMD_MSGID);
+
+    /* Cleanup */
+    UtAssert_INT32_EQ(CFE_SB_DeletePipe(PipeId), CFE_SUCCESS);
+}
+
 void SBSendRecvTestSetup(void)
 {
     UtTest_Add(TestBasicTransmitRecv, NULL, NULL, "Test Basic Transmit/Receive");
     UtTest_Add(TestZeroCopyTransmitRecv, NULL, NULL, "Test Zero Copy Transmit/Receive");
     UtTest_Add(TestMsgBroadcast, NULL, NULL, "Test Msg Broadcast");
+    UtTest_Add(TestSourceRouting, NULL, NULL, "Test Source Routing APIs");
     UtTest_Add(TestMiscMessageUtils, NULL, NULL, "Test Miscellaneous Message Utility APIs");
 }

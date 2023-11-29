@@ -77,12 +77,13 @@ CFE_Status_t CFE_MSG_Init(CFE_MSG_Message_t *MsgPtr, CFE_SB_MsgId_t MsgId, CFE_M
  *
  * \param[inout] MsgPtr  A pointer to the buffer that contains the message @nonnull.
  * \param[in]    SeqCnt  The current sequence number from the message route
+ * \param[in]    MsgSize The size of the message
  *
  * \return Execution status, see \ref CFEReturnCodes
  * \retval #CFE_SUCCESS             \copybrief CFE_SUCCESS
  * \retval #CFE_MSG_BAD_ARGUMENT    \copybrief CFE_MSG_BAD_ARGUMENT
  */
-CFE_Status_t CFE_MSG_UpdateHeader(CFE_MSG_Message_t *MsgPtr, CFE_MSG_SequenceCount_t SeqCnt);
+CFE_Status_t CFE_MSG_UpdateHeader(CFE_MSG_Message_t *MsgPtr, CFE_MSG_SequenceCount_t SeqCnt, CFE_MSG_Size_t MsgSize);
 
 /**\}*/
 
