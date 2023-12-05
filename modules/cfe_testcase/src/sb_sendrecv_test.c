@@ -51,8 +51,8 @@ typedef struct
 typedef union
 {
     CFE_MSG_Message_t         Hdr;
-    CFE_MSG_CommandHeader_t   CmdHeader;
-    CFE_MSG_TelemetryHeader_t TlmHeader;
+    CFE_MSG_CommandHeader_t   CommandHeader;
+    CFE_MSG_TelemetryHeader_t TelemetryHeader;
     uint8                     MaxSize[CFE_MISSION_SB_MAX_SB_MSG_SIZE + 16];
     char                      StringBuffer[CFE_FT_STRINGBUF_SIZE];
 } CFE_FT_TestBigMessage_t;

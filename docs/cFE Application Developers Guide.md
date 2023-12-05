@@ -1916,7 +1916,7 @@ FILE: sample_app.h
 */
 typedef struct
 {
-  CFE_MSG_TelemetryHeader_t TlmHeader;
+  CFE_MSG_TelemetryHeader_t TelemetryHeader;
 
   /*
   ** Task command interface counters...
@@ -1949,7 +1949,7 @@ SAMPLE_AppData_t  SAMPLE_AppData;  /* Instantiate Task Data */
    int32 Status;
 
    ...
-   Status = CFE_MSG_Init(&SAMPLE_AppData.HkPacket.TlmHeader.Msg, /* Address of SB Message Data Buffer */
+   Status = CFE_MSG_Init(CFE_MSG_PTR(SAMPLE_AppData.HkPacket.TelemetryHeader), /* Location of SB Message Data Buffer */
                           SAMPLE_HK_TLM_MID,                     /* SB Message ID associated with Data */
                           sizeof(SAMPLE_AppData.HkPacket));      /* Size of Buffer */
    ...
@@ -2107,8 +2107,8 @@ SAMPLE_AppData_t  SAMPLE_AppData;  /* Instantiate Task Data */
     /*
     ** Send housekeeping telemetry packet...
     */
-    CFE_SB_TimeStampMsg(&SAMPLE_APP_Data.HkTlm.TlmHeader.Msg);
-    CFE_SB_TransmitMsg(&SAMPLE_APP_Data.HkTlm.TlmHeader.Msg, true);
+    CFE_SB_TimeStampMsg(CFE_MSG_PTR(SAMPLE_APP_Data.HkTlm.TelemetryHeader));
+    CFE_SB_TransmitMsg(CFE_MSG_PTR(SAMPLE_APP_Data.HkTlm.TelemetryHeader), true);
    ...
 }
 ```
@@ -2222,7 +2222,7 @@ FILE: sample_app.h
 */
 typedef struct
 {
-  CFE_MSG_CommandHeader_t TlmHeader;
+  CFE_MSG_CommandHeader_t TelemetryHeader;
 
   /*
   ** Task command interface counters...
@@ -2255,17 +2255,17 @@ SAMPLE_AppData_t  SAMPLE_AppData;  /* Instantiate Task Data */
    */
    SAMPLE_AppData.BigPktBuf = (SAMPLE_BigPkt_Buffer_t *)CFE_SB_AllocateMessageBuffer(sizeof(SAMPLE_BigPkt_t));
 
-   CFE_MSG_Init(SAMPLE_AppData.BigPktBuf->Pkt.TlmHeader.Msg, SAMPLE_BIG_TLM_MID,
-                sizeof(SAMPLE_AppData.BigPktBuf->Pkt);
+   CFE_MSG_Init(SAMPLE_AppData.BigPktBuf->Pkt.TelemetryHeader.Msg, SAMPLE_BIG_TLM_MID,
+                sizeof(SAMPLE_AppData.BigPktBuf->Pkt));
 
    /*
    ** ...Fill Packet with Data...
    */
 
-   /*
+   /* 
    ** Send Message after time tagging it with current time
    */
-   CFE_SB_TimeStampMsg(&SAMPLE_AppData.BigPktBuf->Pkt.TlmHeader.Msg);
+   CFE_SB_TimeStampMsg(&SAMPLE_AppData.BigPktBuf->Pkt.TelemetryHeader.Msg);
    CFE_SB_TransmitBuffer(SAMPLE_AppData.BigPktBuf, BufferHandle, true);
    /* SAMPLE_AppData.BigPktBuf is no longer a valid pointer */
    ...
