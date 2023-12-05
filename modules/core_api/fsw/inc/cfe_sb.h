@@ -402,9 +402,15 @@ CFE_Status_t CFE_SB_UnsubscribeLocal(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeI
 **          software bus will read the message ID from the message header to
 **          determine which pipes should receive the message.
 **
-**          In general, the "UpdateHeader" parameter should be passed as "true"
-**          if the message was newly constructed by the sender and is being sent
-**          for the first time.  When forwarding a message that originated from
+**          The IsOrigination parameter should be passed as "true" if the message was
+**          newly constructed by the sender and is being sent for the first time.  This
+**          enables the message origination actions as determined by the CFE MSG module,
+**          which may include (but not limited to):
+**            - Updating sequence number
+**            - Updating timestamp
+**            - Calcualating a CRC, checksum, or other message error control field
+**
+**          Conversely, when forwarding a message that originated from
 **          an external entity (e.g. messages passing through CI or SBN), the
 **          parameter should be passed as "false" to not overwrite existing data.
 **
@@ -421,7 +427,7 @@ CFE_Status_t CFE_SB_UnsubscribeLocal(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeI
 **
 ** \param[in]  MsgPtr       A pointer to the message to be sent @nonnull.  This must point
 **                          to the first byte of the message header.
-** \param[in] UpdateHeader  Update the headers of the message
+** \param[in] IsOrigination  Update the headers of the message
 **
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS         \copybrief CFE_SUCCESS
@@ -429,7 +435,7 @@ CFE_Status_t CFE_SB_UnsubscribeLocal(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeI
 ** \retval #CFE_SB_MSG_TOO_BIG  \copybrief CFE_SB_MSG_TOO_BIG
 ** \retval #CFE_SB_BUF_ALOC_ERR \covtest \copybrief CFE_SB_BUF_ALOC_ERR
 **/
-CFE_Status_t CFE_SB_TransmitMsg(const CFE_MSG_Message_t *MsgPtr, bool UpdateHeader);
+CFE_Status_t CFE_SB_TransmitMsg(const CFE_MSG_Message_t *MsgPtr, bool IsOrigination);
 
 /*****************************************************************************/
 /**
@@ -471,6 +477,7 @@ CFE_Status_t CFE_SB_TransmitMsg(const CFE_MSG_Message_t *MsgPtr, bool UpdateHead
 ** \retval #CFE_SB_NO_MESSAGE   \copybrief CFE_SB_NO_MESSAGE
 **/
 CFE_Status_t CFE_SB_ReceiveBuffer(CFE_SB_Buffer_t **BufPtr, CFE_SB_PipeId_t PipeId, int32 TimeOut);
+
 /** @} */
 
 /** @defgroup CFEAPISBZeroCopy cFE Zero Copy APIs
@@ -544,9 +551,15 @@ CFE_Status_t CFE_SB_ReleaseMessageBuffer(CFE_SB_Buffer_t *BufPtr);
 **          internal buffer.  The "zero copy" interface can be used to improve
 **          performance in high-rate, high-volume software bus traffic.
 **
-**          In general, the "UpdateHeader" parameter should be passed as "true"
-**          if the message was newly constructed by the sender and is being sent
-**          for the first time.  When forwarding a message that originated from
+**          The IsOrigination parameter should be passed as "true" if the message was
+**          newly constructed by the sender and is being sent for the first time.  This
+**          enables the message origination actions as determined by the CFE MSG module,
+**          which may include (but not limited to):
+**            - Updating sequence number
+**            - Updating timestamp
+**            - Calcualating a CRC, checksum, or other message error control field
+**
+**          Conversely, when forwarding a message that originated from
 **          an external entity (e.g. messages passing through CI or SBN), the
 **          parameter should be passed as "false" to not overwrite existing data.
 **
@@ -567,15 +580,15 @@ CFE_Status_t CFE_SB_ReleaseMessageBuffer(CFE_SB_Buffer_t *BufPtr);
 **          -# This function will increment and apply the internally tracked
 **             sequence counter if set to do so.
 **
-** \param[in] BufPtr        A pointer to the buffer to be sent @nonnull.
-** \param[in] UpdateHeader  Update the headers of the message
+** \param[in] BufPtr         A pointer to the buffer to be sent @nonnull.
+** \param[in] IsOrigination  Update applicable header field(s) of a newly constructed message
 **
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS         \copybrief CFE_SUCCESS
 ** \retval #CFE_SB_BAD_ARGUMENT \copybrief CFE_SB_BAD_ARGUMENT
 ** \retval #CFE_SB_MSG_TOO_BIG  \copybrief CFE_SB_MSG_TOO_BIG
 **/
-CFE_Status_t CFE_SB_TransmitBuffer(CFE_SB_Buffer_t *BufPtr, bool UpdateHeader);
+CFE_Status_t CFE_SB_TransmitBuffer(CFE_SB_Buffer_t *BufPtr, bool IsOrigination);
 
 /** @} */
 

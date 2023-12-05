@@ -759,6 +759,31 @@
  *  #CFE_SB_CreatePipe API failure due to no free queues.
  */
 #define CFE_SB_CR_PIPE_NO_FREE_EID 70
+
+/**
+ * \brief SB integrity actions on transmit message failure event
+ *
+ *  \par Type: ERROR
+ *
+ *  \par Cause:
+ *
+ *  A CFE SB transmit transaction has rejected a message due
+ *  to failure of the associated message integrity action(s).
+ */
+#define CFE_SB_SEND_MESSAGE_INTEGRITY_FAIL_EID 71
+
+/**
+ * \brief SB validation of received message failure event
+ *
+ *  \par Type: ERROR
+ *
+ *  \par Cause:
+ *
+ *  A CFE SB receive transaction has rejected a message due
+ *  to failure of the associated message integrity action(s).
+ */
+#define CFE_SB_RCV_MESSAGE_INTEGRITY_FAIL_EID 72
+
 /**\}*/
 
 #endif /* CFE_SB_EVENTS_H */
