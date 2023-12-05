@@ -1494,7 +1494,11 @@ CFE_Status_t CFE_ES_GetMemPoolStats(CFE_ES_MemPoolStats_t *BufPtr, CFE_ES_MemHan
 **        tool.
 **
 ** \par Assumptions, External Events, and Notes:
-
+**
+**  \c Marker limited to the range of 0 to
+**       #CFE_MISSION_ES_PERF_MAX_IDS - 1. Any performance ids outside of this
+**       range will be ignored and will be flagged as an error.
+**
 **  This function implements a circular buffer using an array.
 **      DataStart points to first stored entry
 **      DataEnd points to next available entry
