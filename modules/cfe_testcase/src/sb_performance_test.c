@@ -33,6 +33,9 @@
 #include "cfe_msgids.h"
 #include "cfe_test_msgids.h"
 
+/* Number of messages to send during test */
+uint32_t UT_BulkTestDuration = 1000;
+
 /* A simple command message */
 typedef struct
 {
@@ -47,6 +50,26 @@ typedef struct
     uint32                    TlmPayload;
 } CFE_FT_TestTlmMessage_t;
 
+/* State structure for multicore test - shared between threads */
+typedef struct UT_BulkMultiCoreSharedState
+{
+    volatile bool XmitFinished;
+    volatile bool RecvFinished;
+
+    CFE_ES_TaskId_t TaskIdXmit;
+    CFE_ES_TaskId_t TaskIdRecv;
+    CFE_SB_PipeId_t PipeId;
+    osal_id_t       SyncSem;
+    uint32          SendCount;
+    uint32          RecvCount;
+    OS_time_t       StartTime;
+    OS_time_t       EndTime;
+
+} UT_BulkMultiCoreSharedState_t;
+
+UT_BulkMultiCoreSharedState_t BulkCmd;
+UT_BulkMultiCoreSharedState_t BulkTlm;
+
 /*
  * This test procedure should be agnostic to specific MID values, but it should
  * not overlap/interfere with real MIDs used by other apps.
@@ -54,7 +77,7 @@ typedef struct
 static const CFE_SB_MsgId_t CFE_FT_CMD_MSGID = CFE_SB_MSGID_WRAP_VALUE(CFE_TEST_CMD_MID);
 static const CFE_SB_MsgId_t CFE_FT_TLM_MSGID = CFE_SB_MSGID_WRAP_VALUE(CFE_TEST_HK_TLM_MID);
 
-void TestBulkTransmitRecv(void)
+void TestBulkTransferSingle(void)
 {
     CFE_SB_PipeId_t                PipeId1 = CFE_SB_INVALID_PIPE;
     CFE_SB_PipeId_t                PipeId2 = CFE_SB_INVALID_PIPE;
@@ -66,12 +89,20 @@ void TestBulkTransmitRecv(void)
     uint32                         SendCount;
     OS_time_t                      StartTime;
     OS_time_t                      ElapsedTime;
+    int64                          AvgRate;
+    uint32_t                       PrintMask;
 
     memset(&CmdMsg, 0, sizeof(CmdMsg));
     memset(&TlmMsg, 0, sizeof(TlmMsg));
 
-    UtPrintf("Testing: Bulk SB Transmit/Receive");
-    CFE_PSP_GetTime(&StartTime);
+    PrintMask = UT_BulkTestDuration >> 4;
+    PrintMask |= PrintMask >> 1;
+    PrintMask |= PrintMask >> 2;
+    PrintMask |= PrintMask >> 4;
+    PrintMask |= PrintMask >> 8;
+    PrintMask |= PrintMask >> 16;
+
+    UtPrintf("Testing: Single Threaded Bulk SB Transmit/Receive");
 
     /* Setup, create a pipe and subscribe (one cmd, one tlm) */
     UtAssert_INT32_EQ(CFE_SB_CreatePipe(&PipeId1, 5, "TestPipe1"), CFE_SUCCESS);
@@ -83,7 +114,9 @@ void TestBulkTransmitRecv(void)
     UtAssert_INT32_EQ(CFE_MSG_Init(CFE_MSG_PTR(CmdMsg.CommandHeader), CFE_FT_CMD_MSGID, sizeof(CmdMsg)), CFE_SUCCESS);
     UtAssert_INT32_EQ(CFE_MSG_Init(CFE_MSG_PTR(TlmMsg.TelemetryHeader), CFE_FT_TLM_MSGID, sizeof(TlmMsg)), CFE_SUCCESS);
 
-    for (SendCount = 0; SendCount < 1000000; ++SendCount)
+    CFE_PSP_GetTime(&StartTime);
+
+    for (SendCount = 0; SendCount < UT_BulkTestDuration; ++SendCount)
     {
         CmdMsg.CmdPayload = SendCount;
         TlmMsg.TlmPayload = ~SendCount;
@@ -129,7 +162,7 @@ void TestBulkTransmitRecv(void)
         }
 
         /* report progress periodically */
-        if ((SendCount % 50000) == 0)
+        if ((SendCount & PrintMask) == 0)
         {
             UtPrintf("Success after %lu messages", (unsigned long)SendCount);
         }
@@ -140,9 +173,449 @@ void TestBulkTransmitRecv(void)
 
     UtAssert_MIR("Elapsed time for SB bulk message test: %lu usec",
                  (unsigned long)OS_TimeGetTotalMicroseconds(ElapsedTime));
+
+    /* Note that in this test, each iteration sends and recvs TWO messages */
+    AvgRate = OS_TimeGetTotalMilliseconds(ElapsedTime);
+    AvgRate = ((int64)SendCount * 20000) / AvgRate;
+
+    UtAssert_MIR("Message Rate: %ld.%01ld messages/sec", (long)(AvgRate / 10), (long)(AvgRate % 10));
+
+    UtAssert_INT32_EQ(CFE_SB_DeletePipe(PipeId1), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_SB_DeletePipe(PipeId2), CFE_SUCCESS);
+}
+
+void RunSingleCmdSendRecv(void)
+{
+    CFE_FT_TestCmdMessage_t        CmdMsg;
+    CFE_SB_Buffer_t *              MsgBuf;
+    const CFE_FT_TestCmdMessage_t *CmdPtr;
+
+    UtAssert_INT32_EQ(CFE_MSG_Init(CFE_MSG_PTR(CmdMsg.CommandHeader), CFE_FT_CMD_MSGID, sizeof(CmdMsg)), CFE_SUCCESS);
+
+    CFE_PSP_GetTime(&BulkCmd.StartTime);
+
+    while (BulkCmd.SendCount < UT_BulkTestDuration)
+    {
+        CmdMsg.CmdPayload = BulkCmd.SendCount;
+
+        /* In order to not "flood" with test results, this should be silent unless a failure occurs */
+        CFE_Assert_STATUS_STORE(CFE_SB_TransmitMsg(CFE_MSG_PTR(CmdMsg.CommandHeader), true));
+        if (!CFE_Assert_STATUS_SILENTCHECK(CFE_SUCCESS))
+        {
+            break;
+        }
+
+        ++BulkCmd.SendCount;
+
+        CFE_Assert_STATUS_STORE(CFE_SB_ReceiveBuffer(&MsgBuf, BulkCmd.PipeId, CFE_SB_POLL));
+        if (!CFE_Assert_STATUS_SILENTCHECK(CFE_SUCCESS))
+        {
+            break;
+        }
+
+        ++BulkCmd.RecvCount;
+
+        /* As above, to avoid flooding of test cases, only report mismatch here */
+        CmdPtr = (const void *)MsgBuf;
+        if (CmdPtr->CmdPayload != CmdMsg.CmdPayload)
+        {
+            UtAssert_UINT32_EQ(CmdPtr->CmdPayload, CmdMsg.CmdPayload);
+            break;
+        }
+    }
+
+    CFE_PSP_GetTime(&BulkCmd.EndTime);
+
+    BulkCmd.XmitFinished = true;
+    BulkCmd.RecvFinished = true;
+}
+
+void RunSingleTlmSendRecv(void)
+{
+    CFE_FT_TestTlmMessage_t        TlmMsg;
+    CFE_SB_Buffer_t *              MsgBuf;
+    const CFE_FT_TestTlmMessage_t *TlmPtr;
+
+    UtAssert_INT32_EQ(CFE_MSG_Init(CFE_MSG_PTR(TlmMsg.TelemetryHeader), CFE_FT_TLM_MSGID, sizeof(TlmMsg)), CFE_SUCCESS);
+
+    CFE_PSP_GetTime(&BulkTlm.StartTime);
+
+    while (BulkTlm.SendCount < UT_BulkTestDuration)
+    {
+        TlmMsg.TlmPayload = BulkTlm.SendCount;
+
+        /* In order to not "flood" with test results, this should be silent unless a failure occurs */
+        CFE_Assert_STATUS_STORE(CFE_SB_TransmitMsg(CFE_MSG_PTR(TlmMsg.TelemetryHeader), true));
+        if (!CFE_Assert_STATUS_SILENTCHECK(CFE_SUCCESS))
+        {
+            break;
+        }
+
+        ++BulkTlm.SendCount;
+
+        CFE_Assert_STATUS_STORE(CFE_SB_ReceiveBuffer(&MsgBuf, BulkTlm.PipeId, CFE_SB_POLL));
+        if (!CFE_Assert_STATUS_SILENTCHECK(CFE_SUCCESS))
+        {
+            break;
+        }
+
+        ++BulkTlm.RecvCount;
+
+        /* As above, to avoid flooding of test cases, only report mismatch here */
+        TlmPtr = (const void *)MsgBuf;
+        if (TlmPtr->TlmPayload != TlmMsg.TlmPayload)
+        {
+            UtAssert_UINT32_EQ(TlmPtr->TlmPayload, TlmMsg.TlmPayload);
+            break;
+        }
+    }
+
+    CFE_PSP_GetTime(&BulkTlm.EndTime);
+
+    BulkTlm.XmitFinished = true;
+    BulkTlm.RecvFinished = true;
+}
+
+OS_time_t UT_GetTotalElapsedTime(void)
+{
+    OS_time_t StartTime;
+    OS_time_t EndTime;
+
+    /*
+     * Computing the average message rate is the total number of messages passed in ALL threads,
+     * divided by the time elapsed by ALL threads, which is the difference between the first
+     * thread to start and the last thread to finish.
+     *
+     * Note that the two threads have equal priority and no blocking/yielding in either, so it is
+     * possible based on OS scheduler that one thread runs entirely to completion before the second
+     * thread even starts running.
+     */
+    if (OS_TimeGetTotalNanoseconds(OS_TimeSubtract(BulkCmd.StartTime, BulkTlm.StartTime)) < 0)
+    {
+        /* This means BulkCmd started first */
+        StartTime = BulkCmd.StartTime;
+    }
+    else
+    {
+        /* This means BulkTlm started first */
+        StartTime = BulkTlm.StartTime;
+    }
+
+    if (OS_TimeGetTotalNanoseconds(OS_TimeSubtract(BulkCmd.EndTime, BulkTlm.EndTime)) < 0)
+    {
+        /* This means BulkTlm ended last */
+        EndTime = BulkTlm.EndTime;
+    }
+    else
+    {
+        /* This means BulkCmd ended last */
+        EndTime = BulkCmd.EndTime;
+    }
+
+    return OS_TimeSubtract(EndTime, StartTime);
+}
+
+void TestBulkTransferMulti2(void)
+{
+    OS_time_t ElapsedTime;
+    int64     AvgRate;
+
+    UtPrintf("Testing: 2 Thread Bulk SB Transmit/Receive without Sync Sem");
+    memset(&BulkCmd, 0, sizeof(BulkCmd));
+    memset(&BulkTlm, 0, sizeof(BulkCmd));
+
+    /* Setup, create a pipe and subscribe (one cmd, one tlm) */
+    UtAssert_INT32_EQ(CFE_SB_CreatePipe(&BulkCmd.PipeId, 5, "CmdPipe"), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_SB_CreatePipe(&BulkTlm.PipeId, 5, "TlmPipe"), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_SB_SubscribeEx(CFE_FT_CMD_MSGID, BulkCmd.PipeId, CFE_SB_DEFAULT_QOS, 3), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_SB_SubscribeEx(CFE_FT_TLM_MSGID, BulkTlm.PipeId, CFE_SB_DEFAULT_QOS, 3), CFE_SUCCESS);
+
+    UtAssert_INT32_EQ(CFE_ES_CreateChildTask(&BulkCmd.TaskIdXmit, "CmdXmit", RunSingleCmdSendRecv, NULL, 32768, 150, 0),
+                      CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_ES_CreateChildTask(&BulkTlm.TaskIdXmit, "TlmXmit", RunSingleTlmSendRecv, NULL, 32768, 150, 0),
+                      CFE_SUCCESS);
+
+    do
+    {
+        OS_TaskDelay(1000);
+        UtPrintf("Counts => %lu/%lu CMD, %lu/%lu TLM", (unsigned long)BulkCmd.SendCount,
+                 (unsigned long)BulkCmd.RecvCount, (unsigned long)BulkTlm.SendCount, (unsigned long)BulkTlm.RecvCount);
+    } while (!BulkCmd.XmitFinished || !BulkCmd.RecvFinished || !BulkTlm.XmitFinished || !BulkTlm.RecvFinished);
+
+    ElapsedTime = OS_TimeSubtract(BulkCmd.EndTime, BulkCmd.StartTime);
+    UtAssert_MIR("Elapsed time for SB bulk CMD thread: %lu usec",
+                 (unsigned long)OS_TimeGetTotalMicroseconds(ElapsedTime));
+
+    ElapsedTime = OS_TimeSubtract(BulkTlm.EndTime, BulkTlm.StartTime);
+    UtAssert_MIR("Elapsed time for SB bulk TLM thread: %lu usec",
+                 (unsigned long)OS_TimeGetTotalMicroseconds(ElapsedTime));
+
+    ElapsedTime = UT_GetTotalElapsedTime();
+    UtAssert_MIR("Elapsed time for all threads: %lu usec", (unsigned long)OS_TimeGetTotalMicroseconds(ElapsedTime));
+
+    /* The message rate is the total number of messages processed over the total time elapsed */
+    AvgRate = OS_TimeGetTotalMilliseconds(ElapsedTime);
+    if (AvgRate > 0)
+    {
+        AvgRate = ((int64)(BulkCmd.RecvCount + BulkTlm.RecvCount) * 10000) / AvgRate;
+        UtAssert_MIR("Message Rate: %ld.%01ld messages/sec", (long)(AvgRate / 10), (long)(AvgRate % 10));
+    }
+    else
+    {
+        /* If the entire test took less than a millisecond, then there is a config error */
+        UtAssert_Failed("Test configuration error: Executed too fast, needs more cycles!");
+    }
+
+    UtAssert_INT32_EQ(CFE_SB_DeletePipe(BulkCmd.PipeId), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_SB_DeletePipe(BulkTlm.PipeId), CFE_SUCCESS);
+}
+
+void UT_CommandTransmitterTask(void)
+{
+    CFE_SB_Buffer_t *        BufPtr;
+    CFE_FT_TestCmdMessage_t *CmdMsgPtr;
+
+    CFE_PSP_GetTime(&BulkCmd.StartTime);
+
+    for (BulkCmd.SendCount = 0; BulkCmd.SendCount < UT_BulkTestDuration; ++BulkCmd.SendCount)
+    {
+        CFE_Assert_STATUS_STORE(OS_CountSemTake(BulkCmd.SyncSem));
+        if (!CFE_Assert_STATUS_SILENTCHECK(OS_SUCCESS))
+        {
+            CFE_Assert_STATUS_MUST_BE(OS_SUCCESS);
+            break;
+        }
+
+        BufPtr = CFE_SB_AllocateMessageBuffer(sizeof(CFE_FT_TestCmdMessage_t));
+
+        CmdMsgPtr = (void *)&BufPtr->Msg;
+
+        /* Initialize the message content */
+        CFE_MSG_Init(CFE_MSG_PTR(CmdMsgPtr->CommandHeader), CFE_FT_CMD_MSGID, sizeof(*CmdMsgPtr));
+
+        CmdMsgPtr->CmdPayload = BulkCmd.SendCount;
+
+        CFE_Assert_STATUS_STORE(CFE_SB_TransmitBuffer(BufPtr, true));
+        if (!CFE_Assert_STATUS_SILENTCHECK(CFE_SUCCESS))
+        {
+            CFE_Assert_STATUS_MUST_BE(CFE_SUCCESS);
+            break;
+        }
+    }
+
+    BulkCmd.XmitFinished = true;
+}
+
+void UT_TelemtryTransmitterTask(void)
+{
+    CFE_SB_Buffer_t *        BufPtr;
+    CFE_FT_TestTlmMessage_t *TlmMsgPtr;
+
+    CFE_PSP_GetTime(&BulkTlm.StartTime);
+
+    for (BulkTlm.SendCount = 0; BulkTlm.SendCount < UT_BulkTestDuration; ++BulkTlm.SendCount)
+    {
+        CFE_Assert_STATUS_STORE(OS_CountSemTake(BulkTlm.SyncSem));
+        if (!CFE_Assert_STATUS_SILENTCHECK(OS_SUCCESS))
+        {
+            CFE_Assert_STATUS_MUST_BE(OS_SUCCESS);
+            break;
+        }
+
+        BufPtr = CFE_SB_AllocateMessageBuffer(sizeof(CFE_FT_TestTlmMessage_t));
+
+        TlmMsgPtr = (void *)&BufPtr->Msg;
+
+        /* Initialize the message content */
+        CFE_MSG_Init(CFE_MSG_PTR(TlmMsgPtr->TelemetryHeader), CFE_FT_TLM_MSGID, sizeof(*TlmMsgPtr));
+
+        TlmMsgPtr->TlmPayload = BulkTlm.SendCount;
+
+        CFE_Assert_STATUS_STORE(CFE_SB_TransmitBuffer(BufPtr, true));
+        if (!CFE_Assert_STATUS_SILENTCHECK(CFE_SUCCESS))
+        {
+            CFE_Assert_STATUS_MUST_BE(CFE_SUCCESS);
+            break;
+        }
+    }
+
+    BulkTlm.XmitFinished = true;
+}
+
+void UT_CommandReceiverTask(void)
+{
+    CFE_SB_Buffer_t *              MsgBuf;
+    const CFE_FT_TestCmdMessage_t *CmdPtr;
+
+    for (BulkCmd.RecvCount = 0; BulkCmd.RecvCount < UT_BulkTestDuration; ++BulkCmd.RecvCount)
+    {
+        CFE_Assert_STATUS_STORE(CFE_SB_ReceiveBuffer(&MsgBuf, BulkCmd.PipeId, 5000));
+        if (!CFE_Assert_STATUS_SILENTCHECK(CFE_SUCCESS))
+        {
+            CFE_Assert_STATUS_MUST_BE(CFE_SUCCESS);
+            break;
+        }
+
+        /* As above, to avoid flooding of test cases, only report mismatch here */
+        CmdPtr = (const void *)MsgBuf;
+        if (CmdPtr->CmdPayload != BulkCmd.RecvCount)
+        {
+            UtAssert_UINT32_EQ(CmdPtr->CmdPayload, BulkCmd.RecvCount);
+            break;
+        }
+
+        CFE_Assert_STATUS_STORE(OS_CountSemGive(BulkCmd.SyncSem));
+        if (!CFE_Assert_STATUS_SILENTCHECK(OS_SUCCESS))
+        {
+            CFE_Assert_STATUS_MUST_BE(OS_SUCCESS);
+            break;
+        }
+    }
+
+    CFE_PSP_GetTime(&BulkCmd.EndTime);
+    BulkCmd.RecvFinished = true;
+}
+
+void UT_TelemetryReceiverTask(void)
+{
+    CFE_SB_Buffer_t *              MsgBuf;
+    const CFE_FT_TestTlmMessage_t *TlmPtr;
+
+    for (BulkTlm.RecvCount = 0; BulkTlm.RecvCount < UT_BulkTestDuration; ++BulkTlm.RecvCount)
+    {
+        CFE_Assert_STATUS_STORE(CFE_SB_ReceiveBuffer(&MsgBuf, BulkTlm.PipeId, 5000));
+        if (!CFE_Assert_STATUS_SILENTCHECK(CFE_SUCCESS))
+        {
+            CFE_Assert_STATUS_MUST_BE(CFE_SUCCESS);
+            break;
+        }
+
+        /* As above, to avoid flooding of test cases, only report mismatch here */
+        TlmPtr = (const void *)MsgBuf;
+        if (TlmPtr->TlmPayload != BulkTlm.RecvCount)
+        {
+            UtAssert_UINT32_EQ(TlmPtr->TlmPayload, BulkTlm.RecvCount);
+            break;
+        }
+
+        CFE_Assert_STATUS_STORE(OS_CountSemGive(BulkTlm.SyncSem));
+        if (!CFE_Assert_STATUS_SILENTCHECK(OS_SUCCESS))
+        {
+            CFE_Assert_STATUS_MUST_BE(OS_SUCCESS);
+            break;
+        }
+    }
+
+    CFE_PSP_GetTime(&BulkTlm.EndTime);
+    BulkTlm.RecvFinished = true;
+}
+
+void TestBulkTransferMulti4(void)
+{
+    uint32    i;
+    OS_time_t ElapsedTime;
+    int64     AvgRate;
+
+    UtPrintf("Testing: 4 Thread Bulk SB Transmit/Receive with Sync Sem");
+    memset(&BulkCmd, 0, sizeof(BulkCmd));
+    memset(&BulkTlm, 0, sizeof(BulkCmd));
+
+    /* Setup, create a pipe and subscribe (one cmd, one tlm) */
+    UtAssert_INT32_EQ(CFE_SB_CreatePipe(&BulkCmd.PipeId, 10, "TestPipe1"), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_SB_CreatePipe(&BulkTlm.PipeId, 10, "TestPipe2"), CFE_SUCCESS);
+
+    UtAssert_INT32_EQ(CFE_SB_SubscribeEx(CFE_FT_CMD_MSGID, BulkCmd.PipeId, CFE_SB_DEFAULT_QOS, 8), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_SB_SubscribeEx(CFE_FT_TLM_MSGID, BulkTlm.PipeId, CFE_SB_DEFAULT_QOS, 8), CFE_SUCCESS);
+
+    UtAssert_INT32_EQ(OS_CountSemCreate(&BulkCmd.SyncSem, "CmdSem", 0, 0), OS_SUCCESS);
+    UtAssert_INT32_EQ(OS_CountSemCreate(&BulkTlm.SyncSem, "TlmSem", 0, 0), OS_SUCCESS);
+
+    UtAssert_INT32_EQ(
+        CFE_ES_CreateChildTask(&BulkCmd.TaskIdXmit, "CmdXmit", UT_CommandTransmitterTask, NULL, 32768, 150, 0),
+        CFE_SUCCESS);
+    UtAssert_INT32_EQ(
+        CFE_ES_CreateChildTask(&BulkTlm.TaskIdXmit, "TlmXmit", UT_TelemtryTransmitterTask, NULL, 32768, 150, 0),
+        CFE_SUCCESS);
+    UtAssert_INT32_EQ(
+        CFE_ES_CreateChildTask(&BulkCmd.TaskIdRecv, "CmdRecv", UT_CommandReceiverTask, NULL, 32768, 100, 0),
+        CFE_SUCCESS);
+    UtAssert_INT32_EQ(
+        CFE_ES_CreateChildTask(&BulkTlm.TaskIdRecv, "TlmRecv", UT_TelemetryReceiverTask, NULL, 32768, 100, 0),
+        CFE_SUCCESS);
+
+    /* Let all tasks start and pend on sem */
+    OS_TaskDelay(500);
+
+    /* Give sem several times each to get a pipeline going, but do not exceed msglim of 8 */
+    for (i = 0; i < 8; ++i)
+    {
+        UtAssert_INT32_EQ(OS_CountSemGive(BulkCmd.SyncSem), OS_SUCCESS);
+        UtAssert_INT32_EQ(OS_CountSemGive(BulkTlm.SyncSem), OS_SUCCESS);
+    }
+
+    do
+    {
+        OS_TaskDelay(1000);
+        UtPrintf("Counts => %lu/%lu CMD, %lu/%lu TLM", (unsigned long)BulkCmd.SendCount,
+                 (unsigned long)BulkCmd.RecvCount, (unsigned long)BulkTlm.SendCount, (unsigned long)BulkTlm.RecvCount);
+    } while (!BulkCmd.XmitFinished || !BulkCmd.RecvFinished || !BulkTlm.XmitFinished || !BulkTlm.RecvFinished);
+
+    ElapsedTime = OS_TimeSubtract(BulkCmd.EndTime, BulkCmd.StartTime);
+    UtAssert_MIR("Elapsed time for SB bulk CMD thread: %lu usec",
+                 (unsigned long)OS_TimeGetTotalMicroseconds(ElapsedTime));
+
+    ElapsedTime = OS_TimeSubtract(BulkTlm.EndTime, BulkCmd.StartTime);
+    UtAssert_MIR("Elapsed time for SB bulk TLM thread: %lu usec",
+                 (unsigned long)OS_TimeGetTotalMicroseconds(ElapsedTime));
+
+    ElapsedTime = UT_GetTotalElapsedTime();
+    UtAssert_MIR("Elapsed time for all threads: %lu usec", (unsigned long)OS_TimeGetTotalMicroseconds(ElapsedTime));
+
+    /* The message rate is the total number of messages processed over the total time elapsed */
+    AvgRate = OS_TimeGetTotalMilliseconds(ElapsedTime);
+    if (AvgRate > 0)
+    {
+        AvgRate = ((int64)(BulkCmd.RecvCount + BulkTlm.RecvCount) * 10000) / AvgRate;
+        UtAssert_MIR("Message Rate: %ld.%01ld messages/sec", (long)(AvgRate / 10), (long)(AvgRate % 10));
+    }
+    else
+    {
+        /* If the entire test took less than a millisecond, then there is a config error */
+        UtAssert_Failed("Test configuration error: Executed too fast, needs more cycles!");
+    }
+
+    /* Child tasks should have self-exited... */
+    UtAssert_INT32_EQ(CFE_SB_DeletePipe(BulkCmd.PipeId), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_SB_DeletePipe(BulkTlm.PipeId), CFE_SUCCESS);
+    UtAssert_INT32_EQ(OS_CountSemDelete(BulkCmd.SyncSem), OS_SUCCESS);
+    UtAssert_INT32_EQ(OS_CountSemDelete(BulkTlm.SyncSem), OS_SUCCESS);
 }
 
 void SBPerformanceTestSetup(void)
 {
-    UtTest_Add(TestBulkTransmitRecv, NULL, NULL, "Test Bulk SB Transmit/Receive");
+    long      i;
+    OS_time_t clock_start;
+    OS_time_t clock_now;
+
+    i = 0;
+    CFE_PSP_GetTime(&clock_start);
+    do
+    {
+        ++i;
+        CFE_PSP_GetTime(&clock_now);
+    } while (OS_TimeGetTotalMilliseconds(OS_TimeSubtract(clock_now, clock_start)) < 100);
+
+    UtAssert_MIR("Local CPU speed loop count=%ld", i);
+
+    while (i > 0)
+    {
+        i /= 5;
+        UT_BulkTestDuration *= 2;
+    }
+
+    UtAssert_MIR("Configured to execute %lu message transfers", (unsigned long)UT_BulkTestDuration);
+
+    UtTest_Add(TestBulkTransferSingle, NULL, NULL, "Single Thread Bulk Transfer");
+    UtTest_Add(TestBulkTransferMulti2, NULL, NULL, "2 Thread Bulk Transfer");
+    UtTest_Add(TestBulkTransferMulti4, NULL, NULL, "4 Thread Bulk Transfer");
 }
