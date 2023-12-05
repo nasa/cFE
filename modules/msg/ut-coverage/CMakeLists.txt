@@ -18,7 +18,7 @@ set (ut_${DEP}_tests
     test_msg_not.c
     test_msg_pri_not.c
     test_cfe_msg_init.c
-    test_cfe_msg_verify.c
+    test_cfe_msg_integrity.c
     test_cfe_msg_ccsdspri.c
     test_cfe_msg_msgid_shared.c
     test_cfe_msg_checksum.c

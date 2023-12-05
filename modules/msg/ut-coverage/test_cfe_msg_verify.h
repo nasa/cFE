@@ -31,6 +31,6 @@
 /*
  * Functions
  */
-void Test_MSG_Verify(void);
+void Test_MSG_VerificationAction(void);
 
 #endif /* TEST_CFE_MSG_VERIFY_H */

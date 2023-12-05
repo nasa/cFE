@@ -1,5 +1,13 @@
 # Changelog
 
+## Development Build: v7.0.0-rc4+dev424
+- Add perfid limit info to ES docstring
+- TBL UT update for OSAL/CFE path length mismatch
+- add multi threaded SB perf tests
+- message integrity API
+- change workflow to use output on failure option
+- See <https://github.com/nasa/cFE/pull/2409>, <https://github.com/nasa/cFE/pull/2373>, <https://github.com/nasa/cFE/pull/2466>, <https://github.com/nasa/cFE/pull/2468>, and <https://github.com/nasa/cFE/pull/2470>
+
 ## Development Build: v7.0.0-rc4+dev411
 - rename reference table
 - Remove nonexist reference for perf tool

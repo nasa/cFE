@@ -52,9 +52,14 @@
 **  \cfeescfg Define Max Number of Performance IDs for messages
 **
 **  \par Description:
-**       Defines the maximum number of perf ids allowed in command/telemetry messages
+**       Defines the maximum number of perf ids allowed.
 **
-**      This affects the layout of command/telemetry messages but does not affect run
+**       Each performance id is used to identify something that needs to be
+**       measured. Performance ids are limited to the range of 0 to
+**       #CFE_MISSION_ES_PERF_MAX_IDS - 1. Any performance ids outside of this
+**       range will be ignored and will be flagged as an error.
+**
+**      This affects the layout of telemetry messages but does not affect run
 **      time behavior or internal allocation.
 **
 **  \par Limits

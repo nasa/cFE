@@ -3037,6 +3037,7 @@ void Test_CFE_TBL_TblMod(void)
     CFE_TBL_Handle_t            AccessIterator;
     uint8                       CDS_Data[sizeof(UT_Table1_t)];
     uint32                      ExpectedCrc;
+    int maxPathLenDiff = (int) CFE_MISSION_MAX_PATH_LEN - (int) OS_MAX_PATH_LEN;
 
     memset(&TblInfo1, 0, sizeof(TblInfo1));
 
@@ -3177,13 +3178,22 @@ void Test_CFE_TBL_TblMod(void)
     UtAssert_INT32_EQ(CFE_TBL_GetAddress(&TblDataAddr, App1TblHandle1), CFE_TBL_INFO_UPDATED);
 
     /*
-     * LastFileLoaded (limited by mission) can be bigger than MyFilename (limited by osal),
-     * need to adjust length of check to account for difference and modified marking
+     * LastFileLoaded (limited by mission) can be bigger than MyFilename (limited by osal)
      */
-    UtAssert_StrnCmp(TblInfo1.LastFileLoaded, MyFilename, sizeof(MyFilename) - 4, "%s == %s, %ld",
-                     TblInfo1.LastFileLoaded, MyFilename, (long)sizeof(MyFilename) - 4);
-    UtAssert_StrCmp(&TblInfo1.LastFileLoaded[sizeof(MyFilename) - 4], "(*)", "%s == (*)",
-                    &TblInfo1.LastFileLoaded[sizeof(MyFilename) - 4]);
+    UtAssert_StrnCmp(TblInfo1.LastFileLoaded, MyFilename, sizeof(TblInfo1.LastFileLoaded) - 4, "%s == %s, %ld",
+                     TblInfo1.LastFileLoaded, MyFilename, (long)sizeof(TblInfo1.LastFileLoaded) - 4);
+
+    if(maxPathLenDiff >= 0)
+    {
+        UtAssert_StrCmp(&TblInfo1.LastFileLoaded[sizeof(MyFilename) - 4], "(*)", "%s == (*)",
+                        &TblInfo1.LastFileLoaded[sizeof(MyFilename) - 4]);
+    }
+    else if(maxPathLenDiff > -3)
+    {
+        int modIndicatorStart = (int) CFE_MISSION_MAX_PATH_LEN -4 - maxPathLenDiff;
+        UtAssert_StrCmp(&TblInfo1.LastFileLoaded[modIndicatorStart], "(*)", "%s == (*)",
+                        &TblInfo1.LastFileLoaded[modIndicatorStart]);
+    }
 
     /* Test response to an invalid handle */
     UtAssert_INT32_EQ(CFE_TBL_Modified(CFE_TBL_BAD_TABLE_HANDLE), CFE_TBL_ERR_INVALID_HANDLE);

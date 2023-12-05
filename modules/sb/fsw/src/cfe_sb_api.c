@@ -123,7 +123,8 @@ CFE_Status_t CFE_SB_CreatePipe(CFE_SB_PipeId_t *PipeIdPtr, uint16 Depth, const c
     CFE_ES_GetTaskID(&TskId);
 
     /* check input parameters */
-    if ((PipeIdPtr == NULL) || (Depth > OS_QUEUE_MAX_DEPTH) || (Depth == 0) || (PipeName != NULL && PipeName[0] == '\0'))
+    if ((PipeIdPtr == NULL) || (Depth > OS_QUEUE_MAX_DEPTH) || (Depth == 0) ||
+        (PipeName != NULL && PipeName[0] == '\0'))
     {
         PendingEventId = CFE_SB_CR_PIPE_BAD_ARG_EID;
         Status         = CFE_SB_BAD_ARGUMENT;
@@ -1287,7 +1288,7 @@ int32 CFE_SB_UnsubscribeFull(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId, uint8
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-CFE_Status_t CFE_SB_TransmitMsg(const CFE_MSG_Message_t *MsgPtr, bool UpdateHeader)
+CFE_Status_t CFE_SB_TransmitMsg(const CFE_MSG_Message_t *MsgPtr, bool IsOrigination)
 {
     int32             Status;
     CFE_MSG_Size_t    Size  = 0;
@@ -1349,7 +1350,7 @@ CFE_Status_t CFE_SB_TransmitMsg(const CFE_MSG_Message_t *MsgPtr, bool UpdateHead
         memcpy(&BufDscPtr->Content, MsgPtr, Size);
         BufDscPtr->MsgId       = MsgId;
         BufDscPtr->ContentSize = Size;
-        BufDscPtr->NeedsUpdate = UpdateHeader;
+        BufDscPtr->NeedsUpdate = IsOrigination;
         CFE_MSG_GetType(MsgPtr, &BufDscPtr->ContentType);
 
         /*
@@ -1535,8 +1536,10 @@ void CFE_SB_BroadcastBufferToRoute(CFE_SB_BufferD_t *BufDscPtr, CFE_SBR_RouteId_
     uint32                 i;
     char                   FullName[(OS_MAX_API_NAME * 2)];
     char                   PipeName[OS_MAX_API_NAME];
+    bool                   IsAcceptable;
 
     SBSndErr.EvtsToSnd = 0;
+    IsAcceptable       = true;
 
     /* get app id for loopback testing */
     CFE_ES_GetAppID(&AppId);
@@ -1555,8 +1558,10 @@ void CFE_SB_BroadcastBufferToRoute(CFE_SB_BufferD_t *BufDscPtr, CFE_SBR_RouteId_
         {
             CFE_SBR_IncrementSequenceCounter(RouteId);
 
+            CFE_MSG_SetSequenceCount(&BufDscPtr->Content.Msg, CFE_SBR_GetSequenceCounter(RouteId));
+
             /* Update all MSG headers based on the current sequence */
-            CFE_MSG_UpdateHeader(&BufDscPtr->Content.Msg, CFE_SBR_GetSequenceCounter(RouteId));
+            CFE_MSG_OriginationAction(&BufDscPtr->Content.Msg, BufDscPtr->ContentSize, &IsAcceptable);
 
             /* Clear the flag, just in case */
             BufDscPtr->NeedsUpdate = false;
@@ -2118,7 +2123,7 @@ CFE_Status_t CFE_SB_ReleaseMessageBuffer(CFE_SB_Buffer_t *BufPtr)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-CFE_Status_t CFE_SB_TransmitBuffer(CFE_SB_Buffer_t *BufPtr, bool UpdateHeader)
+CFE_Status_t CFE_SB_TransmitBuffer(CFE_SB_Buffer_t *BufPtr, bool IsOrigination)
 {
     int32             Status;
     CFE_SB_BufferD_t *BufDscPtr;
@@ -2143,7 +2148,7 @@ CFE_Status_t CFE_SB_TransmitBuffer(CFE_SB_Buffer_t *BufPtr, bool UpdateHeader)
          */
         if (Status == CFE_SUCCESS)
         {
-            BufDscPtr->NeedsUpdate = UpdateHeader;
+            BufDscPtr->NeedsUpdate = IsOrigination;
             CFE_MSG_GetType(&BufPtr->Msg, &BufDscPtr->ContentType);
 
             /* Now broadcast the message, which consumes the buffer */

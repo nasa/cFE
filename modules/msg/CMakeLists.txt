@@ -18,7 +18,7 @@
 set(${DEP}_SRC
     fsw/src/cfe_msg_ccsdspri.c
     fsw/src/cfe_msg_init.c
-    fsw/src/cfe_msg_verify.c
+    fsw/src/cfe_msg_integrity.c
     fsw/src/cfe_msg_msgid_shared.c
     fsw/src/cfe_msg_sechdr_checksum.c
     fsw/src/cfe_msg_sechdr_fc.c

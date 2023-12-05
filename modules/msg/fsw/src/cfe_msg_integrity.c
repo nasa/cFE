@@ -27,22 +27,50 @@
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-CFE_Status_t CFE_MSG_Verify(const CFE_MSG_Message_t *MsgPtr, bool *VerifyStatus)
+CFE_Status_t CFE_MSG_OriginationAction(CFE_MSG_Message_t *MsgPtr, size_t BufferSize, bool *IsAcceptable)
 {
-    if (MsgPtr == NULL || VerifyStatus == NULL)
+    if (MsgPtr == NULL || IsAcceptable == NULL)
+    {
+        return CFE_MSG_BAD_ARGUMENT;
+    }
+
+    /*
+     * TLM packets have a timestamp in the secondary header.
+     * This may fail if this is not a TLM packet (that is OK)
+     */
+    CFE_MSG_SetMsgTime(MsgPtr, CFE_TIME_GetTime());
+
+    /*
+     * CMD packets have a checksum in the secondary header.
+     * This may fail if this is not a CMD packet (that is OK)
+     */
+    CFE_MSG_GenerateChecksum(MsgPtr);
+
+    /* This implementation permits all outgoing messages */
+    *IsAcceptable = true;
+
+    return CFE_SUCCESS;
+}
+/*----------------------------------------------------------------
+ *
+ * Implemented per public API
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+CFE_Status_t CFE_MSG_VerificationAction(const CFE_MSG_Message_t *MsgPtr, size_t BufferSize, bool *IsAcceptable)
+{
+    if (MsgPtr == NULL || IsAcceptable == NULL)
     {
         return CFE_MSG_BAD_ARGUMENT;
     }
 
     /*
      * In the default implementation, there is not anything to check here.
-     * Only commands have a checksum, but the value of that checksum was historically
-     * not enforced by CFE.
      *
      * This is mainly a hook for user expansion, in case a custom implementation
      * has message verification capability.
      */
-    *VerifyStatus = true;
+    *IsAcceptable = true;
 
     return CFE_SUCCESS;
 }
