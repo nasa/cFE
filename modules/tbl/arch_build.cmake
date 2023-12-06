@@ -21,12 +21,12 @@ set(TBL_PLATFORM_CONFIG_FILE_LIST
 foreach(TBL_CFGFILE ${TBL_PLATFORM_CONFIG_FILE_LIST})
   get_filename_component(CFGKEY "${TBL_CFGFILE}" NAME_WE)
   if (DEFINED TBL_CFGFILE_SRC_${CFGKEY})
-    set(DEFAULT_SOURCE "${TBL_CFGFILE_SRC_${CFGKEY}}")
+    set(DEFAULT_SOURCE GENERATED_FILE "${TBL_CFGFILE_SRC_${CFGKEY}}")
   else()
-    set(DEFAULT_SOURCE "${CMAKE_CURRENT_LIST_DIR}/config/default_${TBL_CFGFILE}")
+    set(DEFAULT_SOURCE FALLBACK_FILE "${CMAKE_CURRENT_LIST_DIR}/config/default_${TBL_CFGFILE}")
   endif()
   generate_config_includefile(
     FILE_NAME           "${TBL_CFGFILE}"
-    FALLBACK_FILE       ${DEFAULT_SOURCE}
+    ${DEFAULT_SOURCE}
   )
 endforeach()

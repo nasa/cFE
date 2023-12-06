@@ -32,8 +32,8 @@
 **  \par Limits
 **      Not Applicable
 */
-#define CFE_MISSION_EVS_CMD_MSG     1
-#define CFE_MISSION_EVS_SEND_HK_MSG 9
+#define CFE_MISSION_EVS_CMD_TOPICID     1
+#define CFE_MISSION_EVS_SEND_HK_TOPICID 9
 
 /**
 **  \cfemissioncfg cFE Portable Message Numbers for Telemetry
@@ -44,8 +44,8 @@
 **  \par Limits
 **      Not Applicable
 */
-#define CFE_MISSION_EVS_HK_TLM_MSG          1
-#define CFE_MISSION_EVS_LONG_EVENT_MSG_MSG  8
-#define CFE_MISSION_EVS_SHORT_EVENT_MSG_MSG 9
+#define CFE_MISSION_EVS_HK_TLM_TOPICID          1
+#define CFE_MISSION_EVS_LONG_EVENT_MSG_TOPICID  8
+#define CFE_MISSION_EVS_SHORT_EVENT_MSG_TOPICID 9
 
 #endif

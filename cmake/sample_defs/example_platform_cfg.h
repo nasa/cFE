@@ -16,26 +16,26 @@
  * limitations under the License.
  ************************************************************************/
 
- /**
+/**
  * @file
  *
  * This header file contains the internal configuration parameters and
  * typedefs with platform scope.
- * 
+ *
  * This provides default values for configurable items that do NOT affect
  * the interface(s) of this module.  This includes internal parameters,
  * path names, and limit value(s) that are relevant for a specific platform.
- * 
+ *
  * @note It is no longer necessary to provide this file directly in the defs
- * directory, but if present, this file is still supported/usable for backward 
+ * directory, but if present, this file is still supported/usable for backward
  * compatibility.  To use this file, is should be called "cfe_platform_cfg.h".
- * 
+ *
  * Going forward, more fine-grained (module/purposes-specific) header files are
  * included with each submodule.  These may be overridden as necessary, but only
  * if a definition within that file needs to be changed from the default.  This
- * approach will reduce the amount of duplicate/cloned definitions and better 
+ * approach will reduce the amount of duplicate/cloned definitions and better
  * support alternative build configurations in the future.
- * 
+ *
  * Note that if this file is present, the fine-grained header files noted above
  * will _not_ be used.
  */
@@ -82,7 +82,6 @@
 **
 */
 #define CFE_PLATFORM_CORE_MAX_STARTUP_MSEC 30000
-
 
 /*******************************************************************************/
 /*
