@@ -247,7 +247,7 @@ Common command/event descriptions include:
 | `LEN_ERR`      | Incorrect Message Length                 | Error         |
 | `CC_ERR`       | Invalid Command Code Received            | Error         |
 | `NOOP_INF`     | No-op Command Success                    | Informational |
-| `INIT_INF`     | Applicaiton Initialization Success       | Informational |
+| `INIT_INF`     | Application Initialization Success       | Informational |
 | `RESET_INF`    | Reset Command Counters Command Success   | Informational |
 
 # Appendix: Abbreviation Guide
