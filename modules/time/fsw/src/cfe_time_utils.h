@@ -49,18 +49,18 @@
 /*
 ** Interrupt task definitions...
 */
-#define CFE_TIME_TASK_TONE_NAME "TIME_TONE_TASK"
-#define CFE_TIME_TASK_1HZ_NAME  "TIME_1HZ_TASK"
-#define CFE_TIME_TASK_STACK_PTR CFE_ES_TASK_STACK_ALLOCATE
-#define CFE_TIME_TASK_FLAGS     0
+#define CFE_TIME_TASK_TONE_NAME  "TIME_TONE_TASK"
+#define CFE_TIME_TASK_ONEHZ_NAME "TIME_ONEHZ_TASK"
+#define CFE_TIME_TASK_STACK_PTR  CFE_ES_TASK_STACK_ALLOCATE
+#define CFE_TIME_TASK_FLAGS      0
 
 /*
 ** Interrupt semaphore definitions...
 */
-#define CFE_TIME_SEM_TONE_NAME "TIME_TONE_SEM"
-#define CFE_TIME_SEM_1HZ_NAME  "TIME_1HZ_SEM"
-#define CFE_TIME_SEM_VALUE     0
-#define CFE_TIME_SEM_OPTIONS   0
+#define CFE_TIME_SEM_TONE_NAME  "TIME_TONE_SEM"
+#define CFE_TIME_SEM_ONEHZ_NAME "TIME_ONEHZ_SEM"
+#define CFE_TIME_SEM_VALUE      0
+#define CFE_TIME_SEM_OPTIONS    0
 
 /*
 ** Main Task Pipe definitions...

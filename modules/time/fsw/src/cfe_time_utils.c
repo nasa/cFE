@@ -351,7 +351,7 @@ void CFE_TIME_InitData(void)
     /*
     ** Initialize local 1Hz "wake-up" command packet (optional)...
     */
-    CFE_MSG_Init(CFE_MSG_PTR(CFE_TIME_Global.Local1HzCmd.CommandHeader), CFE_SB_ValueToMsgId(CFE_TIME_1HZ_CMD_MID),
+    CFE_MSG_Init(CFE_MSG_PTR(CFE_TIME_Global.Local1HzCmd.CommandHeader), CFE_SB_ValueToMsgId(CFE_TIME_ONEHZ_CMD_MID),
                  sizeof(CFE_TIME_Global.Local1HzCmd));
 }
 

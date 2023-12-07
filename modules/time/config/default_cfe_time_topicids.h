@@ -35,7 +35,7 @@
 #define CFE_MISSION_TIME_CMD_TOPICID       5
 #define CFE_MISSION_TIME_SEND_HK_TOPICID   13
 #define CFE_MISSION_TIME_TONE_CMD_TOPICID  16
-#define CFE_MISSION_TIME_1HZ_CMD_TOPICID 17
+#define CFE_MISSION_TIME_ONEHZ_CMD_TOPICID 17
 
 /**
 **  \cfemissioncfg cFE Portable Message Numbers for Global Messages
