@@ -49,25 +49,13 @@
 /**
  * @brief Internal states for Performance Analyzer
  */
-enum CFE_ES_PerfState
+typedef enum CFE_ES_PerfState
 {
     CFE_ES_PERF_IDLE = 0,
     CFE_ES_PERF_WAITING_FOR_TRIGGER,
     CFE_ES_PERF_TRIGGERED,
     CFE_ES_PERF_MAX_STATES
-};
-
-/**
- * @brief Labels for values to use in #CFE_ES_StartPerfCmd_Payload.TriggerMode
- * @sa CFE_ES_StartPerfCmd_Payload
-*/
-enum CFE_ES_PerfMode
-{
-    CFE_ES_PERF_TRIGGER_START = 0,
-    CFE_ES_PERF_TRIGGER_CENTER,
-    CFE_ES_PERF_TRIGGER_END,
-    CFE_ES_PERF_MAX_MODES
-};
+} CFE_ES_PerfState_t;
 
 /**
  * @brief Perflog Dump Background Job states
