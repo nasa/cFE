@@ -1,5 +1,11 @@
 # Changelog
 
+## Development Build: v7.0.0-rc4+dev434
+- Update docs and UT to use CFE_MSG_PTR
+- document ES Perf enums
+- document and use topicid numbers for cfe
+- See <https://github.com/nasa/cFE/pull/2472>, <https://github.com/nasa/cFE/pull/2411>, and <https://github.com/nasa/cFE/pull/2474>
+
 ## Development Build: v7.0.0-rc4+dev424
 - Add perfid limit info to ES docstring
 - TBL UT update for OSAL/CFE path length mismatch

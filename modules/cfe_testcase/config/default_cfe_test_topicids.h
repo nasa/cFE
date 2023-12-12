@@ -32,7 +32,7 @@
 **  \par Limits
 **      Not Applicable
 */
-#define CFE_MISSION_TEST_CMD_MSG 2
+#define CFE_MISSION_TEST_CMD_TOPICID 2
 
 /**
 **  \cfemissioncfg cFE Portable Message Numbers for Telemetry
@@ -43,6 +43,6 @@
 **  \par Limits
 **      Not Applicable
 */
-#define CFE_MISSION_TEST_HK_TLM_MSG 2
+#define CFE_MISSION_TEST_HK_TLM_TOPICID 2
 
 #endif

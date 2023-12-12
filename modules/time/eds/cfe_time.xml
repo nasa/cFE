@@ -1126,14 +1126,14 @@
           - \b \c \TIME_CMDPC - command execution counter will increment
           - \b \c \TIME_STCFSECS - Housekeeping Telemetry point indicating new STCF seconds value
           - \b \c \TIME_STCFSUBSECS - Housekeeping Telemetry point indicating new STCF subseconds value
-          - The #CFE_TIME_1HZ_EID informational event message will be generated
+          - The #CFE_TIME_ONEHZ_EID informational event message will be generated
 
           \par  Error Conditions
           - Platform receiving the command is not a Time Server
 
           Evidence of Failure may be found in the following telemetry:
           - \b \c \TIME_CMDEC - command error counter will increment
-          - Error specific event message will be issued (#CFE_TIME_1HZ_CFG_EID)
+          - Error specific event message will be issued (#CFE_TIME_ONEHZ_CFG_EID)
 
           \par  Criticality
           Inappropriately setting the clock may result in other sub-systems performing incorrect
@@ -1182,14 +1182,14 @@
           - \b \c \TIME_CMDPC - command execution counter will increment
           - \b \c \TIME_STCFSECS - Housekeeping Telemetry point indicating new STCF seconds value
           - \b \c \TIME_STCFSUBSECS - Housekeeping Telemetry point indicating new STCF subseconds value
-          - The #CFE_TIME_1HZ_EID informational event message will be generated
+          - The #CFE_TIME_ONEHZ_EID informational event message will be generated
 
           \par  Error Conditions
           - Platform receiving the command is not a Time Server
 
           Evidence of Failure may be found in the following telemetry:
           - \b \c \TIME_CMDEC - command error counter will increment
-          - Error specific event message will be issued (#CFE_TIME_1HZ_CFG_EID)
+          - Error specific event message will be issued (#CFE_TIME_ONEHZ_CFG_EID)
 
           \par  Criticality
           Inappropriately setting the clock may result in other sub-systems performing incorrect

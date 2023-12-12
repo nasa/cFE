@@ -79,8 +79,8 @@ typedef struct
     uint16            Tlm16Param2;
 } SB_UT_TstPktWoSecHdr_t;
 
-#define SB_UT_CMD_MID_VALUE_BASE CFE_PLATFORM_CMD_MID_BASE + 1
-#define SB_UT_TLM_MID_VALUE_BASE CFE_PLATFORM_TLM_MID_BASE + 1
+#define SB_UT_CMD_MID_VALUE_BASE 0x100
+#define SB_UT_TLM_MID_VALUE_BASE 0x200
 
 /* SB unit test functions */
 /*****************************************************************************/

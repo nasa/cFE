@@ -163,6 +163,78 @@ endfunction(generate_build_version_templates)
 
 ##################################################################
 #
+# FUNCTION: setup_global_topicids
+#
+# This is intended to support cases where topic IDs for all apps
+# and modules are assigned in a single/unified header file
+#
+function(setup_global_topicids)
+
+  if (CFE_EDS_ENABLED_BUILD)
+
+    # In an EDS build, the topic IDs always come from EDS
+    set(MISSION_GLOBAL_TOPICID_HEADERFILE "cfe_mission_eds_designparameters.h")
+
+  else(CFE_EDS_ENABLED_BUILD)
+
+    # Check for the presence of a mission-wide/global topic ID file
+    # This uses cfe_locate_implementation_file() as this returns whether or not it found one
+    cfe_locate_implementation_file(MISSION_GLOBAL_TOPICID_HEADERFILE "global_topicids.h"
+      PREFIX ${MISSIONCONFIG} cfs
+      SUBDIR config
+    )
+
+    # If a top level file was found, then create a wrapper around it called "cfs_global_topicids.h"
+    # Note that at this point it could be a list
+    if (MISSION_GLOBAL_TOPICID_HEADERFILE)
+
+      set(TEMP_WRAPPER_FILE_CONTENT)
+      foreach(SELECTED_FILE ${MISSION_GLOBAL_TOPICID_HEADERFILE})
+        file(TO_NATIVE_PATH "${SELECTED_FILE}" SRC_NATIVE_PATH)
+        list(APPEND TEMP_WRAPPER_FILE_CONTENT "#include \"${SRC_NATIVE_PATH}\"\n")
+      endforeach()
+
+      # Generate a header file
+      generate_c_headerfile("${CMAKE_BINARY_DIR}/inc/cfs_global_topicids.h" ${TEMP_WRAPPER_FILE_CONTENT})
+      unset(TEMP_WRAPPER_FILE_CONTENT)
+
+      # From here on use the wrapper file
+      set(MISSION_GLOBAL_TOPICID_HEADERFILE "cfs_global_topicids.h")
+
+    endif(MISSION_GLOBAL_TOPICID_HEADERFILE)
+
+  endif(CFE_EDS_ENABLED_BUILD)
+
+  # Finally, export a CFGFILE_SRC variable for each of the deps
+  # This should make each respective "mission_build" create a wrapper
+  # that points directly at this global file, ignoring the default
+  if (MISSION_GLOBAL_TOPICID_HEADERFILE)
+
+    set (OUTPUT_VAR_LIST)
+
+    # Slight inconsistency: for CFE core components, the cfe_ prefix is omitted in DEP_NAME
+    # To make this work without major impact, add it back in here
+    foreach(DEP_NAME ${MISSION_CORE_MODULES})
+      string(TOUPPER "${DEP_NAME}_CFGFILE_SRC" CFGSRC)
+      list(APPEND OUTPUT_VAR_LIST ${CFGSRC}_cfe_${DEP_NAME}_topicids)
+    endforeach(DEP_NAME ${MISSION_CORE_MODULES})
+
+    foreach(DEP_NAME ${MISSION_APPS})
+      string(TOUPPER "${DEP_NAME}_CFGFILE_SRC" CFGSRC)
+      list(APPEND OUTPUT_VAR_LIST ${CFGSRC}_${DEP_NAME}_topicids)
+    endforeach(DEP_NAME ${MISSION_APPS})
+
+    # This is the actual export to parent scope
+    foreach(VAR_NAME ${OUTPUT_VAR_LIST})
+      set(${VAR_NAME} ${MISSION_GLOBAL_TOPICID_HEADERFILE} PARENT_SCOPE)
+    endforeach(VAR_NAME ${OUTPUT_VAR_LIST})
+
+  endif (MISSION_GLOBAL_TOPICID_HEADERFILE)
+
+endfunction(setup_global_topicids)
+
+##################################################################
+#
 # FUNCTION: prepare
 #
 # Called by the top-level CMakeLists.txt to set up prerequisites
@@ -347,6 +419,9 @@ function(prepare)
 
   add_dependencies(cfe-usersguide doc-prebuild)
   add_dependencies(mission-doc doc-prebuild)
+
+  # Set up the global topicid header file, if present
+  setup_global_topicids()
 
   # Pull in any application-specific mission-scope configuration
   # This may include user configuration files such as cfe_mission_cfg.h,

@@ -206,7 +206,7 @@ void TestSBMaxSubscriptions(void)
     while (NumSubs <= CFE_PLATFORM_SB_MAX_MSG_IDS)
     {
         /* fabricate a msgid to subscribe to (this may overlap real msgids) */
-        TestMsgId = CFE_SB_ValueToMsgId(CFE_PLATFORM_CMD_MID_BASE + NumSubs);
+        TestMsgId = CFE_SB_ValueToMsgId(1 + NumSubs);
 
         Status = CFE_SB_Subscribe(TestMsgId, PipeId);
         if (Status != CFE_SUCCESS)
