@@ -143,7 +143,7 @@ int32 CFE_TIME_TaskInit(void)
         return CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
     }
 
-    OsStatus = OS_BinSemCreate(&CFE_TIME_Global.LocalSemaphore, CFE_TIME_SEM_1HZ_NAME, CFE_TIME_SEM_VALUE,
+    OsStatus = OS_BinSemCreate(&CFE_TIME_Global.LocalSemaphore, CFE_TIME_SEM_ONEHZ_NAME, CFE_TIME_SEM_VALUE,
                                CFE_TIME_SEM_OPTIONS);
     if (OsStatus != OS_SUCCESS)
     {
@@ -160,9 +160,9 @@ int32 CFE_TIME_TaskInit(void)
         return Status;
     }
 
-    Status = CFE_ES_CreateChildTask(&CFE_TIME_Global.LocalTaskID, CFE_TIME_TASK_1HZ_NAME, CFE_TIME_Local1HzTask,
-                                    CFE_TIME_TASK_STACK_PTR, CFE_PLATFORM_TIME_1HZ_TASK_STACK_SIZE,
-                                    CFE_PLATFORM_TIME_1HZ_TASK_PRIORITY, CFE_TIME_TASK_FLAGS);
+    Status = CFE_ES_CreateChildTask(&CFE_TIME_Global.LocalTaskID, CFE_TIME_TASK_ONEHZ_NAME, CFE_TIME_Local1HzTask,
+                                    CFE_TIME_TASK_STACK_PTR, CFE_PLATFORM_TIME_ONEHZ_TASK_STACK_SIZE,
+                                    CFE_PLATFORM_TIME_ONEHZ_TASK_PRIORITY, CFE_TIME_TASK_FLAGS);
     if (Status != CFE_SUCCESS)
     {
         CFE_ES_WriteToSysLog("%s: Error creating local 1Hz child task:RC=0x%08X\n", __func__, (unsigned int)Status);
@@ -221,11 +221,11 @@ int32 CFE_TIME_TaskInit(void)
 ** Subscribe to 1Hz signal commands...
 */
 #if (CFE_PLATFORM_TIME_CFG_CLIENT == true)
-    Status = CFE_SB_Subscribe(CFE_SB_ValueToMsgId(CFE_TIME_1HZ_CMD_MID), CFE_TIME_Global.CmdPipe);
+    Status = CFE_SB_Subscribe(CFE_SB_ValueToMsgId(CFE_TIME_ONEHZ_CMD_MID), CFE_TIME_Global.CmdPipe);
 #endif
 
 #if (CFE_PLATFORM_TIME_CFG_SERVER == true)
-    Status = CFE_SB_SubscribeLocal(CFE_SB_ValueToMsgId(CFE_TIME_1HZ_CMD_MID), CFE_TIME_Global.CmdPipe,
+    Status = CFE_SB_SubscribeLocal(CFE_SB_ValueToMsgId(CFE_TIME_ONEHZ_CMD_MID), CFE_TIME_Global.CmdPipe,
                                    CFE_PLATFORM_SB_DEFAULT_MSG_LIMIT);
 #endif
 
@@ -1051,7 +1051,7 @@ void CFE_TIME_1HzAdjImpl(const CFE_TIME_OneHzAdjustmentCmd_Payload_t *CommandPtr
     CFE_TIME_Set1HzAdj(Adjust, Direction);
 
     CFE_TIME_Global.CommandCounter++;
-    CFE_EVS_SendEvent(CFE_TIME_1HZ_EID, CFE_EVS_EventType_INFORMATION,
+    CFE_EVS_SendEvent(CFE_TIME_ONEHZ_EID, CFE_EVS_EventType_INFORMATION,
                       "STCF 1Hz Adjust -- secs = %d, ssecs = 0x%X, dir[1=Pos, 2=Neg] = %d", (int)CommandPtr->Seconds,
                       (unsigned int)CommandPtr->Subseconds, (int)Direction);
 
@@ -1061,7 +1061,7 @@ void CFE_TIME_1HzAdjImpl(const CFE_TIME_OneHzAdjustmentCmd_Payload_t *CommandPtr
     */
     CFE_TIME_Global.CommandErrorCounter++;
 
-    CFE_EVS_SendEvent(CFE_TIME_1HZ_CFG_EID, CFE_EVS_EventType_ERROR,
+    CFE_EVS_SendEvent(CFE_TIME_ONEHZ_CFG_EID, CFE_EVS_EventType_ERROR,
                       "1Hz Adjust commands invalid without CFE_PLATFORM_TIME_CFG_SERVER set to TRUE");
 
 #endif /* CFE_PLATFORM_TIME_CFG_SERVER */

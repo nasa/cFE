@@ -101,7 +101,7 @@ void CFE_TIME_TaskPipe(const CFE_SB_Buffer_t *SBBufPtr)
         /*
         ** Run time state machine at 1Hz...
         */
-        case CFE_TIME_1HZ_CMD_MID:
+        case CFE_TIME_ONEHZ_CMD_MID:
             CFE_TIME_OneHzCmd((const CFE_TIME_1HzCmd_t *)SBBufPtr);
             break;
 
@@ -226,14 +226,14 @@ void CFE_TIME_TaskPipe(const CFE_SB_Buffer_t *SBBufPtr)
                     }
                     break;
 
-                case CFE_TIME_ADD_1HZ_ADJUSTMENT_CC:
+                case CFE_TIME_ADD_ONEHZ_ADJUSTMENT_CC:
                     if (CFE_TIME_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_TIME_Add1HZAdjustmentCmd_t)))
                     {
                         CFE_TIME_Add1HZAdjustmentCmd((const CFE_TIME_Add1HZAdjustmentCmd_t *)SBBufPtr);
                     }
                     break;
 
-                case CFE_TIME_SUB_1HZ_ADJUSTMENT_CC:
+                case CFE_TIME_SUB_ONEHZ_ADJUSTMENT_CC:
                     if (CFE_TIME_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_TIME_Sub1HZAdjustmentCmd_t)))
                     {
                         CFE_TIME_Sub1HZAdjustmentCmd((const CFE_TIME_Sub1HZAdjustmentCmd_t *)SBBufPtr);

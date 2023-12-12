@@ -104,13 +104,13 @@ static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_CMD_INVALID_CC = {
     .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_EVS_CMD_MID), .CommandCode = 0x7F};
 static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_SEND_HK = {.MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_EVS_SEND_HK_MID)};
 
-static const UT_SoftwareBusSnapshot_Entry_t UT_EVS_LONGFMT_SNAPSHOTDATA = {
-    .MsgId          = CFE_SB_MSGID_WRAP_VALUE(CFE_EVS_LONG_EVENT_MSG_MID),
+static UT_SoftwareBusSnapshot_Entry_t UT_EVS_LONGFMT_SNAPSHOTDATA = {
+    .MsgId          = CFE_SB_MSGID_WRAP_VALUE(0),
     .SnapshotOffset = offsetof(CFE_EVS_LongEventTlm_t, Payload.PacketID.EventID),
     .SnapshotSize   = sizeof(uint16)};
 
-static const UT_SoftwareBusSnapshot_Entry_t UT_EVS_SHORTFMT_SNAPSHOTDATA = {
-    .MsgId          = CFE_SB_MSGID_WRAP_VALUE(CFE_EVS_SHORT_EVENT_MSG_MID),
+static UT_SoftwareBusSnapshot_Entry_t UT_EVS_SHORTFMT_SNAPSHOTDATA = {
+    .MsgId          = CFE_SB_MSGID_WRAP_VALUE(0),
     .SnapshotOffset = offsetof(CFE_EVS_ShortEventTlm_t, Payload.PacketID.EventID),
     .SnapshotSize   = sizeof(uint16)};
 
@@ -139,6 +139,9 @@ void UT_CFE_MSG_GetMsgTime_CustomHandler(void *UserObj, UT_EntryKey_t FuncKey, c
 void UT_InitData_EVS(void)
 {
     UT_InitData();
+
+    UT_EVS_LONGFMT_SNAPSHOTDATA.MsgId  = CFE_SB_MSGID_C(CFE_EVS_LONG_EVENT_MSG_MID);
+    UT_EVS_SHORTFMT_SNAPSHOTDATA.MsgId = CFE_SB_MSGID_C(CFE_EVS_SHORT_EVENT_MSG_MID);
 
     UT_SetHandlerFunction(UT_KEY(CFE_MSG_GetMsgTime), UT_CFE_MSG_GetMsgTime_CustomHandler, NULL);
 }

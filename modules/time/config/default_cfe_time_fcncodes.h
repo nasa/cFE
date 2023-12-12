@@ -515,8 +515,8 @@
 **       Inappropriately setting the clock may result in other sub-systems performing incorrect
 **       time based calculations.  The specific risk is dependent upon the behavior of those sub-systems.
 **
-**  \sa #CFE_TIME_ADD_ADJUST_CC, #CFE_TIME_SUB_ADJUST_CC, #CFE_TIME_ADD_1HZ_ADJUSTMENT_CC,
-*#CFE_TIME_SUB_1HZ_ADJUSTMENT_CC
+**  \sa #CFE_TIME_ADD_ADJUST_CC, #CFE_TIME_SUB_ADJUST_CC, #CFE_TIME_ADD_ONEHZ_ADJUSTMENT_CC,
+*#CFE_TIME_SUB_ONEHZ_ADJUSTMENT_CC
 */
 #define CFE_TIME_ADD_ADJUST_CC 11 /* add one time STCF adjustment */
 
@@ -550,7 +550,7 @@
 **       Inappropriately setting the clock may result in other sub-systems performing incorrect
 **       time based calculations.  The specific risk is dependent upon the behavior of those sub-systems.
 **
-**  \sa #CFE_TIME_ADD_ADJUST_CC, #CFE_TIME_ADD_1HZ_ADJUSTMENT_CC, #CFE_TIME_SUB_1HZ_ADJUSTMENT_CC
+**  \sa #CFE_TIME_ADD_ADJUST_CC, #CFE_TIME_ADD_ONEHZ_ADJUSTMENT_CC, #CFE_TIME_SUB_ONEHZ_ADJUSTMENT_CC
 */
 #define CFE_TIME_SUB_ADJUST_CC 12 /* subtract one time STCF adjustment */
 
@@ -584,21 +584,21 @@
 **       - \b \c \TIME_CMDPC - command execution counter will increment
 **       - \b \c \TIME_STCFSECS - Housekeeping Telemetry point indicating new STCF seconds value
 **       - \b \c \TIME_STCFSUBSECS - Housekeeping Telemetry point indicating new STCF subseconds value
-**       - The #CFE_TIME_1HZ_EID informational event message will be generated
+**       - The #CFE_TIME_ONEHZ_EID informational event message will be generated
 **
 **  \par Error Conditions
 **       - Platform receiving the command is not a Time Server
 **       <BR><BR>Evidence of Failure may be found in the following telemetry:
 **       - \b \c \TIME_CMDEC - command error counter will increment
-**       - Error specific event message will be issued (#CFE_TIME_1HZ_CFG_EID)
+**       - Error specific event message will be issued (#CFE_TIME_ONEHZ_CFG_EID)
 **
 **  \par Criticality
 **       Inappropriately setting the clock may result in other sub-systems performing incorrect
 **       time based calculations.  The specific risk is dependent upon the behavior of those sub-systems.
 **
-**  \sa #CFE_TIME_ADD_ADJUST_CC, #CFE_TIME_SUB_ADJUST_CC, #CFE_TIME_SUB_1HZ_ADJUSTMENT_CC
+**  \sa #CFE_TIME_ADD_ADJUST_CC, #CFE_TIME_SUB_ADJUST_CC, #CFE_TIME_SUB_ONEHZ_ADJUSTMENT_CC
 */
-#define CFE_TIME_ADD_1HZ_ADJUSTMENT_CC 13 /* add 1Hz STCF adjustment */
+#define CFE_TIME_ADD_ONEHZ_ADJUSTMENT_CC 13 /* add 1Hz STCF adjustment */
 
 /** \cfetimecmd Subtract Delta from Spacecraft Time Correlation Factor each 1Hz
 **
@@ -632,21 +632,21 @@
 **       - \b \c \TIME_CMDPC - command execution counter will increment
 **       - \b \c \TIME_STCFSECS - Housekeeping Telemetry point indicating new STCF seconds value
 **       - \b \c \TIME_STCFSUBSECS - Housekeeping Telemetry point indicating new STCF subseconds value
-**       - The #CFE_TIME_1HZ_EID informational event message will be generated
+**       - The #CFE_TIME_ONEHZ_EID informational event message will be generated
 **
 **  \par Error Conditions
 **       - Platform receiving the command is not a Time Server
 **       <BR><BR>Evidence of Failure may be found in the following telemetry:
 **       - \b \c \TIME_CMDEC - command error counter will increment
-**       - Error specific event message will be issued (#CFE_TIME_1HZ_CFG_EID)
+**       - Error specific event message will be issued (#CFE_TIME_ONEHZ_CFG_EID)
 **
 **  \par Criticality
 **       Inappropriately setting the clock may result in other sub-systems performing incorrect
 **       time based calculations.  The specific risk is dependent upon the behavior of those sub-systems.
 **
-**  \sa #CFE_TIME_ADD_ADJUST_CC, #CFE_TIME_SUB_ADJUST_CC, #CFE_TIME_ADD_1HZ_ADJUSTMENT_CC
+**  \sa #CFE_TIME_ADD_ADJUST_CC, #CFE_TIME_SUB_ADJUST_CC, #CFE_TIME_ADD_ONEHZ_ADJUSTMENT_CC
 */
-#define CFE_TIME_SUB_1HZ_ADJUSTMENT_CC 14 /* subtract 1Hz STCF adjustment */
+#define CFE_TIME_SUB_ONEHZ_ADJUSTMENT_CC 14 /* subtract 1Hz STCF adjustment */
 
 /** \cfetimecmd Set Tone Signal Source
 **

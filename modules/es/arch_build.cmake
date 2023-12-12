@@ -15,18 +15,21 @@ set(ES_PLATFORM_CONFIG_FILE_LIST
   cfe_es_platform_cfg.h
 )
 
+message("ES_CFGFILE_SRC_cfe_es_msgids = ${ES_CFGFILE_SRC_cfe_es_msgids}")
+
+
 # Create wrappers around the all the config header files
 # This makes them individually overridable by the missions, without modifying
 # the distribution default copies
 foreach(ES_CFGFILE ${ES_PLATFORM_CONFIG_FILE_LIST})
   get_filename_component(CFGKEY "${ES_CFGFILE}" NAME_WE)
   if (DEFINED ES_CFGFILE_SRC_${CFGKEY})
-    set(DEFAULT_SOURCE "${ES_CFGFILE_SRC_${CFGKEY}}")
+    set(DEFAULT_SOURCE GENERATED_FILE "${ES_CFGFILE_SRC_${CFGKEY}}")
   else()
-    set(DEFAULT_SOURCE "${CMAKE_CURRENT_LIST_DIR}/config/default_${ES_CFGFILE}")
+    set(DEFAULT_SOURCE FALLBACK_FILE "${CMAKE_CURRENT_LIST_DIR}/config/default_${ES_CFGFILE}")
   endif()
   generate_config_includefile(
     FILE_NAME           "${ES_CFGFILE}"
-    FALLBACK_FILE       ${DEFAULT_SOURCE}
+    ${DEFAULT_SOURCE}
   )
 endforeach()

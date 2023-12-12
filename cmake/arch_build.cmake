@@ -606,6 +606,81 @@ function(cfs_app_check_intf MODULE_NAME)
 endfunction(cfs_app_check_intf)
 
 
+##################################################################
+#
+# FUNCTION: setup_platform_msgids
+#
+# This is intended to support cases where MsgIDs for all apps
+# and modules are assigned in a single/unified header file
+#
+function(setup_platform_msgids)
+
+  set(PLATFORM_MSGID_HEADERFILE)
+
+  # In an EDS build, the msg IDs always come from EDS, there should not be a local msgids.h file
+  if (NOT CFE_EDS_ENABLED_BUILD)
+
+    # Check for the presence of a platform-specific msgid file
+    # This uses cfe_locate_implementation_file() as this returns whether or not it found one
+    cfe_locate_implementation_file(PLATFORM_MSGID_HEADERFILE "msgids.h"
+      PREFIX ${BUILD_CONFIG} cfs
+      SUBDIR config
+    )
+
+    # If a top level file was found, then create a wrapper around it called "cfs_msgids.h"
+    # Note that at this point it could be a list
+    if (PLATFORM_MSGID_HEADERFILE)
+
+      set(TEMP_WRAPPER_FILE_CONTENT)
+      foreach(SELECTED_FILE ${PLATFORM_MSGID_HEADERFILE})
+        file(TO_NATIVE_PATH "${SELECTED_FILE}" SRC_NATIVE_PATH)
+        list(APPEND TEMP_WRAPPER_FILE_CONTENT "#include \"${SRC_NATIVE_PATH}\"\n")
+      endforeach()
+
+      # Generate a header file
+      generate_c_headerfile("${CMAKE_BINARY_DIR}/inc/cfs_msgids.h" ${TEMP_WRAPPER_FILE_CONTENT})
+      unset(TEMP_WRAPPER_FILE_CONTENT)
+
+      # From here on use the wrapper file
+      set(PLATFORM_MSGID_HEADERFILE "cfs_msgids.h")
+
+    endif(PLATFORM_MSGID_HEADERFILE)
+
+  endif(NOT CFE_EDS_ENABLED_BUILD)
+
+  # Finally, export a CFGFILE_SRC variable for each of the deps
+  # This should make each respective "mission_build" create a wrapper
+  # that points directly at this global file, ignoring the default
+  if (PLATFORM_MSGID_HEADERFILE)
+
+    # Historically there has been a cfe_msgids.h defined at the core api level
+    # be sure to include this in the export list
+    set (OUTPUT_VAR_LIST
+      CORE_API_CFGFILE_SRC_cfe_msgids
+    )
+
+    # Slight inconsistency: for CFE core components, the cfe_ prefix is omitted in DEP_NAME
+    # To make this work without major impact, add it back in here
+    foreach(DEP_NAME ${MISSION_CORE_MODULES})
+      string(TOUPPER "${DEP_NAME}_CFGFILE_SRC" CFGSRC)
+      list(APPEND OUTPUT_VAR_LIST ${CFGSRC}_cfe_${DEP_NAME}_msgids)
+    endforeach(DEP_NAME ${MISSION_CORE_MODULES})
+
+    foreach(DEP_NAME ${TGTSYS_${SYSVAR}_APPS} ${TGTSYS_${SYSVAR}_STATICAPPS})
+      string(TOUPPER "${DEP_NAME}_CFGFILE_SRC" CFGSRC)
+      list(APPEND OUTPUT_VAR_LIST ${CFGSRC}_${DEP_NAME}_msgids)
+    endforeach(DEP_NAME ${MISSION_APPS})
+
+    # This is the actual export to parent scope
+    foreach(VAR_NAME ${OUTPUT_VAR_LIST})
+      message("${VAR_NAME}=${PLATFORM_MSGID_HEADERFILE}")
+      set(${VAR_NAME} ${PLATFORM_MSGID_HEADERFILE} PARENT_SCOPE)
+    endforeach(VAR_NAME ${OUTPUT_VAR_LIST})
+
+  endif (PLATFORM_MSGID_HEADERFILE)
+
+endfunction(setup_platform_msgids)
+
 
 
 ##################################################################
@@ -657,6 +732,9 @@ function(prepare)
   set(BUILD_CONFIG ${BUILD_CONFIG_${TARGETSYSTEM}})
   list(REMOVE_AT BUILD_CONFIG 0)
   set(BUILD_CONFIG ${BUILD_CONFIG} PARENT_SCOPE)
+
+  # Check if the user has provided a platform-specific "msgids.h" file and set up a wrapper to it
+  setup_platform_msgids()
 
   # Pull in any application-specific platform-scope configuration
   # This may include user configuration files such as cfe_platform_cfg.h,
@@ -745,7 +823,6 @@ function(process_arch SYSVAR)
       message(FATAL_ERROR "ERROR: core module ${DEP} has no MISSION_DIR defined")
     endif()
   endforeach()
-
 
   # Add all core modules
   # The osal is handled explicitly (above) since this has special extra config

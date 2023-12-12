@@ -159,10 +159,10 @@
 #elif CFE_PLATFORM_TIME_TONE_TASK_PRIORITY > 255
 #error CFE_PLATFORM_TIME_TONE_TASK_PRIORITY must be less than or equal to 255
 #endif
-#if CFE_PLATFORM_TIME_1HZ_TASK_PRIORITY < 0
-#error CFE_PLATFORM_TIME_1HZ_TASK_PRIORITY must be greater than or equal to zero
-#elif CFE_PLATFORM_TIME_1HZ_TASK_PRIORITY > 255
-#error CFE_PLATFORM_TIME_1HZ_TASK_PRIORITY must be less than or equal to 255
+#if CFE_PLATFORM_TIME_ONEHZ_TASK_PRIORITY < 0
+#error CFE_PLATFORM_TIME_ONEHZ_TASK_PRIORITY must be greater than or equal to zero
+#elif CFE_PLATFORM_TIME_ONEHZ_TASK_PRIORITY > 255
+#error CFE_PLATFORM_TIME_ONEHZ_TASK_PRIORITY must be less than or equal to 255
 #endif
 
 /*
@@ -176,8 +176,8 @@
 #error CFE_PLATFORM_TIME_TONE_TASK_STACK_SIZE must be greater than or equal to 2048
 #endif
 
-#if CFE_PLATFORM_TIME_1HZ_TASK_STACK_SIZE < 2048
-#error CFE_PLATFORM_TIME_1HZ_TASK_STACK_SIZE must be greater than or equal to 2048
+#if CFE_PLATFORM_TIME_ONEHZ_TASK_STACK_SIZE < 2048
+#error CFE_PLATFORM_TIME_ONEHZ_TASK_STACK_SIZE must be greater than or equal to 2048
 #endif
 
 /*************************************************************************/

@@ -32,10 +32,10 @@
 **  \par Limits
 **      Not Applicable
 */
-#define CFE_MISSION_TIME_CMD_MSG      5
-#define CFE_MISSION_TIME_SEND_HK_MSG  13
-#define CFE_MISSION_TIME_TONE_CMD_MSG 16
-#define CFE_MISSION_TIME_1HZ_CMD_MSG  17
+#define CFE_MISSION_TIME_CMD_TOPICID       5
+#define CFE_MISSION_TIME_SEND_HK_TOPICID   13
+#define CFE_MISSION_TIME_TONE_CMD_TOPICID  16
+#define CFE_MISSION_TIME_ONEHZ_CMD_TOPICID 17
 
 /**
 **  \cfemissioncfg cFE Portable Message Numbers for Global Messages
@@ -46,8 +46,8 @@
 **  \par Limits
 **      Not Applicable
 */
-#define CFE_MISSION_TIME_DATA_CMD_MSG 0
-#define CFE_MISSION_TIME_SEND_CMD_MSG 2
+#define CFE_MISSION_TIME_DATA_CMD_TOPICID 0
+#define CFE_MISSION_TIME_SEND_CMD_TOPICID 2
 
 /**
 **  \cfemissioncfg cFE Portable Message Numbers for Telemetry
@@ -58,7 +58,7 @@
 **  \par Limits
 **      Not Applicable
 */
-#define CFE_MISSION_TIME_HK_TLM_MSG   5
-#define CFE_MISSION_TIME_DIAG_TLM_MSG 6
+#define CFE_MISSION_TIME_HK_TLM_TOPICID   5
+#define CFE_MISSION_TIME_DIAG_TLM_TOPICID 6
 
 #endif

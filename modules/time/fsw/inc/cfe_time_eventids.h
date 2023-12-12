@@ -171,10 +171,10 @@
  *
  *  \par Cause:
  *
- *  \link #CFE_TIME_ADD_1HZ_ADJUSTMENT_CC TIME Add STCF Adjustment Each Second Command \endlink OR
- *  \link #CFE_TIME_SUB_1HZ_ADJUSTMENT_CC TIME Subtract STCF Adjustment Each Second Command \endlink success.
+ *  \link #CFE_TIME_ADD_ONEHZ_ADJUSTMENT_CC TIME Add STCF Adjustment Each Second Command \endlink OR
+ *  \link #CFE_TIME_SUB_ONEHZ_ADJUSTMENT_CC TIME Subtract STCF Adjustment Each Second Command \endlink success.
  */
-#define CFE_TIME_1HZ_EID 16
+#define CFE_TIME_ONEHZ_EID 16
 
 /**
  * \brief TIME Set Leap Seconds Command Success Event ID
@@ -431,11 +431,11 @@
  *
  *  \par Cause:
  *
- *  \link #CFE_TIME_ADD_1HZ_ADJUSTMENT_CC TIME Add STCF Adjustment Each Second Command \endlink OR
- *  \link #CFE_TIME_SUB_1HZ_ADJUSTMENT_CC TIME Subtract STCF Adjustment Each Second Command \endlink
+ *  \link #CFE_TIME_ADD_ONEHZ_ADJUSTMENT_CC TIME Add STCF Adjustment Each Second Command \endlink OR
+ *  \link #CFE_TIME_SUB_ONEHZ_ADJUSTMENT_CC TIME Subtract STCF Adjustment Each Second Command \endlink
  *  failure due to being in an incompatible mode.
  */
-#define CFE_TIME_1HZ_CFG_EID 48
+#define CFE_TIME_ONEHZ_CFG_EID 48
 
 /**
  * \brief TIME Invalid Command Length Event ID
