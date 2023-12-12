@@ -144,6 +144,20 @@ typedef struct CFE_ES_DeleteCDSCmd_Payload
 } CFE_ES_DeleteCDSCmd_Payload_t;
 
 /**
+ * @brief Labels for values to use in #CFE_ES_StartPerfCmd_Payload.TriggerMode
+ * @sa CFE_ES_StartPerfCmd_Payload
+*/
+enum CFE_ES_PerfMode
+{
+    CFE_ES_PERF_TRIGGER_START = 0,
+    CFE_ES_PERF_TRIGGER_CENTER,
+    CFE_ES_PERF_TRIGGER_END,
+    CFE_ES_PERF_MAX_MODES
+};
+
+typedef uint32 CFE_ES_PerfMode_Enum_t;
+
+/**
 ** \brief Start Performance Analyzer Command Payload
 **
 ** For command details, see #CFE_ES_START_PERF_DATA_CC
@@ -151,7 +165,7 @@ typedef struct CFE_ES_DeleteCDSCmd_Payload
 **/
 typedef struct CFE_ES_StartPerfCmd_Payload
 {
-    uint32 TriggerMode; /**< \brief Desired trigger position (Start, Center, End) */
+    CFE_ES_PerfMode_Enum_t TriggerMode; /**< \brief Desired trigger position (Start, Center, End). Values defined by #CFE_ES_PerfMode. */
 } CFE_ES_StartPerfCmd_Payload_t;
 
 /**

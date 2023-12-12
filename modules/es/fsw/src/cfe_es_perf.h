@@ -41,24 +41,24 @@
 **  Defines
 */
 
-enum CFE_ES_PerfState_t
+
+/** @defgroup CFEESPerf Performance Analyzer Data Structures
+ * @{
+ */
+
+/**
+ * @brief Internal states for Performance Analyzer
+ */
+typedef enum CFE_ES_PerfState
 {
     CFE_ES_PERF_IDLE = 0,
     CFE_ES_PERF_WAITING_FOR_TRIGGER,
     CFE_ES_PERF_TRIGGERED,
     CFE_ES_PERF_MAX_STATES
-};
+} CFE_ES_PerfState_t;
 
-enum CFE_ES_PerfMode_t
-{
-    CFE_ES_PERF_TRIGGER_START = 0,
-    CFE_ES_PERF_TRIGGER_CENTER,
-    CFE_ES_PERF_TRIGGER_END,
-    CFE_ES_PERF_MAX_MODES
-};
-
-/*
- * Perflog Dump Background Job states
+/**
+ * @brief Perflog Dump Background Job states
  *
  * Writing performance log data is now handled by a state machine that runs
  * as a background job in Executive services.  When a performance log dump is
@@ -81,8 +81,8 @@ typedef enum
     CFE_ES_PerfDumpState_MAX                  /* Placeholder for last state, no action, always last */
 } CFE_ES_PerfDumpState_t;
 
-/*
- * Performance log dump state structure
+/**
+ * @brief Performance log dump state structure
  *
  * This structure is stored in global memory and keeps the state
  * of the performance log dump from one iteration to the next.
@@ -110,8 +110,8 @@ typedef struct
     size_t    FileSize;                      /* Total file size, for progress reporting in telemetry */
 } CFE_ES_PerfDumpGlobal_t;
 
-/*
- * Helper function to obtain the progress/remaining items from
+/**
+ * @brief Helper function to obtain the progress/remaining items from
  * the background task that is writing the performance log data
  *
  * This is no longer just simply reading a single value from a struct,
@@ -136,5 +136,7 @@ uint32 CFE_ES_GetPerfLogDumpRemaining(void);
  * on the next iteration.  State is kept in a global structure.
  */
 bool CFE_ES_RunPerfLogDump(uint32 ElapsedTime, void *Arg);
+
+/** @} */
 
 #endif /* CFE_ES_PERF_H */
