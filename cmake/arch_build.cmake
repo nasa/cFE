@@ -666,7 +666,7 @@ function(setup_platform_msgids)
       list(APPEND OUTPUT_VAR_LIST ${CFGSRC}_cfe_${DEP_NAME}_msgids)
     endforeach(DEP_NAME ${MISSION_CORE_MODULES})
 
-    foreach(DEP_NAME ${TGTSYS_${SYSVAR}_APPS} ${TGTSYS_${SYSVAR}_STATICAPPS})
+    foreach(DEP_NAME ${MISSION_APPS})
       string(TOUPPER "${DEP_NAME}_CFGFILE_SRC" CFGSRC)
       list(APPEND OUTPUT_VAR_LIST ${CFGSRC}_${DEP_NAME}_msgids)
     endforeach(DEP_NAME ${MISSION_APPS})
