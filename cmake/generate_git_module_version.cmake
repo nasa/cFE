@@ -27,7 +27,11 @@ function(get_version DEP)
       endif()
       set(DIR ${${DEP}_MISSION_DIR})
     endif()
-    message("inside get_version for ${DEP}")
+
+    if ($ENV{VERBOSE})
+      message("inside get_version for ${DEP}")
+    endif()
+
     execute_process(
         COMMAND ${GIT_EXECUTABLE} describe --tags --always --dirty
         WORKING_DIRECTORY ${DIR}
