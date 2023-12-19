@@ -35,8 +35,8 @@
  * This test procedure should be agnostic to specific MID values, but it should
  * not overlap/interfere with real MIDs used by other apps.
  */
-static const CFE_SB_MsgId_t CFE_FT_CMD_MSGID = CFE_SB_MSGID_WRAP_VALUE(CFE_TEST_CMD_MID);
-static const CFE_SB_MsgId_t CFE_FT_TLM_MSGID = CFE_SB_MSGID_WRAP_VALUE(CFE_TEST_HK_TLM_MID);
+static CFE_SB_MsgId_t CFE_FT_CMD_MSGID;
+static CFE_SB_MsgId_t CFE_FT_TLM_MSGID;
 
 void TestSubscribeUnsubscribe(void)
 {
@@ -276,6 +276,9 @@ void TestSBMaxDestinations(void)
 
 void SBSubscriptionTestSetup(void)
 {
+    CFE_FT_CMD_MSGID = CFE_SB_ValueToMsgId(CFE_TEST_CMD_MID);
+    CFE_FT_TLM_MSGID = CFE_SB_ValueToMsgId(CFE_TEST_HK_TLM_MID);
+
     UtTest_Add(TestSubscribeUnsubscribe, NULL, NULL, "Test SB Subscribe/Unsubscribe");
     UtTest_Add(TestSubscribeUnsubscribeLocal, NULL, NULL, "Test SB SubscribeLocal/UnsubscribeLocal");
     UtTest_Add(TestSubscribeEx, NULL, NULL, "Test SB SubscribeEx");

@@ -49,23 +49,23 @@ void TestTableRegistration(void)
 
     /* invalid table handle arg */
     UtAssert_INT32_EQ(
-        CFE_TBL_Register(NULL, CFE_FT_Global.TblName, sizeof(TBL_TEST_Table_t), CFE_TBL_OPT_DEFAULT, &CallbackFunc),
+        CFE_TBL_Register(NULL, CFE_FT_Global.TblName, sizeof(CFE_TEST_TestTable_t), CFE_TBL_OPT_DEFAULT, &CallbackFunc),
         CFE_TBL_BAD_ARGUMENT);
 
     /* Successfully create table */
-    UtAssert_INT32_EQ(CFE_TBL_Register(&CFE_FT_Global.TblHandle, CFE_FT_Global.TblName, sizeof(TBL_TEST_Table_t),
+    UtAssert_INT32_EQ(CFE_TBL_Register(&CFE_FT_Global.TblHandle, CFE_FT_Global.TblName, sizeof(CFE_TEST_TestTable_t),
                                        CFE_TBL_OPT_DEFAULT, &CallbackFunc),
                       CFE_SUCCESS);
 
     /* Duplicate table (should return the same handle) */
-    UtAssert_INT32_EQ(CFE_TBL_Register(&OtherHandle, CFE_FT_Global.TblName, sizeof(TBL_TEST_Table_t),
+    UtAssert_INT32_EQ(CFE_TBL_Register(&OtherHandle, CFE_FT_Global.TblName, sizeof(CFE_TEST_TestTable_t),
                                        CFE_TBL_OPT_DEFAULT, &CallbackFunc),
                       CFE_TBL_WARN_DUPLICATE);
 
     UtAssert_INT32_EQ(OtherHandle, CFE_FT_Global.TblHandle);
 
     /* Duplicate table with different size */
-    UtAssert_INT32_EQ(CFE_TBL_Register(&OtherHandle, CFE_FT_Global.TblName, sizeof(TBL_TEST_Table_t) / 2,
+    UtAssert_INT32_EQ(CFE_TBL_Register(&OtherHandle, CFE_FT_Global.TblName, sizeof(CFE_TEST_TestTable_t) / 2,
                                        CFE_TBL_OPT_DEFAULT, &CallbackFunc),
                       CFE_TBL_ERR_DUPLICATE_DIFF_SIZE);
 
@@ -76,10 +76,10 @@ void TestTableRegistration(void)
 
     /* Invalid Name */
     UtAssert_INT32_EQ(
-        CFE_TBL_Register(&CFE_FT_Global.TblHandle, BadTblName, sizeof(TBL_TEST_Table_t), CFE_TBL_OPT_DEFAULT, NULL),
+        CFE_TBL_Register(&CFE_FT_Global.TblHandle, BadTblName, sizeof(CFE_TEST_TestTable_t), CFE_TBL_OPT_DEFAULT, NULL),
         CFE_TBL_ERR_INVALID_NAME);
     UtAssert_INT32_EQ(
-        CFE_TBL_Register(&CFE_FT_Global.TblHandle, "", sizeof(TBL_TEST_Table_t), CFE_TBL_OPT_DEFAULT, NULL),
+        CFE_TBL_Register(&CFE_FT_Global.TblHandle, "", sizeof(CFE_TEST_TestTable_t), CFE_TBL_OPT_DEFAULT, NULL),
         CFE_TBL_ERR_INVALID_NAME);
 
     /* Invalid Table Size */
@@ -93,13 +93,13 @@ void TestTableRegistration(void)
                       CFE_TBL_ERR_INVALID_SIZE);
 
     /* Invalid Table Options */
-    UtAssert_INT32_EQ(CFE_TBL_Register(&CFE_FT_Global.TblHandle, CFE_FT_Global.TblName, sizeof(TBL_TEST_Table_t),
+    UtAssert_INT32_EQ(CFE_TBL_Register(&CFE_FT_Global.TblHandle, CFE_FT_Global.TblName, sizeof(CFE_TEST_TestTable_t),
                                        CFE_TBL_OPT_DBL_BUFFER | CFE_TBL_OPT_USR_DEF_ADDR, NULL),
                       CFE_TBL_ERR_INVALID_OPTIONS);
-    UtAssert_INT32_EQ(CFE_TBL_Register(&CFE_FT_Global.TblHandle, CFE_FT_Global.TblName, sizeof(TBL_TEST_Table_t),
+    UtAssert_INT32_EQ(CFE_TBL_Register(&CFE_FT_Global.TblHandle, CFE_FT_Global.TblName, sizeof(CFE_TEST_TestTable_t),
                                        CFE_TBL_OPT_CRITICAL | CFE_TBL_OPT_DUMP_ONLY, NULL),
                       CFE_TBL_ERR_INVALID_OPTIONS);
-    UtAssert_INT32_EQ(CFE_TBL_Register(&CFE_FT_Global.TblHandle, CFE_FT_Global.TblName, sizeof(TBL_TEST_Table_t),
+    UtAssert_INT32_EQ(CFE_TBL_Register(&CFE_FT_Global.TblHandle, CFE_FT_Global.TblName, sizeof(CFE_TEST_TestTable_t),
                                        CFE_TBL_OPT_CRITICAL | CFE_TBL_OPT_USR_DEF_ADDR, NULL),
                       CFE_TBL_ERR_INVALID_OPTIONS);
 }
@@ -119,8 +119,8 @@ void TestTableMaxLimits(void)
     while (numTblsCreated <= CFE_PLATFORM_TBL_MAX_NUM_HANDLES)
     {
         snprintf(TblName, sizeof(TblName), "Tbl%u", (unsigned int)numTblsCreated);
-        CFE_Assert_STATUS_STORE(
-            CFE_TBL_Register(&Handles[numTblsCreated], TblName, sizeof(TBL_TEST_Table_t), CFE_TBL_OPT_DEFAULT, NULL));
+        CFE_Assert_STATUS_STORE(CFE_TBL_Register(&Handles[numTblsCreated], TblName, sizeof(CFE_TEST_TestTable_t),
+                                                 CFE_TBL_OPT_DEFAULT, NULL));
         if (CFE_Assert_STATUS_MAY_BE(CFE_TBL_ERR_REGISTRY_FULL))
         {
             break;
@@ -175,7 +175,7 @@ void TestTableMaxLimits(void)
     /* also confirm not able to register a new table, either */
     snprintf(TblName, sizeof(TblName), "Tbl%u", (unsigned int)numTblsCreated);
     UtAssert_INT32_EQ(
-        CFE_TBL_Register(&Handles[numTblsCreated], TblName, sizeof(TBL_TEST_Table_t), CFE_TBL_OPT_DEFAULT, NULL),
+        CFE_TBL_Register(&Handles[numTblsCreated], TblName, sizeof(CFE_TEST_TestTable_t), CFE_TBL_OPT_DEFAULT, NULL),
         CFE_TBL_ERR_HANDLES_FULL);
 
     /* Unregister all table handles */
@@ -206,7 +206,7 @@ void TestTblNonAppContext(void)
 
     /* Attempt to register another table */
     UtAssert_INT32_EQ(
-        CFE_TBL_Register(&Handle, "OtherTable", sizeof(TBL_TEST_Table_t), CFE_TBL_OPT_DEFAULT, &CallbackFunc),
+        CFE_TBL_Register(&Handle, "OtherTable", sizeof(CFE_TEST_TestTable_t), CFE_TBL_OPT_DEFAULT, &CallbackFunc),
         CFE_ES_ERR_RESOURCEID_NOT_VALID);
 
     /* Calling any other API (with a valid handle) should be rejected from this context */
@@ -235,7 +235,7 @@ void TestTableBadContext(void)
     OS_task_prop_t TaskProp;
 
     /* Create one (good) handle first from this task */
-    UtAssert_INT32_EQ(CFE_TBL_Register(&CFE_FT_Global.TblHandle, CFE_FT_Global.TblName, sizeof(TBL_TEST_Table_t),
+    UtAssert_INT32_EQ(CFE_TBL_Register(&CFE_FT_Global.TblHandle, CFE_FT_Global.TblName, sizeof(CFE_TEST_TestTable_t),
                                        CFE_TBL_OPT_DEFAULT, &CallbackFunc),
                       CFE_SUCCESS);
 

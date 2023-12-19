@@ -15,9 +15,6 @@ set(ES_PLATFORM_CONFIG_FILE_LIST
   cfe_es_platform_cfg.h
 )
 
-message("ES_CFGFILE_SRC_cfe_es_msgids = ${ES_CFGFILE_SRC_cfe_es_msgids}")
-
-
 # Create wrappers around the all the config header files
 # This makes them individually overridable by the missions, without modifying
 # the distribution default copies
