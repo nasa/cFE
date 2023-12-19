@@ -56,7 +56,7 @@ CFE_Status_t CFE_MSG_SetMsgId(CFE_MSG_Message_t *MsgPtr, CFE_SB_MsgId_t MsgId)
 {
     CFE_SB_MsgId_Atom_t msgidval = CFE_SB_MsgIdToValue(MsgId);
 
-    if (MsgPtr == NULL || msgidval > CFE_PLATFORM_SB_HIGHEST_VALID_MSGID)
+    if (MsgPtr == NULL || !CFE_SB_IsValidMsgId(MsgId))
     {
         return CFE_MSG_BAD_ARGUMENT;
     }
