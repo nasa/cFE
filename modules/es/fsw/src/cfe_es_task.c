@@ -277,6 +277,7 @@ int32 CFE_ES_TaskInit(void)
     uint32  SizeofCfeSegment;
     cpuaddr CfeSegmentAddr;
     uint8   VersionNumber[4];
+    char    VersionString[CFE_CFG_MAX_VERSION_STR_LEN];
 
     /*
     ** Initialize task command execution counters
@@ -394,8 +395,10 @@ int32 CFE_ES_TaskInit(void)
     /*
     ** Task startup event message.
     */
+    CFE_Config_GetVersionString(VersionString, CFE_CFG_MAX_VERSION_STR_LEN, "cFE",
+        CFE_SRC_VERSION, CFE_BUILD_CODENAME, CFE_LAST_OFFICIAL);
     Status = CFE_EVS_SendEvent(CFE_ES_INIT_INF_EID, CFE_EVS_EventType_INFORMATION, "cFE ES Initialized: %s",
-                               CFE_VERSION_STRING);
+                               VersionString);
     if (Status != CFE_SUCCESS)
     {
         CFE_ES_WriteToSysLog("%s: Error sending init event:RC=0x%08X\n", __func__, (unsigned int)Status);

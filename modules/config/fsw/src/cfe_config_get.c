@@ -29,8 +29,10 @@
 */
 #include "cfe_config_priv.h"
 #include "cfe_config_map.h"
+#include "cfe_version.h"
 
 #include <string.h>
+#include <stdio.h>
 
 /*----------------------------------------------------------------
  *
@@ -158,4 +160,18 @@ void CFE_Config_IterateAll(void *Arg, CFE_Config_Callback_t Callback)
         }
         ++NamePtr;
     }
+}
+
+/*----------------------------------------------------------------
+ *
+ * Defined per public API
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+void CFE_Config_GetVersionString(char *Buf, size_t Size, const char *Component,
+  const char *SrcVersion, const char *CodeName, const char *LastOffcRel)
+{
+    snprintf(Buf, Size, "%s %s %s (Codename %s), Last Official Release: %s %s)",
+        Component, CFE_REVISION == 0 ? "Development Build" : "Release", SrcVersion,
+        CodeName, Component, LastOffcRel);
 }
