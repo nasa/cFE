@@ -51,7 +51,7 @@ void Test_MSG_Init(void)
     bool                       is_v1;
 
     msgidval_exp = 1;
-    msgid_act = CFE_SB_ValueToMsgId(msgidval_exp);
+    msgid_act    = CFE_SB_ValueToMsgId(msgidval_exp);
 
     UtPrintf("Bad parameter tests, Null pointer, invalid size, invalid msgid");
     UT_SetDefaultReturnValue(UT_KEY(CFE_SB_IsValidMsgId), true);
