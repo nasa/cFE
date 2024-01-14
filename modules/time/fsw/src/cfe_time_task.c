@@ -259,7 +259,7 @@ int32 CFE_TIME_TaskInit(void)
         return Status;
     }
 
-    Status = CFE_EVS_SendEvent(CFE_TIME_INIT_EID, CFE_EVS_EventType_INFORMATION, "cFE TIME Initialized: %s",
+    Status = CFE_EVS_SendEvent(CFE_TIME_INIT_INF_EID, CFE_EVS_EventType_INFORMATION, "cFE TIME Initialized: %s",
                                CFE_VERSION_STRING);
     if (Status != CFE_SUCCESS)
     {
@@ -445,7 +445,7 @@ int32 CFE_TIME_NoopCmd(const CFE_TIME_NoopCmd_t *data)
 {
     CFE_TIME_Global.CommandCounter++;
 
-    CFE_EVS_SendEvent(CFE_TIME_NOOP_EID, CFE_EVS_EventType_INFORMATION, "No-op Cmd Rcvd: %s", CFE_VERSION_STRING);
+    CFE_EVS_SendEvent(CFE_TIME_NOOP_INF_EID, CFE_EVS_EventType_INFORMATION, "No-op Cmd Rcvd: %s", CFE_VERSION_STRING);
 
     return CFE_SUCCESS;
 }
@@ -483,7 +483,7 @@ int32 CFE_TIME_ResetCountersCmd(const CFE_TIME_ResetCountersCmd_t *data)
     CFE_TIME_Global.InternalCount = 0;
     CFE_TIME_Global.ExternalCount = 0;
 
-    CFE_EVS_SendEvent(CFE_TIME_RESET_EID, CFE_EVS_EventType_DEBUG, "Reset Counters command");
+    CFE_EVS_SendEvent(CFE_TIME_RESET_INF_EID, CFE_EVS_EventType_DEBUG, "Reset Counters command");
 
     return CFE_SUCCESS;
 }

@@ -266,8 +266,8 @@ int32 CFE_SB_AppInit(void)
         return Status;
     }
 
-    Status =
-        CFE_EVS_SendEvent(CFE_SB_INIT_EID, CFE_EVS_EventType_INFORMATION, "cFE SB Initialized: %s", CFE_VERSION_STRING);
+    Status = CFE_EVS_SendEvent(CFE_SB_INIT_INF_EID, CFE_EVS_EventType_INFORMATION, "cFE SB Initialized: %s",
+                               CFE_VERSION_STRING);
     if (Status != CFE_SUCCESS)
     {
         CFE_ES_WriteToSysLog("%s: Error sending init event:RC=0x%08X\n", __func__, (unsigned int)Status);
@@ -285,7 +285,7 @@ int32 CFE_SB_AppInit(void)
  *-----------------------------------------------------------------*/
 int32 CFE_SB_NoopCmd(const CFE_SB_NoopCmd_t *data)
 {
-    CFE_EVS_SendEvent(CFE_SB_CMD0_RCVD_EID, CFE_EVS_EventType_INFORMATION, "No-op Cmd Rcvd: %s", CFE_VERSION_STRING);
+    CFE_EVS_SendEvent(CFE_SB_NOOP_INF_EID, CFE_EVS_EventType_INFORMATION, "No-op Cmd Rcvd: %s", CFE_VERSION_STRING);
     CFE_SB_Global.HKTlmMsg.Payload.CommandCounter++;
 
     return CFE_SUCCESS;
@@ -299,7 +299,7 @@ int32 CFE_SB_NoopCmd(const CFE_SB_NoopCmd_t *data)
  *-----------------------------------------------------------------*/
 int32 CFE_SB_ResetCountersCmd(const CFE_SB_ResetCountersCmd_t *data)
 {
-    CFE_EVS_SendEvent(CFE_SB_CMD1_RCVD_EID, CFE_EVS_EventType_DEBUG, "Reset Counters Cmd Rcvd");
+    CFE_EVS_SendEvent(CFE_SB_RESET_INF_EID, CFE_EVS_EventType_DEBUG, "Reset Counters Cmd Rcvd");
 
     CFE_SB_ResetCounters();
 
