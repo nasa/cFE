@@ -1955,31 +1955,31 @@ void Test_ResetArea(void)
     /* Tests existing and good Reset Area */
     UT_InitData();
     UT_SetStatusBSPResetArea(OS_SUCCESS, CFE_TIME_RESET_SIGNATURE, CFE_TIME_ToneSignalSelect_PRIMARY);
-    CFE_TIME_QueryResetVars();
+    CFE_TIME_RestoreFromTimeResetVars();
     UtAssert_INT32_EQ(CFE_TIME_Global.DataStoreStatus, CFE_TIME_RESET_AREA_EXISTING);
 
     /* Tests existing and good Reset Area */
     UT_InitData();
     UT_SetStatusBSPResetArea(OS_SUCCESS, CFE_TIME_RESET_SIGNATURE, CFE_TIME_ToneSignalSelect_REDUNDANT);
-    CFE_TIME_QueryResetVars();
+    CFE_TIME_RestoreFromTimeResetVars();
     UtAssert_INT32_EQ(CFE_TIME_Global.DataStoreStatus, CFE_TIME_RESET_AREA_EXISTING);
 
     /* Test response to a bad reset area */
     UT_InitData();
     UT_SetStatusBSPResetArea(OS_ERROR, CFE_TIME_RESET_SIGNATURE, CFE_TIME_ToneSignalSelect_PRIMARY);
-    CFE_TIME_QueryResetVars();
+    CFE_TIME_RestoreFromTimeResetVars();
     UtAssert_INT32_EQ(CFE_TIME_Global.DataStoreStatus, CFE_TIME_RESET_AREA_BAD);
 
     /* Test initializing to default time values */
     UT_InitData();
     UT_SetStatusBSPResetArea(OS_SUCCESS, CFE_TIME_RESET_SIGNATURE + 1, CFE_TIME_ToneSignalSelect_PRIMARY);
-    CFE_TIME_QueryResetVars();
+    CFE_TIME_RestoreFromTimeResetVars();
     UtAssert_INT32_EQ(CFE_TIME_Global.DataStoreStatus, CFE_TIME_RESET_AREA_NEW);
 
     /* Test response to a bad clock signal selection parameter */
     UT_InitData();
     UT_SetStatusBSPResetArea(OS_SUCCESS, CFE_TIME_RESET_SIGNATURE, CFE_TIME_ToneSignalSelect_REDUNDANT + 1);
-    CFE_TIME_QueryResetVars();
+    CFE_TIME_RestoreFromTimeResetVars();
     UtAssert_INT32_EQ(CFE_TIME_Global.DataStoreStatus, CFE_TIME_RESET_AREA_NEW);
 
     /* Test response to a reset area error */
