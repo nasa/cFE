@@ -32,6 +32,7 @@
 */
 #include "cfe_tbl_module_all.h"
 #include "cfe_version.h"
+#include "cfe_config.h" /* For version string construction */
 
 #include <string.h>
 
@@ -310,8 +311,12 @@ void CFE_TBL_GetTblRegData(void)
  *-----------------------------------------------------------------*/
 int32 CFE_TBL_NoopCmd(const CFE_TBL_NoopCmd_t *data)
 {
+    char VersionString[CFE_CFG_MAX_VERSION_STR_LEN];
+
     /* Acknowledge receipt of NOOP with Event Message */
-    CFE_EVS_SendEvent(CFE_TBL_NOOP_INF_EID, CFE_EVS_EventType_INFORMATION, "No-op Cmd Rcvd: %s", CFE_VERSION_STRING);
+    CFE_Config_GetVersionString(VersionString, CFE_CFG_MAX_VERSION_STR_LEN, "cFE",
+        CFE_SRC_VERSION, CFE_BUILD_CODENAME, CFE_LAST_OFFICIAL);
+    CFE_EVS_SendEvent(CFE_TBL_NOOP_INF_EID, CFE_EVS_EventType_INFORMATION, "No-op Cmd Rcvd: %s", VersionString);
 
     return CFE_TBL_INC_CMD_CTR;
 }

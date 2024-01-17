@@ -32,6 +32,7 @@
 */
 #include "cfe_tbl_module_all.h"
 #include "cfe_version.h"
+#include "cfe_config.h" /* For version string construction */
 #include "cfe_tbl_verify.h"
 
 #include <string.h>
@@ -110,6 +111,7 @@ void CFE_TBL_TaskMain(void)
 int32 CFE_TBL_TaskInit(void)
 {
     int32 Status;
+    char  VersionString[CFE_CFG_MAX_VERSION_STR_LEN];
 
     /*
     ** Initialize global Table Services data
@@ -162,8 +164,10 @@ int32 CFE_TBL_TaskInit(void)
     /*
     ** Task startup event message
     */
+    CFE_Config_GetVersionString(VersionString, CFE_CFG_MAX_VERSION_STR_LEN, "cFE",
+        CFE_SRC_VERSION, CFE_BUILD_CODENAME, CFE_LAST_OFFICIAL);
     Status = CFE_EVS_SendEvent(CFE_TBL_INIT_INF_EID, CFE_EVS_EventType_INFORMATION, "cFE TBL Initialized: %s",
-                               CFE_VERSION_STRING);
+                               VersionString);
 
     if (Status != CFE_SUCCESS)
     {

@@ -30,6 +30,7 @@
 
 #include "cfe_sb_module_all.h"
 #include "cfe_version.h"
+#include "cfe_config.h" /* For version string construction */
 #include "cfe_es_msg.h" /* needed for local use of CFE_ES_RestartCmd_t */
 #include "cfe_sb_verify.h"
 
@@ -119,6 +120,7 @@ int32 CFE_SB_AppInit(void)
     uint32              CfgFileEventsToFilter = 0;
     CFE_ES_MemPoolBuf_t TmpPtr;
     int32               Status;
+    char                VersionString[CFE_CFG_MAX_VERSION_STR_LEN];
 
     /* Get the assigned Application ID for the SB Task */
     CFE_ES_GetAppID(&CFE_SB_Global.AppId);
@@ -266,8 +268,10 @@ int32 CFE_SB_AppInit(void)
         return Status;
     }
 
+    CFE_Config_GetVersionString(VersionString, CFE_CFG_MAX_VERSION_STR_LEN, "cFE",
+        CFE_SRC_VERSION, CFE_BUILD_CODENAME, CFE_LAST_OFFICIAL);
     Status =
-        CFE_EVS_SendEvent(CFE_SB_INIT_EID, CFE_EVS_EventType_INFORMATION, "cFE SB Initialized: %s", CFE_VERSION_STRING);
+        CFE_EVS_SendEvent(CFE_SB_INIT_EID, CFE_EVS_EventType_INFORMATION, "cFE SB Initialized: %s", VersionString);
     if (Status != CFE_SUCCESS)
     {
         CFE_ES_WriteToSysLog("%s: Error sending init event:RC=0x%08X\n", __func__, (unsigned int)Status);
@@ -285,7 +289,10 @@ int32 CFE_SB_AppInit(void)
  *-----------------------------------------------------------------*/
 int32 CFE_SB_NoopCmd(const CFE_SB_NoopCmd_t *data)
 {
-    CFE_EVS_SendEvent(CFE_SB_CMD0_RCVD_EID, CFE_EVS_EventType_INFORMATION, "No-op Cmd Rcvd: %s", CFE_VERSION_STRING);
+    char VersionString[CFE_CFG_MAX_VERSION_STR_LEN];
+    CFE_Config_GetVersionString(VersionString, CFE_CFG_MAX_VERSION_STR_LEN, "cFE",
+        CFE_SRC_VERSION, CFE_BUILD_CODENAME, CFE_LAST_OFFICIAL);
+    CFE_EVS_SendEvent(CFE_SB_CMD0_RCVD_EID, CFE_EVS_EventType_INFORMATION, "No-op Cmd Rcvd: %s", VersionString);
     CFE_SB_Global.HKTlmMsg.Payload.CommandCounter++;
 
     return CFE_SUCCESS;
