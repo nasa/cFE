@@ -1,5 +1,12 @@
 # Changelog
 
+## Development Build: equuleus-rc1+dev71
+- updating cFE to use new versioning system
+- clean up and move table build scripts
+- implement header files for testcase
+- separate bad argument test
+- See <https://github.com/nasa/cFE/pull/2463>, <https://github.com/nasa/cFE/pull/2486>, <https://github.com/nasa/cFE/pull/2485>, and <https://github.com/nasa/cFE/pull/2489>
+
 ## Development Build: v7.0.0-rc4+dev434
 - Update docs and UT to use CFE_MSG_PTR
 - document ES Perf enums
