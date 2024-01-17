@@ -47,21 +47,20 @@ void Test_MSG_MsgId(void)
         local_subsys_flag = MSG_SUBSYS_FLAG;
     }
 
-    UtPrintf("Bad parameter tests, Null pointers and invalid (max valid + 1)");
+    UtPrintf("Bad parameter tests, Null pointers and invalid msg ID");
+    UT_SetDefaultReturnValue(UT_KEY(CFE_SB_IsValidMsgId), true);
     memset(&msg, 0, sizeof(msg));
     UtAssert_INT32_EQ(CFE_MSG_GetMsgId(NULL, &msgid), CFE_MSG_BAD_ARGUMENT);
     UtAssert_INT32_EQ(CFE_SB_MsgIdToValue(msgid), 1);
     UtAssert_INT32_EQ(CFE_MSG_GetMsgId(&msg, NULL), CFE_MSG_BAD_ARGUMENT);
     UtAssert_INT32_EQ(Test_MSG_NotZero(&msg), 0);
     UtAssert_INT32_EQ(CFE_MSG_SetMsgId(NULL, msgid), CFE_MSG_BAD_ARGUMENT);
-    UtAssert_INT32_EQ(CFE_MSG_SetMsgId(&msg, CFE_SB_INVALID_MSG_ID), CFE_MSG_BAD_ARGUMENT);
-    UtAssert_INT32_EQ(Test_MSG_NotZero(&msg), 0);
-    UtAssert_INT32_EQ(CFE_MSG_SetMsgId(&msg, CFE_PLATFORM_SB_HIGHEST_VALID_MSGID + 1), CFE_MSG_BAD_ARGUMENT);
-    UtAssert_INT32_EQ(Test_MSG_NotZero(&msg), 0);
-    UtAssert_INT32_EQ(CFE_MSG_SetMsgId(&msg, 0xFFFFFFFF), CFE_MSG_BAD_ARGUMENT);
+    UT_SetDefaultReturnValue(UT_KEY(CFE_SB_IsValidMsgId), false);
+    UtAssert_INT32_EQ(CFE_MSG_SetMsgId(&msg, msgid), CFE_MSG_BAD_ARGUMENT);
     UtAssert_INT32_EQ(Test_MSG_NotZero(&msg), 0);
 
     UtPrintf("Set msg to all F's, set msgid to 0 and verify");
+    UT_SetDefaultReturnValue(UT_KEY(CFE_SB_IsValidMsgId), true);
     memset(&msg, 0xFF, sizeof(msg));
     CFE_UtAssert_SUCCESS(CFE_MSG_GetMsgId(&msg, &msgid));
     UtAssert_INT32_EQ(CFE_SB_MsgIdToValue(msgid), 0xFFFF);

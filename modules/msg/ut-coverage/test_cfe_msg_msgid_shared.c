@@ -39,14 +39,17 @@ void Test_MSG_GetTypeFromMsgId(void)
     CFE_MSG_Type_t    actual = CFE_MSG_Type_Invalid;
 
     UtPrintf("Bad parameter tests, Null pointer");
+    UT_SetDefaultReturnValue(UT_KEY(CFE_SB_IsValidMsgId), true);
     memset(&msg, 0, sizeof(msg));
     UtAssert_INT32_EQ(CFE_MSG_GetTypeFromMsgId(msgid, NULL), CFE_MSG_BAD_ARGUMENT);
     UtAssert_INT32_EQ(Test_MSG_NotZero(&msg), 0);
 
     UtPrintf("Bad parameter tests, Invalid message ID");
+    UT_SetDefaultReturnValue(UT_KEY(CFE_SB_IsValidMsgId), false);
     UtAssert_INT32_EQ(CFE_MSG_GetTypeFromMsgId(CFE_SB_ValueToMsgId(-1), &actual), CFE_MSG_BAD_ARGUMENT);
 
     UtPrintf("Set to all F's, test cmd and tlm");
+    UT_SetDefaultReturnValue(UT_KEY(CFE_SB_IsValidMsgId), true);
     memset(&msg, 0xFF, sizeof(msg));
     CFE_UtAssert_SUCCESS(CFE_MSG_SetMsgId(&msg, CFE_SB_ValueToMsgId(CFE_PLATFORM_SB_HIGHEST_VALID_MSGID)));
     CFE_UtAssert_SUCCESS(CFE_MSG_SetType(&msg, CFE_MSG_Type_Tlm));
