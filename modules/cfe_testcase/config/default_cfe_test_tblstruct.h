@@ -17,28 +17,23 @@
  ************************************************************************/
 
 /**
- * \file
- *   Initialization of variables used by table functional tests and
- *   function definitions for setup and teardown table functions
+ * @file
+ *
+ * CFE Test Table struct definition
  */
+
+#ifndef CFE_TEST_TBLSTRUCT_H
+#define CFE_TEST_TBLSTRUCT_H
+
+#include "common_types.h"
 
 /*
- * Includes
+ * Test table structure
  */
-
-#include "cfe_test.h"
-#include "cfe_test_table.h"
-
-/* Setup function to register a table */
-void RegisterTestTable(void)
+typedef struct
 {
-    UtAssert_INT32_EQ(CFE_TBL_Register(&CFE_FT_Global.TblHandle, CFE_FT_Global.TblName, sizeof(CFE_TEST_TestTable_t),
-                                       CFE_TBL_OPT_DEFAULT, NULL),
-                      CFE_SUCCESS);
-}
+    uint16 Int1;
+    uint16 Int2;
+} CFE_TEST_TestTable_t;
 
-/* Teardown function to unregister a table */
-void UnregisterTestTable(void)
-{
-    UtAssert_INT32_EQ(CFE_TBL_Unregister(CFE_FT_Global.TblHandle), CFE_SUCCESS);
-}
+#endif /* CFE_TEST_TBLSTRUCT_H */

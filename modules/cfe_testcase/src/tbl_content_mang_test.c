@@ -55,25 +55,25 @@ static const char TESTTBL_PARTIAL_FILE[] =
 
 void TestLoad(void)
 {
-    CFE_TBL_Handle_t  BadTblHandle;
-    const char *      BadTblName = "BadTableName";
-    CFE_TBL_Handle_t  DumpTblHandle;
-    const char *      DumpTblName = "DumpOnlyTable";
-    CFE_TBL_Handle_t  SharedTblHandle;
-    const char *      SharedTblName = CFE_FT_Global.RegisteredTblName;
-    TBL_TEST_Table_t  TestTable     = {0xd00d, 0xdad};
-    TBL_TEST_Table_t *TablePtr;
-    CFE_TBL_Handle_t  OtherHandle;
-    void *            TempPtr;
+    CFE_TBL_Handle_t      BadTblHandle;
+    const char *          BadTblName = "BadTableName";
+    CFE_TBL_Handle_t      DumpTblHandle;
+    const char *          DumpTblName = "DumpOnlyTable";
+    CFE_TBL_Handle_t      SharedTblHandle;
+    const char *          SharedTblName = CFE_FT_Global.RegisteredTblName;
+    CFE_TEST_TestTable_t  TestTable     = {0xd00d, 0xdad};
+    CFE_TEST_TestTable_t *TablePtr;
+    CFE_TBL_Handle_t      OtherHandle;
+    void *                TempPtr;
 
     UtPrintf("Testing: CFE_TBL_Load");
 
     UtAssert_INT32_EQ(
-        CFE_TBL_Register(&BadTblHandle, BadTblName, sizeof(TBL_TEST_Table_t), CFE_TBL_OPT_DBL_BUFFER, NULL),
+        CFE_TBL_Register(&BadTblHandle, BadTblName, sizeof(CFE_TEST_TestTable_t), CFE_TBL_OPT_DBL_BUFFER, NULL),
         CFE_SUCCESS);
 
     /* Create a second table handle, to keep things interesting */
-    UtAssert_INT32_EQ(CFE_TBL_Register(&OtherHandle, TESTTBL_OTHER_NAME, sizeof(TBL_TEST_Table_t), 0, NULL),
+    UtAssert_INT32_EQ(CFE_TBL_Register(&OtherHandle, TESTTBL_OTHER_NAME, sizeof(CFE_TEST_TestTable_t), 0, NULL),
                       CFE_SUCCESS);
 
     /* Some basic failure checks */
@@ -200,7 +200,7 @@ void TestLoad(void)
 
     /* Attempt to load a dump only table */
     UtAssert_INT32_EQ(
-        CFE_TBL_Register(&DumpTblHandle, DumpTblName, sizeof(TBL_TEST_Table_t), CFE_TBL_OPT_DUMP_ONLY, NULL),
+        CFE_TBL_Register(&DumpTblHandle, DumpTblName, sizeof(CFE_TEST_TestTable_t), CFE_TBL_OPT_DUMP_ONLY, NULL),
         CFE_SUCCESS);
     UtAssert_INT32_EQ(CFE_TBL_Load(DumpTblHandle, CFE_TBL_SRC_FILE, TESTTBL_NOMINAL_FILE), CFE_TBL_ERR_DUMP_ONLY);
 
@@ -283,12 +283,12 @@ void TblTest_GenerateTblFiles(void)
     uint32    PartialSize;
     union
     {
-        uint8              u8;
-        uint16             u16;
-        uint32             u32;
-        CFE_FS_Header_t    FsHdr;
-        CFE_TBL_File_Hdr_t TblHdr;
-        TBL_TEST_Table_t   Content;
+        uint8                u8;
+        uint16               u16;
+        uint32               u32;
+        CFE_FS_Header_t      FsHdr;
+        CFE_TBL_File_Hdr_t   TblHdr;
+        CFE_TEST_TestTable_t Content;
     } buf;
 
     /* Open the original (correct) table image file for reference */
@@ -443,7 +443,7 @@ void TblTest_GenerateTblFiles(void)
     UtAssert_INT32_EQ(OS_write(fh2, &buf, sizeof(buf.FsHdr)), sizeof(buf.FsHdr));
     UtAssert_INT32_EQ(OS_read(fh1, &buf, sizeof(buf.TblHdr)), sizeof(buf.TblHdr));
     PartialOffset = 0;
-    PartialSize   = offsetof(TBL_TEST_Table_t, Int2);
+    PartialSize   = offsetof(CFE_TEST_TestTable_t, Int2);
     TblTest_UpdateOffset(&buf.TblHdr.Offset, PartialOffset);
     TblTest_UpdateOffset(&buf.TblHdr.NumBytes, PartialSize);
     UtAssert_INT32_EQ(OS_write(fh2, &buf, sizeof(buf.TblHdr)), sizeof(buf.TblHdr));
@@ -463,8 +463,8 @@ void TblTest_GenerateTblFiles(void)
     UtAssert_INT32_EQ(OS_read(fh1, &buf, sizeof(buf.FsHdr)), sizeof(buf.FsHdr));
     UtAssert_INT32_EQ(OS_write(fh2, &buf, sizeof(buf.FsHdr)), sizeof(buf.FsHdr));
     UtAssert_INT32_EQ(OS_read(fh1, &buf, sizeof(buf.TblHdr)), sizeof(buf.TblHdr));
-    PartialOffset = offsetof(TBL_TEST_Table_t, Int2);
-    PartialSize   = sizeof(buf.Content) - offsetof(TBL_TEST_Table_t, Int2);
+    PartialOffset = offsetof(CFE_TEST_TestTable_t, Int2);
+    PartialSize   = sizeof(buf.Content) - offsetof(CFE_TEST_TestTable_t, Int2);
     TblTest_UpdateOffset(&buf.TblHdr.Offset, PartialOffset);
     TblTest_UpdateOffset(&buf.TblHdr.NumBytes, PartialSize);
     UtAssert_INT32_EQ(OS_write(fh2, &buf, sizeof(buf.TblHdr)), sizeof(buf.TblHdr));
