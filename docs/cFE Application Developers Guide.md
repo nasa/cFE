@@ -1251,7 +1251,7 @@ with the allocated memory.
 The intention is for an Application to use a working copy of the CDS
 data during Application execution. Periodically, the Application is then
 responsible for calling `CFE_ES_CopyToCDS` API to copy the working image
-back into the CDS The cFE then computes a data integrity value for the
+back into the CDS. The cFE then computes a data integrity value for the
 block of data and stores it in the allocated CDS block. It should be
 noted that although the cFE will validate the integrity of the contents
 of the Application's CDS, the Application is responsible for determining
