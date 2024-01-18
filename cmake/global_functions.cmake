@@ -54,10 +54,13 @@ function(cfe_locate_implementation_file OUTPUT_VAR FILE_NAME)
   foreach(BASEDIR ${IMPL_SEARCH_BASEDIRS})
     list(APPEND IMPL_SEARCH_PATH "${BASEDIR}${FILE_NAME}")
 
+    # Get relative directory
+    string(REPLACE ${MISSION_SOURCE_DIR} "" RELATIVEDIR ${BASEDIR})
+
     # A target-specific prefixed filename gets priority over a direct filename match
-    # But do not include this variant if the prefix is already part of the basedir
+    # But do not include this variant if the prefix is already part of the relative search path 
     foreach (PREFIX ${LOCATEIMPL_ARG_PREFIX})
-      if (NOT "${BASEDIR}" MATCHES "/${PREFIX}/")
+      if (NOT "${RELATIVEDIR}" MATCHES "/${PREFIX}/")
         list(APPEND IMPL_SEARCH_PATH "${BASEDIR}${PREFIX}_${FILE_NAME}")
       endif()
     endforeach()
