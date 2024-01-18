@@ -170,6 +170,7 @@ void CFE_Config_SetupModuleVersions(CFE_ConfigName_t *ModuleListSet[], size_t Se
 void CFE_Config_SetupBasicBuildInfo(void)
 {
     const char *KeyVal;
+    char       VersionString[CFE_CFG_MAX_VERSION_STR_LEN];
 
     /* Global mission name */
     CFE_Config_SetString(CFE_CONFIGID_MISSION_NAME, GLOBAL_CONFIGDATA.MissionName);
@@ -184,7 +185,9 @@ void CFE_Config_SetupBasicBuildInfo(void)
     CFE_Config_SetValue(CFE_CONFIGID_CORE_VERSION_BUILDNUM, CFE_BUILD_NUMBER);
 
     CFE_Config_SetString(CFE_CONFIGID_CORE_VERSION_BASELINE, CFE_BUILD_BASELINE);
-    CFE_Config_SetString(CFE_CONFIGID_CORE_VERSION_DESCRIPTION, CFE_VERSION_STRING);
+    CFE_Config_GetVersionString(VersionString, CFE_CFG_MAX_VERSION_STR_LEN, "cFE",
+        CFE_SRC_VERSION, CFE_BUILD_CODENAME, CFE_LAST_OFFICIAL);
+    CFE_Config_SetString(CFE_CONFIGID_CORE_VERSION_DESCRIPTION, VersionString);
 
     /*
      * Initialize values from the "target_config" CFE internal object

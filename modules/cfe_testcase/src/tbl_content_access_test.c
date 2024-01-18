@@ -33,16 +33,16 @@
 /*
  * Helper function to attempt to load the test table with data and assert with the provided CFE_Status_t
  */
-void LoadTable(TBL_TEST_Table_t *TestTable, CFE_Status_t ExpectedStatus)
+void LoadTable(CFE_TEST_TestTable_t *TestTable, CFE_Status_t ExpectedStatus)
 {
     UtAssert_INT32_EQ(CFE_TBL_Load(CFE_FT_Global.TblHandle, CFE_TBL_SRC_ADDRESS, TestTable), ExpectedStatus);
 }
 
 void TestGetAddress(void)
 {
-    void *            TblPtr;
-    TBL_TEST_Table_t *TestTblPtr;
-    TBL_TEST_Table_t  TestTable = {1, 2};
+    void *                TblPtr;
+    CFE_TEST_TestTable_t *TestTblPtr;
+    CFE_TEST_TestTable_t  TestTable = {1, 2};
 
     CFE_TBL_Handle_t SharedTblHandle = CFE_TBL_BAD_TABLE_HANDLE;
     const char *     SharedTblName   = CFE_ASSERT_SHARED_TBL_NAME;
@@ -60,7 +60,7 @@ void TestGetAddress(void)
     UtAssert_INT32_EQ(CFE_TBL_GetAddress(&TblPtr, CFE_FT_Global.TblHandle), CFE_SUCCESS);
 
     /* Check table contents */
-    TestTblPtr = (TBL_TEST_Table_t *)TblPtr;
+    TestTblPtr = (CFE_TEST_TestTable_t *)TblPtr;
     UtAssert_INT32_EQ(TestTblPtr->Int1, TestTable.Int1);
     UtAssert_INT32_EQ(TestTblPtr->Int2, TestTable.Int2);
 
@@ -78,8 +78,8 @@ void TestGetAddress(void)
 void TestReleaseAddress(void)
 {
     UtPrintf("Testing: CFE_TBL_GetAddress");
-    void *           TblPtr;
-    TBL_TEST_Table_t TestTable = {1, 2};
+    void *               TblPtr;
+    CFE_TEST_TestTable_t TestTable = {1, 2};
     /* Never loaded */
     UtAssert_INT32_EQ(CFE_TBL_ReleaseAddress(CFE_FT_Global.TblHandle), CFE_TBL_ERR_NEVER_LOADED);
     UtAssert_INT32_EQ(CFE_TBL_ReleaseAddress(CFE_TBL_BAD_TABLE_HANDLE), CFE_TBL_ERR_INVALID_HANDLE);
@@ -106,12 +106,12 @@ void TestReleaseAddress(void)
 
 void TestGetReleaseAddresses(void)
 {
-    int              numValidTbls = 5;
-    char             TblName[10];
-    CFE_TBL_Handle_t TblHandles[numValidTbls + 1];
-    void *           TblPtrs[numValidTbls + 1];
-    TBL_TEST_Table_t TblPtrsList[numValidTbls + 1];
-    TBL_TEST_Table_t TestTable = {1, 2};
+    int                  numValidTbls = 5;
+    char                 TblName[10];
+    CFE_TBL_Handle_t     TblHandles[numValidTbls + 1];
+    void *               TblPtrs[numValidTbls + 1];
+    CFE_TEST_TestTable_t TblPtrsList[numValidTbls + 1];
+    CFE_TEST_TestTable_t TestTable = {1, 2};
 
     /* Put an invalid handle at the start*/
     TblHandles[0] = CFE_TBL_BAD_TABLE_HANDLE;
@@ -120,7 +120,7 @@ void TestGetReleaseAddresses(void)
     {
         sprintf(TblName, "%d", i);
         UtAssert_INT32_EQ(
-            CFE_TBL_Register(&TblHandles[i], TblName, sizeof(TBL_TEST_Table_t), CFE_TBL_OPT_DEFAULT, NULL),
+            CFE_TBL_Register(&TblHandles[i], TblName, sizeof(CFE_TEST_TestTable_t), CFE_TBL_OPT_DEFAULT, NULL),
             CFE_SUCCESS);
         TblPtrs[i] = TblPtrsList + i;
     }

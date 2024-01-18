@@ -119,4 +119,26 @@ CFE_ConfigId_t CFE_Config_GetIdByName(const char *Name);
  */
 void CFE_Config_IterateAll(void *Arg, CFE_Config_Callback_t Callback);
 
+/**
+ * @brief Obtain the version string for a cFS component or app
+ *
+ * Assembles a standardized version string associated with the specified
+ * component/app.
+ *
+ * @param[in]   Buf         Buffer to place version string in. Will be populated
+ *                          with standard version string containing the provided
+                            parameters (i.e.:
+ *                          "cFE DEVELOPMENT BUILD equuleus-rc1+dev0 (Codename
+                            equueleus), Last Official Release: cFE 6.7.0"
+ * @param[in]   Size        Size of the provided buffer
+ * @param[in]   Component   Component for which to get version string
+ *                          (i.e. "cFE")
+ * @param[in]   SrcVersion  Source version identifier (i.e. "equuleus-rc1+dev0")
+ * @param[in]   CodeName    Code name for the build (i.e. "equuleus")
+ * @param[in]   LastOffcRel Last official release (i.e. "6.7.0")
+ */
+void CFE_Config_GetVersionString(char *Buf, size_t Size,
+  const char *Component, const char *SrcVersion,
+  const char *CodeName, const char *LastOffcRel);
+
 #endif /* CFE_CONFIG_H */

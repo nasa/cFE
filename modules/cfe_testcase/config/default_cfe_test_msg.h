@@ -18,22 +18,12 @@
 
 /**
  * @file
- *   CFE Test app (CFE_TEST) Application Message IDs
+ *   CFE Test app (CFE_TEST) Application Message Definitions
  */
-#ifndef CFE_TEST_MSGIDS_H
-#define CFE_TEST_MSGIDS_H
+#ifndef CFE_TEST_MSG_H
+#define CFE_TEST_MSG_H
 
-#include "cfe_core_api_base_msgids.h"
-#include "cfe_test_topicids.h"
-
-/*
-** cFE Command Message Id's
-*/
-#define CFE_TEST_CMD_MID CFE_PLATFORM_CMD_MID_BASE + CFE_MISSION_TEST_CMD_MSG /* 0x1802 */
-
-/*
-** CFE Telemetry Message Id's
-*/
-#define CFE_TEST_HK_TLM_MID CFE_PLATFORM_TLM_MID_BASE + CFE_MISSION_TEST_HK_TLM_MSG /* 0x0802 */
+#include "cfe_test_msgdefs.h"
+#include "cfe_test_msgstruct.h"
 
 #endif

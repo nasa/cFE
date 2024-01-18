@@ -32,6 +32,7 @@
 */
 #include "cfe_time_module_all.h"
 #include "cfe_version.h"
+#include "cfe_config.h" /* For version string construction */
 #include "cfe_time_verify.h"
 
 /*
@@ -127,6 +128,7 @@ int32 CFE_TIME_TaskInit(void)
     int32     OsStatus;
     osal_id_t TimeBaseId;
     osal_id_t TimerId;
+    char      VersionString[CFE_CFG_MAX_VERSION_STR_LEN];
 
     Status = CFE_EVS_Register(NULL, 0, 0);
     if (Status != CFE_SUCCESS)
@@ -259,8 +261,10 @@ int32 CFE_TIME_TaskInit(void)
         return Status;
     }
 
+    CFE_Config_GetVersionString(VersionString, CFE_CFG_MAX_VERSION_STR_LEN, "cFE",
+        CFE_SRC_VERSION, CFE_BUILD_CODENAME, CFE_LAST_OFFICIAL);
     Status = CFE_EVS_SendEvent(CFE_TIME_INIT_EID, CFE_EVS_EventType_INFORMATION, "cFE TIME Initialized: %s",
-                               CFE_VERSION_STRING);
+                               VersionString);
     if (Status != CFE_SUCCESS)
     {
         CFE_ES_WriteToSysLog("%s: Error sending init event:RC=0x%08X\n", __func__, (unsigned int)Status);
@@ -443,9 +447,13 @@ int32 CFE_TIME_ToneSendCmd(const CFE_TIME_FakeToneCmd_t *data)
  *-----------------------------------------------------------------*/
 int32 CFE_TIME_NoopCmd(const CFE_TIME_NoopCmd_t *data)
 {
+    char VersionString[CFE_CFG_MAX_VERSION_STR_LEN];
+
     CFE_TIME_Global.CommandCounter++;
 
-    CFE_EVS_SendEvent(CFE_TIME_NOOP_EID, CFE_EVS_EventType_INFORMATION, "No-op Cmd Rcvd: %s", CFE_VERSION_STRING);
+    CFE_Config_GetVersionString(VersionString, CFE_CFG_MAX_VERSION_STR_LEN, "cFE",
+        CFE_SRC_VERSION, CFE_BUILD_CODENAME, CFE_LAST_OFFICIAL);
+    CFE_EVS_SendEvent(CFE_TIME_NOOP_EID, CFE_EVS_EventType_INFORMATION, "No-op Cmd Rcvd: %s", VersionString);
 
     return CFE_SUCCESS;
 }

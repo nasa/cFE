@@ -30,6 +30,7 @@
 /* Include Files */
 #include "cfe_evs_module_all.h" /* All EVS internal definitions and API */
 #include "cfe_version.h"        /* cFE version definitions */
+#include "cfe_config.h"         /* For version string construction */
 #include "cfe_evs_verify.h"
 
 #include <string.h>
@@ -260,6 +261,7 @@ int32 CFE_EVS_TaskInit(void)
 {
     int32          Status;
     CFE_ES_AppId_t AppID;
+    char           VersionString[CFE_CFG_MAX_VERSION_STR_LEN];
 
     /* Query and verify the AppID */
     Status = CFE_ES_GetAppID(&AppID);
@@ -302,7 +304,9 @@ int32 CFE_EVS_TaskInit(void)
 
     /* Write the AppID to the global location, now that the rest of initialization is done */
     CFE_EVS_Global.EVS_AppID = AppID;
-    EVS_SendEvent(CFE_EVS_STARTUP_EID, CFE_EVS_EventType_INFORMATION, "cFE EVS Initialized: %s", CFE_VERSION_STRING);
+    CFE_Config_GetVersionString(VersionString, CFE_CFG_MAX_VERSION_STR_LEN, "cFE",
+        CFE_SRC_VERSION, CFE_BUILD_CODENAME, CFE_LAST_OFFICIAL);
+    EVS_SendEvent(CFE_EVS_STARTUP_EID, CFE_EVS_EventType_INFORMATION, "cFE EVS Initialized: %s", VersionString);
 
     return CFE_SUCCESS;
 }
@@ -315,7 +319,10 @@ int32 CFE_EVS_TaskInit(void)
  *-----------------------------------------------------------------*/
 int32 CFE_EVS_NoopCmd(const CFE_EVS_NoopCmd_t *data)
 {
-    EVS_SendEvent(CFE_EVS_NOOP_EID, CFE_EVS_EventType_INFORMATION, "No-op Cmd Rcvd: %s", CFE_VERSION_STRING);
+    char VersionString[CFE_CFG_MAX_VERSION_STR_LEN];
+    CFE_Config_GetVersionString(VersionString, CFE_CFG_MAX_VERSION_STR_LEN, "cFE",
+        CFE_SRC_VERSION, CFE_BUILD_CODENAME, CFE_LAST_OFFICIAL);
+    EVS_SendEvent(CFE_EVS_NOOP_EID, CFE_EVS_EventType_INFORMATION, "No-op Cmd Rcvd: %s", VersionString);
     return CFE_SUCCESS;
 }
 

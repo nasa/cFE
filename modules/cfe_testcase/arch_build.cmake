@@ -18,13 +18,13 @@ set(TEST_PLATFORM_CONFIG_FILE_LIST
 # the distribution default copies
 foreach(TEST_CFGFILE ${TEST_PLATFORM_CONFIG_FILE_LIST})
   get_filename_component(CFGKEY "${TEST_CFGFILE}" NAME_WE)
-  if (DEFINED TEST_CFGFILE_SRC_${CFGKEY})
-    set(DEFAULT_SOURCE "${TEST_CFGFILE_SRC_${CFGKEY}}")
+  if (DEFINED TESTCASE_CFGFILE_SRC_${CFGKEY})
+    set(DEFAULT_SOURCE GENERATED_FILE "${TESTCASE_CFGFILE_SRC_${CFGKEY}}")
   else()
-    set(DEFAULT_SOURCE "${CMAKE_CURRENT_LIST_DIR}/config/default_${TEST_CFGFILE}")
+    set(DEFAULT_SOURCE FALLBACK_FILE "${CMAKE_CURRENT_LIST_DIR}/config/default_${TEST_CFGFILE}")
   endif()
   generate_config_includefile(
     FILE_NAME           "${TEST_CFGFILE}"
-    FALLBACK_FILE       ${DEFAULT_SOURCE}
+    ${DEFAULT_SOURCE}
   )
 endforeach()

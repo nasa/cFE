@@ -17,28 +17,24 @@
  ************************************************************************/
 
 /**
- * \file
- *   Initialization of variables used by table functional tests and
- *   function definitions for setup and teardown table functions
+ * @file
+ *   CFE Test app (CFE_TEST) Application Message Definitions
  */
+#ifndef CFE_TEST_MSGDEFS_H
+#define CFE_TEST_MSGDEFS_H
 
-/*
- * Includes
- */
+#include "common_types.h"
 
-#include "cfe_test.h"
-#include "cfe_test_table.h"
-
-/* Setup function to register a table */
-void RegisterTestTable(void)
+/* A 64-bit payload (worst case for alignment) */
+typedef struct CFE_TEST_TestPayload64
 {
-    UtAssert_INT32_EQ(CFE_TBL_Register(&CFE_FT_Global.TblHandle, CFE_FT_Global.TblName, sizeof(CFE_TEST_TestTable_t),
-                                       CFE_TBL_OPT_DEFAULT, NULL),
-                      CFE_SUCCESS);
-}
+    uint64 Value;
+} CFE_TEST_TestPayload64_t;
 
-/* Teardown function to unregister a table */
-void UnregisterTestTable(void)
+/* A 32-bit payload (most common case for alignment) */
+typedef struct CFE_TEST_TestPayload32
 {
-    UtAssert_INT32_EQ(CFE_TBL_Unregister(CFE_FT_Global.TblHandle), CFE_SUCCESS);
-}
+    uint32 Value;
+} CFE_TEST_TestPayload32_t;
+
+#endif

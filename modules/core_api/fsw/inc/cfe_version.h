@@ -26,13 +26,20 @@
 #define CFE_VERSION_H
 
 /* Development Build Macro Definitions */
-#define CFE_BUILD_NUMBER   434 /**< @brief Development: Number of development git commits since CFE_BUILD_BASELINE */
-#define CFE_BUILD_BASELINE "v7.0.0-rc4" /**< @brief Development: Reference git tag for build number */
+#define CFE_BUILD_NUMBER    75 /**< @brief Development: Number of development git commits since CFE_BUILD_BASELINE */
+#define CFE_BUILD_BASELINE  "equuleus-rc1" /**< @brief Development: Reference git tag for build number */
+#define CFE_BUILD_DEV_CYCLE "equuleus-rc2" /**< @brief Development: Release name for current development cycle */
+#define CFE_BUILD_CODENAME  "Equuleus" /**< @brief: Development: Code name for the current build */
 
 /* See \ref cfsversions for definitions */
 #define CFE_MAJOR_VERSION 6  /*!< @brief Major version number */
 #define CFE_MINOR_VERSION 7  /*!< @brief Minor version number */
-#define CFE_REVISION      99 /*!< @brief Revision version number. Value of 99 indicates a development version.*/
+#define CFE_REVISION      0  /*!< @brief Revision version number. Value of 0 indicates a development version.*/
+
+/**
+ * @brief Last official release.
+ */
+#define CFE_LAST_OFFICIAL "v6.7.0"
 
 /*!
  * @brief Mission revision.
@@ -55,12 +62,10 @@
 #define CFE_SRC_VERSION CFE_BUILD_BASELINE "+dev" CFE_STR(CFE_BUILD_NUMBER)
 
 /**
- * @brief Long Build Version String
- *
- * Long freeform string identifying the build, see @ref cfsversions for suggested format for development
- * and official releases.
+ * @brief Max Version String length.
+ * 
+ * Maximum length that a cFE version string can be.
  */
-#define CFE_VERSION_STRING \
-    " cFE DEVELOPMENT BUILD " CFE_SRC_VERSION " (Codename: Draco), Last Official Release: cfe v6.7.0"
+#define CFE_CFG_MAX_VERSION_STR_LEN 256
 
 #endif /* CFE_VERSION_H */

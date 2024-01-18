@@ -235,6 +235,53 @@ endfunction(setup_global_topicids)
 
 ##################################################################
 #
+# FUNCTION: export_variable_cache
+#
+# Export variables to a "mission_vars.cache" file so they can be
+# referenced by the target-specific builds.  This list is ingested
+# during the startup phase of all the subordinate cmake invocations.
+#
+# The passed-in USER_VARLIST should be the names of additional variables
+# to export.  These can be cache vars or normal vars.
+#
+function(export_variable_cache USER_VARLIST)
+
+  # The set of variables that should always be exported
+  set(FIXED_VARLIST
+    "MISSION_NAME"
+    "SIMULATION"
+    "MISSION_DEFS"
+    "MISSION_SOURCE_DIR"
+    "MISSION_BINARY_DIR"
+    "MISSIONCONFIG"
+    "MISSION_APPS"
+    "MISSION_PSPMODULES"
+    "MISSION_DEPS"
+    "MISSION_EDS_FILELIST"
+    "MISSION_EDS_SCRIPTLIST"
+    "ENABLE_UNIT_TESTS"
+  )
+
+  set(MISSION_VARCACHE)
+  foreach(VARL ${FIXED_VARLIST} ${USER_VARLIST} ${ARGN})
+    # It is important to avoid putting any blank lines in the output,
+    # This will cause the reader to misinterpret the data
+    if (NOT "${${VARL}}" STREQUAL "")
+      string(APPEND MISSION_VARCACHE "${VARL}\n${${VARL}}\n")
+    endif (NOT "${${VARL}}" STREQUAL "")
+  endforeach()
+
+  # Write the file -- the subprocess will read this file and re-create
+  # variables out of them.  The alternative to this is to specify many "-D"
+  # parameters to the subordinate build but that would not scale well to many vars,
+  # and it would go through the shell meaning quoting/escaping for safety becomes
+  # very difficult.  Using the file method avoids shell interpretation.
+  file(WRITE "${CMAKE_BINARY_DIR}/mission_vars.cache" "${MISSION_VARCACHE}")
+
+endfunction(export_variable_cache)
+
+##################################################################
+#
 # FUNCTION: prepare
 #
 # Called by the top-level CMakeLists.txt to set up prerequisites
@@ -246,15 +293,16 @@ function(prepare)
     add_definitions(-DSIMULATION=${SIMULATION})
   endif (SIMULATION)
 
-  # Prepare the table makefile - Ensure the list of tables is initially empty
-  file(MAKE_DIRECTORY "${MISSION_BINARY_DIR}/tables")
-  file(WRITE "${MISSION_BINARY_DIR}/tables/Makefile"
-    "MISSION_BINARY_DIR := ${MISSION_BINARY_DIR}\n"
-    "TABLE_BINARY_DIR := ${MISSION_BINARY_DIR}/tables\n"
-    "MISSION_SOURCE_DIR := ${MISSION_SOURCE_DIR}\n"
-    "MISSION_DEFS := ${MISSION_DEFS}\n\n"
-    "include \$(wildcard ${CFE_SOURCE_DIR}/cmake/tables/*.mk) \$(wildcard *.d)\n"
-  )
+  # Create directories to hold generated files/wrappers
+  file(MAKE_DIRECTORY "${MISSION_BINARY_DIR}/eds")
+  file(MAKE_DIRECTORY "${MISSION_BINARY_DIR}/obj")
+  file(MAKE_DIRECTORY "${MISSION_BINARY_DIR}/inc")
+  file(MAKE_DIRECTORY "${MISSION_BINARY_DIR}/src")
+
+  # Certain runtime variables need to be "exported" to the subordinate build, such as
+  # the specific arch settings and the location of all the apps.  This list is collected
+  # during this function execution and exported at the end.
+  set(EXPORT_VARLIST)
 
   # Create custom targets for building and cleaning all architectures
   # This is required particularly for doing extra stuff in the clean step
@@ -428,49 +476,20 @@ function(prepare)
   # msgid definitions, or any other configuration/preparation that needs to
   # happen at mission/global scope.
   foreach(DEP_NAME ${MISSION_DEPS})
+    list(APPEND EXPORT_VARLIST "${DEP_NAME}_MISSION_DIR")
     include("${${DEP_NAME}_MISSION_DIR}/mission_build.cmake" OPTIONAL)
   endforeach(DEP_NAME ${MISSION_DEPS})
 
-  # Certain runtime variables need to be "exported" to the subordinate build, such as
-  # the specific arch settings and the location of all the apps.  This is done by creating
-  # a temporary file within the dir and then the subprocess will read that file and re-create
-  # variables out of them.  The alternative to this is to specify many "-D" parameters to the
-  # subordinate build but that would not scale well to many vars.
-  set(VARLIST
-    "MISSION_NAME"
-    "SIMULATION"
-    "MISSION_DEFS"
-    "MISSION_SOURCE_DIR"
-    "MISSION_BINARY_DIR"
-    "MISSIONCONFIG"
-    "MISSION_APPS"
-    "MISSION_PSPMODULES"
-    "MISSION_DEPS"
-    "ENABLE_UNIT_TESTS"
-  )
-  foreach(APP ${MISSION_DEPS})
-    list(APPEND VARLIST "${APP}_MISSION_DIR")
-  endforeach()
-
   foreach(SYSVAR ${TGTSYS_LIST})
-    list(APPEND VARLIST "BUILD_CONFIG_${SYSVAR}")
+    list(APPEND EXPORT_VARLIST "BUILD_CONFIG_${SYSVAR}")
   endforeach(SYSVAR ${TGTSYS_LIST})
-
-  set(MISSION_VARCACHE)
-  foreach(VARL ${VARLIST})
-    # It is important to avoid putting any blank lines in the output,
-    # This will cause the reader to misinterpret the data
-    if (NOT "${${VARL}}" STREQUAL "")
-      set(MISSION_VARCACHE "${MISSION_VARCACHE}${VARL}\n${${VARL}}\n")
-    endif (NOT "${${VARL}}" STREQUAL "")
-  endforeach(VARL ${VARLIST})
-  file(WRITE "${CMAKE_BINARY_DIR}/mission_vars.cache" "${MISSION_VARCACHE}")
 
   generate_build_version_templates()
 
   # Generate the tools for the native (host) arch
   # Add all public include dirs for core components to include path for tools
   include_directories(
+    ${MISSION_BINARY_DIR}/inc
     ${core_api_MISSION_DIR}/fsw/inc
     ${osal_MISSION_DIR}/src/os/inc
     ${psp_MISSION_DIR}/fsw/inc
@@ -478,26 +497,25 @@ function(prepare)
   add_subdirectory(${MISSION_SOURCE_DIR}/tools tools)
 
   # Add a dependency on the table generator tool as this is required for table builds
-  # The "elf2cfetbl" target should have been added by the "tools" above
-  add_dependencies(mission-prebuild elf2cfetbl)
-  set(TABLETOOL_EXEC $<TARGET_FILE:elf2cfetbl>)
+  # The table tool target should have been added by the "tools" above
+  if (NOT DEFINED CFS_TABLETOOL_SCRIPT_DIR)
+    message(FATAL_ERROR "Table Tool missing: CFS_TABLETOOL_SCRIPT_DIR must be defined by the tools")
+  endif()
+  list(APPEND EXPORT_VARLIST CFS_TABLETOOL_SCRIPT_DIR)
 
-  add_custom_target(tabletool-execute
-    COMMAND $(MAKE)
-      CC="${CMAKE_C_COMPILER}"
-      CFLAGS="${CMAKE_C_FLAGS}"
-      AR="${CMAKE_AR}"
-      TBLTOOL="${TABLETOOL_EXEC}"
-      cfetables
-    WORKING_DIRECTORY
-      "${CMAKE_BINARY_DIR}/tables"
-    DEPENDS
-        mission-cfetables
+  # Prepare the table makefile - Ensure the list of tables is initially empty
+  file(REMOVE_RECURSE "${MISSION_BINARY_DIR}/tables")
+  file(MAKE_DIRECTORY "${MISSION_BINARY_DIR}/tables")
+  file(WRITE "${MISSION_BINARY_DIR}/tables/Makefile"
+    "MISSION_BINARY_DIR := ${MISSION_BINARY_DIR}\n"
+    "TABLE_BINARY_DIR := ${MISSION_BINARY_DIR}/tables\n"
+    "TABLETOOL_SCRIPT_DIR := ${CFS_TABLETOOL_SCRIPT_DIR}\n"
+    "MISSION_SOURCE_DIR := ${MISSION_SOURCE_DIR}\n"
+    "MISSION_DEFS := ${MISSION_DEFS}\n\n"
+    "include \$(wildcard $(TABLETOOL_SCRIPT_DIR)/*.mk) \$(wildcard *.d)\n"
   )
-  add_dependencies(mission-all tabletool-execute)
-  add_dependencies(mission-install tabletool-execute)
+
   add_dependencies(mission-cfetables mission-prebuild)
-  install(DIRECTORY ${CMAKE_BINARY_DIR}/tables/staging/ DESTINATION .)
 
   # Build version information should be generated as part of the pre-build process
   add_dependencies(mission-prebuild mission-version)
@@ -506,6 +524,10 @@ function(prepare)
   if (IS_DIRECTORY ${MISSION_DEFS}/functional-test AND DEFINED FT_INSTALL_SUBDIR)
     install(DIRECTORY ${MISSION_DEFS}/functional-test/ DESTINATION ${FT_INSTALL_SUBDIR})
   endif()
+
+  # Export the important state variables collected during this function.
+  # This is done last such that everything should have its correct value
+  export_variable_cache(${EXPORT_VARLIST})
 
 endfunction(prepare)
 
