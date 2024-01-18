@@ -1,5 +1,9 @@
 # Changelog
 
+## Development Build: equuleus-rc1+dev79
+- Relative prefix exclusion for cfe implementation file search
+- See <https://github.com/nasa/cFE/pull/2494>
+
 ## Development Build: equuleus-rc1+dev71
 - updating cFE to use new versioning system
 - clean up and move table build scripts
