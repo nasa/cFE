@@ -88,62 +88,72 @@ CFE_ES_GMP_IndirectBuffer_t UT_MemPoolIndirectBuffer;
 /* Create a startup script buffer for a maximum of 5 lines * 80 chars/line */
 char StartupScript[MAX_STARTUP_SCRIPT];
 
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_ES_CMD_NOOP_CC = {.MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_CMD_MID),
-                                                                   .CommandCode = CFE_ES_NOOP_CC};
+/* Normal dispatching registers the MsgID+CC in order to follow a
+ * certain path through a series of switch statements */
+#define ES_UT_MID_DISPATCH(intf) \
+    .Method = UT_TaskPipeDispatchMethod_MSG_ID_CC, .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_##intf##_MID)
 
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_ES_CMD_RESET_COUNTERS_CC = {
-    .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_CMD_MID), .CommandCode = CFE_ES_RESET_COUNTERS_CC};
+#define ES_UT_MSG_DISPATCH(intf, cmd)       ES_UT_MID_DISPATCH(intf), UT_TPD_SETSIZE(CFE_ES_##cmd)
+#define ES_UT_CC_DISPATCH(intf, cc, cmd)    ES_UT_MSG_DISPATCH(intf, cmd), UT_TPD_SETCC(cc)
+#define ES_UT_ERROR_DISPATCH(intf, cc, err) ES_UT_MID_DISPATCH(intf), UT_TPD_SETCC(cc), UT_TPD_SETERR(err)
 
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_ES_CMD_RESTART_CC = {.MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_CMD_MID),
-                                                                      .CommandCode = CFE_ES_RESTART_CC};
-
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_ES_CMD_START_APP_CC = {
-    .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_CMD_MID), .CommandCode = CFE_ES_START_APP_CC};
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_ES_CMD_STOP_APP_CC = {.MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_CMD_MID),
-                                                                       .CommandCode = CFE_ES_STOP_APP_CC};
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_ES_CMD_RESTART_APP_CC = {
-    .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_CMD_MID), .CommandCode = CFE_ES_RESTART_APP_CC};
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_ES_CMD_RELOAD_APP_CC = {
-    .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_CMD_MID), .CommandCode = CFE_ES_RELOAD_APP_CC};
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_ES_CMD_QUERY_ONE_CC = {
-    .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_CMD_MID), .CommandCode = CFE_ES_QUERY_ONE_CC};
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_ES_CMD_QUERY_ALL_CC = {
-    .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_CMD_MID), .CommandCode = CFE_ES_QUERY_ALL_CC};
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_ES_CMD_QUERY_ALL_TASKS_CC = {
-    .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_CMD_MID), .CommandCode = CFE_ES_QUERY_ALL_TASKS_CC};
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_ES_CMD_CLEAR_SYS_LOG_CC = {
-    .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_CMD_MID), .CommandCode = CFE_ES_CLEAR_SYS_LOG_CC};
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_ES_CMD_WRITE_SYS_LOG_CC = {
-    .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_CMD_MID), .CommandCode = CFE_ES_WRITE_SYS_LOG_CC};
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_ES_CMD_OVER_WRITE_SYS_LOG_CC = {
-    .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_CMD_MID), .CommandCode = CFE_ES_OVER_WRITE_SYS_LOG_CC};
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_ES_CMD_CLEAR_ER_LOG_CC = {
-    .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_CMD_MID), .CommandCode = CFE_ES_CLEAR_ER_LOG_CC};
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_ES_CMD_WRITE_ER_LOG_CC = {
-    .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_CMD_MID), .CommandCode = CFE_ES_WRITE_ER_LOG_CC};
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_ES_CMD_START_PERF_DATA_CC = {
-    .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_CMD_MID), .CommandCode = CFE_ES_START_PERF_DATA_CC};
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_ES_CMD_STOP_PERF_DATA_CC = {
-    .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_CMD_MID), .CommandCode = CFE_ES_STOP_PERF_DATA_CC};
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_ES_CMD_SET_PERF_FILTER_MASK_CC = {
-    .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_CMD_MID), .CommandCode = CFE_ES_SET_PERF_FILTER_MASK_CC};
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_ES_CMD_SET_PERF_TRIGGER_MASK_CC = {
-    .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_CMD_MID), .CommandCode = CFE_ES_SET_PERF_TRIGGER_MASK_CC};
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_ES_CMD_RESET_PR_COUNT_CC = {
-    .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_CMD_MID), .CommandCode = CFE_ES_RESET_PR_COUNT_CC};
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_ES_CMD_SET_MAX_PR_COUNT_CC = {
-    .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_CMD_MID), .CommandCode = CFE_ES_SET_MAX_PR_COUNT_CC};
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_ES_CMD_DELETE_CDS_CC = {
-    .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_CMD_MID), .CommandCode = CFE_ES_DELETE_CDS_CC};
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_ES_CMD_SEND_MEM_POOL_STATS_CC = {
-    .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_CMD_MID), .CommandCode = CFE_ES_SEND_MEM_POOL_STATS_CC};
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_ES_CMD_DUMP_CDS_REGISTRY_CC = {
-    .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_CMD_MID), .CommandCode = CFE_ES_DUMP_CDS_REGISTRY_CC};
-
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_ES_CMD_INVALID_CC = {.MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_CMD_MID),
-                                                                      .CommandCode = CFE_ES_DUMP_CDS_REGISTRY_CC + 2};
-
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_ES_SEND_HK = {.MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_SEND_HK_MID)};
+/* NOTE: Automatic formatting of this table tends to make it harder to read. */
+/* clang-format off */
+static const UT_TaskPipeDispatchId_t UT_TPID_CFE_ES_CMD_NOOP_CC =
+    { ES_UT_CC_DISPATCH(CMD, CFE_ES_NOOP_CC, NoopCmd) };
+static const UT_TaskPipeDispatchId_t UT_TPID_CFE_ES_CMD_RESET_COUNTERS_CC =
+    { ES_UT_CC_DISPATCH(CMD, CFE_ES_RESET_COUNTERS_CC, ResetCountersCmd) };
+static const UT_TaskPipeDispatchId_t UT_TPID_CFE_ES_CMD_RESTART_CC =
+    { ES_UT_CC_DISPATCH(CMD, CFE_ES_RESTART_CC, RestartCmd) };
+static const UT_TaskPipeDispatchId_t UT_TPID_CFE_ES_CMD_START_APP_CC =
+    { ES_UT_CC_DISPATCH(CMD, CFE_ES_START_APP_CC, StartAppCmd) };
+static const UT_TaskPipeDispatchId_t UT_TPID_CFE_ES_CMD_STOP_APP_CC =
+    { ES_UT_CC_DISPATCH(CMD, CFE_ES_STOP_APP_CC, StopAppCmd) };
+static const UT_TaskPipeDispatchId_t UT_TPID_CFE_ES_CMD_RESTART_APP_CC =
+    { ES_UT_CC_DISPATCH(CMD, CFE_ES_RESTART_APP_CC, RestartAppCmd) };
+static const UT_TaskPipeDispatchId_t UT_TPID_CFE_ES_CMD_RELOAD_APP_CC =
+    { ES_UT_CC_DISPATCH(CMD, CFE_ES_RELOAD_APP_CC, ReloadAppCmd) };
+static const UT_TaskPipeDispatchId_t UT_TPID_CFE_ES_CMD_QUERY_ONE_CC =
+    { ES_UT_CC_DISPATCH(CMD, CFE_ES_QUERY_ONE_CC, QueryOneCmd) };
+static const UT_TaskPipeDispatchId_t UT_TPID_CFE_ES_CMD_QUERY_ALL_CC =
+    { ES_UT_CC_DISPATCH(CMD, CFE_ES_QUERY_ALL_CC, QueryAllCmd) };
+static const UT_TaskPipeDispatchId_t UT_TPID_CFE_ES_CMD_QUERY_ALL_TASKS_CC =
+    { ES_UT_CC_DISPATCH(CMD, CFE_ES_QUERY_ALL_TASKS_CC, QueryAllTasksCmd) };
+static const UT_TaskPipeDispatchId_t UT_TPID_CFE_ES_CMD_CLEAR_SYS_LOG_CC =
+    { ES_UT_CC_DISPATCH(CMD, CFE_ES_CLEAR_SYS_LOG_CC, ClearSysLogCmd) };
+static const UT_TaskPipeDispatchId_t UT_TPID_CFE_ES_CMD_WRITE_SYS_LOG_CC =
+    { ES_UT_CC_DISPATCH(CMD, CFE_ES_WRITE_SYS_LOG_CC, WriteSysLogCmd) };
+static const UT_TaskPipeDispatchId_t UT_TPID_CFE_ES_CMD_OVER_WRITE_SYS_LOG_CC =
+    { ES_UT_CC_DISPATCH(CMD, CFE_ES_OVER_WRITE_SYS_LOG_CC, OverWriteSysLogCmd) };
+static const UT_TaskPipeDispatchId_t UT_TPID_CFE_ES_CMD_CLEAR_ER_LOG_CC =
+    { ES_UT_CC_DISPATCH(CMD, CFE_ES_CLEAR_ER_LOG_CC, ClearERLogCmd) };
+static const UT_TaskPipeDispatchId_t UT_TPID_CFE_ES_CMD_WRITE_ER_LOG_CC =
+    { ES_UT_CC_DISPATCH(CMD, CFE_ES_WRITE_ER_LOG_CC, WriteERLogCmd) };
+static const UT_TaskPipeDispatchId_t UT_TPID_CFE_ES_CMD_START_PERF_DATA_CC =
+    { ES_UT_CC_DISPATCH(CMD, CFE_ES_START_PERF_DATA_CC, StartPerfDataCmd) };
+static const UT_TaskPipeDispatchId_t UT_TPID_CFE_ES_CMD_STOP_PERF_DATA_CC =
+    { ES_UT_CC_DISPATCH(CMD, CFE_ES_STOP_PERF_DATA_CC, StopPerfDataCmd) };
+static const UT_TaskPipeDispatchId_t UT_TPID_CFE_ES_CMD_SET_PERF_FILTER_MASK_CC =
+    { ES_UT_CC_DISPATCH(CMD, CFE_ES_SET_PERF_FILTER_MASK_CC, SetPerfFilterMaskCmd) };
+static const UT_TaskPipeDispatchId_t UT_TPID_CFE_ES_CMD_SET_PERF_TRIGGER_MASK_CC =
+    { ES_UT_CC_DISPATCH(CMD, CFE_ES_SET_PERF_TRIGGER_MASK_CC, SetPerfTriggerMaskCmd) };
+static const UT_TaskPipeDispatchId_t UT_TPID_CFE_ES_CMD_RESET_PR_COUNT_CC =
+    { ES_UT_CC_DISPATCH(CMD, CFE_ES_RESET_PR_COUNT_CC, ResetPRCountCmd) };
+static const UT_TaskPipeDispatchId_t UT_TPID_CFE_ES_CMD_SET_MAX_PR_COUNT_CC =
+    { ES_UT_CC_DISPATCH(CMD, CFE_ES_SET_MAX_PR_COUNT_CC, SetMaxPRCountCmd) };
+static const UT_TaskPipeDispatchId_t UT_TPID_CFE_ES_CMD_DELETE_CDS_CC =
+    { ES_UT_CC_DISPATCH(CMD, CFE_ES_DELETE_CDS_CC, DeleteCDSCmd) };
+static const UT_TaskPipeDispatchId_t UT_TPID_CFE_ES_CMD_SEND_MEM_POOL_STATS_CC =
+    { ES_UT_CC_DISPATCH(CMD, CFE_ES_SEND_MEM_POOL_STATS_CC, SendMemPoolStatsCmd) };
+static const UT_TaskPipeDispatchId_t UT_TPID_CFE_ES_CMD_DUMP_CDS_REGISTRY_CC =
+    { ES_UT_CC_DISPATCH(CMD, CFE_ES_DUMP_CDS_REGISTRY_CC, DumpCDSRegistryCmd) };
+static const UT_TaskPipeDispatchId_t UT_TPID_CFE_ES_SEND_HK =
+    { ES_UT_MSG_DISPATCH(SEND_HK, SendHkCmd) };
+static const UT_TaskPipeDispatchId_t UT_TPID_CFE_ES_CMD_INVALID_LENGTH =
+    { ES_UT_ERROR_DISPATCH(CMD, 0, CFE_STATUS_WRONG_MSG_LENGTH) };
+static const UT_TaskPipeDispatchId_t UT_TPID_CFE_ES_CMD_INVALID_CC =
+    { ES_UT_ERROR_DISPATCH(CMD, -1, CFE_STATUS_BAD_COMMAND_CODE) };
+/* clang-format on */
 
 /*
 ** Functions
@@ -3248,7 +3258,7 @@ void TestTask(void)
      * length call
      */
     ES_ResetUnitTest();
-    UT_CallTaskPipe(CFE_ES_TaskPipe, CFE_MSG_PTR(CmdBuf), 0, UT_TPID_CFE_ES_CMD_CLEAR_ER_LOG_CC);
+    UT_CallTaskPipe(CFE_ES_TaskPipe, CFE_MSG_PTR(CmdBuf), 0, UT_TPID_CFE_ES_CMD_INVALID_LENGTH);
     CFE_UtAssert_EVENTSENT(CFE_ES_LEN_ERR_EID);
 
     /* Test resetting and setting the max for the processor reset count */

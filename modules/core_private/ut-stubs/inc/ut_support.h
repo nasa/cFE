@@ -107,6 +107,33 @@ typedef struct
     void *         SnapshotBuffer;
 } UT_SoftwareBusSnapshot_Entry_t;
 
+/**
+ * Style of message dispatch to perform
+ */
+typedef enum
+{
+    /**
+     * If method is set to NONE, then no dispatch will be set up.
+     * This can be used to e.g. check error paths but not actual message handling.
+     */
+    UT_TaskPipeDispatchMethod_NONE,
+
+    /**
+     * If method is set to MSG_ID_CC, then no dispatch will be set up based on the
+     * MsgID value and command code.  This is the traditional method and works with
+     * task pipe implementations that utilize a local switch() statement.
+     */
+    UT_TaskPipeDispatchMethod_MSG_ID_CC,
+
+    /**
+     * If method is set to TABLE_OFFSET, then no dispatch will be set up based on the
+     * offset into a dispatch table.  This is the EDS method and works with
+     * task pipe implementations that perform message dispatch via a table lookup.
+     */
+    UT_TaskPipeDispatchMethod_TABLE_OFFSET
+
+} UT_TaskPipeDispatchMethod_t;
+
 /*
  * Information to identify a message in the "Task Pipe"
  * or message dispatch routines, to indicate which of
@@ -123,9 +150,23 @@ typedef struct
 typedef struct
 {
     /**
+     * Method of dispatch to use.
+     * This should match how the source was compiled,
+     * and it controls how the stubs are configured.
+     */
+    UT_TaskPipeDispatchMethod_t Method;
+
+    /**
      * Invoke the handler for this MsgID
+     * This is only used/relevant when Method is set to MSG_ID_CC
      */
     CFE_SB_MsgId_t MsgId;
+
+    /**
+     * Offset of handler function to invoke
+     * This is only used/relevant when Method is set to TABLE_OFFSET
+     */
+    int32 TableOffset;
 
     /**
      * Specifies the sub-command to invoke
@@ -133,7 +174,27 @@ typedef struct
      * set to zero in this case).
      */
     CFE_MSG_FcnCode_t CommandCode;
+
+    /**
+     * Set nonzero to indicate a code to be returned from dispatcher.
+     * This may be relevant for any dispatch method
+     */
+    CFE_Status_t DispatchError;
+
+    /**
+     * Expected size of the message being handled
+     */
+    size_t NominalMsgSize;
+
 } UT_TaskPipeDispatchId_t;
+
+/*
+ * The following macros set certain fields inside the UT_TaskPipeDispatchId_t
+ * They can be combined as needed for various situations
+ */
+#define UT_TPD_SETSIZE(cmd) .NominalMsgSize = sizeof(cmd##_t)
+#define UT_TPD_SETCC(cc)    .CommandCode = cc
+#define UT_TPD_SETERR(err)  .DispatchError = err
 
 /*
 ** Functions
