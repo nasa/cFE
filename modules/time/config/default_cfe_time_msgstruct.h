@@ -58,10 +58,10 @@ typedef struct CFE_TIME_SendDiagnosticCmd
     CFE_MSG_CommandHeader_t CommandHeader; /**< \brief Command header */
 } CFE_TIME_SendDiagnosticCmd_t;
 
-typedef struct CFE_TIME_1HzCmd
+typedef struct CFE_TIME_OneHzCmd
 {
     CFE_MSG_CommandHeader_t CommandHeader; /**< \brief Command header */
-} CFE_TIME_1HzCmd_t;
+} CFE_TIME_OneHzCmd_t;
 
 typedef struct CFE_TIME_ToneSignalCmd
 {

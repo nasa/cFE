@@ -460,7 +460,7 @@
         </EntryList>
       </ContainerDataType>
 
-      <ContainerDataType name="1HzCmd" baseType="CFE_HDR/CommandHeader">
+      <ContainerDataType name="OneHzCmd" baseType="CFE_HDR/CommandHeader">
       </ContainerDataType>
 
       <ContainerDataType name="FakeToneCmd" baseType="CFE_HDR/CommandHeader">
@@ -1305,7 +1305,7 @@
           </Interface>
           <Interface name="ONEHZ_CMD" type="CFE_SB/Telecommand">
             <GenericTypeMapSet>
-              <GenericTypeMap name="TelecommandDataType" type="1HzCmd" />
+              <GenericTypeMap name="TelecommandDataType" type="OneHzCmd" />
             </GenericTypeMapSet>
           </Interface>
           <Interface name="DATA_CMD" type="CFE_SB/Telecommand">

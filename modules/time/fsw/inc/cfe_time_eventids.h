@@ -70,7 +70,7 @@
  *
  *  \par Cause:
  *
- *  \link #CFE_TIME_SEND_DIAGNOSTIC_TLM_CC TIME Request Diagnostics Command \endlink success.
+ *  \link #CFE_TIME_SEND_DIAGNOSTIC_CC TIME Request Diagnostics Command \endlink success.
  */
 #define CFE_TIME_DIAG_EID 6
 
@@ -171,8 +171,8 @@
  *
  *  \par Cause:
  *
- *  \link #CFE_TIME_ADD_ONEHZ_ADJUSTMENT_CC TIME Add STCF Adjustment Each Second Command \endlink OR
- *  \link #CFE_TIME_SUB_ONEHZ_ADJUSTMENT_CC TIME Subtract STCF Adjustment Each Second Command \endlink success.
+ *  \link #CFE_TIME_ADD_ONE_HZ_ADJUSTMENT_CC TIME Add STCF Adjustment Each Second Command \endlink OR
+ *  \link #CFE_TIME_SUB_ONE_HZ_ADJUSTMENT_CC TIME Subtract STCF Adjustment Each Second Command \endlink success.
  */
 #define CFE_TIME_ONEHZ_EID 16
 
@@ -431,8 +431,8 @@
  *
  *  \par Cause:
  *
- *  \link #CFE_TIME_ADD_ONEHZ_ADJUSTMENT_CC TIME Add STCF Adjustment Each Second Command \endlink OR
- *  \link #CFE_TIME_SUB_ONEHZ_ADJUSTMENT_CC TIME Subtract STCF Adjustment Each Second Command \endlink
+ *  \link #CFE_TIME_ADD_ONE_HZ_ADJUSTMENT_CC TIME Add STCF Adjustment Each Second Command \endlink OR
+ *  \link #CFE_TIME_SUB_ONE_HZ_ADJUSTMENT_CC TIME Subtract STCF Adjustment Each Second Command \endlink
  *  failure due to being in an incompatible mode.
  */
 #define CFE_TIME_ONEHZ_CFG_EID 48

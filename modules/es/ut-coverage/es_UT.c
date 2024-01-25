@@ -111,12 +111,12 @@ static const UT_TaskPipeDispatchId_t UT_TPID_CFE_ES_CMD_QUERY_ALL_CC = {
     .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_CMD_MID), .CommandCode = CFE_ES_QUERY_ALL_CC};
 static const UT_TaskPipeDispatchId_t UT_TPID_CFE_ES_CMD_QUERY_ALL_TASKS_CC = {
     .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_CMD_MID), .CommandCode = CFE_ES_QUERY_ALL_TASKS_CC};
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_ES_CMD_CLEAR_SYSLOG_CC = {
-    .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_CMD_MID), .CommandCode = CFE_ES_CLEAR_SYSLOG_CC};
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_ES_CMD_WRITE_SYSLOG_CC = {
-    .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_CMD_MID), .CommandCode = CFE_ES_WRITE_SYSLOG_CC};
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_ES_CMD_OVER_WRITE_SYSLOG_CC = {
-    .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_CMD_MID), .CommandCode = CFE_ES_OVER_WRITE_SYSLOG_CC};
+static const UT_TaskPipeDispatchId_t UT_TPID_CFE_ES_CMD_CLEAR_SYS_LOG_CC = {
+    .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_CMD_MID), .CommandCode = CFE_ES_CLEAR_SYS_LOG_CC};
+static const UT_TaskPipeDispatchId_t UT_TPID_CFE_ES_CMD_WRITE_SYS_LOG_CC = {
+    .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_CMD_MID), .CommandCode = CFE_ES_WRITE_SYS_LOG_CC};
+static const UT_TaskPipeDispatchId_t UT_TPID_CFE_ES_CMD_OVER_WRITE_SYS_LOG_CC = {
+    .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_CMD_MID), .CommandCode = CFE_ES_OVER_WRITE_SYS_LOG_CC};
 static const UT_TaskPipeDispatchId_t UT_TPID_CFE_ES_CMD_CLEAR_ER_LOG_CC = {
     .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_CMD_MID), .CommandCode = CFE_ES_CLEAR_ER_LOG_CC};
 static const UT_TaskPipeDispatchId_t UT_TPID_CFE_ES_CMD_WRITE_ER_LOG_CC = {
@@ -2466,7 +2466,6 @@ void TestGenericPool(void)
     ES_ResetUnitTest();
     UtAssert_INT32_EQ(CFE_ES_GenPoolRecyclePoolBlock(&Pool1, 0, Pool1.Buckets[0].BlockSize, &Offset1),
                       CFE_ES_BUFFER_NOT_IN_POOL);
-
 }
 
 void TestTask(void)
@@ -3027,7 +3026,7 @@ void TestTask(void)
     ES_ResetUnitTest();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
     UT_CallTaskPipe(CFE_ES_TaskPipe, CFE_MSG_PTR(CmdBuf), sizeof(CmdBuf.ClearSysLogCmd),
-                    UT_TPID_CFE_ES_CMD_CLEAR_SYSLOG_CC);
+                    UT_TPID_CFE_ES_CMD_CLEAR_SYS_LOG_CC);
     CFE_UtAssert_EVENTSENT(CFE_ES_SYSLOG1_INF_EID);
 
     /* Test successful overwriting of the system log using overwrite mode */
@@ -3035,7 +3034,7 @@ void TestTask(void)
     memset(&CmdBuf, 0, sizeof(CmdBuf));
     CmdBuf.OverwriteSysLogCmd.Payload.Mode = CFE_ES_LogMode_OVERWRITE;
     UT_CallTaskPipe(CFE_ES_TaskPipe, CFE_MSG_PTR(CmdBuf), sizeof(CmdBuf.OverwriteSysLogCmd),
-                    UT_TPID_CFE_ES_CMD_OVER_WRITE_SYSLOG_CC);
+                    UT_TPID_CFE_ES_CMD_OVER_WRITE_SYS_LOG_CC);
     CFE_UtAssert_EVENTSENT(CFE_ES_SYSLOGMODE_EID);
 
     /* Test successful overwriting of the system log using discard mode */
@@ -3043,7 +3042,7 @@ void TestTask(void)
     memset(&CmdBuf, 0, sizeof(CmdBuf));
     CmdBuf.OverwriteSysLogCmd.Payload.Mode = CFE_ES_LogMode_DISCARD;
     UT_CallTaskPipe(CFE_ES_TaskPipe, CFE_MSG_PTR(CmdBuf), sizeof(CmdBuf.OverwriteSysLogCmd),
-                    UT_TPID_CFE_ES_CMD_OVER_WRITE_SYSLOG_CC);
+                    UT_TPID_CFE_ES_CMD_OVER_WRITE_SYS_LOG_CC);
     CFE_UtAssert_EVENTSENT(CFE_ES_SYSLOGMODE_EID);
 
     /* Test overwriting the system log using an invalid mode */
@@ -3051,7 +3050,7 @@ void TestTask(void)
     memset(&CmdBuf, 0, sizeof(CmdBuf));
     CmdBuf.OverwriteSysLogCmd.Payload.Mode = 255;
     UT_CallTaskPipe(CFE_ES_TaskPipe, CFE_MSG_PTR(CmdBuf), sizeof(CmdBuf.OverwriteSysLogCmd),
-                    UT_TPID_CFE_ES_CMD_OVER_WRITE_SYSLOG_CC);
+                    UT_TPID_CFE_ES_CMD_OVER_WRITE_SYS_LOG_CC);
     CFE_UtAssert_EVENTSENT(CFE_ES_ERR_SYSLOGMODE_EID);
 
     /* Test successful writing of the system log */
@@ -3061,7 +3060,7 @@ void TestTask(void)
     CmdBuf.WriteSysLogCmd.Payload.FileName[sizeof(CmdBuf.WriteSysLogCmd.Payload.FileName) - 1] = '\0';
     CFE_ES_Global.TaskData.HkPacket.Payload.SysLogEntries                                      = 123;
     UT_CallTaskPipe(CFE_ES_TaskPipe, CFE_MSG_PTR(CmdBuf), sizeof(CmdBuf.WriteSysLogCmd),
-                    UT_TPID_CFE_ES_CMD_WRITE_SYSLOG_CC);
+                    UT_TPID_CFE_ES_CMD_WRITE_SYS_LOG_CC);
     CFE_UtAssert_EVENTSENT(CFE_ES_SYSLOG2_EID);
 
     /* Test writing the system log using a bad file name */
@@ -3069,7 +3068,7 @@ void TestTask(void)
     UT_SetDeferredRetcode(UT_KEY(CFE_FS_ParseInputFileNameEx), 1, CFE_FS_INVALID_PATH);
     memset(&CmdBuf, 0, sizeof(CmdBuf));
     UT_CallTaskPipe(CFE_ES_TaskPipe, CFE_MSG_PTR(CmdBuf), sizeof(CmdBuf.WriteSysLogCmd),
-                    UT_TPID_CFE_ES_CMD_WRITE_SYSLOG_CC);
+                    UT_TPID_CFE_ES_CMD_WRITE_SYS_LOG_CC);
     CFE_UtAssert_EVENTSENT(CFE_ES_SYSLOG2_ERR_EID);
 
     /* Test writing the system log using a null file name */
@@ -3077,7 +3076,7 @@ void TestTask(void)
     memset(&CmdBuf, 0, sizeof(CmdBuf));
     CmdBuf.WriteSysLogCmd.Payload.FileName[0] = '\0';
     UT_CallTaskPipe(CFE_ES_TaskPipe, CFE_MSG_PTR(CmdBuf), sizeof(CmdBuf.WriteSysLogCmd),
-                    UT_TPID_CFE_ES_CMD_WRITE_SYSLOG_CC);
+                    UT_TPID_CFE_ES_CMD_WRITE_SYS_LOG_CC);
     CFE_UtAssert_EVENTSENT(CFE_ES_SYSLOG2_EID);
 
     /* Test writing the system log with an OS create failure */
@@ -3086,7 +3085,7 @@ void TestTask(void)
     UT_SetDefaultReturnValue(UT_KEY(OS_OpenCreate), OS_ERROR);
     CmdBuf.WriteSysLogCmd.Payload.FileName[0] = '\0';
     UT_CallTaskPipe(CFE_ES_TaskPipe, CFE_MSG_PTR(CmdBuf), sizeof(CmdBuf.WriteSysLogCmd),
-                    UT_TPID_CFE_ES_CMD_WRITE_SYSLOG_CC);
+                    UT_TPID_CFE_ES_CMD_WRITE_SYS_LOG_CC);
     CFE_UtAssert_EVENTSENT(CFE_ES_SYSLOG2_ERR_EID);
 
     /* Test writing the system log with an OS write failure */
@@ -3099,14 +3098,14 @@ void TestTask(void)
     CFE_ES_Global.ResetDataPtr->SystemLogEndIdx = CFE_ES_Global.ResetDataPtr->SystemLogWriteIdx;
     CmdBuf.WriteSysLogCmd.Payload.FileName[0]   = '\0';
     UT_CallTaskPipe(CFE_ES_TaskPipe, CFE_MSG_PTR(CmdBuf), sizeof(CmdBuf.WriteSysLogCmd),
-                    UT_TPID_CFE_ES_CMD_WRITE_SYSLOG_CC);
+                    UT_TPID_CFE_ES_CMD_WRITE_SYS_LOG_CC);
     CFE_UtAssert_EVENTSENT(CFE_ES_FILEWRITE_ERR_EID);
 
     /* Test writing the system log with a write header failure */
     ES_ResetUnitTest();
     UT_SetDeferredRetcode(UT_KEY(CFE_FS_WriteHeader), 1, OS_ERROR);
     UT_CallTaskPipe(CFE_ES_TaskPipe, CFE_MSG_PTR(CmdBuf), sizeof(CmdBuf.WriteSysLogCmd),
-                    UT_TPID_CFE_ES_CMD_WRITE_SYSLOG_CC);
+                    UT_TPID_CFE_ES_CMD_WRITE_SYS_LOG_CC);
     CFE_UtAssert_EVENTSENT(CFE_ES_FILEWRITE_ERR_EID);
 
     /* Test successful clearing of the E&R log */
@@ -3466,21 +3465,21 @@ void TestTask(void)
      * invalid command length
      */
     ES_ResetUnitTest();
-    UT_CallTaskPipe(CFE_ES_TaskPipe, CFE_MSG_PTR(CmdBuf), 0, UT_TPID_CFE_ES_CMD_CLEAR_SYSLOG_CC);
+    UT_CallTaskPipe(CFE_ES_TaskPipe, CFE_MSG_PTR(CmdBuf), 0, UT_TPID_CFE_ES_CMD_CLEAR_SYS_LOG_CC);
     CFE_UtAssert_EVENTSENT(CFE_ES_LEN_ERR_EID);
 
     /* Test sending a request to overwrite the system log with an
      * invalid command length
      */
     ES_ResetUnitTest();
-    UT_CallTaskPipe(CFE_ES_TaskPipe, CFE_MSG_PTR(CmdBuf), 0, UT_TPID_CFE_ES_CMD_OVER_WRITE_SYSLOG_CC);
+    UT_CallTaskPipe(CFE_ES_TaskPipe, CFE_MSG_PTR(CmdBuf), 0, UT_TPID_CFE_ES_CMD_OVER_WRITE_SYS_LOG_CC);
     CFE_UtAssert_EVENTSENT(CFE_ES_LEN_ERR_EID);
 
     /* Test sending a request to write the system log with an
      * invalid command length
      */
     ES_ResetUnitTest();
-    UT_CallTaskPipe(CFE_ES_TaskPipe, CFE_MSG_PTR(CmdBuf), 0, UT_TPID_CFE_ES_CMD_WRITE_SYSLOG_CC);
+    UT_CallTaskPipe(CFE_ES_TaskPipe, CFE_MSG_PTR(CmdBuf), 0, UT_TPID_CFE_ES_CMD_WRITE_SYS_LOG_CC);
     CFE_UtAssert_EVENTSENT(CFE_ES_LEN_ERR_EID);
 
     /* Test successful overwriting of the system log using overwrite mode */
@@ -3488,7 +3487,7 @@ void TestTask(void)
     memset(&CmdBuf, 0, sizeof(CmdBuf));
     CmdBuf.OverwriteSysLogCmd.Payload.Mode = CFE_ES_LogMode_OVERWRITE;
     UT_CallTaskPipe(CFE_ES_TaskPipe, CFE_MSG_PTR(CmdBuf), sizeof(CmdBuf.OverwriteSysLogCmd),
-                    UT_TPID_CFE_ES_CMD_OVER_WRITE_SYSLOG_CC);
+                    UT_TPID_CFE_ES_CMD_OVER_WRITE_SYS_LOG_CC);
     CFE_UtAssert_EVENTSENT(CFE_ES_SYSLOGMODE_EID);
 
     /* Test sending a request to write the error log with an
@@ -3598,7 +3597,7 @@ void TestPerf(void)
      */
     ES_ResetUnitTest();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
-    CmdBuf.PerfStartCmd.Payload.TriggerMode = CFE_ES_PERF_TRIGGER_START;
+    CmdBuf.PerfStartCmd.Payload.TriggerMode = CFE_ES_PerfTrigger_START;
     UT_CallTaskPipe(CFE_ES_TaskPipe, CFE_MSG_PTR(CmdBuf), sizeof(CmdBuf.PerfStartCmd),
                     UT_TPID_CFE_ES_CMD_START_PERF_DATA_CC);
     CFE_UtAssert_EVENTSENT(CFE_ES_PERF_STARTCMD_EID);
@@ -3608,7 +3607,7 @@ void TestPerf(void)
      */
     ES_ResetUnitTest();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
-    CmdBuf.PerfStartCmd.Payload.TriggerMode = CFE_ES_PERF_TRIGGER_CENTER;
+    CmdBuf.PerfStartCmd.Payload.TriggerMode = CFE_ES_PerfTrigger_CENTER;
     UT_CallTaskPipe(CFE_ES_TaskPipe, CFE_MSG_PTR(CmdBuf), sizeof(CmdBuf.PerfStartCmd),
                     UT_TPID_CFE_ES_CMD_START_PERF_DATA_CC);
     CFE_UtAssert_EVENTSENT(CFE_ES_PERF_STARTCMD_EID);
@@ -3618,7 +3617,7 @@ void TestPerf(void)
      */
     ES_ResetUnitTest();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
-    CmdBuf.PerfStartCmd.Payload.TriggerMode = CFE_ES_PERF_TRIGGER_END;
+    CmdBuf.PerfStartCmd.Payload.TriggerMode = CFE_ES_PerfTrigger_END;
     UT_CallTaskPipe(CFE_ES_TaskPipe, CFE_MSG_PTR(CmdBuf), sizeof(CmdBuf.PerfStartCmd),
                     UT_TPID_CFE_ES_CMD_START_PERF_DATA_CC);
     CFE_UtAssert_EVENTSENT(CFE_ES_PERF_STARTCMD_EID);
@@ -3628,7 +3627,7 @@ void TestPerf(void)
      */
     ES_ResetUnitTest();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
-    CmdBuf.PerfStartCmd.Payload.TriggerMode = (CFE_ES_PERF_TRIGGER_END + 1);
+    CmdBuf.PerfStartCmd.Payload.TriggerMode = (CFE_ES_PerfTrigger_END + 1);
     UT_CallTaskPipe(CFE_ES_TaskPipe, CFE_MSG_PTR(CmdBuf), sizeof(CmdBuf.PerfStartCmd),
                     UT_TPID_CFE_ES_CMD_START_PERF_DATA_CC);
     CFE_UtAssert_EVENTSENT(CFE_ES_PERF_STARTCMD_TRIG_ERR_EID);
@@ -3649,7 +3648,7 @@ void TestPerf(void)
     /* clearing the BackgroundPerfDumpState will fully reset to initial state */
     memset(&CFE_ES_Global.BackgroundPerfDumpState, 0, sizeof(CFE_ES_Global.BackgroundPerfDumpState));
     CFE_ES_Global.BackgroundPerfDumpState.CurrentState = CFE_ES_PerfDumpState_INIT;
-    CmdBuf.PerfStartCmd.Payload.TriggerMode            = CFE_ES_PERF_TRIGGER_START;
+    CmdBuf.PerfStartCmd.Payload.TriggerMode            = CFE_ES_PerfTrigger_START;
     UT_CallTaskPipe(CFE_ES_TaskPipe, CFE_MSG_PTR(CmdBuf), sizeof(CmdBuf.PerfStartCmd),
                     UT_TPID_CFE_ES_CMD_START_PERF_DATA_CC);
     CFE_UtAssert_EVENTSENT(CFE_ES_PERF_STARTCMD_ERR_EID);
@@ -3667,7 +3666,7 @@ void TestPerf(void)
     ES_ResetUnitTest();
     memset(&CFE_ES_Global.BackgroundPerfDumpState, 0, sizeof(CFE_ES_Global.BackgroundPerfDumpState));
     memset(&CmdBuf, 0, sizeof(CmdBuf));
-    CmdBuf.PerfStartCmd.Payload.TriggerMode = CFE_ES_PERF_TRIGGER_START;
+    CmdBuf.PerfStartCmd.Payload.TriggerMode = CFE_ES_PerfTrigger_START;
     UT_CallTaskPipe(CFE_ES_TaskPipe, CFE_MSG_PTR(CmdBuf), sizeof(CmdBuf.PerfStartCmd),
                     UT_TPID_CFE_ES_CMD_START_PERF_DATA_CC);
     CFE_UtAssert_EVENTSENT(CFE_ES_PERF_STARTCMD_EID);
@@ -3775,11 +3774,11 @@ void TestPerf(void)
      */
     ES_ResetUnitTest();
     Perf->MetaData.InvalidMarkerReported = true;
-    Perf->MetaData.Mode                  = CFE_ES_PERF_TRIGGER_START;
+    Perf->MetaData.Mode                  = CFE_ES_PerfTrigger_START;
     Perf->MetaData.DataCount             = CFE_PLATFORM_ES_PERF_DATA_BUFFER_SIZE + 1;
     Perf->MetaData.TriggerMask[0]        = 0xFFFF;
     CFE_ES_PerfLogAdd(1, 0);
-    UtAssert_UINT32_EQ(Perf->MetaData.Mode, CFE_ES_PERF_TRIGGER_START);
+    UtAssert_UINT32_EQ(Perf->MetaData.Mode, CFE_ES_PerfTrigger_START);
     UtAssert_UINT32_EQ(Perf->MetaData.State, CFE_ES_PERF_IDLE);
 
     /* Test addition of a new entry to the performance log with CENTER
@@ -3787,10 +3786,10 @@ void TestPerf(void)
      */
     ES_ResetUnitTest();
     Perf->MetaData.State        = CFE_ES_PERF_TRIGGERED;
-    Perf->MetaData.Mode         = CFE_ES_PERF_TRIGGER_CENTER;
+    Perf->MetaData.Mode         = CFE_ES_PerfTrigger_CENTER;
     Perf->MetaData.TriggerCount = CFE_PLATFORM_ES_PERF_DATA_BUFFER_SIZE / 2 + 1;
     CFE_ES_PerfLogAdd(1, 0);
-    UtAssert_UINT32_EQ(Perf->MetaData.Mode, CFE_ES_PERF_TRIGGER_CENTER);
+    UtAssert_UINT32_EQ(Perf->MetaData.Mode, CFE_ES_PerfTrigger_CENTER);
     UtAssert_UINT32_EQ(Perf->MetaData.State, CFE_ES_PERF_IDLE);
 
     /* Test addition of a new entry to the performance log with END
@@ -3798,9 +3797,9 @@ void TestPerf(void)
      */
     ES_ResetUnitTest();
     Perf->MetaData.State = CFE_ES_PERF_TRIGGERED;
-    Perf->MetaData.Mode  = CFE_ES_PERF_TRIGGER_END;
+    Perf->MetaData.Mode  = CFE_ES_PerfTrigger_END;
     CFE_ES_PerfLogAdd(1, 0);
-    UtAssert_UINT32_EQ(Perf->MetaData.Mode, CFE_ES_PERF_TRIGGER_END);
+    UtAssert_UINT32_EQ(Perf->MetaData.Mode, CFE_ES_PerfTrigger_END);
     UtAssert_UINT32_EQ(Perf->MetaData.State, CFE_ES_PERF_IDLE);
 
     /* Test addition where state goes to idle after first check */
@@ -3853,7 +3852,7 @@ void TestPerf(void)
     ES_ResetUnitTest();
     Perf->MetaData.TriggerCount   = 0;
     Perf->MetaData.State          = CFE_ES_PERF_TRIGGERED;
-    Perf->MetaData.Mode           = CFE_ES_PERF_TRIGGER_START;
+    Perf->MetaData.Mode           = CFE_ES_PerfTrigger_START;
     Perf->MetaData.TriggerMask[0] = 0xffff;
     CFE_ES_PerfLogAdd(0x1, 0);
     UtAssert_UINT32_EQ(Perf->MetaData.TriggerCount, 1);
@@ -3864,7 +3863,7 @@ void TestPerf(void)
     ES_ResetUnitTest();
     Perf->MetaData.TriggerCount = CFE_PLATFORM_ES_PERF_DATA_BUFFER_SIZE / 2 - 2;
     Perf->MetaData.State        = CFE_ES_PERF_TRIGGERED;
-    Perf->MetaData.Mode         = CFE_ES_PERF_TRIGGER_CENTER;
+    Perf->MetaData.Mode         = CFE_ES_PerfTrigger_CENTER;
     CFE_ES_PerfLogAdd(0x1, 0);
     UtAssert_UINT32_EQ(Perf->MetaData.State, CFE_ES_PERF_TRIGGERED);
 

@@ -315,7 +315,7 @@ int32 CFE_TIME_TaskInit(void)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_TIME_HousekeepingCmd(const CFE_TIME_SendHkCmd_t *data)
+int32 CFE_TIME_SendHkCmd(const CFE_TIME_SendHkCmd_t *data)
 {
     CFE_TIME_Reference_t Reference;
 
@@ -393,7 +393,7 @@ int32 CFE_TIME_ToneDataCmd(const CFE_TIME_ToneDataCmd_t *data)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_TIME_OneHzCmd(const CFE_TIME_1HzCmd_t *data)
+int32 CFE_TIME_OneHzCmd(const CFE_TIME_OneHzCmd_t *data)
 {
     /*
      * Run the state machine updates required at 1Hz.

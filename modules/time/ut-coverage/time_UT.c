@@ -68,7 +68,7 @@ static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_CMD_NOOP_CC = {.MsgId = CF
 static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_CMD_RESET_COUNTERS_CC = {
     .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_TIME_CMD_MID), .CommandCode = CFE_TIME_RESET_COUNTERS_CC};
 static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_CMD_SEND_DIAGNOSTIC_TLM_CC = {
-    .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_TIME_CMD_MID), .CommandCode = CFE_TIME_SEND_DIAGNOSTIC_TLM_CC};
+    .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_TIME_CMD_MID), .CommandCode = CFE_TIME_SEND_DIAGNOSTIC_CC};
 static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_CMD_SET_STATE_CC = {
     .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_TIME_CMD_MID), .CommandCode = CFE_TIME_SET_STATE_CC};
 static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_CMD_SET_SOURCE_CC = {
@@ -92,9 +92,9 @@ static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_CMD_ADD_ADJUST_CC = {
 static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_CMD_SUB_ADJUST_CC = {
     .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_TIME_CMD_MID), .CommandCode = CFE_TIME_SUB_ADJUST_CC};
 static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_CMD_ADD_ONEHZ_ADJUSTMENT_CC = {
-    .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_TIME_CMD_MID), .CommandCode = CFE_TIME_ADD_ONEHZ_ADJUSTMENT_CC};
+    .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_TIME_CMD_MID), .CommandCode = CFE_TIME_ADD_ONE_HZ_ADJUSTMENT_CC};
 static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_CMD_SUB_ONEHZ_ADJUSTMENT_CC = {
-    .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_TIME_CMD_MID), .CommandCode = CFE_TIME_SUB_ONEHZ_ADJUSTMENT_CC};
+    .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_TIME_CMD_MID), .CommandCode = CFE_TIME_SUB_ONE_HZ_ADJUSTMENT_CC};
 static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_INVALID_MID = {.MsgId = CFE_SB_MSGID_RESERVED, .CommandCode = 0};
 static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_CMD_INVALID_CC = {
     .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_TIME_CMD_MID), .CommandCode = 0x7F};
@@ -1317,7 +1317,7 @@ void Test_PipeCmds(void)
         CFE_TIME_ToneSignalCmd_t       tonesignalcmd;
         CFE_TIME_FakeToneCmd_t         timesendcmd;
         CFE_TIME_SendHkCmd_t           sendhkcmd;
-        CFE_TIME_1HzCmd_t              onehzcmd;
+        CFE_TIME_OneHzCmd_t              onehzcmd;
         CFE_TIME_NoopCmd_t             noopcmd;
         CFE_TIME_ResetCountersCmd_t    resetcounterscmd;
         CFE_TIME_SendDiagnosticCmd_t   diagtlmcmd;

@@ -52,7 +52,7 @@ typedef struct CFE_ES_RestartCmd_Payload
 **
 ** This format is shared by several executive services commands.
 ** For command details, see #CFE_ES_QUERY_ALL_CC, #CFE_ES_QUERY_ALL_TASKS_CC,
-** #CFE_ES_WRITE_SYSLOG_CC, and #CFE_ES_WRITE_ER_LOG_CC
+** #CFE_ES_WRITE_SYS_LOG_CC, and #CFE_ES_WRITE_ER_LOG_CC
 **
 **/
 typedef struct CFE_ES_FileNameCmd_Payload
@@ -64,7 +64,7 @@ typedef struct CFE_ES_FileNameCmd_Payload
 /**
 ** \brief Overwrite/Discard System Log Configuration Command Payload
 **
-** For command details, see #CFE_ES_OVER_WRITE_SYSLOG_CC
+** For command details, see #CFE_ES_OVER_WRITE_SYS_LOG_CC
 **
 **/
 typedef struct CFE_ES_OverWriteSysLogCmd_Payload
@@ -146,13 +146,12 @@ typedef struct CFE_ES_DeleteCDSCmd_Payload
 /**
  * @brief Labels for values to use in #CFE_ES_StartPerfCmd_Payload.TriggerMode
  * @sa CFE_ES_StartPerfCmd_Payload
-*/
+ */
 enum CFE_ES_PerfMode
 {
-    CFE_ES_PERF_TRIGGER_START = 0,
-    CFE_ES_PERF_TRIGGER_CENTER,
-    CFE_ES_PERF_TRIGGER_END,
-    CFE_ES_PERF_MAX_MODES
+    CFE_ES_PerfTrigger_START = 0,
+    CFE_ES_PerfTrigger_CENTER,
+    CFE_ES_PerfTrigger_END
 };
 
 typedef uint32 CFE_ES_PerfMode_Enum_t;
@@ -165,7 +164,8 @@ typedef uint32 CFE_ES_PerfMode_Enum_t;
 **/
 typedef struct CFE_ES_StartPerfCmd_Payload
 {
-    CFE_ES_PerfMode_Enum_t TriggerMode; /**< \brief Desired trigger position (Start, Center, End). Values defined by #CFE_ES_PerfMode. */
+    CFE_ES_PerfMode_Enum_t
+        TriggerMode; /**< \brief Desired trigger position (Start, Center, End). Values defined by #CFE_ES_PerfMode. */
 } CFE_ES_StartPerfCmd_Payload_t;
 
 /**

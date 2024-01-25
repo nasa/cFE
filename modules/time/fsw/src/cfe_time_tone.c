@@ -1287,7 +1287,7 @@ void CFE_TIME_Local1HzTask(void)
         ** This used to be optional in previous CFE versions, but it is now required
         ** as TIME subscribes to this itself to do state machine tasks.
         */
-        CFE_SB_TransmitMsg(CFE_MSG_PTR(CFE_TIME_Global.Local1HzCmd.CommandHeader), true);
+        CFE_SB_TransmitMsg(CFE_MSG_PTR(CFE_TIME_Global.LocalOneHzCmd.CommandHeader), true);
 
         CFE_TIME_Global.LocalTaskCounter++;
 

@@ -52,7 +52,7 @@ enum CFE_FS_SubType
      * @brief Executive Services System Log Type
      *
      * Executive Services System Log File which is generated in response to a
-     * \link #CFE_ES_WRITE_SYSLOG_CC \ES_WRITESYSLOG2FILE \endlink
+     * \link #CFE_ES_WRITE_SYS_LOG_CC \ES_WRITESYSLOG2FILE \endlink
      * command.
      *
      */

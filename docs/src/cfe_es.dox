@@ -693,13 +693,13 @@
   The System Log is an array of bytes that contains back-to-back printf type
   messages from applications. The cFE internal applications use this log when
   errors are encountered during initialization before the Event Manager is fully
-  initialized. To view the information the #CFE_ES_WRITE_SYSLOG_CC command must
+  initialized. To view the information the #CFE_ES_WRITE_SYS_LOG_CC command must
   be sent. This command will write the log to a binary file. The path and
   filename may be specified in the command. If the filename command field
   contains an empty string, the configuration parameter
   #CFE_PLATFORM_ES_DEFAULT_SYSLOG_FILE is used to specify the path and filename.  Use the
   ground system to get the file and display the contents.  The
-  #CFE_ES_CLEAR_SYSLOG_CC is used to clear the System log.
+  #CFE_ES_CLEAR_SYS_LOG_CC is used to clear the System log.
 
   The size of the System log is defined by the platform configuration parameter
   #CFE_PLATFORM_ES_SYSTEM_LOG_SIZE. This log is preserved after a processor reset and
