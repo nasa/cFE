@@ -657,7 +657,7 @@
   TIME provides the ability to command a one time adjustment
   (#CFE_TIME_ADD_ADJUST_CC and #CFE_TIME_SUB_ADJUST_CC)
   to the current STCF.  In addition there is a 1Hz adjustment
-  (#CFE_TIME_ADD_ONEHZ_ADJUSTMENT_CC and #CFE_TIME_SUB_ONEHZ_ADJUSTMENT_CC)
+  (#CFE_TIME_ADD_ONE_HZ_ADJUSTMENT_CC and #CFE_TIME_SUB_ONE_HZ_ADJUSTMENT_CC)
   that can be made to the STCF to compensate for oscillator drift.
   Mission specific ground correlation should be used to assist in
   determining the proper values to use. The Leap Seconds should be
@@ -671,7 +671,7 @@
   to by the other systems.
 
   \sa #CFE_TIME_ADD_ADJUST_CC, #CFE_TIME_SUB_ADJUST_CC, #CFE_TIME_SET_STCF_CC,
-  #CFE_TIME_ADD_ONEHZ_ADJUSTMENT_CC, #CFE_TIME_SUB_ONEHZ_ADJUSTMENT_CC, #CFE_TIME_SET_LEAP_SECONDS_CC
+  #CFE_TIME_ADD_ONE_HZ_ADJUSTMENT_CC, #CFE_TIME_SUB_ONE_HZ_ADJUSTMENT_CC, #CFE_TIME_SET_LEAP_SECONDS_CC
 **/
 
 

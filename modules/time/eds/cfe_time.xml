@@ -460,7 +460,7 @@
         </EntryList>
       </ContainerDataType>
 
-      <ContainerDataType name="1HzCmd" baseType="CFE_HDR/CommandHeader">
+      <ContainerDataType name="OneHzCmd" baseType="CFE_HDR/CommandHeader">
       </ContainerDataType>
 
       <ContainerDataType name="FakeToneCmd" baseType="CFE_HDR/CommandHeader">
@@ -1041,7 +1041,7 @@
           Inappropriately setting the clock may result in other sub-systems performing incorrect
           time based calculations.  The specific risk is dependent upon the behavior of those sub-systems.
 
-          \sa  #CFE_TIME_ADD_ADJUST_CC, #CFE_TIME_SUB_ADJUST_CC, #CFE_TIME_ADD_1HZADJ_CC, #CFE_TIME_SUB_1HZADJ_CC
+          \sa  #CFE_TIME_ADD_ADJUST_CC, #CFE_TIME_SUB_ADJUST_CC, #CFE_TIME_ADD_ONEHZADJ_CC, #CFE_TIME_SUB_ONEHZADJ_CC
         </LongDescription>
         <ConstraintSet>
           <ValueConstraint entry="Sec.FunctionCode" value="11" />
@@ -1083,7 +1083,7 @@
           Inappropriately setting the clock may result in other sub-systems performing incorrect
           time based calculations.  The specific risk is dependent upon the behavior of those sub-systems.
 
-          \sa  #CFE_TIME_ADD_ADJUST_CC, #CFE_TIME_ADD_1HZADJ_CC, #CFE_TIME_SUB_1HZADJ_CC
+          \sa  #CFE_TIME_ADD_ADJUST_CC, #CFE_TIME_ADD_ONEHZADJ_CC, #CFE_TIME_SUB_ONEHZADJ_CC
         </LongDescription>
         <ConstraintSet>
           <ValueConstraint entry="Sec.FunctionCode" value="12" />
@@ -1093,7 +1093,7 @@
         </EntryList>
       </ContainerDataType>
 
-      <ContainerDataType name="Add1HZAdjustmentCmd" baseType="CommandBase">
+      <ContainerDataType name="AddOneHzAdjustmentCmd" baseType="CommandBase">
         <LongDescription>
           \cfetimecmd  Add Delta to Spacecraft Time Correlation Factor each 1Hz
 
@@ -1139,7 +1139,7 @@
           Inappropriately setting the clock may result in other sub-systems performing incorrect
           time based calculations.  The specific risk is dependent upon the behavior of those sub-systems.
 
-          \sa  #CFE_TIME_ADD_ADJUST_CC, #CFE_TIME_SUB_ADJUST_CC, #CFE_TIME_SUB_1HZADJ_CC
+          \sa  #CFE_TIME_ADD_ADJUST_CC, #CFE_TIME_SUB_ADJUST_CC, #CFE_TIME_SUB_ONEHZADJ_CC
         </LongDescription>
         <ConstraintSet>
           <ValueConstraint entry="Sec.FunctionCode" value="13" />
@@ -1149,7 +1149,7 @@
         </EntryList>
       </ContainerDataType>
 
-      <ContainerDataType name="Sub1HZAdjustmentCmd" baseType="CommandBase">
+      <ContainerDataType name="SubOneHzAdjustmentCmd" baseType="CommandBase">
         <LongDescription>
           \cfetimecmd  Subtract Delta from Spacecraft Time Correlation Factor each 1Hz
 
@@ -1195,7 +1195,7 @@
           Inappropriately setting the clock may result in other sub-systems performing incorrect
           time based calculations.  The specific risk is dependent upon the behavior of those sub-systems.
 
-          \sa  #CFE_TIME_ADD_ADJUST_CC, #CFE_TIME_SUB_ADJUST_CC, #CFE_TIME_ADD_1HZADJ_CC
+          \sa  #CFE_TIME_ADD_ADJUST_CC, #CFE_TIME_SUB_ADJUST_CC, #CFE_TIME_ADD_ONEHZADJ_CC
         </LongDescription>
         <ConstraintSet>
           <ValueConstraint entry="Sec.FunctionCode" value="14" />
@@ -1305,7 +1305,7 @@
           </Interface>
           <Interface name="ONEHZ_CMD" type="CFE_SB/Telecommand">
             <GenericTypeMapSet>
-              <GenericTypeMap name="TelecommandDataType" type="1HzCmd" />
+              <GenericTypeMap name="TelecommandDataType" type="OneHzCmd" />
             </GenericTypeMapSet>
           </Interface>
           <Interface name="DATA_CMD" type="CFE_SB/Telecommand">

@@ -259,7 +259,7 @@ typedef struct
     /*
     ** Local 1Hz wake-up command packet (not related to time at tone)...
     */
-    CFE_TIME_1HzCmd_t Local1HzCmd;
+    CFE_TIME_OneHzCmd_t LocalOneHzCmd;
 
     /*
     ** Time at the tone command packets (sent by time servers)...
@@ -666,7 +666,7 @@ void CFE_TIME_Local1HzTimerCallback(osal_id_t TimerId, void *Arg);
 /**
  * @brief  Onboard command (HK request)
  */
-int32 CFE_TIME_HousekeepingCmd(const CFE_TIME_SendHkCmd_t *data);
+int32 CFE_TIME_SendHkCmd(const CFE_TIME_SendHkCmd_t *data);
 
 /*
 ** Command handler for "tone signal detected"...
@@ -702,7 +702,7 @@ int32 CFE_TIME_ToneDataCmd(const CFE_TIME_ToneDataCmd_t *data);
  * This also implements the "fake tone" functionality when that is enabled,
  * as we do not need a separate MID for this job.
  */
-int32 CFE_TIME_OneHzCmd(const CFE_TIME_1HzCmd_t *data);
+int32 CFE_TIME_OneHzCmd(const CFE_TIME_OneHzCmd_t *data);
 
 #if (CFE_PLATFORM_TIME_CFG_SERVER == true)
 
@@ -760,7 +760,7 @@ void CFE_TIME_AdjustImpl(const CFE_TIME_TimeCmd_Payload_t *CommandPtr, CFE_TIME_
  *
  * This is a wrapper around CFE_TIME_1HzAdjImpl()
  */
-int32 CFE_TIME_Add1HZAdjustmentCmd(const CFE_TIME_Add1HZAdjustmentCmd_t *data);
+int32 CFE_TIME_AddOneHzAdjustmentCmd(const CFE_TIME_AddOneHzAdjustmentCmd_t *data);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -857,7 +857,7 @@ int32 CFE_TIME_SetTimeCmd(const CFE_TIME_SetTimeCmd_t *data);
  *
  * This is a wrapper around CFE_TIME_1HzAdjImpl()
  */
-int32 CFE_TIME_Sub1HZAdjustmentCmd(const CFE_TIME_Sub1HZAdjustmentCmd_t *data);
+int32 CFE_TIME_SubOneHzAdjustmentCmd(const CFE_TIME_SubOneHzAdjustmentCmd_t *data);
 
 /*---------------------------------------------------------------------------------------*/
 /**

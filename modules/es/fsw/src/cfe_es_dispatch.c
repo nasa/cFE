@@ -168,21 +168,21 @@ void CFE_ES_TaskPipe(const CFE_SB_Buffer_t *SBBufPtr)
                     }
                     break;
 
-                case CFE_ES_CLEAR_SYSLOG_CC:
+                case CFE_ES_CLEAR_SYS_LOG_CC:
                     if (CFE_ES_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_ES_ClearSysLogCmd_t)))
                     {
                         CFE_ES_ClearSysLogCmd((const CFE_ES_ClearSysLogCmd_t *)SBBufPtr);
                     }
                     break;
 
-                case CFE_ES_WRITE_SYSLOG_CC:
+                case CFE_ES_WRITE_SYS_LOG_CC:
                     if (CFE_ES_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_ES_WriteSysLogCmd_t)))
                     {
                         CFE_ES_WriteSysLogCmd((const CFE_ES_WriteSysLogCmd_t *)SBBufPtr);
                     }
                     break;
 
-                case CFE_ES_OVER_WRITE_SYSLOG_CC:
+                case CFE_ES_OVER_WRITE_SYS_LOG_CC:
                     if (CFE_ES_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_ES_OverWriteSysLogCmd_t)))
                     {
                         CFE_ES_OverWriteSysLogCmd((const CFE_ES_OverWriteSysLogCmd_t *)SBBufPtr);

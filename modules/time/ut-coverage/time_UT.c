@@ -68,7 +68,7 @@ static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_CMD_NOOP_CC = {.MsgId = CF
 static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_CMD_RESET_COUNTERS_CC = {
     .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_TIME_CMD_MID), .CommandCode = CFE_TIME_RESET_COUNTERS_CC};
 static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_CMD_SEND_DIAGNOSTIC_TLM_CC = {
-    .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_TIME_CMD_MID), .CommandCode = CFE_TIME_SEND_DIAGNOSTIC_TLM_CC};
+    .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_TIME_CMD_MID), .CommandCode = CFE_TIME_SEND_DIAGNOSTIC_CC};
 static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_CMD_SET_STATE_CC = {
     .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_TIME_CMD_MID), .CommandCode = CFE_TIME_SET_STATE_CC};
 static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_CMD_SET_SOURCE_CC = {
@@ -92,9 +92,9 @@ static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_CMD_ADD_ADJUST_CC = {
 static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_CMD_SUB_ADJUST_CC = {
     .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_TIME_CMD_MID), .CommandCode = CFE_TIME_SUB_ADJUST_CC};
 static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_CMD_ADD_ONEHZ_ADJUSTMENT_CC = {
-    .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_TIME_CMD_MID), .CommandCode = CFE_TIME_ADD_ONEHZ_ADJUSTMENT_CC};
+    .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_TIME_CMD_MID), .CommandCode = CFE_TIME_ADD_ONE_HZ_ADJUSTMENT_CC};
 static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_CMD_SUB_ONEHZ_ADJUSTMENT_CC = {
-    .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_TIME_CMD_MID), .CommandCode = CFE_TIME_SUB_ONEHZ_ADJUSTMENT_CC};
+    .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_TIME_CMD_MID), .CommandCode = CFE_TIME_SUB_ONE_HZ_ADJUSTMENT_CC};
 static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_INVALID_MID = {.MsgId = CFE_SB_MSGID_RESERVED, .CommandCode = 0};
 static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_CMD_INVALID_CC = {
     .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_TIME_CMD_MID), .CommandCode = 0x7F};
@@ -1312,28 +1312,28 @@ void Test_PipeCmds(void)
 {
     union
     {
-        CFE_MSG_Message_t              message;
-        CFE_TIME_ToneDataCmd_t         tonedatacmd;
-        CFE_TIME_ToneSignalCmd_t       tonesignalcmd;
-        CFE_TIME_FakeToneCmd_t         timesendcmd;
-        CFE_TIME_SendHkCmd_t           sendhkcmd;
-        CFE_TIME_1HzCmd_t              onehzcmd;
-        CFE_TIME_NoopCmd_t             noopcmd;
-        CFE_TIME_ResetCountersCmd_t    resetcounterscmd;
-        CFE_TIME_SendDiagnosticCmd_t   diagtlmcmd;
-        CFE_TIME_SetStateCmd_t         statecmd;
-        CFE_TIME_SetSourceCmd_t        sourcecmd;
-        CFE_TIME_SetSignalCmd_t        signalcmd;
-        CFE_TIME_AddDelayCmd_t         adddelaycmd;
-        CFE_TIME_SubDelayCmd_t         subdelaycmd;
-        CFE_TIME_SetTimeCmd_t          settimecmd;
-        CFE_TIME_SetMETCmd_t           setmetcmd;
-        CFE_TIME_SetSTCFCmd_t          setstcfcmd;
-        CFE_TIME_SetLeapSecondsCmd_t   leapscmd;
-        CFE_TIME_AddAdjustCmd_t        addadjcmd;
-        CFE_TIME_SubAdjustCmd_t        subadjcmd;
-        CFE_TIME_Add1HZAdjustmentCmd_t add1hzadjcmd;
-        CFE_TIME_Sub1HZAdjustmentCmd_t sub1hzadjcmd;
+        CFE_MSG_Message_t                message;
+        CFE_TIME_ToneDataCmd_t           tonedatacmd;
+        CFE_TIME_ToneSignalCmd_t         tonesignalcmd;
+        CFE_TIME_FakeToneCmd_t           timesendcmd;
+        CFE_TIME_SendHkCmd_t             sendhkcmd;
+        CFE_TIME_OneHzCmd_t              onehzcmd;
+        CFE_TIME_NoopCmd_t               noopcmd;
+        CFE_TIME_ResetCountersCmd_t      resetcounterscmd;
+        CFE_TIME_SendDiagnosticCmd_t     diagtlmcmd;
+        CFE_TIME_SetStateCmd_t           statecmd;
+        CFE_TIME_SetSourceCmd_t          sourcecmd;
+        CFE_TIME_SetSignalCmd_t          signalcmd;
+        CFE_TIME_AddDelayCmd_t           adddelaycmd;
+        CFE_TIME_SubDelayCmd_t           subdelaycmd;
+        CFE_TIME_SetTimeCmd_t            settimecmd;
+        CFE_TIME_SetMETCmd_t             setmetcmd;
+        CFE_TIME_SetSTCFCmd_t            setstcfcmd;
+        CFE_TIME_SetLeapSecondsCmd_t     leapscmd;
+        CFE_TIME_AddAdjustCmd_t          addadjcmd;
+        CFE_TIME_SubAdjustCmd_t          subadjcmd;
+        CFE_TIME_AddOneHzAdjustmentCmd_t add1hzadjcmd;
+        CFE_TIME_SubOneHzAdjustmentCmd_t sub1hzadjcmd;
     } CmdBuf;
 
     UT_SoftwareBusSnapshot_Entry_t LocalSnapshotData = {.MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_TIME_HK_TLM_MID)};
