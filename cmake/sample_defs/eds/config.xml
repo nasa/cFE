@@ -27,6 +27,23 @@
 -->
 <DesignParameters>
 
+  <Package name="SAMPLE_APP">
+    <Define name="STRING_VAL_LEN" value="10" />
+  </Package>
+
+  <Package name="CI_LAB">
+    <Define name="BASE_UDP_PORT" value="1234" />
+  </Package>
+
+  <Package name="TO_LAB">
+    <Define name="TLM_PORT" value="1235" />
+    <Define name="MAX_SUBSCRIPTIONS" value="32" />
+  </Package>
+
+  <Package name="CFE_ES" shortDescription="Executive Services">
+    <!-- Placeholder, currently no options yet -->
+  </Package>
+
   <Package name="CFE_EVS" shortDescription="Event Services Configuration">
      <!-- The bitmasks do not yet have a way to directly associate with the data structure yet -->
      <Define name="DEBUG_BIT" value="0x0001" />
@@ -50,19 +67,28 @@
      <Define name="MSGID_BIT_SIZE" value="32" />
   </Package>
 
+  <Package name="CFE_TBL" shortDescription="Table Services">
+    <!-- Placeholder, currently no options yet -->
+  </Package>
+
+  <Package name="CFE_TIME" shortDescription="Time Services">
+    <!-- Placeholder, currently no options yet -->
+  </Package>
+
   <Package name="SCH_LAB" shortDescription="SCH_LAB configurable items">
     <Define name="MAX_SCHEDULE_ENTRIES" value="32" />
+    <Define name="MAX_ARGS_PER_ENTRY" value="32" />
   </Package>
 
   <Package name="CFE_MISSION" shortDescription="cFE mission configuration">
 
       <!--
-        Memory size values in CFE CMD/TLM messages.
+        Global Memory reference integer size for all messages.
         Traditionally in CFE these were only 32 bit values.  Keeping as 32-bit
-        (4 bytes) allows more compatibility with older non-EDS tools, but
-        can be increased for large object support.
+        allows better compatibility with older (non-EDS) tools, but
+        can be increased for larger sizes if any 64 bit CPUs are deployed.
       -->
-      <Define name="MEM_REFERENCE_SIZE_BITS" value="32" />
+      <Define name="MEM_REFERENCE_SIZE_BITS" value="64" />
 
       <!--
          Note on header type selection - this should be defined to the bare
@@ -79,10 +105,6 @@
      <Define name="DATA_BYTE_ORDER" value="bigEndian"/>
      <Define name="SIGNED_INTEGER_ENCODING" value="twosComplement"/>
      <Define name="SPACECRAFT_ID" value="66"/>
-     <Define name="TELECOMMAND_BASE_TOPICID" value="1"/>
-     <Define name="TELECOMMAND_MAX_TOPICID" value="61"/>
-     <Define name="TELEMETRY_BASE_TOPICID" value="61"/>
-     <Define name="TELEMETRY_MAX_TOPICID" value="121"/>
 
      <Define name="ES_CDS_MAX_NAME_LENGTH" value="16">
       <LongDescription>
@@ -555,6 +577,8 @@
             any possible neighboring fields without implicit padding.
       </LongDescription>
     </Define>
+
+    <Define name="OS_MAX_NUM_OPEN_FILES" value="50" />
 
   </Package>
 
