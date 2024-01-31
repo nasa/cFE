@@ -32,6 +32,7 @@
 #define CFE_TBL_MSG_H
 
 #include "cfe_mission_cfg.h"
+#include "cfe_tbl_fcncodes.h"
 #include "cfe_tbl_msgdefs.h"
 #include "cfe_tbl_msgstruct.h"
 

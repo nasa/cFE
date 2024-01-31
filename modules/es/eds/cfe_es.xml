@@ -116,6 +116,15 @@
         </EnumerationList>
       </EnumeratedDataType>
 
+      <EnumeratedDataType name="PerfTrigger" shortDescription="Performance Monitor trigger modes">
+        <IntegerDataEncoding sizeInBits="32" encoding="unsigned" />
+        <EnumerationList>
+          <Enumeration label="START"  value="0" shortDescription="Trigger at start" />
+          <Enumeration label="CENTER" value="1" shortDescription="Trigger at center" />
+          <Enumeration label="END"    value="2" shortDescription="Trigger at end" />
+        </EnumerationList>
+      </EnumeratedDataType>
+
       <ContainerDataType name="AppId" baseType="CFE_RESOURCEID/BaseType" shortDescription="A type for Application IDs">
         <LongDescription>
           This is the type that is used for any API accepting or returning an App ID
@@ -165,7 +174,7 @@
         </Range>
       </IntegerDataType>
 
-      <IntegerDataType name="MemOffset" shortDescription="Integer type used for CPU memory addresses, sizes and offsets">
+      <AliasDataType name="MemOffset" type="BASE_TYPES/MemReference" shortDescription="Integer type used for CPU memory addresses, sizes and offsets">
         <LongDescription>
           For backward compatibility with existing CFS code this should be uint32,
           but all telemetry information will be limited to 4GB in size as a result.
@@ -177,13 +186,9 @@
           In either case this must be an unsigned type, and should be large enough
           to represent the largest memory address/size in use in the CFS system.
         </LongDescription>
-        <IntegerDataEncoding sizeInBits="${CFE_MISSION/MEM_REFERENCE_SIZE_BITS}" encoding="unsigned" />
-        <Range>
-          <MinMaxRange max="2 ^ ${CFE_MISSION/MEM_REFERENCE_SIZE_BITS}" min="0" rangeType="inclusiveMinExclusiveMax"/>
-        </Range>
-      </IntegerDataType>
+      </AliasDataType>
 
-      <IntegerDataType name="MemAddress" shortDescription="Integer type used for CPU memory addresses, sizes and offsets">
+      <AliasDataType name="MemAddress" type="BASE_TYPES/MemReference" shortDescription="Integer type used for CPU memory addresses, sizes and offsets">
         <LongDescription>
           For backward compatibility with existing CFS code this should be uint32,
           but all telemetry information will be limited to 4GB in size as a result.
@@ -195,11 +200,7 @@
           In either case this must be an unsigned type, and should be large enough
           to represent the largest memory address/size in use in the CFS system.
         </LongDescription>
-        <IntegerDataEncoding sizeInBits="${CFE_MISSION/MEM_REFERENCE_SIZE_BITS}" encoding="unsigned" />
-        <Range>
-          <MinMaxRange max="2 ^ ${CFE_MISSION/MEM_REFERENCE_SIZE_BITS}" min="0" rangeType="inclusiveMinExclusiveMax"/>
-        </Range>
-      </IntegerDataType>
+      </AliasDataType>
 
       <StringDataType name="char_x_CFE_ES_CDS_MAX_FULL_NAME_LEN" length="${CFE_MISSION/ES_CDS_MAX_FULL_NAME_LEN}" />
 
@@ -402,7 +403,7 @@
 
       <ContainerDataType name="OverWriteSysLogCmd_Payload" shortDescription="Overwrite/Discard System Log Configuration Command">
         <LongDescription>
-          For command details, see #CFE_ES_OVERWRITE_SYSLOG_CC
+          For command details, see #CFE_ES_OVERWRITE_SYS_LOG_CC
         </LongDescription>
         <EntryList>
           <Entry name="Mode" type="LogMode">
@@ -475,7 +476,7 @@
           For command details, see #CFE_ES_PERF_STARTDATA_CC
         </LongDescription>
         <EntryList>
-          <Entry name="TriggerMode" type="BASE_TYPES/uint32" shortDescription="Desired trigger position (Start, Center, End)" />
+          <Entry name="TriggerMode" type="PerfTrigger" shortDescription="Desired trigger position (Start, Center, End)" />
         </EntryList>
       </ContainerDataType>
 
@@ -1300,8 +1301,8 @@
           This command is not dangerous.  However, any previously logged data
           will be lost.
 
-          \sa  #CFE_ES_WRITE_SYSLOG_CC, #CFE_ES_CLEAR_ERLOG_CC, #CFE_ES_WRITE_ERLOG_CC,
-          #CFE_ES_OVERWRITE_SYSLOG_CC
+          \sa  #CFE_ES_WRITE_SYS_LOG_CC, #CFE_ES_CLEAR_ERLOG_CC, #CFE_ES_WRITE_ERLOG_CC,
+          #CFE_ES_OVERWRITE_SYS_LOG_CC
         </LongDescription>
         <ConstraintSet>
           <ValueConstraint entry="Sec.FunctionCode" value="10" />
@@ -1351,8 +1352,8 @@
           if performed repeatedly without sufficient file management by the
           operator, fill the file system.
 
-          \sa  #CFE_ES_CLEAR_SYSLOG_CC, #CFE_ES_CLEAR_ERLOG_CC, #CFE_ES_WRITE_ERLOG_CC,
-          #CFE_ES_OVERWRITE_SYSLOG_CC
+          \sa  #CFE_ES_CLEAR_SYS_LOG_CC, #CFE_ES_CLEAR_ERLOG_CC, #CFE_ES_WRITE_ERLOG_CC,
+          #CFE_ES_OVERWRITE_SYS_LOG_CC
         </LongDescription>
         <ConstraintSet>
           <ValueConstraint entry="Sec.FunctionCode" value="11" />
@@ -1400,7 +1401,7 @@
           This command is not dangerous.  However, any previously logged data
           will be lost.
 
-          \sa  #CFE_ES_CLEAR_SYSLOG_CC, #CFE_ES_WRITE_SYSLOG_CC, #CFE_ES_WRITE_ERLOG_CC
+          \sa  #CFE_ES_CLEAR_SYS_LOG_CC, #CFE_ES_WRITE_SYS_LOG_CC, #CFE_ES_WRITE_ERLOG_CC
         </LongDescription>
         <ConstraintSet>
           <ValueConstraint entry="Sec.FunctionCode" value="12" />
@@ -1450,7 +1451,7 @@
           if performed repeatedly without sufficient file management by the
           operator, fill the file system.
 
-          \sa  #CFE_ES_CLEAR_SYSLOG_CC, #CFE_ES_WRITE_SYSLOG_CC, #CFE_ES_CLEAR_ERLOG_CC
+          \sa  #CFE_ES_CLEAR_SYS_LOG_CC, #CFE_ES_WRITE_SYS_LOG_CC, #CFE_ES_CLEAR_ERLOG_CC
         </LongDescription>
         <ConstraintSet>
           <ValueConstraint entry="Sec.FunctionCode" value="13" />
@@ -1710,7 +1711,7 @@
           identifying the cause of a problem to be lost by a subsequent flood of
           additional messages).
 
-          \sa  #CFE_ES_CLEAR_SYSLOG_CC, #CFE_ES_WRITE_SYSLOG_CC
+          \sa  #CFE_ES_CLEAR_SYS_LOG_CC, #CFE_ES_WRITE_SYS_LOG_CC
         </LongDescription>
         <ConstraintSet>
           <ValueConstraint entry="Sec.FunctionCode" value="18" />

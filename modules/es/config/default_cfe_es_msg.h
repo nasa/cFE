@@ -32,6 +32,7 @@
 #define CFE_ES_MSG_H
 
 #include "cfe_mission_cfg.h"
+#include "cfe_es_fcncodes.h"
 #include "cfe_es_msgdefs.h"
 #include "cfe_es_msgstruct.h"
 

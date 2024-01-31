@@ -58,10 +58,10 @@ typedef struct CFE_TIME_SendDiagnosticCmd
     CFE_MSG_CommandHeader_t CommandHeader; /**< \brief Command header */
 } CFE_TIME_SendDiagnosticCmd_t;
 
-typedef struct CFE_TIME_1HzCmd
+typedef struct CFE_TIME_OneHzCmd
 {
     CFE_MSG_CommandHeader_t CommandHeader; /**< \brief Command header */
-} CFE_TIME_1HzCmd_t;
+} CFE_TIME_OneHzCmd_t;
 
 typedef struct CFE_TIME_ToneSignalCmd
 {
@@ -166,17 +166,17 @@ typedef struct CFE_TIME_SetTimeCmd
  * This follows the convention for command handler prototypes and allows
  * each one to independently evolve as necessary.
  */
-typedef struct CFE_TIME_Add1HZAdjustmentCmd
+typedef struct CFE_TIME_AddOneHzAdjustmentCmd
 {
     CFE_MSG_CommandHeader_t               CommandHeader; /**< \brief Command header */
     CFE_TIME_OneHzAdjustmentCmd_Payload_t Payload;       /**< \brief Command payload */
-} CFE_TIME_Add1HZAdjustmentCmd_t;
+} CFE_TIME_AddOneHzAdjustmentCmd_t;
 
-typedef struct CFE_TIME_Sub1HZAdjustmentCmd
+typedef struct CFE_TIME_SubOneHzAdjustmentCmd
 {
     CFE_MSG_CommandHeader_t               CommandHeader; /**< \brief Command header */
     CFE_TIME_OneHzAdjustmentCmd_Payload_t Payload;       /**< \brief Command payload */
-} CFE_TIME_Sub1HZAdjustmentCmd_t;
+} CFE_TIME_SubOneHzAdjustmentCmd_t;
 
 /**
  * \brief Time at tone data command

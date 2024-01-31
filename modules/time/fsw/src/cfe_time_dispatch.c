@@ -81,7 +81,7 @@ void CFE_TIME_TaskPipe(const CFE_SB_Buffer_t *SBBufPtr)
         ** Housekeeping telemetry request...
         */
         case CFE_TIME_SEND_HK_MID:
-            CFE_TIME_HousekeepingCmd((const CFE_TIME_SendHkCmd_t *)SBBufPtr);
+            CFE_TIME_SendHkCmd((const CFE_TIME_SendHkCmd_t *)SBBufPtr);
             break;
 
         /*
@@ -102,7 +102,7 @@ void CFE_TIME_TaskPipe(const CFE_SB_Buffer_t *SBBufPtr)
         ** Run time state machine at 1Hz...
         */
         case CFE_TIME_ONEHZ_CMD_MID:
-            CFE_TIME_OneHzCmd((const CFE_TIME_1HzCmd_t *)SBBufPtr);
+            CFE_TIME_OneHzCmd((const CFE_TIME_OneHzCmd_t *)SBBufPtr);
             break;
 
 /*
@@ -136,7 +136,7 @@ void CFE_TIME_TaskPipe(const CFE_SB_Buffer_t *SBBufPtr)
                     }
                     break;
 
-                case CFE_TIME_SEND_DIAGNOSTIC_TLM_CC:
+                case CFE_TIME_SEND_DIAGNOSTIC_CC:
                     if (CFE_TIME_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_TIME_SendDiagnosticCmd_t)))
                     {
                         CFE_TIME_SendDiagnosticTlm((const CFE_TIME_SendDiagnosticCmd_t *)SBBufPtr);
@@ -226,17 +226,17 @@ void CFE_TIME_TaskPipe(const CFE_SB_Buffer_t *SBBufPtr)
                     }
                     break;
 
-                case CFE_TIME_ADD_ONEHZ_ADJUSTMENT_CC:
-                    if (CFE_TIME_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_TIME_Add1HZAdjustmentCmd_t)))
+                case CFE_TIME_ADD_ONE_HZ_ADJUSTMENT_CC:
+                    if (CFE_TIME_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_TIME_AddOneHzAdjustmentCmd_t)))
                     {
-                        CFE_TIME_Add1HZAdjustmentCmd((const CFE_TIME_Add1HZAdjustmentCmd_t *)SBBufPtr);
+                        CFE_TIME_AddOneHzAdjustmentCmd((const CFE_TIME_AddOneHzAdjustmentCmd_t *)SBBufPtr);
                     }
                     break;
 
-                case CFE_TIME_SUB_ONEHZ_ADJUSTMENT_CC:
-                    if (CFE_TIME_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_TIME_Sub1HZAdjustmentCmd_t)))
+                case CFE_TIME_SUB_ONE_HZ_ADJUSTMENT_CC:
+                    if (CFE_TIME_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_TIME_SubOneHzAdjustmentCmd_t)))
                     {
-                        CFE_TIME_Sub1HZAdjustmentCmd((const CFE_TIME_Sub1HZAdjustmentCmd_t *)SBBufPtr);
+                        CFE_TIME_SubOneHzAdjustmentCmd((const CFE_TIME_SubOneHzAdjustmentCmd_t *)SBBufPtr);
                     }
                     break;
 

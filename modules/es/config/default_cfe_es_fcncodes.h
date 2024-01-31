@@ -457,10 +457,10 @@
 **       This command is not dangerous.  However, any previously logged data
 **       will be lost.
 **
-**  \sa #CFE_ES_WRITE_SYSLOG_CC, #CFE_ES_CLEAR_ER_LOG_CC, #CFE_ES_WRITE_ER_LOG_CC,
-**      #CFE_ES_OVER_WRITE_SYSLOG_CC
+**  \sa #CFE_ES_WRITE_SYS_LOG_CC, #CFE_ES_CLEAR_ER_LOG_CC, #CFE_ES_WRITE_ER_LOG_CC,
+**      #CFE_ES_OVER_WRITE_SYS_LOG_CC
 */
-#define CFE_ES_CLEAR_SYSLOG_CC 10
+#define CFE_ES_CLEAR_SYS_LOG_CC 10
 
 /** \cfeescmd Writes contents of Executive Services System Log to a File
 **
@@ -500,10 +500,10 @@
 **       if performed repeatedly without sufficient file management by the
 **       operator, fill the file system.
 **
-**  \sa #CFE_ES_CLEAR_SYSLOG_CC, #CFE_ES_CLEAR_ER_LOG_CC, #CFE_ES_WRITE_ER_LOG_CC,
-**      #CFE_ES_OVER_WRITE_SYSLOG_CC
+**  \sa #CFE_ES_CLEAR_SYS_LOG_CC, #CFE_ES_CLEAR_ER_LOG_CC, #CFE_ES_WRITE_ER_LOG_CC,
+**      #CFE_ES_OVER_WRITE_SYS_LOG_CC
 */
-#define CFE_ES_WRITE_SYSLOG_CC 11
+#define CFE_ES_WRITE_SYS_LOG_CC 11
 
 /** \cfeescmd Clears the contents of the Exception and Reset Log
 **
@@ -535,7 +535,7 @@
 **       This command is not dangerous.  However, any previously logged data
 **       will be lost.
 **
-**  \sa #CFE_ES_CLEAR_SYSLOG_CC, #CFE_ES_WRITE_SYSLOG_CC, #CFE_ES_WRITE_ER_LOG_CC
+**  \sa #CFE_ES_CLEAR_SYS_LOG_CC, #CFE_ES_WRITE_SYS_LOG_CC, #CFE_ES_WRITE_ER_LOG_CC
 */
 #define CFE_ES_CLEAR_ER_LOG_CC 12
 
@@ -578,7 +578,7 @@
 **       if performed repeatedly without sufficient file management by the
 **       operator, fill the file system.
 **
-**  \sa #CFE_ES_CLEAR_SYSLOG_CC, #CFE_ES_WRITE_SYSLOG_CC, #CFE_ES_CLEAR_ER_LOG_CC
+**  \sa #CFE_ES_CLEAR_SYS_LOG_CC, #CFE_ES_WRITE_SYS_LOG_CC, #CFE_ES_CLEAR_ER_LOG_CC
 */
 #define CFE_ES_WRITE_ER_LOG_CC 13
 
@@ -787,9 +787,9 @@
 **       identifying the cause of a problem to be lost by a subsequent flood of
 **       additional messages).
 **
-**  \sa #CFE_ES_CLEAR_SYSLOG_CC, #CFE_ES_WRITE_SYSLOG_CC
+**  \sa #CFE_ES_CLEAR_SYS_LOG_CC, #CFE_ES_WRITE_SYS_LOG_CC
 */
-#define CFE_ES_OVER_WRITE_SYSLOG_CC 18
+#define CFE_ES_OVER_WRITE_SYS_LOG_CC 18
 
 /** \cfeescmd Resets the Processor Reset Counter to Zero
 **

@@ -32,6 +32,7 @@
 #define CFE_SB_MSG_H
 
 #include "cfe_mission_cfg.h"
+#include "cfe_sb_fcncodes.h"
 #include "cfe_sb_msgdefs.h"
 #include "cfe_sb_msgstruct.h"
 

@@ -212,7 +212,7 @@
  *
  *  \par Cause:
  *
- *  \link #CFE_ES_CLEAR_SYSLOG_CC ES Clear System Log Command \endlink success.
+ *  \link #CFE_ES_CLEAR_SYS_LOG_CC ES Clear System Log Command \endlink success.
  */
 #define CFE_ES_SYSLOG1_INF_EID 17
 
@@ -223,7 +223,7 @@
  *
  *  \par Cause:
  *
- *  \link #CFE_ES_CLEAR_SYSLOG_CC ES Write System Log Command \endlink success.
+ *  \link #CFE_ES_CLEAR_SYS_LOG_CC ES Write System Log Command \endlink success.
  */
 #define CFE_ES_SYSLOG2_EID 18
 
@@ -608,7 +608,7 @@
  *
  *  \par Cause:
  *
- *  \link #CFE_ES_WRITE_SYSLOG_CC ES Write System Log Command \endlink failed parsing file
+ *  \link #CFE_ES_WRITE_SYS_LOG_CC ES Write System Log Command \endlink failed parsing file
  *  name or creating the file. OVERLOADED
  */
 #define CFE_ES_SYSLOG2_ERR_EID 55
@@ -772,7 +772,7 @@
  *
  *  \par Cause:
  *
- *  \link #CFE_ES_OVER_WRITE_SYSLOG_CC ES Set System Log Overwrite Mode Command \endlink success.
+ *  \link #CFE_ES_OVER_WRITE_SYS_LOG_CC ES Set System Log Overwrite Mode Command \endlink success.
  */
 #define CFE_ES_SYSLOGMODE_EID 70
 
@@ -783,7 +783,7 @@
  *
  *  \par Cause:
  *
- *  \link #CFE_ES_OVER_WRITE_SYSLOG_CC ES Set System Log Overwrite Mode Command \endlink failed
+ *  \link #CFE_ES_OVER_WRITE_SYS_LOG_CC ES Set System Log Overwrite Mode Command \endlink failed
  *  due to invalid mode requested.
  */
 #define CFE_ES_ERR_SYSLOGMODE_EID 71

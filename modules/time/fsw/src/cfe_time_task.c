@@ -261,10 +261,10 @@ int32 CFE_TIME_TaskInit(void)
         return Status;
     }
 
-    CFE_Config_GetVersionString(VersionString, CFE_CFG_MAX_VERSION_STR_LEN, "cFE",
-        CFE_SRC_VERSION, CFE_BUILD_CODENAME, CFE_LAST_OFFICIAL);
-    Status = CFE_EVS_SendEvent(CFE_TIME_INIT_EID, CFE_EVS_EventType_INFORMATION, "cFE TIME Initialized: %s",
-                               VersionString);
+    CFE_Config_GetVersionString(VersionString, CFE_CFG_MAX_VERSION_STR_LEN, "cFE", CFE_SRC_VERSION, CFE_BUILD_CODENAME,
+                                CFE_LAST_OFFICIAL);
+    Status =
+        CFE_EVS_SendEvent(CFE_TIME_INIT_EID, CFE_EVS_EventType_INFORMATION, "cFE TIME Initialized: %s", VersionString);
     if (Status != CFE_SUCCESS)
     {
         CFE_ES_WriteToSysLog("%s: Error sending init event:RC=0x%08X\n", __func__, (unsigned int)Status);
@@ -315,7 +315,7 @@ int32 CFE_TIME_TaskInit(void)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_TIME_HousekeepingCmd(const CFE_TIME_SendHkCmd_t *data)
+int32 CFE_TIME_SendHkCmd(const CFE_TIME_SendHkCmd_t *data)
 {
     CFE_TIME_Reference_t Reference;
 
@@ -393,7 +393,7 @@ int32 CFE_TIME_ToneDataCmd(const CFE_TIME_ToneDataCmd_t *data)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_TIME_OneHzCmd(const CFE_TIME_1HzCmd_t *data)
+int32 CFE_TIME_OneHzCmd(const CFE_TIME_OneHzCmd_t *data)
 {
     /*
      * Run the state machine updates required at 1Hz.
@@ -451,8 +451,8 @@ int32 CFE_TIME_NoopCmd(const CFE_TIME_NoopCmd_t *data)
 
     CFE_TIME_Global.CommandCounter++;
 
-    CFE_Config_GetVersionString(VersionString, CFE_CFG_MAX_VERSION_STR_LEN, "cFE",
-        CFE_SRC_VERSION, CFE_BUILD_CODENAME, CFE_LAST_OFFICIAL);
+    CFE_Config_GetVersionString(VersionString, CFE_CFG_MAX_VERSION_STR_LEN, "cFE", CFE_SRC_VERSION, CFE_BUILD_CODENAME,
+                                CFE_LAST_OFFICIAL);
     CFE_EVS_SendEvent(CFE_TIME_NOOP_EID, CFE_EVS_EventType_INFORMATION, "No-op Cmd Rcvd: %s", VersionString);
 
     return CFE_SUCCESS;
@@ -1081,7 +1081,7 @@ void CFE_TIME_1HzAdjImpl(const CFE_TIME_OneHzAdjustmentCmd_Payload_t *CommandPtr
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_TIME_Add1HZAdjustmentCmd(const CFE_TIME_Add1HZAdjustmentCmd_t *data)
+int32 CFE_TIME_AddOneHzAdjustmentCmd(const CFE_TIME_AddOneHzAdjustmentCmd_t *data)
 {
     CFE_TIME_1HzAdjImpl(&data->Payload, CFE_TIME_AdjustDirection_ADD);
     return CFE_SUCCESS;
@@ -1093,7 +1093,7 @@ int32 CFE_TIME_Add1HZAdjustmentCmd(const CFE_TIME_Add1HZAdjustmentCmd_t *data)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_TIME_Sub1HZAdjustmentCmd(const CFE_TIME_Sub1HZAdjustmentCmd_t *data)
+int32 CFE_TIME_SubOneHzAdjustmentCmd(const CFE_TIME_SubOneHzAdjustmentCmd_t *data)
 {
     CFE_TIME_1HzAdjImpl(&data->Payload, CFE_TIME_AdjustDirection_SUBTRACT);
     return CFE_SUCCESS;

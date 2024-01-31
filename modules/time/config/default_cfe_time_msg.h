@@ -32,6 +32,7 @@
 #define CFE_TIME_MSG_H
 
 #include "cfe_mission_cfg.h"
+#include "cfe_time_fcncodes.h"
 #include "cfe_time_msgdefs.h"
 #include "cfe_time_msgstruct.h"
 
