@@ -101,6 +101,17 @@ function(add_cfe_app APP_NAME APP_SRC_FILES)
   add_library(${APP_NAME} ${APPTYPE} ${APP_SRC_FILES} ${ARGN})
   target_link_libraries(${APP_NAME} core_api)
 
+  # If using "local" EDS linkage, then link the app with the EDS library here.
+  # Note that the linker will only pull in the compilation unit that actually
+  # resolves an undefined symbol, which in this case would be the app-specific
+  # DATATYPE_DB object if one is referenced at all.
+  #
+  # By linking with the respective application like this, the net result is that
+  # only the _referenced_ EDS DBs (i.e. those for loaded apps) are held in memory.
+  if (CFE_EDS_ENABLED_BUILD AND CFE_EDS_LINK_MODE STREQUAL LOCAL)
+    target_link_libraries($(APP_NAME) cfe_edsdb_static)
+  endif()
+
   # An "install" step is only needed for dynamic/runtime loaded apps
   if (APP_DYNAMIC_TARGET_LIST)
     cfs_app_do_install(${APP_NAME} ${APP_DYNAMIC_TARGET_LIST})

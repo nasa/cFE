@@ -293,12 +293,6 @@ function(prepare)
     add_definitions(-DSIMULATION=${SIMULATION})
   endif (SIMULATION)
 
-  # Create directories to hold generated files/wrappers
-  file(MAKE_DIRECTORY "${MISSION_BINARY_DIR}/eds")
-  file(MAKE_DIRECTORY "${MISSION_BINARY_DIR}/obj")
-  file(MAKE_DIRECTORY "${MISSION_BINARY_DIR}/inc")
-  file(MAKE_DIRECTORY "${MISSION_BINARY_DIR}/src")
-
   # Certain runtime variables need to be "exported" to the subordinate build, such as
   # the specific arch settings and the location of all the apps.  This list is collected
   # during this function execution and exported at the end.
@@ -548,7 +542,7 @@ function(process_arch TARGETSYSTEM)
   # convert to a string which is safe for a directory name
   string(REGEX REPLACE "[^A-Za-z0-9]" "_" ARCH_CONFIG_NAME "${BUILD_CONFIG}")
   set(ARCH_BINARY_DIR "${CMAKE_BINARY_DIR}/${ARCH_TOOLCHAIN_NAME}/${ARCH_CONFIG_NAME}")
-  file(MAKE_DIRECTORY "${ARCH_BINARY_DIR}" "${ARCH_BINARY_DIR}/inc")
+  file(MAKE_DIRECTORY "${ARCH_BINARY_DIR}")
 
   message(STATUS "Configuring for system arch: ${ARCH_TOOLCHAIN_NAME}/${ARCH_CONFIG_NAME}")
 
@@ -578,6 +572,7 @@ function(process_arch TARGETSYSTEM)
         -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
         -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
         -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=${CMAKE_EXPORT_COMPILE_COMMANDS}
+        -DCFE_EDS_ENABLED_BUILD:BOOL=${CFE_EDS_ENABLED_BUILD}
         ${SELECTED_TOOLCHAIN_FILE}
         ${CFE_SOURCE_DIR}
     WORKING_DIRECTORY

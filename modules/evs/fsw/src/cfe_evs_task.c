@@ -43,12 +43,6 @@ CFE_EVS_Global_t CFE_EVS_Global;
 /* Defines */
 #define CFE_EVS_PANIC_DELAY 500 /**< \brief Task delay before PSP panic */
 
-/*
-** Local function prototypes.
-*/
-void CFE_EVS_ProcessGroundCommand(CFE_SB_Buffer_t *SBBufPtr, CFE_SB_MsgId_t MsgId);
-bool CFE_EVS_VerifyCmdLength(CFE_MSG_Message_t *MsgPtr, size_t ExpectedLength);
-
 /* Function Definitions */
 
 /*----------------------------------------------------------------
