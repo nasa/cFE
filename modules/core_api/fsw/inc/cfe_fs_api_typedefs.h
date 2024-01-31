@@ -33,6 +33,7 @@
 */
 #include "common_types.h"
 #include "osconfig.h"
+#include "cfe_mission_cfg.h"
 #include "cfe_fs_extern_typedefs.h"
 
 /**
@@ -124,7 +125,7 @@ typedef struct CFE_FS_FileWriteMetaData
 {
     volatile bool IsPending; /**< Whether request is pending (volatile as it may be checked outside lock) */
 
-    char FileName[OS_MAX_PATH_LEN]; /**< Name of file to write */
+    char FileName[CFE_MISSION_MAX_PATH_LEN]; /**< Name of file to write */
 
     /* Data for FS header */
     uint32 FileSubType;                          /**< Type of file to write (for FS header) */

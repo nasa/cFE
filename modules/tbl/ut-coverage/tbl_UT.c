@@ -72,14 +72,29 @@ void * Tbl1Ptr = NULL;
 void * Tbl2Ptr = NULL;
 void **ArrayOfPtrsToTblPtrs[2];
 
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TBL_MSG_HK = {.MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_TBL_SEND_HK_MID)};
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TBL_CMD_NOOP_CC = {.MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_TBL_CMD_MID),
-                                                                    .CommandCode = CFE_TBL_NOOP_CC};
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TBL_CMD_RESET_COUNTERS_CC = {
-    .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_TBL_CMD_MID), .CommandCode = CFE_TBL_RESET_COUNTERS_CC};
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TBL_INVALID_MID = {.MsgId = CFE_SB_MSGID_RESERVED, .CommandCode = 0};
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TBL_CMD_INVALID_CC = {
-    .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_TBL_CMD_MID), .CommandCode = 0x7F};
+/* Normal dispatching registers the MsgID+CC in order to follow a
+ * certain path through a series of switch statements */
+#define TBL_UT_MID_DISPATCH(intf) \
+    .Method = UT_TaskPipeDispatchMethod_MSG_ID_CC, .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_TBL_##intf##_MID)
+
+#define TBL_UT_MSG_DISPATCH(intf, cmd)       TBL_UT_MID_DISPATCH(intf), UT_TPD_SETSIZE(CFE_TBL_##cmd)
+#define TBL_UT_CC_DISPATCH(intf, cc, cmd)    TBL_UT_MSG_DISPATCH(intf, cmd), UT_TPD_SETCC(cc)
+#define TBL_UT_ERROR_DISPATCH(intf, cc, err) TBL_UT_MID_DISPATCH(intf), UT_TPD_SETCC(cc), UT_TPD_SETERR(err)
+
+/* NOTE: Automatic formatting of this table tends to make it harder to read. */
+/* clang-format off */
+static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TBL_MSG_HK =
+    { TBL_UT_MSG_DISPATCH(SEND_HK, SendHkCmd) };
+static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TBL_CMD_NOOP_CC =
+    { TBL_UT_CC_DISPATCH(CMD, CFE_TBL_NOOP_CC, NoopCmd) };
+static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TBL_CMD_RESET_COUNTERS_CC =
+    { TBL_UT_CC_DISPATCH(CMD, CFE_TBL_RESET_COUNTERS_CC, ResetCountersCmd) };
+
+static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TBL_INVALID_MID =
+    { .Method = UT_TaskPipeDispatchMethod_MSG_ID_CC, UT_TPD_SETERR(CFE_STATUS_UNKNOWN_MSG_ID) };
+static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TBL_CMD_INVALID_CC =
+    { TBL_UT_ERROR_DISPATCH(CMD, -1, CFE_STATUS_BAD_COMMAND_CODE) };
+
 
 CFE_TBL_RegistryRec_t Original[CFE_PLATFORM_TBL_MAX_NUM_TABLES];
 

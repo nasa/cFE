@@ -33,6 +33,7 @@
 
 #include "cfe_mission_cfg.h"
 #include "cfe_evs_fcncodes.h"
+#include "cfe_evs_msgdefs.h"
 #include "cfe_evs_msgstruct.h"
 
 #endif

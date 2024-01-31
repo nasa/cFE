@@ -142,7 +142,7 @@
 **
 **  \sa
 */
-#define CFE_TIME_SEND_DIAGNOSTIC_TLM_CC 2 /* request diagnostic hk telemetry */
+#define CFE_TIME_SEND_DIAGNOSTIC_CC 2 /* request diagnostic hk telemetry */
 
 /** \cfetimecmd Set Time Source
 **
@@ -515,8 +515,8 @@
 **       Inappropriately setting the clock may result in other sub-systems performing incorrect
 **       time based calculations.  The specific risk is dependent upon the behavior of those sub-systems.
 **
-**  \sa #CFE_TIME_ADD_ADJUST_CC, #CFE_TIME_SUB_ADJUST_CC, #CFE_TIME_ADD_ONEHZ_ADJUSTMENT_CC,
-*#CFE_TIME_SUB_ONEHZ_ADJUSTMENT_CC
+**  \sa #CFE_TIME_ADD_ADJUST_CC, #CFE_TIME_SUB_ADJUST_CC, #CFE_TIME_ADD_ONE_HZ_ADJUSTMENT_CC,
+*#CFE_TIME_SUB_ONE_HZ_ADJUSTMENT_CC
 */
 #define CFE_TIME_ADD_ADJUST_CC 11 /* add one time STCF adjustment */
 
@@ -550,7 +550,7 @@
 **       Inappropriately setting the clock may result in other sub-systems performing incorrect
 **       time based calculations.  The specific risk is dependent upon the behavior of those sub-systems.
 **
-**  \sa #CFE_TIME_ADD_ADJUST_CC, #CFE_TIME_ADD_ONEHZ_ADJUSTMENT_CC, #CFE_TIME_SUB_ONEHZ_ADJUSTMENT_CC
+**  \sa #CFE_TIME_ADD_ADJUST_CC, #CFE_TIME_ADD_ONE_HZ_ADJUSTMENT_CC, #CFE_TIME_SUB_ONE_HZ_ADJUSTMENT_CC
 */
 #define CFE_TIME_SUB_ADJUST_CC 12 /* subtract one time STCF adjustment */
 
@@ -576,7 +576,7 @@
 **  \cfecmdmnemonic \TIME_ADD1HZSTCF
 **
 **  \par Command Structure
-**       #CFE_TIME_Add1HZAdjustmentCmd_t
+**       #CFE_TIME_AddOneHzAdjustmentCmd_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with the
@@ -596,9 +596,9 @@
 **       Inappropriately setting the clock may result in other sub-systems performing incorrect
 **       time based calculations.  The specific risk is dependent upon the behavior of those sub-systems.
 **
-**  \sa #CFE_TIME_ADD_ADJUST_CC, #CFE_TIME_SUB_ADJUST_CC, #CFE_TIME_SUB_ONEHZ_ADJUSTMENT_CC
+**  \sa #CFE_TIME_ADD_ADJUST_CC, #CFE_TIME_SUB_ADJUST_CC, #CFE_TIME_SUB_ONE_HZ_ADJUSTMENT_CC
 */
-#define CFE_TIME_ADD_ONEHZ_ADJUSTMENT_CC 13 /* add 1Hz STCF adjustment */
+#define CFE_TIME_ADD_ONE_HZ_ADJUSTMENT_CC 13 /* add 1Hz STCF adjustment */
 
 /** \cfetimecmd Subtract Delta from Spacecraft Time Correlation Factor each 1Hz
 **
@@ -622,7 +622,7 @@
 **  \cfecmdmnemonic \TIME_SUB1HZSTCF
 **
 **  \par Command Structure
-**       #CFE_TIME_Sub1HZAdjustmentCmd_t
+**       #CFE_TIME_SubOneHzAdjustmentCmd_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with the
@@ -644,9 +644,9 @@
 **       Inappropriately setting the clock may result in other sub-systems performing incorrect
 **       time based calculations.  The specific risk is dependent upon the behavior of those sub-systems.
 **
-**  \sa #CFE_TIME_ADD_ADJUST_CC, #CFE_TIME_SUB_ADJUST_CC, #CFE_TIME_ADD_ONEHZ_ADJUSTMENT_CC
+**  \sa #CFE_TIME_ADD_ADJUST_CC, #CFE_TIME_SUB_ADJUST_CC, #CFE_TIME_ADD_ONE_HZ_ADJUSTMENT_CC
 */
-#define CFE_TIME_SUB_ONEHZ_ADJUSTMENT_CC 14 /* subtract 1Hz STCF adjustment */
+#define CFE_TIME_SUB_ONE_HZ_ADJUSTMENT_CC 14 /* subtract 1Hz STCF adjustment */
 
 /** \cfetimecmd Set Tone Signal Source
 **
