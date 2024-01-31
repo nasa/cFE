@@ -1,5 +1,9 @@
 # Changelog
 
+## Development Build: equuleus-rc1+dev84
+- CFE updates needed for generated header compatibility (EDS)
+- See <https://github.com/nasa/cFE/pull/2505>
+
 ## Development Build: equuleus-rc1+dev79
 - Relative prefix exclusion for cfe implementation file search
 - See <https://github.com/nasa/cFE/pull/2494>
