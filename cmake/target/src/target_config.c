@@ -126,6 +126,78 @@ extern CFE_ConfigKeyValue_t CFE_MODULE_VERSION_TABLE[];
  */
 extern CFE_StaticModuleLoadEntry_t CFE_PSP_MODULE_LIST[];
 
+#ifdef CFE_EDS_ENABLED_BUILD
+
+#include "cfe_mission_eds_parameters.h"
+#include "cfe_mission_eds_interface_parameters.h"
+
+#define CFE_SB_INTF_DB_PTR &CFE_SOFTWAREBUS_INTERFACE
+
+#endif /* CFE_EDS_ENABLED_BUILD */
+
+/*
+ * Determine the proper values for populating the EDS-related
+ * fields of the configuration structure.  This depends on the
+ * selected linkage mode (static or dynamic).
+ */
+
+/*
+ * Static (const) EDS object link mode:
+ * Only the const pointer gets assigned to the EDS object, and the
+ * non-const pointer gets set NULL.  There are no "write" operations
+ * in this mode -- registration and de-registration is not necessary.
+ */
+#ifdef CFE_EDS_LINK_MODE_GLOBAL
+
+/* This mode is simple, just point directly at the object defined in the external DB */
+#define CFE_CONST_EDS_DB_PTR &EDS_DATABASE
+
+#endif /* CFE_EDS_LINK_MODE_GLOBAL */
+
+/*
+ * Dynamic (non-const) runtime EDS database object
+ * This is filled in as additional EDS datasheet objects are registered
+ */
+#ifdef CFE_EDS_LINK_MODE_LOCAL
+
+static EdsLib_DataTypeDB_t CFE_DYNAMIC_EDS_TABLE[EDS_MAX_DATASHEETS] = {NULL};
+
+static EdsLib_DatabaseObject_t CFE_DYNAMIC_EDSDB_OBJECT = {.AppTableSize     = EDS_MAX_DATASHEETS,
+                                                           .DataTypeDB_Table = CFE_DYNAMIC_EDS_TABLE};
+
+/* The object registered in config points at the local (empty) object */
+#define CFE_NONCONST_EDS_DB_PTR &CFE_DYNAMIC_EDSDB_OBJECT
+
+#endif /* CFE_EDS_LINK_MODE_LOCAL */
+
+/*
+ * For all of these DB objects, use NULL if not defined.
+ * This covers the case where EDS is not being used.
+ */
+#ifndef CFE_NONCONST_EDS_DB_PTR
+#define CFE_NONCONST_EDS_DB_PTR NULL
+#endif
+
+/*
+ * Note that the non-const object can be used as a const object,
+ * but not the other way around.  This can also be NULL.
+ */
+#ifndef CFE_CONST_EDS_DB_PTR
+#define CFE_CONST_EDS_DB_PTR CFE_NONCONST_EDS_DB_PTR
+#endif
+
+/*
+ * The SB intf DB serves as the lookup table for identification
+ * of the software bus messages.  This can also be NULL if
+ * EDS is not being used.
+ */
+#ifndef CFE_SB_INTF_DB_PTR
+#define CFE_SB_INTF_DB_PTR NULL
+#endif
+
+/* Disable clang-format for the rest of this file, to preserve columns in the struct defs */
+/* clang-format off */
+
 /**
  * A structure that encapsulates all the CFE static configuration
  */
@@ -152,7 +224,9 @@ Target_CfeConfigData GLOBAL_CFE_CONFIGDATA = {
     .UserReservedSize = CFE_PLATFORM_ES_USER_RESERVED_SIZE,
 
     .RamDiskSectorSize   = CFE_PLATFORM_ES_RAM_DISK_SECTOR_SIZE,
-    .RamDiskTotalSectors = CFE_PLATFORM_ES_RAM_DISK_NUM_SECTORS};
+    .RamDiskTotalSectors = CFE_PLATFORM_ES_RAM_DISK_NUM_SECTORS
+};
+
 
 /**
  * Instantiation of global system-wide configuration struct
@@ -176,4 +250,8 @@ Target_ConfigData GLOBAL_CONFIGDATA = {
     .ModuleVersionList       = CFE_MODULE_VERSION_TABLE,
     .CoreModuleList          = CFE_CORE_MODULE_LIST,
     .StaticAppList           = CFE_STATIC_APP_LIST,
+    .EdsDb                   = CFE_CONST_EDS_DB_PTR,
+    .DynamicEdsDb            = CFE_NONCONST_EDS_DB_PTR,
+    .SbIntfDb                = CFE_SB_INTF_DB_PTR
 };
+

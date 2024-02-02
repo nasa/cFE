@@ -10,6 +10,20 @@
 
 include(CMakeParseArguments)
 
+# This is done here at the global level so this definition is used for
+# ALL code on ALL targets, including host-side tools.  Ideally, this should
+# only be necessary on the core_api interface, but it does not fully propagate
+# to all unit test targets.  If/when that issue is resolved, this can be removed.
+if (CFE_EDS_ENABLED_BUILD)
+
+    # Propagate the setting to a C preprocessor define of the same name
+    # The CFE_EDS_ENABLED_BUILD switch indicates that any
+    # compile-time preprocessor blocks should be enabled in this build
+    add_definitions(-DCFE_EDS_ENABLED_BUILD)
+
+endif(CFE_EDS_ENABLED_BUILD)
+
+
 ##################################################################
 #
 # FUNCTION: cfe_locate_implementation_file
@@ -58,7 +72,7 @@ function(cfe_locate_implementation_file OUTPUT_VAR FILE_NAME)
     string(REPLACE ${MISSION_SOURCE_DIR} "" RELATIVEDIR ${BASEDIR})
 
     # A target-specific prefixed filename gets priority over a direct filename match
-    # But do not include this variant if the prefix is already part of the relative search path 
+    # But do not include this variant if the prefix is already part of the relative search path
     foreach (PREFIX ${LOCATEIMPL_ARG_PREFIX})
       if (NOT "${RELATIVEDIR}" MATCHES "/${PREFIX}/")
         list(APPEND IMPL_SEARCH_PATH "${BASEDIR}${PREFIX}_${FILE_NAME}")
