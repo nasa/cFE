@@ -101,6 +101,7 @@
       <!-- Commonly used string types in all CFE/CFS messages -->
       <StringDataType name="ApiName" length="${CFE_MISSION/MAX_API_LEN}" />
       <StringDataType name="PathName" length="${CFE_MISSION/MAX_PATH_LEN}" />
+      <StringDataType name="FileName" length="${CFE_MISSION/MAX_FILE_LEN}" />
 
       <!--
           Memory addresses in CMD/TLM: These are integer types based on the

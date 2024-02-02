@@ -90,6 +90,12 @@ typedef const struct
 } CFE_ConfigKeyValue_t;
 
 /**
+ * The "EdsLib_DatabaseObject" is an abstract structure here.
+ */
+typedef struct EdsLib_DatabaseObject                CFE_EdsDbObject_t;
+typedef struct CFE_MissionLib_SoftwareBus_Interface CFE_SbIntfDbObject_t;
+
+/**
  * Core Flight Executive configuration information.
  */
 typedef const struct
@@ -196,6 +202,34 @@ typedef const struct
     CFE_ConfigName_t *    CoreModuleList;    /**< List of CFE core support module names that are statically linked */
     CFE_ConfigName_t
         *StaticAppList; /**< List of additional CFS Applications that are statically linked into this binary */
+
+    /**
+     * Normal read-only EDS Database object
+     *
+     * This EDS DB object pointer is always initialized to be non-null.
+     * It is qualified as "const" and used for all EDS query requests.
+     */
+    const CFE_EdsDbObject_t *EdsDb;
+
+    /**
+     * Dynamic EDS Database object
+     *
+     * This provides a writable (non-const) pointer to the same EDS object as above,
+     * but only when when dynamic EDS link mode is selected.  It will be set NULL
+     * when static EDS link mode is selected.
+     *
+     * This can checked by runtime code to determine the EDS link mode.  If it is
+     * NULL this means the EDS DB is fixed/static and no runtime registration is needed.
+     * If this pointer is non-null then the EDS DB is dynamic and runtime registration
+     * is needed.
+     */
+    CFE_EdsDbObject_t *DynamicEdsDb;
+
+    /**
+     * Software bus interface EDS object (MsgId mappings)
+     */
+    const CFE_SbIntfDbObject_t *SbIntfDb;
+
 } Target_ConfigData;
 
 /**

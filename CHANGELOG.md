@@ -1,5 +1,10 @@
 # Changelog
 
+## Development Build: equuleus-rc1+dev90
+- EDS XML file updates
+- add EDS cmake hooks
+- See <https://github.com/nasa/cFE/pull/2510> and <https://github.com/nasa/cFE/pull/2511>
+
 ## Development Build: equuleus-rc1+dev84
 - CFE updates needed for generated header compatibility (EDS)
 - See <https://github.com/nasa/cFE/pull/2505>

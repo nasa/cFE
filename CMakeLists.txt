@@ -66,6 +66,21 @@ project(CFE C)
 # Allow unit tests to be added by any recipe
 enable_testing()
 
+# This switch determines whether to use EDS framework
+# By default it is set OFF/false as this is a new/experimental feature.
+option(CFE_EDS_ENABLED_BUILD "Use EDS framework" OFF)
+
+# Always create directories to hold generated files/wrappers
+# EDS makes signficant use of generated files.  In non-EDS builds 
+# some headers and wrapper files are also generated.  Directories 
+# may simply remain empty if not used/needed in the current config.
+file(MAKE_DIRECTORY 
+    "${CMAKE_BINARY_DIR}/eds"
+    "${CMAKE_BINARY_DIR}/obj"
+    "${CMAKE_BINARY_DIR}/inc"
+    "${CMAKE_BINARY_DIR}/src"
+)
+
 # Include the global routines
 include("cmake/global_functions.cmake")
 
@@ -123,4 +138,3 @@ prepare()
 foreach(SYSVAR ${TGTSYS_LIST})
   process_arch(${SYSVAR})
 endforeach(SYSVAR ${TGTSYS_LIST})
-

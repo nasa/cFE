@@ -12,6 +12,13 @@ add_library(core_api INTERFACE)
 # The fsw/inc here defines global/shared structures and interfaces
 target_include_directories(core_api INTERFACE fsw/inc)
 
+# Propagate the setting to a C preprocessor define of the same name
+# The CFE_EDS_ENABLED_BUILD switch indicates that any
+# compile-time preprocessor blocks should be enabled in this build
+if (CFE_EDS_ENABLED_BUILD)
+    target_compile_definitions(core_api INTERFACE CFE_EDS_ENABLED_BUILD)
+endif()
+
 # Propagate any INTERFACE-level include dirs and compile definitions from
 # the modules into this abstract interface target
 foreach(MOD ${MISSION_CORE_MODULES})
@@ -46,4 +53,3 @@ cfs_app_check_intf(core_api
 
     cfe_tbl_filedef.h
 )
-

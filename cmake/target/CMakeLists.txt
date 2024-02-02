@@ -193,6 +193,37 @@ set(CFE_LINK_NORMAL_LIBS
     ${${TGTNAME}_STATIC_APPLIST}
 )
 
+# If EDS is enabled, then the generated dictionary objects are linked with CFE.
+# This can be done statically or dynamically, depending on user preferences.
+if (CFE_EDS_ENABLED_BUILD)
+
+    # Determine EDS object linking mode for final executable.
+    # This should be configured via the toolchain file,
+    # with the default being FALSE (static link)
+    if (CFE_EDS_LINK_MODE STREQUAL GLOBAL)
+
+        # In this mode the full EDS object is statically linked
+        # In addition, also pull in the runtime lib, which
+        # supports script language bindings and UI display
+        list(APPEND CFE_LINK_WHOLE_LIBS
+            cfe_edsdb_static
+            edslib_runtime_static
+        )
+
+    endif()
+
+    list(APPEND CFE_LINK_WHOLE_LIBS
+        cfe_missionlib_runtime_static
+        cfe_missionlib_interfacedb_static
+    )
+
+    # Set a preprocessor define so the source will reference the right thing
+    target_compile_definitions(core-${TGTNAME} PRIVATE
+        CFE_EDS_LINK_MODE_${CFE_EDS_LINK_MODE}
+    )
+
+endif(CFE_EDS_ENABLED_BUILD)
+
 # Handle the list of "embedded files" that should be linked into CFE.
 # These are arbitrary files in the mission config that are converted
 # into C data structures and linked with the executable.  This is
@@ -276,4 +307,3 @@ target_link_libraries(core-${TGTNAME}
 # This is implemented in a separate function so
 # it may be overridden in an OS-specific manner if necessary.
 cfe_exec_do_install(${TGTNAME})
-

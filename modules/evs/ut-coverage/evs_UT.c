@@ -291,7 +291,6 @@ void Test_Init(void)
 {
     CFE_EVS_EnablePortsCmd_t        bitmaskcmd;
     CFE_EVS_EnableAppEventTypeCmd_t appbitcmd;
-    CFE_SB_MsgId_t                  msgid = CFE_SB_INVALID_MSG_ID;
 
     UtPrintf("Begin Test Init");
 
@@ -321,7 +320,7 @@ void Test_Init(void)
     UT_InitData_EVS();
 
     /* Set unexpected message ID */
-    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &msgid, sizeof(msgid), false);
+    UT_SetupBasicMsgDispatch(&UT_TPID_CFE_EVS_INVALID_MID, 0, true);
 
     UT_EVS_DoGenericCheckEvents(CFE_EVS_TaskMain, &UT_EVS_EventBuf);
     CFE_UtAssert_SYSLOG(EVS_SYSLOG_MSGS[8]);
