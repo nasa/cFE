@@ -40,16 +40,6 @@
       <StringDataType name="TableName" length="${CFE_MISSION/TBL_MAX_FULL_NAME_LEN}" shortDescription="Name of a table" />
       <StringDataType name="ObjectName" length="64" shortDescription="Name of an object within a table file" />
 
-      <ContainerDataType name="FileDef" shortDescription="Descriptor object for CFE table definition files">
-        <EntryList>
-          <Entry name="ObjectName" type="ObjectName" shortDescription="Name of instantiated variable that contains desired table image" />
-          <Entry name="TableName" type="TableName" shortDescription="Name of Table as defined onboard" />
-          <Entry name="Description" type="CFE_FS/FileDescription" shortDescription="Description of table image that is included in cFE File Header" />
-          <Entry name="TgtFilename" type="BASE_TYPES/PathName" shortDescription="Default filename to be used for output of eds2cfetbl utility" />
-          <Entry name="ObjectSize" type="BASE_TYPES/uint32" shortDescription="*&lt; \brief Size, in bytes, of instantiated object" />
-        </EntryList>
-      </ContainerDataType>
-
       <ContainerDataType name="File_Hdr" shortDescription="Header object for CFE table data files">
         <EntryList>
           <Entry name="Reserved" type="BASE_TYPES/uint32" shortDescription="Future Use: NumTblSegments in File?" />
