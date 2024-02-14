@@ -585,13 +585,13 @@ int32 CFE_ES_StartAppTask(CFE_ES_TaskId_t *TaskIdPtr, const char *TaskName, CFE_
     /*
      * Create the primary task for the newly loaded task
      */
-    OsStatus = OS_TaskCreate(&OsalTaskId,              /* task id */
-                             TaskName,                 /* task name matches app name for main task */
-                             CFE_ES_TaskEntryPoint,    /* task function pointer */
-                             OSAL_TASK_STACK_ALLOCATE, /* stack pointer (allocate) */
-                             Params->StackSize,        /* stack size */
-                             Params->Priority,         /* task priority */
-                             OS_FP_ENABLED);           /* task options */
+    OsStatus = OS_TaskCreate(&OsalTaskId,           /* task id */
+                             TaskName,              /* task name matches app name for main task */
+                             CFE_ES_TaskEntryPoint, /* task function pointer */
+                             Params->StackPtr,      /* stack pointer (allocate if NULL) */
+                             Params->StackSize,     /* stack size */
+                             Params->Priority,      /* task priority */
+                             OS_FP_ENABLED);        /* task options */
 
     CFE_ES_LockSharedData(__func__, __LINE__);
 

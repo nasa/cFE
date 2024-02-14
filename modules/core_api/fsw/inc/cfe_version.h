@@ -29,12 +29,12 @@
 #define CFE_BUILD_NUMBER    96 /**< @brief Development: Number of development git commits since CFE_BUILD_BASELINE */
 #define CFE_BUILD_BASELINE  "equuleus-rc1" /**< @brief Development: Reference git tag for build number */
 #define CFE_BUILD_DEV_CYCLE "equuleus-rc2" /**< @brief Development: Release name for current development cycle */
-#define CFE_BUILD_CODENAME  "Equuleus" /**< @brief: Development: Code name for the current build */
+#define CFE_BUILD_CODENAME  "Equuleus"     /**< @brief: Development: Code name for the current build */
 
 /* See \ref cfsversions for definitions */
-#define CFE_MAJOR_VERSION 6  /*!< @brief Major version number */
-#define CFE_MINOR_VERSION 7  /*!< @brief Minor version number */
-#define CFE_REVISION      0  /*!< @brief Revision version number. Value of 0 indicates a development version.*/
+#define CFE_MAJOR_VERSION 6 /*!< @brief Major version number */
+#define CFE_MINOR_VERSION 7 /*!< @brief Minor version number */
+#define CFE_REVISION      0 /*!< @brief Revision version number. Value of 0 indicates a development version.*/
 
 /**
  * @brief Last official release.
@@ -63,7 +63,7 @@
 
 /**
  * @brief Max Version String length.
- * 
+ *
  * Maximum length that a cFE version string can be.
  */
 #define CFE_CFG_MAX_VERSION_STR_LEN 256

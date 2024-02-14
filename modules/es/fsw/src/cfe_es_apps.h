@@ -99,6 +99,7 @@ typedef struct
 typedef struct
 {
     size_t                     StackSize;
+    CFE_ES_StackPointer_t      StackPtr;
     CFE_ES_TaskPriority_Atom_t Priority;
 } CFE_ES_TaskStartParams_t;
 
