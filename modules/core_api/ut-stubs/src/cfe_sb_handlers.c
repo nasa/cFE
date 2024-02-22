@@ -348,7 +348,7 @@ void UT_DefaultHandler_CFE_SB_GetUserData(void *UserObj, UT_EntryKey_t FuncKey, 
     if (UT_Stub_CopyToLocal(UT_KEY(CFE_SB_GetUserData), &Result, sizeof(Result)) != sizeof(Result))
     {
         BytePtr = (uint8 *)MsgPtr;
-        if ((MsgPtr->Byte[0] & 0x10) != 0)
+        if ((*BytePtr & 0x10) != 0)
         {
             HdrSize = sizeof(CFE_MSG_CommandHeader_t);
         }

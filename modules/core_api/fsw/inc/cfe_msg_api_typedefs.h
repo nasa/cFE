@@ -99,7 +99,7 @@ typedef enum CFE_MSG_PlaybackFlag
 /**
  * \brief cFS generic base message
  */
-typedef union CFE_MSG_Message CFE_MSG_Message_t;
+typedef struct CFE_MSG_Message CFE_MSG_Message_t;
 
 /**
  * \brief cFS command header
