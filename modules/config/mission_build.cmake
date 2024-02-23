@@ -37,7 +37,8 @@ list(APPEND CFE_CONFIG_IDS
 # which may be the case for dynamic apps which are not loaded, for instance.
 foreach(DEP ${MISSION_CORE_INTERFACES} ${MISSION_APPS} ${MISSION_CORE_MODULES} ${MISSION_PSPMODULES})
   string(TOUPPER "${DEP}" DEPNAME)
-  list(APPEND CFE_CONFIG_IDS MOD_SRCVER_${DEPNAME})
+  string(REPLACE "/" "_" DEPNAME_SANITIZED "${DEPNAME}")
+  list(APPEND CFE_CONFIG_IDS MOD_SRCVER_${DEPNAME_SANITIZED})
 endforeach()
 
 # Append any mission-defined config keys
