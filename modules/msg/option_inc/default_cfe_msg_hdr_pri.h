@@ -89,10 +89,9 @@ typedef struct
  *
  * This provides the definition of CFE_MSG_Message_t
  */
-union CFE_MSG_Message
+struct CFE_MSG_Message
 {
-    CCSDS_SpacePacket_t CCSDS;                             /**< \brief CCSDS Header (Pri or Pri + Ext) */
-    uint8               Byte[sizeof(CCSDS_SpacePacket_t)]; /**< \brief Byte level access */
+    CCSDS_SpacePacket_t CCSDS; /**< \brief CCSDS Header (Pri or Pri + Ext) */
 };
 
 /**

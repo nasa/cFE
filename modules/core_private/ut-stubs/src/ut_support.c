@@ -342,13 +342,15 @@ int32 UT_SoftwareBusSnapshotHook(void *UserObj, int32 StubRetcode, uint32 CallCo
 {
     UT_SoftwareBusSnapshot_Entry_t *Snapshot = UserObj;
     const CFE_MSG_Message_t *       MsgPtr   = UT_Hook_GetArgValueByName(Context, "MsgPtr", CFE_MSG_Message_t *);
+    const uint8_t *                 BytePtr;
 
     if (MsgPtr != NULL && Snapshot != NULL)
     {
         ++Snapshot->Count;
         if (Snapshot->SnapshotSize > 0 && Snapshot->SnapshotBuffer != NULL)
         {
-            memcpy(Snapshot->SnapshotBuffer, &MsgPtr->Byte[Snapshot->SnapshotOffset], Snapshot->SnapshotSize);
+            BytePtr = (const uint8 *)MsgPtr;
+            memcpy(Snapshot->SnapshotBuffer, &BytePtr[Snapshot->SnapshotOffset], Snapshot->SnapshotSize);
         }
     }
 
@@ -535,7 +537,7 @@ uint16 UT_GetNumEventsSent(void)
 */
 void UT_DisplayPkt(CFE_MSG_Message_t *MsgPtr, size_t size)
 {
-    uint8 *BytePtr = MsgPtr->Byte;
+    uint8 *BytePtr = (uint8 *)MsgPtr;
     size_t i;
     size_t BufSize = UT_MAX_MESSAGE_LENGTH;
     char   DisplayMsg[UT_MAX_MESSAGE_LENGTH];

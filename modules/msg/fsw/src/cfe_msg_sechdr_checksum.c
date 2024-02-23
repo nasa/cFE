@@ -34,7 +34,7 @@
 CFE_MSG_Checksum_t CFE_MSG_ComputeCheckSum(const CFE_MSG_Message_t *MsgPtr)
 {
     CFE_MSG_Size_t     PktLen  = 0;
-    const uint8 *      BytePtr = MsgPtr->Byte;
+    const uint8 *      BytePtr = (const uint8 *)MsgPtr;
     CFE_MSG_Checksum_t chksum  = 0xFF;
 
     /* Message already checked, no error case reachable */

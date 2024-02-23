@@ -461,11 +461,7 @@ bool CFE_ES_RunPerfLogDump(uint32 ElapsedTime, void *Arg)
                 {
                     CFE_ES_FileWriteByteCntErr(State->DataFileName, BlockSize, Status);
 
-                    /* skip to cleanup  */
-                    if (State->CurrentState < CFE_ES_PerfDumpState_CLEANUP)
-                    {
-                        State->PendingState = CFE_ES_PerfDumpState_CLEANUP;
-                    }
+                    State->PendingState = CFE_ES_PerfDumpState_CLEANUP;
                 }
                 else
                 {

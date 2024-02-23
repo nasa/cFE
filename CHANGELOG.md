@@ -1,5 +1,10 @@
 # Changelog
 
+## Development Build: equuleus-rc1+dev96
+- change CFE_MSG_Message from union to struct
+- Remove unreachable/dead branch in CFE_ES_RunPerfLogDump()
+- See <https://github.com/nasa/cFE/pull/2515> and <https://github.com/nasa/cFE/pull/2330>
+
 ## Development Build: equuleus-rc1+dev90
 - EDS XML file updates
 - add EDS cmake hooks
