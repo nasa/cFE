@@ -113,10 +113,11 @@ uint32 CFE_Config_GetValue(CFE_ConfigId_t ConfigId)
  * Generated stub function for CFE_Config_GetVersionString()
  * ----------------------------------------------------
  */
-void CFE_Config_GetVersionString(char *Buf, size_t Size, const char *Component, const char *SrcVersion, const char *CodeName, const char *LastOffcRel)
+void CFE_Config_GetVersionString(char *Buf, size_t Size, const char *Component, const char *SrcVersion,
+                                 const char *CodeName, const char *LastOffcRel)
 {
     UT_GenStub_AddParam(CFE_Config_GetVersionString, char *, Buf);
-    UT_GenStub_AddParam(CFE_Config_GetVersionString, size_t , Size);
+    UT_GenStub_AddParam(CFE_Config_GetVersionString, size_t, Size);
     UT_GenStub_AddParam(CFE_Config_GetVersionString, const char *, Component);
     UT_GenStub_AddParam(CFE_Config_GetVersionString, const char *, SrcVersion);
     UT_GenStub_AddParam(CFE_Config_GetVersionString, const char *, CodeName);

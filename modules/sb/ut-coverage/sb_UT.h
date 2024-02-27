@@ -2514,4 +2514,14 @@ void Test_SB_CCSDSPriHdr_Macros(void);
 void Test_SB_CCSDSSecHdr_Macros(void);
 void Test_SB_IdxPushPop(void);
 
+/*
+ * TopicID <-> MsgID conversion test routines
+ */
+void Test_CFE_SB_CmdTopicIdToMsgId(void);
+void Test_CFE_SB_TlmTopicIdToMsgId(void);
+void Test_CFE_SB_GlobalCmdTopicIdToMsgId(void);
+void Test_CFE_SB_GlobalTlmTopicIdToMsgId(void);
+void Test_CFE_SB_LocalCmdTopicIdToMsgId(void);
+void Test_CFE_SB_LocalTlmTopicIdToMsgId(void);
+
 #endif /* SB_UT_H */
