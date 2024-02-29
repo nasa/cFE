@@ -3938,8 +3938,33 @@ void Test_SB_Utils(void)
     SB_UT_ADD_SUBTEST(Test_CFE_SB_MsgHdrSize);
     SB_UT_ADD_SUBTEST(Test_CFE_SB_GetUserData);
     SB_UT_ADD_SUBTEST(Test_CFE_SB_SetGetUserDataLength);
-    SB_UT_ADD_SUBTEST(Test_CFE_SB_ValidateMsgId);
     SB_UT_ADD_SUBTEST(Test_CFE_SB_ZeroCopyReleaseAppId);
+
+    SB_UT_ADD_SUBTEST(Test_CFE_SB_ValidateMsgId);
+
+    /* TopicID <-> MsgID conversion utilities implemented in msg_id_util.c */
+    SB_UT_ADD_SUBTEST(Test_CFE_SB_CmdTopicIdToMsgId);
+    SB_UT_ADD_SUBTEST(Test_CFE_SB_TlmTopicIdToMsgId);
+    SB_UT_ADD_SUBTEST(Test_CFE_SB_GlobalCmdTopicIdToMsgId);
+    SB_UT_ADD_SUBTEST(Test_CFE_SB_GlobalTlmTopicIdToMsgId);
+    SB_UT_ADD_SUBTEST(Test_CFE_SB_LocalCmdTopicIdToMsgId);
+    SB_UT_ADD_SUBTEST(Test_CFE_SB_LocalTlmTopicIdToMsgId);
+}
+
+static void UT_SB_Setup_MsgHdrSize(bool HasSec, CFE_MSG_Type_t MsgType)
+{
+    UT_ResetState(UT_KEY(CFE_MSG_GetHasSecondaryHeader));
+    UT_ResetState(UT_KEY(CFE_MSG_GetType));
+
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetHasSecondaryHeader), &HasSec, sizeof(HasSec), true);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &MsgType, sizeof(MsgType), true);
+}
+
+static void UT_SB_Check_MsgHdrSize(void *BasePtr, bool HasSec, CFE_MSG_Type_t MsgType, size_t ExpectedPayloadOffset)
+{
+    UT_SB_Setup_MsgHdrSize(HasSec, MsgType);
+
+    UtAssert_EQ(size_t, CFE_SB_MsgHdrSize(BasePtr), ExpectedPayloadOffset);
 }
 
 /*
@@ -3947,48 +3972,38 @@ void Test_SB_Utils(void)
 */
 void Test_CFE_SB_MsgHdrSize(void)
 {
-    CFE_MSG_Message_t msg;
-    bool              hassec;
-    CFE_MSG_Type_t    type;
+    union
+    {
+        CFE_MSG_Message_t         BaseObject;
+        CFE_MSG_CommandHeader_t   CommandHeader;
+        CFE_MSG_TelemetryHeader_t TelemetryHeader;
+    } msg;
 
     memset(&msg, 0, sizeof(msg));
 
     /* No secondary */
-    hassec = false;
-    type   = CFE_MSG_Type_Invalid;
-    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetHasSecondaryHeader), &hassec, sizeof(hassec), false);
-    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &type, sizeof(type), false);
-    UtAssert_EQ(size_t, CFE_SB_MsgHdrSize(&msg), sizeof(CFE_MSG_Message_t));
+    UT_SB_Check_MsgHdrSize(&msg, false, CFE_MSG_Type_Invalid, sizeof(msg.BaseObject));
 
     /* Has secondary, tlm type */
-    hassec = true;
-    type   = CFE_MSG_Type_Tlm;
-    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetHasSecondaryHeader), &hassec, sizeof(hassec), false);
-    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &type, sizeof(type), false);
-    UtAssert_EQ(size_t, CFE_SB_MsgHdrSize(&msg), sizeof(CFE_MSG_TelemetryHeader_t));
+    UT_SB_Check_MsgHdrSize(&msg, true, CFE_MSG_Type_Tlm, sizeof(msg.TelemetryHeader));
 
     /* Has secondary, cmd type */
-    type = CFE_MSG_Type_Cmd;
-    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetHasSecondaryHeader), &hassec, sizeof(hassec), false);
-    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &type, sizeof(type), false);
-    UtAssert_EQ(size_t, CFE_SB_MsgHdrSize(&msg), sizeof(CFE_MSG_CommandHeader_t));
+    UT_SB_Check_MsgHdrSize(&msg, true, CFE_MSG_Type_Cmd, sizeof(msg.CommandHeader));
 
     /* Has secondary, invalid type */
-    type = CFE_MSG_Type_Invalid;
-    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetHasSecondaryHeader), &hassec, sizeof(hassec), false);
-    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &type, sizeof(type), false);
-    UtAssert_ZERO(CFE_SB_MsgHdrSize(&msg));
+    UT_SB_Check_MsgHdrSize(&msg, true, CFE_MSG_Type_Invalid, 0);
 
-    /*
-     * Note, this function currently has a type mismatch - it attempts to
-     * return CFE_SB_BAD_ARGUMENT if passed a NULL MsgPtr value, but that
-     * will be implicitly converted to size_t, and the result is
-     * platform-defined.
-     *
-     * The function is called for coverage, but the result is not verified
-     * due to this mismatch.
-     */
-    UtAssert_VOIDCALL(CFE_SB_MsgHdrSize(NULL));
+    /* Bad message argument (NULL) */
+    UT_SB_Check_MsgHdrSize(NULL, true, CFE_MSG_Type_Invalid, 0);
+}
+
+static void UT_SB_Check_GetUserData(void *BasePtr, bool HasSec, CFE_MSG_Type_t MsgType, size_t ExpectedPayloadOffset)
+{
+    const uint8_t *ExpectedPayloadPtr = (const uint8_t *)BasePtr + ExpectedPayloadOffset;
+
+    UT_SB_Setup_MsgHdrSize(HasSec, MsgType);
+
+    UtAssert_ADDRESS_EQ(CFE_SB_GetUserData(BasePtr), ExpectedPayloadPtr);
 }
 
 /*
@@ -3997,45 +4012,42 @@ void Test_CFE_SB_MsgHdrSize(void)
 void Test_CFE_SB_GetUserData(void)
 {
     CFE_MSG_Message_t msg;
-    uint8 *           expected;
-    bool              hassec;
-    CFE_MSG_Type_t    type = CFE_MSG_Type_Invalid;
-    struct
+    struct cmd_uint8
     {
         CFE_MSG_CommandHeader_t CommandHeader;
         uint8                   payload;
     } cmd_uint8;
-    struct
+    struct cmd_uint16
     {
         CFE_MSG_CommandHeader_t CommandHeader;
         uint16                  payload;
     } cmd_uint16;
-    struct
+    struct cmd_uint32
     {
         CFE_MSG_CommandHeader_t CommandHeader;
         uint32                  payload;
     } cmd_uint32;
-    struct
+    struct cmd_uint64
     {
         CFE_MSG_CommandHeader_t CommandHeader;
         uint64                  payload;
     } cmd_uint64;
-    struct
+    struct tlm_uint8
     {
         CFE_MSG_TelemetryHeader_t TelemetryHeader;
         uint8                     payload;
     } tlm_uint8;
-    struct
+    struct tlm_uint16
     {
         CFE_MSG_TelemetryHeader_t TelemetryHeader;
         uint16                    payload;
     } tlm_uint16;
-    struct
+    struct tlm_uint32
     {
         CFE_MSG_TelemetryHeader_t TelemetryHeader;
         uint32                    payload;
     } tlm_uint32;
-    struct
+    struct tlm_uint64
     {
         CFE_MSG_TelemetryHeader_t TelemetryHeader;
         uint64                    payload;
@@ -4052,44 +4064,19 @@ void Test_CFE_SB_GetUserData(void)
     memset(&tlm_uint64, 0, sizeof(tlm_uint64));
 
     /* No secondary */
-    hassec = false;
-    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetHasSecondaryHeader), &hassec, sizeof(hassec), false);
-    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &type, sizeof(type), false);
-
-    /* Expected return */
-    expected = (uint8 *)&msg + sizeof(CFE_MSG_Message_t);
-    UtAssert_ADDRESS_EQ(CFE_SB_GetUserData(&msg), expected);
+    UT_SB_Check_GetUserData(&msg, false, CFE_MSG_Type_Invalid, sizeof(CFE_MSG_Message_t));
 
     /* Commands */
-    hassec = true;
-    type   = CFE_MSG_Type_Cmd;
-    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetHasSecondaryHeader), &hassec, sizeof(hassec), false);
-    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &type, sizeof(type), false);
-    UtAssert_ADDRESS_EQ(CFE_SB_GetUserData(CFE_MSG_PTR(cmd_uint8.CommandHeader)), &(cmd_uint8.payload));
-    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetHasSecondaryHeader), &hassec, sizeof(hassec), false);
-    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &type, sizeof(type), false);
-    UtAssert_ADDRESS_EQ(CFE_SB_GetUserData(CFE_MSG_PTR(cmd_uint16.CommandHeader)), &(cmd_uint16.payload));
-    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetHasSecondaryHeader), &hassec, sizeof(hassec), false);
-    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &type, sizeof(type), false);
-    UtAssert_ADDRESS_EQ(CFE_SB_GetUserData(CFE_MSG_PTR(cmd_uint32.CommandHeader)), &(cmd_uint32.payload));
-    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetHasSecondaryHeader), &hassec, sizeof(hassec), false);
-    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &type, sizeof(type), false);
-    UtAssert_ADDRESS_EQ(CFE_SB_GetUserData(CFE_MSG_PTR(cmd_uint64.CommandHeader)), &(cmd_uint64.payload));
+    UT_SB_Check_GetUserData(&cmd_uint8, true, CFE_MSG_Type_Cmd, offsetof(struct cmd_uint8, payload));
+    UT_SB_Check_GetUserData(&cmd_uint16, true, CFE_MSG_Type_Cmd, offsetof(struct cmd_uint16, payload));
+    UT_SB_Check_GetUserData(&cmd_uint32, true, CFE_MSG_Type_Cmd, offsetof(struct cmd_uint32, payload));
+    UT_SB_Check_GetUserData(&cmd_uint64, true, CFE_MSG_Type_Cmd, offsetof(struct cmd_uint64, payload));
 
     /* Telemetry */
-    type = CFE_MSG_Type_Tlm;
-    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetHasSecondaryHeader), &hassec, sizeof(hassec), false);
-    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &type, sizeof(type), false);
-    UtAssert_ADDRESS_EQ(CFE_SB_GetUserData(CFE_MSG_PTR(tlm_uint8.TelemetryHeader)), &(tlm_uint8.payload));
-    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetHasSecondaryHeader), &hassec, sizeof(hassec), false);
-    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &type, sizeof(type), false);
-    UtAssert_ADDRESS_EQ(CFE_SB_GetUserData(CFE_MSG_PTR(tlm_uint16.TelemetryHeader)), &(tlm_uint16.payload));
-    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetHasSecondaryHeader), &hassec, sizeof(hassec), false);
-    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &type, sizeof(type), false);
-    UtAssert_ADDRESS_EQ(CFE_SB_GetUserData(CFE_MSG_PTR(tlm_uint32.TelemetryHeader)), &(tlm_uint32.payload));
-    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetHasSecondaryHeader), &hassec, sizeof(hassec), false);
-    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &type, sizeof(type), false);
-    UtAssert_ADDRESS_EQ(CFE_SB_GetUserData(CFE_MSG_PTR(tlm_uint64.TelemetryHeader)), &(tlm_uint64.payload));
+    UT_SB_Check_GetUserData(&tlm_uint8, true, CFE_MSG_Type_Tlm, offsetof(struct tlm_uint8, payload));
+    UT_SB_Check_GetUserData(&tlm_uint16, true, CFE_MSG_Type_Tlm, offsetof(struct tlm_uint16, payload));
+    UT_SB_Check_GetUserData(&tlm_uint32, true, CFE_MSG_Type_Tlm, offsetof(struct tlm_uint32, payload));
+    UT_SB_Check_GetUserData(&tlm_uint64, true, CFE_MSG_Type_Tlm, offsetof(struct tlm_uint64, payload));
 
     /* Bad inputs */
     UtAssert_NULL(CFE_SB_GetUserData(NULL));
@@ -4147,6 +4134,60 @@ void Test_CFE_SB_ValidateMsgId(void)
     /* Test for invalid msg id */
     MsgId = SB_UT_ALTERNATE_INVALID_MID;
     UtAssert_INT32_EQ(CFE_SB_ValidateMsgId(MsgId), CFE_SB_FAILED);
+}
+
+void Test_CFE_SB_CmdTopicIdToMsgId(void)
+{
+    CFE_SB_MsgId_Atom_t MsgIdVal;
+
+    MsgIdVal = CFE_SB_CmdTopicIdToMsgId(1, 1);
+    UtAssert_BOOL_TRUE(CFE_SB_IsValidMsgId(CFE_SB_ValueToMsgId(MsgIdVal)));
+
+    MsgIdVal = CFE_SB_CmdTopicIdToMsgId(1, 0);
+    UtAssert_BOOL_TRUE(CFE_SB_IsValidMsgId(CFE_SB_ValueToMsgId(MsgIdVal)));
+}
+
+void Test_CFE_SB_TlmTopicIdToMsgId(void)
+{
+    CFE_SB_MsgId_Atom_t MsgIdVal;
+
+    MsgIdVal = CFE_SB_TlmTopicIdToMsgId(1, 1);
+    UtAssert_BOOL_TRUE(CFE_SB_IsValidMsgId(CFE_SB_ValueToMsgId(MsgIdVal)));
+
+    MsgIdVal = CFE_SB_CmdTopicIdToMsgId(1, 0);
+    UtAssert_BOOL_TRUE(CFE_SB_IsValidMsgId(CFE_SB_ValueToMsgId(MsgIdVal)));
+}
+
+void Test_CFE_SB_GlobalCmdTopicIdToMsgId(void)
+{
+    CFE_SB_MsgId_Atom_t MsgIdVal;
+
+    MsgIdVal = CFE_SB_GlobalCmdTopicIdToMsgId(2);
+    UtAssert_BOOL_TRUE(CFE_SB_IsValidMsgId(CFE_SB_ValueToMsgId(MsgIdVal)));
+}
+
+void Test_CFE_SB_GlobalTlmTopicIdToMsgId(void)
+{
+    CFE_SB_MsgId_Atom_t MsgIdVal;
+
+    MsgIdVal = CFE_SB_GlobalTlmTopicIdToMsgId(2);
+    UtAssert_BOOL_TRUE(CFE_SB_IsValidMsgId(CFE_SB_ValueToMsgId(MsgIdVal)));
+}
+
+void Test_CFE_SB_LocalCmdTopicIdToMsgId(void)
+{
+    CFE_SB_MsgId_Atom_t MsgIdVal;
+
+    MsgIdVal = CFE_SB_LocalCmdTopicIdToMsgId(3);
+    UtAssert_BOOL_TRUE(CFE_SB_IsValidMsgId(CFE_SB_ValueToMsgId(MsgIdVal)));
+}
+
+void Test_CFE_SB_LocalTlmTopicIdToMsgId(void)
+{
+    CFE_SB_MsgId_Atom_t MsgIdVal;
+
+    MsgIdVal = CFE_SB_LocalTlmTopicIdToMsgId(3);
+    UtAssert_BOOL_TRUE(CFE_SB_IsValidMsgId(CFE_SB_ValueToMsgId(MsgIdVal)));
 }
 
 /*
