@@ -1,5 +1,9 @@
 # Changelog
 
+## Development Build: equuleus-rc1+dev100
+- Add runtime TopicId conversion routines to SB
+- See <https://github.com/nasa/cFE/pull/2520>
+
 ## Development Build: equuleus-rc1+dev96
 - change CFE_MSG_Message from union to struct
 - Remove unreachable/dead branch in CFE_ES_RunPerfLogDump()
