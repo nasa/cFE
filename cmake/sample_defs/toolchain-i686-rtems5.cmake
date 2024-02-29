@@ -20,7 +20,7 @@ set(RTEMS_BSP               "pc686")
 # these settings are specific to cFE/OSAL and determines which
 # abstraction layers are built when using this toolchain
 SET(CFE_SYSTEM_PSPNAME      pc-rtems)
-SET(OSAL_SYSTEM_BSPTYPE     pc-rtems)
+SET(OSAL_SYSTEM_BSPTYPE     generic-rtems)
 SET(OSAL_SYSTEM_OSTYPE      rtems)
 
 # This is for version specific RTEMS ifdefs needed by the OSAL and PSP
