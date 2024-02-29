@@ -66,9 +66,148 @@ static CFE_SB_StubMsg_MetaData_t *CFE_SB_StubMsg_GetMetaData(const CFE_MSG_Messa
 
     return MetaPtr;
 }
+
+/*------------------------------------------------------------
+ *
+ * Helper function to fabricate a MsgID value for testing purposes
+ *
+ * Note this is not intended to match a real MsgID value used in flight
+ * software builds, it is just for UT.  The fabricated value just needs
+ * to pass the "CFE_SB_IsValidMsgId()" test.
+ *
+ *------------------------------------------------------------*/
+static void UT_CFE_SB_FabricateMsgIdValue(UT_EntryKey_t FuncKey, bool IsCmd, uint16 TopicId, uint16 InstanceNum)
+{
+    CFE_SB_MsgId_Atom_t MsgIdValue;
+
+    /* This makes the bits line up with the "traditional" use of the first 16
+     * bits of a CCSDS space packet as a MsgId */
+    MsgIdValue = 1;
+    if (IsCmd)
+    {
+        MsgIdValue |= 2;
+    }
+    MsgIdValue <<= 4;
+    MsgIdValue |= InstanceNum & 0xF;
+    MsgIdValue <<= 7;
+    MsgIdValue |= TopicId & 0x7F;
+
+    UT_Stub_SetReturnValue(FuncKey, MsgIdValue);
+}
+
 /*
 ** Functions
 */
+
+/*------------------------------------------------------------
+ *
+ * Default handler for CFE_SB_LocalCmdTopicIdToMsgId coverage stub function
+ *
+ *------------------------------------------------------------*/
+void UT_DefaultHandler_CFE_SB_LocalCmdTopicIdToMsgId(void *UserObj, UT_EntryKey_t FuncKey,
+                                                     const UT_StubContext_t *Context)
+{
+    uint16 TopicId;
+
+    if (!UT_Stub_GetInt32StatusCode(Context, NULL))
+    {
+        TopicId = UT_Hook_GetArgValueByName(Context, "TopicId", uint16);
+
+        UT_CFE_SB_FabricateMsgIdValue(FuncKey, true, TopicId, 1);
+    }
+}
+
+/*------------------------------------------------------------
+ *
+ * Default handler for CFE_SB_LocalTlmTopicIdToMsgId coverage stub function
+ *
+ *------------------------------------------------------------*/
+void UT_DefaultHandler_CFE_SB_LocalTlmTopicIdToMsgId(void *UserObj, UT_EntryKey_t FuncKey,
+                                                     const UT_StubContext_t *Context)
+{
+    uint16 TopicId;
+
+    if (!UT_Stub_GetInt32StatusCode(Context, NULL))
+    {
+        TopicId = UT_Hook_GetArgValueByName(Context, "TopicId", uint16);
+
+        UT_CFE_SB_FabricateMsgIdValue(FuncKey, false, TopicId, 1);
+    }
+}
+
+/*------------------------------------------------------------
+ *
+ * Default handler for CFE_SB_GlobalCmdTopicIdToMsgId coverage stub function
+ *
+ *------------------------------------------------------------*/
+void UT_DefaultHandler_CFE_SB_GlobalCmdTopicIdToMsgId(void *UserObj, UT_EntryKey_t FuncKey,
+                                                      const UT_StubContext_t *Context)
+{
+    uint16 TopicId;
+
+    if (!UT_Stub_GetInt32StatusCode(Context, NULL))
+    {
+        TopicId = UT_Hook_GetArgValueByName(Context, "TopicId", uint16);
+
+        UT_CFE_SB_FabricateMsgIdValue(FuncKey, true, TopicId, 0);
+    }
+}
+
+/*------------------------------------------------------------
+ *
+ * Default handler for CFE_SB_GlobalTlmTopicIdToMsgId coverage stub function
+ *
+ *------------------------------------------------------------*/
+void UT_DefaultHandler_CFE_SB_GlobalTlmTopicIdToMsgId(void *UserObj, UT_EntryKey_t FuncKey,
+                                                      const UT_StubContext_t *Context)
+{
+    uint16 TopicId;
+
+    if (!UT_Stub_GetInt32StatusCode(Context, NULL))
+    {
+        TopicId = UT_Hook_GetArgValueByName(Context, "TopicId", uint16);
+
+        UT_CFE_SB_FabricateMsgIdValue(FuncKey, false, TopicId, 0);
+    }
+}
+
+/*------------------------------------------------------------
+ *
+ * Default handler for CFE_SB_CmdTopicIdToMsgId coverage stub function
+ *
+ *------------------------------------------------------------*/
+void UT_DefaultHandler_CFE_SB_CmdTopicIdToMsgId(void *UserObj, UT_EntryKey_t FuncKey, const UT_StubContext_t *Context)
+{
+    uint16 TopicId;
+    uint16 InstanceNum;
+
+    if (!UT_Stub_GetInt32StatusCode(Context, NULL))
+    {
+        TopicId     = UT_Hook_GetArgValueByName(Context, "TopicId", uint16);
+        InstanceNum = UT_Hook_GetArgValueByName(Context, "InstanceNum", uint16);
+
+        UT_CFE_SB_FabricateMsgIdValue(FuncKey, true, TopicId, InstanceNum);
+    }
+}
+
+/*------------------------------------------------------------
+ *
+ * Default handler for CFE_SB_TlmTopicIdToMsgId coverage stub function
+ *
+ *------------------------------------------------------------*/
+void UT_DefaultHandler_CFE_SB_TlmTopicIdToMsgId(void *UserObj, UT_EntryKey_t FuncKey, const UT_StubContext_t *Context)
+{
+    uint16 TopicId;
+    uint16 InstanceNum;
+
+    if (!UT_Stub_GetInt32StatusCode(Context, NULL))
+    {
+        TopicId     = UT_Hook_GetArgValueByName(Context, "TopicId", uint16);
+        InstanceNum = UT_Hook_GetArgValueByName(Context, "InstanceNum", uint16);
+
+        UT_CFE_SB_FabricateMsgIdValue(FuncKey, false, TopicId, InstanceNum);
+    }
+}
 
 /*------------------------------------------------------------
  *

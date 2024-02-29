@@ -37,44 +37,6 @@
 
 /*----------------------------------------------------------------
  *
- * Application-scope internal function
- * See description in header file for argument/return detail
- *
- *-----------------------------------------------------------------*/
-size_t CFE_SB_MsgHdrSize(const CFE_MSG_Message_t *MsgPtr)
-{
-    size_t         size      = 0;
-    bool           hassechdr = false;
-    CFE_MSG_Type_t type      = CFE_MSG_Type_Invalid;
-
-    if (MsgPtr == NULL)
-    {
-        return size;
-    }
-
-    CFE_MSG_GetHasSecondaryHeader(MsgPtr, &hassechdr);
-    CFE_MSG_GetType(MsgPtr, &type);
-
-    /* if secondary hdr is not present... */
-    /* Since all cFE messages must have a secondary hdr this check is not needed */
-    if (!hassechdr)
-    {
-        size = sizeof(CFE_MSG_Message_t);
-    }
-    else if (type == CFE_MSG_Type_Cmd)
-    {
-        size = sizeof(CFE_MSG_CommandHeader_t);
-    }
-    else if (type == CFE_MSG_Type_Tlm)
-    {
-        size = sizeof(CFE_MSG_TelemetryHeader_t);
-    }
-
-    return size;
-}
-
-/*----------------------------------------------------------------
- *
  * Implemented per public API
  * See description in header file for argument/return detail
  *
