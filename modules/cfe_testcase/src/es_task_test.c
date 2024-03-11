@@ -90,6 +90,66 @@ void TaskExitFunction(void)
     }
 }
 
+#define UT_LOCAL_STACK_SIZE 4096
+static unsigned long UT_LOCAL_STACK[UT_LOCAL_STACK_SIZE];
+
+void TestCheckStackPointer(void)
+{
+    int32   LocalVar;
+    cpuaddr VarAddress;
+    cpuaddr StackAddress;
+
+    OS_TaskDelay(10);
+
+    VarAddress   = (cpuaddr)&LocalVar;
+    StackAddress = (cpuaddr)UT_LOCAL_STACK;
+
+    UtAssert_GT(cpuaddr, VarAddress, StackAddress);
+    UtAssert_LT(cpuaddr, VarAddress, StackAddress + sizeof(UT_LOCAL_STACK));
+
+    CFE_ES_ExitChildTask();
+}
+
+void TestCreateChildWithStack(void)
+{
+    CFE_ES_TaskId_t            TaskId = CFE_ES_TASKID_UNDEFINED;
+    int32                      RetryCount;
+    const char *               TaskName     = "CHILD_W_STACK";
+    CFE_ES_StackPointer_t      StackPointer = UT_LOCAL_STACK;
+    size_t                     StackSize    = sizeof(UT_LOCAL_STACK);
+    CFE_ES_TaskPriority_Atom_t Priority     = CFE_PLATFORM_ES_PERF_CHILD_PRIORITY;
+    uint32                     Flags        = 0;
+    char                       TaskNameBuf[16];
+
+    UtPrintf("Testing: CFE_ES_CreateChildTask with user-specified stack");
+
+    UtAssert_INT32_EQ(
+        CFE_ES_CreateChildTask(&TaskId, TaskName, TestCheckStackPointer, StackPointer, StackSize, Priority, Flags),
+        CFE_SUCCESS);
+
+    /* wait for task to exit itself */
+    RetryCount = 0;
+    while (RetryCount < 10)
+    {
+        /*
+         * poll until CFE_ES_GetTaskName() returns an error, then the task has exited
+         *
+         * NOTE: this intentionally does not Assert the status here, because the child task is
+         * also doing asserts at the time this loop is running.  Once the child task finishes,
+         * it is OK to do asserts from this task again
+         */
+        if (CFE_Assert_STATUS_STORE(CFE_ES_GetTaskName(TaskNameBuf, TaskId, sizeof(TaskNameBuf))) != CFE_SUCCESS)
+        {
+            break;
+        }
+        OS_TaskDelay(100);
+        ++RetryCount;
+    }
+
+    /* Retroactively confirm that the previous call to CFE_ES_GetTaskName() returned RESOURCEID_NOT_VALID */
+    CFE_Assert_STATUS_MUST_BE(CFE_ES_ERR_RESOURCEID_NOT_VALID);
+}
+
 void TestCreateChild(void)
 {
     UtPrintf("Testing: CFE_ES_CreateChildTask");
@@ -114,7 +174,7 @@ void TestCreateChild(void)
     while (CFE_FT_Global.Count != ExpectedCount && Index < 100)
     {
         OS_TaskDelay(10);
-        Index ++;
+        Index++;
     }
 
     UtAssert_INT32_GT(CFE_FT_Global.Count, ExpectedCount - 1);
@@ -292,4 +352,12 @@ void ESTaskTestSetup(void)
     UtTest_Add(TestChildTaskName, NULL, NULL, "Test Child Task Name");
     UtTest_Add(TestChildTaskDelete, NULL, NULL, "Test Child Tasks Delete");
     UtTest_Add(TestExitChild, NULL, NULL, "Test Exit Child");
+
+    /*
+     * NOTE: The custom stack does not work on RTEMS, test is disabled on that platform
+     * for the time being (custom stack may be deprecated in future CFE release).
+     */
+#ifndef _RTEMS_OS_
+    UtTest_Add(TestCreateChildWithStack, NULL, NULL, "Test Child with Custom Stack");
+#endif
 }
