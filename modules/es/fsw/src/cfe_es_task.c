@@ -639,6 +639,8 @@ int32 CFE_ES_StartAppCmd(const CFE_ES_StartAppCmd_t *data)
     char                                LocalAppName[OS_MAX_API_NAME];
     CFE_ES_AppStartParams_t             StartParams;
 
+    memset(&StartParams, 0, sizeof(StartParams));
+
     /* Create local copies of all input strings and ensure null termination */
     Result = CFE_FS_ParseInputFileNameEx(StartParams.BasicInfo.FileName, cmd->AppFileName,
                                          sizeof(StartParams.BasicInfo.FileName), sizeof(cmd->AppFileName), NULL,

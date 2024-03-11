@@ -295,6 +295,8 @@ int32 CFE_ES_ParseFileEntry(const char **TokenList, uint32 NumTokens)
     int32                   Status;
     CFE_ES_AppStartParams_t ParamBuf;
 
+    memset(&ParamBuf, 0, sizeof(ParamBuf));
+
     /*
     ** Check to see if the correct number of items were parsed
     */
