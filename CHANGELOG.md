@@ -1,5 +1,9 @@
 # Changelog
 
+## Development Build: equuleus-rc1+dev104
+- propagate stack pointer for child tasks
+- See <https://github.com/nasa/cFE/pull/2517>
+
 ## Development Build: equuleus-rc1+dev100
 - Add runtime TopicId conversion routines to SB
 - See <https://github.com/nasa/cFE/pull/2520>
