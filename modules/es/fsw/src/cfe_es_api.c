@@ -1259,6 +1259,7 @@ CFE_Status_t CFE_ES_CreateChildTask(CFE_ES_TaskId_t *TaskIdPtr, const char *Task
     memset(&Params, 0, sizeof(Params));
     Params.Priority  = Priority;
     Params.StackSize = StackSize;
+    Params.StackPtr  = StackPtr;
 
     /*
     ** Validate some of the arguments

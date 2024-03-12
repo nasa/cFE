@@ -1,5 +1,10 @@
 # Changelog
 
+## Development Build: equuleus-rc1+dev107
+- propagate stack pointer for child tasks
+- add missing memset() for stack variables
+- See <https://github.com/nasa/cFE/pull/2517> and <https://github.com/nasa/cFE/pull/2527>
+
 ## Development Build: equuleus-rc1+dev100
 - Add runtime TopicId conversion routines to SB
 - See <https://github.com/nasa/cFE/pull/2520>
