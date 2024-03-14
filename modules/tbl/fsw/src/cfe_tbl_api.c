@@ -645,17 +645,13 @@ CFE_Status_t CFE_TBL_Update(CFE_TBL_Handle_t TblHandle)
     /* On Error conditions, notify ground of screw up */
     if (Status < 0)
     {
-        if (RegRecPtr != NULL)
-        {
-            CFE_EVS_SendEventWithAppID(CFE_TBL_UPDATE_ERR_EID, CFE_EVS_EventType_ERROR, CFE_TBL_Global.TableTaskAppId,
-                                       "%s Failed to Update '%s', Status=0x%08X", AppName, RegRecPtr->Name,
-                                       (unsigned int)Status);
-        }
-        else
-        {
-            CFE_EVS_SendEventWithAppID(CFE_TBL_UPDATE_ERR_EID, CFE_EVS_EventType_ERROR, CFE_TBL_Global.TableTaskAppId,
-                                       "%s Failed to Update '?', Status=0x%08X", AppName, (unsigned int)Status);
-        }
+        /*
+         * Note that (Status < 0) specifically matches ERROR, not WARNING codes. The CFE_TBL_UpdateInternal() function
+         * currently only produces two possible codes (aside from CFE_SUCCESS) and both of these are defined as
+         * warnings, not errors.  Therefore, its impossible to reach this code with RegRegPtr != NULL.
+         */
+        CFE_EVS_SendEventWithAppID(CFE_TBL_UPDATE_ERR_EID, CFE_EVS_EventType_ERROR, CFE_TBL_Global.TableTaskAppId,
+                                   "%s Failed to update table, Status=0x%08X", AppName, (unsigned int)Status);
     }
     else
     {

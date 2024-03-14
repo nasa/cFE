@@ -1425,20 +1425,30 @@ CFE_Status_t CFE_TBL_ValidateTableName(const char *Name)
  *-----------------------------------------------------------------*/
 CFE_Status_t CFE_TBL_ValidateTableSize(const char *Name, size_t Size, uint16 TblOptionFlags)
 {
-    CFE_Status_t Status = CFE_SUCCESS;
+    CFE_Status_t Status;
+    size_t       SizeLimit;
 
-    /* Check if the specified table size is zero, or above the maximum allowed               */
     /* Single-buffered tables are allowed to be up to CFE_PLATFORM_TBL_MAX_SNGL_TABLE_SIZE   */
     /* Double-buffered tables are allowed to be up to CFE_PLATFORM_TBL_MAX_DBL_TABLE_SIZE    */
-    if (Size == 0 ||
-        (Size > CFE_PLATFORM_TBL_MAX_SNGL_TABLE_SIZE &&
-         (TblOptionFlags & CFE_TBL_OPT_BUFFER_MSK) == CFE_TBL_OPT_SNGL_BUFFER) ||
-        (Size > CFE_PLATFORM_TBL_MAX_DBL_TABLE_SIZE &&
-         (TblOptionFlags & CFE_TBL_OPT_BUFFER_MSK) == CFE_TBL_OPT_DBL_BUFFER))
+    if ((TblOptionFlags & CFE_TBL_OPT_BUFFER_MSK) == CFE_TBL_OPT_DBL_BUFFER)
+    {
+        SizeLimit = CFE_PLATFORM_TBL_MAX_DBL_TABLE_SIZE;
+    }
+    else
+    {
+        SizeLimit = CFE_PLATFORM_TBL_MAX_SNGL_TABLE_SIZE;
+    }
+
+    /* Check if the specified table size is zero, or above the maximum allowed               */
+    if (Size == 0 || Size > SizeLimit)
     {
         Status = CFE_TBL_ERR_INVALID_SIZE;
 
         CFE_ES_WriteToSysLog("%s: Table '%s' has invalid size (%d)\n", __func__, Name, (int)Size);
+    }
+    else
+    {
+        Status = CFE_SUCCESS;
     }
 
     return Status;
@@ -1719,52 +1729,53 @@ CFE_Status_t CFE_TBL_RestoreTableDataFromCDS(CFE_TBL_RegistryRec_t *RegRecPtr, c
         {
             CFE_ES_WriteToSysLog("%s: Failed to recover '%s.%s' from CDS (ErrCode=0x%08X)\n", __func__, AppName, Name,
                                  (unsigned int)Status);
-        }
-    }
 
-    if (Status != CFE_SUCCESS)
-    {
-        /* Treat a restore from existing CDS error the same as */
-        /* after a power-on reset (CDS was created but is empty) */
-        Status = CFE_SUCCESS;
-    }
-    else
-    {
-        /* Try to locate the associated information in the Critical Table Registry */
-        CFE_TBL_FindCriticalTblInfo(&CritRegRecPtr, RegRecPtr->CDSHandle);
-
-        if ((CritRegRecPtr != NULL) && (CritRegRecPtr->TableLoadedOnce))
-        {
-            strncpy(WorkingBufferPtr->DataSource, CritRegRecPtr->LastFileLoaded,
-                    sizeof(WorkingBufferPtr->DataSource) - 1);
-            WorkingBufferPtr->DataSource[sizeof(WorkingBufferPtr->DataSource) - 1] = '\0';
-
-            WorkingBufferPtr->FileCreateTimeSecs    = CritRegRecPtr->FileCreateTimeSecs;
-            WorkingBufferPtr->FileCreateTimeSubSecs = CritRegRecPtr->FileCreateTimeSubSecs;
-
-            strncpy(RegRecPtr->LastFileLoaded, CritRegRecPtr->LastFileLoaded, sizeof(RegRecPtr->LastFileLoaded) - 1);
-            RegRecPtr->LastFileLoaded[sizeof(RegRecPtr->LastFileLoaded) - 1] = '\0';
-
-            RegRecPtr->TimeOfLastUpdate.Seconds    = CritRegRecPtr->TimeOfLastUpdate.Seconds;
-            RegRecPtr->TimeOfLastUpdate.Subseconds = CritRegRecPtr->TimeOfLastUpdate.Subseconds;
-            RegRecPtr->TableLoadedOnce             = CritRegRecPtr->TableLoadedOnce;
-
-            /* Compute the CRC on the specified table buffer */
-            WorkingBufferPtr->Crc =
-                CFE_ES_CalculateCRC(WorkingBufferPtr->BufferPtr, RegRecPtr->Size, 0, CFE_MISSION_ES_DEFAULT_CRC);
-
-            /* Make sure everyone who sees the table knows that it has been updated */
-            CFE_TBL_NotifyTblUsersOfUpdate(RegRecPtr);
-
-            /* Make sure the caller realizes the contents have been initialized */
-            Status = CFE_TBL_INFO_RECOVERED_TBL;
+            /*
+             * Treat a restore from existing CDS error the same as
+             * after a power-on reset (CDS was created but is empty)
+             */
+            Status = CFE_SUCCESS;
         }
         else
         {
-            /* If an error occurred while trying to get the previous contents registry info, */
-            /* Log the error in the System Log and pretend like we created a new CDS */
-            CFE_ES_WriteToSysLog("%s: Failed to recover '%s.%s' info from CDS TblReg\n", __func__, AppName, Name);
-            Status = CFE_SUCCESS;
+            /* Table was fully restored from existing CDS... */
+            /* Try to locate the associated information in the Critical Table Registry */
+            CFE_TBL_FindCriticalTblInfo(&CritRegRecPtr, RegRecPtr->CDSHandle);
+
+            if ((CritRegRecPtr != NULL) && (CritRegRecPtr->TableLoadedOnce))
+            {
+                strncpy(WorkingBufferPtr->DataSource, CritRegRecPtr->LastFileLoaded,
+                        sizeof(WorkingBufferPtr->DataSource) - 1);
+                WorkingBufferPtr->DataSource[sizeof(WorkingBufferPtr->DataSource) - 1] = '\0';
+
+                WorkingBufferPtr->FileCreateTimeSecs    = CritRegRecPtr->FileCreateTimeSecs;
+                WorkingBufferPtr->FileCreateTimeSubSecs = CritRegRecPtr->FileCreateTimeSubSecs;
+
+                strncpy(RegRecPtr->LastFileLoaded, CritRegRecPtr->LastFileLoaded,
+                        sizeof(RegRecPtr->LastFileLoaded) - 1);
+                RegRecPtr->LastFileLoaded[sizeof(RegRecPtr->LastFileLoaded) - 1] = '\0';
+
+                RegRecPtr->TimeOfLastUpdate.Seconds    = CritRegRecPtr->TimeOfLastUpdate.Seconds;
+                RegRecPtr->TimeOfLastUpdate.Subseconds = CritRegRecPtr->TimeOfLastUpdate.Subseconds;
+                RegRecPtr->TableLoadedOnce             = CritRegRecPtr->TableLoadedOnce;
+
+                /* Compute the CRC on the specified table buffer */
+                WorkingBufferPtr->Crc =
+                    CFE_ES_CalculateCRC(WorkingBufferPtr->BufferPtr, RegRecPtr->Size, 0, CFE_MISSION_ES_DEFAULT_CRC);
+
+                /* Make sure everyone who sees the table knows that it has been updated */
+                CFE_TBL_NotifyTblUsersOfUpdate(RegRecPtr);
+
+                /* Make sure the caller realizes the contents have been initialized */
+                Status = CFE_TBL_INFO_RECOVERED_TBL;
+            }
+            else
+            {
+                /* If an error occurred while trying to get the previous contents registry info, */
+                /* Log the error in the System Log and pretend like we created a new CDS */
+                CFE_ES_WriteToSysLog("%s: Failed to recover '%s.%s' info from CDS TblReg\n", __func__, AppName, Name);
+                Status = CFE_SUCCESS;
+            }
         }
     }
 
