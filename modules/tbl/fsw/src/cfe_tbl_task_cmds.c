@@ -42,7 +42,7 @@
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_TBL_HousekeepingCmd(const CFE_MSG_CommandHeader_t *data)
+int32 CFE_TBL_SendHkCmd(const CFE_TBL_SendHkCmd_t *data)
 {
     int32                  Status;
     int32                  OsStatus;
@@ -314,8 +314,8 @@ int32 CFE_TBL_NoopCmd(const CFE_TBL_NoopCmd_t *data)
     char VersionString[CFE_CFG_MAX_VERSION_STR_LEN];
 
     /* Acknowledge receipt of NOOP with Event Message */
-    CFE_Config_GetVersionString(VersionString, CFE_CFG_MAX_VERSION_STR_LEN, "cFE",
-        CFE_SRC_VERSION, CFE_BUILD_CODENAME, CFE_LAST_OFFICIAL);
+    CFE_Config_GetVersionString(VersionString, CFE_CFG_MAX_VERSION_STR_LEN, "cFE", CFE_SRC_VERSION, CFE_BUILD_CODENAME,
+                                CFE_LAST_OFFICIAL);
     CFE_EVS_SendEvent(CFE_TBL_NOOP_INF_EID, CFE_EVS_EventType_INFORMATION, "No-op Cmd Rcvd: %s", VersionString);
 
     return CFE_TBL_INC_CMD_CTR;

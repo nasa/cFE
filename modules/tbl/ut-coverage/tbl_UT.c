@@ -143,7 +143,7 @@ void UtTest_Setup(void)
     UT_ADD_TEST(Test_CFE_TBL_DumpRegCmd);
     UT_ADD_TEST(Test_CFE_TBL_DumpCmd);
     UT_ADD_TEST(Test_CFE_TBL_LoadCmd);
-    UT_ADD_TEST(Test_CFE_TBL_HousekeepingCmd);
+    UT_ADD_TEST(Test_CFE_TBL_SendHkCmd);
 
     /* cfe_tbl_api.c and cfe_tbl_internal.c functions */
     UT_ADD_TEST(Test_CFE_TBL_ApiInit);
@@ -1319,7 +1319,7 @@ void Test_CFE_TBL_LoadCmd(void)
 /*
 ** Test the function that processes housekeeping request message
 */
-void Test_CFE_TBL_HousekeepingCmd(void)
+void Test_CFE_TBL_SendHkCmd(void)
 {
     int                   i;
     CFE_TBL_LoadBuff_t    DumpBuff;
@@ -1361,7 +1361,7 @@ void Test_CFE_TBL_HousekeepingCmd(void)
 
     UT_SetDeferredRetcode(UT_KEY(CFE_SB_TransmitMsg), 1, CFE_SUCCESS - 1);
     CFE_TBL_Global.HkTlmTblRegIndex = CFE_TBL_NOT_FOUND + 1;
-    UtAssert_INT32_EQ(CFE_TBL_HousekeepingCmd(NULL), CFE_TBL_DONT_INC_CTR);
+    UtAssert_INT32_EQ(CFE_TBL_SendHkCmd(NULL), CFE_TBL_DONT_INC_CTR);
 
     for (i = 1; i < CFE_PLATFORM_TBL_MAX_SIMULTANEOUS_LOADS; i++)
     {
@@ -1376,26 +1376,26 @@ void Test_CFE_TBL_HousekeepingCmd(void)
     CFE_TBL_Global.DumpControlBlocks[0].State = CFE_TBL_DUMP_PERFORMED;
     CFE_TBL_Global.HkTlmTblRegIndex           = CFE_TBL_NOT_FOUND + 1;
     UT_SetDefaultReturnValue(UT_KEY(OS_OpenCreate), OS_ERROR);
-    UtAssert_INT32_EQ(CFE_TBL_HousekeepingCmd(NULL), CFE_TBL_DONT_INC_CTR);
+    UtAssert_INT32_EQ(CFE_TBL_SendHkCmd(NULL), CFE_TBL_DONT_INC_CTR);
 
     /* Test response to an invalid table and a dump file create failure */
     UT_InitData();
     CFE_TBL_Global.HkTlmTblRegIndex           = CFE_TBL_NOT_FOUND;
     CFE_TBL_Global.DumpControlBlocks[0].State = CFE_TBL_DUMP_PERFORMED;
     UT_SetDefaultReturnValue(UT_KEY(OS_OpenCreate), OS_ERROR);
-    UtAssert_INT32_EQ(CFE_TBL_HousekeepingCmd(NULL), CFE_TBL_DONT_INC_CTR);
+    UtAssert_INT32_EQ(CFE_TBL_SendHkCmd(NULL), CFE_TBL_DONT_INC_CTR);
 
     /* Test response to a file time stamp failure */
     UT_InitData();
     CFE_TBL_Global.DumpControlBlocks[0].State = CFE_TBL_DUMP_PERFORMED;
     UT_SetDeferredRetcode(UT_KEY(CFE_FS_SetTimestamp), 1, OS_SUCCESS - 1);
-    UtAssert_INT32_EQ(CFE_TBL_HousekeepingCmd(NULL), CFE_TBL_DONT_INC_CTR);
+    UtAssert_INT32_EQ(CFE_TBL_SendHkCmd(NULL), CFE_TBL_DONT_INC_CTR);
 
     /* Test response to OS_OpenCreate failure */
     UT_InitData();
     CFE_TBL_Global.DumpControlBlocks[0].State = CFE_TBL_DUMP_PERFORMED;
     UT_SetDeferredRetcode(UT_KEY(OS_OpenCreate), 3, -1);
-    UtAssert_INT32_EQ(CFE_TBL_HousekeepingCmd(NULL), CFE_TBL_DONT_INC_CTR);
+    UtAssert_INT32_EQ(CFE_TBL_SendHkCmd(NULL), CFE_TBL_DONT_INC_CTR);
 }
 
 /*

@@ -359,7 +359,7 @@ void Test_CFE_TBL_LoadCmd(void);
 ** \returns
 **        This function does not return a value.
 ******************************************************************************/
-void Test_CFE_TBL_HousekeepingCmd(void);
+void Test_CFE_TBL_SendHkCmd(void);
 
 /*****************************************************************************/
 /**

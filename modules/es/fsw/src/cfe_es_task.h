@@ -122,7 +122,7 @@ void CFE_ES_BackgroundCleanup(void);
 /*
 ** ES Task message dispatch functions
 */
-int32 CFE_ES_HousekeepingCmd(const CFE_ES_SendHkCmd_t *data);
+int32 CFE_ES_SendHkCmd(const CFE_ES_SendHkCmd_t *data);
 
 /*---------------------------------------------------------------------------------------*/
 /**
