@@ -2139,5 +2139,5 @@ void Test_Misc(void)
         /* Doesn't matter here that AppID is all the same... */
         EVS_AppDataSetUsed(&CFE_EVS_Global.AppData[i], AppID);
     }
-    UtAssert_UINT32_EQ(CFE_EVS_ReportHousekeepingCmd(NULL), CFE_STATUS_NO_COUNTER_INCREMENT);
+    UtAssert_UINT32_EQ(CFE_EVS_SendHkCmd(NULL), CFE_STATUS_NO_COUNTER_INCREMENT);
 }

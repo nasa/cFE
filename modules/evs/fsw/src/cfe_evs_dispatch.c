@@ -55,7 +55,7 @@ void CFE_EVS_ProcessCommandPacket(const CFE_SB_Buffer_t *SBBufPtr)
 
         case CFE_EVS_SEND_HK_MID:
             /* Housekeeping request */
-            CFE_EVS_ReportHousekeepingCmd((const CFE_EVS_SendHkCmd_t *)SBBufPtr);
+            CFE_EVS_SendHkCmd((const CFE_EVS_SendHkCmd_t *)SBBufPtr);
             break;
 
         default:

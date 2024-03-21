@@ -153,7 +153,7 @@ int32 CFE_EVS_TaskInit(void);
  *
  * Request for housekeeping status telemetry packet.
  */
-int32 CFE_EVS_ReportHousekeepingCmd(const CFE_EVS_SendHkCmd_t *data);
+int32 CFE_EVS_SendHkCmd(const CFE_EVS_SendHkCmd_t *data);
 
 /*---------------------------------------------------------------------------------------*/
 /**
