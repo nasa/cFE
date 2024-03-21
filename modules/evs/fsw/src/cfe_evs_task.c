@@ -298,8 +298,8 @@ int32 CFE_EVS_TaskInit(void)
 
     /* Write the AppID to the global location, now that the rest of initialization is done */
     CFE_EVS_Global.EVS_AppID = AppID;
-    CFE_Config_GetVersionString(VersionString, CFE_CFG_MAX_VERSION_STR_LEN, "cFE",
-        CFE_SRC_VERSION, CFE_BUILD_CODENAME, CFE_LAST_OFFICIAL);
+    CFE_Config_GetVersionString(VersionString, CFE_CFG_MAX_VERSION_STR_LEN, "cFE", CFE_SRC_VERSION, CFE_BUILD_CODENAME,
+                                CFE_LAST_OFFICIAL);
     EVS_SendEvent(CFE_EVS_STARTUP_EID, CFE_EVS_EventType_INFORMATION, "cFE EVS Initialized: %s", VersionString);
 
     return CFE_SUCCESS;
@@ -314,8 +314,8 @@ int32 CFE_EVS_TaskInit(void)
 int32 CFE_EVS_NoopCmd(const CFE_EVS_NoopCmd_t *data)
 {
     char VersionString[CFE_CFG_MAX_VERSION_STR_LEN];
-    CFE_Config_GetVersionString(VersionString, CFE_CFG_MAX_VERSION_STR_LEN, "cFE",
-        CFE_SRC_VERSION, CFE_BUILD_CODENAME, CFE_LAST_OFFICIAL);
+    CFE_Config_GetVersionString(VersionString, CFE_CFG_MAX_VERSION_STR_LEN, "cFE", CFE_SRC_VERSION, CFE_BUILD_CODENAME,
+                                CFE_LAST_OFFICIAL);
     EVS_SendEvent(CFE_EVS_NOOP_EID, CFE_EVS_EventType_INFORMATION, "No-op Cmd Rcvd: %s", VersionString);
     return CFE_SUCCESS;
 }
@@ -338,7 +338,7 @@ int32 CFE_EVS_ClearLogCmd(const CFE_EVS_ClearLogCmd_t *data)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_EVS_ReportHousekeepingCmd(const CFE_EVS_SendHkCmd_t *data)
+int32 CFE_EVS_SendHkCmd(const CFE_EVS_SendHkCmd_t *data)
 {
     uint32                i, j;
     EVS_AppData_t *       AppDataPtr;

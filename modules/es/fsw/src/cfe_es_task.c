@@ -395,10 +395,10 @@ int32 CFE_ES_TaskInit(void)
     /*
     ** Task startup event message.
     */
-    CFE_Config_GetVersionString(VersionString, CFE_CFG_MAX_VERSION_STR_LEN, "cFE",
-        CFE_SRC_VERSION, CFE_BUILD_CODENAME, CFE_LAST_OFFICIAL);
-    Status = CFE_EVS_SendEvent(CFE_ES_INIT_INF_EID, CFE_EVS_EventType_INFORMATION, "cFE ES Initialized: %s",
-                               VersionString);
+    CFE_Config_GetVersionString(VersionString, CFE_CFG_MAX_VERSION_STR_LEN, "cFE", CFE_SRC_VERSION, CFE_BUILD_CODENAME,
+                                CFE_LAST_OFFICIAL);
+    Status =
+        CFE_EVS_SendEvent(CFE_ES_INIT_INF_EID, CFE_EVS_EventType_INFORMATION, "cFE ES Initialized: %s", VersionString);
     if (Status != CFE_SUCCESS)
     {
         CFE_ES_WriteToSysLog("%s: Error sending init event:RC=0x%08X\n", __func__, (unsigned int)Status);
@@ -443,7 +443,7 @@ int32 CFE_ES_TaskInit(void)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_HousekeepingCmd(const CFE_ES_SendHkCmd_t *data)
+int32 CFE_ES_SendHkCmd(const CFE_ES_SendHkCmd_t *data)
 {
     OS_heap_prop_t HeapProp;
     int32          OsStatus;

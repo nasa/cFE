@@ -1,5 +1,10 @@
 # Changelog
 
+## Development Build: equuleus-rc1+dev114
+- Split up and simplify control flow in CFE_TBL_Register()
+- naming convention for SendHkCmd
+- See <https://github.com/nasa/cFE/pull/2387> and <https://github.com/nasa/cFE/pull/2531>
+
 ## Development Build: equuleus-rc1+dev107
 - propagate stack pointer for child tasks
 - add missing memset() for stack variables

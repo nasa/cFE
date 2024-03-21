@@ -94,7 +94,7 @@ static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TBL_INVALID_MID =
     { .Method = UT_TaskPipeDispatchMethod_MSG_ID_CC, UT_TPD_SETERR(CFE_STATUS_UNKNOWN_MSG_ID) };
 static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TBL_CMD_INVALID_CC =
     { TBL_UT_ERROR_DISPATCH(CMD, -1, CFE_STATUS_BAD_COMMAND_CODE) };
-
+/* clang-format on */
 
 CFE_TBL_RegistryRec_t Original[CFE_PLATFORM_TBL_MAX_NUM_TABLES];
 
@@ -143,7 +143,7 @@ void UtTest_Setup(void)
     UT_ADD_TEST(Test_CFE_TBL_DumpRegCmd);
     UT_ADD_TEST(Test_CFE_TBL_DumpCmd);
     UT_ADD_TEST(Test_CFE_TBL_LoadCmd);
-    UT_ADD_TEST(Test_CFE_TBL_HousekeepingCmd);
+    UT_ADD_TEST(Test_CFE_TBL_SendHkCmd);
 
     /* cfe_tbl_api.c and cfe_tbl_internal.c functions */
     UT_ADD_TEST(Test_CFE_TBL_ApiInit);
@@ -1319,7 +1319,7 @@ void Test_CFE_TBL_LoadCmd(void)
 /*
 ** Test the function that processes housekeeping request message
 */
-void Test_CFE_TBL_HousekeepingCmd(void)
+void Test_CFE_TBL_SendHkCmd(void)
 {
     int                   i;
     CFE_TBL_LoadBuff_t    DumpBuff;
@@ -1361,7 +1361,7 @@ void Test_CFE_TBL_HousekeepingCmd(void)
 
     UT_SetDeferredRetcode(UT_KEY(CFE_SB_TransmitMsg), 1, CFE_SUCCESS - 1);
     CFE_TBL_Global.HkTlmTblRegIndex = CFE_TBL_NOT_FOUND + 1;
-    UtAssert_INT32_EQ(CFE_TBL_HousekeepingCmd(NULL), CFE_TBL_DONT_INC_CTR);
+    UtAssert_INT32_EQ(CFE_TBL_SendHkCmd(NULL), CFE_TBL_DONT_INC_CTR);
 
     for (i = 1; i < CFE_PLATFORM_TBL_MAX_SIMULTANEOUS_LOADS; i++)
     {
@@ -1376,26 +1376,26 @@ void Test_CFE_TBL_HousekeepingCmd(void)
     CFE_TBL_Global.DumpControlBlocks[0].State = CFE_TBL_DUMP_PERFORMED;
     CFE_TBL_Global.HkTlmTblRegIndex           = CFE_TBL_NOT_FOUND + 1;
     UT_SetDefaultReturnValue(UT_KEY(OS_OpenCreate), OS_ERROR);
-    UtAssert_INT32_EQ(CFE_TBL_HousekeepingCmd(NULL), CFE_TBL_DONT_INC_CTR);
+    UtAssert_INT32_EQ(CFE_TBL_SendHkCmd(NULL), CFE_TBL_DONT_INC_CTR);
 
     /* Test response to an invalid table and a dump file create failure */
     UT_InitData();
     CFE_TBL_Global.HkTlmTblRegIndex           = CFE_TBL_NOT_FOUND;
     CFE_TBL_Global.DumpControlBlocks[0].State = CFE_TBL_DUMP_PERFORMED;
     UT_SetDefaultReturnValue(UT_KEY(OS_OpenCreate), OS_ERROR);
-    UtAssert_INT32_EQ(CFE_TBL_HousekeepingCmd(NULL), CFE_TBL_DONT_INC_CTR);
+    UtAssert_INT32_EQ(CFE_TBL_SendHkCmd(NULL), CFE_TBL_DONT_INC_CTR);
 
     /* Test response to a file time stamp failure */
     UT_InitData();
     CFE_TBL_Global.DumpControlBlocks[0].State = CFE_TBL_DUMP_PERFORMED;
     UT_SetDeferredRetcode(UT_KEY(CFE_FS_SetTimestamp), 1, OS_SUCCESS - 1);
-    UtAssert_INT32_EQ(CFE_TBL_HousekeepingCmd(NULL), CFE_TBL_DONT_INC_CTR);
+    UtAssert_INT32_EQ(CFE_TBL_SendHkCmd(NULL), CFE_TBL_DONT_INC_CTR);
 
     /* Test response to OS_OpenCreate failure */
     UT_InitData();
     CFE_TBL_Global.DumpControlBlocks[0].State = CFE_TBL_DUMP_PERFORMED;
     UT_SetDeferredRetcode(UT_KEY(OS_OpenCreate), 3, -1);
-    UtAssert_INT32_EQ(CFE_TBL_HousekeepingCmd(NULL), CFE_TBL_DONT_INC_CTR);
+    UtAssert_INT32_EQ(CFE_TBL_SendHkCmd(NULL), CFE_TBL_DONT_INC_CTR);
 }
 
 /*
@@ -3052,7 +3052,7 @@ void Test_CFE_TBL_TblMod(void)
     CFE_TBL_Handle_t            AccessIterator;
     uint8                       CDS_Data[sizeof(UT_Table1_t)];
     uint32                      ExpectedCrc;
-    int maxPathLenDiff = (int) CFE_MISSION_MAX_PATH_LEN - (int) OS_MAX_PATH_LEN;
+    int                         maxPathLenDiff = (int)CFE_MISSION_MAX_PATH_LEN - (int)OS_MAX_PATH_LEN;
 
     memset(&TblInfo1, 0, sizeof(TblInfo1));
 
@@ -3198,14 +3198,14 @@ void Test_CFE_TBL_TblMod(void)
     UtAssert_StrnCmp(TblInfo1.LastFileLoaded, MyFilename, sizeof(TblInfo1.LastFileLoaded) - 4, "%s == %s, %ld",
                      TblInfo1.LastFileLoaded, MyFilename, (long)sizeof(TblInfo1.LastFileLoaded) - 4);
 
-    if(maxPathLenDiff >= 0)
+    if (maxPathLenDiff >= 0)
     {
         UtAssert_StrCmp(&TblInfo1.LastFileLoaded[sizeof(MyFilename) - 4], "(*)", "%s == (*)",
                         &TblInfo1.LastFileLoaded[sizeof(MyFilename) - 4]);
     }
-    else if(maxPathLenDiff > -3)
+    else if (maxPathLenDiff > -3)
     {
-        int modIndicatorStart = (int) CFE_MISSION_MAX_PATH_LEN -4 - maxPathLenDiff;
+        int modIndicatorStart = (int)CFE_MISSION_MAX_PATH_LEN - 4 - maxPathLenDiff;
         UtAssert_StrCmp(&TblInfo1.LastFileLoaded[modIndicatorStart], "(*)", "%s == (*)",
                         &TblInfo1.LastFileLoaded[modIndicatorStart]);
     }
@@ -3957,6 +3957,37 @@ void Test_CFE_TBL_Internal(void)
 #else
     UtAssert_NA("*Not tested* Invalid processor ID ");
 #endif
+
+    /* Test CFE_TBL_RestoreTableDataFromCDS() when failed to get a working buffer */
+    UT_InitData();
+
+    RegRecPtr = &CFE_TBL_Global.Registry[0];
+
+    RegRecPtr->DoubleBuffered  = false;
+    RegRecPtr->TableLoadedOnce = true;
+
+    for (i = 0; i < CFE_PLATFORM_TBL_MAX_SIMULTANEOUS_LOADS; i++)
+    {
+        CFE_TBL_Global.LoadBuffs[i].Taken = true;
+    }
+
+    UtAssert_INT32_EQ(CFE_TBL_RestoreTableDataFromCDS(RegRecPtr, "UT", "UT1", NULL), CFE_TBL_ERR_NO_BUFFER_AVAIL);
+
+    UT_ClearEventHistory();
+
+    UT_InitData();
+    UtAssert_INT32_EQ(CFE_TBL_ValidateTableSize("UT", 0, 0), CFE_TBL_ERR_INVALID_SIZE);
+    UtAssert_INT32_EQ(CFE_TBL_ValidateTableSize("UT", CFE_PLATFORM_TBL_MAX_SNGL_TABLE_SIZE, CFE_TBL_OPT_SNGL_BUFFER),
+                      CFE_SUCCESS);
+    UtAssert_INT32_EQ(
+        CFE_TBL_ValidateTableSize("UT", CFE_PLATFORM_TBL_MAX_SNGL_TABLE_SIZE + 1, CFE_TBL_OPT_SNGL_BUFFER),
+        CFE_TBL_ERR_INVALID_SIZE);
+    UtAssert_INT32_EQ(CFE_TBL_ValidateTableSize("UT", CFE_PLATFORM_TBL_MAX_DBL_TABLE_SIZE + 1, 0),
+                      CFE_TBL_ERR_INVALID_SIZE);
+    UtAssert_INT32_EQ(CFE_TBL_ValidateTableSize("UT", CFE_PLATFORM_TBL_MAX_DBL_TABLE_SIZE, CFE_TBL_OPT_DBL_BUFFER),
+                      CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_TBL_ValidateTableSize("UT", CFE_PLATFORM_TBL_MAX_DBL_TABLE_SIZE + 1, CFE_TBL_OPT_DBL_BUFFER),
+                      CFE_TBL_ERR_INVALID_SIZE);
 }
 
 /*

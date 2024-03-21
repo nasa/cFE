@@ -87,7 +87,7 @@ void CFE_ES_TaskPipe(const CFE_SB_Buffer_t *SBBufPtr)
         ** Housekeeping telemetry request
         */
         case CFE_ES_SEND_HK_MID:
-            CFE_ES_HousekeepingCmd((const CFE_ES_SendHkCmd_t *)SBBufPtr);
+            CFE_ES_SendHkCmd((const CFE_ES_SendHkCmd_t *)SBBufPtr);
             break;
 
         /*
