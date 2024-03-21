@@ -561,6 +561,189 @@ void CFE_TBL_DumpRegistryEventHandler(void *Meta, CFE_FS_FileWriteEvent_t Event,
 bool CFE_TBL_DumpRegistryGetter(void *Meta, uint32 RecordNum, void **Buffer, size_t *BufSize);
 
 /*
+ * Internal helper functions for CFE_TBL_Register()
+ *
+ * These functions execute the table registration process but are
+ * separated out into the most cohesive logical blocks of work.
+ *
+ */
+
+/*---------------------------------------------------------------------------------------*/
+/**
+** \brief Validates the table name of a table to be registered
+**
+** \par Description
+**         Validates the length of a table name for a table that is being registered. It
+**         checks that the length of the name is not zero, nor too long (longer than
+**         CFE_MISSION_TBL_MAX_NAME_LENGTH).
+**
+** \par Assumptions, External Events, and Notes:
+**          None
+**
+** \retval #CFE_SUCCESS                     \copydoc CFE_SUCCESS
+** \retval #CFE_TBL_ERR_INVALID_NAME        \copydoc CFE_TBL_ERR_INVALID_NAME
+**
+*/
+CFE_Status_t CFE_TBL_ValidateTableName(const char *Name);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+** \brief Validates the size of the table to be registered
+**
+** \par Description
+**         This function validates the size of the table that is being registered. It
+**         checks that the size is not zero, and that single/double-buffered tables are
+**         not requested to be of a size larger than their respective limits
+**         (CFE_PLATFORM_TBL_MAX_SNGL_TABLE_SIZE & CFE_PLATFORM_TBL_MAX_DBL_TABLE_SIZE).
+**
+** \par Assumptions, External Events, and Notes:
+**          None
+**
+** \retval #CFE_SUCCESS                     \copydoc CFE_SUCCESS
+** \retval #CFE_TBL_ERR_INVALID_SIZE        \copydoc CFE_TBL_ERR_INVALID_SIZE
+**
+*/
+CFE_Status_t CFE_TBL_ValidateTableSize(const char *Name, size_t Size, uint16 TblOptionFlags);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+** \brief Validates the selected table options
+**
+** \par Description
+**         Validates the selected table options for a table that is being registered.
+**         User-defined table addresses cannot be double-buffered, load/dump or critical.
+**         Dump-only tables cannot be double-buffered or critical.
+**
+** \par Assumptions, External Events, and Notes:
+**          None
+**
+** \retval #CFE_SUCCESS                     \copydoc CFE_SUCCESS
+** \retval #CFE_TBL_ERR_INVALID_OPTIONS     \copydoc CFE_TBL_ERR_INVALID_OPTIONS
+**
+*/
+CFE_Status_t CFE_TBL_ValidateTableOptions(const char *Name, uint16 TblOptionFlags);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+** \brief Checks if a table is already registered in the Table Registry
+**
+** \par Description
+**         This routine searches the Table Registry for a table with the specified name,
+**         owning app and size. If a match is found, the same handle is returned. If a
+**         match is not found, the function will locate a free slot in the table registry
+**         (unless it's already full).
+**
+** \par Assumptions, External Events, and Notes:
+**          None
+**
+** \retval #CFE_SUCCESS                     \copydoc CFE_SUCCESS
+** \retval #CFE_TBL_ERR_DUPLICATE_DIFF_SIZE \copydoc CFE_TBL_ERR_DUPLICATE_DIFF_SIZE
+** \retval #CFE_TBL_WARN_DUPLICATE          \copydoc CFE_TBL_WARN_DUPLICATE
+** \retval #CFE_TBL_ERR_DUPLICATE_NOT_OWNED \copydoc CFE_TBL_ERR_DUPLICATE_NOT_OWNED
+** \retval #CFE_TBL_ERR_REGISTRY_FULL       \copydoc CFE_TBL_ERR_REGISTRY_FULL
+**
+*/
+CFE_Status_t CFE_TBL_CheckForDuplicateRegistration(int16 *RegIndxPtr, const char *TblName,
+                                                   CFE_TBL_RegistryRec_t *RegRecPtr, CFE_ES_AppId_t ThisAppId,
+                                                   size_t Size, CFE_TBL_Handle_t *TblHandlePtr);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+** \brief Allocates memory for the table buffer
+**
+** \par Description
+**         Allocates a memory buffer for the table buffer of a table that is being registered.
+**         If successful, the buffer is zeroed out.
+**
+** \par Assumptions, External Events, and Notes:
+**          None
+**
+** \retval #CFE_SUCCESS                     \copydoc CFE_SUCCESS
+**
+*/
+CFE_Status_t CFE_TBL_AllocateTableBuffer(CFE_TBL_RegistryRec_t *RegRecPtr, size_t Size);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+** \brief Allocates the secondary memory buffer for a double-buffered table
+**
+** \par Description
+**         Allocates the secondary memory buffer for a double-buffered table that is
+**         being registered. If successful, the buffer is zeroed out, and the
+**         DoubleBuffered flag is set to true.
+**
+** \par Assumptions, External Events, and Notes:
+**          None
+**
+** \retval #CFE_SUCCESS                     \copydoc CFE_SUCCESS
+**
+*/
+CFE_Status_t CFE_TBL_AllocateSecondaryBuffer(CFE_TBL_RegistryRec_t *RegRecPtr, size_t Size);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+** \brief Initializes a Table Registry Entry
+**
+** \par Description
+**         Initializes a Table Registry Entry for a table that is being registered
+**
+** \par Assumptions, External Events, and Notes:
+**          None
+**
+*/
+void CFE_TBL_InitTableRegistryEntry(CFE_TBL_RegistryRec_t *RegRecPtr, size_t Size,
+                                    CFE_TBL_CallbackFuncPtr_t TblValidationFuncPtr, const char *TblName,
+                                    uint16 TblOptionFlags);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+** \brief Initializes a Table Access Descriptor
+**
+** \par Description
+**         Initializes a Table Access Descriptor for a table that is being registered
+**
+** \par Assumptions, External Events, and Notes:
+**          None
+**
+*/
+void CFE_TBL_InitTableAccessDescriptor(CFE_TBL_Handle_t *TblHandlePtr, CFE_ES_AppId_t ThisAppId,
+                                       CFE_TBL_RegistryRec_t *RegRecPtr, int16 RegIndx);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+** \brief Restore the contents of a table from the Critical Data Store (if it exists)
+**
+** \par Description
+**          This function restores the contents of the specified table from the Critical
+**          Data Store (CDS), if a copy of the table contents exists there.
+**
+** \par Assumptions, External Events, and Notes:
+**          None
+**
+** \retval #CFE_SUCCESS                     \copydoc CFE_SUCCESS
+** \retval #CFE_TBL_INFO_RECOVERED_TBL      \copydoc CFE_TBL_INFO_RECOVERED_TBL
+**
+*/
+CFE_Status_t CFE_TBL_RestoreTableDataFromCDS(CFE_TBL_RegistryRec_t *RegRecPtr, const char *AppName, const char *Name,
+                                             CFE_TBL_CritRegRec_t *CritRegRecPtr);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+** \brief Register a table with the Critical Table Registry
+**
+** \par Description
+**        This function registers a table with the Critical Table Registry. The fields of
+**        the Critical Table Registry Record are initialized and then the data is copied
+**        to the Critical Data Store (CDS).
+**
+** \par Assumptions, External Events, and Notes:
+**          None
+**
+*/
+void CFE_TBL_RegisterWithCriticalTableRegistry(CFE_TBL_CritRegRec_t *CritRegRecPtr, CFE_TBL_RegistryRec_t *RegRecPtr,
+                                               const char *TblName);
+
+/*
 ** Globals specific to the TBL module
 */
 extern CFE_TBL_Global_t CFE_TBL_Global;
