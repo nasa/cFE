@@ -312,14 +312,14 @@ directory is described as a note under each folder.
     |-- osal
     |   |-- Contains a copy of the OSAL component
     |-- psp
-    |   |-- Contains the Platform Suport Package (PSP) library
+    |   |-- Contains the Platform Support Package (PSP) library
     |   |-- Can customize PSP implementation for each CPU and OS that the project needs
     |-- build
     |   |-- The flight software is all configured and built under this directory
     |   |-- All mission and platform configuration files are placed here
     |-- apps
     |   |-- Contains application source code.
-    |   |-- Application source code may be shared amoung multiple build CPUs
+    |   |-- Application source code may be shared among multiple build CPUs
     |-- libs
     |   |-- Contains Core Flight System (cFS) Sample Library (sample_lib)
     |-- tools
@@ -623,7 +623,7 @@ of file names across all flight software packages once imported into a combined 
 files should also be overridable at the mission level; that is, a component only provides a default file (with a `default_` prefix,
 for distinction) that can be "cloned and owned" by placing a copy, without the `default_` prefix, into the `_defs` directory
 for the CFE/CFS mission build.  Any customized file(s) in the `_defs` directory will be seen by the CMake build system and used
-instead of the default version of the file that is provided from the orignal source tree.
+instead of the default version of the file that is provided from the original source tree.
 
 | **File Name Pattern**      | **Scope** | **Content**                                                                                         |
 |:---------------------------|:---------:|:----------------------------------------------------------------------------------------------------|
@@ -664,10 +664,10 @@ the content (payload) of those messages.  This supports cases where target syste
 and all messages and data files are desired to use those formats, as opposed to the normal/default CFE encapsulation formats.  In this case, it
 is important _not_ to change the payload formats, as this will make it more difficult to take a new application update in the future.
 
-**IMPORANT**: All of the header files above with "INTERFACE" scope control the table/message interface of the component.  Changing any of the
+**IMPORTANT**: All of the header files above with "INTERFACE" scope control the table/message interface of the component.  Changing any of the
 values or definitions in these files will affect the inter-processor communication - either table files, exported data products, commands, or
-telementry messages.  Due caution should be exercised when customizing any of these files, as any changes will need to be propagated to all
-other CFE instances, ground systems, test software or scripts, or any other tools that interact with the flight softare.
+telemetry messages.  Due caution should be exercised when customizing any of these files, as any changes will need to be propagated to all
+other CFE instances, ground systems, test software or scripts, or any other tools that interact with the flight software.
 
 Also note that Electronic Data Sheets (EDS) definitions will supercede the "INTERFACE" header files listed above.  These headers are not
 used by the software when building FSW based on EDS.  Instead, the EDS tool will generate these headers based on the content of the EDS file(s)
@@ -676,7 +676,7 @@ and the software will be configured to use the generated headers during the buil
 __Combination Headers__
 
 The header files in this section combine two or more files from the above set for simplicity of usage in source code, as well as backward
-compatiblity with traditional file names from older versions of CFS apps.  Although these files may also be overridden directly, it is
+compatibility with traditional file names from older versions of CFS apps.  Although these files may also be overridden directly, it is
 recommended to only override/modify the more granular headers defined above.
 
 | **File Name Pattern**      | **Content**                                                                                |
@@ -686,7 +686,7 @@ recommended to only override/modify the more granular headers defined above.
 | _module_`_msg.h`           | Complete message interface: Combination of `msgdefs.h`, `msgstruct.h` and all dependencies |
 | _module_`_tbl.h`           | Complete table interface: Combination of `tbldefs.h`, `tblstruct.h` and all dependencies   |
 
-**IMPORANT**: Files from a limited scope may depend on files from a broader scope, but not the other way around.  For example,
+**IMPORTANT**: Files from a limited scope may depend on files from a broader scope, but not the other way around.  For example,
 the `platform_cfg.h` may depend on items defined in `mission_cfg.h`, but items in `mission_cfg.h` must **not** depend on items
 defined in `platform_cfg.h`.
 
