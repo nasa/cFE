@@ -262,4 +262,25 @@
 #define CFE_PLATFORM_TBL_VALID_PRID_3 0
 #define CFE_PLATFORM_TBL_VALID_PRID_4 0
 
+/**
+**  \cfeevscfg Define whether or not to send an event if table not found in registry
+**
+**  \par Description:
+**       This configuration parameter sets whether or not to send an event if a table is
+**       not found in the registry when calling CFE_TBL_FindTableInRegistry.
+**
+**       Note: If the table is not found, CFE_TBL_FindTableInRegistry returns
+**       CFE_TBL_NOT_FOUND, whether or not this configuration parameter is set to true.
+**       If the event reports are not needed, this parameter can therefore be set to
+**       false, and the implications of the table not being found can be handled via the
+**       return code.
+**
+**       If set to true, an event will be sent with Event ID CFE_TBL_NO_SUCH_TABLE_ERR_EID.
+**       If set to false, no event will be sent.
+**
+**  \par Limits
+**       The valid settings are true or false.
+*/
+#define CFE_PLATFORM_TBL_SEND_EVENT_IF_TABLE_NOT_FOUND true
+
 #endif

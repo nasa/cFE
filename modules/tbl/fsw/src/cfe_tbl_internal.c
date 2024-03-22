@@ -503,6 +503,14 @@ int16 CFE_TBL_FindTableInRegistry(const char *TblName)
         }
     } while ((RegIndx == CFE_TBL_NOT_FOUND) && (i < (CFE_PLATFORM_TBL_MAX_NUM_TABLES - 1)));
 
+#if (CFE_PLATFORM_TBL_SEND_EVENT_IF_TABLE_NOT_FOUND == true)
+    if (RegIndx == CFE_TBL_NOT_FOUND)
+    {
+        CFE_EVS_SendEvent(CFE_TBL_NO_SUCH_TABLE_ERR_EID, CFE_EVS_EventType_ERROR,
+                          "Unable to locate '%s' in Table Registry", TblName);
+    }
+#endif
+
     return RegIndx;
 }
 
