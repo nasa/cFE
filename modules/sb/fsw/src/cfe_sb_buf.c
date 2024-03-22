@@ -128,7 +128,6 @@ CFE_SB_BufferD_t *CFE_SB_GetBufferFromPool(size_t MaxMsgSize)
     bd = (CFE_SB_BufferD_t *)addr;
     memset(bd, 0, CFE_SB_BUFFERD_CONTENT_OFFSET);
 
-    bd->MsgId         = CFE_SB_INVALID_MSG_ID;
     bd->UseCount      = 1;
     bd->AllocatedSize = AllocSize;
 
