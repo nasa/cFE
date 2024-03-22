@@ -71,7 +71,7 @@ typedef struct
     char                  ObjectName[OS_MAX_API_NAME]; /* task or OS object name */
     CFE_ES_FuncPtrUnion_t FuncPtrUnion;                /* task or function reference */
     uint32                ObjectPriority;              /* object priority */
-    uint32                ObjectSize;                  /* size used for stack, queue size, etc. */
+    size_t                ObjectSize;                  /* size used for stack, queue size, etc. */
     uint32                ObjectFlags;                 /* extra flags to pass */
 } CFE_ES_ObjectTable_t;
 
