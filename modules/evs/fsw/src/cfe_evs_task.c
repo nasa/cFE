@@ -1269,8 +1269,8 @@ int32 CFE_EVS_WriteAppDataFileCmd(const CFE_EVS_WriteAppDataFileCmd_t *data)
                     else
                     {
                         EVS_SendEvent(CFE_EVS_ERR_WRDATFILE_EID, CFE_EVS_EventType_ERROR,
-                                      "Write App Data Command Error: OS_write = %ld, filename = %s", (long)OsStatus,
-                                      LocalName);
+                                      "Write App Data Command Error: At entry = %d, OS_write = %ld, filename = %s",
+                                      (int)EntryCount, (long)OsStatus, LocalName);
                         break;
                     }
                 }
