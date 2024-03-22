@@ -961,7 +961,7 @@ int32 CFE_TBL_UpdateInternal(CFE_TBL_Handle_t TblHandle, CFE_TBL_RegistryRec_t *
 
             if (LockStatus)
             {
-                Status = CFE_TBL_INFO_TABLE_LOCKED;
+                Status = CFE_TBL_ERR_TABLE_LOCKED;
 
                 CFE_ES_WriteToSysLog("%s: Unable to update locked table Handle=%d\n", __func__, TblHandle);
             }
