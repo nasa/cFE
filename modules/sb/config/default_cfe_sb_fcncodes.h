@@ -211,7 +211,7 @@
 **       - \b \c \SB_CMDPC - command execution counter will increment
 **       - View routing information #CFE_SB_WRITE_ROUTING_INFO_CC to verify
 **         enable/disable state change
-**       - The #CFE_SB_ENBL_RTE2_EID debug event message will be generated
+**       - The #CFE_SB_ENBL_RTE_EID debug event message will be generated
 **       - Destination will begin receiving messages
 **
 **  \par Error Conditions
@@ -222,7 +222,7 @@
 **       Evidence of failure may be found in the following telemetry:
 **       - \b \c \SB_CMDEC - command error counter will increment
 **       - A command specific error event message is issued for all error
-**         cases. See #CFE_SB_ENBL_RTE1_EID or #CFE_SB_ENBL_RTE3_EID
+**         cases. See #CFE_SB_ENBL_RTE_MID_SUB_ERR_EID or #CFE_SB_ENBL_RTE_MID_PIPE_ERR_EID
 **
 **  \par Criticality
 **       This command is not inherently dangerous.
@@ -247,7 +247,7 @@
 **       - \b \c \SB_CMDPC - command execution counter will increment
 **       - View routing information #CFE_SB_WRITE_ROUTING_INFO_CC to verify
 **         enable/disable state change
-**       - The #CFE_SB_DSBL_RTE2_EID debug event message will be generated
+**       - The #CFE_SB_DSBL_RTE_EID debug event message will be generated
 **       - Destination will stop receiving messages
 **
 **  \par Error Conditions
@@ -258,7 +258,7 @@
 **       Evidence of failure may be found in the following telemetry:
 **       - \b \c \SB_CMDEC - command error counter will increment
 **       - A command specific error event message is issued for all error
-**         cases. See #CFE_SB_DSBL_RTE1_EID or #CFE_SB_DSBL_RTE3_EID
+**         cases. See #CFE_SB_DSBL_RTE_MID_SUB_ERR_EID or #CFE_SB_DSBL_RTE_MID_PIPE_ERR_EID
 **
 **  \par Criticality
 **       This command is not intended to be used in nominal conditions. It is
