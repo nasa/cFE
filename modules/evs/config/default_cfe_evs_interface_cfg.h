@@ -25,7 +25,7 @@
  * interface, tables definitions, and any other data products that
  * serve to exchange information with other entities.
  *
- * @note This file may be overridden/superceded by mission-provided defintions
+ * @note This file may be overridden/superceded by mission-provided definitions
  * either by overriding this header or by generating definitions from a command/data
  * dictionary tool.
  */

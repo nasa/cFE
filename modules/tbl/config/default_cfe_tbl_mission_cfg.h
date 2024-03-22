@@ -24,7 +24,7 @@
  * This is a compatibility header for the "mission_cfg.h" file that has
  * traditionally provided public config definitions for each CFS app.
  *
- * @note This file may be overridden/superceded by mission-provided defintions
+ * @note This file may be overridden/superceded by mission-provided definitions
  * either by overriding this header or by generating definitions from a command/data
  * dictionary tool.
  */

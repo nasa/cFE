@@ -25,7 +25,7 @@
  * to items in this file only affect the local module and will be transparent
  * to external entities that are using the public interface(s).
  *
- * @note This file may be overridden/superceded by mission-provided defintions
+ * @note This file may be overridden/superceded by mission-provided definitions
  * either by overriding this header or by generating definitions from a command/data
  * dictionary tool.
  */
