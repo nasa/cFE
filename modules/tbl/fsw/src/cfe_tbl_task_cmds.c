@@ -265,7 +265,7 @@ void CFE_TBL_GetTblRegData(void)
     {
         /* For a double buffered table, the inactive is the other allocated buffer */
         CFE_TBL_Global.TblRegPacket.Payload.InactiveBufferAddr =
-            CFE_ES_MEMADDRESS_C(RegRecPtr->Buffers[(1U - RegRecPtr->ActiveBufferIndex)].BufferPtr);
+            CFE_ES_MEMADDRESS_C(RegRecPtr->Buffers[(RegRecPtr->ActiveBufferIndex ^ 1)].BufferPtr);
     }
     else
     {
@@ -569,7 +569,7 @@ int32 CFE_TBL_DumpCmd(const CFE_TBL_DumpCmd_t *data)
             /* If this is a double buffered table, locating the inactive buffer is trivial */
             if (RegRecPtr->DoubleBuffered)
             {
-                DumpDataAddr = RegRecPtr->Buffers[(1U - RegRecPtr->ActiveBufferIndex)].BufferPtr;
+                DumpDataAddr = RegRecPtr->Buffers[(RegRecPtr->ActiveBufferIndex ^ 1)].BufferPtr;
             }
             else
             {
@@ -831,7 +831,7 @@ int32 CFE_TBL_ValidateCmd(const CFE_TBL_ValidateCmd_t *data)
             /* If this is a double buffered table, locating the inactive buffer is trivial */
             if (RegRecPtr->DoubleBuffered)
             {
-                ValidationDataPtr = RegRecPtr->Buffers[(1U - RegRecPtr->ActiveBufferIndex)].BufferPtr;
+                ValidationDataPtr = RegRecPtr->Buffers[(RegRecPtr->ActiveBufferIndex ^ 1)].BufferPtr;
             }
             else
             {
@@ -970,7 +970,7 @@ int32 CFE_TBL_ActivateCmd(const CFE_TBL_ActivateCmd_t *data)
             /* Determine if the inactive buffer has been successfully validated or not */
             if (RegRecPtr->DoubleBuffered)
             {
-                ValidationStatus = RegRecPtr->Buffers[(1U - RegRecPtr->ActiveBufferIndex)].Validated;
+                ValidationStatus = RegRecPtr->Buffers[(RegRecPtr->ActiveBufferIndex ^ 1)].Validated;
             }
             else
             {
