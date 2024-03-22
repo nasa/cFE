@@ -1897,7 +1897,7 @@ CFE_Status_t CFE_SB_ReceiveBuffer(CFE_SB_Buffer_t **BufPtr, CFE_SB_PipeId_t Pipe
         if (CFE_SB_PipeDescIsMatch(PipeDscPtr, PipeId))
         {
             /*
-            ** Load the pipe tables 'CurrentBuff' with the buffer descriptor
+            ** Load the pipe table's 'LastBuffer' with the buffer descriptor
             ** ptr corresponding to the message just read. This is done so that
             ** the buffer can be released on the next receive call for this pipe.
             **
@@ -1907,7 +1907,7 @@ CFE_Status_t CFE_SB_ReceiveBuffer(CFE_SB_Buffer_t **BufPtr, CFE_SB_PipeId_t Pipe
             PipeDscPtr->LastBuffer = BufDscPtr;
 
             /*
-             * Also set the Receivers pointer to the address of the actual message
+             * Also set the Receiver's pointer to the address of the actual message
              * (currently this is "borrowing" the ref above, not its own ref)
              */
             *BufPtr = &BufDscPtr->Content;
