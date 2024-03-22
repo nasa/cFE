@@ -820,7 +820,7 @@ function(process_arch SYSVAR)
       if (FILESRC)
         # In case the file is a symlink, follow it to get to the actual file
         get_filename_component(FILESRC "${FILESRC}" REALPATH)
-        message("NOTE: Selected ${FILESRC} as source for ${INSTFILE} on ${TGTNAME}")
+        message(STATUS "NOTE: Selected ${FILESRC} as source for ${INSTFILE} on ${TGTNAME}")
         install(FILES ${FILESRC} DESTINATION ${TGTNAME}/${INSTALL_SUBDIR} RENAME ${INSTFILE})
       else(FILESRC)
         message("WARNING: Install file ${INSTFILE} for ${TGTNAME} not found")
