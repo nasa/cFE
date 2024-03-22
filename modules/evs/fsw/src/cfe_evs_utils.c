@@ -462,8 +462,8 @@ void EVS_GenerateEventTelemetry(EVS_AppData_t *AppDataPtr, uint16 EventID, uint1
     /* Initialize EVS event packets */
     CFE_MSG_Init(CFE_MSG_PTR(LongEventTlm.TelemetryHeader), CFE_SB_ValueToMsgId(CFE_EVS_LONG_EVENT_MSG_MID),
                  sizeof(LongEventTlm));
-    LongEventTlm.Payload.PacketID.EventID   = EventID;
-    LongEventTlm.Payload.PacketID.EventType = EventType;
+    LongEventTlm.Payload.EventContext.EventID   = EventID;
+    LongEventTlm.Payload.EventContext.EventType = EventType;
 
     /* vsnprintf() returns the total expanded length of the formatted string */
     /* vsnprintf() copies and zero terminates portion that fits in the buffer */
@@ -482,10 +482,10 @@ void EVS_GenerateEventTelemetry(EVS_AppData_t *AppDataPtr, uint16 EventID, uint1
     }
 
     /* Obtain task and system information */
-    CFE_ES_GetAppName((char *)LongEventTlm.Payload.PacketID.AppName, EVS_AppDataGetID(AppDataPtr),
-                      sizeof(LongEventTlm.Payload.PacketID.AppName));
-    LongEventTlm.Payload.PacketID.SpacecraftID = CFE_PSP_GetSpacecraftId();
-    LongEventTlm.Payload.PacketID.ProcessorID  = CFE_PSP_GetProcessorId();
+    CFE_ES_GetAppName((char *)LongEventTlm.Payload.EventContext.AppName, EVS_AppDataGetID(AppDataPtr),
+                      sizeof(LongEventTlm.Payload.EventContext.AppName));
+    LongEventTlm.Payload.EventContext.SpacecraftID = CFE_PSP_GetSpacecraftId();
+    LongEventTlm.Payload.EventContext.ProcessorID  = CFE_PSP_GetProcessorId();
 
     /* Set the packet timestamp */
     CFE_MSG_SetMsgTime(CFE_MSG_PTR(LongEventTlm.TelemetryHeader), *TimeStamp);
@@ -512,7 +512,7 @@ void EVS_GenerateEventTelemetry(EVS_AppData_t *AppDataPtr, uint16 EventID, uint1
         CFE_MSG_Init(CFE_MSG_PTR(ShortEventTlm.TelemetryHeader), CFE_SB_ValueToMsgId(CFE_EVS_SHORT_EVENT_MSG_MID),
                      sizeof(ShortEventTlm));
         CFE_MSG_SetMsgTime(CFE_MSG_PTR(ShortEventTlm.TelemetryHeader), *TimeStamp);
-        ShortEventTlm.Payload.PacketID = LongEventTlm.Payload.PacketID;
+        ShortEventTlm.Payload.EventContext = LongEventTlm.Payload.EventContext;
         CFE_SB_TransmitMsg(CFE_MSG_PTR(ShortEventTlm.TelemetryHeader), true);
     }
 
@@ -546,9 +546,9 @@ void EVS_SendViaPorts(CFE_EVS_LongEventTlm_t *EVS_PktPtr)
     CFE_TIME_Print(TimeBuffer, PktTime);
 
     snprintf(PortMessage, sizeof(PortMessage), "%s %u/%u/%s %u: %s", TimeBuffer,
-             (unsigned int)EVS_PktPtr->Payload.PacketID.SpacecraftID,
-             (unsigned int)EVS_PktPtr->Payload.PacketID.ProcessorID, EVS_PktPtr->Payload.PacketID.AppName,
-             (unsigned int)EVS_PktPtr->Payload.PacketID.EventID, EVS_PktPtr->Payload.Message);
+             (unsigned int)EVS_PktPtr->Payload.EventContext.SpacecraftID,
+             (unsigned int)EVS_PktPtr->Payload.EventContext.ProcessorID, EVS_PktPtr->Payload.EventContext.AppName,
+             (unsigned int)EVS_PktPtr->Payload.EventContext.EventID, EVS_PktPtr->Payload.Message);
 
     if (CFE_EVS_Global.EVS_TlmPkt.Payload.OutputPort & CFE_EVS_PORT1_BIT)
     {
