@@ -300,14 +300,15 @@ uint32 CFE_SB_RequestToSendEvent(CFE_ES_TaskId_t TaskId, uint32 Bit)
         return CFE_SB_DENIED;
     }
 
-    /* if bit is set... */
-    if (CFE_TST(CFE_SB_Global.StopRecurseFlags[Indx], Bit))
+    /* Check if Bit is set */
+    if (CFE_SB_Global.StopRecurseFlags[Indx] & (1 << Bit))
     {
         return CFE_SB_DENIED;
     }
     else
     {
-        CFE_SET(CFE_SB_Global.StopRecurseFlags[Indx], Bit);
+        /* Set Bit */
+        CFE_SB_Global.StopRecurseFlags[Indx] |= (1 << Bit);
         return CFE_SB_GRANTED;
     }
 }
@@ -328,7 +329,7 @@ void CFE_SB_FinishSendEvent(CFE_ES_TaskId_t TaskId, uint32 Bit)
     }
 
     /* clear the bit so the task may send this event again */
-    CFE_CLR(CFE_SB_Global.StopRecurseFlags[Indx], Bit);
+    CFE_SB_Global.StopRecurseFlags[Indx] &= ~(1 << Bit);
 }
 
 /*----------------------------------------------------------------
