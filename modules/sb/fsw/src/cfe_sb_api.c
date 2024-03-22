@@ -161,12 +161,7 @@ CFE_Status_t CFE_SB_CreatePipe(CFE_SB_PipeId_t *PipeIdPtr, uint16 Depth, const c
     {
         /* create the queue */
         OsStatus = OS_QueueCreate(&SysQueueId, PipeName, Depth, sizeof(CFE_SB_BufferD_t *), 0);
-        if (OsStatus == OS_SUCCESS)
-        {
-            /* just translate the RC to CFE */
-            Status = CFE_SUCCESS;
-        }
-        else
+        if (OsStatus != OS_SUCCESS)
         {
             if (OsStatus == OS_ERR_NAME_TAKEN)
             {
