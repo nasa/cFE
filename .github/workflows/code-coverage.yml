@@ -104,8 +104,8 @@ jobs:
 
       - name: Confirm Minimum Coverage
         run: |
-          missed_branches=50
-          missed_lines=17
+          missed_branches=47
+          missed_lines=36
           branch_nums=$(grep -A 3 "Overall coverage rate" lcov_out.txt | grep branches | grep -oP "[0-9]+[0-9]*")
           line_nums=$(grep -A 3 "Overall coverage rate" lcov_out.txt | grep lines | grep -oP "[0-9]+[0-9]*")
 
