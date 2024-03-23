@@ -129,4 +129,4 @@
 */
 #define CFE_MISSION_MAX_NUM_FILES 50
 
-#endif /* SAMPLE_MISSION_CFG_H */
+#endif /* CFE_CORE_API_INTERFACE_CFG_H */

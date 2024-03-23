@@ -59,7 +59,7 @@ jobs:
           done
           changelog_entry="${changelog_entry}\n${see_entry}\n"
           sed -ir "s|# Changelog|$changelog_entry|" CHANGELOG.md
-          
+
           buildnumber_entry=$'#define CFE_BUILD_NUMBER   '${rev_num}$' /**< @brief Development: Number of development git commits since CFE_BUILD_BASELINE */'
           sed -ir "s|#define CFE_BUILD_NUMBER.*|$buildnumber_entry|" modules/core_api/fsw/inc/cfe_version.h
       - name: Commit and Push Updates to IC Branch

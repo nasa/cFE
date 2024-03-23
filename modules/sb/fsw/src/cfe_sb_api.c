@@ -245,7 +245,6 @@ CFE_Status_t CFE_SB_CreatePipe(CFE_SB_PipeId_t *PipeIdPtr, uint16 Depth, const c
                                            CFE_SB_GetAppTskName(TskId, FullName), (unsigned long)PipeIdPtr, (int)Depth,
                                            OS_QUEUE_MAX_DEPTH);
                 break;
-
             case CFE_SB_MAX_PIPES_MET_EID:
                 CFE_EVS_SendEventWithAppID(CFE_SB_MAX_PIPES_MET_EID, CFE_EVS_EventType_ERROR, CFE_SB_Global.AppId,
                                            "CreatePipeErr:Max Pipes(%d)In Use.app %s", CFE_PLATFORM_SB_MAX_PIPES,
@@ -265,6 +264,8 @@ CFE_Status_t CFE_SB_CreatePipe(CFE_SB_PipeId_t *PipeIdPtr, uint16 Depth, const c
                 CFE_EVS_SendEventWithAppID(CFE_SB_CR_PIPE_ERR_EID, CFE_EVS_EventType_ERROR, CFE_SB_Global.AppId,
                                            "CreatePipeErr:OS_QueueCreate returned %ld,app %s", (long)OsStatus,
                                            CFE_SB_GetAppTskName(TskId, FullName));
+                break;
+            default:
                 break;
         }
     }
@@ -469,6 +470,8 @@ int32 CFE_SB_DeletePipeFull(CFE_SB_PipeId_t PipeId, CFE_ES_AppId_t AppId)
                                            "Pipe Delete Error:Caller(%s) is not the owner of pipe %ld", FullName,
                                            CFE_RESOURCEID_TO_ULONG(PipeId));
                 break;
+            default:
+                break;
         }
     }
 
@@ -556,6 +559,8 @@ CFE_Status_t CFE_SB_SetPipeOpts(CFE_SB_PipeId_t PipeId, uint8 Opts)
                                            "Pipe Opts Set Error: Caller(%s) is not the owner of pipe %lu",
                                            CFE_SB_GetAppTskName(TskId, FullName), CFE_RESOURCEID_TO_ULONG(PipeId));
                 break;
+            default:
+                break;
         }
     }
 
@@ -630,6 +635,8 @@ CFE_Status_t CFE_SB_GetPipeOpts(CFE_SB_PipeId_t PipeId, uint8 *OptsPtr)
                 CFE_EVS_SendEventWithAppID(CFE_SB_GETPIPEOPTS_ID_ERR_EID, CFE_EVS_EventType_ERROR, CFE_SB_Global.AppId,
                                            "Pipe Opts Error:Bad Argument,PipedId %lu,Requestor %s",
                                            CFE_RESOURCEID_TO_ULONG(PipeId), CFE_SB_GetAppTskName(TskId, FullName));
+                break;
+            default:
                 break;
         }
     }
@@ -718,6 +725,8 @@ CFE_Status_t CFE_SB_GetPipeName(char *PipeNameBuf, size_t PipeNameSize, CFE_SB_P
                 CFE_EVS_SendEventWithAppID(CFE_SB_GETPIPENAME_ID_ERR_EID, CFE_EVS_EventType_ERROR, CFE_SB_Global.AppId,
                                            "Pipe Id Error:Bad Argument,Id=%lu,Requestor %s",
                                            CFE_RESOURCEID_TO_ULONG(PipeId), CFE_SB_GetAppTskName(TskId, FullName));
+                break;
+            default:
                 break;
         }
 
@@ -827,6 +836,8 @@ CFE_Status_t CFE_SB_GetPipeIdByName(CFE_SB_PipeId_t *PipeIdPtr, const char *Pipe
                 CFE_EVS_SendEventWithAppID(CFE_SB_GETPIPEIDBYNAME_NAME_ERR_EID, CFE_EVS_EventType_ERROR,
                                            CFE_SB_Global.AppId, "Pipe ID By Name Error:Bad Argument,Requestor %s",
                                            CFE_SB_GetAppTskName(TskId, FullName));
+                break;
+            default:
                 break;
         }
     }
@@ -1023,6 +1034,8 @@ int32 CFE_SB_SubscribeFull(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId, CFE_SB_
         case CFE_SB_DUP_SUBSCRIP_EID:
             CFE_SB_Global.HKTlmMsg.Payload.DuplicateSubscriptionsCounter++;
             break;
+        default:
+            break;
     }
 
     CFE_SB_UnlockSharedData(__func__, __LINE__);
@@ -1080,6 +1093,8 @@ int32 CFE_SB_SubscribeFull(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId, CFE_SB_
                                            "Subscribe Err:Bad Arg,MsgId 0x%x,PipeId %lu,app %s,scope %d",
                                            (unsigned int)CFE_SB_MsgIdToValue(MsgId), CFE_RESOURCEID_TO_ULONG(PipeId),
                                            CFE_SB_GetAppTskName(TskId, FullName), Scope);
+                break;
+            default:
                 break;
         }
     }
@@ -1267,6 +1282,8 @@ int32 CFE_SB_UnsubscribeFull(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId, uint8
                                            "Unsubscribe Err:Bad Arg,MsgId 0x%x,PipeId %lu,app %s,scope %d",
                                            (unsigned int)CFE_SB_MsgIdToValue(MsgId), CFE_RESOURCEID_TO_ULONG(PipeId),
                                            CFE_SB_GetAppTskName(TskId, FullName), (int)Scope);
+                break;
+            default:
                 break;
         }
     }
@@ -1512,6 +1529,8 @@ int32 CFE_SB_TransmitMsgValidate(const CFE_MSG_Message_t *MsgPtr, CFE_SB_MsgId_t
                     /* clear the bit so the task may send this event again */
                     CFE_SB_FinishSendEvent(TskId, CFE_SB_SEND_NO_SUBS_EID_BIT);
                 }
+                break;
+            default:
                 break;
         }
     }
@@ -1982,6 +2001,8 @@ CFE_Status_t CFE_SB_ReceiveBuffer(CFE_SB_Buffer_t **BufPtr, CFE_SB_PipeId_t Pipe
                 CFE_EVS_SendEventWithAppID(CFE_SB_BAD_PIPEID_EID, CFE_EVS_EventType_ERROR, CFE_SB_Global.AppId,
                                            "Rcv Err:PipeId %lu does not exist,app %s", CFE_RESOURCEID_TO_ULONG(PipeId),
                                            CFE_SB_GetAppTskName(TskId, FullName));
+                break;
+            default:
                 break;
         }
     }

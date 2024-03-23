@@ -1614,7 +1614,7 @@ void Test_SB_EarlyInit_NoErrors(void)
     CFE_SB_EarlyInit();
     CFE_UtAssert_SUCCESS(CFE_SB_EarlyInit());
 
-    /* Confirm reset of values to cover reset requirements that are challenging operationaly */
+    /* Confirm reset of values to cover reset requirements that are challenging operationally */
     UtAssert_ZERO(CFE_SB_Global.HKTlmMsg.Payload.CommandErrorCounter);
     UtAssert_ZERO(CFE_SB_Global.HKTlmMsg.Payload.NoSubscribersCounter);
     UtAssert_ZERO(CFE_SB_Global.HKTlmMsg.Payload.MsgSendErrorCounter);
@@ -3647,7 +3647,7 @@ static void SB_UT_PipeIdModifyHandler(void *UserObj, UT_EntryKey_t FuncKey, cons
     PipeDscPtr->PipeId = CFE_SB_INVALID_PIPE;
 }
 
-/* Special handler to hit OS_QueueGet error casses */
+/* Special handler to hit OS_QueueGet error cases */
 static void SB_UT_QueueGetHandler(void *UserObj, UT_EntryKey_t FuncKey, const UT_StubContext_t *Context)
 {
     size_t **data        = (size_t **)UT_Hook_GetArgValueByName(Context, "data", void *);
@@ -4238,14 +4238,14 @@ void Test_SB_SpecialCases(void)
 }
 
 /*
- * Test the use count rollover prevetion
+ * Test the use count rollover prevention
  */
 void Test_UseCount_Rollover_Prevention(void)
 {
     CFE_SB_BufferD_t bd;
     uint16           usecount_expected = 0x7FFF;
 
-    /* Note this is just for coverage, limit can not be reached in nomal ops (would be a bug) */
+    /* Note this is just for coverage, limit can not be reached in normal ops (would be a bug) */
     bd.UseCount = usecount_expected;
     UtAssert_VOIDCALL(CFE_SB_IncrBufUseCnt(&bd));
     UtAssert_UINT32_EQ(bd.UseCount, usecount_expected);

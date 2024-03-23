@@ -195,4 +195,4 @@ typedef struct CFE_FS_Header
     char Description[CFE_FS_HDR_DESC_MAX_LEN]; /**< \brief File description */
 } CFE_FS_Header_t;
 
-#endif /* CFE_FS_EXTERN_TYPEDEFS_H */
+#endif /* CFE_FS_FILEHDR_H */

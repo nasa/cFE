@@ -74,7 +74,7 @@ void TestPipeCreateMax(void)
          * Normally, this will return CFE_SUCCESS, until the max number of pipes is reached.
          * Confirm that the last creation attempt returned CFE_SB_MAX_PIPES_MET
          *
-         * NOTE: this also mimics the same format as UtAssert_INT32_EQ so that any post-procesing
+         * NOTE: this also mimics the same format as UtAssert_INT32_EQ so that any post-processing
          * test log analysis tools will see this call as well.
          */
         if (CFE_Assert_STATUS_MAY_BE(CFE_SB_MAX_PIPES_MET))

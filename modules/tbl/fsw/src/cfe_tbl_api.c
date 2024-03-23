@@ -504,6 +504,7 @@ CFE_Status_t CFE_TBL_Load(CFE_TBL_Handle_t TblHandle, CFE_TBL_SrcEnum_t SrcType,
                                        "%s: Attempted to load from illegal source type=%d", AppName, (int)SrcType);
 
             Status = CFE_TBL_ERR_ILLEGAL_SRC_TYPE;
+            break;
     }
 
     /* If the data was successfully loaded, then validate its contents */
