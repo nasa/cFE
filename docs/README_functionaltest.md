@@ -19,10 +19,6 @@ This must be the first library loaded for any functional test.
 - `cfe_testcase`: a CFE-compatible library implementing test cases for CFE core apps.
 This must be loaded after `cfe_assert`.
 
-- `cfe_testrunner`: a CFE application that actually executes the tests.  This is a very
-simple app that waits for CFE startup to complete, then executes all registered test
-cases.  It also must be loaded after `cfe_assert`.
-
 
 ## Example startup script entries
 

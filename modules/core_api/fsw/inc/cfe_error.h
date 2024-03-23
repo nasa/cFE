@@ -104,7 +104,7 @@ char *CFE_ES_StatusToString(CFE_Status_t status, CFE_StatusString_t *status_stri
 **      Mission Defined - These bits are available for Mission
 **                        specific coding standards.  They can
 **                        be used to classify error codes related
-**                        to mission specific library function calls, etc.
+**                        to mission-specific library function calls, etc.
 **
 **      Code - is the status code
 */

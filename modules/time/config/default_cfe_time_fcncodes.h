@@ -148,7 +148,7 @@
 **
 **  \par Description
 **       This command selects the Time Service clock source.  Although the
-**       list of potential clock sources is mission specific and defined
+**       list of potential clock sources is mission-specific and defined
 **       via configuration parameters, this command provides a common method
 **       for switching between the local processor clock and an external
 **       source for time data.<BR><BR>
@@ -176,7 +176,7 @@
 **       following telemetry:
 **       - \b \c \TIME_CMDPC - command execution counter will increment
 **       - \b \c \TIME_SOURCE - Diagnostic Telemetry point will indicate the
-**         command specified value
+**         command-specified value
 **       - The #CFE_TIME_SOURCE_EID informational event message will be generated
 **
 **  \par Error Conditions
@@ -227,7 +227,7 @@
 **       following telemetry:
 **       - \b \c \TIME_CMDPC - command execution counter will increment
 **       - \b \c \TIME_STATEFLG - Housekeeping Telemetry point "may" indicate the
-**         command specified value (see above)
+**         command-specified value (see above)
 **       - The #CFE_TIME_STATE_EID informational event message will be generated
 **
 **  \par Error Conditions
@@ -270,7 +270,7 @@
 **       Successful execution of this command may be verified with the
 **       following telemetry:
 **       - \b \c \TIME_CMDPC - command execution counter will increment
-**       - \b \c \TIME_LATENTS - Housekeeping Telemetry point indicating command specified values
+**       - \b \c \TIME_LATENTS - Housekeeping Telemetry point indicating command-specified values
 **       - \b \c \TIME_LATENTDIR - Diagnostic Telemetry point indicating commanded latency direction
 **       - The #CFE_TIME_DELAY_EID informational event message will be generated
 **
@@ -308,7 +308,7 @@
 **       Successful execution of this command may be verified with the
 **       following telemetry:
 **       - \b \c \TIME_CMDPC - command execution counter will increment
-**       - \b \c \TIME_LATENTS - Housekeeping Telemetry point indicating command specified values
+**       - \b \c \TIME_LATENTS - Housekeeping Telemetry point indicating command-specified values
 **       - \b \c \TIME_LATENTDIR - Diagnostic Telemetry point indicating commanded latency direction
 **       - The #CFE_TIME_DELAY_EID informational event message will be generated
 **
@@ -570,7 +570,7 @@
 **       There was some debate about whether the maximum 1Hz clock drift correction
 **       factor would ever need to exceed some small fraction of a second.  But, the
 **       decision was made to provide the capability to make 1Hz adjustments greater
-**       than one second and leave it to the ground system to provide mission specific
+**       than one second and leave it to the ground system to provide mission-specific
 **       limits.
 **
 **  \cfecmdmnemonic \TIME_ADD1HZSTCF
@@ -616,7 +616,7 @@
 **       There was some debate about whether the maximum 1Hz clock drift correction
 **       factor would ever need to exceed some small fraction of a second.  But, the
 **       decision was made to provide the capability to make 1Hz adjustments greater
-**       than one second and leave it to the ground system to provide mission specific
+**       than one second and leave it to the ground system to provide mission-specific
 **       limits.
 **
 **  \cfecmdmnemonic \TIME_SUB1HZSTCF
@@ -652,7 +652,7 @@
 **
 **  \par Description
 **       This command selects the Time Service tone signal source.  Although the
-**       list of potential tone signal sources is mission specific, a common
+**       list of potential tone signal sources is mission-specific, a common
 **       choice is the selection of primary or redundant tone signal.  The selection
 **       may be available to both the Time Server and Time Clients, depending on
 **       hardware configuration.<BR><BR>
@@ -671,7 +671,7 @@
 **       - \b \c \TIME_CMDPC - command execution counter will
 **         increment
 **       - \b \c \TIME_SIGNAL - Diagnostic Telemetry point will indicate the
-**         command specified value
+**         command-specified value
 **       - The #CFE_TIME_SIGNAL_EID informational event message will
 **         be generated
 **

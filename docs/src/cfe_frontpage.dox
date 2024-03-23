@@ -106,10 +106,10 @@
 
    \section cfebackground_s1 Core Flight Executive (cFE) Goals
 
-   The main long term goal of the cFE is to form the basis for a platform and project
+   The main long-term goal of the cFE is to form the basis for a platform and project
    independent reusable software framework. The cFE with the OSAL allow the development
    of portable embedded system software that is independent of a particular Real Time
-   Operating System and hardware platform. A secondary long term goal is to create a
+   Operating System and hardware platform. A secondary long-term goal is to create a
    standardized, product-line approach for development of embedded aerospace flight
    software. <BR>
 
@@ -121,7 +121,7 @@
    promoting the growth of the application and library layers where new applications, libraries,
    tools, and lessons learned can be contributed and shared. <BR>
 
-   It is important for application developers to realize the long term and functional
+   It is important for application developers to realize the long-term and functional
    goals of the cFE.  With a standard set of services providing a standard API, all
    applications developed with the cFE have an opportunity to become useful on
    future missions through code reuse.  In order to achieve this goal,

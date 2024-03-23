@@ -303,12 +303,12 @@
 */
 #define CFE_ES_RESTART_APP_CC 6
 
-/** \cfeescmd Stops, Unloads, Loads from the command specified File and Restarts an Application
+/** \cfeescmd Stops, Unloads, Loads from the command-specified File and Restarts an Application
 **
 **  \par Description
 **       This command halts and removes the specified Application
 **       from the system.  Then it immediately loads the Application from
-**       the command specified file and restarts it.  This command is
+**       the command-specified file and restarts it.  This command is
 **       especially useful for restarting a Command Ingest Application
 **       since once it has been stopped, no further commands can come in
 **       to restart it.
@@ -845,7 +845,7 @@
 **       - \b \c \ES_CMDPC - command execution counter will
 **         increment
 **       - \b \c \ES_MAXPROCRESETS - Current maximum number of processor resets
-**         before an automatic power-on reset will go to the command specified value.
+**         before an automatic power-on reset will go to the command-specified value.
 **       - The #CFE_ES_SET_MAX_PR_COUNT_EID informational event message will be
 **         generated.
 **

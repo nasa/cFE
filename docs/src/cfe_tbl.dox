@@ -116,7 +116,7 @@
   The default table type for a cFE Application to use is a single buffered table.  The principle
   advantage of a single buffered table is that it can share one of several shared table buffers
   for uploaded and pending table images.  Since many cFE Applications have relatively small tables
-  that are not changed at time critical moments or are not changed very often during a mission,
+  that are not changed at time-critical moments or are not changed very often during a mission,
   single buffered tables represent the most memory resource efficient method of being managed.
 
   The number of single buffered tables that can have inactive table images being manipulated at one

@@ -68,7 +68,7 @@
   easily be manipulated and utilized. These components include:
 
   The <B>Ground Epoch</B> is an arbitrary date and time that establishes the zero point
-  for spacecraft time calculations.  The selection of the epoch is mission specific,
+  for spacecraft time calculations.  The selection of the epoch is mission-specific,
   although in the past, it was common to select the same epoch as defined for the
   Operating System used by the computers hosting the ground system software.  Recent
   mission epoch selections have also included using zero seconds after midnight,
@@ -247,7 +247,7 @@
   #define CFE_MISSION_TIME_CFG_DEFAULT_UTC  TRUE
   \endverbatim
 
-  The choice of time format is a mission specific decision and is not directly
+  The choice of time format is a mission-specific decision and is not directly
   affected by the hardware configuration.
 
   \sa #CFE_MISSION_TIME_CFG_DEFAULT_TAI, #CFE_MISSION_TIME_CFG_DEFAULT_UTC <BR>
@@ -659,7 +659,7 @@
   to the current STCF.  In addition there is a 1Hz adjustment
   (#CFE_TIME_ADD_ONE_HZ_ADJUSTMENT_CC and #CFE_TIME_SUB_ONE_HZ_ADJUSTMENT_CC)
   that can be made to the STCF to compensate for oscillator drift.
-  Mission specific ground correlation should be used to assist in
+  Mission-specific ground correlation should be used to assist in
   determining the proper values to use. The Leap Seconds should be
   set to the current TAI-UTC. Note that the International Earth
   Rotation and Reference Systems Service Bulletin C, which defines

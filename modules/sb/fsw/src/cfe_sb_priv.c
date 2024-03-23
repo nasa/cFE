@@ -49,7 +49,7 @@
 **
 **      MsgIdkey - This is a unique numeric key within a mission namespace that is used with
 **                 cFS software bus internal structures.
-**                 It is algorithmically created in a mission defined way from the MsgId to support
+**                 It is algorithmically created in a mission-defined way from the MsgId to support
 **                 efficient lookup and mapping implementations
 **                 It is NOT exposed to user applications.
 **

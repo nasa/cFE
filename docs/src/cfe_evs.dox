@@ -163,7 +163,7 @@
   \ref cfeevsugmsgfilter (only the Binary Filtering Scheme
   exists currently).   Note that applications are limited in the number of events that
   they can register for filtering (see #CFE_PLATFORM_EVS_MAX_EVENT_FILTERS in cfe_platform_cfg.h
-  for the mission defined limit).  The filtering method uses a mask to determine if the
+  for the mission-defined limit).  The filtering method uses a mask to determine if the
   message is forwarded to the software bus, making it available in telemetry (see
   \ref cfeevsugmsgfilter for a description on filtering).  Commands are available to
   \link #CFE_EVS_SET_FILTER_CC modify the filter mask \endlink for any registered event.
