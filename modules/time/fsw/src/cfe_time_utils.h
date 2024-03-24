@@ -329,7 +329,7 @@ CFE_TIME_SysTime_t CFE_TIME_LatchClock(void);
 /**
  * @brief Time task initialization
  */
-int32 CFE_TIME_TaskInit(void);
+CFE_Status_t CFE_TIME_TaskInit(void);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -486,7 +486,7 @@ void CFE_TIME_ToneSend(void); /* signal to send time at tone packet */
  * "time at the tone" data command will arrive within the
  * specified window for tone and data packet verification.
  */
-int32 CFE_TIME_ToneSendMET(CFE_TIME_SysTime_t NewMET);
+CFE_Status_t CFE_TIME_ToneSendMET(CFE_TIME_SysTime_t NewMET);
 #endif
 
 #if (CFE_PLATFORM_TIME_CFG_SRC_GPS == true)
@@ -499,7 +499,7 @@ int32 CFE_TIME_ToneSendMET(CFE_TIME_SysTime_t NewMET);
  * "time at the tone" data command will arrive within the
  * specified window for tone and data packet verification.
  */
-int32 CFE_TIME_ToneSendGPS(CFE_TIME_SysTime_t NewTime, int16 NewLeaps);
+CFE_Status_t CFE_TIME_ToneSendGPS(CFE_TIME_SysTime_t NewTime, int16 NewLeaps);
 #endif
 
 #if (CFE_PLATFORM_TIME_CFG_SRC_TIME == true)
@@ -512,7 +512,7 @@ int32 CFE_TIME_ToneSendGPS(CFE_TIME_SysTime_t NewTime, int16 NewLeaps);
  * "time at the tone" data command will arrive within the
  * specified window for tone and data packet verification.
  */
-int32 CFE_TIME_ToneSendTime(CFE_TIME_SysTime_t NewTime);
+CFE_Status_t CFE_TIME_ToneSendTime(CFE_TIME_SysTime_t NewTime);
 #endif
 
 /*---------------------------------------------------------------------------------------*/
@@ -666,7 +666,7 @@ void CFE_TIME_Local1HzTimerCallback(osal_id_t TimerId, void *Arg);
 /**
  * @brief  Onboard command (HK request)
  */
-int32 CFE_TIME_SendHkCmd(const CFE_TIME_SendHkCmd_t *data);
+CFE_Status_t CFE_TIME_SendHkCmd(const CFE_TIME_SendHkCmd_t *data);
 
 /*
 ** Command handler for "tone signal detected"...
@@ -676,7 +676,7 @@ int32 CFE_TIME_SendHkCmd(const CFE_TIME_SendHkCmd_t *data);
 /**
  * @brief  Time at tone command (signal)
  */
-int32 CFE_TIME_ToneSignalCmd(const CFE_TIME_ToneSignalCmd_t *data);
+CFE_Status_t CFE_TIME_ToneSignalCmd(const CFE_TIME_ToneSignalCmd_t *data);
 
 /*
 ** Command handler for "time at the tone"...
@@ -686,7 +686,7 @@ int32 CFE_TIME_ToneSignalCmd(const CFE_TIME_ToneSignalCmd_t *data);
 /**
  * @brief  Time at tone command (data)
  */
-int32 CFE_TIME_ToneDataCmd(const CFE_TIME_ToneDataCmd_t *data);
+CFE_Status_t CFE_TIME_ToneDataCmd(const CFE_TIME_ToneDataCmd_t *data);
 
 /*
 ** Command handler for 1Hz signal...
@@ -702,7 +702,7 @@ int32 CFE_TIME_ToneDataCmd(const CFE_TIME_ToneDataCmd_t *data);
  * This also implements the "fake tone" functionality when that is enabled,
  * as we do not need a separate MID for this job.
  */
-int32 CFE_TIME_OneHzCmd(const CFE_TIME_OneHzCmd_t *data);
+CFE_Status_t CFE_TIME_OneHzCmd(const CFE_TIME_OneHzCmd_t *data);
 
 #if (CFE_PLATFORM_TIME_CFG_SERVER == true)
 
@@ -724,7 +724,7 @@ int32 CFE_TIME_OneHzCmd(const CFE_TIME_OneHzCmd_t *data);
  *       utilizing (mostly) the same code path as the
  *       non-fake tone mode.
  */
-int32 CFE_TIME_ToneSendCmd(const CFE_TIME_FakeToneCmd_t *data);
+CFE_Status_t CFE_TIME_ToneSendCmd(const CFE_TIME_FakeToneCmd_t *data);
 #endif
 
 /*
@@ -760,7 +760,7 @@ void CFE_TIME_AdjustImpl(const CFE_TIME_TimeCmd_Payload_t *CommandPtr, CFE_TIME_
  *
  * This is a wrapper around CFE_TIME_1HzAdjImpl()
  */
-int32 CFE_TIME_AddOneHzAdjustmentCmd(const CFE_TIME_AddOneHzAdjustmentCmd_t *data);
+CFE_Status_t CFE_TIME_AddOneHzAdjustmentCmd(const CFE_TIME_AddOneHzAdjustmentCmd_t *data);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -768,7 +768,7 @@ int32 CFE_TIME_AddOneHzAdjustmentCmd(const CFE_TIME_AddOneHzAdjustmentCmd_t *dat
  *
  * This is a wrapper around CFE_TIME_AdjustImpl()
  */
-int32 CFE_TIME_AddAdjustCmd(const CFE_TIME_AddAdjustCmd_t *data);
+CFE_Status_t CFE_TIME_AddAdjustCmd(const CFE_TIME_AddAdjustCmd_t *data);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -776,7 +776,7 @@ int32 CFE_TIME_AddAdjustCmd(const CFE_TIME_AddAdjustCmd_t *data);
  *
  * Wrapper around CFE_TIME_SetDelayImpl() for add/subtract operations
  */
-int32 CFE_TIME_AddDelayCmd(const CFE_TIME_AddDelayCmd_t *data);
+CFE_Status_t CFE_TIME_AddDelayCmd(const CFE_TIME_AddDelayCmd_t *data);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -784,31 +784,31 @@ int32 CFE_TIME_AddDelayCmd(const CFE_TIME_AddDelayCmd_t *data);
  *
  * Wrapper around CFE_TIME_SetDelayImpl() for add/subtract operations
  */
-int32 CFE_TIME_SubDelayCmd(const CFE_TIME_SubDelayCmd_t *data);
+CFE_Status_t CFE_TIME_SubDelayCmd(const CFE_TIME_SubDelayCmd_t *data);
 
 /*---------------------------------------------------------------------------------------*/
 /**
  * @brief  Time task ground command (diagnostics)
  */
-int32 CFE_TIME_SendDiagnosticTlm(const CFE_TIME_SendDiagnosticCmd_t *data);
+CFE_Status_t CFE_TIME_SendDiagnosticTlm(const CFE_TIME_SendDiagnosticCmd_t *data);
 
 /*---------------------------------------------------------------------------------------*/
 /**
  * @brief  Time task ground command (NOOP)
  */
-int32 CFE_TIME_NoopCmd(const CFE_TIME_NoopCmd_t *data);
+CFE_Status_t CFE_TIME_NoopCmd(const CFE_TIME_NoopCmd_t *data);
 
 /*---------------------------------------------------------------------------------------*/
 /**
  * @brief  Time task ground command (reset counters)
  */
-int32 CFE_TIME_ResetCountersCmd(const CFE_TIME_ResetCountersCmd_t *data);
+CFE_Status_t CFE_TIME_ResetCountersCmd(const CFE_TIME_ResetCountersCmd_t *data);
 
 /*---------------------------------------------------------------------------------------*/
 /**
  * @brief  Time task ground command (set leaps)
  */
-int32 CFE_TIME_SetLeapSecondsCmd(const CFE_TIME_SetLeapSecondsCmd_t *data);
+CFE_Status_t CFE_TIME_SetLeapSecondsCmd(const CFE_TIME_SetLeapSecondsCmd_t *data);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -819,37 +819,37 @@ int32 CFE_TIME_SetLeapSecondsCmd(const CFE_TIME_SetLeapSecondsCmd_t *data);
  * be a local h/w MET and an external MET since both would
  * need to be synchronized to the same tone signal.
  */
-int32 CFE_TIME_SetMETCmd(const CFE_TIME_SetMETCmd_t *data);
+CFE_Status_t CFE_TIME_SetMETCmd(const CFE_TIME_SetMETCmd_t *data);
 
 /*---------------------------------------------------------------------------------------*/
 /**
  * @brief  Time task command (set tone source)
  */
-int32 CFE_TIME_SetSignalCmd(const CFE_TIME_SetSignalCmd_t *data);
+CFE_Status_t CFE_TIME_SetSignalCmd(const CFE_TIME_SetSignalCmd_t *data);
 
 /*---------------------------------------------------------------------------------------*/
 /**
  * @brief  Time task command (set time source)
  */
-int32 CFE_TIME_SetSourceCmd(const CFE_TIME_SetSourceCmd_t *data);
+CFE_Status_t CFE_TIME_SetSourceCmd(const CFE_TIME_SetSourceCmd_t *data);
 
 /*---------------------------------------------------------------------------------------*/
 /**
  * @brief  Time task command (set clock state)
  */
-int32 CFE_TIME_SetStateCmd(const CFE_TIME_SetStateCmd_t *data);
+CFE_Status_t CFE_TIME_SetStateCmd(const CFE_TIME_SetStateCmd_t *data);
 
 /*---------------------------------------------------------------------------------------*/
 /**
  * @brief  Time task ground command (set STCF)
  */
-int32 CFE_TIME_SetSTCFCmd(const CFE_TIME_SetSTCFCmd_t *data);
+CFE_Status_t CFE_TIME_SetSTCFCmd(const CFE_TIME_SetSTCFCmd_t *data);
 
 /*---------------------------------------------------------------------------------------*/
 /**
  * @brief  Time task ground command (calc STCF)
  */
-int32 CFE_TIME_SetTimeCmd(const CFE_TIME_SetTimeCmd_t *data);
+CFE_Status_t CFE_TIME_SetTimeCmd(const CFE_TIME_SetTimeCmd_t *data);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -857,7 +857,7 @@ int32 CFE_TIME_SetTimeCmd(const CFE_TIME_SetTimeCmd_t *data);
  *
  * This is a wrapper around CFE_TIME_1HzAdjImpl()
  */
-int32 CFE_TIME_SubOneHzAdjustmentCmd(const CFE_TIME_SubOneHzAdjustmentCmd_t *data);
+CFE_Status_t CFE_TIME_SubOneHzAdjustmentCmd(const CFE_TIME_SubOneHzAdjustmentCmd_t *data);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -865,6 +865,6 @@ int32 CFE_TIME_SubOneHzAdjustmentCmd(const CFE_TIME_SubOneHzAdjustmentCmd_t *dat
  *
  * This is a wrapper around CFE_TIME_AdjustImpl()
  */
-int32 CFE_TIME_SubAdjustCmd(const CFE_TIME_SubAdjustCmd_t *data);
+CFE_Status_t CFE_TIME_SubAdjustCmd(const CFE_TIME_SubAdjustCmd_t *data);
 
 #endif /* CFE_TIME_UTILS_H */

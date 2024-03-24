@@ -56,15 +56,15 @@ bool CFE_FS_BackgroundFileDumpIsPending(const CFE_FS_FileWriteMetaData_t *Meta)
  * Generated stub function for CFE_FS_BackgroundFileDumpRequest()
  * ----------------------------------------------------
  */
-int32 CFE_FS_BackgroundFileDumpRequest(CFE_FS_FileWriteMetaData_t *Meta)
+CFE_Status_t CFE_FS_BackgroundFileDumpRequest(CFE_FS_FileWriteMetaData_t *Meta)
 {
-    UT_GenStub_SetupReturnBuffer(CFE_FS_BackgroundFileDumpRequest, int32);
+    UT_GenStub_SetupReturnBuffer(CFE_FS_BackgroundFileDumpRequest, CFE_Status_t);
 
     UT_GenStub_AddParam(CFE_FS_BackgroundFileDumpRequest, CFE_FS_FileWriteMetaData_t *, Meta);
 
     UT_GenStub_Execute(CFE_FS_BackgroundFileDumpRequest, Basic, UT_DefaultHandler_CFE_FS_BackgroundFileDumpRequest);
 
-    return UT_GenStub_GetReturnValue(CFE_FS_BackgroundFileDumpRequest, int32);
+    return UT_GenStub_GetReturnValue(CFE_FS_BackgroundFileDumpRequest, CFE_Status_t);
 }
 
 /*
@@ -135,10 +135,10 @@ void CFE_FS_InitHeader(CFE_FS_Header_t *Hdr, const char *Description, uint32 Sub
  * Generated stub function for CFE_FS_ParseInputFileName()
  * ----------------------------------------------------
  */
-int32 CFE_FS_ParseInputFileName(char *OutputBuffer, const char *InputName, size_t OutputBufSize,
-                                CFE_FS_FileCategory_t FileCategory)
+CFE_Status_t CFE_FS_ParseInputFileName(char *OutputBuffer, const char *InputName, size_t OutputBufSize,
+                                       CFE_FS_FileCategory_t FileCategory)
 {
-    UT_GenStub_SetupReturnBuffer(CFE_FS_ParseInputFileName, int32);
+    UT_GenStub_SetupReturnBuffer(CFE_FS_ParseInputFileName, CFE_Status_t);
 
     UT_GenStub_AddParam(CFE_FS_ParseInputFileName, char *, OutputBuffer);
     UT_GenStub_AddParam(CFE_FS_ParseInputFileName, const char *, InputName);
@@ -147,7 +147,7 @@ int32 CFE_FS_ParseInputFileName(char *OutputBuffer, const char *InputName, size_
 
     UT_GenStub_Execute(CFE_FS_ParseInputFileName, Basic, UT_DefaultHandler_CFE_FS_ParseInputFileName);
 
-    return UT_GenStub_GetReturnValue(CFE_FS_ParseInputFileName, int32);
+    return UT_GenStub_GetReturnValue(CFE_FS_ParseInputFileName, CFE_Status_t);
 }
 
 /*
@@ -155,11 +155,11 @@ int32 CFE_FS_ParseInputFileName(char *OutputBuffer, const char *InputName, size_
  * Generated stub function for CFE_FS_ParseInputFileNameEx()
  * ----------------------------------------------------
  */
-int32 CFE_FS_ParseInputFileNameEx(char *OutputBuffer, const char *InputBuffer, size_t OutputBufSize,
-                                  size_t InputBufSize, const char *DefaultInput, const char *DefaultPath,
-                                  const char *DefaultExtension)
+CFE_Status_t CFE_FS_ParseInputFileNameEx(char *OutputBuffer, const char *InputBuffer, size_t OutputBufSize,
+                                         size_t InputBufSize, const char *DefaultInput, const char *DefaultPath,
+                                         const char *DefaultExtension)
 {
-    UT_GenStub_SetupReturnBuffer(CFE_FS_ParseInputFileNameEx, int32);
+    UT_GenStub_SetupReturnBuffer(CFE_FS_ParseInputFileNameEx, CFE_Status_t);
 
     UT_GenStub_AddParam(CFE_FS_ParseInputFileNameEx, char *, OutputBuffer);
     UT_GenStub_AddParam(CFE_FS_ParseInputFileNameEx, const char *, InputBuffer);
@@ -171,7 +171,7 @@ int32 CFE_FS_ParseInputFileNameEx(char *OutputBuffer, const char *InputBuffer, s
 
     UT_GenStub_Execute(CFE_FS_ParseInputFileNameEx, Basic, UT_DefaultHandler_CFE_FS_ParseInputFileNameEx);
 
-    return UT_GenStub_GetReturnValue(CFE_FS_ParseInputFileNameEx, int32);
+    return UT_GenStub_GetReturnValue(CFE_FS_ParseInputFileNameEx, CFE_Status_t);
 }
 
 /*

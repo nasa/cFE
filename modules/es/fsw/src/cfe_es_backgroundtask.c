@@ -168,10 +168,10 @@ void CFE_ES_BackgroundTask(void)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_BackgroundInit(void)
+CFE_Status_t CFE_ES_BackgroundInit(void)
 {
-    int32 status;
-    int32 OsStatus;
+    CFE_Status_t status;
+    int32        OsStatus;
 
     OsStatus = OS_BinSemCreate(&CFE_ES_Global.BackgroundTask.WorkSem, CFE_ES_BACKGROUND_SEM_NAME, 0, 0);
     if (OsStatus != OS_SUCCESS)

@@ -52,10 +52,10 @@ const size_t CFE_SB_MemPoolDefSize[CFE_PLATFORM_ES_POOL_MAX_BUCKETS] = {
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_SB_EarlyInit(void)
+CFE_Status_t CFE_SB_EarlyInit(void)
 {
-    int32 OsStatus;
-    int32 Stat;
+    int32        OsStatus;
+    CFE_Status_t Stat;
 
     /* Clear task global */
     memset(&CFE_SB_Global, 0, sizeof(CFE_SB_Global));
@@ -97,9 +97,9 @@ int32 CFE_SB_EarlyInit(void)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_SB_InitBuffers(void)
+CFE_Status_t CFE_SB_InitBuffers(void)
 {
-    int32 Stat = 0;
+    CFE_Status_t Stat = 0;
 
     Stat = CFE_ES_PoolCreateEx(&CFE_SB_Global.Mem.PoolHdl, CFE_SB_Global.Mem.Partition.Data,
                                CFE_PLATFORM_SB_BUF_MEMORY_BYTES, CFE_PLATFORM_ES_POOL_MAX_BUCKETS,

@@ -69,7 +69,7 @@ const size_t CFE_ES_CDSMemPoolDefSize[CFE_ES_CDS_NUM_BLOCK_SIZES] = {
  * This is a bridge between the generic pool implementation and the CDS cache.
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_CDS_PoolRetrieve(CFE_ES_GenPoolRecord_t *GenPoolRecPtr, size_t Offset, CFE_ES_GenPoolBD_t **BdPtr)
+CFE_Status_t CFE_ES_CDS_PoolRetrieve(CFE_ES_GenPoolRecord_t *GenPoolRecPtr, size_t Offset, CFE_ES_GenPoolBD_t **BdPtr)
 {
     CFE_ES_CDS_Instance_t *CDS = (CFE_ES_CDS_Instance_t *)GenPoolRecPtr;
 
@@ -86,7 +86,8 @@ int32 CFE_ES_CDS_PoolRetrieve(CFE_ES_GenPoolRecord_t *GenPoolRecPtr, size_t Offs
  * This is a bridge between the generic pool implementation and the CDS cache.
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_CDS_PoolCommit(CFE_ES_GenPoolRecord_t *GenPoolRecPtr, size_t Offset, const CFE_ES_GenPoolBD_t *BdPtr)
+CFE_Status_t CFE_ES_CDS_PoolCommit(CFE_ES_GenPoolRecord_t *GenPoolRecPtr, size_t Offset,
+                                   const CFE_ES_GenPoolBD_t *BdPtr)
 {
     CFE_ES_CDS_Instance_t *CDS = (CFE_ES_CDS_Instance_t *)GenPoolRecPtr;
 
@@ -101,10 +102,10 @@ int32 CFE_ES_CDS_PoolCommit(CFE_ES_GenPoolRecord_t *GenPoolRecPtr, size_t Offset
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_CreateCDSPool(size_t CDSPoolSize, size_t StartOffset)
+CFE_Status_t CFE_ES_CreateCDSPool(size_t CDSPoolSize, size_t StartOffset)
 {
     CFE_ES_CDS_Instance_t *CDS = &CFE_ES_Global.CDSVars;
-    int32                  Status;
+    CFE_Status_t           Status;
     size_t                 SizeCheck;
     size_t                 ActualSize;
 
@@ -134,10 +135,10 @@ int32 CFE_ES_CreateCDSPool(size_t CDSPoolSize, size_t StartOffset)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_RebuildCDSPool(size_t CDSPoolSize, size_t StartOffset)
+CFE_Status_t CFE_ES_RebuildCDSPool(size_t CDSPoolSize, size_t StartOffset)
 {
     CFE_ES_CDS_Instance_t *CDS = &CFE_ES_Global.CDSVars;
-    int32                  Status;
+    CFE_Status_t           Status;
 
     /*
      * Start by creating the pool in a clean state, as it would be in a non-rebuild.
@@ -166,11 +167,11 @@ int32 CFE_ES_RebuildCDSPool(size_t CDSPoolSize, size_t StartOffset)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_CDSBlockWrite(CFE_ES_CDSHandle_t Handle, const void *DataToWrite)
+CFE_Status_t CFE_ES_CDSBlockWrite(CFE_ES_CDSHandle_t Handle, const void *DataToWrite)
 {
     CFE_ES_CDS_Instance_t *CDS = &CFE_ES_Global.CDSVars;
     char                   LogMessage[CFE_ES_MAX_SYSLOG_MSG_SIZE];
-    int32                  Status;
+    CFE_Status_t           Status;
     int32                  PspStatus;
     size_t                 BlockSize;
     size_t                 UserDataSize;
@@ -262,10 +263,10 @@ int32 CFE_ES_CDSBlockWrite(CFE_ES_CDSHandle_t Handle, const void *DataToWrite)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_CDSBlockRead(void *DataRead, CFE_ES_CDSHandle_t Handle)
+CFE_Status_t CFE_ES_CDSBlockRead(void *DataRead, CFE_ES_CDSHandle_t Handle)
 {
     CFE_ES_CDS_Instance_t *CDS = &CFE_ES_Global.CDSVars;
-    int32                  Status;
+    CFE_Status_t           Status;
     int32                  PspStatus;
     uint32                 CrcOfCDSData;
     size_t                 BlockSize;

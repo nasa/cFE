@@ -32,12 +32,13 @@
 #include "cfe_config_api_typedefs.h"
 
 #include "common_types.h"
+#include "cfe_error.h"
 
 /** @defgroup CFEAPIConfigCoreInternal cFE Internal configuration APIs, internal to CFE core
  * @{
  */
 
-int32 CFE_Config_Init(void);
+CFE_Status_t CFE_Config_Init(void);
 
 /*
  * The "Set" API is only used during init phase

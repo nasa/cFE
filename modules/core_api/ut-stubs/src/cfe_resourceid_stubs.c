@@ -85,9 +85,9 @@ uint32 CFE_ResourceId_GetSerial(CFE_ResourceId_t ResourceId)
  * Generated stub function for CFE_ResourceId_ToIndex()
  * ----------------------------------------------------
  */
-int32 CFE_ResourceId_ToIndex(CFE_ResourceId_t Id, uint32 BaseValue, uint32 TableSize, uint32 *Idx)
+CFE_Status_t CFE_ResourceId_ToIndex(CFE_ResourceId_t Id, uint32 BaseValue, uint32 TableSize, uint32 *Idx)
 {
-    UT_GenStub_SetupReturnBuffer(CFE_ResourceId_ToIndex, int32);
+    UT_GenStub_SetupReturnBuffer(CFE_ResourceId_ToIndex, CFE_Status_t);
 
     UT_GenStub_AddParam(CFE_ResourceId_ToIndex, CFE_ResourceId_t, Id);
     UT_GenStub_AddParam(CFE_ResourceId_ToIndex, uint32, BaseValue);
@@ -96,5 +96,5 @@ int32 CFE_ResourceId_ToIndex(CFE_ResourceId_t Id, uint32 BaseValue, uint32 Table
 
     UT_GenStub_Execute(CFE_ResourceId_ToIndex, Basic, UT_DefaultHandler_CFE_ResourceId_ToIndex);
 
-    return UT_GenStub_GetReturnValue(CFE_ResourceId_ToIndex, int32);
+    return UT_GenStub_GetReturnValue(CFE_ResourceId_ToIndex, CFE_Status_t);
 }

@@ -35,6 +35,7 @@
 
 #include "common_types.h"
 #include "cfe_es_extern_typedefs.h"
+#include "cfe_error.h"
 
 /*
  * The internal APIs prototyped within this block are only intended to be invoked from
@@ -70,7 +71,7 @@ void CFE_ES_TaskMain(void);
 **        -# This function MUST be called before any module API's are called.
 **
 ******************************************************************************/
-int32 CFE_ES_CDS_EarlyInit(void);
+CFE_Status_t CFE_ES_CDS_EarlyInit(void);
 
 /*****************************************************************************/
 /**
@@ -100,7 +101,8 @@ int32 CFE_ES_CDS_EarlyInit(void);
 ** \return See return codes for #CFE_ES_RegisterCDS
 **
 ******************************************************************************/
-int32 CFE_ES_RegisterCDSEx(CFE_ES_CDSHandle_t *HandlePtr, size_t UserBlockSize, const char *Name, bool CriticalTbl);
+CFE_Status_t CFE_ES_RegisterCDSEx(CFE_ES_CDSHandle_t *HandlePtr, size_t UserBlockSize, const char *Name,
+                                  bool CriticalTbl);
 
 /*****************************************************************************/
 /**
@@ -133,7 +135,7 @@ int32 CFE_ES_RegisterCDSEx(CFE_ES_CDSHandle_t *HandlePtr, size_t UserBlockSize, 
 ** \return Any of the return values from CFE_ES_GenPoolPutBlock
 **
 ******************************************************************************/
-int32 CFE_ES_DeleteCDS(const char *CDSName, bool CalledByTblServices);
+CFE_Status_t CFE_ES_DeleteCDS(const char *CDSName, bool CalledByTblServices);
 
 /**@}*/
 

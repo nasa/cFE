@@ -29,6 +29,7 @@
 #define CFE_FS_CORE_INTERNAL_H
 
 #include "common_types.h"
+#include "cfe_error.h"
 
 /*
  * The internal APIs prototyped within this block are only intended to be invoked from
@@ -51,7 +52,7 @@
 **        -# This function MUST be called before any module API's are called.
 **
 ******************************************************************************/
-int32 CFE_FS_EarlyInit(void);
+CFE_Status_t CFE_FS_EarlyInit(void);
 
 /*****************************************************************************/
 /**

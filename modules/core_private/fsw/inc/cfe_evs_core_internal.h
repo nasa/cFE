@@ -35,6 +35,7 @@
 
 #include "common_types.h"
 #include "cfe_es_extern_typedefs.h"
+#include "cfe_error.h"
 
 /*
  * The internal APIs prototyped within this block are only intended to be invoked from
@@ -70,7 +71,7 @@ void CFE_EVS_TaskMain(void);
 **        -# This function MUST be called before any module API's are called.
 **
 ******************************************************************************/
-int32 CFE_EVS_EarlyInit(void);
+CFE_Status_t CFE_EVS_EarlyInit(void);
 
 /*****************************************************************************/
 /**
@@ -82,7 +83,7 @@ int32 CFE_EVS_EarlyInit(void);
 **        that have been allocated to the specified Application.
 **
 ******************************************************************************/
-int32 CFE_EVS_CleanUpApp(CFE_ES_AppId_t AppId);
+CFE_Status_t CFE_EVS_CleanUpApp(CFE_ES_AppId_t AppId);
 
 /**@}*/
 

@@ -46,7 +46,7 @@ CFE_FS_Global_t CFE_FS_Global;
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_FS_EarlyInit(void)
+CFE_Status_t CFE_FS_EarlyInit(void)
 {
     int32 OsStatus;
 

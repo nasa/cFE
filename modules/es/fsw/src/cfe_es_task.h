@@ -87,7 +87,7 @@ void CFE_ES_TaskMain(void);
 /**
  * \brief Initialization of executive services global state
  */
-int32 CFE_ES_TaskInit(void);
+CFE_Status_t CFE_ES_TaskInit(void);
 
 /*
  * Functions related to the ES background helper task for low-priority tasks
@@ -97,7 +97,7 @@ int32 CFE_ES_TaskInit(void);
 /**
  * \brief Initializes the ES background task state
  */
-int32 CFE_ES_BackgroundInit(void);
+CFE_Status_t CFE_ES_BackgroundInit(void);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -122,150 +122,150 @@ void CFE_ES_BackgroundCleanup(void);
 /*
 ** ES Task message dispatch functions
 */
-int32 CFE_ES_SendHkCmd(const CFE_ES_SendHkCmd_t *data);
+CFE_Status_t CFE_ES_SendHkCmd(const CFE_ES_SendHkCmd_t *data);
 
 /*---------------------------------------------------------------------------------------*/
 /**
  * \brief ES task ground command (NO-OP)
  */
-int32 CFE_ES_NoopCmd(const CFE_ES_NoopCmd_t *Cmd);
+CFE_Status_t CFE_ES_NoopCmd(const CFE_ES_NoopCmd_t *Cmd);
 
 /*---------------------------------------------------------------------------------------*/
 /** \brief  ES task ground command (reset counters)
  */
-int32 CFE_ES_ResetCountersCmd(const CFE_ES_ResetCountersCmd_t *data);
+CFE_Status_t CFE_ES_ResetCountersCmd(const CFE_ES_ResetCountersCmd_t *data);
 
 /*---------------------------------------------------------------------------------------*/
 /**
  * \brief  Restart cFE (may reset processor)
  */
-int32 CFE_ES_RestartCmd(const CFE_ES_RestartCmd_t *data);
+CFE_Status_t CFE_ES_RestartCmd(const CFE_ES_RestartCmd_t *data);
 
 /*---------------------------------------------------------------------------------------*/
 /**
  * \brief  Load (and start) single application
  */
-int32 CFE_ES_StartAppCmd(const CFE_ES_StartAppCmd_t *data);
+CFE_Status_t CFE_ES_StartAppCmd(const CFE_ES_StartAppCmd_t *data);
 
 /*---------------------------------------------------------------------------------------*/
 /**
  * \brief  Stop single application
  */
-int32 CFE_ES_StopAppCmd(const CFE_ES_StopAppCmd_t *data);
+CFE_Status_t CFE_ES_StopAppCmd(const CFE_ES_StopAppCmd_t *data);
 
 /*---------------------------------------------------------------------------------------*/
 /**
  * \brief  Restart a single application
  */
-int32 CFE_ES_RestartAppCmd(const CFE_ES_RestartAppCmd_t *data);
+CFE_Status_t CFE_ES_RestartAppCmd(const CFE_ES_RestartAppCmd_t *data);
 
 /*---------------------------------------------------------------------------------------*/
 /**
  * \brief  Reload a single application
  */
-int32 CFE_ES_ReloadAppCmd(const CFE_ES_ReloadAppCmd_t *data);
+CFE_Status_t CFE_ES_ReloadAppCmd(const CFE_ES_ReloadAppCmd_t *data);
 
 /*---------------------------------------------------------------------------------------*/
 /**
  * \brief  Request tlm packet with single app data
  */
-int32 CFE_ES_QueryOneCmd(const CFE_ES_QueryOneCmd_t *data);
+CFE_Status_t CFE_ES_QueryOneCmd(const CFE_ES_QueryOneCmd_t *data);
 
 /*---------------------------------------------------------------------------------------*/
 /**
  * \brief  Write all app data to file
  */
-int32 CFE_ES_QueryAllCmd(const CFE_ES_QueryAllCmd_t *data);
+CFE_Status_t CFE_ES_QueryAllCmd(const CFE_ES_QueryAllCmd_t *data);
 
 /*---------------------------------------------------------------------------------------*/
 /**
  * \brief  Write all Task Data to a file
  */
-int32 CFE_ES_QueryAllTasksCmd(const CFE_ES_QueryAllTasksCmd_t *data);
+CFE_Status_t CFE_ES_QueryAllTasksCmd(const CFE_ES_QueryAllTasksCmd_t *data);
 
 /*---------------------------------------------------------------------------------------*/
 /**
  * \brief  Clear executive services system log
  */
-int32 CFE_ES_ClearSysLogCmd(const CFE_ES_ClearSysLogCmd_t *data);
+CFE_Status_t CFE_ES_ClearSysLogCmd(const CFE_ES_ClearSysLogCmd_t *data);
 
 /*---------------------------------------------------------------------------------------*/
 /**
  * \brief  set syslog mode
  */
-int32 CFE_ES_OverWriteSysLogCmd(const CFE_ES_OverWriteSysLogCmd_t *data);
+CFE_Status_t CFE_ES_OverWriteSysLogCmd(const CFE_ES_OverWriteSysLogCmd_t *data);
 
 /*---------------------------------------------------------------------------------------*/
 /**
  * \brief  Process Cmd to write ES System Log to file
  */
-int32 CFE_ES_WriteSysLogCmd(const CFE_ES_WriteSysLogCmd_t *data);
+CFE_Status_t CFE_ES_WriteSysLogCmd(const CFE_ES_WriteSysLogCmd_t *data);
 
 /*---------------------------------------------------------------------------------------*/
 /**
  * \brief  Clear The exception and reset log.
  */
-int32 CFE_ES_ClearERLogCmd(const CFE_ES_ClearERLogCmd_t *data);
+CFE_Status_t CFE_ES_ClearERLogCmd(const CFE_ES_ClearERLogCmd_t *data);
 
 /*---------------------------------------------------------------------------------------*/
 /**
  * \brief  Process Cmd to write exception & reset log to a file.
  */
-int32 CFE_ES_WriteERLogCmd(const CFE_ES_WriteERLogCmd_t *data);
+CFE_Status_t CFE_ES_WriteERLogCmd(const CFE_ES_WriteERLogCmd_t *data);
 
 /*---------------------------------------------------------------------------------------*/
 /**
  * \brief  Processor Reset Count
  */
-int32 CFE_ES_ResetPRCountCmd(const CFE_ES_ResetPRCountCmd_t *data);
+CFE_Status_t CFE_ES_ResetPRCountCmd(const CFE_ES_ResetPRCountCmd_t *data);
 
 /*---------------------------------------------------------------------------------------*/
 /**
  * \brief  Set Maximum Processor reset count
  */
-int32 CFE_ES_SetMaxPRCountCmd(const CFE_ES_SetMaxPRCountCmd_t *data);
+CFE_Status_t CFE_ES_SetMaxPRCountCmd(const CFE_ES_SetMaxPRCountCmd_t *data);
 
 /*---------------------------------------------------------------------------------------*/
 /**
  * \brief  Delete Specified Critical Data Store
  */
-int32 CFE_ES_DeleteCDSCmd(const CFE_ES_DeleteCDSCmd_t *data);
+CFE_Status_t CFE_ES_DeleteCDSCmd(const CFE_ES_DeleteCDSCmd_t *data);
 
 /*---------------------------------------------------------------------------------------*/
 /**
  * \brief  Command handler to start collecting performance data
  */
-int32 CFE_ES_StartPerfDataCmd(const CFE_ES_StartPerfDataCmd_t *data);
+CFE_Status_t CFE_ES_StartPerfDataCmd(const CFE_ES_StartPerfDataCmd_t *data);
 
 /*---------------------------------------------------------------------------------------*/
 /**
  * \brief  Command handler to stop collecting performance data
  */
-int32 CFE_ES_StopPerfDataCmd(const CFE_ES_StopPerfDataCmd_t *data);
+CFE_Status_t CFE_ES_StopPerfDataCmd(const CFE_ES_StopPerfDataCmd_t *data);
 
 /*---------------------------------------------------------------------------------------*/
 /**
  * \brief  Command handler to set perf ID filter mask
  */
-int32 CFE_ES_SetPerfFilterMaskCmd(const CFE_ES_SetPerfFilterMaskCmd_t *data);
+CFE_Status_t CFE_ES_SetPerfFilterMaskCmd(const CFE_ES_SetPerfFilterMaskCmd_t *data);
 
 /*---------------------------------------------------------------------------------------*/
 /**
  * \brief  Command handler to set perf ID trigger mask
  */
-int32 CFE_ES_SetPerfTriggerMaskCmd(const CFE_ES_SetPerfTriggerMaskCmd_t *data);
+CFE_Status_t CFE_ES_SetPerfTriggerMaskCmd(const CFE_ES_SetPerfTriggerMaskCmd_t *data);
 
 /*---------------------------------------------------------------------------------------*/
 /**
  * \brief  Telemeter Memory Pool Statistics
  */
-int32 CFE_ES_SendMemPoolStatsCmd(const CFE_ES_SendMemPoolStatsCmd_t *data);
+CFE_Status_t CFE_ES_SendMemPoolStatsCmd(const CFE_ES_SendMemPoolStatsCmd_t *data);
 
 /*---------------------------------------------------------------------------------------*/
 /**
  * \brief  Dump CDS Registry to a file
  */
-int32 CFE_ES_DumpCDSRegistryCmd(const CFE_ES_DumpCDSRegistryCmd_t *data);
+CFE_Status_t CFE_ES_DumpCDSRegistryCmd(const CFE_ES_DumpCDSRegistryCmd_t *data);
 
 /*
 ** Message Handler Helper Functions

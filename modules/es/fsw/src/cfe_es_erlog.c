@@ -48,8 +48,8 @@
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_WriteToERLogWithContext(CFE_ES_LogEntryType_Enum_t EntryType, uint32 ResetType, uint32 ResetSubtype,
-                                     const char *Description, CFE_ES_AppId_t AppId, uint32 PspContextId)
+CFE_Status_t CFE_ES_WriteToERLogWithContext(CFE_ES_LogEntryType_Enum_t EntryType, uint32 ResetType, uint32 ResetSubtype,
+                                            const char *Description, CFE_ES_AppId_t AppId, uint32 PspContextId)
 {
     uint32                   LogIdx;
     CFE_ES_ERLog_MetaData_t *EntryPtr;
@@ -149,8 +149,8 @@ int32 CFE_ES_WriteToERLogWithContext(CFE_ES_LogEntryType_Enum_t EntryType, uint3
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_WriteToERLog(CFE_ES_LogEntryType_Enum_t EntryType, uint32 ResetType, uint32 ResetSubtype,
-                          const char *Description)
+CFE_Status_t CFE_ES_WriteToERLog(CFE_ES_LogEntryType_Enum_t EntryType, uint32 ResetType, uint32 ResetSubtype,
+                                 const char *Description)
 {
     /* passing 0xFFFFFFFF as the appid avoids confusion with actual appid 0 */
     return CFE_ES_WriteToERLogWithContext(EntryType, ResetType, ResetSubtype, Description, CFE_ES_APPID_UNDEFINED,

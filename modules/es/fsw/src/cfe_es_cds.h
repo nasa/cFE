@@ -208,7 +208,7 @@ typedef struct CFE_ES_CDS_PersistentTrailer
  * @param[in]    Size   the CDS data size to fetch
  * @returns #CFE_SUCCESS on success, or appropriate error code.
  */
-int32 CFE_ES_CDS_CacheFetch(CFE_ES_CDS_AccessCache_t *Cache, size_t Offset, size_t Size);
+CFE_Status_t CFE_ES_CDS_CacheFetch(CFE_ES_CDS_AccessCache_t *Cache, size_t Offset, size_t Size);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -225,7 +225,7 @@ int32 CFE_ES_CDS_CacheFetch(CFE_ES_CDS_AccessCache_t *Cache, size_t Offset, size
  * @param[inout] Cache  the global CDS cache buffer
  * @returns #CFE_SUCCESS on success, or appropriate error code.
  */
-int32 CFE_ES_CDS_CacheFlush(CFE_ES_CDS_AccessCache_t *Cache);
+CFE_Status_t CFE_ES_CDS_CacheFlush(CFE_ES_CDS_AccessCache_t *Cache);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -250,7 +250,7 @@ int32 CFE_ES_CDS_CacheFlush(CFE_ES_CDS_AccessCache_t *Cache);
  * @param[in]    Size   the CDS data size to fetch
  * @returns #CFE_SUCCESS on success, or appropriate error code.
  */
-int32 CFE_ES_CDS_CachePreload(CFE_ES_CDS_AccessCache_t *Cache, const void *Source, size_t Offset, size_t Size);
+CFE_Status_t CFE_ES_CDS_CachePreload(CFE_ES_CDS_AccessCache_t *Cache, const void *Source, size_t Offset, size_t Size);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -264,7 +264,7 @@ int32 CFE_ES_CDS_CachePreload(CFE_ES_CDS_AccessCache_t *Cache, const void *Sourc
  * @returns    #CFE_SUCCESS if conversion successful. @copydoc CFE_SUCCESS
  *             #CFE_ES_ERR_RESOURCEID_NOT_VALID if block ID is outside valid range
  */
-int32 CFE_ES_CDSHandle_ToIndex(CFE_ES_CDSHandle_t BlockID, uint32 *Idx);
+CFE_Status_t CFE_ES_CDSHandle_ToIndex(CFE_ES_CDSHandle_t BlockID, uint32 *Idx);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -451,7 +451,7 @@ bool CFE_ES_CheckCDSHandleSlotUsed(CFE_ResourceId_t CheckId);
 ** \return None
 **
 ******************************************************************************/
-int32 CFE_ES_CDS_EarlyInit(void);
+CFE_Status_t CFE_ES_CDS_EarlyInit(void);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -470,7 +470,7 @@ int32 CFE_ES_CDS_EarlyInit(void);
 ** \return Any of the return values from #CFE_PSP_ReadFromCDS
 **
 ******************************************************************************/
-int32 CFE_ES_ValidateCDS(void);
+CFE_Status_t CFE_ES_ValidateCDS(void);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -486,7 +486,7 @@ int32 CFE_ES_ValidateCDS(void);
 ** \retval #CFE_SUCCESS         \copydoc CFE_SUCCESS
 **
 ******************************************************************************/
-int32 CFE_ES_InitCDSRegistry(void);
+CFE_Status_t CFE_ES_InitCDSRegistry(void);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -503,7 +503,7 @@ int32 CFE_ES_InitCDSRegistry(void);
 ** \return Any of the return values from #CFE_PSP_ReadFromCDS
 **
 ******************************************************************************/
-int32 CFE_ES_RebuildCDS(void);
+CFE_Status_t CFE_ES_RebuildCDS(void);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -519,7 +519,7 @@ int32 CFE_ES_RebuildCDS(void);
 ** \return Any of the return values from #CFE_PSP_WriteToCDS
 **
 ******************************************************************************/
-int32 CFE_ES_UpdateCDSRegistry(void);
+CFE_Status_t CFE_ES_UpdateCDSRegistry(void);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -579,7 +579,7 @@ CFE_ES_CDS_RegRec_t *CFE_ES_LocateCDSBlockRecordByName(const char *CDSName);
 **
 ** \retval #CFE_SUCCESS                     \copydoc CFE_SUCCESS
 ******************************************************************************/
-int32 CFE_ES_LockCDS(void);
+CFE_Status_t CFE_ES_LockCDS(void);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -595,7 +595,7 @@ int32 CFE_ES_LockCDS(void);
 ** \retval #CFE_SUCCESS                     \copydoc CFE_SUCCESS
 **
 ******************************************************************************/
-int32 CFE_ES_UnlockCDS(void);
+CFE_Status_t CFE_ES_UnlockCDS(void);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -612,7 +612,7 @@ int32 CFE_ES_UnlockCDS(void);
 ** \return Any of the return values from #CFE_PSP_ReadFromCDS
 **
 ******************************************************************************/
-int32 CFE_ES_RebuildCDS(void);
+CFE_Status_t CFE_ES_RebuildCDS(void);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -628,7 +628,7 @@ int32 CFE_ES_RebuildCDS(void);
 ** \retval #CFE_SUCCESS         \copydoc CFE_SUCCESS
 **
 ******************************************************************************/
-int32 CFE_ES_InitCDSRegistry(void);
+CFE_Status_t CFE_ES_InitCDSRegistry(void);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -647,7 +647,7 @@ int32 CFE_ES_InitCDSRegistry(void);
 ** \return Any of the return values from #CFE_PSP_ReadFromCDS
 **
 ******************************************************************************/
-int32 CFE_ES_ValidateCDS(void);
+CFE_Status_t CFE_ES_ValidateCDS(void);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -666,7 +666,7 @@ int32 CFE_ES_ValidateCDS(void);
 ** \return Any of the return values from #CFE_ES_CDS_CacheFlush
 **
 ******************************************************************************/
-int32 CFE_ES_ClearCDS(void);
+CFE_Status_t CFE_ES_ClearCDS(void);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -683,6 +683,6 @@ int32 CFE_ES_ClearCDS(void);
 ** \return Any of the return values from #CFE_ES_CDS_CacheFlush
 **
 ******************************************************************************/
-int32 CFE_ES_InitCDSSignatures(void);
+CFE_Status_t CFE_ES_InitCDSSignatures(void);
 
 #endif /* CFE_ES_CDS_H */

@@ -84,7 +84,7 @@
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_SB_CleanUpApp(CFE_ES_AppId_t AppId)
+CFE_Status_t CFE_SB_CleanUpApp(CFE_ES_AppId_t AppId)
 {
     uint32          i;
     uint32          DelCount;
@@ -191,7 +191,7 @@ CFE_SB_DestinationD_t *CFE_SB_GetDestPtr(CFE_SBR_RouteId_t RouteId, CFE_SB_PipeI
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_SB_ValidateMsgId(CFE_SB_MsgId_t MsgId)
+CFE_Status_t CFE_SB_ValidateMsgId(CFE_SB_MsgId_t MsgId)
 {
     if (!CFE_SB_IsValidMsgId(MsgId))
     {
@@ -337,7 +337,7 @@ void CFE_SB_FinishSendEvent(CFE_ES_TaskId_t TaskId, uint32 Bit)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_SB_AddDestNode(CFE_SBR_RouteId_t RouteId, CFE_SB_DestinationD_t *NewNode)
+CFE_Status_t CFE_SB_AddDestNode(CFE_SBR_RouteId_t RouteId, CFE_SB_DestinationD_t *NewNode)
 {
     CFE_SB_DestinationD_t *WBS; /* Will Be Second (WBS) node */
     CFE_SB_DestinationD_t *listheadptr;
@@ -431,7 +431,7 @@ void CFE_SB_RemoveDestNode(CFE_SBR_RouteId_t RouteId, CFE_SB_DestinationD_t *Nod
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_SB_ZeroCopyReleaseAppId(CFE_ES_AppId_t AppId)
+CFE_Status_t CFE_SB_ZeroCopyReleaseAppId(CFE_ES_AppId_t AppId)
 {
     CFE_SB_BufferLink_t *NextLink;
     CFE_SB_BufferD_t *   DscPtr;

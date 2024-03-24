@@ -240,7 +240,7 @@ void Test_CFE_Config_Init(void)
 {
     /*
      * Test case for:
-     * int32 CFE_Config_Init(void)
+     * CFE_Status_t CFE_Config_Init(void)
      */
     UtAssert_INT32_EQ(CFE_Config_Init(), CFE_SUCCESS);
 }
