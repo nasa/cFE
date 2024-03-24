@@ -431,8 +431,8 @@ CFE_Status_t CFE_TBL_Load(CFE_TBL_Handle_t TblHandle, CFE_TBL_SrcEnum_t SrcType,
 
         snprintf(RegRecPtr->Buffers[0].DataSource, sizeof(RegRecPtr->Buffers[0].DataSource), "Addr 0x%08lX",
                  (unsigned long)SrcDataPtr);
-        RegRecPtr->Buffers[0].FileCreateTimeSecs    = 0;
-        RegRecPtr->Buffers[0].FileCreateTimeSubSecs = 0;
+        RegRecPtr->Buffers[0].FileCreateTime.Seconds    = 0;
+        RegRecPtr->Buffers[0].FileCreateTime.Subseconds = 0;
 
         CFE_EVS_SendEventWithAppID(CFE_TBL_LOAD_SUCCESS_INF_EID, CFE_EVS_EventType_DEBUG, CFE_TBL_Global.TableTaskAppId,
                                    "Successfully loaded '%s' from '%s'", RegRecPtr->Name,
@@ -490,8 +490,8 @@ CFE_Status_t CFE_TBL_Load(CFE_TBL_Handle_t TblHandle, CFE_TBL_SrcEnum_t SrcType,
 
             snprintf(WorkingBufferPtr->DataSource, sizeof(WorkingBufferPtr->DataSource), "Addr 0x%08lX",
                      (unsigned long)SrcDataPtr);
-            WorkingBufferPtr->FileCreateTimeSecs    = 0;
-            WorkingBufferPtr->FileCreateTimeSubSecs = 0;
+            WorkingBufferPtr->FileCreateTime.Seconds    = 0;
+            WorkingBufferPtr->FileCreateTime.Subseconds = 0;
 
             /* Compute the CRC on the specified table buffer */
             WorkingBufferPtr->Crc =
@@ -1113,10 +1113,11 @@ CFE_Status_t CFE_TBL_GetInfo(CFE_TBL_Info_t *TblInfoPtr, const char *TblName)
         TblInfoPtr->TableLoadedOnce = RegRecPtr->TableLoadedOnce;
 
         /* Return information on last load and update */
-        TblInfoPtr->TimeOfLastUpdate      = RegRecPtr->TimeOfLastUpdate;
-        TblInfoPtr->FileCreateTimeSecs    = RegRecPtr->Buffers[RegRecPtr->ActiveBufferIndex].FileCreateTimeSecs;
-        TblInfoPtr->FileCreateTimeSubSecs = RegRecPtr->Buffers[RegRecPtr->ActiveBufferIndex].FileCreateTimeSubSecs;
-        TblInfoPtr->Crc                   = RegRecPtr->Buffers[RegRecPtr->ActiveBufferIndex].Crc;
+        TblInfoPtr->TimeOfLastUpdate       = RegRecPtr->TimeOfLastUpdate;
+        TblInfoPtr->FileCreateTime.Seconds = RegRecPtr->Buffers[RegRecPtr->ActiveBufferIndex].FileCreateTime.Seconds;
+        TblInfoPtr->FileCreateTime.Subseconds =
+            RegRecPtr->Buffers[RegRecPtr->ActiveBufferIndex].FileCreateTime.Subseconds;
+        TblInfoPtr->Crc = RegRecPtr->Buffers[RegRecPtr->ActiveBufferIndex].Crc;
         strncpy(TblInfoPtr->LastFileLoaded, RegRecPtr->LastFileLoaded, sizeof(TblInfoPtr->LastFileLoaded) - 1);
         TblInfoPtr->LastFileLoaded[sizeof(TblInfoPtr->LastFileLoaded) - 1] = 0;
 
@@ -1166,9 +1167,9 @@ CFE_Status_t CFE_TBL_DumpToBuffer(CFE_TBL_Handle_t TblHandle)
         memcpy(DumpCtrlPtr->DumpBufferPtr->BufferPtr, RegRecPtr->Buffers[0].BufferPtr, DumpCtrlPtr->Size);
 
         /* Save the current time so that the header in the dump file can have the correct time */
-        DumpTime                                          = CFE_TIME_GetTime();
-        DumpCtrlPtr->DumpBufferPtr->FileCreateTimeSecs    = DumpTime.Seconds;
-        DumpCtrlPtr->DumpBufferPtr->FileCreateTimeSubSecs = DumpTime.Subseconds;
+        DumpTime                                              = CFE_TIME_GetTime();
+        DumpCtrlPtr->DumpBufferPtr->FileCreateTime.Seconds    = DumpTime.Seconds;
+        DumpCtrlPtr->DumpBufferPtr->FileCreateTime.Subseconds = DumpTime.Subseconds;
 
         /* Disassociate the dump request from the table */
         RegRecPtr->DumpControlIndex = CFE_TBL_NO_DUMP_PENDING;

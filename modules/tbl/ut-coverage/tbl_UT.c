@@ -1347,8 +1347,8 @@ void Test_CFE_TBL_SendHkCmd(void)
     DumpBuffPtr->Taken                            = true;
     DumpBuffPtr->Validated                        = true;
     DumpBuffPtr->BufferPtr                        = BuffPtr;
-    DumpBuffPtr->FileCreateTimeSecs               = Secs;
-    DumpBuffPtr->FileCreateTimeSubSecs            = SubSecs;
+    DumpBuffPtr->FileCreateTime.Seconds           = Secs;
+    DumpBuffPtr->FileCreateTime.Subseconds        = SubSecs;
     strncpy(DumpBuffPtr->DataSource, "hkSource", sizeof(DumpBuffPtr->DataSource) - 1);
     DumpBuffPtr->DataSource[sizeof(DumpBuffPtr->DataSource) - 1] = '\0';
     CFE_TBL_Global.DumpControlBlocks[0].DumpBufferPtr            = DumpBuffPtr;
@@ -2426,8 +2426,8 @@ void Test_CFE_TBL_ReleaseAddresses(void)
     FileHeader.Description[sizeof(FileHeader.Description) - 1] = '\0';
     FileHeader.ContentType                                     = CFE_FS_FILE_CONTENT_ID;
     FileHeader.SubType                                         = CFE_FS_SubType_TBL_IMG;
-    FileHeader.TimeSeconds                                     = 1704;
-    FileHeader.TimeSubSeconds                                  = 104;
+    FileHeader.FileCreateTime.Seconds                          = 1704;
+    FileHeader.FileCreateTime.Subseconds                       = 104;
     strncpy(File.TblHeader.TableName, "ut_cfe_tbl.UT_RELEASE_TEST", sizeof(File.TblHeader.TableName) - 1);
     File.TblHeader.TableName[sizeof(File.TblHeader.TableName) - 1] = '\0';
     UT_TBL_SetupHeader(&File.TblHeader, 0, sizeof(UT_Table1_t));
@@ -3085,8 +3085,8 @@ void Test_CFE_TBL_TblMod(void)
     FileHeader.Description[sizeof(FileHeader.Description) - 1] = '\0';
     FileHeader.ContentType                                     = CFE_FS_FILE_CONTENT_ID;
     FileHeader.SubType                                         = CFE_FS_SubType_TBL_IMG;
-    FileHeader.TimeSeconds                                     = 1704;
-    FileHeader.TimeSubSeconds                                  = 104;
+    FileHeader.FileCreateTime.Seconds                          = 1704;
+    FileHeader.FileCreateTime.Subseconds                       = 104;
     strncpy(File.TblHeader.TableName, "ut_cfe_tbl.UT_Table1", sizeof(File.TblHeader.TableName) - 1);
     File.TblHeader.TableName[sizeof(File.TblHeader.TableName) - 1] = '\0';
     UT_TBL_SetupHeader(&File.TblHeader, 0, sizeof(UT_Table1_t));
@@ -3155,8 +3155,8 @@ void Test_CFE_TBL_TblMod(void)
     FileHeader.Description[sizeof(FileHeader.Description) - 1] = '\0';
     FileHeader.ContentType                                     = CFE_FS_FILE_CONTENT_ID;
     FileHeader.SubType                                         = CFE_FS_SubType_TBL_IMG;
-    FileHeader.TimeSeconds                                     = 1704;
-    FileHeader.TimeSubSeconds                                  = 104;
+    FileHeader.FileCreateTime.Seconds                          = 1704;
+    FileHeader.FileCreateTime.Subseconds                       = 104;
     strncpy(File.TblHeader.TableName, "ut_cfe_tbl.UT_Table2", sizeof(File.TblHeader.TableName) - 1);
     File.TblHeader.TableName[sizeof(File.TblHeader.TableName) - 1] = '\0';
     UT_TBL_SetupHeader(&File.TblHeader, 0, sizeof(UT_Table1_t));

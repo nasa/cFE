@@ -3208,17 +3208,16 @@ The structure of the standard file header is as follows:
 ```c
 typedef struct
 {
-    uint32  ContentType;           /* Identifies the content type (magic #=’cFE1’) */
-    uint32  SubType;               /* Type of ContentType, if necessary */
-    uint32  Length;                /* Length of this primary header */
-    uint32  SpacecraftID;          /* Spacecraft that generated the file */
-    uint32  ProcessorID;           /* Processor that generated the file */
-    uint32  ApplicationID;         /* Application that generated the file */
+    uint32  ContentType;              /* Identifies the content type (magic #=’cFE1’) */
+    uint32  SubType;                  /* Type of ContentType, if necessary */
+    uint32  Length;                   /* Length of this primary header */
+    uint32  SpacecraftID;             /* Spacecraft that generated the file */
+    uint32  ProcessorID;              /* Processor that generated the file */
+    uint32  ApplicationID;            /* Application that generated the file */
 
-    uint32  TimeSeconds;           /* File creation timestamp (seconds) */
-    uint32  TimeSubSeconds;        /* File creation timestamp (sub-seconds) */
+    CFE_TIME_SysTime_t FileCreateTime /* File creation timestamp */
 
-    char    Description[32];       /* File description */
+    char    Description[32];          /* File description */
 } CFE_FS_Header_t;
 ```
 
@@ -3244,8 +3243,8 @@ The SpacecraftID, ProcessorID and ApplicationID are all automatically
 filled by cFE File Services routines when creating a cFE compliant file.
 These fields help identify where and how the file was created.
 
-The TimeSeconds and TimeSubSeconds elements contain the Spacecraft Time
-when the header was created.
+The FileCreateTime member contains the Spacecraft Time when the header
+was created.
 
 The Description field provides a brief ASCII description of the contents
 of the file.
@@ -3260,22 +3259,22 @@ An example of this function is shown below:
 
 The opposite version of this file API is the CFE_FS_WriteHeader
 function. This function populates the given header data structure with
-the SpacecraftID, ProcessorID, ApplicationID, TimeSeconds and
-TimeSubsecs as obtained from the Executive and Time Services. The
-Developer only needs to specify the SubType and Description fields.
+the SpacecraftID, ProcessorID, ApplicationID, FileCreateTime.Seconds and
+FileCreateTime.Subseconds as obtained from the Executive and Time Services.
+The Developer only needs to specify the SubType and Description fields.
 After the function successfully writes the standard header to the file,
 the given header data structure contains all of the information and the
 file pointer associated with the specified file is pointing to the first
 byte past the standard header.
 
 In addition to the functions for obtaining and writing the entire
-header, there are two functions for manipulating the TimeSeconds and
-TimeSubseconds fields of the header. The first of these is the
-CFE_FS_UpdateHeaderTime function. This function takes the specified
-file and sets the TimeSeconds and TimeSubsecs fields equal to the
-current time as obtained from CFE_TIME_GetTime. The second function,
-CFE_FS_SetHeaderTime, allows the Developer to set the create time in
-the standard header equal to a time specified using the
+header, there are two functions for manipulating the FileCreateTime.Seconds
+and FileCreateTime.Subseconds fields of the header. The first of these is
+the CFE_FS_UpdateHeaderTime function. This function takes the specified
+file and sets the FileCreateTime.Seconds and FileCreateTime.Subseconds
+fields equal to the current time as obtained from CFE_TIME_GetTime. The
+second function, CFE_FS_SetHeaderTime, allows the Developer to set the
+create time in the standard header equal to a time specified using the
 CFE_TIME_SysTime_t data format. This function may be useful when time
 tagging experiment data with the time the data was acquired rather than
 the time the file was created.
