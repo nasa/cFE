@@ -29,6 +29,13 @@
 #include "cfe_test_msgids.h"
 #include <string.h>
 
+typedef union CFE_TEST_MsgBuf
+{
+    CFE_MSG_Message_t         msg;
+    CFE_MSG_CommandHeader_t   ch;
+    CFE_MSG_TelemetryHeader_t th;
+} CFE_TEST_MsgBuf_t;
+
 void TestMsgApiBasic(void)
 {
     UtPrintf("Testing: CFE_MSG_Init, CFE_MSG_GetSize, CFE_MSG_SetSize, CFE_MSG_GetType, "
@@ -37,7 +44,7 @@ void TestMsgApiBasic(void)
              "CFE_MSG_GetApId, CFE_MSG_SetApId");
 
     /* declare local vars */
-    CFE_MSG_CommandHeader_t cmd;
+    CFE_TEST_MsgBuf_t       cmd;
     CFE_MSG_Size_t          size;
     CFE_MSG_Type_t          type;
     CFE_SB_MsgId_t          msgId;
@@ -51,77 +58,76 @@ void TestMsgApiBasic(void)
 
     /* test msg-init */
     UtAssert_INT32_EQ(CFE_MSG_Init(NULL, msgId, sizeof(cmd)), CFE_MSG_BAD_ARGUMENT);
-    UtAssert_INT32_EQ(CFE_MSG_Init(CFE_MSG_PTR(cmd), CFE_SB_INVALID_MSG_ID, sizeof(cmd)), CFE_MSG_BAD_ARGUMENT);
-    UtAssert_INT32_EQ(CFE_MSG_Init(CFE_MSG_PTR(cmd), msgId, 0), CFE_MSG_BAD_ARGUMENT);
-    UtAssert_INT32_EQ(
-        CFE_MSG_Init(CFE_MSG_PTR(cmd), CFE_SB_ValueToMsgId(CFE_PLATFORM_SB_HIGHEST_VALID_MSGID + 1), sizeof(cmd)),
-        CFE_MSG_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_MSG_Init(&cmd.msg, CFE_SB_INVALID_MSG_ID, sizeof(cmd)), CFE_MSG_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_MSG_Init(&cmd.msg, msgId, 0), CFE_MSG_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_MSG_Init(&cmd.msg, CFE_SB_ValueToMsgId(CFE_PLATFORM_SB_HIGHEST_VALID_MSGID + 1), sizeof(cmd)),
+                      CFE_MSG_BAD_ARGUMENT);
 
-    UtAssert_INT32_EQ(CFE_MSG_Init(CFE_MSG_PTR(cmd), msgId, sizeof(cmd)), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_MSG_Init(&cmd.msg, msgId, sizeof(cmd)), CFE_SUCCESS);
 
     /* test set-msg-size */
     UtAssert_INT32_EQ(CFE_MSG_SetSize(NULL, 12), CFE_MSG_BAD_ARGUMENT);
-    UtAssert_INT32_EQ(CFE_MSG_SetSize(CFE_MSG_PTR(cmd), 0), CFE_MSG_BAD_ARGUMENT);
-    UtAssert_INT32_EQ(CFE_MSG_SetSize(CFE_MSG_PTR(cmd), UINT32_MAX), CFE_MSG_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_MSG_SetSize(&cmd.msg, 0), CFE_MSG_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_MSG_SetSize(&cmd.msg, UINT32_MAX), CFE_MSG_BAD_ARGUMENT);
 
-    UtAssert_INT32_EQ(CFE_MSG_SetSize(CFE_MSG_PTR(cmd), 12), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_MSG_SetSize(&cmd.msg, 12), CFE_SUCCESS);
 
     /* test get-msg-size */
     UtAssert_INT32_EQ(CFE_MSG_GetSize(NULL, &size), CFE_MSG_BAD_ARGUMENT);
-    UtAssert_INT32_EQ(CFE_MSG_GetSize(CFE_MSG_PTR(cmd), NULL), CFE_MSG_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_MSG_GetSize(&cmd.msg, NULL), CFE_MSG_BAD_ARGUMENT);
 
-    UtAssert_INT32_EQ(CFE_MSG_GetSize(CFE_MSG_PTR(cmd), &size), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_MSG_GetSize(&cmd.msg, &size), CFE_SUCCESS);
     UtAssert_UINT32_EQ(size, 12);
 
     /* test get-type */
     UtAssert_INT32_EQ(CFE_MSG_SetType(NULL, CFE_MSG_Type_Cmd), CFE_MSG_BAD_ARGUMENT);
-    UtAssert_INT32_EQ(CFE_MSG_SetType(CFE_MSG_PTR(cmd), CFE_MSG_Type_Invalid), CFE_MSG_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_MSG_SetType(&cmd.msg, CFE_MSG_Type_Invalid), CFE_MSG_BAD_ARGUMENT);
 
-    UtAssert_INT32_EQ(CFE_MSG_SetType(CFE_MSG_PTR(cmd), CFE_MSG_Type_Cmd), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_MSG_SetType(&cmd.msg, CFE_MSG_Type_Cmd), CFE_SUCCESS);
 
     UtAssert_INT32_EQ(CFE_MSG_GetType(NULL, &type), CFE_MSG_BAD_ARGUMENT);
-    UtAssert_INT32_EQ(CFE_MSG_GetType(CFE_MSG_PTR(cmd), NULL), CFE_MSG_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_MSG_GetType(&cmd.msg, NULL), CFE_MSG_BAD_ARGUMENT);
 
-    UtAssert_INT32_EQ(CFE_MSG_GetType(CFE_MSG_PTR(cmd), &type), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_MSG_GetType(&cmd.msg, &type), CFE_SUCCESS);
     UtAssert_INT32_EQ(type, CFE_MSG_Type_Cmd);
 
     /* test msg set-type */
-    UtAssert_INT32_EQ(CFE_MSG_SetType(CFE_MSG_PTR(cmd), CFE_MSG_Type_Tlm), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_MSG_SetType(&cmd.msg, CFE_MSG_Type_Tlm), CFE_SUCCESS);
     /* check if set-type works like expected */
-    UtAssert_INT32_EQ(CFE_MSG_GetType(CFE_MSG_PTR(cmd), &type), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_MSG_GetType(&cmd.msg, &type), CFE_SUCCESS);
     UtAssert_INT32_EQ(type, CFE_MSG_Type_Tlm);
 
     /* test get header-version */
     UtAssert_INT32_EQ(CFE_MSG_GetHeaderVersion(NULL, &hdrVer), CFE_MSG_BAD_ARGUMENT);
-    UtAssert_INT32_EQ(CFE_MSG_GetHeaderVersion(CFE_MSG_PTR(cmd), &hdrVer), CFE_SUCCESS);
-    UtAssert_INT32_EQ(CFE_MSG_GetHeaderVersion(CFE_MSG_PTR(cmd), NULL), CFE_MSG_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_MSG_GetHeaderVersion(&cmd.msg, &hdrVer), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_MSG_GetHeaderVersion(&cmd.msg, NULL), CFE_MSG_BAD_ARGUMENT);
 
     /* test set header-version */
     UtAssert_INT32_EQ(CFE_MSG_SetHeaderVersion(NULL, hdrVer), CFE_MSG_BAD_ARGUMENT);
-    UtAssert_INT32_EQ(CFE_MSG_SetHeaderVersion(CFE_MSG_PTR(cmd), UINT16_MAX), CFE_MSG_BAD_ARGUMENT);
-    UtAssert_INT32_EQ(CFE_MSG_SetHeaderVersion(CFE_MSG_PTR(cmd), 0), CFE_SUCCESS);
-    UtAssert_INT32_EQ(CFE_MSG_GetHeaderVersion(CFE_MSG_PTR(cmd), &hdrVer), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_MSG_SetHeaderVersion(&cmd.msg, UINT16_MAX), CFE_MSG_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_MSG_SetHeaderVersion(&cmd.msg, 0), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_MSG_GetHeaderVersion(&cmd.msg, &hdrVer), CFE_SUCCESS);
     UtAssert_True(hdrVer == 0, "hdrVer = 0");
 
     /* test get-has-secondary-header and set-has-secondary-header*/
     UtAssert_INT32_EQ(CFE_MSG_GetHasSecondaryHeader(NULL, &_expected), CFE_MSG_BAD_ARGUMENT);
-    UtAssert_INT32_EQ(CFE_MSG_GetHasSecondaryHeader(CFE_MSG_PTR(cmd), NULL), CFE_MSG_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_MSG_GetHasSecondaryHeader(&cmd.msg, NULL), CFE_MSG_BAD_ARGUMENT);
     UtAssert_INT32_EQ(CFE_MSG_SetHasSecondaryHeader(NULL, _expected), CFE_MSG_BAD_ARGUMENT);
 
-    UtAssert_INT32_EQ(CFE_MSG_SetHasSecondaryHeader(CFE_MSG_PTR(cmd), _expected), CFE_SUCCESS);
-    UtAssert_INT32_EQ(CFE_MSG_GetHasSecondaryHeader(CFE_MSG_PTR(cmd), &_returned), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_MSG_SetHasSecondaryHeader(&cmd.msg, _expected), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_MSG_GetHasSecondaryHeader(&cmd.msg, &_returned), CFE_SUCCESS);
     UtAssert_UINT32_EQ(_expected, _returned);
 
     /* test get-apid */
     UtAssert_INT32_EQ(CFE_MSG_GetApId(NULL, &appId), CFE_MSG_BAD_ARGUMENT);
-    UtAssert_INT32_EQ(CFE_MSG_GetApId(CFE_MSG_PTR(cmd), NULL), CFE_MSG_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_MSG_GetApId(&cmd.msg, NULL), CFE_MSG_BAD_ARGUMENT);
 
     /* test set-apid */
-    UtAssert_INT32_EQ(CFE_MSG_SetApId(CFE_MSG_PTR(cmd), 0xFFFF), CFE_MSG_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_MSG_SetApId(&cmd.msg, 0xFFFF), CFE_MSG_BAD_ARGUMENT);
     UtAssert_INT32_EQ(CFE_MSG_SetApId(NULL, 0), CFE_MSG_BAD_ARGUMENT);
 
-    UtAssert_INT32_EQ(CFE_MSG_SetApId(CFE_MSG_PTR(cmd), 5), CFE_SUCCESS);
-    UtAssert_INT32_EQ(CFE_MSG_GetApId(CFE_MSG_PTR(cmd), &appId), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_MSG_SetApId(&cmd.msg, 5), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_MSG_GetApId(&cmd.msg, &appId), CFE_SUCCESS);
     UtAssert_INT32_EQ(appId, 5);
 }
 
@@ -131,7 +137,7 @@ void TestMsgApiAdvanced(void)
              "CFE_MSG_GetSequenceCount, CFE_MSG_SetSequenceCount, CFE_MSG_GetNextSequenceCount");
 
     /* declare local vars */
-    CFE_MSG_CommandHeader_t    cmd;
+    CFE_TEST_MsgBuf_t          cmd;
     CFE_SB_MsgId_t             msgId;
     CFE_MSG_SegmentationFlag_t segFlag;
     CFE_MSG_SequenceCount_t    seqCnt;
@@ -139,30 +145,30 @@ void TestMsgApiAdvanced(void)
     memset(&cmd, 0xFF, sizeof(cmd));
     msgId = CFE_SB_ValueToMsgId(CFE_TEST_CMD_MID);
 
-    UtAssert_INT32_EQ(CFE_MSG_Init(CFE_MSG_PTR(cmd), msgId, sizeof(cmd)), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_MSG_Init(&cmd.msg, msgId, sizeof(cmd)), CFE_SUCCESS);
 
     /* test get/set-segmentation-flag */
     UtAssert_INT32_EQ(CFE_MSG_GetSegmentationFlag(NULL, &segFlag), CFE_MSG_BAD_ARGUMENT);
-    UtAssert_INT32_EQ(CFE_MSG_GetSegmentationFlag(CFE_MSG_PTR(cmd), NULL), CFE_MSG_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_MSG_GetSegmentationFlag(&cmd.msg, NULL), CFE_MSG_BAD_ARGUMENT);
     UtAssert_INT32_EQ(CFE_MSG_SetSegmentationFlag(NULL, CFE_MSG_SegFlag_Continue), CFE_MSG_BAD_ARGUMENT);
-    UtAssert_INT32_EQ(CFE_MSG_SetSegmentationFlag(CFE_MSG_PTR(cmd), CFE_MSG_SegFlag_Invalid), CFE_MSG_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_MSG_SetSegmentationFlag(&cmd.msg, CFE_MSG_SegFlag_Invalid), CFE_MSG_BAD_ARGUMENT);
 
-    UtAssert_INT32_EQ(CFE_MSG_SetSegmentationFlag(CFE_MSG_PTR(cmd), CFE_MSG_SegFlag_Continue), CFE_SUCCESS);
-    UtAssert_INT32_EQ(CFE_MSG_SetSegmentationFlag(CFE_MSG_PTR(cmd), CFE_MSG_SegFlag_First), CFE_SUCCESS);
-    UtAssert_INT32_EQ(CFE_MSG_SetSegmentationFlag(CFE_MSG_PTR(cmd), CFE_MSG_SegFlag_Last), CFE_SUCCESS);
-    UtAssert_INT32_EQ(CFE_MSG_SetSegmentationFlag(CFE_MSG_PTR(cmd), CFE_MSG_SegFlag_Unsegmented), CFE_SUCCESS);
-    UtAssert_INT32_EQ(CFE_MSG_GetSegmentationFlag(CFE_MSG_PTR(cmd), &segFlag), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_MSG_SetSegmentationFlag(&cmd.msg, CFE_MSG_SegFlag_Continue), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_MSG_SetSegmentationFlag(&cmd.msg, CFE_MSG_SegFlag_First), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_MSG_SetSegmentationFlag(&cmd.msg, CFE_MSG_SegFlag_Last), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_MSG_SetSegmentationFlag(&cmd.msg, CFE_MSG_SegFlag_Unsegmented), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_MSG_GetSegmentationFlag(&cmd.msg, &segFlag), CFE_SUCCESS);
     UtAssert_UINT32_EQ(segFlag, CFE_MSG_SegFlag_Unsegmented);
 
     /* test set/get-sequence-count */
     UtAssert_INT32_EQ(CFE_MSG_SetSequenceCount(NULL, 2), CFE_MSG_BAD_ARGUMENT);
-    UtAssert_INT32_EQ(CFE_MSG_SetSequenceCount(CFE_MSG_PTR(cmd), UINT16_MAX), CFE_MSG_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_MSG_SetSequenceCount(&cmd.msg, UINT16_MAX), CFE_MSG_BAD_ARGUMENT);
 
     UtAssert_INT32_EQ(CFE_MSG_GetSequenceCount(NULL, &seqCnt), CFE_MSG_BAD_ARGUMENT);
-    UtAssert_INT32_EQ(CFE_MSG_GetSequenceCount(CFE_MSG_PTR(cmd), NULL), CFE_MSG_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_MSG_GetSequenceCount(&cmd.msg, NULL), CFE_MSG_BAD_ARGUMENT);
 
-    UtAssert_INT32_EQ(CFE_MSG_SetSequenceCount(CFE_MSG_PTR(cmd), 2), CFE_SUCCESS);
-    UtAssert_INT32_EQ(CFE_MSG_GetSequenceCount(CFE_MSG_PTR(cmd), &seqCnt), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_MSG_SetSequenceCount(&cmd.msg, 2), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_MSG_GetSequenceCount(&cmd.msg, &seqCnt), CFE_SUCCESS);
     UtAssert_INT32_EQ(seqCnt, 2);
 
     /* test get-next-sequence-count */
@@ -176,31 +182,31 @@ void TestMsgHeaderSecondaryApi(void)
              "CFE_MSG_GetFcnCode, CFE_MSG_GetMsgTime, CFE_MSG_SetMsgTime ");
 
     /* declare local vars */
-    CFE_MSG_CommandHeader_t cmd;
-    CFE_MSG_CommandHeader_t cmdTlm;
-    CFE_MSG_CommandHeader_t cmd2;
-    CFE_MSG_FcnCode_t       fcnCode;
-    CFE_TIME_SysTime_t      msgTime;
-    bool                    isValid     = true;
-    CFE_TIME_SysTime_t      currentTime = {1000, 0xFFFF0000};
-    CFE_Status_t            status;
+    CFE_TEST_MsgBuf_t  cmd;
+    CFE_TEST_MsgBuf_t  cmdTlm;
+    CFE_TEST_MsgBuf_t  cmd2;
+    CFE_MSG_FcnCode_t  fcnCode;
+    CFE_TIME_SysTime_t msgTime;
+    bool               isValid     = true;
+    CFE_TIME_SysTime_t currentTime = {1000, 0xFFFF0000};
+    CFE_Status_t       status;
 
     memset(&cmd, 0, sizeof(cmd));
     memset(&cmdTlm, 0xFF, sizeof(cmdTlm));
     memset(&cmd2, 0xFF, sizeof(cmd2));
 
     /* msg-init */
-    UtAssert_INT32_EQ(CFE_MSG_Init(CFE_MSG_PTR(cmd), CFE_SB_ValueToMsgId(1), sizeof(cmd)), CFE_SUCCESS);
-    UtAssert_INT32_EQ(CFE_MSG_SetHasSecondaryHeader(CFE_MSG_PTR(cmd), true), CFE_SUCCESS);
-    UtAssert_INT32_EQ(CFE_MSG_SetType(CFE_MSG_PTR(cmd), CFE_MSG_Type_Cmd), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_MSG_Init(&cmd.msg, CFE_SB_ValueToMsgId(1), sizeof(cmd)), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_MSG_SetHasSecondaryHeader(&cmd.msg, true), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_MSG_SetType(&cmd.msg, CFE_MSG_Type_Cmd), CFE_SUCCESS);
 
-    UtAssert_INT32_EQ(CFE_MSG_Init(CFE_MSG_PTR(cmdTlm), CFE_SB_ValueToMsgId(2), sizeof(cmdTlm)), CFE_SUCCESS);
-    UtAssert_INT32_EQ(CFE_MSG_SetHasSecondaryHeader(CFE_MSG_PTR(cmdTlm), true), CFE_SUCCESS);
-    UtAssert_INT32_EQ(CFE_MSG_SetType(CFE_MSG_PTR(cmdTlm), CFE_MSG_Type_Tlm), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_MSG_Init(&cmdTlm.msg, CFE_SB_ValueToMsgId(2), sizeof(cmdTlm)), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_MSG_SetHasSecondaryHeader(&cmdTlm.msg, true), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_MSG_SetType(&cmdTlm.msg, CFE_MSG_Type_Tlm), CFE_SUCCESS);
 
-    UtAssert_INT32_EQ(CFE_MSG_Init(CFE_MSG_PTR(cmd2), CFE_SB_ValueToMsgId(3), sizeof(cmd2)), CFE_SUCCESS);
-    UtAssert_INT32_EQ(CFE_MSG_SetHasSecondaryHeader(CFE_MSG_PTR(cmd2), true), CFE_SUCCESS);
-    UtAssert_INT32_EQ(CFE_MSG_SetType(CFE_MSG_PTR(cmd2), CFE_MSG_Type_Cmd), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_MSG_Init(&cmd2.msg, CFE_SB_ValueToMsgId(3), sizeof(cmd2)), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_MSG_SetHasSecondaryHeader(&cmd2.msg, true), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_MSG_SetType(&cmd2.msg, CFE_MSG_Type_Cmd), CFE_SUCCESS);
 
     /* test generate-checksum */
     status = CFE_MSG_GenerateChecksum(NULL);
@@ -211,37 +217,37 @@ void TestMsgHeaderSecondaryApi(void)
     else
     {
         UtAssert_INT32_EQ(CFE_MSG_GenerateChecksum(NULL), CFE_MSG_BAD_ARGUMENT);
-        UtAssert_INT32_EQ(CFE_MSG_GenerateChecksum(CFE_MSG_PTR(cmdTlm)), CFE_MSG_WRONG_MSG_TYPE);
-        UtAssert_INT32_EQ(CFE_MSG_ValidateChecksum(CFE_MSG_PTR(cmdTlm), &isValid), CFE_MSG_WRONG_MSG_TYPE);
+        UtAssert_INT32_EQ(CFE_MSG_GenerateChecksum(&cmdTlm.msg), CFE_MSG_WRONG_MSG_TYPE);
+        UtAssert_INT32_EQ(CFE_MSG_ValidateChecksum(&cmdTlm.msg, &isValid), CFE_MSG_WRONG_MSG_TYPE);
         UtAssert_INT32_EQ(CFE_MSG_ValidateChecksum(NULL, &isValid), CFE_MSG_BAD_ARGUMENT);
-        UtAssert_INT32_EQ(CFE_MSG_ValidateChecksum(CFE_MSG_PTR(cmdTlm), NULL), CFE_MSG_BAD_ARGUMENT);
+        UtAssert_INT32_EQ(CFE_MSG_ValidateChecksum(&cmdTlm.msg, NULL), CFE_MSG_BAD_ARGUMENT);
 
-        UtAssert_INT32_EQ(CFE_MSG_ValidateChecksum(CFE_MSG_PTR(cmd), &isValid), CFE_SUCCESS);
+        UtAssert_INT32_EQ(CFE_MSG_ValidateChecksum(&cmd.msg, &isValid), CFE_SUCCESS);
         UtAssert_True(!isValid, "Checksum isValid (%d) = false", isValid);
-        UtAssert_INT32_EQ(CFE_MSG_GenerateChecksum(CFE_MSG_PTR(cmd)), CFE_SUCCESS);
-        UtAssert_INT32_EQ(CFE_MSG_ValidateChecksum(CFE_MSG_PTR(cmd), &isValid), CFE_SUCCESS);
+        UtAssert_INT32_EQ(CFE_MSG_GenerateChecksum(&cmd.msg), CFE_SUCCESS);
+        UtAssert_INT32_EQ(CFE_MSG_ValidateChecksum(&cmd.msg, &isValid), CFE_SUCCESS);
         UtAssert_True(isValid, "Checksum isValid (%d) = true", isValid);
     }
 
     /* test get/set-fcn-code */
     UtAssert_INT32_EQ(CFE_MSG_SetFcnCode(NULL, 4), CFE_MSG_BAD_ARGUMENT);
-    UtAssert_INT32_EQ(CFE_MSG_SetFcnCode(CFE_MSG_PTR(cmdTlm), 4), CFE_MSG_WRONG_MSG_TYPE);
+    UtAssert_INT32_EQ(CFE_MSG_SetFcnCode(&cmdTlm.msg, 4), CFE_MSG_WRONG_MSG_TYPE);
 
-    UtAssert_INT32_EQ(CFE_MSG_GetFcnCode(CFE_MSG_PTR(cmd), NULL), CFE_MSG_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_MSG_GetFcnCode(&cmd.msg, NULL), CFE_MSG_BAD_ARGUMENT);
     UtAssert_INT32_EQ(CFE_MSG_GetFcnCode(NULL, &fcnCode), CFE_MSG_BAD_ARGUMENT);
-    UtAssert_INT32_EQ(CFE_MSG_GetFcnCode(CFE_MSG_PTR(cmdTlm), &fcnCode), CFE_MSG_WRONG_MSG_TYPE);
+    UtAssert_INT32_EQ(CFE_MSG_GetFcnCode(&cmdTlm.msg, &fcnCode), CFE_MSG_WRONG_MSG_TYPE);
 
-    UtAssert_INT32_EQ(CFE_MSG_SetFcnCode(CFE_MSG_PTR(cmd), 4), CFE_SUCCESS);
-    UtAssert_INT32_EQ(CFE_MSG_GetFcnCode(CFE_MSG_PTR(cmd), &fcnCode), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_MSG_SetFcnCode(&cmd.msg, 4), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_MSG_GetFcnCode(&cmd.msg, &fcnCode), CFE_SUCCESS);
     UtAssert_INT32_EQ(fcnCode, 4);
 
     /* test get/set-msg-time */
-    UtAssert_INT32_EQ(CFE_MSG_SetType(CFE_MSG_PTR(cmd), CFE_MSG_Type_Tlm), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_MSG_SetType(&cmd.msg, CFE_MSG_Type_Tlm), CFE_SUCCESS);
 
     UtAssert_INT32_EQ(CFE_MSG_GetMsgTime(NULL, &msgTime), CFE_MSG_BAD_ARGUMENT);
-    UtAssert_INT32_EQ(CFE_MSG_GetMsgTime(CFE_MSG_PTR(cmd), NULL), CFE_MSG_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_MSG_GetMsgTime(&cmd.msg, NULL), CFE_MSG_BAD_ARGUMENT);
 
-    CFE_Assert_STATUS_STORE(CFE_MSG_GetMsgTime(CFE_MSG_PTR(cmd2), &msgTime));
+    CFE_Assert_STATUS_STORE(CFE_MSG_GetMsgTime(&cmd2.msg, &msgTime));
     if (!CFE_Assert_STATUS_MAY_BE(CFE_SUCCESS))
     {
         CFE_Assert_STATUS_MUST_BE(CFE_MSG_WRONG_MSG_TYPE);
@@ -249,14 +255,14 @@ void TestMsgHeaderSecondaryApi(void)
 
     UtAssert_INT32_EQ(CFE_MSG_SetMsgTime(NULL, currentTime), CFE_MSG_BAD_ARGUMENT);
 
-    CFE_Assert_STATUS_STORE(CFE_MSG_SetMsgTime(CFE_MSG_PTR(cmd2), currentTime));
+    CFE_Assert_STATUS_STORE(CFE_MSG_SetMsgTime(&cmd2.msg, currentTime));
     if (!CFE_Assert_STATUS_MAY_BE(CFE_SUCCESS))
     {
         CFE_Assert_STATUS_MUST_BE(CFE_MSG_WRONG_MSG_TYPE);
     }
 
-    UtAssert_INT32_EQ(CFE_MSG_SetMsgTime(CFE_MSG_PTR(cmd), currentTime), CFE_SUCCESS);
-    UtAssert_INT32_EQ(CFE_MSG_GetMsgTime(CFE_MSG_PTR(cmd), &msgTime), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_MSG_SetMsgTime(&cmd.msg, currentTime), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_MSG_GetMsgTime(&cmd.msg, &msgTime), CFE_SUCCESS);
     UtAssert_UINT32_EQ(CFE_TIME_Compare(msgTime, currentTime), CFE_TIME_EQUAL);
 }
 
