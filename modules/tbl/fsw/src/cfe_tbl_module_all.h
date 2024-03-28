@@ -45,6 +45,8 @@
 #include "cfe_tbl_task.h"
 #include "cfe_tbl_task_cmds.h"
 #include "cfe_tbl_dispatch.h"
+#include "cfe_tbl_resource.h"
+#include "cfe_tbl_transaction.h"
 
 /*
  * Additionally TBL needs to use special/extra CDS APIs that are not in the normal API
