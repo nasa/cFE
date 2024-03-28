@@ -52,146 +52,6 @@
 
 /*---------------------------------------------------------------------------------------*/
 /**
-** \brief Validates specified handle to ensure legality
-**
-** \par Description
-**        Validates handle given by calling App to Table API. Validation
-**        includes ensuring the value is within an acceptable range and
-**        the Access Descriptor that it identifies is being "used".
-**
-** \par Assumptions, External Events, and Notes:
-**          None
-**
-** \param[in]  TblHandle  - Handle to be validated
-**
-** \retval #CFE_SUCCESS                     \copydoc CFE_SUCCESS
-** \retval #CFE_TBL_ERR_INVALID_HANDLE      \copydoc CFE_TBL_ERR_INVALID_HANDLE
-**
-*/
-int32 CFE_TBL_ValidateHandle(CFE_TBL_Handle_t TblHandle);
-
-/*---------------------------------------------------------------------------------------*/
-/**
-** \brief Determines whether handle is associated with calling Application
-**
-** \par Description
-**        Validates whether the calling application has the right to
-**        access the table identified with the given TblHandle.  Validation
-**        consists of verifying the calling Application's AppID, verifying
-**        the legitimacy of the given TblHandle, and checking to make sure
-**        the Access Descriptor identified by the TblHandle is associated
-**        with the calling Application.
-**
-** \par Assumptions, External Events, and Notes:
-**          None
-**
-** \param[in]  TblHandle Handle of table whose access is desired.
-**
-** \param[in, out]  AppIdPtr  Pointer to value that will hold AppID on return. *AppIdPtr is the AppID as obtained from
-*#CFE_ES_GetAppID
-**
-** \retval #CFE_SUCCESS                     \copydoc CFE_SUCCESS
-** \retval #CFE_ES_ERR_RESOURCEID_NOT_VALID \copydoc CFE_ES_ERR_RESOURCEID_NOT_VALID
-** \retval #CFE_TBL_ERR_INVALID_HANDLE      \copydoc CFE_TBL_ERR_INVALID_HANDLE
-** \retval #CFE_TBL_ERR_NO_ACCESS           \copydoc CFE_TBL_ERR_NO_ACCESS
-**
-*/
-int32 CFE_TBL_ValidateAccess(CFE_TBL_Handle_t TblHandle, CFE_ES_AppId_t *AppIdPtr);
-
-/*---------------------------------------------------------------------------------------*/
-/**
-** \brief Determines if calling application has the right to access specified table
-**
-** \par Description
-**        Validates whether the calling application has the right to
-**        access the table identified with the given TblHandle.  Validation
-**        consists of checking to make sure the Access Descriptor identified
-**        by the TblHandle is associated with the calling Application.
-**
-** \par Assumptions, External Events, and Notes:
-**        Note: The TblHandle and ThisAppId parameters are assumed to be valid.
-**
-** \param[in]  TblHandle Handle of table whose access is desired.
-**
-** \param[in]  ThisAppId Application ID of Application making the call
-**
-** \retval #CFE_SUCCESS                     \copydoc CFE_SUCCESS
-** \retval #CFE_TBL_ERR_NO_ACCESS           \copydoc CFE_TBL_ERR_NO_ACCESS
-**
-*/
-int32 CFE_TBL_CheckAccessRights(CFE_TBL_Handle_t TblHandle, CFE_ES_AppId_t ThisAppId);
-
-/*---------------------------------------------------------------------------------------*/
-/**
-** \brief Removes Access Descriptor from Table's linked list of Access Descriptors
-**
-** \par Description
-**        Removes the given Access Descriptor from the Linked List
-**        of Access Descriptors associated with the table specified
-**        in the Access Descriptor itself.
-**
-** \par Assumptions, External Events, and Notes:
-**        -# This function CAN block and should not be called by ISRs.
-**        -# This function assumes the Access Descriptor is completely
-**           filled out and the TblHandle has been validated.
-**
-** \param[in]  TblHandle Handle of Access Descriptor to be removed.
-**
-** \retval #CFE_SUCCESS                     \copydoc CFE_SUCCESS
-**
-*/
-int32 CFE_TBL_RemoveAccessLink(CFE_TBL_Handle_t TblHandle);
-
-/*---------------------------------------------------------------------------------------*/
-/**
-** \brief Obtains the data address for the specified table
-**
-** \par Description
-**        Validates the given TblHandle, finds the location of the
-**        Table data and returns the address to the data to the caller.
-**
-** \par Assumptions, External Events, and Notes:
-**        -# It is possible that an Application that was sharing a table
-**           would discover, upon making this call, that the table has
-**           been unregistered by another Application.  In this situation,
-**           this function would return #CFE_TBL_ERR_UNREGISTERED.
-**        -# ThisAppId parameter is assumed to be validated.
-**
-** \param[in, out]  TblPtr    Pointer to pointer that will hold address of data upon return. *TblPtr is the address of
-**                            the Table Data.
-** \param[in]  TblHandle Handle of Table whose address is needed.
-** \param[in]  ThisAppId AppID of application making the address request.
-**
-** \retval #CFE_SUCCESS                     \copydoc CFE_SUCCESS
-** \retval #CFE_TBL_ERR_INVALID_HANDLE      \copydoc CFE_TBL_ERR_INVALID_HANDLE
-** \retval #CFE_TBL_ERR_NO_ACCESS           \copydoc CFE_TBL_ERR_NO_ACCESS
-** \retval #CFE_TBL_ERR_UNREGISTERED        \copydoc CFE_TBL_ERR_UNREGISTERED
-**
-*/
-int32 CFE_TBL_GetAddressInternal(void **TblPtr, CFE_TBL_Handle_t TblHandle, CFE_ES_AppId_t ThisAppId);
-
-/*---------------------------------------------------------------------------------------*/
-/**
-** \brief Returns any pending non-error status code for the specified table.
-**
-** \par Description
-**        Returns any pending non-error status code for the specified table.
-**
-** \par Assumptions, External Events, and Notes:
-**        Note: This function assumes the TblHandle has been validated.
-**
-** \param[in]  TblHandle Handle of Table whose pending notifications are
-**                       to be returned.
-**
-** \retval #CFE_SUCCESS                     \copydoc CFE_SUCCESS
-** \retval #CFE_TBL_INFO_UPDATE_PENDING     \copydoc CFE_TBL_INFO_UPDATE_PENDING
-** \retval #CFE_TBL_INFO_UPDATED            \copydoc CFE_TBL_INFO_UPDATED
-**
-*/
-int32 CFE_TBL_GetNextNotification(CFE_TBL_Handle_t TblHandle);
-
-/*---------------------------------------------------------------------------------------*/
-/**
 ** \brief Returns the Registry Index for the specified Table Name
 **
 ** \par Description
@@ -208,34 +68,6 @@ int32 CFE_TBL_GetNextNotification(CFE_TBL_Handle_t TblHandle);
 **
 */
 int16 CFE_TBL_FindTableInRegistry(const char *TblName);
-
-/*---------------------------------------------------------------------------------------*/
-/**
-** \brief Locates a free slot in the Table Registry.
-**
-** \par Description
-**        Locates a free slot in the Table Registry.
-**
-** \par Assumptions, External Events, and Notes:
-**        Note: This function assumes the registry has been locked.
-**
-** \retval #CFE_TBL_NOT_FOUND or Index into Table Registry of unused entry
-*/
-int16 CFE_TBL_FindFreeRegistryEntry(void);
-
-/*---------------------------------------------------------------------------------------*/
-/**
-** \brief Locates a free Access Descriptor in the Table Handles Array.
-**
-** \par Description
-**        Locates a free Access Descriptor in the Table Handles Array.
-**
-** \par Assumptions, External Events, and Notes:
-**        Note: This function assumes the registry has been locked.
-**
-** \retval #CFE_TBL_END_OF_LIST or Table Handle of unused Access Descriptor
-*/
-CFE_TBL_Handle_t CFE_TBL_FindFreeHandle(void);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -625,30 +457,6 @@ CFE_Status_t CFE_TBL_ValidateTableOptions(const char *Name, uint16 TblOptionFlag
 
 /*---------------------------------------------------------------------------------------*/
 /**
-** \brief Checks if a table is already registered in the Table Registry
-**
-** \par Description
-**         This routine searches the Table Registry for a table with the specified name,
-**         owning app and size. If a match is found, the same handle is returned. If a
-**         match is not found, the function will locate a free slot in the table registry
-**         (unless it's already full).
-**
-** \par Assumptions, External Events, and Notes:
-**          None
-**
-** \retval #CFE_SUCCESS                     \copydoc CFE_SUCCESS
-** \retval #CFE_TBL_ERR_DUPLICATE_DIFF_SIZE \copydoc CFE_TBL_ERR_DUPLICATE_DIFF_SIZE
-** \retval #CFE_TBL_WARN_DUPLICATE          \copydoc CFE_TBL_WARN_DUPLICATE
-** \retval #CFE_TBL_ERR_DUPLICATE_NOT_OWNED \copydoc CFE_TBL_ERR_DUPLICATE_NOT_OWNED
-** \retval #CFE_TBL_ERR_REGISTRY_FULL       \copydoc CFE_TBL_ERR_REGISTRY_FULL
-**
-*/
-CFE_Status_t CFE_TBL_CheckForDuplicateRegistration(int16 *RegIndxPtr, const char *TblName,
-                                                   CFE_TBL_RegistryRec_t *RegRecPtr, CFE_ES_AppId_t ThisAppId,
-                                                   size_t Size, CFE_TBL_Handle_t *TblHandlePtr);
-
-/*---------------------------------------------------------------------------------------*/
-/**
 ** \brief Allocates memory for the table buffer
 **
 ** \par Description
@@ -694,20 +502,6 @@ CFE_Status_t CFE_TBL_AllocateSecondaryBuffer(CFE_TBL_RegistryRec_t *RegRecPtr, s
 void CFE_TBL_InitTableRegistryEntry(CFE_TBL_RegistryRec_t *RegRecPtr, size_t Size,
                                     CFE_TBL_CallbackFuncPtr_t TblValidationFuncPtr, const char *TblName,
                                     uint16 TblOptionFlags);
-
-/*---------------------------------------------------------------------------------------*/
-/**
-** \brief Initializes a Table Access Descriptor
-**
-** \par Description
-**         Initializes a Table Access Descriptor for a table that is being registered
-**
-** \par Assumptions, External Events, and Notes:
-**          None
-**
-*/
-void CFE_TBL_InitTableAccessDescriptor(CFE_TBL_Handle_t *TblHandlePtr, CFE_ES_AppId_t ThisAppId,
-                                       CFE_TBL_RegistryRec_t *RegRecPtr, int16 RegIndx);
 
 /*---------------------------------------------------------------------------------------*/
 /**
