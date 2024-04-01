@@ -306,11 +306,12 @@ CFE_Status_t CFE_TBL_Unregister(CFE_TBL_Handle_t TblHandle)
     /* Verify that this application has the right to perform operation */
     Status = CFE_TBL_TxnStartFromHandle(&Txn, TblHandle, CFE_TBL_TxnContext_ACCESSOR_APP);
 
+    ThisAppId = CFE_TBL_TxnAppId(&Txn);
+
     if (Status == CFE_SUCCESS)
     {
         /* Get a pointer to the relevant entry in the registry */
         RegRecPtr = CFE_TBL_TxnRegRec(&Txn);
-        ThisAppId = CFE_TBL_TxnAppId(&Txn);
 
         /* Verify that the application unregistering the table owns the table */
         if (CFE_RESOURCEID_TEST_EQUAL(RegRecPtr->OwnerAppId, ThisAppId))
@@ -388,6 +389,7 @@ CFE_Status_t CFE_TBL_Load(CFE_TBL_Handle_t TblHandle, CFE_TBL_SrcEnum_t SrcType,
 
     AccessDescPtr = CFE_TBL_TxnAccDesc(&Txn);
     RegRecPtr     = CFE_TBL_TxnRegRec(&Txn);
+    ThisAppId     = CFE_TBL_TxnAppId(&Txn);
 
     /*
      * This is not the end of the transaction - this is just put here for now
@@ -852,6 +854,8 @@ CFE_Status_t CFE_TBL_Validate(CFE_TBL_Handle_t TblHandle)
     /* Verify that this application has the right to perform operation */
     Status = CFE_TBL_TxnStartFromHandle(&Txn, TblHandle, CFE_TBL_TxnContext_OWNER_APP);
 
+    ThisAppId = CFE_TBL_TxnAppId(&Txn);
+
     if (Status == CFE_SUCCESS)
     {
         /* Get pointers to pertinent records in registry and handles */
@@ -1208,11 +1212,12 @@ CFE_Status_t CFE_TBL_Modified(CFE_TBL_Handle_t TblHandle)
     /* Verify that this application has the right to perform operation */
     Status = CFE_TBL_TxnStartFromHandle(&Txn, TblHandle, CFE_TBL_TxnContext_ACCESSOR_APP);
 
+    ThisAppId = CFE_TBL_TxnAppId(&Txn);
+
     if (Status == CFE_SUCCESS)
     {
         /* Get pointers to pertinent records in registry and handles */
         RegRecPtr = CFE_TBL_TxnRegRec(&Txn);
-        ThisAppId = CFE_TBL_TxnAppId(&Txn);
 
         CFE_TBL_TxnFinish(&Txn);
 
