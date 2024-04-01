@@ -1,5 +1,10 @@
 # Changelog
 
+## Development Build: equuleus-rc1+dev120
+- Switch pc rtems toolchains to use osal generic-rtems bsp
+- table transaction initial implementation
+- See <https://github.com/nasa/cFE/pull/2535> and <https://github.com/nasa/cFE/pull/2539>
+
 ## Development Build: equuleus-rc1+dev114
 - Split up and simplify control flow in CFE_TBL_Register()
 - naming convention for SendHkCmd

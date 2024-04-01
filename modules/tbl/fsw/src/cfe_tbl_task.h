@@ -141,6 +141,11 @@ typedef struct
     char   DataSource[OS_MAX_PATH_LEN]; /**< \brief Source of data put into buffer (filename or memory address) */
 } CFE_TBL_LoadBuff_t;
 
+/**
+ * Reference to an entry in the Registry table
+ */
+typedef int16 CFE_TBL_RegId_t;
+
 /*******************************************************************************/
 /**   \brief Application to Table Access Descriptor
 **
@@ -152,7 +157,7 @@ typedef struct
 typedef struct
 {
     CFE_ES_AppId_t   AppId;       /**< \brief Application ID to verify access */
-    int16            RegIndex;    /**< \brief Index into Table Registry (a.k.a. - Global Table #) */
+    CFE_TBL_RegId_t  RegIndex;    /**< \brief Index into Table Registry (a.k.a. - Global Table #) */
     CFE_TBL_Handle_t PrevLink;    /**< \brief Index of previous access descriptor in linked list */
     CFE_TBL_Handle_t NextLink;    /**< \brief Index of next access descriptor in linked list */
     bool             UsedFlag;    /**< \brief Indicates whether this descriptor is being used or not  */
@@ -328,10 +333,10 @@ typedef struct
     CFE_TBL_AccessDescriptor_t Handles[CFE_PLATFORM_TBL_MAX_NUM_HANDLES]; /**< \brief Array of Access Descriptors */
     CFE_TBL_RegistryRec_t      Registry[CFE_PLATFORM_TBL_MAX_NUM_TABLES]; /**< \brief Array of Table Registry Records */
     CFE_TBL_CritRegRec_t
-                        CritReg[CFE_PLATFORM_TBL_MAX_CRITICAL_TABLES]; /**< \brief Array of Critical Table Registry Records */
+        CritReg[CFE_PLATFORM_TBL_MAX_CRITICAL_TABLES]; /**< \brief Array of Critical Table Registry Records */
     CFE_TBL_BufParams_t Buf; /**< \brief Parameters associated with Table Task's Memory Pool */
     CFE_TBL_ValidationResult_t
-                          ValidationResults[CFE_PLATFORM_TBL_MAX_NUM_VALIDATIONS]; /**< \brief Array of Table Validation Requests */
+        ValidationResults[CFE_PLATFORM_TBL_MAX_NUM_VALIDATIONS]; /**< \brief Array of Table Validation Requests */
     CFE_TBL_DumpControl_t DumpControlBlocks[CFE_PLATFORM_TBL_MAX_SIMULTANEOUS_LOADS]; /**< \brief Array of Dump-Only
                                                                                          Dump Control Blocks */
 

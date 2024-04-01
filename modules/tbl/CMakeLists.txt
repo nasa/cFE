@@ -10,6 +10,8 @@ project(CFE_TBL C)
 set(tbl_SOURCES
     fsw/src/cfe_tbl_api.c
     fsw/src/cfe_tbl_internal.c
+    fsw/src/cfe_tbl_resource.c
+    fsw/src/cfe_tbl_transaction.c
     fsw/src/cfe_tbl_task.c
     fsw/src/cfe_tbl_task_cmds.c
     fsw/src/cfe_tbl_dispatch.c

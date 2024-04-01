@@ -3219,6 +3219,7 @@ void Test_CFE_TBL_TblMod(void)
 */
 void Test_CFE_TBL_Internal(void)
 {
+    CFE_TBL_TxnState_t          Txn;
     CFE_TBL_LoadBuff_t *        WorkingBufferPtr;
     CFE_TBL_RegistryRec_t *     RegRecPtr;
     CFE_TBL_AccessDescriptor_t *AccessDescPtr;
@@ -3488,12 +3489,15 @@ void Test_CFE_TBL_Internal(void)
     CFE_UtAssert_EVENTSENT(CFE_TBL_FILE_TBL_HDR_ERR_EID);
     CFE_UtAssert_EVENTCOUNT(1);
 
-    /* Test CFE_TBL_RemoveAccessLink response to a failure to put back the
+    /* Test CFE_TBL_TxnRemoveAccessLink response to a failure to put back the
      * memory buffer for a double buffered table
+     * Note: CFE_TBL_Unregister() does not propagate this error to the caller,
+     * as there is no recourse and the table is still unregistered.  However, it
+     * is invoked here for internal coverage paths.
      */
     UT_InitData();
     UT_SetDeferredRetcode(UT_KEY(CFE_ES_PutPoolBuf), 2, CFE_ES_ERR_RESOURCEID_NOT_VALID);
-    UtAssert_INT32_EQ(CFE_TBL_RemoveAccessLink(App1TblHandle2), CFE_ES_ERR_RESOURCEID_NOT_VALID);
+    UtAssert_INT32_EQ(CFE_TBL_Unregister(App1TblHandle2), CFE_SUCCESS);
     CFE_UtAssert_EVENTCOUNT(0);
 
     /* EarlyInit - Table Registry Mutex Create Failure */
@@ -3794,21 +3798,29 @@ void Test_CFE_TBL_Internal(void)
     CFE_UtAssert_SUCCESS(CFE_TBL_EarlyInit());
     CFE_UtAssert_EVENTCOUNT(0);
 
-    /* Test CFE_TBL_CheckAccessRights response when the application ID matches
-     * the table task application ID
-     */
+    /* Test starting a transaction where the handle is OK but the underlying registry record is invalid */
     UT_InitData();
-    CFE_TBL_Global.TableTaskAppId = UT_TBL_APPID_1;
-    CFE_UtAssert_SUCCESS(CFE_TBL_CheckAccessRights(App2TblHandle1, UT_TBL_APPID_1));
-    CFE_UtAssert_EVENTCOUNT(0);
+    memset(&Txn, 0, sizeof(Txn));
+    CFE_TBL_Global.Handles[2].UsedFlag = true;
+    CFE_TBL_Global.Handles[2].RegIndex = CFE_TBL_END_OF_LIST;
+    UtAssert_INT32_EQ(CFE_TBL_TxnStartFromHandle(&Txn, App2TblHandle1, 0), CFE_TBL_ERR_UNREGISTERED);
 
-    /* Test CFE_TBL_FindFreeRegistryEntry response when the registry entry is
+    UT_InitData();
+    memset(&Txn, 0, sizeof(Txn));
+    CFE_TBL_Global.Handles[2].UsedFlag = true;
+    CFE_TBL_Global.Handles[2].RegIndex = 1 + CFE_PLATFORM_TBL_MAX_NUM_TABLES;
+    UtAssert_INT32_EQ(CFE_TBL_TxnStartFromHandle(&Txn, App2TblHandle1, 0), CFE_TBL_ERR_UNREGISTERED);
+    CFE_TBL_Global.Handles[2].UsedFlag = false;
+
+    /* Test CFE_TBL_TxnAllocateRegistryEntry response when the registry entry is
      * not owned but is not at the end of the list
      */
     UT_InitData();
+    memset(&Txn, 0, sizeof(Txn));
     CFE_TBL_Global.Registry[0].OwnerAppId       = CFE_TBL_NOT_OWNED;
     CFE_TBL_Global.Registry[0].HeadOfAccessList = CFE_TBL_END_OF_LIST + 1;
-    UtAssert_INT32_EQ(CFE_TBL_FindFreeRegistryEntry(), 1);
+    CFE_UtAssert_SUCCESS(CFE_TBL_TxnAllocateRegistryEntry(&Txn));
+    UtAssert_INT32_EQ(CFE_TBL_TxnRegId(&Txn), 1);
     CFE_UtAssert_EVENTCOUNT(0);
 
     /* Test CFE_TBL_LockRegistry response when an error occurs taking the mutex
