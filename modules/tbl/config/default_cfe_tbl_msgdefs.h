@@ -251,9 +251,7 @@ typedef struct CFE_TBL_TblRegPacket_Payload
                                                         \brief Ptr to Owner App's function that validates tbl contents */
     CFE_TIME_SysTime_t TimeOfLastUpdate;           /**< \cfetlmmnemonic \TBL_TIMELASTUPD
                                                         \brief Time when Table was last updated */
-    uint32 FileCreateTimeSecs;                     /**< \cfetlmmnemonic \TBL_FILECSECONDS
-                                                        \brief File creation time from last file loaded into table */
-    uint32 FileCreateTimeSubSecs;                  /**< \cfetlmmnemonic \TBL_FILECSUBSECONDS
+    CFE_TIME_SysTime_t FileTime;                   /**< \cfetlmmnemonic \TBL_FILECTIME
                                                         \brief File creation time from last file loaded into table */
     bool TableLoadedOnce;                          /**< \cfetlmmnemonic \TBL_LOADEDONCE
                                                         \brief Flag indicating whether table has been loaded once or not */

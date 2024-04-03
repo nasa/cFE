@@ -96,8 +96,7 @@ int32 CFE_TBL_SendHkCmd(const CFE_TBL_SendHkCmd_t *data)
             /* is the time of the actual capturing of the data, NOT the time when it was written to the file */
             if (Status == CFE_TBL_INC_CMD_CTR)
             {
-                DumpTime.Seconds    = DumpCtrlPtr->DumpBufferPtr->FileCreateTimeSecs;
-                DumpTime.Subseconds = DumpCtrlPtr->DumpBufferPtr->FileCreateTimeSubSecs;
+                DumpTime = DumpCtrlPtr->DumpBufferPtr->FileTime;
 
                 OsStatus = OS_OpenCreate(&FileDescriptor, DumpCtrlPtr->DumpBufferPtr->DataSource, OS_FILE_FLAG_NONE,
                                          OS_READ_WRITE);
@@ -287,12 +286,9 @@ void CFE_TBL_GetTblRegData(void)
     CFE_TBL_Global.TblRegPacket.Payload.LoadPending       = RegRecPtr->LoadPending;
     CFE_TBL_Global.TblRegPacket.Payload.DumpOnly          = RegRecPtr->DumpOnly;
     CFE_TBL_Global.TblRegPacket.Payload.DoubleBuffered    = RegRecPtr->DoubleBuffered;
-    CFE_TBL_Global.TblRegPacket.Payload.FileCreateTimeSecs =
-        RegRecPtr->Buffers[RegRecPtr->ActiveBufferIndex].FileCreateTimeSecs;
-    CFE_TBL_Global.TblRegPacket.Payload.FileCreateTimeSubSecs =
-        RegRecPtr->Buffers[RegRecPtr->ActiveBufferIndex].FileCreateTimeSubSecs;
-    CFE_TBL_Global.TblRegPacket.Payload.Crc      = RegRecPtr->Buffers[RegRecPtr->ActiveBufferIndex].Crc;
-    CFE_TBL_Global.TblRegPacket.Payload.Critical = RegRecPtr->CriticalTable;
+    CFE_TBL_Global.TblRegPacket.Payload.FileTime          = RegRecPtr->Buffers[RegRecPtr->ActiveBufferIndex].FileTime;
+    CFE_TBL_Global.TblRegPacket.Payload.Crc               = RegRecPtr->Buffers[RegRecPtr->ActiveBufferIndex].Crc;
+    CFE_TBL_Global.TblRegPacket.Payload.Critical          = RegRecPtr->CriticalTable;
 
     CFE_SB_MessageStringSet(CFE_TBL_Global.TblRegPacket.Payload.Name, RegRecPtr->Name,
                             sizeof(CFE_TBL_Global.TblRegPacket.Payload.Name), sizeof(RegRecPtr->Name));
@@ -444,8 +440,8 @@ int32 CFE_TBL_LoadCmd(const CFE_TBL_LoadCmd_t *data)
                                     memcpy(WorkingBufferPtr->DataSource, LoadFilename, OS_MAX_PATH_LEN);
 
                                     /* Save file creation time for later storage into Registry */
-                                    WorkingBufferPtr->FileCreateTimeSecs    = StdFileHeader.TimeSeconds;
-                                    WorkingBufferPtr->FileCreateTimeSubSecs = StdFileHeader.TimeSubSeconds;
+                                    WorkingBufferPtr->FileTime.Seconds    = StdFileHeader.TimeSeconds;
+                                    WorkingBufferPtr->FileTime.Subseconds = StdFileHeader.TimeSubSeconds;
 
                                     /* Compute the CRC on the specified table buffer */
                                     WorkingBufferPtr->Crc = CFE_ES_CalculateCRC(
@@ -1053,12 +1049,9 @@ bool CFE_TBL_DumpRegistryGetter(void *Meta, uint32 RecordNum, void **Buffer, siz
             StatePtr->DumpRecord.LoadPending      = RegRecPtr->LoadPending;
             StatePtr->DumpRecord.DumpOnly         = RegRecPtr->DumpOnly;
             StatePtr->DumpRecord.DoubleBuffered   = RegRecPtr->DoubleBuffered;
-            StatePtr->DumpRecord.FileCreateTimeSecs =
-                RegRecPtr->Buffers[RegRecPtr->ActiveBufferIndex].FileCreateTimeSecs;
-            StatePtr->DumpRecord.FileCreateTimeSubSecs =
-                RegRecPtr->Buffers[RegRecPtr->ActiveBufferIndex].FileCreateTimeSubSecs;
-            StatePtr->DumpRecord.Crc           = RegRecPtr->Buffers[RegRecPtr->ActiveBufferIndex].Crc;
-            StatePtr->DumpRecord.CriticalTable = RegRecPtr->CriticalTable;
+            StatePtr->DumpRecord.FileTime         = RegRecPtr->Buffers[RegRecPtr->ActiveBufferIndex].FileTime;
+            StatePtr->DumpRecord.Crc              = RegRecPtr->Buffers[RegRecPtr->ActiveBufferIndex].Crc;
+            StatePtr->DumpRecord.CriticalTable    = RegRecPtr->CriticalTable;
 
             /* Convert LoadInProgress flag into more meaningful information */
             /* When a load is in progress, identify which buffer is being used as the inactive buffer */
