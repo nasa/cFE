@@ -225,9 +225,9 @@ CFE_Status_t CFE_FS_WriteHeader(osal_id_t FileDes, CFE_FS_Header_t *Hdr)
         /*
         ** Fill in the timestamp fields...
         */
-        Time                = CFE_TIME_GetTime();
-        Hdr->TimeSeconds    = Time.Seconds;
-        Hdr->TimeSubSeconds = Time.Subseconds;
+        Time                           = CFE_TIME_GetTime();
+        Hdr->FileCreateTime.Seconds    = Time.Seconds;
+        Hdr->FileCreateTime.Subseconds = Time.Subseconds;
 
         /*
         ** Determine if this is a little endian processor
@@ -285,7 +285,7 @@ CFE_Status_t CFE_FS_SetTimestamp(osal_id_t FileDes, CFE_TIME_SysTime_t NewTimest
     CFE_TIME_SysTime_t OutTimestamp = NewTimestamp;
     int32              FileOffset   = 0;
 
-    FileOffset = ((char *)&TempHdr.TimeSeconds - (char *)&TempHdr.ContentType);
+    FileOffset = ((char *)&TempHdr.FileCreateTime.Seconds - (char *)&TempHdr.ContentType);
     OsStatus   = OS_lseek(FileDes, FileOffset, OS_SEEK_SET);
 
     if (OsStatus == FileOffset)
@@ -338,8 +338,8 @@ void CFE_FS_ByteSwapCFEHeader(CFE_FS_Header_t *Hdr)
     CFE_FS_ByteSwapUint32(&Hdr->SpacecraftID);
     CFE_FS_ByteSwapUint32(&Hdr->ProcessorID);
     CFE_FS_ByteSwapUint32(&Hdr->ApplicationID);
-    CFE_FS_ByteSwapUint32(&Hdr->TimeSeconds);
-    CFE_FS_ByteSwapUint32(&Hdr->TimeSubSeconds);
+    CFE_FS_ByteSwapUint32(&Hdr->FileCreateTime.Seconds);
+    CFE_FS_ByteSwapUint32(&Hdr->FileCreateTime.Subseconds);
 }
 
 /*----------------------------------------------------------------

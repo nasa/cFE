@@ -562,8 +562,8 @@ int32 CFE_TBL_LoadFromFile(const char *AppName, CFE_TBL_LoadBuff_t *WorkingBuffe
     WorkingBufferPtr->DataSource[sizeof(WorkingBufferPtr->DataSource) - 1] = '\0';
 
     /* Save file creation time for later storage into Registry */
-    WorkingBufferPtr->FileCreateTimeSecs    = StdFileHeader.TimeSeconds;
-    WorkingBufferPtr->FileCreateTimeSubSecs = StdFileHeader.TimeSubSeconds;
+    WorkingBufferPtr->FileCreateTime.Seconds    = StdFileHeader.FileCreateTime.Seconds;
+    WorkingBufferPtr->FileCreateTime.Subseconds = StdFileHeader.FileCreateTime.Subseconds;
 
     /* Compute the CRC on the specified table buffer */
     WorkingBufferPtr->Crc =
@@ -651,10 +651,10 @@ int32 CFE_TBL_UpdateInternal(CFE_TBL_Handle_t TblHandle, CFE_TBL_RegistryRec_t *
                 RegRecPtr->LastFileLoaded[sizeof(RegRecPtr->LastFileLoaded) - 1] = 0;
 
                 /* Save the file creation time from the loaded file into the Table Registry */
-                RegRecPtr->Buffers[0].FileCreateTimeSecs =
-                    CFE_TBL_Global.LoadBuffs[RegRecPtr->LoadInProgress].FileCreateTimeSecs;
-                RegRecPtr->Buffers[0].FileCreateTimeSubSecs =
-                    CFE_TBL_Global.LoadBuffs[RegRecPtr->LoadInProgress].FileCreateTimeSubSecs;
+                RegRecPtr->Buffers[0].FileCreateTime.Seconds =
+                    CFE_TBL_Global.LoadBuffs[RegRecPtr->LoadInProgress].FileCreateTime.Seconds;
+                RegRecPtr->Buffers[0].FileCreateTime.Subseconds =
+                    CFE_TBL_Global.LoadBuffs[RegRecPtr->LoadInProgress].FileCreateTime.Subseconds;
 
                 /* Save the previously computed CRC into the new buffer */
                 RegRecPtr->Buffers[0].Crc = CFE_TBL_Global.LoadBuffs[RegRecPtr->LoadInProgress].Crc;
@@ -992,9 +992,10 @@ void CFE_TBL_UpdateCriticalTblCDS(CFE_TBL_RegistryRec_t *RegRecPtr)
         if (CritRegRecPtr != NULL)
         {
             /* Save information related to the source of the data stored in the table in Critical Table Registry */
-            CritRegRecPtr->FileCreateTimeSecs = RegRecPtr->Buffers[RegRecPtr->ActiveBufferIndex].FileCreateTimeSecs;
-            CritRegRecPtr->FileCreateTimeSubSecs =
-                RegRecPtr->Buffers[RegRecPtr->ActiveBufferIndex].FileCreateTimeSubSecs;
+            CritRegRecPtr->FileCreateTime.Seconds =
+                RegRecPtr->Buffers[RegRecPtr->ActiveBufferIndex].FileCreateTime.Seconds;
+            CritRegRecPtr->FileCreateTime.Subseconds =
+                RegRecPtr->Buffers[RegRecPtr->ActiveBufferIndex].FileCreateTime.Subseconds;
             strncpy(CritRegRecPtr->LastFileLoaded, RegRecPtr->LastFileLoaded,
                     sizeof(CritRegRecPtr->LastFileLoaded) - 1);
             CritRegRecPtr->LastFileLoaded[sizeof(CritRegRecPtr->LastFileLoaded) - 1] = '\0';
@@ -1290,8 +1291,8 @@ CFE_Status_t CFE_TBL_RestoreTableDataFromCDS(CFE_TBL_RegistryRec_t *RegRecPtr, c
                         sizeof(WorkingBufferPtr->DataSource) - 1);
                 WorkingBufferPtr->DataSource[sizeof(WorkingBufferPtr->DataSource) - 1] = '\0';
 
-                WorkingBufferPtr->FileCreateTimeSecs    = CritRegRecPtr->FileCreateTimeSecs;
-                WorkingBufferPtr->FileCreateTimeSubSecs = CritRegRecPtr->FileCreateTimeSubSecs;
+                WorkingBufferPtr->FileCreateTime.Seconds    = CritRegRecPtr->FileCreateTime.Seconds;
+                WorkingBufferPtr->FileCreateTime.Subseconds = CritRegRecPtr->FileCreateTime.Subseconds;
 
                 strncpy(RegRecPtr->LastFileLoaded, CritRegRecPtr->LastFileLoaded,
                         sizeof(RegRecPtr->LastFileLoaded) - 1);
@@ -1344,8 +1345,8 @@ void CFE_TBL_RegisterWithCriticalTableRegistry(CFE_TBL_CritRegRec_t *CritRegRecP
         CritRegRecPtr->CDSHandle = RegRecPtr->CDSHandle;
         strncpy(CritRegRecPtr->Name, TblName, sizeof(CritRegRecPtr->Name) - 1);
         CritRegRecPtr->Name[sizeof(CritRegRecPtr->Name) - 1] = '\0';
-        CritRegRecPtr->FileCreateTimeSecs                    = 0;
-        CritRegRecPtr->FileCreateTimeSubSecs                 = 0;
+        CritRegRecPtr->FileCreateTime.Seconds                = 0;
+        CritRegRecPtr->FileCreateTime.Subseconds             = 0;
         CritRegRecPtr->LastFileLoaded[0]                     = '\0';
         CritRegRecPtr->TimeOfLastUpdate.Seconds              = 0;
         CritRegRecPtr->TimeOfLastUpdate.Subseconds           = 0;

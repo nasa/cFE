@@ -143,8 +143,7 @@
           <FixedValueEntry name="SpacecraftID" type="BASE_TYPES/uint32" shortDescription="Spacecraft that generated the file" fixedValue="${CFE_MISSION/SPACECRAFT_ID}" />
           <Entry name="ProcessorID" type="BASE_TYPES/uint32" shortDescription="Processor that generated the file" />
           <Entry name="ApplicationID" type="BASE_TYPES/uint32" shortDescription="Application that generated the file" />
-          <Entry name="TimeSeconds" type="BASE_TYPES/uint32" shortDescription="File creation timestamp (seconds)" />
-          <Entry name="TimeSubSeconds" type="BASE_TYPES/uint32" shortDescription="File creation timestamp (sub-seconds)" />
+          <Entry name="FileCreateTime" type="CFE_TIME/SysTime" shortDescription="File creation timestamp" />
           <Entry name="Description" type="FileDescription" shortDescription="File description" />
         </EntryList>
       </ContainerDataType>
