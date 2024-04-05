@@ -186,54 +186,54 @@ Other documentation can be found in the associated repository's docs directory.
 
 ## 1.4 Acronyms
 
-  | **Acronym** | **Description**                                    |
-  |:------------|:---------------------------------------------------|
-  | AC          | Attitude Control                                   |
-  | ACE         | Attitude Control Electronics                       |
-  | ACS         | Attitude Control System                            |
-  | API         | Application Programming Interface                  |
-  | APID        | CCSDS Application ID                               |
-  | BSP         | Board Support Package                              |
-  | CCSDS       | Consultative Committee for Space Data Systems      |
-  | CDH, C&DH   | Command and Data Handling                          |
-  | CDS         | Critical Data Store                                |
-  | cFE         | Core Flight Executive                              |
-  | cFS         | Core Flight System                                 |
-  | CM          | Configuration Management                           |
-  | CMD         | Command                                            |
-  | CPU         | Central Processing Unit                            |
-  | CRC         | Cyclic Redundancy Check                            |
-  | EDAC        | Error Detection and Correction                     |
-  | EEPROM      | Electrically Erasable Programmable Read-Only Memory|
-  | ES          | Executive Service                                  |
-  | EVS         | Event Service                                      |
-  | FC          | Function Code                                      |
-  | FDC         | Failure Detection and Correction                   |
-  | FS          | File Service                                       |
-  | FSW         | Flight Software                                    |
-  | HW, H/W     | Hardware                                           |
-  | ICD         | Interface Control Document                         |
-  | I/O         | Input/Output                                       |
-  | MET         | Elapsed Time                                       |
-  | MMU         | Memory Management Unit                             |
-  | OS          | Operating System                                   |
-  | OSAL        | Operating System Abstraction Layer                 |
-  | PID         | Pipeline ID                                        |
-  | PKT         | Packet                                             |
-  | PSP         | Platform Support Package                           |
-  | QoS         | Quality of Service                                 |
-  | RAM         | Random-Access Memory                               |
-  | SB          | Software Bus                                       |
-  | SDO         | Solar Dynamics Observatory                         |
-  | ST5         | Space Technology Five                              |
-  | STCF        | Spacecraft Time Correlation Factor                 |
-  | SW, S/W     | Software                                           |
-  | TAI         | International Atomic Time                          |
-  | TBD         | To Be Determined                                   |
-  | TBL         | Table                                              |
-  | TID         | Application ID                                     |
-  | TLM         | Telemetry                                          |
-  | UTC         | Coordinated Universal Time                         |
+  | **Acronym** | **Description**                                     |
+  |:------------|:----------------------------------------------------|
+  | AC          | Attitude Control                                    |
+  | ACE         | Attitude Control Electronics                        |
+  | ACS         | Attitude Control System                             |
+  | API         | Application Programming Interface                   |
+  | APID        | CCSDS Application ID                                |
+  | BSP         | Board Support Package                               |
+  | CCSDS       | Consultative Committee for Space Data Systems       |
+  | CDH, C&DH   | Command and Data Handling                           |
+  | CDS         | Critical Data Store                                 |
+  | cFE         | Core Flight Executive                               |
+  | cFS         | Core Flight System                                  |
+  | CM          | Configuration Management                            |
+  | CMD         | Command                                             |
+  | CPU         | Central Processing Unit                             |
+  | CRC         | Cyclic Redundancy Check                             |
+  | EDAC        | Error Detection and Correction                      |
+  | EEPROM      | Electrically Erasable Programmable Read-Only Memory |
+  | ES          | Executive Service                                   |
+  | EVS         | Event Service                                       |
+  | FC          | Function Code                                       |
+  | FDC         | Failure Detection and Correction                    |
+  | FS          | File Service                                        |
+  | FSW         | Flight Software                                     |
+  | HW, H/W     | Hardware                                            |
+  | ICD         | Interface Control Document                          |
+  | I/O         | Input/Output                                        |
+  | MET         | Elapsed Time                                        |
+  | MMU         | Memory Management Unit                              |
+  | OS          | Operating System                                    |
+  | OSAL        | Operating System Abstraction Layer                  |
+  | PID         | Pipeline ID                                         |
+  | PKT         | Packet                                              |
+  | PSP         | Platform Support Package                            |
+  | QoS         | Quality of Service                                  |
+  | RAM         | Random-Access Memory                                |
+  | SB          | Software Bus                                        |
+  | SDO         | Solar Dynamics Observatory                          |
+  | ST5         | Space Technology Five                               |
+  | STCF        | Spacecraft Time Correlation Factor                  |
+  | SW, S/W     | Software                                            |
+  | TAI         | International Atomic Time                           |
+  | TBD         | To Be Determined                                    |
+  | TBL         | Table                                               |
+  | TID         | Application ID                                      |
+  | TLM         | Telemetry                                           |
+  | UTC         | Coordinated Universal Time                          |
 
 ## 1.5 Glossary of Terms
 
@@ -312,7 +312,7 @@ directory is described as a note under each folder.
     |-- osal
     |   |-- Contains a copy of the OSAL component
     |-- psp
-    |   |-- Contains the Platform Suport Package (PSP) library
+    |   |-- Contains the Platform Support Package (PSP) library
     |   |-- Can customize PSP implementation for each CPU and OS that the project needs
     |-- build
     |   |-- The flight software is all configured and built under this directory
@@ -421,21 +421,21 @@ Module descriptions are provided in the table below.
 Each cFE core component is itself a modular entity, all of which work together to form the
 complete cFE core executive.  These modules are all contained under the `modules` subdirectory:
 
-| **Directory**           | **Content**                                                                                                        |
-|:------------------------|:------------------------------------------------------------------------------------------------------------------ |
-| `modules/cfe_assert/`   | A CFE-compatible library wrapping the basic UT assert library. This is the same library that all other unit tests use, but configured to be dynamically loaded into the CFE environment, and using CFE syslog for its output. This must be the first library loaded for any functional test.     |
-| `modules/cfe_testcase/` | A CFE-compatible library implementing test cases for CFE core apps. This must be loaded after cfe_assert.     |
-| `modules/cfe_testrunner/` | A CFE application that actually executes the tests. This is a very simple app that waits for CFE startup to complete, then executes all registered test cases. It also must be loaded after cfe_assert.    |
-| `modules/core_api/`     | Contains the public interface definition of the complete CFE core - public API/headers only, no implementation     |
-| `modules/core_private/` | Contains the inter-module interface definition of the CFE core - internal API/headers only, no implementation      |
-| `modules/es/`           | Implementation of the Executive Services (ES) core module - provides app and task management                       |
-| `modules/evs/`          | Implementation of the Event Services (EVS) core module - manages sending of events on behalf of other apps         |
-| `modules/fs/`           | Implementation of the File Services (FS) core module - defines file-related functions                              |
-| `modules/msg/`          | Implementation of the Message (MSG) core module - defines message header manipulation/access routines              |
-| `modules/resourceid/`   | Implementation of the Resource ID core module - manipulation/access of system resource IDs (AppID, PipeID, etc.)   |
-| `modules/sb/`           | Implementation of the Software Bus (SB) core module - sends messages between applications                          |
-| `modules/tbl/`          | Implementation of the Table Services (TBL) core module - manages runtime tables                                    |
-| `modules/time/`         | Implementation of the Time Services (TIME) core module - manages timing and synchronization                        |
+| **Directory**             | **Content**                                                                                                                                                                                                                                                                                  |
+|:--------------------------|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `modules/cfe_assert/`     | A CFE-compatible library wrapping the basic UT assert library. This is the same library that all other unit tests use, but configured to be dynamically loaded into the CFE environment, and using CFE syslog for its output. This must be the first library loaded for any functional test. |
+| `modules/cfe_testcase/`   | A CFE-compatible library implementing test cases for CFE core apps. This must be loaded after cfe_assert.                                                                                                                                                                                    |
+| `modules/cfe_testrunner/` | A CFE application that actually executes the tests. This is a very simple app that waits for CFE startup to complete, then executes all registered test cases. It also must be loaded after cfe_assert.                                                                                      |
+| `modules/core_api/`       | Contains the public interface definition of the complete CFE core - public API/headers only, no implementation                                                                                                                                                                               |
+| `modules/core_private/`   | Contains the inter-module interface definition of the CFE core - internal API/headers only, no implementation                                                                                                                                                                                |
+| `modules/es/`             | Implementation of the Executive Services (ES) core module - provides app and task management                                                                                                                                                                                                 |
+| `modules/evs/`            | Implementation of the Event Services (EVS) core module - manages sending of events on behalf of other apps                                                                                                                                                                                   |
+| `modules/fs/`             | Implementation of the File Services (FS) core module - defines file-related functions                                                                                                                                                                                                        |
+| `modules/msg/`            | Implementation of the Message (MSG) core module - defines message header manipulation/access routines                                                                                                                                                                                        |
+| `modules/resourceid/`     | Implementation of the Resource ID core module - manipulation/access of system resource IDs (AppID, PipeID, etc.)                                                                                                                                                                             |
+| `modules/sb/`             | Implementation of the Software Bus (SB) core module - sends messages between applications                                                                                                                                                                                                    |
+| `modules/tbl/`            | Implementation of the Table Services (TBL) core module - manages runtime tables                                                                                                                                                                                                              |
+| `modules/time/`           | Implementation of the Time Services (TIME) core module - manages timing and synchronization                                                                                                                                                                                                  |
 
 **NOTE**: The modules contained here constitute the "reference" implementation of each module.  The CMake build system also permits advanced users
 with special use cases to add, remove, or override entire core modules as necessary to support their particular mission requirements.
@@ -548,7 +548,7 @@ characteristics.
 
 A "Software Only" application should never interface directly with any piece of
 hardware or the underlying operating system.  The Developer should ensure that
-all function calls to functions outside of the Application code are either to
+all function calls to functions outside the Application code are either to
 the cFE APIs or to the OS Abstraction Layer.
 
 ### 4.1.2 "Hardware Servicing" Application
@@ -623,7 +623,7 @@ of file names across all flight software packages once imported into a combined 
 files should also be overridable at the mission level; that is, a component only provides a default file (with a `default_` prefix,
 for distinction) that can be "cloned and owned" by placing a copy, without the `default_` prefix, into the `_defs` directory
 for the CFE/CFS mission build.  Any customized file(s) in the `_defs` directory will be seen by the CMake build system and used
-instead of the default version of the file that is provided from the orignal source tree.
+instead of the default version of the file that is provided from the original source tree.
 
 | **File Name Pattern**      | **Scope** | **Content**                                                                                         |
 |:---------------------------|:---------:|:----------------------------------------------------------------------------------------------------|
@@ -664,19 +664,19 @@ the content (payload) of those messages.  This supports cases where target syste
 and all messages and data files are desired to use those formats, as opposed to the normal/default CFE encapsulation formats.  In this case, it
 is important _not_ to change the payload formats, as this will make it more difficult to take a new application update in the future.
 
-**IMPORANT**: All of the header files above with "INTERFACE" scope control the table/message interface of the component.  Changing any of the
+**IMPORANT**: All the header files above with "INTERFACE" scope control the table/message interface of the component.  Changing any of the
 values or definitions in these files will affect the inter-processor communication - either table files, exported data products, commands, or
-telementry messages.  Due caution should be exercised when customizing any of these files, as any changes will need to be propagated to all
-other CFE instances, ground systems, test software or scripts, or any other tools that interact with the flight softare.
+telemetry messages.  Caution should be exercised when customizing any of these files, as any changes will need to be propagated to all
+other CFE instances, ground systems, test software or scripts, or any other tools that interact with the flight software.
 
-Also note that Electronic Data Sheets (EDS) definitions will supercede the "INTERFACE" header files listed above.  These headers are not
+Also note that Electronic Data Sheets (EDS) definitions will supersede the "INTERFACE" header files listed above.  These headers are not
 used by the software when building FSW based on EDS.  Instead, the EDS tool will generate these headers based on the content of the EDS file(s)
 and the software will be configured to use the generated headers during the build.
 
 __Combination Headers__
 
 The header files in this section combine two or more files from the above set for simplicity of usage in source code, as well as backward
-compatiblity with traditional file names from older versions of CFS apps.  Although these files may also be overridden directly, it is
+compatibility with traditional file names from older versions of CFS apps.  Although these files may also be overridden directly, it is
 recommended to only override/modify the more granular headers defined above.
 
 | **File Name Pattern**      | **Content**                                                                                |
@@ -776,12 +776,12 @@ standard RTOS, it stands between the OS API and the cFS Applications.
 However, since duplicating the OSAL API in the cFE would add an
 unnecessary level in many cases, the OS API is also visible to cFE
 Applications. Therefore, a developer needs to be cognizant that some of
-the API calls will either start with "CFE_ES_", because they are a
-member of the cFE Executive Services API, or they will start with "OS_"
+the API calls will either start with `CFE_ES_`, because they are a
+member of the cFE Executive Services API, or they will start with `OS_`
 because they are a part of the OS Abstraction Layer. If there are two
-functions that appear to behave similarly and one is an "OS_" function
-and the other is a "CFE_ES_" function, the Developer should use the
-"CFE_ES_" function. Additional information about the OS API can be
+functions that appear to behave similarly and one is an `OS_` function
+and the other is a `CFE_ES_` function, the Developer should use the
+`CFE_ES_` function. Additional information about the OS API can be
 found in the OSAL Library API documentation.
 
 ## 5.1 Application Registration
@@ -794,14 +794,14 @@ function to invoke as was necessary in older versions of cFE.
 
 The Executive Services maps Application names to numeric Application IDs.
 This simplifies the identification of Applications within the processor
-(by the numeric) but retains the human readable Application names for
+(by the numeric) but retains the human-readable Application names for
 situations when the information is to be presented to an operator.
 Translating one reference of an Application to the other is accomplished
-with one of the following functions: CFE_ES_GetAppIDByName and
-CFE_ES_GetAppName. The first will return the numeric Application ID when
+with one of the following functions: `CFE_ES_GetAppIDByName` and
+`CFE_ES_GetAppName`. The first will return the numeric Application ID when
 given an Application name and the latter will give the Application name
 when given the Application ID. If a Task needs to obtain its own Application
-ID if can call CFE_ES_GetAppID. For this function, it is important to remember
+ID if can call `CFE_ES_GetAppID`. For this function, it is important to remember
 that an Application's main task and all of its children tasks are considered
 to be the same Application. Therefore, no matter whether the call is made from
 the Main Task or one of the Child Tasks, the Application ID returned is
@@ -815,14 +815,14 @@ the Application is loaded and run is referred to as the Main Task. Any
 additional threads that are spawned by this thread are referred to as
 Child Tasks. There are a handful of functions provided by the Executive
 Services for controlling Child Tasks. The first is
-CFE_ES_CreateChildTask. This function spawns a Child Task that is
+`CFE_ES_CreateChildTask`. This function spawns a Child Task that is
 "owned" by the Main Task.  This child task is automatically registered
 with ES before invoking the entry point.
 
-The remaining functions, CFE_ES_DeleteChildTask, CFE_ES_SuspendChildTask
-and CFE_ES_ResumeChildTask can control the existence and execution of the
+The remaining functions, `CFE_ES_DeleteChildTask`, `CFE_ES_SuspendChildTask`
+and `CFE_ES_ResumeChildTask` can control the existence and execution of the
 Child Task. All of these functions require the task ID that is returned
-by the CFE_ES_CreateChildTask function in order to identify the Child
+by the `CFE_ES_CreateChildTask` function in order to identify the Child
 Task.  Note that Child Tasks can only be created from an Application's
 Main Task.
 
@@ -830,12 +830,12 @@ Main Task.
 
 Upon startup, an Application may need to know which type of restart it is
 undergoing.  As part of its initialization, an Application should call
-CFE_ES_GetResetType to determine the type of restart it is undergoing.  The
+`CFE_ES_GetResetType` to determine the type of restart it is undergoing.  The
 return value of this function can be one of the following values:
 
-1)	CFE_PSP_RST_TYPE_POWERON
+1)	`CFE_PSP_RST_TYPE_POWERON`
 
-2)	CFE_PSP_RST_TYPE_PROCESSOR
+2)	`CFE_PSP_RST_TYPE_PROCESSOR`
 
 Reference cFE API documentation for more detail on reset types.
 
@@ -844,7 +844,7 @@ Reference cFE API documentation for more detail on reset types.
 The cFE contains support for shared libraries. For the current version
 of the cFE, the shared libraries must be loaded on cFE startup.
 
-Reference sample_lib on Github for a “live” example.
+Reference sample_lib on GitHub for a “live” example.
 
 ## 5.6 Obtaining OS and Platform Information
 
@@ -853,11 +853,11 @@ information. A number of these functions are not necessary for the cFE
 Application Developer. The functions that are the most useful to the
 Application Developer are the following:
 
--  CFE_PSP_GetSpacecraftId returns an identifier associated with a specific
+-  `CFE_PSP_GetSpacecraftId` returns an identifier associated with a specific
    spacecraft.  This may be useful when the same software may be executing on
    multiple spacecraft as part of a multi-spacecraft mission.
 
--  CFE_PSP_GetProcessorId returns an identifier associated with a specific
+-  `CFE_PSP_GetProcessorId` returns an identifier associated with a specific
    processor.  This may be useful when the same software may be executing on
    multiple processors on the same spacecraft.
 
@@ -865,7 +865,7 @@ For understanding and compensating for the processor timer on a
 particular platform, the following function provides important
 information.
 
--  OS_InfoGetTicks returns the number of microseconds per operating system
+-  `OS_InfoGetTicks` returns the number of microseconds per operating system
 clock tick. This can also be used to calculate the appropriate number of
 system clock ticks for a specific delta time. An example can be seen
 below:
@@ -887,10 +887,10 @@ uint32 ConvertSecs2Ticks(uint32 Seconds)
 
 ### 5.7.1 Queues
 
-Developers are discouraged from using the OS_QueueCreate, OS_QueueGet,
-OS_QueuePut, and OS_QueueDelete functions. These functions are a lower level
+Developers are discouraged from using the `OS_QueueCreate`, `OS_QueueGet`,
+`OS_QueuePut`, and `OS_QueueDelete` functions. These functions are a lower level
 duplication of the Software Bus Services pipes. Their usage limits the
-visibility into data messages being passed between Applications and they
+visibility into data messages being passed between Applications, and they
 would also impose a requirement that two Applications must reside on the
 same processor. The only exception to this rule might be communication
 between a Main Task and its Child Task(s).
@@ -899,7 +899,7 @@ between a Main Task and its Child Task(s).
 
 Binary semaphores can be used for Application synchronization. A binary
 semaphore is essentially a flag that is available or unavailable. When
-an Application *takes* a binary semaphore, using the OS_BinSemTake
+an Application *takes* a binary semaphore, using the `OS_BinSemTake`
 function, the outcome depends on whether the semaphore is available or
 unavailable at the time of the call. If the semaphore is available, then
 the semaphore becomes unavailable and the Application continues
@@ -907,7 +907,7 @@ executing immediately. If the semaphore is unavailable, the Application
 is put on a queue of blocked Applications and enters a pending state
 waiting for the availability of the semaphore.
 
-When an Application *gives* a binary semaphore, using the OS_BinSemGive
+When an Application *gives* a binary semaphore, using the `OS_BinSemGive`
 function, the outcome depends on whether the semaphore is available or
 unavailable at the time of the call. If the semaphore is already
 available, giving the semaphore has no effect at all. If the semaphore
@@ -918,14 +918,14 @@ Application in the queue of pending Applications is unblocked, and the
 semaphore is left unavailable.
 
 Each semaphore is labeled by an integer ID, which is defined in the
-header file osids.h by a macro of the form xxx_SEM_ID. To add a new
+header file osids.h by a macro of the form `xxx_SEM_ID`. To add a new
 semaphore to a processor, one must modify the osids.h file and
 osobjtab.c file for the processor.
 
 ### 5.7.2.1 Binary Semaphore Functions
 
-A binary semaphore can be created using the OS_BinSemCreate function.  Upon
-success, the OS_BinSemCreate function sets the sem_id parameter to the ID of
+A binary semaphore can be created using the `OS_BinSemCreate` function.  Upon
+success, the `OS_BinSemCreate` function sets the sem_id parameter to the ID of
 the newly-created resource.  This ID is used in all other functions that use
 the binary semaphore.
 
@@ -971,8 +971,8 @@ implement a kind of handshake between its main task and its child task.
 
 ### 5.7.3.1 Counting Semaphore Functions
 
-A counting semaphore can be created using the OS_CountSemCreate function.
-Upon success, the OS_CountSemCreate function sets the sem_id parameter to the
+A counting semaphore can be created using the `OS_CountSemCreate` function.
+Upon success, the `OS_CountSemCreate` function sets the sem_id parameter to the
 ID of the newly-created resource. This ID is used in all other functions that
 use the binary semaphore.
 
@@ -1014,9 +1014,9 @@ A mutex semaphore is similar to a binary semaphore, but is used by
 Applications in a different way. When any Application needs to use a
 shared resource, it must follow a specific protocol:
 
-- Take the mutex, using OS_MutSemTake.
+- Take the mutex, using `OS_MutSemTake`.
 - Use the resource.
-- Release the mutex, using OS_MutSemGive.
+- Release the mutex, using `OS_MutSemGive`.
 
 The operating system allows only one Application to hold the mutex at
 one time. If an Application tries to take a mutex that is not in use,
@@ -1151,7 +1151,7 @@ OS_FPUExcDisable( uint32 ExceptionNumber );
 ### 5.10.1 Memory Pool
 
 The Executive Services mempool library provides simple block memory
-management API's and functions for pseudo dynamic memory allocations
+management APIs and functions for pseudo dynamic memory allocations
 similar to malloc and dealloc. These functions allow applications to
 allocate memory blocks of variable size and return them to a memory pool
 for use by other application functions without the drawback of memory
@@ -1199,7 +1199,7 @@ can only be used again for application requests of 64 bytes or less. It
 cannot be combined with other blocks to create larger memory
 allocations.
 
-With the call to CFE_ES_PoolCreate, mempool takes the memory block
+With the call to `CFE_ES_PoolCreate`, mempool takes the memory block
 allocated by the application and creates one 168 byte management data
 structure as shown in Figure 5.2 starting at the address of the provided
 block. This memory is not available to user applications. As an
@@ -1210,7 +1210,7 @@ This constraint allows mempool to create at least one user application
 block.
 
 Once this structure is created the application can use the
-CFE_ES_GetPoolBuf and CFE_ES_PutPoolBuf calls to allocate and
+`CFE_ES_GetPoolBuf` and `CFE_ES_PutPoolBuf` calls to allocate and
 de-allocate the memory blocks.
 
 For additional design and user information related to the memory pool,
@@ -1243,14 +1243,14 @@ during a reset. It could be memory located off-board, for example in the
 bulk memory device, or it may just be an area of memory that is left
 untouched by the cFE. In order to use the CDS, the Application must
 request a block of memory large enough to hold the parameters in
-question. This is accomplished by calling the CFE_ES_RegisterCDS. If
+question. This is accomplished by calling the `CFE_ES_RegisterCDS`. If
 sufficient memory is present, then the cFE will allocate the block to
 the calling Application and provide a pointer to the handle associated
 with the allocated memory.
 
 The intention is for an Application to use a working copy of the CDS
 data during Application execution. Periodically, the Application is then
-responsible for calling CFE_ES_CopyToCDS API to copy the working image
+responsible for calling `CFE_ES_CopyToCDS` API to copy the working image
 back into the CDS The cFE then computes a data integrity value for the
 block of data and stores it in the allocated CDS block. It should be
 noted that although the cFE will validate the integrity of the contents
@@ -1259,7 +1259,7 @@ whether the contents of a CDS Block are still logically valid.
 
 If the Application is recovering from a re-start and has discovered its
 CDS is still present, it can call an API to copy the contents of the CDS
-into a working image in the Application. 
+into a working image in the Application.
 
 An example of how to use the CDS is shown below:
 
@@ -1387,20 +1387,20 @@ This function looks like the following:
 uint32 CFE_ES_CalculateCRC(const void *DataPtr, size_t DataLength, uint32 InputCRC, CFE_ES_CrcType_Enum_t TypeCRC);
 ```
 
-where DataPtr points to the first byte of an array of bytes that are to have
-the CRC calculated on, DataLength specifies the number of sequential bytes to
-include in the calculation, InputCRC is the initial value of the CRC and
-TypeCRC identifies which of the standard CRC polynomials to be used.
+where `DataPtr` points to the first byte of an array of bytes that are to have
+the CRC calculated on, `DataLength` specifies the number of sequential bytes to
+include in the calculation, `InputCRC` is the initial value of the CRC and
+`TypeCRC` identifies which of the standard CRC polynomials to be used.
 
 The set of available CRC algorithms for the TypeCRC parameter depends on the version
 of CFE and compile-time options selected.  Historically, CFE only has
 implemented a single algorithm which is CRC-16/ARC:
 
- - Polynomial: 0x8005
- - Initial Value: 0x0000
- - Reflect In/Out: true
- - Final XOR: 0x0000
- - Check Value: 0xbb3d
+ - Polynomial: `0x8005`
+ - Initial Value: `0x0000`
+ - Reflect In/Out: `true`
+ - Final XOR: `0x0000`
+ - Check Value: `0xbb3d`
 
 See the definition of the `CFE_ES_CrcType_Enum_t` type for complete documentation of all
 available values for this paramater and details of the algorithm used for each.  Note that
@@ -1425,7 +1425,7 @@ details.
 
 ### 5.11.1 Device Functions
 
-  | **OS API File System Function** |  **Brief Description**                         |
+  | **OS API File System Function** | **Brief Description**                          |
   |:--------------------------------|:-----------------------------------------------|
   | OS_mkfs                         | Makes a file system on a specified device      |
   | OS_mount                        | Mounts a file system to make it accessible     |
@@ -1465,9 +1465,9 @@ mechanism of recording Events that cannot be issued as Event Messages
 because the Event Service is either not running or is untrustworthy. An
 example of items that fall into this category are Events related to the
 boot process. Developers should make use of the Event Services
-CFE_EVS_SendEvent whenever possible. If, however, there is a
-significant Event that cannot be recorded using the CFE_EVS_SendEvent
-function, then the Developer can use the CFE_ES_WriteToSysLog
+`CFE_EVS_SendEvent` whenever possible. If, however, there is a
+significant Event that cannot be recorded using the `CFE_EVS_SendEvent`
+function, then the Developer can use the `CFE_ES_WriteToSysLog`
 function. This function has the following prototype:
 
 ```c
@@ -1477,16 +1477,16 @@ int32 CFE_ES_WriteToSysLog(const char *pSpecString, ...);
 The function acts just like a standard 'C' printf function and records
 the ASCII string to a buffer that is preserved during resets.
 
-At minimum, the CFE_ES_WriteToSysLog function is generally used if the call
-to CFE_EVS_Register fails or if the Application is about to exit.
+At minimum, the `CFE_ES_WriteToSysLog` function is generally used if the call
+to `CFE_EVS_Register` fails or if the Application is about to exit.
 
 ## 5.13 Software Performance Analysis
 
 cFE provides utilities to track the performance of an application.  Two
 functions are provided to configure regions for performance tracking:
 
--  CFE_ES_PerfLogEntry
--  CFE_ES_PerfLogExit
+-  `CFE_ES_PerfLogEntry`
+-  `CFE_ES_PerfLogExit`
 
 These functions are typically used to track the performance of an application's
 main execution loop.  Applications can track performance of multiple sections
@@ -1550,7 +1550,7 @@ void XX_AppMain(void)
 }
 ```
 
-While outside the scope of this documentation, an external post processing tool
+While outside the scope of this documentation, an external post-processing tool
 has been developed to calculate CPU utilization, trace interrupts, track task
 CPU usage. In addition, other external tools can ingest data and provides a
 graphical display of the software timing based on the markers.
@@ -1572,7 +1572,7 @@ on which to receive SB Messages.
 
 The SB's message-based subscription supports one-to-one, one-to-many, and
 many-to-one routing configurations. The upper limit of "many-to-one" and
-"one-to-many" configurations is dictated by the CFE_PLATFORM_SB_MAX_DEST_PER_PKT
+"one-to-many" configurations is dictated by the `CFE_PLATFORM_SB_MAX_DEST_PER_PKT`
 configuration parameter. Multiple SB Message types can be routed to a single
 pipe. This is commonly done for applications that need to process ground
 commands.
@@ -1585,7 +1585,7 @@ needed to fit the mission.
 
 The SB provides different options for an application to check a pipe.
 Applications may Poll (non-blocking) a pipe to check if a SB Message is
-present or it may Pend (blocking) on a pipe and have its execution
+present, or it may Pend (blocking) on a pipe and have its execution
 suspended until an SB Message arrives. An application may specify a Pend
 with timeout as well.
 
@@ -1632,7 +1632,7 @@ application, but an application may read more than one pipe.
 Applications can wait (either indefinitely or with a timeout), or
 perform a simple check on their pipes to determine if an SB Message has
 arrived. Applications call the SB API to create their pipes and to
-access the data arriving on those pipes.
+access the data arriving at those pipes.
 
 #### 6.1.2.1 Software Bus Message Limits and Overflows
 
@@ -1669,14 +1669,14 @@ target pipe(s). Applications call the SB API to request specified SB
 Message IDs to be routed to their previously created pipes.
 
 Note there are two routing implementations provide by the
-Software Bus Routing (SBR) module.  If the MISSION_MSGMAP_IMPLEMENTATION
+Software Bus Routing (SBR) module.  If the `MISSION_MSGMAP_IMPLEMENTATION`
 is unset (the default) or set to DIRECT, a message map of size
-CFE_PLATFORM_SB_HIGHEST_VALID_MSGID is used to relate Message ID to routes.
-If set to HASH, a message map of size (4 * CFE_PLATFORM_SB_MAX_MSG_IDS)
+`CFE_PLATFORM_SB_HIGHEST_VALID_MSGID` is used to relate Message ID to routes.
+If set to HASH, a message map of size (4 * `CFE_PLATFORM_SB_MAX_MSG_IDS`)
 is used and a hash is performed on Message IDs to relate to routes.  Note
 the impact on memory footprint can be significant, since
-CFE_PLATFORM_SB_HIGHEST_VALID_MSGID is the maximum number of possible
-Message IDs, whereas CFE_PLATFORM_SB_MAX_MSG_IDS is the maximum number of
+`CFE_PLATFORM_SB_HIGHEST_VALID_MSGID` is the maximum number of possible
+Message IDs, whereas `CFE_PLATFORM_SB_MAX_MSG_IDS` is the maximum number of
 routes supported (**used** Message IDs).  Hash collisions are reported
 during subscription and can be avoided by predetermining Message
 IDs that won't collide.  Note advanced users can replace SBR with a custom
@@ -1708,7 +1708,7 @@ from the pipe, at which point the old SB Message is discarded.
 
 During the initialization of an Application, the Application must notify
 the cFE of pipes that it requires to receive data. The Application
-performs this request by calling the CFE_SB_CreatePipe API. The
+performs this request by calling the `CFE_SB_CreatePipe` API. The
 following is a brief example of how this is accomplished:
 
 ```c
@@ -1747,9 +1747,9 @@ SAMPLE_AppData_t;  SAMPLE_AppData;
 
 In this example, the Developer has created a Pipe, called `SAMPLE_PIPE_1`
 with a depth of 10. The Pipe name shall be at least one character and no
-more than OS_MAX_API_NAME characters long. Developers should prefix their Pipe
+more than `OS_MAX_API_NAME` characters long. Developers should prefix their Pipe
 names with the Application's abbreviated name, because Pipe names will
-collide with other Application Pipe names in the cFE. Also the
+collide with other Application Pipe names in the cFE. Also, the
 Developer/Operator could become confused if every Application named
 their Pipe(s) "MY_PIPE". It should be noted, however, that all Pipes
 for a single Application must have unique names.
@@ -1768,7 +1768,7 @@ to messages, each thread needs to create their own pipe and make their own messa
 ## 6.2.1 Deleting Software Bus Pipes
 
 If an Application no longer requires a Pipe, it can delete the Pipe by
-calling the CFE_SB_DeletePipe API. This API is demonstrated as
+calling the `CFE_SB_DeletePipe` API. This API is demonstrated as
 follows:
 
 ```c
@@ -1850,7 +1850,7 @@ The third parameter specifies the desired Quality of Service (QoS). The
 Quality of Service determines the priority and the reliability of the
 specified SB Message that this particular Application requires. Most
 Applications will be satisfied with the default QoS, as defined with the
-CFE_SB_DEFAULT_QOS macro. Some Applications, such as an attitude
+`CFE_SB_DEFAULT_QOS` macro. Some Applications, such as an attitude
 control Application, may require a higher QoS to ensure receipt of
 critical sensor data. **The current version of the cFE does NOT
 implement the QoS feature.**
@@ -1865,10 +1865,10 @@ Application to another mission where SB Message IDs may need to be
 renumbered.
 
 Most Applications do not care about QoS nor the Message Limit hence
-those Applications can use the CFE_SB_Subscribe function. For those
+those Applications can use the `CFE_SB_Subscribe` function. For those
 Applications that need to specify something other than the default QoS
 or Messages Limit, the SB API provides an additional function,
-CFE_SB_SubscribeEx that allows those parameters to be specified.
+`CFE_SB_SubscribeEx` that allows those parameters to be specified.
 
 ## 6.4 Unsubscribing from Receiving Software Bus Messages
 
@@ -1957,12 +1957,12 @@ SAMPLE_AppData_t  SAMPLE_AppData;  /* Instantiate Task Data */
 ```
 
 In this example, the Developer has allocated space for the SB Message
-header in their structure using the CFE_MSG_TelemetryHeader_t type. If
+header in their structure using the `CFE_MSG_TelemetryHeader_t` type. If
 the SB Message was to be a command message, it would have been important
-for the Developer to have used the CFE_MSG_CommandHeader_t macro
+for the Developer to have used the `CFE_MSG_CommandHeader_t` macro
 instead.
 
-The CFE_MSG_Init API call formats the Message Header
+The `CFE_MSG_Init` API call formats the Message Header
 appropriately with the given Message ID, size and clears the rest
 of the message.  Note this call is implementation dependent, in that
 bits in the Message ID may have additional meaning and may impact
@@ -1980,7 +1980,7 @@ headers.  In the CCSDS implementation, the command and telemetry
 headers share the same CCSDS primary header structure but have different
 secondary header structures. The secondary header structures are
 shown below.  Note that all messages must have a secondary header, a message
-containing just a CFE_MSG_Message_t is invalid per the CCSDS standard.
+containing just a `CFE_MSG_Message_t` is invalid per the CCSDS standard.
 
 ```c
 typedef struct
@@ -2003,7 +2003,7 @@ typedef struct
 ```
 
 The sizes of command and telemetry message headers can be calculated using
-sizeof(CFE_MSG_CommandHeader_t) and sizeof(CFE_MSG_TelemetryHeader_t) respectively.
+`sizeof(CFE_MSG_CommandHeader_t)` and `sizeof(CFE_MSG_TelemetryHeader_t)` respectively.
 
 It is important to note that some API calls require the presence of a
 particular header type and will return an error if the other header type
@@ -2019,28 +2019,28 @@ information on modifying specific header types is provided in the following
 subsections.
 
 | **Message Header Field** | **API for Modifying the Header Field** |
-| ---------------------------:| --------------------------------------:|
-| Message ID                  | CFE_MSG_SetMsgId                       |
-| Total Message Length        | CFE_MSG_SetSize                        |
-| Command Code                | CFE_MSG_SetFcnCode                     |
-| Checksum                    | CFE_MSG_GenerateChecksum               |
-| Time                        | CFE_SB_TimeStampMsg                    |
-| Time                        | CFE_MSG_SetMsgTime                     |
+|-------------------------:|---------------------------------------:|
+|               Message ID |                       CFE_MSG_SetMsgId |
+|     Total Message Length |                        CFE_MSG_SetSize |
+|             Command Code |                     CFE_MSG_SetFcnCode |
+|                 Checksum |               CFE_MSG_GenerateChecksum |
+|                     Time |                    CFE_SB_TimeStampMsg |
+|                     Time |                     CFE_MSG_SetMsgTime |
 
 Applications shall always use these functions to manipulate the
 Message Header. The structure of the Message Header may change from
 one deployment to the next. By using these functions, Applications are
 guaranteed to work regardless of the structure of the Message Header.
 
-Although CFE_SB_SetUserDataLength APIs is available,
+Although `CFE_SB_SetUserDataLength` API is available,
 it is based on assumptions about the definition of "User Data" and is
 really just a best guess since the packet structure is dependent on implementation.
-The preference is to use CFE_MSG_SetSize and actual packet structure
+The preference is to use `CFE_MSG_SetSize` and actual packet structure
 information when available.
 
 ### 6.5.2.1 Modifying Command Message Header Information
 The most common update for command messages is to set the command code.
-This is done through the CFE_MSG_SetFcnCode() API call.  This code is used
+This is done through the `CFE_MSG_SetFcnCode()` API call.  This code is used
 to distinguish between multiple commands that share a Message ID.  It is
 common practice for an application to have a single "CMD_MID" to capture
 all commands and then to differentiate those commands using a command code.
@@ -2048,10 +2048,10 @@ all commands and then to differentiate those commands using a command code.
 ### 6.5.2.2 Modifying Telemetry Message Header Information
 The most common update for telemetry messages is to put the current time in
 the Message. This is accomplished with one of two API functions. The
-most commonly used function would be CFE_SB_TimeStampMsg(). This API would
+most commonly used function would be `CFE_SB_TimeStampMsg()`. This API would
 insert the current time, in the mission defined format with the mission
 defined epoch, into the Message Header. The other API that can modify
-the Message Header time is CFE_MSG_SetMsgTime().  This API call sets the
+the Message Header time is `CFE_MSG_SetMsgTime()`.  This API call sets the
 time in the Message Header to the time specified during the call. This is
 useful when the Application wishes to time tag a series of Messages with
 the same time.
@@ -2065,21 +2065,21 @@ identifies the fields of the Message Header and the appropriate API
 for extracting that field from the header:
 
 | **Message Header Field** | **API for Reading the Header Field** |
-|:----------------------------|:-------------------------------------|
-| Message ID                  | CFE_MSG_GetMsgId                     |
-| Message Time                | CFE_MSG_GetTime                      |
-| Total Message Length        | CFE_MSG_GetSize                      |
-| Command Code                | CFE_MSG_GetFcnCode                   |
+|:-------------------------|:-------------------------------------|
+| Message ID               | CFE_MSG_GetMsgId                     |
+| Message Time             | CFE_MSG_GetTime                      |
+| Total Message Length     | CFE_MSG_GetSize                      |
+| Command Code             | CFE_MSG_GetFcnCode                   |
 
 There are other APIs based on selected implementation. The full list is
 available in the user's guide.
 
 There is another API that automatically calculates the checksum for the packet
 and compares it to the checksum in the header. The API is called
-CFE_MSG_ValidateChecksum() and it simply returns a success or failure
+`CFE_MSG_ValidateChecksum()` and it simply returns a success or failure
 indication.
 
-Although CFE_SB_GetUserDataLength and CFE_SB_GetUserData APIs are available,
+Although `CFE_SB_GetUserDataLength` and `CFE_SB_GetUserData` APIs are available,
 they are based on assumptions about the definition of "User Data" and are
 really just a best guess since the packet structure is dependent on implementation.
 The preference is to use the actual packet structure when available.
@@ -2115,7 +2115,7 @@ SAMPLE_AppData_t  SAMPLE_AppData;  /* Instantiate Task Data */
 
 ## 6.7 Receiving Software Bus Messages
 
-To receive a Message, an application calls CFE_SB_ReceiveBuffer.  Since most
+To receive a Message, an application calls `CFE_SB_ReceiveBuffer`.  Since most
 applications are message-driven, this typically occurs in an application's
 main execution loop.  An example of this is shown below.
 
@@ -2157,18 +2157,18 @@ FILE: sample_app.c
 ```
 
 In the above example, the Application will pend on the
-SAMPLE_AppData.CmdPipe until a Message arrives. A pointer to the next SB
-message in the Pipe will be returned in SBBufPtr.
+`SAMPLE_AppData.CmdPipe` until a Message arrives. A pointer to the next SB
+message in the Pipe will be returned in `SBBufPtr`.
 
 Alternatively, the Application could have chosen to pend with a timeout (by
-providing a numerical argument in place of CFE_SB_PEND_FOREVER) or to quickly
-poll the pipe to check for a message (by using CFE_SB_POLL in place of
-CFE_SB_PEND_FOREVER).
+providing a numerical argument in place of `CFE_SB_PEND_FOREVER`) or to quickly
+poll the pipe to check for a message (by using `CFE_SB_POLL` in place of
+`CFE_SB_PEND_FOREVER`).
 
 If a Message fails to arrive within the specified timeout period, the
-cFE will return the CFE_SB_TIME_OUT status code. If the Pipe does not have
+cFE will return the `CFE_SB_TIME_OUT` status code. If the Pipe does not have
 any data present when the CFE_SB_ReceiveBuffer API is called, the cFE will return
-a CFE_SB_NO_MESSAGE status code.
+a `CFE_SB_NO_MESSAGE` status code.
 
 After a message is received, the Message Header accessor functions (as
 described in Section 6.5.3) should be used to identify the message so that
@@ -2182,7 +2182,7 @@ between Applications that are on the same processor (e.g.- Science data
 analysis and/or compression algorithms along with the science data
 acquisition Application). The drawback to using CFE_SB_TransmitMsg
 is that the message is copied into a SB Buffer.  If the
-copy is too time consuming, the Developer can choose to utilize the
+copy is too time-consuming, the Developer can choose to utilize the
 "Zero Copy" protocol.
 
 The application can request a buffer from SB utilizing
@@ -2190,11 +2190,11 @@ The application can request a buffer from SB utilizing
 buffer that can be sent directly (without a copy) by SB.
 
 Once an Application has formatted and filled the SB buffer with the
-appropriate data, transmit the buffer using CFE_SB_TransmitBuffer.
+appropriate data, transmit the buffer using `CFE_SB_TransmitBuffer`.
 The SB then identifies the Application(s) that have subscribed to this
 data and places a pointer to the SB Buffer in their Pipe(s).
 **The pointer to the SB Buffer is no longer valid once the Application
-calls the CFE_SB_TransmitBuffer API.** Applications should not
+calls the `CFE_SB_TransmitBuffer` API.** Applications should not
 assume the SB Buffer pointer is accessible once the buffer
 has been sent.
 
@@ -2313,28 +2313,28 @@ configured to downlink event messages if they need to be sent as telemetry.
 Event Messages are classified within the cFE and on the ground by an
 Event Type. Event Types defined within the cFE are:
 
-- CFE_EVS_DEBUG -- Events of this type are primarily for the
+- `CFE_EVS_DEBUG`: Events of this type are primarily for the
   Developer. The messages contain specific references to code and are of
   limited use to spacecraft operations personnel. By default, these
   types of event messages are disabled.
 
-- CFE_EVS_INFORMATION -- Events of this type are normal events that
+- `CFE_EVS_INFORMATION`: Events of this type are normal events that
   confirm expected behavior of the flight software. Examples would be
   notification of the processing of a received command, nominal mode
   changes, entering/exiting orbit day/night, etc.
 
-- CFE_EVS_ERROR -- Events of this type are notifications of abnormal
+- `CFE_EVS_ERROR`: Events of this type are notifications of abnormal
   behavior. However, they represent error conditions that have been
   identified and corrected for by the flight software. These typically
   represent things like erroneous commands, illegal mode change
   attempts, switching to redundant hardware, etc.
 
-- CFE_EVS_CRITICAL -- Events of this type are notifications of error
+- `CFE_EVS_CRITICAL`: Events of this type are notifications of error
   conditions that the flight software is unable to correct or compensate
   for. These might be uncorrectable memory errors, hardware failures etc.
 
 The cFE API supplies services for sending event messages on the software
-bus and filtering event messages on a per message basis. These
+bus and filtering event messages on a per-message basis. These
 services make up the cFE Event Service (EVS). In order for applications
 to use cFE event services they must register with the EVS. See section
 7.4 on EVS registration. Upon registration the application generating
@@ -2350,14 +2350,14 @@ It is important for the Developer to realize the filtering options
 provided to Operations personnel. The Application specifies a filter
 based upon the number of the specific event occurrences. The Operations
 personnel can also filter all events of a particular Event Type or all
-events from a particular Application or even all of the events of a
+events from a particular Application or even all the events of a
 particular Event Type from one specific Application. The Developer
 should consider these filter options when categorizing their events.
 
 ## 7.3 Event Format
 
 Event services provides two formats for event messages: long and short. The
-format is selected with the CFE_PLATFORM_EVS_DEFAULT_MSG_FORMAT_MODE
+format is selected with the `CFE_PLATFORM_EVS_DEFAULT_MSG_FORMAT_MODE`
 configuration parameter.  The only difference between the formats is that
 the short format does not include the text string portion of the message.
 Because of this, it is very important that Event Messages IDs be unique
@@ -2374,15 +2374,15 @@ libraries however are not able to register for EVS or send Event
 Messages.
 
 Event services include the sending and filtering of event
-messages. EVS registration is performed using the CFE_EVS_Register
+messages. EVS registration is performed using the `CFE_EVS_Register`
 function. This function takes as its input parameters a pointer to an
 array of event message filters, or NULL if no filtering is desired, the
 number of filters in the input array, and the event filtering scheme the
 application desires to use. The array structure containing the event
 message filters depends on the filtering scheme selected. If the
-CFE_EVS_Register function is called more than once by the same
+`CFE_EVS_Register` function is called more than once by the same
 application, the application will first be unregistered from the EVS and
-then reregistered with the EVS. This implies that all current filtering
+then re-registered with the EVS. This implies that all current filtering
 and the filter states will be lost. After an application has registered
 with the EVS, the EVS creates a counter for that application that keeps
 a count of how many times the application has sent an event. This
@@ -2396,13 +2396,13 @@ Application with the Event Services, see section 7.4.1 below.
 
 ### 7.4.1 Binary Filtering Scheme
 
-Currently there exists only one supported filtering scheme within the
+Currently, there exists only one supported filtering scheme within the
 EVS. The filtering scheme is based upon a binary filtering algorithm
 where a filter mask is logically "anded" with a counter value in order
 to generate a filter value. When the filter value is greater than zero
 the message is filtered. When the filter value is equal to zero the
 message is sent. This filtering scheme is specified during Application
-registration with the CFE_EVS_BINARY_FILTER parameter.
+registration with the `CFE_EVS_BINARY_FILTER` parameter.
 
 The EVS binary filter structure type, shown below, contains an Event ID
 along with a hexadecimal bit mask. The Event ID is a numeric literal
@@ -2420,20 +2420,20 @@ typedef struct
 
 Several common bit masks are defined within the EVS. These include:
 
--   CFE_EVS_NO_FILTER
--   CFE_EVS_FIRST_ONE_STOP
--   CFE_EVS_FIRST_TWO_STOP
--   CFE_EVS_EVERY_OTHER_ONE
--   CFE_EVS_EVERY_OTHER_TWO
+-   `CFE_EVS_NO_FILTER`
+-   `CFE_EVS_FIRST_ONE_STOP`
+-   `CFE_EVS_FIRST_TWO_STOP`
+-   `CFE_EVS_EVERY_OTHER_ONE`
+-   `CFE_EVS_EVERY_OTHER_TWO`
 
 Applications may also create and use their own hexadecimal bit masks.
 When applications register event filters with the
-CFE_EVS_BINARY_FILTER scheme a filter counter is created for each
+`CFE_EVS_BINARY_FILTER` scheme a filter counter is created for each
 Event ID contained in the binary filter structure. The binary event
 filtering is accomplished by "anding" the hexadecimal bit mask with the
 current value of the event filter counter. When the result is zero the
-message is sent. Otherwise it is discarded. The filter counter is
-incremented on each call to the CFE_EVS_SendEvent function (See
+message is sent. Otherwise, it is discarded. The filter counter is
+incremented on each call to the `CFE_EVS_SendEvent` function (See
 section 7.4) regardless of whether the message was sent.
 
 An example of an Application registering with Event Services and
@@ -2506,8 +2506,8 @@ SAMPLE_AppData_t  SAMPLE_AppData;  /* Instantiate Task Data */
 Once an application has registered its binary event filters the
 application may reset its filters by clearing the event filter counters
 to zero. Two functions are available within the EVS for clearing an
-application's filter counters: CFE_EVS_ResetFilter and
-CFE_EVS_ResetAllFilters. The first of these allows the Application to
+application's filter counters: `CFE_EVS_ResetFilter` and
+`CFE_EVS_ResetAllFilters`. The first of these allows the Application to
 reset the filter counter for a specified Event ID. The latter function
 resets all event filter counters for the Application. An example of
 resetting a specific Event ID filter counter is shown below:
@@ -2526,9 +2526,9 @@ FILE: sample_app.c
 
 ## 7.5 Sending an Event Message
 
-Event messages are sent using either the CFE_EVS_SendEvent() function
-or the CFE_EVS_SendTimedEvent() function, which are both analogous to
-the C printf() function in how strings are formatted. An example of each
+Event messages are sent using either the `CFE_EVS_SendEvent()` function
+or the `CFE_EVS_SendTimedEvent()` function, which are both analogous to
+the C `printf()` function in how strings are formatted. An example of each
 function call is shown below:
 
 ```c
@@ -2555,8 +2555,8 @@ CFE_EVS_SendTimedEvent(PktTime, EventID, EventType, "CSS Data Bad:
 
 In this case, the first parameter is a time tag that the Application
 wishes to have associated with the message. Normally, the current time,
-as retrieved by the CFE_TIME_GetTime function is automatically
-associated with the message when CFE_EVS_SendEvent is called. This
+as retrieved by the `CFE_TIME_GetTime` function is automatically
+associated with the message when `CFE_EVS_SendEvent` is called. This
 latter function allows the Application to override this with another
 time. In this example, it is associating the time tag from the packet
 that contained the CSS data.
@@ -2564,7 +2564,7 @@ that contained the CSS data.
 The EVS will not send events for applications that have not registered
 with the EVS. The EVS will ignore all function calls from unregistered
 applications. If an application fails to register with the EVS, a call
-to the CFE_EVS_SendEvent function will have no effect.
+to the `CFE_EVS_SendEvent` function will have no effect.
 
 ### 7.5.1 Event Message Text
 
@@ -2573,7 +2573,7 @@ there is no fixed format for the text, it should follow these
 conventions in order to be useful and understandable:
 
 -   The text should not contain unprintable or control characters, such
-    as tabs or linefeeds.
+    as tabs or line feeds.
 
 -   There should be no return characters or line feed characters within
     the event message text space. The ground system software will
@@ -2728,7 +2728,7 @@ the ground in the Table Services Housekeeping Telemetry Packet.
 
 In order for an Application to make use of the features of a Table, it
 must first request that a Table Image be created. This is done through
-the CFE_TBL_Register API. An Application calls the API for each Table
+the `CFE_TBL_Register` API. An Application calls the API for each Table
 they wish to have created and the cFE responds with an Application
 unique Table Handle. An example of this process is shown in Section 8.5.1.
 
@@ -2737,7 +2737,7 @@ processor specific by prepending the Application name to the given table name.
 Therefore, after the above example is executed, Table Services would have
 added a table with the name “SAMPLE.MyTableName” to the Table Registry.
 If an Application is sharing a Table that is created by another Application,
-it should use the CFE_TBL_Share API instead.  The CFE_TBL_Share API will locate
+it should use the `CFE_TBL_Share` API instead.  The `CFE_TBL_Share` API will locate
 the specified Table by name and return a Table Handle to the calling
 Application.  An example of Table sharing is shown below:
 
@@ -2771,9 +2771,9 @@ should only be done when necessary.
 ### 8.3.1 Acquiring Table Data
 
 Once an Application has acquired the Table Handle for a particular Table
-(either via the CFE_TBL_Register API or the CFE_TBL_Share API), the
+(either via the `CFE_TBL_Register` API or the `CFE_TBL_Share` API), the
 Application can obtain a pointer to the start of the data within the
-Table using the CFE_TBL_GetAddress or CFE_TBL_GetAddresses APIs.  An example
+Table using the `CFE_TBL_GetAddress` or `CFE_TBL_GetAddresses` APIs.  An example
 of this is shown in Section 8.5.1.
 
 ```c
@@ -2803,23 +2803,23 @@ of this is shown in Section 8.5.1.
 }
 ```
 
-The CFE_TBL_GetAddress call can also return the
-CFE_TBL_ERR_NEVER_LOADED indicating that an attempt is being made at
+The `CFE_TBL_GetAddress` call can also return the
+`CFE_TBL_ERR_NEVER_LOADED` indicating that an attempt is being made at
 accessing table data when the table has never been loaded with a default
 set of values.
 
-The CFE_TBL_GetAddresses call can simplify this process for a
+The `CFE_TBL_GetAddresses` call can simplify this process for a
 collection of tables by filling an array of pointers using an array of
 Table Handles as an input. The disadvantage of the
-CFE_TBL_GetAddresses call is that an error in any one table will
+`CFE_TBL_GetAddresses` call is that an error in any one table will
 return an error code that will be difficult to associate with a
 particular table.
 
 ### 8.3.2 Releasing Table Data
 
 Once an Application is done accessing its Table Data, it must release
-the pointers it obtained with the CFE_TBL_ReleaseAddress or
-CFE_TBL_ReleaseAddresses APIs. It is imperative that an Application
+the pointers it obtained with the `CFE_TBL_ReleaseAddress` or
+`CFE_TBL_ReleaseAddresses` APIs. It is imperative that an Application
 release the pointers it obtains on a periodic basis. The cFE Table
 Services will be unable to manipulate the Table contents if the
 Application does not release its allocated pointers. For an example of
@@ -2832,8 +2832,8 @@ Each Application is required to perform some activities to allow the
 operators an opportunity to validate the table's contents and to change
 the contents of a table. The Table Service API has a set of calls that
 are used by an Application to perform these management duties. These
-APIs are CFE_TBL_GetStatus, CFE_TBL_Validate, CFE_TBL_Update and
-CFE_TBL_Manage.
+APIs are `CFE_TBL_GetStatus`, `CFE_TBL_Validate`, `CFE_TBL_Update` and
+`CFE_TBL_Manage`.
 
 ### 8.4.1 Validating Table Data
 
@@ -2850,9 +2850,9 @@ validation function with the table at the time of table registration
 (see Section 8.2).
 
 An Application is made aware that a Validation Request has been made by
-examining the return code of the CFE_TBL_GetStatus API. When the
-return status is CFE_TBL_INFO_VALIDATION_PENDING, the Application
-should call CFE_TBL_Validate with the appropriate Table Handle to
+examining the return code of the `CFE_TBL_GetStatus` API. When the
+return status is `CFE_TBL_INFO_VALIDATION_PENDING`, the Application
+should call `CFE_TBL_Validate` with the appropriate Table Handle to
 perform the necessary validation activities. This process ensures that
 the table validation occurs within the context of the Application that
 created the table thus allowing the Application to generate its own
@@ -2964,27 +2964,27 @@ An Application also has control of when an Update occurs when the
 Inactive Table Image has been modified by an external party (i.e. --
 ground operations or stored command processor). When Operations has
 requested that a table be activated, for example, the request is passed
-on to the Application when the Application makes the CFE_TBL_GetStatus
+on to the Application when the Application makes the `CFE_TBL_GetStatus`
 API call as shown in the example in Section 8.4.1. A return code of
-CFE_TBL_INFO_UPDATE_PENDING is returned when there is an Inactive
+`CFE_TBL_INFO_UPDATE_PENDING` is returned when there is an Inactive
 Table Image waiting to be activated. The Application performs this
-update when it feels the time is right by calling the CFE_TBL_Update
+update when it feels the time is right by calling the `CFE_TBL_Update`
 API.
 
 ### 8.4.3 Simplifying Table Management
 
 The example shown in Section 8.4.1 can be tedious to implement for every
 table an Application has created. Therefore, the Table Services API has
-created an additional API called CFE_TBL_Manage. This API performs all
-of the steps mentioned in the example of Section 8.4.1 and simply
-returns an error code when there is a programming error, a CFE_SUCCESS
+created an additional API called `CFE_TBL_Manage`. This API performs all
+the steps mentioned in the example of Section 8.4.1 and simply
+returns an error code when there is a programming error, a `CFE_SUCCESS`
 code when either no activity is required or a table validation has been
-successfully handled, or CFE_TBL_INFO_UPDATED when the table has been
+successfully handled, or `CFE_TBL_INFO_UPDATED` when the table has been
 successfully updated from an Inactive Table Image. It is recommended
 that Applications that do not require a special handling of their tables
-should use the CFE_TBL_Manage API to help ensure a consistent approach
+should use the `CFE_TBL_Manage` API to help ensure a consistent approach
 to table management throughout the flight system. An Application may
-wish to make the call to CFE_TBL_Manage during each Housekeeping
+wish to make the call to `CFE_TBL_Manage` during each Housekeeping
 Telemetry Request cycle, for example, to keep the management at a
 reasonable level with a reasonable amount of lag in its response to
 Operation requests for table validations and activations.
@@ -3166,9 +3166,9 @@ FILE: xx_platform_cfg.h
 ## 8.6 Building Tables
 
 In order to build application tables with the CMake build system, the
-"add_cfe_tables" command needs to be added to the CMakeLists.txt file.  If the
+`add_cfe_tables` command needs to be added to the CMakeLists.txt file.  If the
 application is structured with a "Tables" directory, another
-"aux_source_directory" may need to be added as well.
+`aux_source_directory` may need to be added as well.
 
 ```cmake
 aux_source_directory(fsw/tables APP_TABLE_FILES)
@@ -3186,7 +3186,7 @@ services.
 1. Applications should consider using tables for configuration parameters that
    that may need to be updated or modified in flight.
 2. Table validation functions should validate every entry in a table.
-3. Applications with tables should call the CFE_TBL_Manage function at a
+3. Applications with tables should call the `CFE_TBL_Manage` function at a
    regular interval to ensure that tables can be updated.  This is often done
    during the housekeeping cycle.
 
@@ -3222,12 +3222,12 @@ typedef struct
 } CFE_FS_Header_t;
 ```
 
-The ContentType element is a magic number that identifies this file as
+The `ContentType` element is a magic number that identifies this file as
 conforming to the cFE standard header type. At the release of this
-document, the magic number on all cFE compliant files is 0x63464531
+document, the magic number on all cFE compliant files is `0x63464531`
 which appears as 'cFE1' when seen in ASCII.
 
-The SubType is an indication of the contents/format of the file. There
+The `SubType` is an indication of the contents/format of the file. There
 are some SubType values that are dedicated to the cFE itself.
 Application developers should examine the cfe_fs.h file to determine
 what SubType values are allowed for them to use to prevent a type
@@ -3236,47 +3236,47 @@ verify the SubType is of the appropriate value before processing data.
 This will help avoid situations where an operator specifies the wrong
 filename when sending a command to an Application.
 
-The Length specifies the size of the CFE_FS_Header_t and can be used
+The `Length` specifies the size of the `CFE_FS_Header_t` and can be used
 to determine the version of the header type as well as where the user
 data is relative to the beginning of the file.
 
-The SpacecraftID, ProcessorID and ApplicationID are all automatically
+The `SpacecraftID`, `ProcessorID` and `ApplicationID` are all automatically
 filled by cFE File Services routines when creating a cFE compliant file.
 These fields help identify where and how the file was created.
 
-The TimeSeconds and TimeSubSeconds elements contain the Spacecraft Time
+The `TimeSeconds` and `TimeSubSeconds` elements contain the Spacecraft Time
 when the header was created.
 
-The Description field provides a brief ASCII description of the contents
+The `Description` field provides a brief ASCII description of the contents
 of the file.
 
 ## 9.2 Accessing and Modifying the Standard File Header
 
 File Services provides a few functions for accessing and modifying the
 contents of the standard file header. The first of these is the
-CFE_FS_ReadHeader function. This function reads the contents of the
+`CFE_FS_ReadHeader` function. This function reads the contents of the
 header of a specified file and returns it into a given data structure.
 An example of this function is shown below:
 
-The opposite version of this file API is the CFE_FS_WriteHeader
+The opposite version of this file API is the `CFE_FS_WriteHeader`
 function. This function populates the given header data structure with
-the SpacecraftID, ProcessorID, ApplicationID, TimeSeconds and
-TimeSubsecs as obtained from the Executive and Time Services. The
-Developer only needs to specify the SubType and Description fields.
+the `SpacecraftID`, `ProcessorID`, `ApplicationID`, `TimeSeconds` and
+`TimeSubSeconds` as obtained from the Executive and Time Services. The
+Developer only needs to specify the `SubType` and `Description` fields.
 After the function successfully writes the standard header to the file,
-the given header data structure contains all of the information and the
+the given header data structure contains all the information and the
 file pointer associated with the specified file is pointing to the first
 byte past the standard header.
 
 In addition to the functions for obtaining and writing the entire
-header, there are two functions for manipulating the TimeSeconds and
-TimeSubseconds fields of the header. The first of these is the
-CFE_FS_UpdateHeaderTime function. This function takes the specified
-file and sets the TimeSeconds and TimeSubsecs fields equal to the
-current time as obtained from CFE_TIME_GetTime. The second function,
-CFE_FS_SetHeaderTime, allows the Developer to set the create time in
+header, there are two functions for manipulating the `TimeSeconds` and
+`TimeSubSeconds` fields of the header. The first of these is the
+`CFE_FS_UpdateHeaderTime` function. This function takes the specified
+file and sets the `TimeSeconds` and `TimeSubSeconds` fields equal to the
+current time as obtained from `CFE_TIME_GetTime`. The second function,
+`CFE_FS_SetHeaderTime`, allows the Developer to set the creation time in
 the standard header equal to a time specified using the
-CFE_TIME_SysTime_t data format. This function may be useful when time
+`CFE_TIME_SysTime_t` data format. This function may be useful when time
 tagging experiment data with the time the data was acquired rather than
 the time the file was created.
 
@@ -3285,7 +3285,7 @@ the time the file was created.
 The File Service provides a utility function that can move the file
 pointer associated with a specified file to the first byte of data
 following the standard header. This function is called
-CFE_FS_SeekFileDataStart and an example of its use can be found below:
+`CFE_FS_SeekFileDataStart` and an example of its use can be found below:
 
 | **File Service Function**      | **Purpose**                                                                    |
 |:-------------------------------|:-------------------------------------------------------------------------------|
@@ -3320,8 +3320,8 @@ typedef struct {
 } CFE_TIME_SysTime_t;
 ```
 
-Examples of the subseconds time field would be 0x80000000 equals a half
-second, 0x40000000 equals a quarter second, etc. Because time is not
+Examples of the `Subseconds` time field would be `0x80000000` equals a half
+second, 0`x40000000` equals a quarter second, etc. Because time is not
 simply a single integer or floating point number, the Time Service
 provides a collection of functions for converting and manipulating time
 in these formats. These functions are described in the sections below.
@@ -3395,40 +3395,40 @@ Service time values are summarized below.
 
 The following Time Service API functions are available for obtaining
 time information. Most Developer's will only need one time function,
-CFE_TIME_GetTime. This function provides the caller with the current
+`CFE_TIME_GetTime`. This function provides the caller with the current
 spacecraft time relative to the mission specific epoch time and may be
 either TAI or UTC. Developers should attempt to use this function in all
 cases to ensure portability of their software to future missions. Two
 additional time functions are provided for exceptions. The first of
-these, CFE_TIME_GetUTC, provides the spacecraft time relative to the
+these, `CFE_TIME_GetUTC`, provides the spacecraft time relative to the
 Mission Epoch with the inclusion of Leap Seconds. Developers may need to
 use this function when their Application requirements insist on the use
-of UTC. The second function, CFE_TIME_GetTAI, provides the spacecraft
+of UTC. The second function, `CFE_TIME_GetTAI`, provides the spacecraft
 time since the Mission Epoch and always excludes any Leap Seconds.
 Developer's may need to use this function when their Application
 requirements insist on using a time that cannot be subject to the
-occasional one second jump that occurs when Leap Seconds are updated.
+occasional one-second jump that occurs when Leap Seconds are updated.
 
 On even more rare occasions, an Application may need to know the Mission
 Elapsed Time. The Time Service provides three functions for obtaining
-the MET. The first, CFE_TIME_GetMET, returns the MET time in the
-CFE_Time_SysTime_t format. The other two, CFE_TIME_GetMETSeconds
-and CFE_TIME_GetMETSubsecs, return just the appropriate 32-bit integer
+the MET. The first, `CFE_TIME_GetMET`, returns the MET time in the
+`CFE_Time_SysTime_t` format. The other two, `CFE_TIME_GetMETSeconds`
+and `CFE_TIME_GetMETSubsecs`, return just the appropriate 32-bit integer
 representing that portion of the time.
 
 If an Application needs to obtain the current Spacecraft Time
-Correlation Factor (STCF), the function CFE_TIME_GetSTCF returns the
+Correlation Factor (STCF), the function `CFE_TIME_GetSTCF` returns the
 value in the cFE standard time format described above. The STCF does not
 typically, unless the mission operations' personnel decide to do so,
 incorporate the number of Leap Seconds required to convert the onboard
 TAI time with UTC. To obtain the number of Leap Seconds, the Application
-must call CFE_TIME_GetLeapSeconds.
+must call `CFE_TIME_GetLeapSeconds`.
 
-The final time information function is the CFE_TIME_GetClockState
+The final time information function is the `CFE_TIME_GetClockState`
 function. To understand the return values of this function, a brief
 description of how time is managed on the spacecraft is necessary. From
 the Application's perspective, the time obtained through any of the
-CFE_TIME_Get... functions is directly obtained from the spacecraft's
+`CFE_TIME_Get`... functions is directly obtained from the spacecraft's
 primary onboard time base. However, on a spacecraft with multiple
 processors, only one processor typically has access to the primary
 onboard time base. The cFE implements a Time Server / Time Client
@@ -3441,27 +3441,27 @@ disconnected from one another, they each do their best to maintain the
 current time with what information they have available.
 
 If an Application requires accurate time knowledge for its processing,
-it may require using the CFE_TIME_GetClockState function. When this
-function returns CFE_TIME_VALID, then the Application can feel
-comfortable that the time obtained through any of the CFE_TIME_Get...
+it may require using the `CFE_TIME_GetClockState` function. When this
+function returns `CFE_TIME_VALID`, then the Application can feel
+comfortable that the time obtained through any of the `CFE_TIME_Get...`
 functions is synchronized with the primary onboard time base. If the
-function returns CFE_TIME_FLYWHEEL, then the Application knows that
-the time obtained from any of the CFE_TIME_Get... functions was
-synchronized at some point in the past but it is now nothing more than a
+function returns `CFE_TIME_FLYWHEEL`, then the Application knows that
+the time obtained from any of the `CFE_TIME_Get...` functions was
+synchronized at some point in the past, but it is now nothing more than a
 "best guess" based upon a non-optimal time base. When the return value
-is CFE_TIME_INVALID, then the Application knows that the
-CFE_TIME_Get... functions are returning a local time that has never
+is `CFE_TIME_INVALID`, then the Application knows that the
+`CFE_TIME_Get...` functions are returning a local time that has never
 been synchronized to the primary onboard time base.
 
 ## 10.4 Time Conversion Functions
 
-Since working with subseconds as an integer of 2^-32 seconds is
+Since working with sub-seconds as an integer of 2^-32 seconds is
 sometimes cumbersome, the cFE Time Services provides two functions to
-alleviate this problem. The first, CFE_TIME_Sub2MicroSecs, converts
-the 32-bit integer subseconds value to an integral number of
+alleviate this problem. The first, `CFE_TIME_Sub2MicroSecs`, converts
+the 32-bit integer sub-seconds value to an integral number of
 microseconds in the range of 0 to 999,999.
 
-The second function, CFE_TIME_Micro2SubSecs, reverses this process and
+The second function, `CFE_TIME_Micro2SubSecs`, reverses this process and
 can convert an integer within the range of 0 to 999,999 into the
 appropriate number of 2^-32 seconds.
 
@@ -3475,13 +3475,13 @@ seconds since some arbitrary epoch time.
 
 ![](.//media/cFE_Application_Developers_Guide_image19.png)
 
-If the counter rolls over (i.e. -- goes from 0xFFFFFFFF to 0x00000000),
+If the counter rolls over (i.e. -- goes from `0xFFFFFFFF` to `0x00000000`),
 it is not considered an error just like when an analog wall clock goes
 from 11:59 to 12:00. This feature is necessary because a mission
 specific epoch time could be some time in the future. By allowing
 rollovers, the time format can be interpreted by ground software as
-either a signed integer, so that 0xFFFFFFFF is one second before the
-epoch time, or as an unsigned integer, where 0xFFFFFFFF is 4,294,967,295
+either a signed integer, so that `0xFFFFFFFF` is one second before the
+epoch time, or as an unsigned integer, where `0xFFFFFFFF` is 4,294,967,295
 seconds past the epoch time.
 
 The drawback to allowing rollovers is that this adds an interesting
@@ -3493,13 +3493,13 @@ hours later.
 
 ![](.//media/cFE_Application_Developers_Guide_image20.png)
 
-The rule that is used by the CFE_TIME_Compare function is that if the
+The rule that is used by the `CFE_TIME_Compare` function is that if the
 smaller delta time is found going in a counter-clockwise direction, then
 the first time is considered greater than the second and the comparison
-function would return CFE_TIME_A_GT_B. Likewise, if the smaller
+function would return `CFE_TIME_A_GT_B`. Likewise, if the smaller
 delta time is found going in a clockwise direction, as demonstrated in
 the example above, then the first time is less than the second and the
-comparison function would return CFE_TIME_A_LT_B. This rule was
+comparison function would return `CFE_TIME_A_LT_B`. This rule was
 chosen because it seemed unlikely that someone would require the ability
 to compare two times whose delta time was greater than or equal to
 2,147,483,647 seconds (approximately 68 years). If a mission does
@@ -3509,11 +3509,11 @@ their own delta time calculation function(s). In addition to the
 rollover phenomenon, the Developer should be aware that comparing an
 absolute time with a delta time is meaningless.
 
-The CFE_TIME_Subtract function will compute the delta between two
+The `CFE_TIME_Subtract` function will compute the delta between two
 given times. The Developer is responsible for determining the
 appropriate order of two absolute times given to the function to obtain
 the desired delta time. It may be necessary to call the
-CFE_TIME_Compare function to determine which absolute time should be
+`CFE_TIME_Compare` function to determine which absolute time should be
 the first time in the subtraction. Otherwise, as shown above, the delta
 time between two absolute times could either be 5 hours or 7 hours. An
 example of a delta time computation function is shown below:
@@ -3540,18 +3540,18 @@ CFE_TIME_SysTime_t ComputeDeltaTime(CFE_TIME_SysTime_t TimeA,
 Other combinations of subtracted time types will either produce an
 absolute time, a delta time or garbage as shown below:
 
-- AbsoluteTime -- AbsoluteTime = DeltaTime
-- AbsoluteTime -- DeltaTime = AbsoluteTime
-- DeltaTime -- DeltaTime = DeltaTime
-- DeltaTime -- AbsoluteTime = garbage
+- `AbsoluteTime - AbsoluteTime = DeltaTime`
+- `AbsoluteTime - DeltaTime = AbsoluteTime`
+- `DeltaTime - DeltaTime = DeltaTime`
+- `DeltaTime - AbsoluteTime = garbage`
 
-The CFE_TIME_Add function should be used because it can properly
-handle the subseconds term and rollovers. The Developer should remember,
+The `CFE_TIME_Add` function should be used because it can properly
+handle the sub-seconds term and rollovers. The Developer should remember,
 however, that adding two absolute times together does not make any
 sense. One of the two times must be a delta time.
 
-The cFE Time Services also provide a function called CFE_TIME_Print.
-This function allows for a time given in the CFE_TIME_SysTime_t data
+The cFE Time Services also provide a function called `CFE_TIME_Print`.
+This function allows for a time given in the `CFE_TIME_SysTime_t` data
 format to be printed to a string. The resulting string will always be 24
 characters long, including the null terminator, and will be of the
 following format:
@@ -3571,7 +3571,7 @@ yyyy-ddd-hh:mm:ss.xxxxx\0
 
 All cFE API calls that can generate an error return a status code.
 Developer's should organize their status codes to conform to the
-standard so as to not cause confusion when a status code is reported. By
+standard to not cause confusion when a status code is reported. By
 using the standard defined below, each mission should be able to
 generate a unique status code for each condition to be reported.
 
