@@ -108,10 +108,9 @@ typedef enum CFE_TBL_SrcEnum
 /** \brief Table Info */
 typedef struct CFE_TBL_Info
 {
-    size_t             Size;                  /**< \brief Size, in bytes, of Table */
-    uint32             NumUsers;              /**< \brief Number of Apps with access to the table */
-    uint32             FileCreateTimeSecs;    /**< \brief File creation time from last file loaded into table */
-    uint32             FileCreateTimeSubSecs; /**< \brief File creation time from last file loaded into table */
+    size_t             Size;             /**< \brief Size, in bytes, of Table */
+    uint32             NumUsers;         /**< \brief Number of Apps with access to the table */
+    CFE_TIME_SysTime_t FileTime;         /**< \brief File creation time from last file loaded into table */
     uint32             Crc;              /**< \brief Most recently calculated CRC by TBL services on table contents */
     CFE_TIME_SysTime_t TimeOfLastUpdate; /**< \brief Time when Table was last updated */
     bool               TableLoadedOnce;  /**< \brief Flag indicating whether table has been loaded once or not */

@@ -1327,8 +1327,6 @@ void Test_CFE_TBL_SendHkCmd(void)
     CFE_TBL_RegistryRec_t RegRecPtr;
     uint8                 Buff;
     void *                BuffPtr    = &Buff;
-    uint32                Secs       = 0;
-    uint32                SubSecs    = 0;
     int32                 LoadInProg = 0;
 
     UtPrintf("Begin Test Housekeeping Command");
@@ -1347,8 +1345,7 @@ void Test_CFE_TBL_SendHkCmd(void)
     DumpBuffPtr->Taken                            = true;
     DumpBuffPtr->Validated                        = true;
     DumpBuffPtr->BufferPtr                        = BuffPtr;
-    DumpBuffPtr->FileCreateTimeSecs               = Secs;
-    DumpBuffPtr->FileCreateTimeSubSecs            = SubSecs;
+    DumpBuffPtr->FileTime                         = CFE_TIME_ZERO_VALUE;
     strncpy(DumpBuffPtr->DataSource, "hkSource", sizeof(DumpBuffPtr->DataSource) - 1);
     DumpBuffPtr->DataSource[sizeof(DumpBuffPtr->DataSource) - 1] = '\0';
     CFE_TBL_Global.DumpControlBlocks[0].DumpBufferPtr            = DumpBuffPtr;
