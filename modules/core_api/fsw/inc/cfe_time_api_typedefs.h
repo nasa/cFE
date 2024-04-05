@@ -44,6 +44,15 @@
 #define CFE_TIME_PRINTED_STRING_SIZE \
     24 /**< \brief Required size of buffer to be passed into #CFE_TIME_Print (includes null terminator) */
 
+/**
+ * A general-purpose initializer for CFE_TIME_SysTime_t values.
+ *
+ * Represents "time zero" in the CFE_TIME_SysTime_t domain.  This
+ * can be used as a general purpose initializer for instantiations
+ * of the CFE_TIME_SysTime_t type.
+ */
+#define CFE_TIME_ZERO_VALUE ((CFE_TIME_SysTime_t) {0, 0})
+
 /*****************************************************************************/
 /*
 ** Type Definitions

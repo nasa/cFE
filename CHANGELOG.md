@@ -1,5 +1,10 @@
 # Changelog
 
+## Development Build: equuleus-rc1+dev127
+- improve app dev guide
+- consistent TIME values for TBL structures
+- See <https://github.com/nasa/cFE/pull/2541> and <https://github.com/nasa/cFE/pull/2544>
+
 ## Development Build: equuleus-rc1+dev120
 - Switch pc rtems toolchains to use osal generic-rtems bsp
 - table transaction initial implementation
