@@ -145,6 +145,15 @@ typedef struct
  */
 typedef int16 CFE_TBL_RegId_t;
 
+/**
+ * A structure to facilitate a linked-list of table handles
+ */
+typedef struct CFE_TBL_HandleLink
+{
+    CFE_TBL_Handle_t Next; /**< Next table handle in list */
+    CFE_TBL_Handle_t Prev; /**< Previous table handle in list */
+} CFE_TBL_HandleLink_t;
+
 /*******************************************************************************/
 /**   \brief Application to Table Access Descriptor
 **
@@ -155,14 +164,13 @@ typedef int16 CFE_TBL_RegId_t;
 */
 typedef struct
 {
-    CFE_ES_AppId_t   AppId;       /**< \brief Application ID to verify access */
-    CFE_TBL_RegId_t  RegIndex;    /**< \brief Index into Table Registry (a.k.a. - Global Table #) */
-    CFE_TBL_Handle_t PrevLink;    /**< \brief Index of previous access descriptor in linked list */
-    CFE_TBL_Handle_t NextLink;    /**< \brief Index of next access descriptor in linked list */
-    bool             UsedFlag;    /**< \brief Indicates whether this descriptor is being used or not  */
-    bool             LockFlag;    /**< \brief Indicates whether thread is currently accessing table data */
-    bool             Updated;     /**< \brief Indicates table has been updated since last GetAddress call */
-    uint8            BufferIndex; /**< \brief Index of buffer currently being used */
+    CFE_ES_AppId_t       AppId;       /**< \brief Application ID to verify access */
+    CFE_TBL_RegId_t      RegIndex;    /**< \brief Index into Table Registry (a.k.a. - Global Table #) */
+    CFE_TBL_HandleLink_t Link;        /**< \brief Linkage into list of access descriptors for the table */
+    bool                 UsedFlag;    /**< \brief Indicates whether this descriptor is being used or not  */
+    bool                 LockFlag;    /**< \brief Indicates whether thread is currently accessing table data */
+    bool                 Updated;     /**< \brief Indicates table has been updated since last GetAddress call */
+    uint8                BufferIndex; /**< \brief Index of buffer currently being used */
 } CFE_TBL_AccessDescriptor_t;
 
 /*******************************************************************************/
@@ -180,7 +188,7 @@ typedef struct
     CFE_TBL_LoadBuff_t Buffers[2];        /**< \brief Active and Inactive Buffer Pointers */
     CFE_TBL_CallbackFuncPtr_t ValidationFuncPtr; /**< \brief Ptr to Owner App's function that validates tbl contents */
     CFE_TIME_SysTime_t        TimeOfLastUpdate;  /**< \brief Time when Table was last updated */
-    CFE_TBL_Handle_t          HeadOfAccessList;  /**< \brief Index into Handles Array that starts Access Linked List */
+    CFE_TBL_HandleLink_t      AccessList;        /**< \brief Linked List of associated access descriptors */
     int32              LoadInProgress;      /**< \brief Flag identifies inactive buffer and whether load in progress */
     int32              ValidateActiveIndex; /**< \brief Index to Validation Request on Active Table Result data */
     int32              ValidateInactiveIndex; /**< \brief Index to Validation Request on Inactive Table Result data */

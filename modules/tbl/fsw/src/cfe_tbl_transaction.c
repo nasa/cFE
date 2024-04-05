@@ -225,32 +225,44 @@ void CFE_TBL_TxnFinish(CFE_TBL_TxnState_t *Txn)
 
 /*----------------------------------------------------------------
  *
+ * Local helper function, not invoked outside this unit
+ * Intended to be used with CFE_TBL_ForeachAccessDescriptor()
+ *
+ *-----------------------------------------------------------------*/
+static void CFE_TBL_FindAccessDescHelper(CFE_TBL_AccessDescriptor_t *AccDescPtr, void *Arg)
+{
+    CFE_TBL_TxnState_t *Txn = Arg;
+
+    if (AccDescPtr->UsedFlag && AccDescPtr->RegIndex == CFE_TBL_TxnRegId(Txn) &&
+        CFE_RESOURCEID_TEST_EQUAL(AccDescPtr->AppId, CFE_TBL_TxnAppId(Txn)))
+    {
+        Txn->Handle        = CFE_TBL_AccessDescriptorGetHandle(AccDescPtr);
+        Txn->AccessDescPtr = AccDescPtr;
+    }
+}
+
+/*----------------------------------------------------------------
+ *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 CFE_Status_t CFE_TBL_FindAccessDescriptorForSelf(CFE_TBL_TxnState_t *Txn)
 {
-    CFE_Status_t           Status = CFE_TBL_ERR_UNREGISTERED;
-    CFE_TBL_Handle_t       AccessIndex;
+    CFE_Status_t           Status;
     CFE_TBL_RegistryRec_t *RegRecPtr;
 
     /* Find the existing access descriptor for the table       */
-    RegRecPtr   = CFE_TBL_TxnRegRec(Txn);
-    AccessIndex = RegRecPtr->HeadOfAccessList;
+    RegRecPtr = CFE_TBL_TxnRegRec(Txn);
+    CFE_TBL_ForeachAccessDescriptor(RegRecPtr, CFE_TBL_FindAccessDescHelper, Txn);
 
-    while (AccessIndex != CFE_TBL_END_OF_LIST)
+    if (Txn->AccessDescPtr == NULL)
     {
-        if ((CFE_TBL_Global.Handles[AccessIndex].UsedFlag == true) &&
-            CFE_RESOURCEID_TEST_EQUAL(CFE_TBL_Global.Handles[AccessIndex].AppId, CFE_TBL_TxnAppId(Txn)) &&
-            (CFE_TBL_Global.Handles[AccessIndex].RegIndex == CFE_TBL_TxnRegId(Txn)))
-        {
-            Txn->Handle        = AccessIndex;
-            Txn->AccessDescPtr = &CFE_TBL_Global.Handles[AccessIndex];
-            break;
-        }
-
-        AccessIndex = CFE_TBL_Global.Handles[AccessIndex].NextLink;
+        Status = CFE_TBL_ERR_UNREGISTERED;
+    }
+    else
+    {
+        Status = CFE_SUCCESS;
     }
 
     return Status;
@@ -305,37 +317,13 @@ CFE_Status_t CFE_TBL_TxnRemoveAccessLink(CFE_TBL_TxnState_t *Txn)
      * NOTE: In all cases where this is invoked, the registry should
      * already be locked under the transaction object
      */
-
-    /* If we are removing the head of the linked list, then point */
-    /* the head pointer to the link after this one                */
-    if (AccessDescPtr->PrevLink == CFE_TBL_END_OF_LIST)
-    {
-        RegRecPtr->HeadOfAccessList = AccessDescPtr->NextLink;
-
-        /* Update the next link, if there is one, to be the new head of the list */
-        if (AccessDescPtr->NextLink != CFE_TBL_END_OF_LIST)
-        {
-            CFE_TBL_Global.Handles[AccessDescPtr->NextLink].PrevLink = CFE_TBL_END_OF_LIST;
-        }
-    }
-    else /* Access Descriptor is not the head of the list */
-    {
-        /* Set the next link on the previous link to the next link of the link being removed */
-        CFE_TBL_Global.Handles[AccessDescPtr->PrevLink].NextLink = AccessDescPtr->NextLink;
-
-        /* If this link is not the end of the list, then complete two way linkage */
-        /* by setting the next link's previous link to the previous link of the link being removed */
-        if (AccessDescPtr->NextLink != CFE_TBL_END_OF_LIST)
-        {
-            CFE_TBL_Global.Handles[AccessDescPtr->NextLink].PrevLink = AccessDescPtr->PrevLink;
-        }
-    }
+    CFE_TBL_HandleListRemoveLink(RegRecPtr, AccessDescPtr);
 
     /* Return the Access Descriptor to the pool */
     AccessDescPtr->UsedFlag = false;
 
     /* If this was the last Access Descriptor for this table, we can free the memory buffers as well */
-    if (RegRecPtr->HeadOfAccessList == CFE_TBL_END_OF_LIST)
+    if (!CFE_TBL_HandleLinkIsAttached(&RegRecPtr->AccessList))
     {
         /* Only free memory that we have allocated.  If the image is User Defined, then don't bother */
         if (RegRecPtr->UserDefAddr == false)
@@ -504,7 +492,7 @@ CFE_Status_t CFE_TBL_TxnAllocateRegistryEntry(CFE_TBL_TxnState_t *Txn)
         /* A Table Registry is only "Free" when there isn't an owner AND */
         /* all other applications are not sharing or locking the table   */
         if (CFE_RESOURCEID_TEST_EQUAL(CFE_TBL_Global.Registry[i].OwnerAppId, CFE_TBL_NOT_OWNED) &&
-            (CFE_TBL_Global.Registry[i].HeadOfAccessList == CFE_TBL_END_OF_LIST))
+            !CFE_TBL_HandleLinkIsAttached(&CFE_TBL_Global.Registry[i].AccessList))
         {
             Txn->RegId     = i;
             Txn->RegRecPtr = &CFE_TBL_Global.Registry[i];
@@ -627,6 +615,8 @@ void CFE_TBL_TxnConnectAccessDescriptor(CFE_TBL_TxnState_t *Txn)
     AccessDescPtr->AppId    = CFE_TBL_TxnAppId(Txn);
     AccessDescPtr->LockFlag = false;
     AccessDescPtr->Updated  = false;
+    AccessDescPtr->UsedFlag = true;
+    AccessDescPtr->RegIndex = CFE_TBL_TxnRegId(Txn);
 
     if ((RegRecPtr->DumpOnly) && (!RegRecPtr->UserDefAddr))
     {
@@ -635,13 +625,5 @@ void CFE_TBL_TxnConnectAccessDescriptor(CFE_TBL_TxnState_t *Txn)
         RegRecPtr->TableLoadedOnce = true;
     }
 
-    AccessDescPtr->RegIndex = CFE_TBL_TxnRegId(Txn);
-
-    AccessDescPtr->PrevLink = CFE_TBL_END_OF_LIST; /* We are the head of the list */
-    AccessDescPtr->NextLink = CFE_TBL_END_OF_LIST; /* We are the end of the list */
-
-    AccessDescPtr->UsedFlag = true;
-
-    /* Make sure the Table Registry entry points to First Access Descriptor */
-    RegRecPtr->HeadOfAccessList = CFE_TBL_TxnHandle(Txn);
+    CFE_TBL_HandleListInsertLink(RegRecPtr, AccessDescPtr);
 }
