@@ -197,10 +197,9 @@ void UT_ResetTableRegistry(void)
     /* Initialize the table access descriptors */
     for (i = 0; i < CFE_PLATFORM_TBL_MAX_NUM_HANDLES; i++)
     {
-        CFE_TBL_Global.Handles[i].AppId       = CFE_TBL_NOT_OWNED;
-        CFE_TBL_Global.Handles[i].RegIndex    = 0;
-        CFE_TBL_Global.Handles[i].PrevLink    = CFE_TBL_END_OF_LIST;
-        CFE_TBL_Global.Handles[i].NextLink    = CFE_TBL_END_OF_LIST;
+        CFE_TBL_Global.Handles[i].AppId    = CFE_TBL_NOT_OWNED;
+        CFE_TBL_Global.Handles[i].RegIndex = 0;
+        CFE_TBL_HandleLinkInit(&CFE_TBL_Global.Handles[i].Link);
         CFE_TBL_Global.Handles[i].UsedFlag    = false;
         CFE_TBL_Global.Handles[i].LockFlag    = false;
         CFE_TBL_Global.Handles[i].Updated     = false;
@@ -905,7 +904,7 @@ void Test_CFE_TBL_DumpRegCmd(void)
 
     for (q = 0; q < CFE_PLATFORM_TBL_MAX_NUM_TABLES; q++)
     {
-        CFE_TBL_Global.Registry[q].HeadOfAccessList = CFE_TBL_END_OF_LIST;
+        CFE_TBL_HandleLinkInit(&CFE_TBL_Global.Registry[q].AccessList);
     }
 
     /* Test command using the default dump file name (nominal path) */
@@ -967,37 +966,38 @@ void Test_CFE_TBL_DumpRegCmd(void)
      * table is successfully dumped
      */
     UT_InitData();
-    CFE_TBL_Global.Registry[0].OwnerAppId       = AppID;
-    CFE_TBL_Global.Registry[0].HeadOfAccessList = CFE_TBL_END_OF_LIST;
-    CFE_TBL_Global.Registry[1].OwnerAppId       = CFE_TBL_NOT_OWNED;
-    CFE_TBL_Global.Registry[0].LoadInProgress   = CFE_TBL_NO_LOAD_IN_PROGRESS + 1;
-    CFE_TBL_Global.Registry[0].DoubleBuffered   = true;
-    LocalBuf                                    = NULL;
-    LocalSize                                   = 0;
+    CFE_TBL_Global.Registry[0].OwnerAppId = AppID;
+    CFE_TBL_HandleLinkInit(&CFE_TBL_Global.Registry[0].AccessList);
+    CFE_TBL_Global.Registry[1].OwnerAppId     = CFE_TBL_NOT_OWNED;
+    CFE_TBL_Global.Registry[0].LoadInProgress = CFE_TBL_NO_LOAD_IN_PROGRESS + 1;
+    CFE_TBL_Global.Registry[0].DoubleBuffered = true;
+    LocalBuf                                  = NULL;
+    LocalSize                                 = 0;
     UtAssert_BOOL_FALSE(CFE_TBL_DumpRegistryGetter(&CFE_TBL_Global.RegDumpState, 0, &LocalBuf, &LocalSize));
     UtAssert_NOT_NULL(LocalBuf);
     UtAssert_NONZERO(LocalSize);
 
     /* Same but not double buffered */
     UT_InitData();
-    CFE_TBL_Global.Registry[0].OwnerAppId       = AppID;
-    CFE_TBL_Global.Registry[0].HeadOfAccessList = CFE_TBL_END_OF_LIST;
-    CFE_TBL_Global.Registry[1].OwnerAppId       = CFE_TBL_NOT_OWNED;
-    CFE_TBL_Global.Registry[0].LoadInProgress   = CFE_TBL_NO_LOAD_IN_PROGRESS + 1;
-    CFE_TBL_Global.Registry[0].DoubleBuffered   = false;
-    LocalBuf                                    = NULL;
-    LocalSize                                   = 0;
+    CFE_TBL_Global.Registry[0].OwnerAppId = AppID;
+    CFE_TBL_HandleLinkInit(&CFE_TBL_Global.Registry[0].AccessList);
+    CFE_TBL_Global.Registry[1].OwnerAppId     = CFE_TBL_NOT_OWNED;
+    CFE_TBL_Global.Registry[0].LoadInProgress = CFE_TBL_NO_LOAD_IN_PROGRESS + 1;
+    CFE_TBL_Global.Registry[0].DoubleBuffered = false;
+    LocalBuf                                  = NULL;
+    LocalSize                                 = 0;
     UtAssert_BOOL_FALSE(CFE_TBL_DumpRegistryGetter(&CFE_TBL_Global.RegDumpState, 0, &LocalBuf, &LocalSize));
     UtAssert_NOT_NULL(LocalBuf);
     UtAssert_NONZERO(LocalSize);
 
     /* Hit last entry, no load in progress */
-    CFE_TBL_Global.Registry[CFE_PLATFORM_TBL_MAX_NUM_TABLES - 1].OwnerAppId       = CFE_TBL_NOT_OWNED;
-    CFE_TBL_Global.Registry[CFE_PLATFORM_TBL_MAX_NUM_TABLES - 1].HeadOfAccessList = 2;
-    CFE_TBL_Global.Registry[CFE_PLATFORM_TBL_MAX_NUM_TABLES - 1].LoadInProgress   = CFE_TBL_NO_LOAD_IN_PROGRESS;
-    CFE_TBL_Global.Handles[2].NextLink                                            = CFE_TBL_END_OF_LIST;
-    LocalBuf                                                                      = NULL;
-    LocalSize                                                                     = 0;
+    CFE_TBL_Global.Registry[CFE_PLATFORM_TBL_MAX_NUM_TABLES - 1].OwnerAppId      = CFE_TBL_NOT_OWNED;
+    CFE_TBL_Global.Registry[CFE_PLATFORM_TBL_MAX_NUM_TABLES - 1].AccessList.Next = 2;
+    CFE_TBL_Global.Registry[CFE_PLATFORM_TBL_MAX_NUM_TABLES - 1].AccessList.Prev = 2;
+    CFE_TBL_Global.Registry[CFE_PLATFORM_TBL_MAX_NUM_TABLES - 1].LoadInProgress  = CFE_TBL_NO_LOAD_IN_PROGRESS;
+    CFE_TBL_HandleLinkInit(&CFE_TBL_Global.Handles[2].Link);
+    LocalBuf  = NULL;
+    LocalSize = 0;
     UtAssert_BOOL_TRUE(CFE_TBL_DumpRegistryGetter(&CFE_TBL_Global.RegDumpState, CFE_PLATFORM_TBL_MAX_NUM_TABLES - 1,
                                                   &LocalBuf, &LocalSize));
     UtAssert_NOT_NULL(LocalBuf);
@@ -1010,10 +1010,10 @@ void Test_CFE_TBL_DumpRegCmd(void)
     UtAssert_ZERO(LocalSize);
 
     /* Test empty registry */
-    CFE_TBL_Global.Registry[0].OwnerAppId       = CFE_TBL_NOT_OWNED;
-    CFE_TBL_Global.Registry[0].HeadOfAccessList = CFE_TBL_END_OF_LIST;
-    LocalBuf                                    = NULL;
-    LocalSize                                   = 0;
+    CFE_TBL_Global.Registry[0].OwnerAppId = CFE_TBL_NOT_OWNED;
+    CFE_TBL_HandleLinkInit(&CFE_TBL_Global.Registry[0].AccessList);
+    LocalBuf  = NULL;
+    LocalSize = 0;
     UtAssert_BOOL_FALSE(CFE_TBL_DumpRegistryGetter(&CFE_TBL_Global.RegDumpState, 0, &LocalBuf, &LocalSize));
     UtAssert_NULL(LocalBuf);
     UtAssert_ZERO(LocalSize);
@@ -1874,7 +1874,7 @@ void Test_CFE_TBL_Register(void)
 
     for (i = 0; i < CFE_PLATFORM_TBL_MAX_NUM_TABLES; i++)
     {
-        CFE_TBL_Global.Registry[i].HeadOfAccessList = CFE_TBL_END_OF_LIST;
+        CFE_TBL_HandleLinkInit(&CFE_TBL_Global.Registry[i].AccessList);
     }
 
     UtAssert_INT32_EQ(CFE_TBL_Register(&TblHandle2, "UT_Table1", sizeof(UT_Table1_t), CFE_TBL_OPT_DBL_BUFFER, NULL),
@@ -2743,7 +2743,7 @@ void Test_CFE_TBL_Manage(void)
     /* Save the previous table's information for a subsequent test */
     AccessDescPtr  = &CFE_TBL_Global.Handles[App1TblHandle1];
     RegRecPtr      = &CFE_TBL_Global.Registry[AccessDescPtr->RegIndex];
-    AccessIterator = RegRecPtr->HeadOfAccessList;
+    AccessIterator = RegRecPtr->AccessList.Next;
 
     /* Test unlocking a table by releasing the address */
     UT_InitData();
@@ -2773,9 +2773,9 @@ void Test_CFE_TBL_Manage(void)
      */
     AccessDescPtr                                      = &CFE_TBL_Global.Handles[App1TblHandle2];
     RegRecPtr                                          = &CFE_TBL_Global.Registry[AccessDescPtr->RegIndex];
-    CFE_TBL_Global.Handles[AccessIterator].NextLink    = RegRecPtr->HeadOfAccessList;
+    CFE_TBL_Global.Handles[AccessIterator].Link.Next   = RegRecPtr->AccessList.Next;
     CFE_TBL_Global.Handles[AccessIterator].AppId       = UT_TBL_APPID_2;
-    RegRecPtr->HeadOfAccessList                        = AccessIterator;
+    RegRecPtr->AccessList.Next                         = AccessIterator;
     CFE_TBL_Global.Handles[AccessIterator].BufferIndex = 1;
     CFE_TBL_Global.Handles[AccessIterator].LockFlag    = true;
 
@@ -3125,7 +3125,7 @@ void Test_CFE_TBL_TblMod(void)
     /* Save the previous table's information for a subsequent test */
     AccessDescPtr  = &CFE_TBL_Global.Handles[App1TblHandle1];
     RegRecPtr      = &CFE_TBL_Global.Registry[AccessDescPtr->RegIndex];
-    AccessIterator = RegRecPtr->HeadOfAccessList;
+    AccessIterator = RegRecPtr->AccessList.Next;
 
     /* Test response to adding a TBL API for notifying table services that
      * the table has been updated by application
@@ -3141,11 +3141,11 @@ void Test_CFE_TBL_TblMod(void)
     /* Reset the current table entry pointer to a previous table in order to
      * exercise the path where one of the application IDs don't match
      */
-    AccessDescPtr                                   = &CFE_TBL_Global.Handles[App1TblHandle1];
-    RegRecPtr                                       = &CFE_TBL_Global.Registry[AccessDescPtr->RegIndex];
-    CFE_TBL_Global.Handles[AccessIterator].NextLink = RegRecPtr->HeadOfAccessList;
-    CFE_TBL_Global.Handles[AccessIterator].AppId    = UT_TBL_APPID_2;
-    RegRecPtr->HeadOfAccessList                     = AccessIterator;
+    AccessDescPtr                                    = &CFE_TBL_Global.Handles[App1TblHandle1];
+    RegRecPtr                                        = &CFE_TBL_Global.Registry[AccessDescPtr->RegIndex];
+    CFE_TBL_Global.Handles[AccessIterator].Link.Next = RegRecPtr->AccessList.Next;
+    CFE_TBL_Global.Handles[AccessIterator].AppId     = UT_TBL_APPID_2;
+    RegRecPtr->AccessList.Next                       = AccessIterator;
 
     /* Configure for successful file read to initialize table */
     strncpy(FileHeader.Description, "FS header description", sizeof(FileHeader.Description) - 1);
@@ -3814,8 +3814,8 @@ void Test_CFE_TBL_Internal(void)
      */
     UT_InitData();
     memset(&Txn, 0, sizeof(Txn));
-    CFE_TBL_Global.Registry[0].OwnerAppId       = CFE_TBL_NOT_OWNED;
-    CFE_TBL_Global.Registry[0].HeadOfAccessList = CFE_TBL_END_OF_LIST + 1;
+    CFE_TBL_Global.Registry[0].OwnerAppId      = CFE_TBL_NOT_OWNED;
+    CFE_TBL_Global.Registry[0].AccessList.Next = CFE_TBL_END_OF_LIST + 1;
     CFE_UtAssert_SUCCESS(CFE_TBL_TxnAllocateRegistryEntry(&Txn));
     UtAssert_INT32_EQ(CFE_TBL_TxnRegId(&Txn), 1);
     CFE_UtAssert_EVENTCOUNT(0);

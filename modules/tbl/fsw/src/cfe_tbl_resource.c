@@ -35,7 +35,7 @@
 
 /*----------------------------------------------------------------
  *
- * Implemented per public API
+ * Application-scope internal function
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
@@ -50,9 +50,10 @@ CFE_Status_t CFE_TBL_Handle_ToIndex(CFE_TBL_Handle_t TblHandle, uint32 *Idx)
 
     return CFE_SUCCESS;
 }
+
 /*----------------------------------------------------------------
  *
- * Implemented per public API
+ * Application-scope internal function
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
@@ -97,6 +98,18 @@ CFE_TBL_RegistryRec_t *CFE_TBL_LocateRegistryRecordByID(CFE_TBL_RegId_t RegId)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
+CFE_TBL_RegId_t CFE_TBL_RegistryRecordGetID(const CFE_TBL_RegistryRec_t *RegRecPtr)
+{
+    /* The pointer should be to an entry within the Registry array */
+    return (RegRecPtr - CFE_TBL_Global.Registry);
+}
+
+/*----------------------------------------------------------------
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 CFE_TBL_AccessDescriptor_t *CFE_TBL_LocateAccessDescriptorByHandle(CFE_TBL_Handle_t TblHandle)
 {
     CFE_TBL_AccessDescriptor_t *AccessDescPtr;
@@ -112,4 +125,16 @@ CFE_TBL_AccessDescriptor_t *CFE_TBL_LocateAccessDescriptorByHandle(CFE_TBL_Handl
     }
 
     return AccessDescPtr;
+}
+
+/*----------------------------------------------------------------
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+CFE_TBL_Handle_t CFE_TBL_AccessDescriptorGetHandle(const CFE_TBL_AccessDescriptor_t *AccessDescPtr)
+{
+    /* The pointer should be to an entry within the Handles array */
+    return (AccessDescPtr - CFE_TBL_Global.Handles);
 }

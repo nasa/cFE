@@ -251,14 +251,8 @@ CFE_Status_t CFE_TBL_Share(CFE_TBL_Handle_t *TblHandlePtr, const char *TblName)
             AccessDescPtr->RegIndex = CFE_TBL_TxnRegId(&Txn);
             AccessDescPtr->UsedFlag = true;
 
-            AccessDescPtr->PrevLink = CFE_TBL_END_OF_LIST; /* We are the new head of the list */
-            AccessDescPtr->NextLink = RegRecPtr->HeadOfAccessList;
-
-            /* Make sure the old head of the list now sees this as the head */
-            CFE_TBL_Global.Handles[RegRecPtr->HeadOfAccessList].PrevLink = CFE_TBL_TxnHandle(&Txn);
-
-            /* Make sure the Registry Record see this as the head of the list */
-            RegRecPtr->HeadOfAccessList = CFE_TBL_TxnHandle(&Txn);
+            CFE_TBL_HandleLinkInit(&AccessDescPtr->Link);
+            CFE_TBL_HandleListInsertLink(RegRecPtr, AccessDescPtr);
         }
 
         CFE_TBL_TxnFinish(&Txn);
@@ -647,7 +641,7 @@ CFE_Status_t CFE_TBL_Update(CFE_TBL_Handle_t TblHandle)
         /*
          * Note that (Status < 0) specifically matches ERROR, not WARNING codes. The CFE_TBL_UpdateInternal() function
          * currently only produces two possible codes (aside from CFE_SUCCESS) and both of these are defined as
-         * warnings, not errors.  Therefore, its impossible to reach this code with RegRegPtr != NULL.
+         * warnings, not errors.  Therefore, its impossible to reach this code with RegRecPtr != NULL.
          */
         CFE_EVS_SendEventWithAppID(CFE_TBL_UPDATE_ERR_EID, CFE_EVS_EventType_ERROR, CFE_TBL_Global.TableTaskAppId,
                                    "%s Failed to update table, Status=0x%08X", AppName, (unsigned int)Status);
@@ -1088,7 +1082,6 @@ CFE_Status_t CFE_TBL_GetInfo(CFE_TBL_Info_t *TblInfoPtr, const char *TblName)
     int32                  Status               = CFE_SUCCESS;
     int32                  NumAccessDescriptors = 0;
     CFE_TBL_RegistryRec_t *RegRecPtr;
-    CFE_TBL_Handle_t       HandleIterator;
 
     if (TblInfoPtr == NULL || TblName == NULL)
     {
@@ -1117,13 +1110,7 @@ CFE_Status_t CFE_TBL_GetInfo(CFE_TBL_Info_t *TblInfoPtr, const char *TblName)
         strncpy(TblInfoPtr->LastFileLoaded, RegRecPtr->LastFileLoaded, sizeof(TblInfoPtr->LastFileLoaded) - 1);
         TblInfoPtr->LastFileLoaded[sizeof(TblInfoPtr->LastFileLoaded) - 1] = 0;
 
-        /* Count the number of Access Descriptors to determine the number of users */
-        HandleIterator = RegRecPtr->HeadOfAccessList;
-        while (HandleIterator != CFE_TBL_END_OF_LIST)
-        {
-            NumAccessDescriptors++;
-            HandleIterator = CFE_TBL_Global.Handles[HandleIterator].NextLink;
-        }
+        CFE_TBL_ForeachAccessDescriptor(RegRecPtr, CFE_TBL_CountAccessDescHelper, &NumAccessDescriptors);
 
         TblInfoPtr->NumUsers = NumAccessDescriptors;
 
@@ -1192,6 +1179,23 @@ CFE_Status_t CFE_TBL_DumpToBuffer(CFE_TBL_Handle_t TblHandle)
 
 /*----------------------------------------------------------------
  *
+ * Local helper function, not invoked outside this unit
+ * Intended to be used with CFE_TBL_ForeachAccessDescriptor()
+ *
+ *-----------------------------------------------------------------*/
+static void CFE_TBL_NotifyOtherAppHelper(CFE_TBL_AccessDescriptor_t *AccessDescPtr, void *Arg)
+{
+    CFE_TBL_TxnState_t *Txn = Arg;
+
+    /* Only notify *OTHER* applications that the contents have changed */
+    if (!CFE_RESOURCEID_TEST_EQUAL(AccessDescPtr->AppId, CFE_TBL_TxnAppId(Txn)))
+    {
+        AccessDescPtr->Updated = true;
+    }
+}
+
+/*----------------------------------------------------------------
+ *
  * Implemented per public API
  * See description in header file for argument/return detail
  *
@@ -1201,7 +1205,6 @@ CFE_Status_t CFE_TBL_Modified(CFE_TBL_Handle_t TblHandle)
     CFE_TBL_TxnState_t     Txn;
     int32                  Status;
     CFE_TBL_RegistryRec_t *RegRecPtr = NULL;
-    CFE_TBL_Handle_t       AccessIterator;
     CFE_ES_AppId_t         ThisAppId;
     size_t                 FilenameLen;
 
@@ -1241,17 +1244,8 @@ CFE_Status_t CFE_TBL_Modified(CFE_TBL_Handle_t TblHandle)
             strncpy(&RegRecPtr->LastFileLoaded[sizeof(RegRecPtr->LastFileLoaded) - 4], "(*)", 4);
         }
 
-        AccessIterator = RegRecPtr->HeadOfAccessList;
-        while (AccessIterator != CFE_TBL_END_OF_LIST)
-        {
-            /* Only notify *OTHER* applications that the contents have changed */
-            if (!CFE_RESOURCEID_TEST_EQUAL(CFE_TBL_Global.Handles[AccessIterator].AppId, ThisAppId))
-            {
-                CFE_TBL_Global.Handles[AccessIterator].Updated = true;
-            }
-
-            AccessIterator = CFE_TBL_Global.Handles[AccessIterator].NextLink;
-        }
+        /* Only notify *OTHER* applications that the contents have changed */
+        CFE_TBL_ForeachAccessDescriptor(RegRecPtr, CFE_TBL_NotifyOtherAppHelper, &Txn);
     }
     else
     {
