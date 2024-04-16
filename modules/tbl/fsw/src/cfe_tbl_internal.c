@@ -35,6 +35,31 @@
 #include <stdio.h>
 #include <string.h>
 
+/**
+ * Local/private structure used in conjunction with CFE_TBL_CheckInactiveBufferHelper
+ */
+typedef struct CFE_TBL_CheckInactiveBuffer
+{
+    int32          BufferIndex;
+    CFE_ES_AppId_t LockingAppId;
+} CFE_TBL_CheckInactiveBuffer_t;
+
+/*----------------------------------------------------------------
+ *
+ * Local helper function, not invoked outside this unit
+ * Intended to be used with CFE_TBL_ForeachAccessDescriptor()
+ *
+ *-----------------------------------------------------------------*/
+static void CFE_TBL_CheckInactiveBufferHelper(CFE_TBL_AccessDescriptor_t *AccDescPtr, void *Arg)
+{
+    CFE_TBL_CheckInactiveBuffer_t *StatPtr = Arg;
+
+    if (AccDescPtr->BufferIndex == StatPtr->BufferIndex && AccDescPtr->LockFlag)
+    {
+        StatPtr->LockingAppId = AccDescPtr->AppId;
+    }
+}
+
 /*----------------------------------------------------------------
  *
  * Implemented per public API
@@ -60,9 +85,8 @@ int32 CFE_TBL_EarlyInit(void)
     /* Initialize the Table Access Descriptors nonzero values */
     for (i = 0; i < CFE_PLATFORM_TBL_MAX_NUM_HANDLES; i++)
     {
-        CFE_TBL_Global.Handles[i].AppId    = CFE_TBL_NOT_OWNED;
-        CFE_TBL_Global.Handles[i].PrevLink = CFE_TBL_END_OF_LIST;
-        CFE_TBL_Global.Handles[i].NextLink = CFE_TBL_END_OF_LIST;
+        CFE_TBL_Global.Handles[i].AppId = CFE_TBL_NOT_OWNED;
+        CFE_TBL_HandleLinkInit(&CFE_TBL_Global.Handles[i].Link);
     }
 
     /* Initialize the Table Validation Results Records nonzero values */
@@ -201,12 +225,13 @@ void CFE_TBL_InitRegistryRecord(CFE_TBL_RegistryRec_t *RegRecPtr)
 
     RegRecPtr->OwnerAppId            = CFE_TBL_NOT_OWNED;
     RegRecPtr->NotificationMsgId     = CFE_SB_INVALID_MSG_ID;
-    RegRecPtr->HeadOfAccessList      = CFE_TBL_END_OF_LIST;
     RegRecPtr->LoadInProgress        = CFE_TBL_NO_LOAD_IN_PROGRESS;
     RegRecPtr->ValidateActiveIndex   = CFE_TBL_NO_VALIDATION_PENDING;
     RegRecPtr->ValidateInactiveIndex = CFE_TBL_NO_VALIDATION_PENDING;
     RegRecPtr->CDSHandle             = CFE_ES_CDS_BAD_HANDLE;
     RegRecPtr->DumpControlIndex      = CFE_TBL_NO_DUMP_PENDING;
+
+    CFE_TBL_HandleLinkInit(&RegRecPtr->AccessList);
 }
 
 /*----------------------------------------------------------------
@@ -306,11 +331,10 @@ int32 CFE_TBL_UnlockRegistry(void)
 int32 CFE_TBL_GetWorkingBuffer(CFE_TBL_LoadBuff_t **WorkingBufferPtr, CFE_TBL_RegistryRec_t *RegRecPtr,
                                bool CalledByApp)
 {
-    int32            Status = CFE_SUCCESS;
-    int32            OsStatus;
-    int32            i;
-    int32            InactiveBufferIndex;
-    CFE_TBL_Handle_t AccessIterator;
+    int32                         Status = CFE_SUCCESS;
+    int32                         OsStatus;
+    int32                         i;
+    CFE_TBL_CheckInactiveBuffer_t CheckStat;
 
     /* Initialize return pointer to NULL */
     *WorkingBufferPtr = NULL;
@@ -350,32 +374,27 @@ int32 CFE_TBL_GetWorkingBuffer(CFE_TBL_LoadBuff_t **WorkingBufferPtr, CFE_TBL_Re
             /* inactive buffer has been freed by any Applications that may have been using it */
             if (RegRecPtr->DoubleBuffered)
             {
+                memset(&CheckStat, 0, sizeof(CheckStat));
+
                 /* Determine the index of the Inactive Buffer Pointer */
-                InactiveBufferIndex = 1 - RegRecPtr->ActiveBufferIndex;
+                CheckStat.BufferIndex = 1 - RegRecPtr->ActiveBufferIndex;
 
                 /* Scan the access descriptor table to determine if anyone is still using the inactive buffer */
-                AccessIterator = RegRecPtr->HeadOfAccessList;
-                while ((AccessIterator != CFE_TBL_END_OF_LIST) && (Status == CFE_SUCCESS))
+                CFE_TBL_ForeachAccessDescriptor(RegRecPtr, CFE_TBL_CheckInactiveBufferHelper, &CheckStat);
+
+                if (CFE_RESOURCEID_TEST_DEFINED(CheckStat.LockingAppId))
                 {
-                    if ((CFE_TBL_Global.Handles[AccessIterator].BufferIndex == InactiveBufferIndex) &&
-                        (CFE_TBL_Global.Handles[AccessIterator].LockFlag))
-                    {
-                        Status = CFE_TBL_ERR_NO_BUFFER_AVAIL;
+                    Status = CFE_TBL_ERR_NO_BUFFER_AVAIL;
 
-                        CFE_ES_WriteToSysLog("%s: Inactive Dbl Buff Locked for '%s' by AppId=%lu\n", __func__,
-                                             RegRecPtr->Name,
-                                             CFE_RESOURCEID_TO_ULONG(CFE_TBL_Global.Handles[AccessIterator].AppId));
-                    }
-
-                    /* Move to next access descriptor in linked list */
-                    AccessIterator = CFE_TBL_Global.Handles[AccessIterator].NextLink;
+                    CFE_ES_WriteToSysLog("%s: Inactive Dbl Buff Locked for '%s' by AppId=%lu\n", __func__,
+                                         RegRecPtr->Name, CFE_RESOURCEID_TO_ULONG(CheckStat.LockingAppId));
                 }
 
                 /* If buffer is free, then return the pointer to it */
                 if (Status == CFE_SUCCESS)
                 {
-                    *WorkingBufferPtr         = &RegRecPtr->Buffers[InactiveBufferIndex];
-                    RegRecPtr->LoadInProgress = InactiveBufferIndex;
+                    *WorkingBufferPtr         = &RegRecPtr->Buffers[CheckStat.BufferIndex];
+                    RegRecPtr->LoadInProgress = CheckStat.BufferIndex;
                 }
             }
             else /* Single Buffered Table */
@@ -576,6 +595,22 @@ int32 CFE_TBL_LoadFromFile(const char *AppName, CFE_TBL_LoadBuff_t *WorkingBuffe
 
 /*----------------------------------------------------------------
  *
+ * Local helper function, not invoked outside this unit
+ * Intended to be used with CFE_TBL_ForeachAccessDescriptor()
+ *
+ *-----------------------------------------------------------------*/
+static void CFE_TBL_CheckLockHelper(CFE_TBL_AccessDescriptor_t *AccDescPtr, void *Arg)
+{
+    bool *LockStatus = Arg;
+
+    if (AccDescPtr->LockFlag)
+    {
+        *LockStatus = true;
+    }
+}
+
+/*----------------------------------------------------------------
+ *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -583,9 +618,8 @@ int32 CFE_TBL_LoadFromFile(const char *AppName, CFE_TBL_LoadBuff_t *WorkingBuffe
 int32 CFE_TBL_UpdateInternal(CFE_TBL_Handle_t TblHandle, CFE_TBL_RegistryRec_t *RegRecPtr,
                              CFE_TBL_AccessDescriptor_t *AccessDescPtr)
 {
-    int32            Status = CFE_SUCCESS;
-    CFE_TBL_Handle_t AccessIterator;
-    bool             LockStatus = false;
+    int32 Status     = CFE_SUCCESS;
+    bool  LockStatus = false;
 
     if ((!RegRecPtr->LoadPending) || (RegRecPtr->LoadInProgress == CFE_TBL_NO_LOAD_IN_PROGRESS))
     {
@@ -618,13 +652,7 @@ int32 CFE_TBL_UpdateInternal(CFE_TBL_Handle_t TblHandle, CFE_TBL_RegistryRec_t *
         else
         {
             /* Check to see if the Table is locked by anyone */
-            AccessIterator = RegRecPtr->HeadOfAccessList;
-            while (AccessIterator != CFE_TBL_END_OF_LIST)
-            {
-                LockStatus = (LockStatus || CFE_TBL_Global.Handles[AccessIterator].LockFlag);
-
-                AccessIterator = CFE_TBL_Global.Handles[AccessIterator].NextLink;
-            }
+            CFE_TBL_ForeachAccessDescriptor(RegRecPtr, CFE_TBL_CheckLockHelper, &LockStatus);
 
             if (LockStatus)
             {
@@ -675,14 +703,23 @@ int32 CFE_TBL_UpdateInternal(CFE_TBL_Handle_t TblHandle, CFE_TBL_RegistryRec_t *
 
 /*----------------------------------------------------------------
  *
+ * Local helper function, not invoked outside this unit
+ * Intended to be used with CFE_TBL_ForeachAccessDescriptor()
+ *
+ *-----------------------------------------------------------------*/
+static void CFE_TBL_SetUpdatedHelper(CFE_TBL_AccessDescriptor_t *AccDescPtr, void *Arg)
+{
+    AccDescPtr->Updated = true;
+}
+
+/*----------------------------------------------------------------
+ *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 void CFE_TBL_NotifyTblUsersOfUpdate(CFE_TBL_RegistryRec_t *RegRecPtr)
 {
-    CFE_TBL_Handle_t AccessIterator;
-
     /* Reset Load in Progress Values */
     RegRecPtr->LoadInProgress   = CFE_TBL_NO_LOAD_IN_PROGRESS;
     RegRecPtr->TimeOfLastUpdate = CFE_TIME_GetTime();
@@ -690,13 +727,8 @@ void CFE_TBL_NotifyTblUsersOfUpdate(CFE_TBL_RegistryRec_t *RegRecPtr)
     /* Clear notification of pending load (as well as NO LOAD) and notify everyone of update */
     RegRecPtr->LoadPending     = false;
     RegRecPtr->TableLoadedOnce = true;
-    AccessIterator             = RegRecPtr->HeadOfAccessList;
-    while (AccessIterator != CFE_TBL_END_OF_LIST)
-    {
-        CFE_TBL_Global.Handles[AccessIterator].Updated = true;
 
-        AccessIterator = CFE_TBL_Global.Handles[AccessIterator].NextLink;
-    }
+    CFE_TBL_ForeachAccessDescriptor(RegRecPtr, CFE_TBL_SetUpdatedHelper, NULL);
 }
 
 /*----------------------------------------------------------------
@@ -1352,4 +1384,165 @@ void CFE_TBL_RegisterWithCriticalTableRegistry(CFE_TBL_CritRegRec_t *CritRegRecP
 
     /* Mark the table as critical for future reference */
     RegRecPtr->CriticalTable = true;
+}
+
+/*----------------------------------------------------------------
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+static inline CFE_TBL_AccessDescriptor_t *CFE_TBL_HandleListGetNext(const CFE_TBL_HandleLink_t *Link)
+{
+    return CFE_TBL_LocateAccessDescriptorByHandle(Link->Next);
+}
+
+/*----------------------------------------------------------------
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+static inline CFE_TBL_AccessDescriptor_t *CFE_TBL_HandleListGetPrev(const CFE_TBL_HandleLink_t *Link)
+{
+    return CFE_TBL_LocateAccessDescriptorByHandle(Link->Prev);
+}
+
+/*----------------------------------------------------------------
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+void CFE_TBL_HandleListGetSafeLink(CFE_TBL_RegistryRec_t *RegRecPtr, CFE_TBL_AccessDescriptor_t *AccDescPtr,
+                                   CFE_TBL_HandleLink_t **PtrOut, CFE_TBL_Handle_t *HandleOut)
+{
+    if (AccDescPtr == NULL)
+    {
+        /* Instead of returning NULL, return a pointer to the head node linkage */
+        *PtrOut    = &RegRecPtr->AccessList;
+        *HandleOut = CFE_TBL_END_OF_LIST;
+    }
+    else
+    {
+        /* Return a pointer to this linkage */
+        *PtrOut    = &AccDescPtr->Link;
+        *HandleOut = CFE_TBL_AccessDescriptorGetHandle(AccDescPtr);
+    }
+}
+
+/*----------------------------------------------------------------
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+void CFE_TBL_HandleListRemoveLink(CFE_TBL_RegistryRec_t *RegRecPtr, CFE_TBL_AccessDescriptor_t *AccessDescPtr)
+{
+    CFE_TBL_HandleLink_t *LocalLink;
+    CFE_TBL_HandleLink_t *LocalPrevPtr;
+    CFE_TBL_HandleLink_t *LocalNextPtr;
+    CFE_TBL_Handle_t      LocalHandle;
+    CFE_TBL_Handle_t      PrevHandle;
+    CFE_TBL_Handle_t      NextHandle;
+
+    CFE_TBL_HandleListGetSafeLink(RegRecPtr, AccessDescPtr, &LocalLink, &LocalHandle);
+    CFE_TBL_HandleListGetSafeLink(RegRecPtr, CFE_TBL_HandleListGetNext(LocalLink), &LocalNextPtr, &NextHandle);
+    CFE_TBL_HandleListGetSafeLink(RegRecPtr, CFE_TBL_HandleListGetPrev(LocalLink), &LocalPrevPtr, &PrevHandle);
+
+    LocalPrevPtr->Next = NextHandle;
+    LocalNextPtr->Prev = PrevHandle;
+
+    /* now that it is removed, reset the link */
+    CFE_TBL_HandleLinkInit(LocalLink);
+}
+
+/*----------------------------------------------------------------
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+void CFE_TBL_HandleListInsertLink(CFE_TBL_RegistryRec_t *RegRecPtr, CFE_TBL_AccessDescriptor_t *AccessDescPtr)
+{
+    CFE_TBL_HandleLink_t *LocalLink;
+    CFE_TBL_HandleLink_t *LocalPrevPtr;
+    CFE_TBL_HandleLink_t *LocalNextPtr;
+    CFE_TBL_Handle_t      LocalHandle;
+    CFE_TBL_Handle_t      PrevHandle;
+    CFE_TBL_Handle_t      NextHandle;
+
+    /* inserting at the front, so the "previous" will always be the head node (NULL) */
+    CFE_TBL_HandleListGetSafeLink(RegRecPtr, AccessDescPtr, &LocalLink, &LocalHandle);
+    CFE_TBL_HandleListGetSafeLink(RegRecPtr, NULL, &LocalPrevPtr, &PrevHandle);
+    CFE_TBL_HandleListGetSafeLink(RegRecPtr, CFE_TBL_HandleListGetNext(LocalPrevPtr), &LocalNextPtr, &NextHandle);
+
+    LocalLink->Next = NextHandle;
+    LocalLink->Prev = PrevHandle;
+
+    LocalPrevPtr->Next = LocalHandle;
+    LocalNextPtr->Prev = LocalHandle;
+}
+
+/*----------------------------------------------------------------
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+void CFE_TBL_ForeachAccessDescriptor(CFE_TBL_RegistryRec_t *RegRecPtr, CFE_TBL_AccessDescFunc_t Func, void *Arg)
+{
+    CFE_TBL_AccessDescriptor_t *AccDescPtr;
+    const CFE_TBL_HandleLink_t *LinkPtr;
+
+    LinkPtr = &RegRecPtr->AccessList;
+    while (true)
+    {
+        AccDescPtr = CFE_TBL_HandleListGetNext(LinkPtr);
+
+        if (AccDescPtr == NULL)
+        {
+            break;
+        }
+
+        Func(AccDescPtr, Arg);
+
+        LinkPtr = &AccDescPtr->Link;
+    }
+}
+
+/*----------------------------------------------------------------
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+void CFE_TBL_HandleLinkInit(CFE_TBL_HandleLink_t *LinkPtr)
+{
+    LinkPtr->Prev = CFE_TBL_END_OF_LIST;
+    LinkPtr->Next = CFE_TBL_END_OF_LIST;
+}
+
+/*----------------------------------------------------------------
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+bool CFE_TBL_HandleLinkIsAttached(CFE_TBL_HandleLink_t *LinkPtr)
+{
+    return (LinkPtr->Next != CFE_TBL_END_OF_LIST);
+}
+
+/*----------------------------------------------------------------
+ *
+ * Application-scope internal function
+ * Intended to be used with CFE_TBL_ForeachAccessDescriptor()
+ *
+ *-----------------------------------------------------------------*/
+void CFE_TBL_CountAccessDescHelper(CFE_TBL_AccessDescriptor_t *AccDescPtr, void *Arg)
+{
+    uint32 *Count = Arg;
+
+    ++(*Count);
 }

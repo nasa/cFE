@@ -48,6 +48,17 @@
 #define CFE_TBL_NOT_FOUND   (-1)
 #define CFE_TBL_END_OF_LIST (CFE_TBL_Handle_t)0xFFFF
 
+/**
+ * Function type used with access descriptor iterator
+ *
+ * The access descriptor iterator will invoke the supplied function
+ * for every descriptor associated with the table registry entry
+ *
+ * \param AccDescPtr Pointer to the current access descriptor
+ * \param Arg Opaque argument from caller (passed through)
+ */
+typedef void (* const CFE_TBL_AccessDescFunc_t)(CFE_TBL_AccessDescriptor_t *AccDescPtr, void *Arg);
+
 /*****************************  Function Prototypes   **********************************/
 
 /*---------------------------------------------------------------------------------------*/
@@ -536,6 +547,105 @@ CFE_Status_t CFE_TBL_RestoreTableDataFromCDS(CFE_TBL_RegistryRec_t *RegRecPtr, c
 */
 void CFE_TBL_RegisterWithCriticalTableRegistry(CFE_TBL_CritRegRec_t *CritRegRecPtr, CFE_TBL_RegistryRec_t *RegRecPtr,
                                                const char *TblName);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+** \brief Generic iterator for access descriptors associated with a Table Registry
+**
+** \par Description
+**        This function iterates through the list of access descriptors that are associated
+**        with the given table registry entry.  The user-supplied callback function will be
+**        invoked for each access descriptor, with the opaque pointer argument passed as a
+**        parameter.
+**
+** \par Assumptions, External Events, and Notes:
+**        The caller should ensure that the list is not modified by other threads during this call
+**
+** \param RegRecPtr The pointer to the registry record
+** \param Func The function to invoke for each access descriptor
+** \param Arg Opaque argument, passed through to function
+*/
+void CFE_TBL_ForeachAccessDescriptor(CFE_TBL_RegistryRec_t *RegRecPtr, CFE_TBL_AccessDescFunc_t Func, void *Arg);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+** \brief Handle iterator function that increments a counter
+**
+** \par Description
+**        When used with CFE_TBL_ForeachAccessDescriptor() this will count the number of entries
+**
+** \par Assumptions, External Events, and Notes:
+**        This is declared here so it can be used in several places that count descriptors
+**
+** \param AccDescPtr Pointer to descriptor entry, not used
+** \param Arg a pointer to a uint32 value that is incremented on each call
+*/
+void CFE_TBL_CountAccessDescHelper(CFE_TBL_AccessDescriptor_t *AccDescPtr, void *Arg);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+** \brief Initializes a handle link
+**
+** \par Description
+**        Sets the handle link to initial condition, where it is not a member of any list
+**        After this call, CFE_TBL_HandleLinkIsAttached() on this link will always return false
+**
+** \par Assumptions, External Events, and Notes:
+**        None
+**
+** \param LinkPtr Pointer to link entry to initialize
+*/
+void CFE_TBL_HandleLinkInit(CFE_TBL_HandleLink_t *LinkPtr);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+** \brief Checks if a handle link is attached to another entry
+**
+** \par Description
+**        This will return true if the passed-in link is attached to another list node,
+**        indicating it is part of a list.  Conversely, this will return false if the
+**        link is not attached to another node, indicating a singleton or empty list.
+**
+** \par Assumptions, External Events, and Notes:
+**        None
+**
+** \param LinkPtr Pointer to link entry to check
+** \retval true if the link node is part of a list (attached)
+** \retval false if the link node is not part of a list (detached)
+*/
+bool CFE_TBL_HandleLinkIsAttached(CFE_TBL_HandleLink_t *LinkPtr);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+** \brief Removes the given access descriptor from the registry list
+**
+** \par Description
+**        This will disassociate the access descriptor from the table registry record by
+**        removing/extracting the access descriptor from the linked list
+**
+** \par Assumptions, External Events, and Notes:
+**        None
+**
+** \param RegRecPtr The table registry record that is associated with the access descriptor
+** \param AccessDescPtr The access descriptor that is to be removed from the list
+*/
+void CFE_TBL_HandleListRemoveLink(CFE_TBL_RegistryRec_t *RegRecPtr, CFE_TBL_AccessDescriptor_t *AccessDescPtr);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+** \brief Inserts the given access descriptor into the registry list
+**
+** \par Description
+**        This will associate the access descriptor with the table registry record by
+**        inserting the access descriptor into the linked list
+**
+** \par Assumptions, External Events, and Notes:
+**        None
+**
+** \param RegRecPtr The table registry record that should be associated with the access descriptor
+** \param AccessDescPtr The access descriptor that is to be added to the list
+*/
+void CFE_TBL_HandleListInsertLink(CFE_TBL_RegistryRec_t *RegRecPtr, CFE_TBL_AccessDescriptor_t *AccessDescPtr);
 
 /*
 ** Globals specific to the TBL module

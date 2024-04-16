@@ -1018,8 +1018,8 @@ bool CFE_TBL_DumpRegistryGetter(void *Meta, uint32 RecordNum, void **Buffer, siz
 {
     CFE_TBL_RegDumpStateInfo_t *StatePtr = (CFE_TBL_RegDumpStateInfo_t *)Meta;
     CFE_TBL_RegistryRec_t *     RegRecPtr;
-    CFE_TBL_Handle_t            HandleIterator;
     CFE_ES_AppId_t              OwnerAppId;
+    uint32                      NumUsers;
     bool                        IsValidEntry;
 
     IsValidEntry = false;
@@ -1035,7 +1035,7 @@ bool CFE_TBL_DumpRegistryGetter(void *Meta, uint32 RecordNum, void **Buffer, siz
 
         /* Check to see if the Registry entry is empty */
         if (!CFE_RESOURCEID_TEST_EQUAL(RegRecPtr->OwnerAppId, CFE_TBL_NOT_OWNED) ||
-            (RegRecPtr->HeadOfAccessList != CFE_TBL_END_OF_LIST))
+            CFE_TBL_HandleLinkIsAttached(&RegRecPtr->AccessList))
         {
             IsValidEntry = true;
             OwnerAppId   = RegRecPtr->OwnerAppId;
@@ -1078,13 +1078,10 @@ bool CFE_TBL_DumpRegistryGetter(void *Meta, uint32 RecordNum, void **Buffer, siz
             StatePtr->DumpRecord.LastFileLoaded[sizeof(StatePtr->DumpRecord.LastFileLoaded) - 1] = 0;
 
             /* Walk the access descriptor list to determine the number of users */
-            StatePtr->DumpRecord.NumUsers = 0;
-            HandleIterator                = RegRecPtr->HeadOfAccessList;
-            while (HandleIterator != CFE_TBL_END_OF_LIST)
-            {
-                StatePtr->DumpRecord.NumUsers++;
-                HandleIterator = CFE_TBL_Global.Handles[HandleIterator].NextLink;
-            }
+
+            NumUsers = 0;
+            CFE_TBL_ForeachAccessDescriptor(RegRecPtr, CFE_TBL_CountAccessDescHelper, &NumUsers);
+            StatePtr->DumpRecord.NumUsers = NumUsers;
         }
 
         /* Unlock now - remainder of data gathering uses ES */
