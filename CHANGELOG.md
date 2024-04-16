@@ -1,5 +1,9 @@
 # Changelog
 
+## Development Build: equuleus-rc1+dev131
+- add handle list operation routines
+- See <https://github.com/nasa/cFE/pull/2548>
+
 ## Development Build: equuleus-rc1+dev127
 - improve app dev guide
 - consistent TIME values for TBL structures

@@ -26,7 +26,7 @@
 #define CFE_VERSION_H
 
 /* Development Build Macro Definitions */
-#define CFE_BUILD_NUMBER    127 /**< @brief Development: Number of development git commits since CFE_BUILD_BASELINE */
+#define CFE_BUILD_NUMBER    131 /**< @brief Development: Number of development git commits since CFE_BUILD_BASELINE */
 #define CFE_BUILD_BASELINE  "equuleus-rc1" /**< @brief Development: Reference git tag for build number */
 #define CFE_BUILD_DEV_CYCLE "equuleus-rc2" /**< @brief Development: Release name for current development cycle */
 #define CFE_BUILD_CODENAME  "Equuleus"     /**< @brief: Development: Code name for the current build */
