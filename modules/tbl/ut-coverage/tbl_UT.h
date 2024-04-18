@@ -684,5 +684,6 @@ int32 Test_CFE_TBL_ValidationFunc(void *TblPtr);
 void Test_CFE_TBL_ResourceID_ValidationResult(void);
 void Test_CFE_TBL_ResourceID_RegistryRecord(void);
 void Test_CFE_TBL_ResourceID_AccessDescriptor(void);
+void Test_CFE_TBL_ResourceID_DumpControl(void);
 
 #endif /* TBL_UT_H */

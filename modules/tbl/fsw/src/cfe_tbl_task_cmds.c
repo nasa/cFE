@@ -86,10 +86,11 @@ int32 CFE_TBL_SendHkCmd(const CFE_TBL_SendHkCmd_t *data)
     /* Check to see if there are any dump-only table dumps pending */
     for (i = 0; i < CFE_PLATFORM_TBL_MAX_SIMULTANEOUS_LOADS; i++)
     {
-        if (CFE_TBL_Global.DumpControlBlocks[i].State == CFE_TBL_DUMP_PERFORMED)
+        DumpCtrlPtr = &CFE_TBL_Global.DumpControlBlocks[i];
+
+        if (CFE_TBL_DumpCtrlBlockIsUsed(DumpCtrlPtr) && DumpCtrlPtr->State == CFE_TBL_DUMP_PERFORMED)
         {
-            DumpCtrlPtr = &CFE_TBL_Global.DumpControlBlocks[i];
-            Status      = CFE_TBL_DumpToFile(DumpCtrlPtr->DumpBufferPtr->DataSource, DumpCtrlPtr->TableName,
+            Status = CFE_TBL_DumpToFile(DumpCtrlPtr->DumpBufferPtr->DataSource, DumpCtrlPtr->TableName,
                                         DumpCtrlPtr->DumpBufferPtr->BufferPtr, DumpCtrlPtr->Size);
 
             /* If dump file was successfully written, update the file header so that the timestamp */
@@ -125,7 +126,7 @@ int32 CFE_TBL_SendHkCmd(const CFE_TBL_SendHkCmd_t *data)
             DumpCtrlPtr->RegRecPtr->LoadInProgress                                 = CFE_TBL_NO_LOAD_IN_PROGRESS;
 
             /* Free the Dump Control Block for later use */
-            DumpCtrlPtr->State = CFE_TBL_DUMP_FREE;
+            CFE_TBL_DumpCtrlBlockSetFree(DumpCtrlPtr);
         }
     }
 
@@ -536,16 +537,19 @@ int32 CFE_TBL_LoadCmd(const CFE_TBL_LoadCmd_t *data)
 int32 CFE_TBL_DumpCmd(const CFE_TBL_DumpCmd_t *data)
 {
     CFE_TBL_CmdProcRet_t             ReturnCode = CFE_TBL_INC_ERR_CTR; /* Assume failure */
-    int16                            RegIndex;
+    CFE_TBL_TxnState_t               Txn;
     const CFE_TBL_DumpCmd_Payload_t *CmdPtr = &data->Payload;
     char                             DumpFilename[OS_MAX_PATH_LEN];
     char                             TableName[CFE_TBL_MAX_FULL_NAME_LEN];
     CFE_TBL_RegistryRec_t *          RegRecPtr;
-    void *                           DumpDataAddr = NULL;
     CFE_TBL_LoadBuff_t *             WorkingBufferPtr;
-    int32                            DumpIndex;
-    int32                            Status;
+    CFE_TBL_LoadBuff_t *             SelectedBufferPtr;
+    CFE_ResourceId_t                 PendingDumpId;
+    CFE_Status_t                     Status;
     CFE_TBL_DumpControl_t *          DumpCtrlPtr;
+
+    SelectedBufferPtr = NULL;
+    WorkingBufferPtr  = NULL;
 
     /* Make sure all strings are null terminated before attempting to process them */
     CFE_SB_MessageStringGet(DumpFilename, (char *)CmdPtr->DumpFilename, NULL, sizeof(DumpFilename),
@@ -554,76 +558,47 @@ int32 CFE_TBL_DumpCmd(const CFE_TBL_DumpCmd_t *data)
     CFE_SB_MessageStringGet(TableName, (char *)CmdPtr->TableName, NULL, sizeof(TableName), sizeof(CmdPtr->TableName));
 
     /* Before doing anything, lets make sure the table that is to be dumped exists */
-    RegIndex = CFE_TBL_FindTableInRegistry(TableName);
+    Status = CFE_TBL_TxnStartFromName(&Txn, TableName, CFE_TBL_TxnContext_UNDEFINED);
 
-    if (RegIndex != CFE_TBL_NOT_FOUND)
+    if (Status == CFE_SUCCESS)
     {
         /* Obtain a pointer to registry information about specified table */
-        RegRecPtr = &CFE_TBL_Global.Registry[RegIndex];
+        RegRecPtr = CFE_TBL_TxnRegRec(&Txn);
 
         /* Determine what data is to be dumped */
-        if (CmdPtr->ActiveTableFlag == CFE_TBL_BufferSelect_ACTIVE)
-        {
-            DumpDataAddr = RegRecPtr->Buffers[RegRecPtr->ActiveBufferIndex].BufferPtr;
-        }
-        else if (CmdPtr->ActiveTableFlag == CFE_TBL_BufferSelect_INACTIVE) /* Dumping Inactive Buffer */
-        {
-            /* If this is a double buffered table, locating the inactive buffer is trivial */
-            if (RegRecPtr->DoubleBuffered)
-            {
-                DumpDataAddr = RegRecPtr->Buffers[(1U - RegRecPtr->ActiveBufferIndex)].BufferPtr;
-            }
-            else
-            {
-                /* For single buffered tables, the index to the inactive buffer is kept in 'LoadInProgress' */
-                /* Unless this is a table whose address was defined by the owning Application.              */
-                if ((RegRecPtr->LoadInProgress != CFE_TBL_NO_LOAD_IN_PROGRESS) && (!RegRecPtr->UserDefAddr))
-                {
-                    DumpDataAddr = CFE_TBL_Global.LoadBuffs[RegRecPtr->LoadInProgress].BufferPtr;
-                }
-                else
-                {
-                    CFE_EVS_SendEvent(CFE_TBL_NO_INACTIVE_BUFFER_ERR_EID, CFE_EVS_EventType_ERROR,
-                                      "No Inactive Buffer for Table '%s' present", TableName);
-                }
-            }
-        }
-        else
+        SelectedBufferPtr = CFE_TBL_GetSelectedBuffer(RegRecPtr, CmdPtr->ActiveTableFlag);
+
+        CFE_TBL_TxnFinish(&Txn);
+
+        if (SelectedBufferPtr == NULL)
         {
             CFE_EVS_SendEvent(CFE_TBL_ILLEGAL_BUFF_PARAM_ERR_EID, CFE_EVS_EventType_ERROR,
                               "Cmd for Table '%s' had illegal buffer parameter (0x%08X)", TableName,
                               (unsigned int)CmdPtr->ActiveTableFlag);
         }
-
-        /* If we have located the data to be dumped, then proceed with creating the file and dumping the data */
-        if (DumpDataAddr != NULL)
+        else
         {
+            /* If we have located the data to be dumped, then proceed with creating the file and dumping the data */
             /* If this is not a dump only table, then we can perform the dump immediately */
             if (!RegRecPtr->DumpOnly)
             {
-                ReturnCode = CFE_TBL_DumpToFile(DumpFilename, TableName, DumpDataAddr, RegRecPtr->Size);
+                ReturnCode = CFE_TBL_DumpToFile(DumpFilename, TableName, SelectedBufferPtr->BufferPtr, RegRecPtr->Size);
             }
             else /* Dump Only tables need to synchronize their dumps with the owner's execution */
             {
                 /* Make sure a dump is not already in progress */
-                if (RegRecPtr->DumpControlIndex == CFE_TBL_NO_DUMP_PENDING)
+                if (!CFE_RESOURCEID_TEST_DEFINED(RegRecPtr->DumpControlId))
                 {
                     /* Find a free Dump Control Block */
-                    DumpIndex = 0;
-                    while ((DumpIndex < CFE_PLATFORM_TBL_MAX_SIMULTANEOUS_LOADS) &&
-                           (CFE_TBL_Global.DumpControlBlocks[DumpIndex].State != CFE_TBL_DUMP_FREE))
-                    {
-                        DumpIndex++;
-                    }
-
-                    if (DumpIndex < CFE_PLATFORM_TBL_MAX_SIMULTANEOUS_LOADS)
+                    PendingDumpId = CFE_TBL_GetNextDumpCtrlBlock();
+                    DumpCtrlPtr   = CFE_TBL_LocateDumpCtrlByID(CFE_TBL_DUMPCTRLID_C(PendingDumpId));
+                    if (DumpCtrlPtr != NULL)
                     {
                         /* Allocate a shared memory buffer for storing the data to be dumped */
                         Status = CFE_TBL_GetWorkingBuffer(&WorkingBufferPtr, RegRecPtr, false);
 
                         if (Status == CFE_SUCCESS)
                         {
-                            DumpCtrlPtr            = &CFE_TBL_Global.DumpControlBlocks[DumpIndex];
                             DumpCtrlPtr->State     = CFE_TBL_DUMP_PENDING;
                             DumpCtrlPtr->RegRecPtr = RegRecPtr;
 
@@ -634,7 +609,8 @@ int32 CFE_TBL_DumpCmd(const CFE_TBL_DumpCmd_t *data)
                             DumpCtrlPtr->Size = RegRecPtr->Size;
 
                             /* Notify the owning application that a dump is pending */
-                            RegRecPtr->DumpControlIndex = DumpIndex;
+                            CFE_TBL_DumpCtrlBlockSetUsed(DumpCtrlPtr, PendingDumpId);
+                            RegRecPtr->DumpControlId = CFE_TBL_DumpCtrlBlockGetId(DumpCtrlPtr);
 
                             /* If application requested notification by message, then do so */
                             CFE_TBL_SendNotificationMsg(RegRecPtr);

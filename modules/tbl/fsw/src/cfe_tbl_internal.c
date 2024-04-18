@@ -92,8 +92,6 @@ int32 CFE_TBL_EarlyInit(void)
     /* Initialize the Dump-Only Table Dump Control Blocks nonzero values */
     for (i = 0; i < CFE_PLATFORM_TBL_MAX_SIMULTANEOUS_LOADS; i++)
     {
-        CFE_TBL_Global.DumpControlBlocks[i].State = CFE_TBL_DUMP_FREE;
-
         /* Prevent Shared Buffers from being used until successfully allocated */
         CFE_TBL_Global.LoadBuffs[i].Taken = true;
     }
@@ -223,7 +221,7 @@ void CFE_TBL_InitRegistryRecord(CFE_TBL_RegistryRec_t *RegRecPtr)
     RegRecPtr->ValidateActiveId   = CFE_TBL_NO_VALIDATION_PENDING;
     RegRecPtr->ValidateInactiveId = CFE_TBL_NO_VALIDATION_PENDING;
     RegRecPtr->CDSHandle          = CFE_ES_CDS_BAD_HANDLE;
-    RegRecPtr->DumpControlIndex   = CFE_TBL_NO_DUMP_PENDING;
+    RegRecPtr->DumpControlId      = CFE_TBL_NO_DUMP_PENDING;
 
     CFE_TBL_HandleLinkInit(&RegRecPtr->AccessList);
 }
@@ -1021,19 +1019,22 @@ void CFE_TBL_ByteSwapUint32(uint32 *Uint32ToSwapPtr)
  *-----------------------------------------------------------------*/
 int32 CFE_TBL_CleanUpApp(CFE_ES_AppId_t AppId)
 {
-    uint32             i;
-    CFE_TBL_TxnState_t Txn;
+    uint32                 i;
+    CFE_TBL_TxnState_t     Txn;
+    CFE_TBL_DumpControl_t *DumpCtrlPtr;
 
     /* Scan Dump Requests to determine if any of the tables that */
     /* were to be dumped will be deleted */
     for (i = 0; i < CFE_PLATFORM_TBL_MAX_SIMULTANEOUS_LOADS; i++)
     {
+        DumpCtrlPtr = &CFE_TBL_Global.DumpControlBlocks[i];
+
         /* Check to see if the table to be dumped is owned by the App to be deleted */
-        if ((CFE_TBL_Global.DumpControlBlocks[i].State != CFE_TBL_DUMP_FREE) &&
-            CFE_RESOURCEID_TEST_EQUAL(CFE_TBL_Global.DumpControlBlocks[i].RegRecPtr->OwnerAppId, AppId))
+        if (CFE_TBL_DumpCtrlBlockIsUsed(DumpCtrlPtr) &&
+            CFE_RESOURCEID_TEST_EQUAL(DumpCtrlPtr->RegRecPtr->OwnerAppId, AppId))
         {
             /* If so, then remove the dump request */
-            CFE_TBL_Global.DumpControlBlocks[i].State = CFE_TBL_DUMP_FREE;
+            CFE_TBL_DumpCtrlBlockSetFree(DumpCtrlPtr);
         }
     }
 

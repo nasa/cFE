@@ -159,6 +159,46 @@ void UT_TBL_ResetValidationState(uint32 ArrayIndex)
     memset(ValResultPtr, 0, sizeof(*ValResultPtr));
 }
 
+void UT_TBL_SetupPendingDump(uint32 ArrayIndex, CFE_TBL_LoadBuff_t *DumpBufferPtr, CFE_TBL_RegistryRec_t *RegRecPtr,
+                             CFE_TBL_DumpControl_t **DumpCtrlOut)
+{
+    CFE_TBL_DumpControl_t *DumpCtrlPtr;
+    CFE_ResourceId_t       PendingId;
+
+    DumpCtrlPtr = &CFE_TBL_Global.DumpControlBlocks[ArrayIndex];
+
+    PendingId = CFE_ResourceId_FromInteger(CFE_TBL_DUMPCTRLID_BASE + ArrayIndex);
+
+    memset(DumpCtrlPtr, 0, sizeof(*DumpCtrlPtr));
+
+    DumpCtrlPtr->State         = CFE_TBL_DUMP_PENDING;
+    DumpCtrlPtr->BlockId       = CFE_TBL_DUMPCTRLID_C(PendingId);
+    DumpCtrlPtr->RegRecPtr     = RegRecPtr;
+    DumpCtrlPtr->DumpBufferPtr = DumpBufferPtr;
+    DumpCtrlPtr->Size          = 1;
+
+    snprintf(DumpCtrlPtr->TableName, sizeof(DumpCtrlPtr->TableName), "ut_cfe_tbl.UT_Table%u",
+             (unsigned int)ArrayIndex + 1);
+
+    if (RegRecPtr != NULL)
+    {
+        RegRecPtr->DumpControlId = DumpCtrlPtr->BlockId;
+    }
+
+    if (DumpCtrlOut != NULL)
+    {
+        *DumpCtrlOut = DumpCtrlPtr;
+    }
+}
+
+/* Resets the indicated dump control block to the free/unused state */
+void UT_TBL_ResetDumpCtrlState(uint32 ArrayIndex)
+{
+    CFE_TBL_DumpControl_t *DumpCtrlPtr;
+    DumpCtrlPtr = &CFE_TBL_Global.DumpControlBlocks[ArrayIndex];
+    memset(DumpCtrlPtr, 0, sizeof(*DumpCtrlPtr));
+}
+
 /*
 ** Functions
 */
@@ -181,6 +221,7 @@ void UtTest_Setup(void)
     UT_ADD_TEST(Test_CFE_TBL_ResourceID_ValidationResult);
     UT_ADD_TEST(Test_CFE_TBL_ResourceID_RegistryRecord);
     UT_ADD_TEST(Test_CFE_TBL_ResourceID_AccessDescriptor);
+    UT_ADD_TEST(Test_CFE_TBL_ResourceID_DumpControl);
 
     /* cfe_tbl_task_cmds.c functions */
     /* This should be done first (it initializes working data structures) */
@@ -269,10 +310,7 @@ void UT_ResetTableRegistry(void)
     /* Initialize the dump-only table dump control blocks */
     for (i = 0; i < CFE_PLATFORM_TBL_MAX_SIMULTANEOUS_LOADS; i++)
     {
-        CFE_TBL_Global.DumpControlBlocks[i].State         = CFE_TBL_DUMP_FREE;
-        CFE_TBL_Global.DumpControlBlocks[i].DumpBufferPtr = NULL;
-        CFE_TBL_Global.DumpControlBlocks[i].Size          = 0;
-        CFE_TBL_Global.DumpControlBlocks[i].TableName[0]  = '\0';
+        UT_TBL_ResetDumpCtrlState(i);
 
         /* Free all shared buffers */
         CFE_TBL_Global.LoadBuffs[i].Taken = false;
@@ -1071,7 +1109,7 @@ void Test_CFE_TBL_DumpRegCmd(void)
 */
 void Test_CFE_TBL_DumpCmd(void)
 {
-    int                i, k, u;
+    int                i, u;
     uint8              Buff;
     uint8 *            BuffPtr = &Buff;
     CFE_TBL_LoadBuff_t Load    = {0};
@@ -1107,9 +1145,9 @@ void Test_CFE_TBL_DumpCmd(void)
         CFE_TBL_Global.Registry[i].DumpOnly = true;
     }
 
-    CFE_TBL_Global.DumpControlBlocks[2].State                           = CFE_TBL_DUMP_PENDING;
-    CFE_TBL_Global.DumpControlBlocks[3].State                           = CFE_TBL_DUMP_FREE;
-    CFE_TBL_Global.Registry[2].DumpControlIndex                         = CFE_TBL_NO_DUMP_PENDING;
+    UT_TBL_SetupPendingDump(2, NULL, NULL, NULL);
+    UT_TBL_ResetDumpCtrlState(3);
+    CFE_TBL_Global.Registry[2].DumpControlId                            = CFE_TBL_NO_DUMP_PENDING;
     CFE_TBL_Global.Registry[2].LoadInProgress                           = CFE_TBL_NO_LOAD_IN_PROGRESS + 1;
     CFE_TBL_Global.Registry[2].DoubleBuffered                           = false;
     CFE_TBL_Global.LoadBuffs[CFE_TBL_Global.Registry[2].LoadInProgress] = Load;
@@ -1123,11 +1161,11 @@ void Test_CFE_TBL_DumpCmd(void)
      * available
      */
     UT_InitData();
-    CFE_TBL_Global.DumpControlBlocks[2].State   = CFE_TBL_DUMP_FREE;
-    CFE_TBL_Global.Registry[2].DumpControlIndex = CFE_TBL_NO_DUMP_PENDING;
-    CFE_TBL_Global.Registry[2].LoadInProgress   = CFE_TBL_NO_LOAD_IN_PROGRESS;
-    CFE_TBL_Global.Registry[2].TableLoadedOnce  = true;
-    CFE_TBL_Global.Registry[2].DoubleBuffered   = false;
+    UT_TBL_ResetDumpCtrlState(2);
+    CFE_TBL_Global.Registry[2].DumpControlId   = CFE_TBL_NO_DUMP_PENDING;
+    CFE_TBL_Global.Registry[2].LoadInProgress  = CFE_TBL_NO_LOAD_IN_PROGRESS;
+    CFE_TBL_Global.Registry[2].TableLoadedOnce = true;
+    CFE_TBL_Global.Registry[2].DoubleBuffered  = false;
 
     for (u = 0; u < CFE_PLATFORM_TBL_MAX_SIMULTANEOUS_LOADS; u++)
     {
@@ -1142,14 +1180,9 @@ void Test_CFE_TBL_DumpCmd(void)
      * dump only table dumps have been requested
      */
     UT_InitData();
-    CFE_TBL_Global.Registry[2].DumpControlIndex = CFE_TBL_NO_DUMP_PENDING;
-
-    for (k = 0; k < CFE_PLATFORM_TBL_MAX_SIMULTANEOUS_LOADS; k++)
-    {
-        CFE_TBL_Global.DumpControlBlocks[k].State = CFE_TBL_DUMP_PENDING;
-    }
-
-    CFE_TBL_Global.Registry[2].NotifyByMsg = true;
+    CFE_TBL_Global.Registry[2].DumpControlId = CFE_TBL_NO_DUMP_PENDING;
+    CFE_TBL_Global.Registry[2].NotifyByMsg   = true;
+    UT_SetDeferredRetcode(UT_KEY(CFE_ResourceId_FindNext), 1, 0);
     UtAssert_INT32_EQ(CFE_TBL_DumpCmd(&DumpCmd), CFE_TBL_INC_ERR_CTR);
 
     /* Test with an inactive buffer, double-buffered, dump already in progress;
@@ -1159,7 +1192,7 @@ void Test_CFE_TBL_DumpCmd(void)
     DumpCmd.Payload.ActiveTableFlag           = CFE_TBL_BufferSelect_INACTIVE;
     CFE_TBL_Global.Registry[2].DoubleBuffered = true;
     CFE_TBL_Global.Registry[2].Buffers[(1 - CFE_TBL_Global.Registry[2].ActiveBufferIndex)].BufferPtr = BuffPtr;
-    CFE_TBL_Global.Registry[2].DumpControlIndex = CFE_TBL_NO_DUMP_PENDING + 1;
+    CFE_TBL_Global.Registry[2].DumpControlId = CFE_TBL_DUMPCTRLID_C(CFE_ResourceId_FromInteger(1));
     UtAssert_INT32_EQ(CFE_TBL_DumpCmd(&DumpCmd), CFE_TBL_INC_ERR_CTR);
 
     /* Test with an inactive buffer, single-buffered, pointer created, is a
@@ -1368,13 +1401,14 @@ void Test_CFE_TBL_LoadCmd(void)
 */
 void Test_CFE_TBL_SendHkCmd(void)
 {
-    int                   i;
-    CFE_TBL_LoadBuff_t    DumpBuff;
-    CFE_TBL_LoadBuff_t *  DumpBuffPtr = &DumpBuff;
-    CFE_TBL_RegistryRec_t RegRecPtr;
-    uint8                 Buff;
-    void *                BuffPtr    = &Buff;
-    int32                 LoadInProg = 0;
+    int                    i;
+    CFE_TBL_LoadBuff_t     DumpBuff;
+    CFE_TBL_LoadBuff_t *   DumpBuffPtr = &DumpBuff;
+    CFE_TBL_RegistryRec_t *RegRecPtr;
+    uint8                  Buff;
+    void *                 BuffPtr    = &Buff;
+    int32                  LoadInProg = 0;
+    CFE_TBL_DumpControl_t *DumpCtrlPtr;
 
     UtPrintf("Begin Test Housekeeping Command");
 
@@ -1382,25 +1416,21 @@ void Test_CFE_TBL_SendHkCmd(void)
      * to send Hk packet
      */
     UT_InitData();
-    strncpy(CFE_TBL_Global.DumpControlBlocks[0].TableName, "housekeepingtest",
-            sizeof(CFE_TBL_Global.DumpControlBlocks[0].TableName) - 1);
-    CFE_TBL_Global.DumpControlBlocks[0].TableName[sizeof(CFE_TBL_Global.DumpControlBlocks[0].TableName) - 1] = '\0';
-    CFE_TBL_Global.DumpControlBlocks[0].Size                                                                 = 10;
-    LoadInProg                                    = CFE_TBL_NO_LOAD_IN_PROGRESS + 1;
-    RegRecPtr.LoadInProgress                      = LoadInProg;
-    CFE_TBL_Global.DumpControlBlocks[0].RegRecPtr = &RegRecPtr;
-    DumpBuffPtr->Taken                            = true;
-    DumpBuffPtr->Validated                        = true;
-    DumpBuffPtr->BufferPtr                        = BuffPtr;
-    DumpBuffPtr->FileTime                         = CFE_TIME_ZERO_VALUE;
+    RegRecPtr = &CFE_TBL_Global.Registry[0];
+    UT_TBL_SetupPendingDump(0, DumpBuffPtr, RegRecPtr, &DumpCtrlPtr);
+    LoadInProg                = CFE_TBL_NO_LOAD_IN_PROGRESS + 1;
+    RegRecPtr->LoadInProgress = LoadInProg;
+    DumpBuffPtr->Taken        = true;
+    DumpBuffPtr->Validated    = true;
+    DumpBuffPtr->BufferPtr    = BuffPtr;
+    DumpBuffPtr->FileTime     = CFE_TIME_ZERO_VALUE;
     strncpy(DumpBuffPtr->DataSource, "hkSource", sizeof(DumpBuffPtr->DataSource) - 1);
     DumpBuffPtr->DataSource[sizeof(DumpBuffPtr->DataSource) - 1] = '\0';
-    CFE_TBL_Global.DumpControlBlocks[0].DumpBufferPtr            = DumpBuffPtr;
-    CFE_TBL_Global.DumpControlBlocks[0].State                    = CFE_TBL_DUMP_PERFORMED;
+    DumpCtrlPtr->State                                           = CFE_TBL_DUMP_PERFORMED;
 
     for (i = 1; i < CFE_PLATFORM_TBL_MAX_SIMULTANEOUS_LOADS; i++)
     {
-        CFE_TBL_Global.DumpControlBlocks[i].State = CFE_TBL_DUMP_PENDING;
+        UT_TBL_SetupPendingDump(i, NULL, NULL, NULL);
     }
 
     UT_SetDeferredRetcode(UT_KEY(CFE_SB_TransmitMsg), 1, CFE_SUCCESS - 1);
@@ -1409,35 +1439,38 @@ void Test_CFE_TBL_SendHkCmd(void)
 
     for (i = 1; i < CFE_PLATFORM_TBL_MAX_SIMULTANEOUS_LOADS; i++)
     {
-        CFE_TBL_Global.DumpControlBlocks[i].State = CFE_TBL_DUMP_PENDING;
+        UT_TBL_SetupPendingDump(i, NULL, NULL, NULL);
     }
 
-    RegRecPtr.LoadInProgress                      = LoadInProg;
-    CFE_TBL_Global.DumpControlBlocks[0].RegRecPtr = &RegRecPtr;
+    RegRecPtr->LoadInProgress = LoadInProg;
 
     /* Test response to inability to open dump file */
     UT_InitData();
-    CFE_TBL_Global.DumpControlBlocks[0].State = CFE_TBL_DUMP_PERFORMED;
-    CFE_TBL_Global.HkTlmTblRegIndex           = CFE_TBL_NOT_FOUND + 1;
+    UT_TBL_SetupPendingDump(0, DumpBuffPtr, RegRecPtr, &DumpCtrlPtr);
+    DumpCtrlPtr->State              = CFE_TBL_DUMP_PERFORMED;
+    CFE_TBL_Global.HkTlmTblRegIndex = CFE_TBL_NOT_FOUND + 1;
     UT_SetDefaultReturnValue(UT_KEY(OS_OpenCreate), OS_ERROR);
     UtAssert_INT32_EQ(CFE_TBL_SendHkCmd(NULL), CFE_TBL_DONT_INC_CTR);
 
     /* Test response to an invalid table and a dump file create failure */
     UT_InitData();
-    CFE_TBL_Global.HkTlmTblRegIndex           = CFE_TBL_NOT_FOUND;
-    CFE_TBL_Global.DumpControlBlocks[0].State = CFE_TBL_DUMP_PERFORMED;
+    UT_TBL_SetupPendingDump(0, DumpBuffPtr, RegRecPtr, &DumpCtrlPtr);
+    CFE_TBL_Global.HkTlmTblRegIndex = CFE_TBL_NOT_FOUND;
+    DumpCtrlPtr->State              = CFE_TBL_DUMP_PERFORMED;
     UT_SetDefaultReturnValue(UT_KEY(OS_OpenCreate), OS_ERROR);
     UtAssert_INT32_EQ(CFE_TBL_SendHkCmd(NULL), CFE_TBL_DONT_INC_CTR);
 
     /* Test response to a file time stamp failure */
     UT_InitData();
-    CFE_TBL_Global.DumpControlBlocks[0].State = CFE_TBL_DUMP_PERFORMED;
+    UT_TBL_SetupPendingDump(0, DumpBuffPtr, RegRecPtr, &DumpCtrlPtr);
+    DumpCtrlPtr->State = CFE_TBL_DUMP_PERFORMED;
     UT_SetDeferredRetcode(UT_KEY(CFE_FS_SetTimestamp), 1, OS_SUCCESS - 1);
     UtAssert_INT32_EQ(CFE_TBL_SendHkCmd(NULL), CFE_TBL_DONT_INC_CTR);
 
     /* Test response to OS_OpenCreate failure */
     UT_InitData();
-    CFE_TBL_Global.DumpControlBlocks[0].State = CFE_TBL_DUMP_PERFORMED;
+    UT_TBL_SetupPendingDump(0, DumpBuffPtr, RegRecPtr, &DumpCtrlPtr);
+    DumpCtrlPtr->State = CFE_TBL_DUMP_PERFORMED;
     UT_SetDeferredRetcode(UT_KEY(OS_OpenCreate), 3, -1);
     UtAssert_INT32_EQ(CFE_TBL_SendHkCmd(NULL), CFE_TBL_DONT_INC_CTR);
 }
@@ -2620,6 +2653,7 @@ void Test_CFE_TBL_Manage(void)
     CFE_TBL_AccessDescriptor_t *AccessDescPtr;
     CFE_TBL_Handle_t            AccessIterator;
     CFE_TBL_ValidationResult_t *ValResultPtr;
+    CFE_TBL_DumpControl_t *     DumpCtrlPtr;
 
     memset(&TestTable1, 0, sizeof(TestTable1));
 
@@ -2882,22 +2916,13 @@ void Test_CFE_TBL_Manage(void)
     /* Test successfully processing a table dump request */
     UT_InitData();
     CFE_UtAssert_SUCCESS(CFE_TBL_GetWorkingBuffer(&WorkingBufferPtr, RegRecPtr, false));
-    CFE_TBL_Global.DumpControlBlocks[0].State     = CFE_TBL_DUMP_PENDING;
-    CFE_TBL_Global.DumpControlBlocks[0].RegRecPtr = RegRecPtr;
+    UT_TBL_SetupPendingDump(0, WorkingBufferPtr, RegRecPtr, &DumpCtrlPtr);
 
     /* Save the name of the desired dump filename, table name, and size for
      * later
      */
-    CFE_TBL_Global.DumpControlBlocks[0].DumpBufferPtr = WorkingBufferPtr;
-    strncpy(CFE_TBL_Global.DumpControlBlocks[0].DumpBufferPtr->DataSource, "MyDumpFilename",
-            sizeof(CFE_TBL_Global.DumpControlBlocks[0].DumpBufferPtr->DataSource) - 1);
-    CFE_TBL_Global.DumpControlBlocks[0]
-        .DumpBufferPtr->DataSource[sizeof(CFE_TBL_Global.DumpControlBlocks[0].DumpBufferPtr->DataSource) - 1] = 0;
-    strncpy(CFE_TBL_Global.DumpControlBlocks[0].TableName, "ut_cfe_tbl.UT_Table2",
-            sizeof(CFE_TBL_Global.DumpControlBlocks[0].TableName) - 1);
-    CFE_TBL_Global.DumpControlBlocks[0].TableName[sizeof(CFE_TBL_Global.DumpControlBlocks[0].TableName) - 1] = 0;
-    CFE_TBL_Global.DumpControlBlocks[0].Size = RegRecPtr->Size;
-    RegRecPtr->DumpControlIndex              = 0;
+    strncpy(WorkingBufferPtr->DataSource, "MyDumpFilename", sizeof(WorkingBufferPtr->DataSource) - 1);
+    WorkingBufferPtr->DataSource[sizeof(WorkingBufferPtr->DataSource) - 1] = 0;
     CFE_UtAssert_SUCCESS(CFE_TBL_Manage(App1TblHandle2));
     CFE_UtAssert_EVENTCOUNT(0);
 }
@@ -3225,6 +3250,7 @@ void Test_CFE_TBL_Internal(void)
     CFE_TBL_LoadBuff_t *        WorkingBufferPtr;
     CFE_TBL_RegistryRec_t *     RegRecPtr;
     CFE_TBL_AccessDescriptor_t *AccessDescPtr;
+    CFE_TBL_DumpControl_t *     DumpCtrlPtr;
     char                        FilenameLong[OS_MAX_PATH_LEN + 10];
     char                        Filename[OS_MAX_PATH_LEN];
     int32                       i;
@@ -3762,16 +3788,18 @@ void Test_CFE_TBL_Internal(void)
     UT_InitData();
     UT_SetAppID(UT_TBL_APPID_1);
     UT_SetDefaultReturnValue(UT_KEY(CFE_ES_PutPoolBuf), -1);
-    AccessDescPtr                                 = &CFE_TBL_Global.Handles[App1TblHandle1];
-    RegRecPtr                                     = &CFE_TBL_Global.Registry[AccessDescPtr->RegIndex];
-    CFE_TBL_Global.DumpControlBlocks[3].State     = CFE_TBL_DUMP_PENDING;
-    CFE_TBL_Global.DumpControlBlocks[3].RegRecPtr = RegRecPtr;
-    RegRecPtr->LoadInProgress                     = 1;
-    CFE_TBL_Global.LoadBuffs[1].Taken             = true;
+    AccessDescPtr    = &CFE_TBL_Global.Handles[App1TblHandle1];
+    RegRecPtr        = &CFE_TBL_Global.Registry[AccessDescPtr->RegIndex];
+    WorkingBufferPtr = &CFE_TBL_Global.LoadBuffs[1];
+
+    UT_TBL_SetupPendingDump(3, WorkingBufferPtr, RegRecPtr, &DumpCtrlPtr);
+
+    RegRecPtr->LoadInProgress = 1;
+    WorkingBufferPtr->Taken   = true;
     CFE_UtAssert_SUCCESS(CFE_TBL_CleanUpApp(UT_TBL_APPID_1));
-    UtAssert_INT32_EQ(CFE_TBL_Global.DumpControlBlocks[3].State, CFE_TBL_DUMP_FREE);
+    UtAssert_INT32_EQ(DumpCtrlPtr->State, CFE_TBL_DUMP_FREE);
     CFE_UtAssert_RESOURCEID_EQ(RegRecPtr->OwnerAppId, CFE_TBL_NOT_OWNED);
-    UtAssert_BOOL_FALSE(CFE_TBL_Global.LoadBuffs[RegRecPtr->LoadInProgress].Taken);
+    UtAssert_BOOL_FALSE(WorkingBufferPtr->Taken);
     UtAssert_INT32_EQ(RegRecPtr->LoadInProgress, CFE_TBL_NO_LOAD_IN_PROGRESS);
 
     /* Test response to an attempt to use an invalid table handle */
@@ -3900,16 +3928,18 @@ void Test_CFE_TBL_Internal(void)
     UT_InitData();
     UT_SetAppID(UT_TBL_APPID_1);
     UT_SetDefaultReturnValue(UT_KEY(CFE_ES_PutPoolBuf), -1);
-    CFE_TBL_Global.Handles[0].AppId               = UT_TBL_APPID_1;
-    CFE_TBL_Global.Handles[0].UsedFlag            = true;
-    CFE_TBL_Global.Handles[0].RegIndex            = 0;
-    CFE_TBL_Global.Registry[0].OwnerAppId         = UT_TBL_APPID_2;
-    CFE_TBL_Global.DumpControlBlocks[3].State     = CFE_TBL_DUMP_PENDING;
-    CFE_TBL_Global.DumpControlBlocks[3].RegRecPtr = &CFE_TBL_Global.Registry[0];
-    CFE_TBL_Global.Handles[1].AppId               = UT_TBL_APPID_1;
-    CFE_TBL_Global.Handles[1].UsedFlag            = false;
+    RegRecPtr = &CFE_TBL_Global.Registry[0];
+    UT_TBL_SetupPendingDump(3, NULL, RegRecPtr, &DumpCtrlPtr);
+
+    CFE_TBL_Global.Handles[0].AppId    = UT_TBL_APPID_1;
+    CFE_TBL_Global.Handles[0].UsedFlag = true;
+    CFE_TBL_Global.Handles[0].RegIndex = 0;
+    RegRecPtr->OwnerAppId              = UT_TBL_APPID_2;
+    CFE_TBL_Global.Handles[1].AppId    = UT_TBL_APPID_1;
+    CFE_TBL_Global.Handles[1].UsedFlag = false;
+
     CFE_UtAssert_SUCCESS(CFE_TBL_CleanUpApp(UT_TBL_APPID_1));
-    UtAssert_INT32_EQ(CFE_TBL_Global.DumpControlBlocks[3].State, CFE_TBL_DUMP_PENDING);
+    UtAssert_INT32_EQ(DumpCtrlPtr->State, CFE_TBL_DUMP_PENDING);
     CFE_UtAssert_RESOURCEID_EQ(RegRecPtr->OwnerAppId, UT_TBL_APPID_2);
 
 #if (CFE_PLATFORM_TBL_VALID_SCID_COUNT > 0)
@@ -4101,6 +4131,49 @@ void Test_CFE_TBL_ResourceID_AccessDescriptor(void)
     ValidHandle = (CFE_TBL_Handle_t)(1);
     UtAssert_INT32_EQ(CFE_TBL_RegId_ToIndex(ValidHandle, &Idx), CFE_SUCCESS);
     UtAssert_UINT32_EQ(Idx, 1);
+}
+
+/*
+ * Tests the resource accessors for Dump Control Blocks
+ */
+void Test_CFE_TBL_ResourceID_DumpControl(void)
+{
+    uint32               Idx;
+    CFE_TBL_DumpCtrlId_t InvalidBlockId;
+    CFE_TBL_DumpCtrlId_t ValidBlockId;
+    CFE_ResourceId_t     PendingId;
+
+    UT_InitData();
+
+    InvalidBlockId = CFE_TBL_DUMPCTRLID_UNDEFINED;
+    UT_SetDefaultReturnValue(UT_KEY(CFE_ResourceId_ToIndex), CFE_ES_ERR_RESOURCEID_NOT_VALID);
+    UtAssert_INT32_EQ(CFE_TBL_DumpCtrlId_ToIndex(InvalidBlockId, &Idx), CFE_ES_ERR_RESOURCEID_NOT_VALID);
+
+    /* by definition, looking up the undefined value should always be NULL */
+    UtAssert_NULL(CFE_TBL_LocateDumpCtrlByID(InvalidBlockId));
+    UT_ResetState(UT_KEY(CFE_ResourceId_ToIndex));
+
+    ValidBlockId = CFE_TBL_DUMPCTRLID_C(CFE_ResourceId_FromInteger(CFE_TBL_DUMPCTRLID_BASE + 1));
+    UtAssert_INT32_EQ(CFE_TBL_DumpCtrlId_ToIndex(ValidBlockId, &Idx), CFE_SUCCESS);
+
+    UtAssert_VOIDCALL(PendingId = CFE_TBL_GetNextDumpCtrlBlock());
+    UtAssert_BOOL_TRUE(CFE_ResourceId_IsDefined(PendingId));
+
+    /* The slot should be available right now */
+    UtAssert_BOOL_FALSE(CFE_TBL_CheckDumpCtrlSlotUsed(PendingId));
+
+    /* Make it used and confirm it is reported as not available */
+    CFE_TBL_DumpCtrlBlockSetUsed(CFE_TBL_LocateDumpCtrlByID(CFE_TBL_DUMPCTRLID_C(PendingId)), PendingId);
+    UtAssert_BOOL_TRUE(CFE_TBL_CheckDumpCtrlSlotUsed(PendingId));
+
+    /* Test case where no ID is available */
+    UT_SetDefaultReturnValue(UT_KEY(CFE_ResourceId_FindNext), 0);
+    UtAssert_VOIDCALL(PendingId = CFE_TBL_GetNextDumpCtrlBlock());
+    UtAssert_BOOL_FALSE(CFE_ResourceId_IsDefined(PendingId));
+
+    /* A nonexistent slot is always "unavailable" */
+    UtAssert_BOOL_TRUE(CFE_TBL_CheckDumpCtrlSlotUsed(PendingId));
+    UT_ResetState(UT_KEY(CFE_ResourceId_FindNext));
 }
 
 /*

@@ -289,7 +289,7 @@ CFE_Status_t CFE_TBL_TxnGetTableStatus(CFE_TBL_TxnState_t *Txn)
     {
         Status = CFE_TBL_INFO_VALIDATION_PENDING;
     }
-    else if (RegRecPtr->DumpControlIndex != CFE_TBL_NO_DUMP_PENDING)
+    else if (CFE_RESOURCEID_TEST_DEFINED(RegRecPtr->DumpControlId))
     {
         Status = CFE_TBL_INFO_DUMP_PENDING;
     }
