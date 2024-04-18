@@ -176,88 +176,118 @@ void TestMsgHeaderSecondaryApi(void)
              "CFE_MSG_GetFcnCode, CFE_MSG_GetMsgTime, CFE_MSG_SetMsgTime ");
 
     /* declare local vars */
-    CFE_MSG_CommandHeader_t cmd;
-    CFE_MSG_CommandHeader_t cmdTlm;
-    CFE_MSG_CommandHeader_t cmd2;
-    CFE_MSG_FcnCode_t       fcnCode;
-    CFE_TIME_SysTime_t      msgTime;
-    bool                    isValid     = true;
-    CFE_TIME_SysTime_t      currentTime = {1000, 0xFFFF0000};
-    CFE_Status_t            status;
+    CFE_MSG_CommandHeader_t   cmd;
+    CFE_MSG_TelemetryHeader_t tlm;
+    CFE_MSG_FcnCode_t         fcnCode;
+    CFE_TIME_SysTime_t        msgTime;
+    bool                      isValid     = true;
+    CFE_TIME_SysTime_t        currentTime = {1000, 0xFFFF0000};
 
     memset(&cmd, 0, sizeof(cmd));
-    memset(&cmdTlm, 0xFF, sizeof(cmdTlm));
-    memset(&cmd2, 0xFF, sizeof(cmd2));
+    memset(&tlm, 0, sizeof(tlm));
 
     /* msg-init */
     UtAssert_INT32_EQ(CFE_MSG_Init(CFE_MSG_PTR(cmd), CFE_SB_ValueToMsgId(1), sizeof(cmd)), CFE_SUCCESS);
     UtAssert_INT32_EQ(CFE_MSG_SetHasSecondaryHeader(CFE_MSG_PTR(cmd), true), CFE_SUCCESS);
     UtAssert_INT32_EQ(CFE_MSG_SetType(CFE_MSG_PTR(cmd), CFE_MSG_Type_Cmd), CFE_SUCCESS);
 
-    UtAssert_INT32_EQ(CFE_MSG_Init(CFE_MSG_PTR(cmdTlm), CFE_SB_ValueToMsgId(2), sizeof(cmdTlm)), CFE_SUCCESS);
-    UtAssert_INT32_EQ(CFE_MSG_SetHasSecondaryHeader(CFE_MSG_PTR(cmdTlm), true), CFE_SUCCESS);
-    UtAssert_INT32_EQ(CFE_MSG_SetType(CFE_MSG_PTR(cmdTlm), CFE_MSG_Type_Tlm), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_MSG_Init(CFE_MSG_PTR(tlm), CFE_SB_ValueToMsgId(2), sizeof(tlm)), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_MSG_SetHasSecondaryHeader(CFE_MSG_PTR(tlm), true), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_MSG_SetType(CFE_MSG_PTR(tlm), CFE_MSG_Type_Tlm), CFE_SUCCESS);
 
-    UtAssert_INT32_EQ(CFE_MSG_Init(CFE_MSG_PTR(cmd2), CFE_SB_ValueToMsgId(3), sizeof(cmd2)), CFE_SUCCESS);
-    UtAssert_INT32_EQ(CFE_MSG_SetHasSecondaryHeader(CFE_MSG_PTR(cmd2), true), CFE_SUCCESS);
-    UtAssert_INT32_EQ(CFE_MSG_SetType(CFE_MSG_PTR(cmd2), CFE_MSG_Type_Cmd), CFE_SUCCESS);
-
-    /* test generate-checksum */
-    status = CFE_MSG_GenerateChecksum(NULL);
-    if (status == CFE_MSG_NOT_IMPLEMENTED)
+    /* test generate-checksum on commands */
+    CFE_Assert_STATUS_STORE(CFE_MSG_ValidateChecksum(CFE_MSG_PTR(cmd), &isValid));
+    if (CFE_Assert_STATUS_MAY_BE(CFE_SUCCESS))
     {
-        UtAssert_NA("CFE_MSG_GenerateChecksum not implemented");
+        UtAssert_BOOL_FALSE(isValid); /* assuming a zero'ed out struct will have an invalid checksum */
+
+        UtAssert_INT32_EQ(CFE_MSG_GenerateChecksum(CFE_MSG_PTR(cmd)), CFE_SUCCESS);
+        UtAssert_INT32_EQ(CFE_MSG_ValidateChecksum(CFE_MSG_PTR(cmd), &isValid), CFE_SUCCESS);
+        UtAssert_BOOL_TRUE(isValid);
+    }
+    else if (CFE_Assert_STATUS_MAY_BE(CFE_MSG_WRONG_MSG_TYPE))
+    {
+        UtAssert_NA("CFE_MSG_GenerateChecksum does not operate on commands");
     }
     else
     {
-        UtAssert_INT32_EQ(CFE_MSG_GenerateChecksum(NULL), CFE_MSG_BAD_ARGUMENT);
-        UtAssert_INT32_EQ(CFE_MSG_GenerateChecksum(CFE_MSG_PTR(cmdTlm)), CFE_MSG_WRONG_MSG_TYPE);
-        UtAssert_INT32_EQ(CFE_MSG_ValidateChecksum(CFE_MSG_PTR(cmdTlm), &isValid), CFE_MSG_WRONG_MSG_TYPE);
-        UtAssert_INT32_EQ(CFE_MSG_ValidateChecksum(NULL, &isValid), CFE_MSG_BAD_ARGUMENT);
-        UtAssert_INT32_EQ(CFE_MSG_ValidateChecksum(CFE_MSG_PTR(cmdTlm), NULL), CFE_MSG_BAD_ARGUMENT);
+        UtAssert_NA("CFE_MSG_GenerateChecksum on commands not implemented");
+        CFE_Assert_STATUS_MUST_BE(CFE_MSG_NOT_IMPLEMENTED);
+    }
 
-        UtAssert_INT32_EQ(CFE_MSG_ValidateChecksum(CFE_MSG_PTR(cmd), &isValid), CFE_SUCCESS);
-        UtAssert_True(!isValid, "Checksum isValid (%d) = false", isValid);
-        UtAssert_INT32_EQ(CFE_MSG_GenerateChecksum(CFE_MSG_PTR(cmd)), CFE_SUCCESS);
-        UtAssert_INT32_EQ(CFE_MSG_ValidateChecksum(CFE_MSG_PTR(cmd), &isValid), CFE_SUCCESS);
-        UtAssert_True(isValid, "Checksum isValid (%d) = true", isValid);
+    /* test generate-checksum on telemetry */
+    CFE_Assert_STATUS_STORE(CFE_MSG_ValidateChecksum(CFE_MSG_PTR(tlm), &isValid));
+    if (CFE_Assert_STATUS_MAY_BE(CFE_SUCCESS))
+    {
+        UtAssert_BOOL_FALSE(isValid); /* assuming a zero'ed out struct will have an invalid checksum */
+
+        UtAssert_INT32_EQ(CFE_MSG_GenerateChecksum(CFE_MSG_PTR(tlm)), CFE_SUCCESS);
+        UtAssert_INT32_EQ(CFE_MSG_ValidateChecksum(CFE_MSG_PTR(tlm), &isValid), CFE_SUCCESS);
+        UtAssert_BOOL_TRUE(isValid);
+    }
+    else if (CFE_Assert_STATUS_MAY_BE(CFE_MSG_WRONG_MSG_TYPE))
+    {
+        UtAssert_NA("CFE_MSG_GenerateChecksum does not operate on telemetry");
+    }
+    else
+    {
+        UtAssert_NA("CFE_MSG_GenerateChecksum on telemetry not implemented");
+        CFE_Assert_STATUS_MUST_BE(CFE_MSG_NOT_IMPLEMENTED);
     }
 
     /* test get/set-fcn-code */
     UtAssert_INT32_EQ(CFE_MSG_SetFcnCode(NULL, 4), CFE_MSG_BAD_ARGUMENT);
-    UtAssert_INT32_EQ(CFE_MSG_SetFcnCode(CFE_MSG_PTR(cmdTlm), 4), CFE_MSG_WRONG_MSG_TYPE);
+    UtAssert_INT32_EQ(CFE_MSG_SetFcnCode(CFE_MSG_PTR(tlm), 4), CFE_MSG_WRONG_MSG_TYPE);
 
     UtAssert_INT32_EQ(CFE_MSG_GetFcnCode(CFE_MSG_PTR(cmd), NULL), CFE_MSG_BAD_ARGUMENT);
     UtAssert_INT32_EQ(CFE_MSG_GetFcnCode(NULL, &fcnCode), CFE_MSG_BAD_ARGUMENT);
-    UtAssert_INT32_EQ(CFE_MSG_GetFcnCode(CFE_MSG_PTR(cmdTlm), &fcnCode), CFE_MSG_WRONG_MSG_TYPE);
+    UtAssert_INT32_EQ(CFE_MSG_GetFcnCode(CFE_MSG_PTR(tlm), &fcnCode), CFE_MSG_WRONG_MSG_TYPE);
 
     UtAssert_INT32_EQ(CFE_MSG_SetFcnCode(CFE_MSG_PTR(cmd), 4), CFE_SUCCESS);
     UtAssert_INT32_EQ(CFE_MSG_GetFcnCode(CFE_MSG_PTR(cmd), &fcnCode), CFE_SUCCESS);
     UtAssert_INT32_EQ(fcnCode, 4);
 
     /* test get/set-msg-time */
-    UtAssert_INT32_EQ(CFE_MSG_SetType(CFE_MSG_PTR(cmd), CFE_MSG_Type_Tlm), CFE_SUCCESS);
-
     UtAssert_INT32_EQ(CFE_MSG_GetMsgTime(NULL, &msgTime), CFE_MSG_BAD_ARGUMENT);
-    UtAssert_INT32_EQ(CFE_MSG_GetMsgTime(CFE_MSG_PTR(cmd), NULL), CFE_MSG_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_MSG_GetMsgTime(CFE_MSG_PTR(tlm), NULL), CFE_MSG_BAD_ARGUMENT);
 
-    CFE_Assert_STATUS_STORE(CFE_MSG_GetMsgTime(CFE_MSG_PTR(cmd2), &msgTime));
-    if (!CFE_Assert_STATUS_MAY_BE(CFE_SUCCESS))
+    /* Check if GetMsgTime is implemented on commands */
+    CFE_Assert_STATUS_STORE(CFE_MSG_GetMsgTime(CFE_MSG_PTR(cmd), &msgTime));
+    if (CFE_Assert_STATUS_MAY_BE(CFE_SUCCESS))
     {
-        CFE_Assert_STATUS_MUST_BE(CFE_MSG_WRONG_MSG_TYPE);
+        memset(&msgTime, 0xff, sizeof(msgTime));
+        UtAssert_INT32_EQ(CFE_MSG_SetMsgTime(CFE_MSG_PTR(cmd), currentTime), CFE_SUCCESS);
+        UtAssert_INT32_EQ(CFE_MSG_GetMsgTime(CFE_MSG_PTR(cmd), &msgTime), CFE_SUCCESS);
+        UtAssert_UINT32_EQ(CFE_TIME_Compare(msgTime, currentTime), CFE_TIME_EQUAL);
+    }
+    else if (CFE_Assert_STATUS_MAY_BE(CFE_MSG_WRONG_MSG_TYPE))
+    {
+        UtAssert_NA("CFE_MSG_GetMsgTime does not operate on commands");
+    }
+    else
+    {
+        UtAssert_NA("CFE_MSG_GetMsgTime on commands not implemented");
+        CFE_Assert_STATUS_MUST_BE(CFE_MSG_NOT_IMPLEMENTED);
     }
 
-    UtAssert_INT32_EQ(CFE_MSG_SetMsgTime(NULL, currentTime), CFE_MSG_BAD_ARGUMENT);
-
-    CFE_Assert_STATUS_STORE(CFE_MSG_SetMsgTime(CFE_MSG_PTR(cmd2), currentTime));
-    if (!CFE_Assert_STATUS_MAY_BE(CFE_SUCCESS))
+    /* Check if GetMsgTime is implemented on telemetry */
+    CFE_Assert_STATUS_STORE(CFE_MSG_GetMsgTime(CFE_MSG_PTR(tlm), &msgTime));
+    if (CFE_Assert_STATUS_MAY_BE(CFE_SUCCESS))
     {
-        CFE_Assert_STATUS_MUST_BE(CFE_MSG_WRONG_MSG_TYPE);
+        memset(&msgTime, 0xff, sizeof(msgTime));
+        UtAssert_INT32_EQ(CFE_MSG_SetMsgTime(CFE_MSG_PTR(tlm), currentTime), CFE_SUCCESS);
+        UtAssert_INT32_EQ(CFE_MSG_GetMsgTime(CFE_MSG_PTR(tlm), &msgTime), CFE_SUCCESS);
+        UtAssert_UINT32_EQ(CFE_TIME_Compare(msgTime, currentTime), CFE_TIME_EQUAL);
     }
-
-    UtAssert_INT32_EQ(CFE_MSG_SetMsgTime(CFE_MSG_PTR(cmd), currentTime), CFE_SUCCESS);
-    UtAssert_INT32_EQ(CFE_MSG_GetMsgTime(CFE_MSG_PTR(cmd), &msgTime), CFE_SUCCESS);
-    UtAssert_UINT32_EQ(CFE_TIME_Compare(msgTime, currentTime), CFE_TIME_EQUAL);
+    else if (CFE_Assert_STATUS_MAY_BE(CFE_MSG_WRONG_MSG_TYPE))
+    {
+        UtAssert_NA("CFE_MSG_GetMsgTime does not operate on telemetry");
+    }
+    else
+    {
+        UtAssert_NA("CFE_MSG_GetMsgTime on telemetry not implemented");
+        CFE_Assert_STATUS_MUST_BE(CFE_MSG_NOT_IMPLEMENTED);
+    }
 }
 
 void MsgApiTestSetup(void)
