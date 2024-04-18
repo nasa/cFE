@@ -70,6 +70,10 @@ enum
 
     /* configuration registry */
     CFE_RESOURCEID_CONFIGID_BASE_OFFSET = OS_OBJECT_TYPE_USER + 7,
+
+    /* TBL managed resources */
+    CFE_RESOURCEID_TBL_VALRESULTID_BASE_OFFSET = OS_OBJECT_TYPE_USER + 8,
+
 };
 
 /*
@@ -92,6 +96,10 @@ enum
 
     /* configuration registry */
     CFE_CONFIGID_BASE = CFE_RESOURCEID_MAKE_BASE(CFE_RESOURCEID_CONFIGID_BASE_OFFSET),
+
+    /* TBL managed resources */
+    CFE_TBL_VALRESULTID_BASE = CFE_RESOURCEID_MAKE_BASE(CFE_RESOURCEID_TBL_VALRESULTID_BASE_OFFSET),
+
 };
 
 /** @} */

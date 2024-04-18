@@ -32,6 +32,7 @@
 ** Includes
 */
 #include "cfe_tbl_module_all.h"
+#include "cfe_core_resourceid_basevalues.h"
 
 /*----------------------------------------------------------------
  *
@@ -49,6 +50,18 @@ CFE_Status_t CFE_TBL_Handle_ToIndex(CFE_TBL_Handle_t TblHandle, uint32 *Idx)
     *Idx = TblHandle;
 
     return CFE_SUCCESS;
+}
+
+/*----------------------------------------------------------------
+ *
+ * Implemented per public API
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+CFE_Status_t CFE_TBL_ValidationResultId_ToIndex(CFE_TBL_ValidationResultId_t ValResultId, uint32 *Idx)
+{
+    return CFE_ResourceId_ToIndex(CFE_RESOURCEID_UNWRAP(ValResultId), CFE_TBL_VALRESULTID_BASE,
+                                  CFE_PLATFORM_TBL_MAX_NUM_VALIDATIONS, Idx);
 }
 
 /*----------------------------------------------------------------
@@ -137,4 +150,58 @@ CFE_TBL_Handle_t CFE_TBL_AccessDescriptorGetHandle(const CFE_TBL_AccessDescripto
 {
     /* The pointer should be to an entry within the Handles array */
     return (AccessDescPtr - CFE_TBL_Global.Handles);
+}
+
+/*----------------------------------------------------------------
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+CFE_TBL_ValidationResult_t *CFE_TBL_LocateValidationResultByID(CFE_TBL_ValidationResultId_t ValResultId)
+{
+    CFE_TBL_ValidationResult_t *ResultPtr;
+    uint32                      Idx;
+
+    if (CFE_TBL_ValidationResultId_ToIndex(ValResultId, &Idx) == CFE_SUCCESS)
+    {
+        ResultPtr = &CFE_TBL_Global.ValidationResults[Idx];
+    }
+    else
+    {
+        ResultPtr = NULL;
+    }
+
+    return ResultPtr;
+}
+
+/*----------------------------------------------------------------
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+bool CFE_TBL_CheckValidationResultSlotUsed(CFE_ResourceId_t CheckId)
+{
+    CFE_TBL_ValidationResult_t *BuffPtr;
+
+    /*
+     * Note - The pointer here should never be NULL because the ID should always be
+     * within the expected range, but if it ever is NULL, this should return true
+     * such that the caller will _not_ attempt to use the record.
+     */
+    BuffPtr = CFE_TBL_LocateValidationResultByID(CFE_TBL_VALRESULTID_C(CheckId));
+    return (BuffPtr == NULL || CFE_TBL_ValidationResultIsUsed(BuffPtr));
+}
+
+/*----------------------------------------------------------------
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+CFE_ResourceId_t CFE_TBL_GetNextValResultBlock(void)
+{
+    return CFE_ResourceId_FindNext(CFE_TBL_Global.LastValidationResultId, CFE_PLATFORM_TBL_MAX_NUM_VALIDATIONS,
+                                   CFE_TBL_CheckValidationResultSlotUsed);
 }

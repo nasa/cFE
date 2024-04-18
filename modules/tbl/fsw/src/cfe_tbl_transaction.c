@@ -284,8 +284,8 @@ CFE_Status_t CFE_TBL_TxnGetTableStatus(CFE_TBL_TxnState_t *Txn)
     {
         Status = CFE_TBL_INFO_UPDATE_PENDING;
     }
-    else if ((RegRecPtr->ValidateActiveIndex != CFE_TBL_NO_VALIDATION_PENDING) ||
-             (RegRecPtr->ValidateInactiveIndex != CFE_TBL_NO_VALIDATION_PENDING))
+    else if (CFE_RESOURCEID_TEST_DEFINED(RegRecPtr->ValidateActiveId) ||
+             CFE_RESOURCEID_TEST_DEFINED(RegRecPtr->ValidateInactiveId))
     {
         Status = CFE_TBL_INFO_VALIDATION_PENDING;
     }
