@@ -225,6 +225,40 @@ CFE_Status_t CFE_SB_CreatePipe(CFE_SB_PipeId_t *PipeIdPtr, uint16 Depth, const c
     CFE_SB_UnlockSharedData(__func__, __LINE__);
 
     /* Send any pending events now, after final unlock */
+    switch (PendingEventId)
+    {
+        case CFE_SB_CR_PIPE_BAD_ARG_EID:
+            CFE_EVS_SendEventWithAppID(CFE_SB_CR_PIPE_BAD_ARG_EID, CFE_EVS_EventType_ERROR, CFE_SB_Global.AppId,
+                                       "CreatePipeErr:Bad Input Arg:app=%s,ptr=0x%lx,depth=%d,maxdepth=%d",
+                                       CFE_SB_GetAppTskName(TskId, FullName), (unsigned long)PipeIdPtr, (int)Depth,
+                                       OS_QUEUE_MAX_DEPTH);
+            break;
+
+        case CFE_SB_MAX_PIPES_MET_EID:
+            CFE_EVS_SendEventWithAppID(CFE_SB_MAX_PIPES_MET_EID, CFE_EVS_EventType_ERROR, CFE_SB_Global.AppId,
+                                       "CreatePipeErr:Max Pipes(%d)In Use.app %s", CFE_PLATFORM_SB_MAX_PIPES,
+                                       CFE_SB_GetAppTskName(TskId, FullName));
+            break;
+        case CFE_SB_CR_PIPE_NAME_TAKEN_EID:
+            CFE_EVS_SendEventWithAppID(CFE_SB_CR_PIPE_NAME_TAKEN_EID, CFE_EVS_EventType_ERROR, CFE_SB_Global.AppId,
+                                       "CreatePipeErr:OS_QueueCreate failed, name taken (app=%s, name=%s)",
+                                       CFE_SB_GetAppTskName(TskId, FullName), PipeName);
+            break;
+        case CFE_SB_CR_PIPE_NO_FREE_EID:
+            CFE_EVS_SendEventWithAppID(CFE_SB_CR_PIPE_NO_FREE_EID, CFE_EVS_EventType_ERROR, CFE_SB_Global.AppId,
+                                       "CreatePipeErr:OS_QueueCreate failed, no free id's (app=%s)",
+                                       CFE_SB_GetAppTskName(TskId, FullName));
+            break;
+        case CFE_SB_CR_PIPE_ERR_EID:
+            CFE_EVS_SendEventWithAppID(CFE_SB_CR_PIPE_ERR_EID, CFE_EVS_EventType_ERROR, CFE_SB_Global.AppId,
+                                       "CreatePipeErr:OS_QueueCreate returned %ld,app %s", (long)OsStatus,
+                                       CFE_SB_GetAppTskName(TskId, FullName));
+            break;
+
+        default:
+            break;
+    }
+
     if (Status == CFE_SUCCESS)
     {
         /* send debug event */
@@ -234,39 +268,6 @@ CFE_Status_t CFE_SB_CreatePipe(CFE_SB_PipeId_t *PipeIdPtr, uint16 Depth, const c
 
         /* give the pipe handle to the caller */
         *PipeIdPtr = CFE_SB_PIPEID_C(PendingPipeId);
-    }
-    else
-    {
-        switch (PendingEventId)
-        {
-            case CFE_SB_CR_PIPE_BAD_ARG_EID:
-                CFE_EVS_SendEventWithAppID(CFE_SB_CR_PIPE_BAD_ARG_EID, CFE_EVS_EventType_ERROR, CFE_SB_Global.AppId,
-                                           "CreatePipeErr:Bad Input Arg:app=%s,ptr=0x%lx,depth=%d,maxdepth=%d",
-                                           CFE_SB_GetAppTskName(TskId, FullName), (unsigned long)PipeIdPtr, (int)Depth,
-                                           OS_QUEUE_MAX_DEPTH);
-                break;
-
-            case CFE_SB_MAX_PIPES_MET_EID:
-                CFE_EVS_SendEventWithAppID(CFE_SB_MAX_PIPES_MET_EID, CFE_EVS_EventType_ERROR, CFE_SB_Global.AppId,
-                                           "CreatePipeErr:Max Pipes(%d)In Use.app %s", CFE_PLATFORM_SB_MAX_PIPES,
-                                           CFE_SB_GetAppTskName(TskId, FullName));
-                break;
-            case CFE_SB_CR_PIPE_NAME_TAKEN_EID:
-                CFE_EVS_SendEventWithAppID(CFE_SB_CR_PIPE_NAME_TAKEN_EID, CFE_EVS_EventType_ERROR, CFE_SB_Global.AppId,
-                                           "CreatePipeErr:OS_QueueCreate failed, name taken (app=%s, name=%s)",
-                                           CFE_SB_GetAppTskName(TskId, FullName), PipeName);
-                break;
-            case CFE_SB_CR_PIPE_NO_FREE_EID:
-                CFE_EVS_SendEventWithAppID(CFE_SB_CR_PIPE_NO_FREE_EID, CFE_EVS_EventType_ERROR, CFE_SB_Global.AppId,
-                                           "CreatePipeErr:OS_QueueCreate failed, no free id's (app=%s)",
-                                           CFE_SB_GetAppTskName(TskId, FullName));
-                break;
-            case CFE_SB_CR_PIPE_ERR_EID:
-                CFE_EVS_SendEventWithAppID(CFE_SB_CR_PIPE_ERR_EID, CFE_EVS_EventType_ERROR, CFE_SB_Global.AppId,
-                                           "CreatePipeErr:OS_QueueCreate returned %ld,app %s", (long)OsStatus,
-                                           CFE_SB_GetAppTskName(TskId, FullName));
-                break;
-        }
     }
 
     return Status;
@@ -431,12 +432,42 @@ int32 CFE_SB_DeletePipeFull(CFE_SB_PipeId_t PipeId, CFE_ES_AppId_t AppId)
         CFE_SB_PipeDescSetFree(PipeDscPtr);
         --CFE_SB_Global.StatTlmMsg.Payload.PipesInUse;
     }
-    else if (PendingEventID != 0)
+    else
     {
         CFE_SB_Global.HKTlmMsg.Payload.CreatePipeErrorCounter++;
     }
 
     CFE_SB_UnlockSharedData(__func__, __LINE__);
+
+    /* Send Events */
+    if (PendingEventID != 0)
+    {
+        /* get TaskId and name of caller for events */
+        CFE_ES_GetTaskID(&TskId);
+        CFE_SB_GetAppTskName(TskId, FullName);
+    }
+    else
+    {
+        TskId       = CFE_ES_TASKID_UNDEFINED;
+        FullName[0] = 0;
+    }
+
+    switch (PendingEventID)
+    {
+        case CFE_SB_DEL_PIPE_ERR1_EID:
+            CFE_EVS_SendEventWithAppID(CFE_SB_DEL_PIPE_ERR1_EID, CFE_EVS_EventType_ERROR, CFE_SB_Global.AppId,
+                                       "Pipe Delete Error:Bad Argument,PipedId %ld,Requestor %s",
+                                       CFE_RESOURCEID_TO_ULONG(PipeId), FullName);
+            break;
+        case CFE_SB_DEL_PIPE_ERR2_EID:
+            CFE_EVS_SendEventWithAppID(CFE_SB_DEL_PIPE_ERR2_EID, CFE_EVS_EventType_ERROR, CFE_SB_Global.AppId,
+                                       "Pipe Delete Error:Caller(%s) is not the owner of pipe %ld", FullName,
+                                       CFE_RESOURCEID_TO_ULONG(PipeId));
+            break;
+
+        default:
+            break;
+    }
 
     if (Status == CFE_SUCCESS)
     {
@@ -450,26 +481,6 @@ int32 CFE_SB_DeletePipeFull(CFE_SB_PipeId_t PipeId, CFE_ES_AppId_t AppId)
 
         CFE_EVS_SendEventWithAppID(CFE_SB_PIPE_DELETED_EID, CFE_EVS_EventType_DEBUG, CFE_SB_Global.AppId,
                                    "Pipe Deleted:id %d,owner %s", (int)CFE_RESOURCEID_TO_ULONG(PipeId), FullName);
-    }
-    else
-    {
-        /* get TaskId and name of caller for events */
-        CFE_ES_GetTaskID(&TskId);
-        CFE_SB_GetAppTskName(TskId, FullName);
-
-        switch (PendingEventID)
-        {
-            case CFE_SB_DEL_PIPE_ERR1_EID:
-                CFE_EVS_SendEventWithAppID(CFE_SB_DEL_PIPE_ERR1_EID, CFE_EVS_EventType_ERROR, CFE_SB_Global.AppId,
-                                           "Pipe Delete Error:Bad Argument,PipedId %ld,Requestor %s",
-                                           CFE_RESOURCEID_TO_ULONG(PipeId), FullName);
-                break;
-            case CFE_SB_DEL_PIPE_ERR2_EID:
-                CFE_EVS_SendEventWithAppID(CFE_SB_DEL_PIPE_ERR2_EID, CFE_EVS_EventType_ERROR, CFE_SB_Global.AppId,
-                                           "Pipe Delete Error:Caller(%s) is not the owner of pipe %ld", FullName,
-                                           CFE_RESOURCEID_TO_ULONG(PipeId));
-                break;
-        }
     }
 
     return Status;
@@ -528,7 +539,34 @@ CFE_Status_t CFE_SB_SetPipeOpts(CFE_SB_PipeId_t PipeId, uint8 Opts)
 
     CFE_SB_UnlockSharedData(__func__, __LINE__);
 
-    /* Send events after unlocking SB */
+    /* Send Events */
+    if (PendingEventID != 0)
+    {
+        /* get TaskId of caller for events */
+        CFE_ES_GetTaskID(&TskId);
+    }
+    else
+    {
+        TskId = CFE_ES_TASKID_UNDEFINED;
+    }
+
+    switch (PendingEventID)
+    {
+        case CFE_SB_SETPIPEOPTS_ID_ERR_EID:
+            CFE_EVS_SendEventWithAppID(CFE_SB_SETPIPEOPTS_ID_ERR_EID, CFE_EVS_EventType_ERROR, CFE_SB_Global.AppId,
+                                       "Pipe Opts Error:Bad Argument,PipedId %lu,Requestor %s",
+                                       CFE_RESOURCEID_TO_ULONG(PipeId), CFE_SB_GetAppTskName(TskId, FullName));
+            break;
+        case CFE_SB_SETPIPEOPTS_OWNER_ERR_EID:
+            CFE_EVS_SendEventWithAppID(CFE_SB_SETPIPEOPTS_OWNER_ERR_EID, CFE_EVS_EventType_ERROR, CFE_SB_Global.AppId,
+                                       "Pipe Opts Set Error: Caller(%s) is not the owner of pipe %lu",
+                                       CFE_SB_GetAppTskName(TskId, FullName), CFE_RESOURCEID_TO_ULONG(PipeId));
+            break;
+
+        default:
+            break;
+    }
+
     if (Status == CFE_SUCCESS)
     {
         /* get AppID of caller for events */
@@ -537,26 +575,6 @@ CFE_Status_t CFE_SB_SetPipeOpts(CFE_SB_PipeId_t PipeId, uint8 Opts)
         CFE_EVS_SendEventWithAppID(CFE_SB_SETPIPEOPTS_EID, CFE_EVS_EventType_DEBUG, CFE_SB_Global.AppId,
                                    "Pipe opts set:id %lu,owner %s, opts=0x%02x", CFE_RESOURCEID_TO_ULONG(PipeId),
                                    FullName, (unsigned int)Opts);
-    }
-    else
-    {
-        /* get TaskId of caller for events */
-        CFE_ES_GetTaskID(&TskId);
-
-        switch (PendingEventID)
-        {
-            case CFE_SB_SETPIPEOPTS_ID_ERR_EID:
-                CFE_EVS_SendEventWithAppID(CFE_SB_SETPIPEOPTS_ID_ERR_EID, CFE_EVS_EventType_ERROR, CFE_SB_Global.AppId,
-                                           "Pipe Opts Error:Bad Argument,PipedId %lu,Requestor %s",
-                                           CFE_RESOURCEID_TO_ULONG(PipeId), CFE_SB_GetAppTskName(TskId, FullName));
-                break;
-            case CFE_SB_SETPIPEOPTS_OWNER_ERR_EID:
-                CFE_EVS_SendEventWithAppID(CFE_SB_SETPIPEOPTS_OWNER_ERR_EID, CFE_EVS_EventType_ERROR,
-                                           CFE_SB_Global.AppId,
-                                           "Pipe Opts Set Error: Caller(%s) is not the owner of pipe %lu",
-                                           CFE_SB_GetAppTskName(TskId, FullName), CFE_RESOURCEID_TO_ULONG(PipeId));
-                break;
-        }
     }
 
     return Status;
@@ -607,31 +625,38 @@ CFE_Status_t CFE_SB_GetPipeOpts(CFE_SB_PipeId_t PipeId, uint8 *OptsPtr)
 
     CFE_SB_UnlockSharedData(__func__, __LINE__);
 
-    /* Send events after unlocking SB */
+    /* Send Events */
+    if (PendingEventID != 0)
+    {
+        /* get TaskId of caller for events */
+        CFE_ES_GetTaskID(&TskId);
+    }
+    else
+    {
+        TskId = CFE_ES_TASKID_UNDEFINED;
+    }
+
+    switch (PendingEventID)
+    {
+        case CFE_SB_GETPIPEOPTS_PTR_ERR_EID:
+            CFE_EVS_SendEventWithAppID(CFE_SB_GETPIPEOPTS_PTR_ERR_EID, CFE_EVS_EventType_ERROR, CFE_SB_Global.AppId,
+                                       "Pipe Opts Error:Bad Argument,Requestor %s",
+                                       CFE_SB_GetAppTskName(TskId, FullName));
+            break;
+        case CFE_SB_GETPIPEOPTS_ID_ERR_EID:
+            CFE_EVS_SendEventWithAppID(CFE_SB_GETPIPEOPTS_ID_ERR_EID, CFE_EVS_EventType_ERROR, CFE_SB_Global.AppId,
+                                       "Pipe Opts Error:Bad Argument,PipedId %lu,Requestor %s",
+                                       CFE_RESOURCEID_TO_ULONG(PipeId), CFE_SB_GetAppTskName(TskId, FullName));
+            break;
+        default:
+            break;
+    }
+
     if (Status == CFE_SUCCESS)
     {
         CFE_EVS_SendEventWithAppID(CFE_SB_GETPIPEOPTS_EID, CFE_EVS_EventType_DEBUG, CFE_SB_Global.AppId,
                                    "Pipe opts get:id %lu, opts=0x%02x", CFE_RESOURCEID_TO_ULONG(PipeId),
                                    (unsigned int)*OptsPtr);
-    }
-    else
-    {
-        /* get TaskId of caller for events */
-        CFE_ES_GetTaskID(&TskId);
-
-        switch (PendingEventID)
-        {
-            case CFE_SB_GETPIPEOPTS_PTR_ERR_EID:
-                CFE_EVS_SendEventWithAppID(CFE_SB_GETPIPEOPTS_PTR_ERR_EID, CFE_EVS_EventType_ERROR, CFE_SB_Global.AppId,
-                                           "Pipe Opts Error:Bad Argument,Requestor %s",
-                                           CFE_SB_GetAppTskName(TskId, FullName));
-                break;
-            case CFE_SB_GETPIPEOPTS_ID_ERR_EID:
-                CFE_EVS_SendEventWithAppID(CFE_SB_GETPIPEOPTS_ID_ERR_EID, CFE_EVS_EventType_ERROR, CFE_SB_Global.AppId,
-                                           "Pipe Opts Error:Bad Argument,PipedId %lu,Requestor %s",
-                                           CFE_RESOURCEID_TO_ULONG(PipeId), CFE_SB_GetAppTskName(TskId, FullName));
-                break;
-        }
     }
 
     return Status;
@@ -698,6 +723,33 @@ CFE_Status_t CFE_SB_GetPipeName(char *PipeNameBuf, size_t PipeNameSize, CFE_SB_P
     }
 
     /* Send Events */
+    if (PendingEventID != 0)
+    {
+        /* get TaskId of caller for events */
+        CFE_ES_GetTaskID(&TskId);
+    }
+    else
+    {
+        TskId = CFE_ES_TASKID_UNDEFINED;
+    }
+
+    switch (PendingEventID)
+    {
+        case CFE_SB_GETPIPENAME_NULL_PTR_EID:
+            CFE_EVS_SendEventWithAppID(CFE_SB_GETPIPENAME_NULL_PTR_EID, CFE_EVS_EventType_ERROR, CFE_SB_Global.AppId,
+                                       "Pipe Name Error:NullPtr,Requestor %s", CFE_SB_GetAppTskName(TskId, FullName));
+            break;
+
+        case CFE_SB_GETPIPENAME_ID_ERR_EID:
+            CFE_EVS_SendEventWithAppID(CFE_SB_GETPIPENAME_ID_ERR_EID, CFE_EVS_EventType_ERROR, CFE_SB_Global.AppId,
+                                       "Pipe Id Error:Bad Argument,Id=%lu,Requestor %s",
+                                       CFE_RESOURCEID_TO_ULONG(PipeId), CFE_SB_GetAppTskName(TskId, FullName));
+            break;
+
+        default:
+            break;
+    }
+
     if (Status == CFE_SUCCESS)
     {
         CFE_EVS_SendEventWithAppID(CFE_SB_GETPIPENAME_EID, CFE_EVS_EventType_DEBUG, CFE_SB_Global.AppId,
@@ -705,22 +757,6 @@ CFE_Status_t CFE_SB_GetPipeName(char *PipeNameBuf, size_t PipeNameSize, CFE_SB_P
     }
     else
     {
-        CFE_ES_GetTaskID(&TskId);
-
-        switch (PendingEventID)
-        {
-            case CFE_SB_GETPIPENAME_NULL_PTR_EID:
-                CFE_EVS_SendEventWithAppID(CFE_SB_GETPIPENAME_NULL_PTR_EID, CFE_EVS_EventType_ERROR,
-                                           CFE_SB_Global.AppId, "Pipe Name Error:NullPtr,Requestor %s",
-                                           CFE_SB_GetAppTskName(TskId, FullName));
-                break;
-            case CFE_SB_GETPIPENAME_ID_ERR_EID:
-                CFE_EVS_SendEventWithAppID(CFE_SB_GETPIPENAME_ID_ERR_EID, CFE_EVS_EventType_ERROR, CFE_SB_Global.AppId,
-                                           "Pipe Id Error:Bad Argument,Id=%lu,Requestor %s",
-                                           CFE_RESOURCEID_TO_ULONG(PipeId), CFE_SB_GetAppTskName(TskId, FullName));
-                break;
-        }
-
         if (PipeNameBuf != NULL && PipeNameSize > 0)
         {
             memset(PipeNameBuf, 0, PipeNameSize);
@@ -805,30 +841,38 @@ CFE_Status_t CFE_SB_GetPipeIdByName(CFE_SB_PipeId_t *PipeIdPtr, const char *Pipe
     CFE_SB_UnlockSharedData(__func__, __LINE__);
 
     /* Send Events */
+    if (PendingEventID != 0)
+    {
+        /* get TaskId of caller for events */
+        CFE_ES_GetTaskID(&TskId);
+    }
+    else
+    {
+        TskId = CFE_ES_TASKID_UNDEFINED;
+    }
+
+    switch (PendingEventID)
+    {
+        case CFE_SB_GETPIPEIDBYNAME_NULL_ERR_EID:
+            CFE_EVS_SendEventWithAppID(CFE_SB_GETPIPEIDBYNAME_NULL_ERR_EID, CFE_EVS_EventType_ERROR,
+                                       CFE_SB_Global.AppId, "Pipe ID By Name Error:Bad Argument,Requestor %s",
+                                       CFE_SB_GetAppTskName(TskId, FullName));
+            break;
+
+        case CFE_SB_GETPIPEIDBYNAME_NAME_ERR_EID:
+            CFE_EVS_SendEventWithAppID(CFE_SB_GETPIPEIDBYNAME_NAME_ERR_EID, CFE_EVS_EventType_ERROR,
+                                       CFE_SB_Global.AppId, "Pipe ID By Name Error:Bad Argument,Requestor %s",
+                                       CFE_SB_GetAppTskName(TskId, FullName));
+            break;
+
+        default:
+            break;
+    }
+
     if (Status == CFE_SUCCESS)
     {
         CFE_EVS_SendEventWithAppID(CFE_SB_GETPIPEIDBYNAME_EID, CFE_EVS_EventType_DEBUG, CFE_SB_Global.AppId,
                                    "PipeIdByName name=%s id=%lu", PipeName, CFE_RESOURCEID_TO_ULONG(*PipeIdPtr));
-    }
-    else
-    {
-        /* get TaskId of caller for events */
-        CFE_ES_GetTaskID(&TskId);
-
-        switch (PendingEventID)
-        {
-            case CFE_SB_GETPIPEIDBYNAME_NULL_ERR_EID:
-                CFE_EVS_SendEventWithAppID(CFE_SB_GETPIPEIDBYNAME_NULL_ERR_EID, CFE_EVS_EventType_ERROR,
-                                           CFE_SB_Global.AppId, "Pipe ID By Name Error:Bad Argument,Requestor %s",
-                                           CFE_SB_GetAppTskName(TskId, FullName));
-                break;
-
-            case CFE_SB_GETPIPEIDBYNAME_NAME_ERR_EID:
-                CFE_EVS_SendEventWithAppID(CFE_SB_GETPIPEIDBYNAME_NAME_ERR_EID, CFE_EVS_EventType_ERROR,
-                                           CFE_SB_Global.AppId, "Pipe ID By Name Error:Bad Argument,Requestor %s",
-                                           CFE_SB_GetAppTskName(TskId, FullName));
-                break;
-        }
     }
 
     return Status;
@@ -1027,65 +1071,73 @@ int32 CFE_SB_SubscribeFull(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId, CFE_SB_
 
     CFE_SB_UnlockSharedData(__func__, __LINE__);
 
-    /* Send events now */
+    /* Send events now - get the pipe name only if something is pending */
     if (PendingEventID != 0)
     {
         CFE_SB_GetPipeName(PipeName, sizeof(PipeName), PipeId);
-
-        switch (PendingEventID)
-        {
-            case CFE_SB_DUP_SUBSCRIP_EID:
-                CFE_EVS_SendEventWithAppID(CFE_SB_DUP_SUBSCRIP_EID, CFE_EVS_EventType_INFORMATION, CFE_SB_Global.AppId,
-                                           "Duplicate Subscription,MsgId 0x%x on %s pipe,app %s",
-                                           (unsigned int)CFE_SB_MsgIdToValue(MsgId), PipeName,
-                                           CFE_SB_GetAppTskName(TskId, FullName));
-                break;
-
-            case CFE_SB_SUB_INV_CALLER_EID:
-                CFE_EVS_SendEventWithAppID(CFE_SB_SUB_INV_CALLER_EID, CFE_EVS_EventType_ERROR, CFE_SB_Global.AppId,
-                                           "Subscribe Err:Caller(%s) is not the owner of pipe %lu,Msg=0x%x",
-                                           CFE_SB_GetAppTskName(TskId, FullName), CFE_RESOURCEID_TO_ULONG(PipeId),
-                                           (unsigned int)CFE_SB_MsgIdToValue(MsgId));
-                break;
-
-            case CFE_SB_SUB_INV_PIPE_EID:
-                CFE_EVS_SendEventWithAppID(CFE_SB_SUB_INV_PIPE_EID, CFE_EVS_EventType_ERROR, CFE_SB_Global.AppId,
-                                           "Subscribe Err:Invalid Pipe Id,Msg=0x%x,PipeId=%lu,App %s",
-                                           (unsigned int)CFE_SB_MsgIdToValue(MsgId), CFE_RESOURCEID_TO_ULONG(PipeId),
-                                           CFE_SB_GetAppTskName(TskId, FullName));
-                break;
-
-            case CFE_SB_DEST_BLK_ERR_EID:
-                CFE_EVS_SendEventWithAppID(CFE_SB_DEST_BLK_ERR_EID, CFE_EVS_EventType_ERROR, CFE_SB_Global.AppId,
-                                           "Subscribe Err:Request for Destination Blk failed for Msg 0x%x",
-                                           (unsigned int)CFE_SB_MsgIdToValue(MsgId));
-                break;
-
-            case CFE_SB_MAX_DESTS_MET_EID:
-                CFE_EVS_SendEventWithAppID(CFE_SB_MAX_DESTS_MET_EID, CFE_EVS_EventType_ERROR, CFE_SB_Global.AppId,
-                                           "Subscribe Err:Max Dests(%d)In Use For Msg 0x%x,pipe %s,app %s",
-                                           CFE_PLATFORM_SB_MAX_DEST_PER_PKT, (unsigned int)CFE_SB_MsgIdToValue(MsgId),
-                                           PipeName, CFE_SB_GetAppTskName(TskId, FullName));
-                break;
-
-            case CFE_SB_MAX_MSGS_MET_EID:
-                CFE_EVS_SendEventWithAppID(CFE_SB_MAX_MSGS_MET_EID, CFE_EVS_EventType_ERROR, CFE_SB_Global.AppId,
-                                           "Subscribe Err:Max Msgs(%d)In Use,MsgId 0x%x,pipe %s,app %s",
-                                           CFE_PLATFORM_SB_MAX_MSG_IDS, (unsigned int)CFE_SB_MsgIdToValue(MsgId),
-                                           PipeName, CFE_SB_GetAppTskName(TskId, FullName));
-                break;
-
-            case CFE_SB_SUB_ARG_ERR_EID:
-                CFE_EVS_SendEventWithAppID(CFE_SB_SUB_ARG_ERR_EID, CFE_EVS_EventType_ERROR, CFE_SB_Global.AppId,
-                                           "Subscribe Err:Bad Arg,MsgId 0x%x,PipeId %lu,app %s,scope %d",
-                                           (unsigned int)CFE_SB_MsgIdToValue(MsgId), CFE_RESOURCEID_TO_ULONG(PipeId),
-                                           CFE_SB_GetAppTskName(TskId, FullName), Scope);
-                break;
-        }
     }
-    else if (Status == CFE_SUCCESS)
+    else
     {
-        /* If no other event pending, send a debug event indicating success */
+        PipeName[0] = 0; /* make empty string */
+    }
+
+    switch (PendingEventID)
+    {
+        case CFE_SB_DUP_SUBSCRIP_EID:
+            CFE_EVS_SendEventWithAppID(CFE_SB_DUP_SUBSCRIP_EID, CFE_EVS_EventType_INFORMATION, CFE_SB_Global.AppId,
+                                       "Duplicate Subscription,MsgId 0x%x on %s pipe,app %s",
+                                       (unsigned int)CFE_SB_MsgIdToValue(MsgId), PipeName,
+                                       CFE_SB_GetAppTskName(TskId, FullName));
+            break;
+
+        case CFE_SB_SUB_INV_CALLER_EID:
+            CFE_EVS_SendEventWithAppID(CFE_SB_SUB_INV_CALLER_EID, CFE_EVS_EventType_ERROR, CFE_SB_Global.AppId,
+                                       "Subscribe Err:Caller(%s) is not the owner of pipe %lu,Msg=0x%x",
+                                       CFE_SB_GetAppTskName(TskId, FullName), CFE_RESOURCEID_TO_ULONG(PipeId),
+                                       (unsigned int)CFE_SB_MsgIdToValue(MsgId));
+            break;
+
+        case CFE_SB_SUB_INV_PIPE_EID:
+            CFE_EVS_SendEventWithAppID(CFE_SB_SUB_INV_PIPE_EID, CFE_EVS_EventType_ERROR, CFE_SB_Global.AppId,
+                                       "Subscribe Err:Invalid Pipe Id,Msg=0x%x,PipeId=%lu,App %s",
+                                       (unsigned int)CFE_SB_MsgIdToValue(MsgId), CFE_RESOURCEID_TO_ULONG(PipeId),
+                                       CFE_SB_GetAppTskName(TskId, FullName));
+            break;
+
+        case CFE_SB_DEST_BLK_ERR_EID:
+            CFE_EVS_SendEventWithAppID(CFE_SB_DEST_BLK_ERR_EID, CFE_EVS_EventType_ERROR, CFE_SB_Global.AppId,
+                                       "Subscribe Err:Request for Destination Blk failed for Msg 0x%x",
+                                       (unsigned int)CFE_SB_MsgIdToValue(MsgId));
+            break;
+
+        case CFE_SB_MAX_DESTS_MET_EID:
+            CFE_EVS_SendEventWithAppID(CFE_SB_MAX_DESTS_MET_EID, CFE_EVS_EventType_ERROR, CFE_SB_Global.AppId,
+                                       "Subscribe Err:Max Dests(%d)In Use For Msg 0x%x,pipe %s,app %s",
+                                       CFE_PLATFORM_SB_MAX_DEST_PER_PKT, (unsigned int)CFE_SB_MsgIdToValue(MsgId),
+                                       PipeName, CFE_SB_GetAppTskName(TskId, FullName));
+            break;
+
+        case CFE_SB_MAX_MSGS_MET_EID:
+            CFE_EVS_SendEventWithAppID(CFE_SB_MAX_MSGS_MET_EID, CFE_EVS_EventType_ERROR, CFE_SB_Global.AppId,
+                                       "Subscribe Err:Max Msgs(%d)In Use,MsgId 0x%x,pipe %s,app %s",
+                                       CFE_PLATFORM_SB_MAX_MSG_IDS, (unsigned int)CFE_SB_MsgIdToValue(MsgId), PipeName,
+                                       CFE_SB_GetAppTskName(TskId, FullName));
+            break;
+
+        case CFE_SB_SUB_ARG_ERR_EID:
+            CFE_EVS_SendEventWithAppID(CFE_SB_SUB_ARG_ERR_EID, CFE_EVS_EventType_ERROR, CFE_SB_Global.AppId,
+                                       "Subscribe Err:Bad Arg,MsgId 0x%x,PipeId %lu,app %s,scope %d",
+                                       (unsigned int)CFE_SB_MsgIdToValue(MsgId), CFE_RESOURCEID_TO_ULONG(PipeId),
+                                       CFE_SB_GetAppTskName(TskId, FullName), Scope);
+            break;
+
+        default:
+            break;
+    }
+
+    /* If no other event pending, send a debug event indicating success */
+    if (Status == CFE_SUCCESS && PendingEventID == 0)
+    {
         CFE_EVS_SendEventWithAppID(CFE_SB_SUBSCRIPTION_RCVD_EID, CFE_EVS_EventType_DEBUG, CFE_SB_Global.AppId,
                                    "Subscription Rcvd:MsgId 0x%x on PipeId %lu,app %s",
                                    (unsigned int)CFE_SB_MsgIdToValue(MsgId), CFE_RESOURCEID_TO_ULONG(PipeId),
@@ -1236,43 +1288,44 @@ int32 CFE_SB_UnsubscribeFull(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId, uint8
 
     CFE_SB_UnlockSharedData(__func__, __LINE__);
 
-    if (PendingEventID != 0)
+    switch (PendingEventID)
     {
-        switch (PendingEventID)
-        {
-            case CFE_SB_UNSUB_NO_SUBS_EID:
-                CFE_SB_GetPipeName(PipeName, sizeof(PipeName), PipeId);
-                CFE_EVS_SendEventWithAppID(CFE_SB_UNSUB_NO_SUBS_EID, CFE_EVS_EventType_INFORMATION, CFE_SB_Global.AppId,
-                                           "Unsubscribe Err:No subs for Msg 0x%x on %s,app %s",
-                                           (unsigned int)CFE_SB_MsgIdToValue(MsgId), PipeName,
-                                           CFE_SB_GetAppTskName(TskId, FullName));
-                break;
+        case CFE_SB_UNSUB_NO_SUBS_EID:
+            CFE_SB_GetPipeName(PipeName, sizeof(PipeName), PipeId);
+            CFE_EVS_SendEventWithAppID(CFE_SB_UNSUB_NO_SUBS_EID, CFE_EVS_EventType_INFORMATION, CFE_SB_Global.AppId,
+                                       "Unsubscribe Err:No subs for Msg 0x%x on %s,app %s",
+                                       (unsigned int)CFE_SB_MsgIdToValue(MsgId), PipeName,
+                                       CFE_SB_GetAppTskName(TskId, FullName));
+            break;
 
-            case CFE_SB_UNSUB_INV_PIPE_EID:
-                CFE_EVS_SendEventWithAppID(CFE_SB_UNSUB_INV_PIPE_EID, CFE_EVS_EventType_ERROR, CFE_SB_Global.AppId,
-                                           "Unsubscribe Err:Invalid Pipe Id Msg=0x%x,Pipe=%lu,app=%s",
-                                           (unsigned int)CFE_SB_MsgIdToValue(MsgId), CFE_RESOURCEID_TO_ULONG(PipeId),
-                                           CFE_SB_GetAppTskName(TskId, FullName));
-                break;
+        case CFE_SB_UNSUB_INV_PIPE_EID:
+            CFE_EVS_SendEventWithAppID(CFE_SB_UNSUB_INV_PIPE_EID, CFE_EVS_EventType_ERROR, CFE_SB_Global.AppId,
+                                       "Unsubscribe Err:Invalid Pipe Id Msg=0x%x,Pipe=%lu,app=%s",
+                                       (unsigned int)CFE_SB_MsgIdToValue(MsgId), CFE_RESOURCEID_TO_ULONG(PipeId),
+                                       CFE_SB_GetAppTskName(TskId, FullName));
+            break;
 
-            case CFE_SB_UNSUB_INV_CALLER_EID:
-                CFE_EVS_SendEventWithAppID(CFE_SB_UNSUB_INV_CALLER_EID, CFE_EVS_EventType_ERROR, CFE_SB_Global.AppId,
-                                           "Unsubscribe Err:Caller(%s) is not the owner of pipe %lu,Msg=0x%x",
-                                           CFE_SB_GetAppTskName(TskId, FullName), CFE_RESOURCEID_TO_ULONG(PipeId),
-                                           (unsigned int)CFE_SB_MsgIdToValue(MsgId));
-                break;
+        case CFE_SB_UNSUB_INV_CALLER_EID:
+            CFE_EVS_SendEventWithAppID(CFE_SB_UNSUB_INV_CALLER_EID, CFE_EVS_EventType_ERROR, CFE_SB_Global.AppId,
+                                       "Unsubscribe Err:Caller(%s) is not the owner of pipe %lu,Msg=0x%x",
+                                       CFE_SB_GetAppTskName(TskId, FullName), CFE_RESOURCEID_TO_ULONG(PipeId),
+                                       (unsigned int)CFE_SB_MsgIdToValue(MsgId));
+            break;
 
-            case CFE_SB_UNSUB_ARG_ERR_EID:
-                CFE_EVS_SendEventWithAppID(CFE_SB_UNSUB_ARG_ERR_EID, CFE_EVS_EventType_ERROR, CFE_SB_Global.AppId,
-                                           "Unsubscribe Err:Bad Arg,MsgId 0x%x,PipeId %lu,app %s,scope %d",
-                                           (unsigned int)CFE_SB_MsgIdToValue(MsgId), CFE_RESOURCEID_TO_ULONG(PipeId),
-                                           CFE_SB_GetAppTskName(TskId, FullName), (int)Scope);
-                break;
-        }
+        case CFE_SB_UNSUB_ARG_ERR_EID:
+            CFE_EVS_SendEventWithAppID(CFE_SB_UNSUB_ARG_ERR_EID, CFE_EVS_EventType_ERROR, CFE_SB_Global.AppId,
+                                       "Unsubscribe Err:Bad Arg,MsgId 0x%x,PipeId %lu,app %s,scope %d",
+                                       (unsigned int)CFE_SB_MsgIdToValue(MsgId), CFE_RESOURCEID_TO_ULONG(PipeId),
+                                       CFE_SB_GetAppTskName(TskId, FullName), (int)Scope);
+            break;
+
+        default:
+            break;
     }
-    else if (Status == CFE_SUCCESS)
+
+    /* if no other event pending, send a debug event for successful unsubscribe */
+    if (Status == CFE_SUCCESS && PendingEventID == 0)
     {
-        /* if no other event pending, send a debug event for successful unsubscribe */
         CFE_EVS_SendEventWithAppID(CFE_SB_SUBSCRIPTION_REMOVED_EID, CFE_EVS_EventType_DEBUG, CFE_SB_Global.AppId,
                                    "Subscription Removed:Msg 0x%x on pipe %lu,app %s",
                                    (unsigned int)CFE_SB_MsgIdToValue(MsgId), CFE_RESOURCEID_TO_ULONG(PipeId),

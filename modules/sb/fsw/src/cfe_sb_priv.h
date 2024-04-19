@@ -784,7 +784,6 @@ static inline bool CFE_SB_MessageTxn_IsOK(const CFE_SB_MessageTxn_State_t *TxnPt
     return (TxnPtr->Status == CFE_SUCCESS && TxnPtr->TransactionEventId == 0);
 }
 
-
 /*---------------------------------------------------------------------------------------*/
 /**
  * \brief Get transaction content size

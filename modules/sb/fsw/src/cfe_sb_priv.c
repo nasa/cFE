@@ -955,8 +955,7 @@ void CFE_SB_TransmitTxn_FindDestinations(CFE_SB_MessageTxn_State_t *TxnPtr, CFE_
             CFE_SBR_IncrementSequenceCounter(BufDscPtr->DestRouteId);
 
             /* Set the sequence count from the route */
-            Status =
-                CFE_MSG_SetSequenceCount(&BufDscPtr->Content.Msg, CFE_SBR_GetSequenceCounter(BufDscPtr->DestRouteId));
+            CFE_MSG_SetSequenceCount(&BufDscPtr->Content.Msg, CFE_SBR_GetSequenceCounter(BufDscPtr->DestRouteId));
         }
 
         /* Send the packet to all destinations  */
