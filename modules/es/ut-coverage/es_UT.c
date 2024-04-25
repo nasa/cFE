@@ -4554,9 +4554,9 @@ void TestAPI(void)
     UT_SetHandlerFunction(UT_KEY(CFE_TIME_Print), ES_UT_FillBuffer, &SysLogBufSize);
     UtAssert_VOIDCALL(ES_UT_SysLog_snprintf(SysLogBuf, sizeof(SysLogBuf), "b"));
 
-    /* Force a vsnprintf failure */
+    /* Force a vsnprintf to return 0 */
     ES_ResetUnitTest();
-    UtAssert_VOIDCALL(ES_UT_SysLog_snprintf(SysLogBuf, sizeof(SysLogBuf), NULL));
+    UtAssert_VOIDCALL(ES_UT_SysLog_snprintf(SysLogBuf, sizeof(SysLogBuf), ""));
 
     /* Test run loop with an application error status */
     ES_ResetUnitTest();
