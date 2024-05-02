@@ -32,7 +32,7 @@
 
 /*
  * Required header files...
-*/
+ */
 #include "cfe_es_api_typedefs.h"
 #include "cfe_tbl_api_typedefs.h"
 #include "cfe_platform_cfg.h"
@@ -122,6 +122,11 @@ static inline CFE_TBL_Handle_t CFE_TBL_TxnHandle(const CFE_TBL_TxnState_t *Txn)
     return Txn->Handle;
 }
 
+static inline unsigned long CFE_TBL_TxnHandleAsULong(const CFE_TBL_TxnState_t *Txn)
+{
+    return (unsigned long)CFE_TBL_TxnHandle(Txn);
+}
+
 /**
  * Gets the access descriptor object
  */
@@ -136,6 +141,11 @@ static inline CFE_TBL_AccessDescriptor_t *CFE_TBL_TxnAccDesc(const CFE_TBL_TxnSt
 static inline CFE_TBL_RegId_t CFE_TBL_TxnRegId(const CFE_TBL_TxnState_t *Txn)
 {
     return Txn->RegId;
+}
+
+static inline unsigned long CFE_TBL_TxnRegIdAsULong(const CFE_TBL_TxnState_t *Txn)
+{
+    return (unsigned long)CFE_TBL_TxnRegId(Txn);
 }
 
 /**
@@ -154,6 +164,11 @@ static inline CFE_TBL_RegistryRec_t *CFE_TBL_TxnRegRec(const CFE_TBL_TxnState_t 
 static inline CFE_ES_AppId_t CFE_TBL_TxnAppId(const CFE_TBL_TxnState_t *Txn)
 {
     return Txn->AppId;
+}
+
+static inline unsigned long CFE_TBL_TxnAppIdAsULong(const CFE_TBL_TxnState_t *Txn)
+{
+    return CFE_RESOURCEID_TO_ULONG(CFE_TBL_TxnAppId(Txn));
 }
 
 /*****************************  Function Prototypes   **********************************/

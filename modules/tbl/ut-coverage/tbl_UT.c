@@ -113,6 +113,92 @@ void UT_TBL_SetupHeader(CFE_TBL_File_Hdr_t *TblFileHeader, size_t Offset, size_t
     }
 }
 
+/* Sets up the indicated validation request/result buffer as VALIDATION_PENDING */
+void UT_TBL_SetupPendingValidation(uint32 ArrayIndex, bool UseActive, CFE_TBL_RegistryRec_t *RegRecPtr,
+                                   CFE_TBL_ValidationResult_t **ValResultOut)
+{
+    CFE_TBL_ValidationResult_t *ValResultPtr;
+    CFE_ResourceId_t            PendingId;
+
+    ValResultPtr = &CFE_TBL_Global.ValidationResults[ArrayIndex];
+    PendingId    = CFE_ResourceId_FromInteger(CFE_TBL_VALRESULTID_BASE + ArrayIndex);
+
+    memset(ValResultPtr, 0, sizeof(*ValResultPtr));
+
+    ValResultPtr->State = CFE_TBL_VALIDATION_PENDING;
+
+    ValResultPtr->ValId        = CFE_TBL_VALRESULTID_C(PendingId);
+    ValResultPtr->ActiveBuffer = UseActive;
+
+    snprintf(ValResultPtr->TableName, sizeof(ValResultPtr->TableName), "ut_cfe_tbl.UT_Table%u",
+             (unsigned int)ArrayIndex + 1);
+
+    if (RegRecPtr != NULL)
+    {
+        if (UseActive)
+        {
+            RegRecPtr->ValidateActiveId = ValResultPtr->ValId;
+        }
+        else
+        {
+            RegRecPtr->ValidateInactiveId = ValResultPtr->ValId;
+        }
+    }
+
+    if (ValResultOut != NULL)
+    {
+        *ValResultOut = ValResultPtr;
+    }
+}
+
+/* Resets the indicated validation request/result buffer to the free/unused state */
+void UT_TBL_ResetValidationState(uint32 ArrayIndex)
+{
+    CFE_TBL_ValidationResult_t *ValResultPtr;
+    ValResultPtr = &CFE_TBL_Global.ValidationResults[ArrayIndex];
+    memset(ValResultPtr, 0, sizeof(*ValResultPtr));
+}
+
+void UT_TBL_SetupPendingDump(uint32 ArrayIndex, CFE_TBL_LoadBuff_t *DumpBufferPtr, CFE_TBL_RegistryRec_t *RegRecPtr,
+                             CFE_TBL_DumpControl_t **DumpCtrlOut)
+{
+    CFE_TBL_DumpControl_t *DumpCtrlPtr;
+    CFE_ResourceId_t       PendingId;
+
+    DumpCtrlPtr = &CFE_TBL_Global.DumpControlBlocks[ArrayIndex];
+
+    PendingId = CFE_ResourceId_FromInteger(CFE_TBL_DUMPCTRLID_BASE + ArrayIndex);
+
+    memset(DumpCtrlPtr, 0, sizeof(*DumpCtrlPtr));
+
+    DumpCtrlPtr->State         = CFE_TBL_DUMP_PENDING;
+    DumpCtrlPtr->BlockId       = CFE_TBL_DUMPCTRLID_C(PendingId);
+    DumpCtrlPtr->RegRecPtr     = RegRecPtr;
+    DumpCtrlPtr->DumpBufferPtr = DumpBufferPtr;
+    DumpCtrlPtr->Size          = 1;
+
+    snprintf(DumpCtrlPtr->TableName, sizeof(DumpCtrlPtr->TableName), "ut_cfe_tbl.UT_Table%u",
+             (unsigned int)ArrayIndex + 1);
+
+    if (RegRecPtr != NULL)
+    {
+        RegRecPtr->DumpControlId = DumpCtrlPtr->BlockId;
+    }
+
+    if (DumpCtrlOut != NULL)
+    {
+        *DumpCtrlOut = DumpCtrlPtr;
+    }
+}
+
+/* Resets the indicated dump control block to the free/unused state */
+void UT_TBL_ResetDumpCtrlState(uint32 ArrayIndex)
+{
+    CFE_TBL_DumpControl_t *DumpCtrlPtr;
+    DumpCtrlPtr = &CFE_TBL_Global.DumpControlBlocks[ArrayIndex];
+    memset(DumpCtrlPtr, 0, sizeof(*DumpCtrlPtr));
+}
+
 /*
 ** Functions
 */
@@ -127,6 +213,15 @@ void UtTest_Setup(void)
     UT_ADD_TEST(Test_CFE_TBL_TaskInit);
     UT_ADD_TEST(Test_CFE_TBL_InitData);
     UT_ADD_TEST(Test_CFE_TBL_SearchCmdHndlrTbl);
+
+    /*
+     * Shared resource access patterns
+     * (do this early because many other APIs depend on these working correctly)
+     */
+    UT_ADD_TEST(Test_CFE_TBL_ResourceID_ValidationResult);
+    UT_ADD_TEST(Test_CFE_TBL_ResourceID_RegistryRecord);
+    UT_ADD_TEST(Test_CFE_TBL_ResourceID_AccessDescriptor);
+    UT_ADD_TEST(Test_CFE_TBL_ResourceID_DumpControl);
 
     /* cfe_tbl_task_cmds.c functions */
     /* This should be done first (it initializes working data structures) */
@@ -209,20 +304,13 @@ void UT_ResetTableRegistry(void)
     /* Initialize the table validation results records */
     for (i = 0; i < CFE_PLATFORM_TBL_MAX_NUM_VALIDATIONS; i++)
     {
-        CFE_TBL_Global.ValidationResults[i].State        = CFE_TBL_VALIDATION_FREE;
-        CFE_TBL_Global.ValidationResults[i].CrcOfTable   = 0;
-        CFE_TBL_Global.ValidationResults[i].Result       = 0;
-        CFE_TBL_Global.ValidationResults[i].ActiveBuffer = false;
-        CFE_TBL_Global.ValidationResults[i].TableName[0] = '\0';
+        UT_TBL_ResetValidationState(i);
     }
 
     /* Initialize the dump-only table dump control blocks */
     for (i = 0; i < CFE_PLATFORM_TBL_MAX_SIMULTANEOUS_LOADS; i++)
     {
-        CFE_TBL_Global.DumpControlBlocks[i].State         = CFE_TBL_DUMP_FREE;
-        CFE_TBL_Global.DumpControlBlocks[i].DumpBufferPtr = NULL;
-        CFE_TBL_Global.DumpControlBlocks[i].Size          = 0;
-        CFE_TBL_Global.DumpControlBlocks[i].TableName[0]  = '\0';
+        UT_TBL_ResetDumpCtrlState(i);
 
         /* Free all shared buffers */
         CFE_TBL_Global.LoadBuffs[i].Taken = false;
@@ -673,7 +761,6 @@ void Test_CFE_TBL_ResetCmd(void)
 */
 void Test_CFE_TBL_ValidateCmd(void)
 {
-    int                       i;
     uint8                     Buff;
     uint8 *                   BuffPtr = &Buff;
     CFE_TBL_ValidateCmd_t     ValidateCmd;
@@ -696,18 +783,14 @@ void Test_CFE_TBL_ValidateCmd(void)
     ValidateCmd.Payload.ActiveTableFlag                                      = CFE_TBL_BufferSelect_ACTIVE;
     CFE_TBL_Global.Registry[0].Buffers[CFE_TBL_Global.Registry[0].ActiveBufferIndex].BufferPtr = BuffPtr;
 
-    for (i = 0; i < CFE_PLATFORM_TBL_MAX_NUM_VALIDATIONS; i++)
-    {
-        CFE_TBL_Global.ValidationResults[i].State = CFE_TBL_VALIDATION_PENDING;
-    }
-
+    UT_SetDeferredRetcode(UT_KEY(CFE_ResourceId_FindNext), 1, 0);
     UtAssert_INT32_EQ(CFE_TBL_ValidateCmd(&ValidateCmd), CFE_TBL_INC_ERR_CTR);
 
     /* Test where the active buffer has data, but there is no validation
      * function pointer
      */
     UT_InitData();
-    CFE_TBL_Global.ValidationResults[0].State    = CFE_TBL_VALIDATION_FREE;
+    UT_TBL_ResetValidationState(0);
     CFE_TBL_Global.Registry[0].ValidationFuncPtr = NULL;
     UtAssert_INT32_EQ(CFE_TBL_ValidateCmd(&ValidateCmd), CFE_TBL_INC_CMD_CTR);
 
@@ -715,7 +798,7 @@ void Test_CFE_TBL_ValidateCmd(void)
      * exists, and the active table flag is set
      */
     UT_InitData();
-    CFE_TBL_Global.ValidationResults[0].State    = CFE_TBL_VALIDATION_FREE;
+    UT_TBL_ResetValidationState(0);
     CFE_TBL_Global.Registry[0].ValidationFuncPtr = ValFuncPtr;
     ValidateCmd.Payload.ActiveTableFlag          = true;
     UtAssert_INT32_EQ(CFE_TBL_ValidateCmd(&ValidateCmd), CFE_TBL_INC_CMD_CTR);
@@ -724,11 +807,11 @@ void Test_CFE_TBL_ValidateCmd(void)
      * validation function pointer exists
      */
     UT_InitData();
+    UT_TBL_ResetValidationState(0);
     ValidateCmd.Payload.ActiveTableFlag       = CFE_TBL_BufferSelect_INACTIVE;
     CFE_TBL_Global.Registry[0].DoubleBuffered = true;
     CFE_TBL_Global.Registry[0].Buffers[1 - CFE_TBL_Global.Registry[0].ActiveBufferIndex].BufferPtr = BuffPtr;
-    CFE_TBL_Global.ValidationResults[0].State    = CFE_TBL_VALIDATION_FREE;
-    CFE_TBL_Global.Registry[0].ValidationFuncPtr = ValFuncPtr;
+    CFE_TBL_Global.Registry[0].ValidationFuncPtr                                                   = ValFuncPtr;
     UtAssert_INT32_EQ(CFE_TBL_ValidateCmd(&ValidateCmd), CFE_TBL_INC_CMD_CTR);
 
     /* Test with the buffer inactive, the table is single-buffered with a
@@ -736,10 +819,10 @@ void Test_CFE_TBL_ValidateCmd(void)
      * notification message should be sent
      */
     UT_InitData();
+    UT_TBL_ResetValidationState(0);
     CFE_TBL_Global.Registry[0].NotifyByMsg                                        = false;
     CFE_TBL_Global.Registry[0].DoubleBuffered                                     = false;
     CFE_TBL_Global.LoadBuffs[CFE_TBL_Global.Registry[0].LoadInProgress].BufferPtr = BuffPtr;
-    CFE_TBL_Global.ValidationResults[0].State                                     = CFE_TBL_VALIDATION_FREE;
     CFE_TBL_Global.Registry[0].LoadInProgress                                     = CFE_TBL_NO_LOAD_IN_PROGRESS + 1;
     UtAssert_INT32_EQ(CFE_TBL_ValidateCmd(&ValidateCmd), CFE_TBL_INC_CMD_CTR);
 
@@ -749,10 +832,10 @@ void Test_CFE_TBL_ValidateCmd(void)
      */
     UT_InitData();
     UT_SetDeferredRetcode(UT_KEY(CFE_SB_TransmitMsg), 1, CFE_SB_INTERNAL_ERR);
+    UT_TBL_ResetValidationState(0);
     CFE_TBL_Global.Registry[0].NotifyByMsg                                        = true;
     CFE_TBL_Global.Registry[0].DoubleBuffered                                     = false;
     CFE_TBL_Global.LoadBuffs[CFE_TBL_Global.Registry[0].LoadInProgress].BufferPtr = BuffPtr;
-    CFE_TBL_Global.ValidationResults[0].State                                     = CFE_TBL_VALIDATION_FREE;
     CFE_TBL_Global.Registry[0].LoadInProgress                                     = CFE_TBL_NO_LOAD_IN_PROGRESS + 1;
     UtAssert_INT32_EQ(CFE_TBL_ValidateCmd(&ValidateCmd), CFE_TBL_INC_CMD_CTR);
 
@@ -818,11 +901,12 @@ void Test_CFE_TBL_GetTblRegData(void)
 */
 void Test_CFE_TBL_GetHkData(void)
 {
-    int            i;
-    int32          NumLoadPendingIndex = CFE_PLATFORM_TBL_MAX_NUM_TABLES - 1;
-    int32          FreeSharedBuffIndex = CFE_PLATFORM_TBL_MAX_SIMULTANEOUS_LOADS - 1;
-    int32          ValTableIndex       = CFE_PLATFORM_TBL_MAX_NUM_VALIDATIONS - 1;
-    CFE_ES_AppId_t AppID;
+    int                         i;
+    int32                       NumLoadPendingIndex = CFE_PLATFORM_TBL_MAX_NUM_TABLES - 1;
+    int32                       FreeSharedBuffIndex = CFE_PLATFORM_TBL_MAX_SIMULTANEOUS_LOADS - 1;
+    int32                       ValTableIndex       = CFE_PLATFORM_TBL_MAX_NUM_VALIDATIONS - 1;
+    CFE_ES_AppId_t              AppID;
+    CFE_TBL_ValidationResult_t *ValResultPtr;
 
     /* Get the AppID being used for UT */
     CFE_ES_GetAppID(&AppID);
@@ -849,17 +933,18 @@ void Test_CFE_TBL_GetHkData(void)
 
     /* Test making a ValPtr with result = CFE_SUCCESS */
     UT_InitData();
-    CFE_TBL_Global.SuccessValCounter                       = 0;
-    CFE_TBL_Global.ValidationResults[ValTableIndex].State  = CFE_TBL_VALIDATION_PERFORMED;
-    CFE_TBL_Global.ValidationResults[ValTableIndex].Result = CFE_SUCCESS;
+    CFE_TBL_Global.SuccessValCounter = 0;
+    UT_TBL_SetupPendingValidation(ValTableIndex, false, NULL, &ValResultPtr);
+    ValResultPtr->State = CFE_TBL_VALIDATION_PERFORMED;
     CFE_TBL_GetHkData();
     UtAssert_UINT32_EQ(CFE_TBL_Global.SuccessValCounter, 1);
 
     /* Test making a ValPtr without result = CFE_SUCCESS */
     UT_InitData();
-    CFE_TBL_Global.FailedValCounter                        = 0;
-    CFE_TBL_Global.ValidationResults[ValTableIndex].State  = CFE_TBL_VALIDATION_PERFORMED;
-    CFE_TBL_Global.ValidationResults[ValTableIndex].Result = CFE_SUCCESS - 1;
+    CFE_TBL_Global.FailedValCounter = 0;
+    UT_TBL_SetupPendingValidation(ValTableIndex, false, NULL, &ValResultPtr);
+    ValResultPtr->State  = CFE_TBL_VALIDATION_PERFORMED;
+    ValResultPtr->Result = CFE_SUCCESS - 1;
     CFE_TBL_GetHkData();
     UtAssert_UINT32_EQ(CFE_TBL_Global.FailedValCounter, 1);
 
@@ -1024,7 +1109,7 @@ void Test_CFE_TBL_DumpRegCmd(void)
 */
 void Test_CFE_TBL_DumpCmd(void)
 {
-    int                i, k, u;
+    int                i, u;
     uint8              Buff;
     uint8 *            BuffPtr = &Buff;
     CFE_TBL_LoadBuff_t Load    = {0};
@@ -1060,9 +1145,9 @@ void Test_CFE_TBL_DumpCmd(void)
         CFE_TBL_Global.Registry[i].DumpOnly = true;
     }
 
-    CFE_TBL_Global.DumpControlBlocks[2].State                           = CFE_TBL_DUMP_PENDING;
-    CFE_TBL_Global.DumpControlBlocks[3].State                           = CFE_TBL_DUMP_FREE;
-    CFE_TBL_Global.Registry[2].DumpControlIndex                         = CFE_TBL_NO_DUMP_PENDING;
+    UT_TBL_SetupPendingDump(2, NULL, NULL, NULL);
+    UT_TBL_ResetDumpCtrlState(3);
+    CFE_TBL_Global.Registry[2].DumpControlId                            = CFE_TBL_NO_DUMP_PENDING;
     CFE_TBL_Global.Registry[2].LoadInProgress                           = CFE_TBL_NO_LOAD_IN_PROGRESS + 1;
     CFE_TBL_Global.Registry[2].DoubleBuffered                           = false;
     CFE_TBL_Global.LoadBuffs[CFE_TBL_Global.Registry[2].LoadInProgress] = Load;
@@ -1076,11 +1161,11 @@ void Test_CFE_TBL_DumpCmd(void)
      * available
      */
     UT_InitData();
-    CFE_TBL_Global.DumpControlBlocks[2].State   = CFE_TBL_DUMP_FREE;
-    CFE_TBL_Global.Registry[2].DumpControlIndex = CFE_TBL_NO_DUMP_PENDING;
-    CFE_TBL_Global.Registry[2].LoadInProgress   = CFE_TBL_NO_LOAD_IN_PROGRESS;
-    CFE_TBL_Global.Registry[2].TableLoadedOnce  = true;
-    CFE_TBL_Global.Registry[2].DoubleBuffered   = false;
+    UT_TBL_ResetDumpCtrlState(2);
+    CFE_TBL_Global.Registry[2].DumpControlId   = CFE_TBL_NO_DUMP_PENDING;
+    CFE_TBL_Global.Registry[2].LoadInProgress  = CFE_TBL_NO_LOAD_IN_PROGRESS;
+    CFE_TBL_Global.Registry[2].TableLoadedOnce = true;
+    CFE_TBL_Global.Registry[2].DoubleBuffered  = false;
 
     for (u = 0; u < CFE_PLATFORM_TBL_MAX_SIMULTANEOUS_LOADS; u++)
     {
@@ -1095,14 +1180,9 @@ void Test_CFE_TBL_DumpCmd(void)
      * dump only table dumps have been requested
      */
     UT_InitData();
-    CFE_TBL_Global.Registry[2].DumpControlIndex = CFE_TBL_NO_DUMP_PENDING;
-
-    for (k = 0; k < CFE_PLATFORM_TBL_MAX_SIMULTANEOUS_LOADS; k++)
-    {
-        CFE_TBL_Global.DumpControlBlocks[k].State = CFE_TBL_DUMP_PENDING;
-    }
-
-    CFE_TBL_Global.Registry[2].NotifyByMsg = true;
+    CFE_TBL_Global.Registry[2].DumpControlId = CFE_TBL_NO_DUMP_PENDING;
+    CFE_TBL_Global.Registry[2].NotifyByMsg   = true;
+    UT_SetDeferredRetcode(UT_KEY(CFE_ResourceId_FindNext), 1, 0);
     UtAssert_INT32_EQ(CFE_TBL_DumpCmd(&DumpCmd), CFE_TBL_INC_ERR_CTR);
 
     /* Test with an inactive buffer, double-buffered, dump already in progress;
@@ -1112,7 +1192,7 @@ void Test_CFE_TBL_DumpCmd(void)
     DumpCmd.Payload.ActiveTableFlag           = CFE_TBL_BufferSelect_INACTIVE;
     CFE_TBL_Global.Registry[2].DoubleBuffered = true;
     CFE_TBL_Global.Registry[2].Buffers[(1 - CFE_TBL_Global.Registry[2].ActiveBufferIndex)].BufferPtr = BuffPtr;
-    CFE_TBL_Global.Registry[2].DumpControlIndex = CFE_TBL_NO_DUMP_PENDING + 1;
+    CFE_TBL_Global.Registry[2].DumpControlId = CFE_TBL_DUMPCTRLID_C(CFE_ResourceId_FromInteger(1));
     UtAssert_INT32_EQ(CFE_TBL_DumpCmd(&DumpCmd), CFE_TBL_INC_ERR_CTR);
 
     /* Test with an inactive buffer, single-buffered, pointer created, is a
@@ -1321,13 +1401,14 @@ void Test_CFE_TBL_LoadCmd(void)
 */
 void Test_CFE_TBL_SendHkCmd(void)
 {
-    int                   i;
-    CFE_TBL_LoadBuff_t    DumpBuff;
-    CFE_TBL_LoadBuff_t *  DumpBuffPtr = &DumpBuff;
-    CFE_TBL_RegistryRec_t RegRecPtr;
-    uint8                 Buff;
-    void *                BuffPtr    = &Buff;
-    int32                 LoadInProg = 0;
+    int                    i;
+    CFE_TBL_LoadBuff_t     DumpBuff;
+    CFE_TBL_LoadBuff_t *   DumpBuffPtr = &DumpBuff;
+    CFE_TBL_RegistryRec_t *RegRecPtr;
+    uint8                  Buff;
+    void *                 BuffPtr    = &Buff;
+    int32                  LoadInProg = 0;
+    CFE_TBL_DumpControl_t *DumpCtrlPtr;
 
     UtPrintf("Begin Test Housekeeping Command");
 
@@ -1335,25 +1416,21 @@ void Test_CFE_TBL_SendHkCmd(void)
      * to send Hk packet
      */
     UT_InitData();
-    strncpy(CFE_TBL_Global.DumpControlBlocks[0].TableName, "housekeepingtest",
-            sizeof(CFE_TBL_Global.DumpControlBlocks[0].TableName) - 1);
-    CFE_TBL_Global.DumpControlBlocks[0].TableName[sizeof(CFE_TBL_Global.DumpControlBlocks[0].TableName) - 1] = '\0';
-    CFE_TBL_Global.DumpControlBlocks[0].Size                                                                 = 10;
-    LoadInProg                                    = CFE_TBL_NO_LOAD_IN_PROGRESS + 1;
-    RegRecPtr.LoadInProgress                      = LoadInProg;
-    CFE_TBL_Global.DumpControlBlocks[0].RegRecPtr = &RegRecPtr;
-    DumpBuffPtr->Taken                            = true;
-    DumpBuffPtr->Validated                        = true;
-    DumpBuffPtr->BufferPtr                        = BuffPtr;
-    DumpBuffPtr->FileTime                         = CFE_TIME_ZERO_VALUE;
+    RegRecPtr = &CFE_TBL_Global.Registry[0];
+    UT_TBL_SetupPendingDump(0, DumpBuffPtr, RegRecPtr, &DumpCtrlPtr);
+    LoadInProg                = CFE_TBL_NO_LOAD_IN_PROGRESS + 1;
+    RegRecPtr->LoadInProgress = LoadInProg;
+    DumpBuffPtr->Taken        = true;
+    DumpBuffPtr->Validated    = true;
+    DumpBuffPtr->BufferPtr    = BuffPtr;
+    DumpBuffPtr->FileTime     = CFE_TIME_ZERO_VALUE;
     strncpy(DumpBuffPtr->DataSource, "hkSource", sizeof(DumpBuffPtr->DataSource) - 1);
     DumpBuffPtr->DataSource[sizeof(DumpBuffPtr->DataSource) - 1] = '\0';
-    CFE_TBL_Global.DumpControlBlocks[0].DumpBufferPtr            = DumpBuffPtr;
-    CFE_TBL_Global.DumpControlBlocks[0].State                    = CFE_TBL_DUMP_PERFORMED;
+    DumpCtrlPtr->State                                           = CFE_TBL_DUMP_PERFORMED;
 
     for (i = 1; i < CFE_PLATFORM_TBL_MAX_SIMULTANEOUS_LOADS; i++)
     {
-        CFE_TBL_Global.DumpControlBlocks[i].State = CFE_TBL_DUMP_PENDING;
+        UT_TBL_SetupPendingDump(i, NULL, NULL, NULL);
     }
 
     UT_SetDeferredRetcode(UT_KEY(CFE_SB_TransmitMsg), 1, CFE_SUCCESS - 1);
@@ -1362,35 +1439,38 @@ void Test_CFE_TBL_SendHkCmd(void)
 
     for (i = 1; i < CFE_PLATFORM_TBL_MAX_SIMULTANEOUS_LOADS; i++)
     {
-        CFE_TBL_Global.DumpControlBlocks[i].State = CFE_TBL_DUMP_PENDING;
+        UT_TBL_SetupPendingDump(i, NULL, NULL, NULL);
     }
 
-    RegRecPtr.LoadInProgress                      = LoadInProg;
-    CFE_TBL_Global.DumpControlBlocks[0].RegRecPtr = &RegRecPtr;
+    RegRecPtr->LoadInProgress = LoadInProg;
 
     /* Test response to inability to open dump file */
     UT_InitData();
-    CFE_TBL_Global.DumpControlBlocks[0].State = CFE_TBL_DUMP_PERFORMED;
-    CFE_TBL_Global.HkTlmTblRegIndex           = CFE_TBL_NOT_FOUND + 1;
+    UT_TBL_SetupPendingDump(0, DumpBuffPtr, RegRecPtr, &DumpCtrlPtr);
+    DumpCtrlPtr->State              = CFE_TBL_DUMP_PERFORMED;
+    CFE_TBL_Global.HkTlmTblRegIndex = CFE_TBL_NOT_FOUND + 1;
     UT_SetDefaultReturnValue(UT_KEY(OS_OpenCreate), OS_ERROR);
     UtAssert_INT32_EQ(CFE_TBL_SendHkCmd(NULL), CFE_TBL_DONT_INC_CTR);
 
     /* Test response to an invalid table and a dump file create failure */
     UT_InitData();
-    CFE_TBL_Global.HkTlmTblRegIndex           = CFE_TBL_NOT_FOUND;
-    CFE_TBL_Global.DumpControlBlocks[0].State = CFE_TBL_DUMP_PERFORMED;
+    UT_TBL_SetupPendingDump(0, DumpBuffPtr, RegRecPtr, &DumpCtrlPtr);
+    CFE_TBL_Global.HkTlmTblRegIndex = CFE_TBL_NOT_FOUND;
+    DumpCtrlPtr->State              = CFE_TBL_DUMP_PERFORMED;
     UT_SetDefaultReturnValue(UT_KEY(OS_OpenCreate), OS_ERROR);
     UtAssert_INT32_EQ(CFE_TBL_SendHkCmd(NULL), CFE_TBL_DONT_INC_CTR);
 
     /* Test response to a file time stamp failure */
     UT_InitData();
-    CFE_TBL_Global.DumpControlBlocks[0].State = CFE_TBL_DUMP_PERFORMED;
+    UT_TBL_SetupPendingDump(0, DumpBuffPtr, RegRecPtr, &DumpCtrlPtr);
+    DumpCtrlPtr->State = CFE_TBL_DUMP_PERFORMED;
     UT_SetDeferredRetcode(UT_KEY(CFE_FS_SetTimestamp), 1, OS_SUCCESS - 1);
     UtAssert_INT32_EQ(CFE_TBL_SendHkCmd(NULL), CFE_TBL_DONT_INC_CTR);
 
     /* Test response to OS_OpenCreate failure */
     UT_InitData();
-    CFE_TBL_Global.DumpControlBlocks[0].State = CFE_TBL_DUMP_PERFORMED;
+    UT_TBL_SetupPendingDump(0, DumpBuffPtr, RegRecPtr, &DumpCtrlPtr);
+    DumpCtrlPtr->State = CFE_TBL_DUMP_PERFORMED;
     UT_SetDeferredRetcode(UT_KEY(OS_OpenCreate), 3, -1);
     UtAssert_INT32_EQ(CFE_TBL_SendHkCmd(NULL), CFE_TBL_DONT_INC_CTR);
 }
@@ -2469,13 +2549,18 @@ void Test_CFE_TBL_ReleaseAddresses(void)
 */
 void Test_CFE_TBL_Validate(void)
 {
-    int16                  RegIndex;
-    CFE_TBL_RegistryRec_t *RegRecPtr;
+    int16                       RegIndex;
+    CFE_TBL_RegistryRec_t *     RegRecPtr;
+    CFE_TBL_ValidationResult_t *ValResultPtr;
+
     UtPrintf("Begin Test Validate");
 
     /* Test setup */
     RegIndex  = CFE_TBL_FindTableInRegistry("ut_cfe_tbl.UT_Table1");
     RegRecPtr = &CFE_TBL_Global.Registry[RegIndex];
+
+    /* Refer to the test validation function */
+    RegRecPtr->ValidationFuncPtr = Test_CFE_TBL_ValidationFunc;
 
     /* Test response to attempt to validate a table that an application is
      * not allowed to see
@@ -2497,39 +2582,61 @@ void Test_CFE_TBL_Validate(void)
     UT_InitData();
 
     /* a. Configure table for validation */
-    CFE_TBL_Global.ValidationResults[0].State  = CFE_TBL_VALIDATION_PENDING;
-    CFE_TBL_Global.ValidationResults[0].Result = 0;
-    strncpy(CFE_TBL_Global.ValidationResults[0].TableName, "ut_cfe_tbl.UT_Table1",
-            sizeof(CFE_TBL_Global.ValidationResults[0].TableName) - 1);
-    CFE_TBL_Global.ValidationResults[0].TableName[sizeof(CFE_TBL_Global.ValidationResults[0].TableName) - 1] = '\0';
-    CFE_TBL_Global.ValidationResults[0].CrcOfTable                                                           = 0;
-    CFE_TBL_Global.ValidationResults[0].ActiveBuffer                                                         = false;
-    RegRecPtr->ValidateInactiveIndex                                                                         = 0;
+    UT_TBL_SetupPendingValidation(0, false, RegRecPtr, &ValResultPtr);
+
+    RegRecPtr->LoadInProgress = 0;
 
     /* b. Perform failed validation */
     UT_SetDeferredRetcode(UT_KEY(Test_CFE_TBL_ValidationFunc), 1, -1);
     CFE_UtAssert_SUCCESS(CFE_TBL_Validate(App1TblHandle1));
     CFE_UtAssert_EVENTSENT(CFE_TBL_VALIDATION_ERR_EID);
     CFE_UtAssert_EVENTCOUNT(1);
-    UtAssert_INT32_EQ(CFE_TBL_Global.ValidationResults[0].Result, -1);
+    UtAssert_INT32_EQ(ValResultPtr->Result, -1);
+
+    /* Test validation on table w/user-defined address (this is not a valid combo) */
+    UT_InitData();
+
+    /* a. Configure table for validation and set UserDefAddr flag */
+    UT_TBL_SetupPendingValidation(0, false, RegRecPtr, &ValResultPtr);
+    RegRecPtr->UserDefAddr = true;
+
+    /* b. Perform validation */
+    CFE_UtAssert_SUCCESS(CFE_TBL_Validate(App1TblHandle1));
+    CFE_UtAssert_EVENTSENT(CFE_TBL_VALIDATION_ERR_EID);
+    CFE_UtAssert_EVENTCOUNT(1);
+    UtAssert_INT32_EQ(ValResultPtr->Result, -1);
+    RegRecPtr->UserDefAddr = false;
+
+    /* Test case where validation request is stale */
+    UT_InitData();
+
+    /* a. Configure table for validation and modify the ID so it will not match */
+    UT_TBL_SetupPendingValidation(0, false, RegRecPtr, &ValResultPtr);
+    ValResultPtr->ValId = CFE_TBL_VALRESULTID_C(CFE_ResourceId_FromInteger(1));
+
+    /* b. Perform validation */
+    UtAssert_INT32_EQ(CFE_TBL_Validate(App1TblHandle1), CFE_TBL_INFO_NO_VALIDATION_PENDING);
+    UtAssert_INT32_EQ(ValResultPtr->Result, CFE_SUCCESS);
 
     /* Test successful validation */
     UT_InitData();
 
     /* a. Configure table for validation */
-    CFE_TBL_Global.ValidationResults[0].State  = CFE_TBL_VALIDATION_PENDING;
-    CFE_TBL_Global.ValidationResults[0].Result = 0;
-    strncpy(CFE_TBL_Global.ValidationResults[0].TableName, "ut_cfe_tbl.UT_Table1",
-            sizeof(CFE_TBL_Global.ValidationResults[0].TableName) - 1);
-    CFE_TBL_Global.ValidationResults[0].TableName[sizeof(CFE_TBL_Global.ValidationResults[0].TableName) - 1] = '\0';
-    CFE_TBL_Global.ValidationResults[0].CrcOfTable                                                           = 0;
-    CFE_TBL_Global.ValidationResults[0].ActiveBuffer                                                         = false;
-    RegRecPtr->ValidateInactiveIndex                                                                         = 0;
+    UT_TBL_SetupPendingValidation(0, false, RegRecPtr, &ValResultPtr);
 
-    /* b. Perform failed validation */
+    /* b. Perform validation */
     UT_SetDeferredRetcode(UT_KEY(Test_CFE_TBL_ValidationFunc), 1, CFE_SUCCESS);
     CFE_UtAssert_SUCCESS(CFE_TBL_Validate(App1TblHandle1));
-    UtAssert_INT32_EQ(CFE_TBL_Global.ValidationResults[0].Result, CFE_SUCCESS);
+    UtAssert_INT32_EQ(ValResultPtr->Result, CFE_SUCCESS);
+
+    /* Set up a case where the entry does not have a validation function ptr */
+    UT_TBL_SetupPendingValidation(0, false, RegRecPtr, &ValResultPtr);
+    ValResultPtr->Result         = -1;
+    RegRecPtr->ValidationFuncPtr = NULL;
+
+    /* b. Perform failed validation */
+    CFE_UtAssert_SUCCESS(CFE_TBL_Validate(App1TblHandle1));
+    UtAssert_INT32_EQ(ValResultPtr->Result, CFE_SUCCESS);
 }
 
 /*
@@ -2545,6 +2652,8 @@ void Test_CFE_TBL_Manage(void)
     void *                      App2TblPtr;
     CFE_TBL_AccessDescriptor_t *AccessDescPtr;
     CFE_TBL_Handle_t            AccessIterator;
+    CFE_TBL_ValidationResult_t *ValResultPtr;
+    CFE_TBL_DumpControl_t *     DumpCtrlPtr;
 
     memset(&TestTable1, 0, sizeof(TestTable1));
 
@@ -2561,6 +2670,10 @@ void Test_CFE_TBL_Manage(void)
     /* "Load" image into inactive buffer for table */
     RegIndex  = CFE_TBL_FindTableInRegistry("ut_cfe_tbl.UT_Table1");
     RegRecPtr = &CFE_TBL_Global.Registry[RegIndex];
+
+    /* Refer to the test validation function */
+    RegRecPtr->ValidationFuncPtr = Test_CFE_TBL_ValidationFunc;
+
     CFE_UtAssert_SUCCESS(CFE_TBL_GetWorkingBuffer(&WorkingBufferPtr, RegRecPtr, false));
     UT_SetAppID(UT_TBL_APPID_1);
     UtAssert_INT32_EQ(CFE_TBL_Load(App1TblHandle1, CFE_TBL_SRC_ADDRESS, &TestTable1), CFE_TBL_ERR_LOAD_IN_PROGRESS);
@@ -2573,21 +2686,14 @@ void Test_CFE_TBL_Manage(void)
     UT_InitData();
 
     /* Configure table for validation */
-    CFE_TBL_Global.ValidationResults[0].State  = CFE_TBL_VALIDATION_PENDING;
-    CFE_TBL_Global.ValidationResults[0].Result = 0;
-    strncpy(CFE_TBL_Global.ValidationResults[0].TableName, "ut_cfe_tbl.UT_Table1",
-            sizeof(CFE_TBL_Global.ValidationResults[0].TableName) - 1);
-    CFE_TBL_Global.ValidationResults[0].TableName[sizeof(CFE_TBL_Global.ValidationResults[0].TableName) - 1] = '\0';
-    CFE_TBL_Global.ValidationResults[0].CrcOfTable                                                           = 0;
-    CFE_TBL_Global.ValidationResults[0].ActiveBuffer                                                         = false;
-    RegRecPtr->ValidateInactiveIndex                                                                         = 0;
+    UT_TBL_SetupPendingValidation(0, false, RegRecPtr, &ValResultPtr);
 
     /* Perform validation via manage call */
     UT_SetDeferredRetcode(UT_KEY(Test_CFE_TBL_ValidationFunc), 1, -1);
     CFE_UtAssert_SUCCESS(CFE_TBL_Manage(App1TblHandle1));
     CFE_UtAssert_EVENTSENT(CFE_TBL_VALIDATION_ERR_EID);
     CFE_UtAssert_EVENTCOUNT(1);
-    UtAssert_INT32_EQ(CFE_TBL_Global.ValidationResults[0].Result, -1);
+    UtAssert_INT32_EQ(ValResultPtr->Result, -1);
 
     /* Test response to processing an unsuccessful validation request on
      * inactive buffer ; validation function return code is invalid
@@ -2595,21 +2701,14 @@ void Test_CFE_TBL_Manage(void)
     UT_InitData();
 
     /* Configure table for validation */
-    CFE_TBL_Global.ValidationResults[0].State  = CFE_TBL_VALIDATION_PENDING;
-    CFE_TBL_Global.ValidationResults[0].Result = 0;
-    strncpy(CFE_TBL_Global.ValidationResults[0].TableName, "ut_cfe_tbl.UT_Table1",
-            sizeof(CFE_TBL_Global.ValidationResults[0].TableName) - 1);
-    CFE_TBL_Global.ValidationResults[0].TableName[sizeof(CFE_TBL_Global.ValidationResults[0].TableName) - 1] = '\0';
-    CFE_TBL_Global.ValidationResults[0].CrcOfTable                                                           = 0;
-    CFE_TBL_Global.ValidationResults[0].ActiveBuffer                                                         = false;
-    RegRecPtr->ValidateInactiveIndex                                                                         = 0;
+    UT_TBL_SetupPendingValidation(0, false, RegRecPtr, &ValResultPtr);
 
     /* Perform validation via manage call */
     UT_SetDeferredRetcode(UT_KEY(Test_CFE_TBL_ValidationFunc), 1, 1);
     CFE_UtAssert_SUCCESS(CFE_TBL_Manage(App1TblHandle1));
     CFE_UtAssert_EVENTSENT(CFE_TBL_VALIDATION_ERR_EID);
     CFE_UtAssert_EVENTCOUNT(1);
-    UtAssert_INT32_EQ(CFE_TBL_Global.ValidationResults[0].Result, 1);
+    UtAssert_INT32_EQ(ValResultPtr->Result, 1);
 
     /* Test response to processing an unsuccessful validation request;
      * CFE_TBL_Validate does not return CFE_SUCCESS
@@ -2617,20 +2716,13 @@ void Test_CFE_TBL_Manage(void)
     UT_InitData();
 
     /* Configure table for validation */
-    CFE_TBL_Global.ValidationResults[0].State  = CFE_TBL_VALIDATION_PENDING;
-    CFE_TBL_Global.ValidationResults[0].Result = 0;
-    strncpy(CFE_TBL_Global.ValidationResults[0].TableName, "ut_cfe_tbl.UT_Table1",
-            sizeof(CFE_TBL_Global.ValidationResults[0].TableName) - 1);
-    CFE_TBL_Global.ValidationResults[0].TableName[sizeof(CFE_TBL_Global.ValidationResults[0].TableName) - 1] = '\0';
-    CFE_TBL_Global.ValidationResults[0].CrcOfTable                                                           = 0;
-    CFE_TBL_Global.ValidationResults[0].ActiveBuffer                                                         = false;
-    RegRecPtr->ValidateInactiveIndex                                                                         = 0;
+    UT_TBL_SetupPendingValidation(0, false, RegRecPtr, &ValResultPtr);
 
     /* Perform validation via manage call */
     UT_SetDeferredRetcode(UT_KEY(CFE_ES_GetAppID), 2, CFE_ES_ERR_RESOURCEID_NOT_VALID);
     UtAssert_INT32_EQ(CFE_TBL_Manage(App1TblHandle1), CFE_ES_ERR_RESOURCEID_NOT_VALID);
     CFE_UtAssert_EVENTCOUNT(0);
-    UtAssert_INT32_EQ(CFE_TBL_Global.ValidationResults[0].Result, 0);
+    UtAssert_INT32_EQ(ValResultPtr->Result, 0);
 
     /* Test response to processing a successful validation request on an
      * inactive buffer
@@ -2638,21 +2730,15 @@ void Test_CFE_TBL_Manage(void)
     UT_InitData();
 
     /* Configure table for validation */
-    CFE_TBL_Global.ValidationResults[0].State  = CFE_TBL_VALIDATION_PENDING;
-    CFE_TBL_Global.ValidationResults[0].Result = 1;
-    strncpy(CFE_TBL_Global.ValidationResults[0].TableName, "ut_cfe_tbl.UT_Table1",
-            sizeof(CFE_TBL_Global.ValidationResults[0].TableName) - 1);
-    CFE_TBL_Global.ValidationResults[0].TableName[sizeof(CFE_TBL_Global.ValidationResults[0].TableName) - 1] = '\0';
-    CFE_TBL_Global.ValidationResults[0].CrcOfTable                                                           = 0;
-    CFE_TBL_Global.ValidationResults[0].ActiveBuffer                                                         = false;
-    RegRecPtr->ValidateInactiveIndex                                                                         = 0;
+    UT_TBL_SetupPendingValidation(0, false, RegRecPtr, &ValResultPtr);
+    ValResultPtr->Result = 1;
 
     /* Perform validation via manage call */
     UT_SetDeferredRetcode(UT_KEY(Test_CFE_TBL_ValidationFunc), 1, CFE_SUCCESS);
     CFE_UtAssert_SUCCESS(CFE_TBL_Manage(App1TblHandle1));
     CFE_UtAssert_EVENTSENT(CFE_TBL_VALIDATION_INF_EID);
     CFE_UtAssert_EVENTCOUNT(1);
-    UtAssert_INT32_EQ(CFE_TBL_Global.ValidationResults[0].Result, 0);
+    UtAssert_INT32_EQ(ValResultPtr->Result, 0);
 
     /* Test response to processing an unsuccessful validation request on an
      * active buffer
@@ -2660,21 +2746,14 @@ void Test_CFE_TBL_Manage(void)
     UT_InitData();
 
     /* Configure table for validation */
-    CFE_TBL_Global.ValidationResults[0].State  = CFE_TBL_VALIDATION_PENDING;
-    CFE_TBL_Global.ValidationResults[0].Result = 0;
-    strncpy(CFE_TBL_Global.ValidationResults[0].TableName, "ut_cfe_tbl.UT_Table1",
-            sizeof(CFE_TBL_Global.ValidationResults[0].TableName) - 1);
-    CFE_TBL_Global.ValidationResults[0].TableName[sizeof(CFE_TBL_Global.ValidationResults[0].TableName) - 1] = '\0';
-    CFE_TBL_Global.ValidationResults[0].CrcOfTable                                                           = 0;
-    CFE_TBL_Global.ValidationResults[0].ActiveBuffer                                                         = true;
-    RegRecPtr->ValidateActiveIndex                                                                           = 0;
+    UT_TBL_SetupPendingValidation(0, true, RegRecPtr, &ValResultPtr);
 
     /* Perform validation via manage call */
     UT_SetDeferredRetcode(UT_KEY(Test_CFE_TBL_ValidationFunc), 1, -1);
     CFE_UtAssert_SUCCESS(CFE_TBL_Manage(App1TblHandle1));
     CFE_UtAssert_EVENTSENT(CFE_TBL_VALIDATION_ERR_EID);
     CFE_UtAssert_EVENTCOUNT(1);
-    UtAssert_INT32_EQ(CFE_TBL_Global.ValidationResults[0].Result, -1);
+    UtAssert_INT32_EQ(ValResultPtr->Result, -1);
 
     /* Test response to processing an unsuccessful validation request on
      * an active buffer
@@ -2682,21 +2761,14 @@ void Test_CFE_TBL_Manage(void)
     UT_InitData();
 
     /* Configure table for validation */
-    CFE_TBL_Global.ValidationResults[0].State  = CFE_TBL_VALIDATION_PENDING;
-    CFE_TBL_Global.ValidationResults[0].Result = 0;
-    strncpy(CFE_TBL_Global.ValidationResults[0].TableName, "ut_cfe_tbl.UT_Table1",
-            sizeof(CFE_TBL_Global.ValidationResults[0].TableName) - 1);
-    CFE_TBL_Global.ValidationResults[0].TableName[sizeof(CFE_TBL_Global.ValidationResults[0].TableName) - 1] = '\0';
-    CFE_TBL_Global.ValidationResults[0].CrcOfTable                                                           = 0;
-    CFE_TBL_Global.ValidationResults[0].ActiveBuffer                                                         = true;
-    RegRecPtr->ValidateActiveIndex                                                                           = 0;
+    UT_TBL_SetupPendingValidation(0, true, RegRecPtr, &ValResultPtr);
 
     /* Perform validation via manage call */
     UT_SetDeferredRetcode(UT_KEY(Test_CFE_TBL_ValidationFunc), 1, 1);
     CFE_UtAssert_SUCCESS(CFE_TBL_Manage(App1TblHandle1));
     CFE_UtAssert_EVENTSENT(CFE_TBL_VALIDATION_ERR_EID);
     CFE_UtAssert_EVENTCOUNT(1);
-    UtAssert_INT32_EQ(CFE_TBL_Global.ValidationResults[0].Result, 1);
+    UtAssert_INT32_EQ(ValResultPtr->Result, 1);
 
     /* Test response to processing a successful validation request on an
      * active buffer
@@ -2704,21 +2776,15 @@ void Test_CFE_TBL_Manage(void)
     UT_InitData();
 
     /* Configure table for validation */
-    CFE_TBL_Global.ValidationResults[0].State  = CFE_TBL_VALIDATION_PENDING;
-    CFE_TBL_Global.ValidationResults[0].Result = 1;
-    strncpy(CFE_TBL_Global.ValidationResults[0].TableName, "ut_cfe_tbl.UT_Table1",
-            sizeof(CFE_TBL_Global.ValidationResults[0].TableName) - 1);
-    CFE_TBL_Global.ValidationResults[0].TableName[sizeof(CFE_TBL_Global.ValidationResults[0].TableName) - 1] = '\0';
-    CFE_TBL_Global.ValidationResults[0].CrcOfTable                                                           = 0;
-    CFE_TBL_Global.ValidationResults[0].ActiveBuffer                                                         = true;
-    RegRecPtr->ValidateActiveIndex                                                                           = 0;
+    UT_TBL_SetupPendingValidation(0, true, RegRecPtr, &ValResultPtr);
+    ValResultPtr->Result = 1;
 
     /* Perform validation via manage call */
     UT_SetDeferredRetcode(UT_KEY(Test_CFE_TBL_ValidationFunc), 1, CFE_SUCCESS);
     CFE_UtAssert_SUCCESS(CFE_TBL_Manage(App1TblHandle1));
     CFE_UtAssert_EVENTSENT(CFE_TBL_VALIDATION_INF_EID);
     CFE_UtAssert_EVENTCOUNT(1);
-    UtAssert_INT32_EQ(CFE_TBL_Global.ValidationResults[0].Result, 0);
+    UtAssert_INT32_EQ(ValResultPtr->Result, 0);
 
     /* Test response to processing an update request on a locked table */
     /* a. Test setup - part 1 */
@@ -2792,21 +2858,14 @@ void Test_CFE_TBL_Manage(void)
     CFE_UtAssert_SUCCESS(CFE_TBL_GetWorkingBuffer(&WorkingBufferPtr, RegRecPtr, false));
 
     /* Configure table for validation */
-    CFE_TBL_Global.ValidationResults[0].State  = CFE_TBL_VALIDATION_PENDING;
-    CFE_TBL_Global.ValidationResults[0].Result = 0;
-    strncpy(CFE_TBL_Global.ValidationResults[0].TableName, "ut_cfe_tbl.UT_Table2",
-            sizeof(CFE_TBL_Global.ValidationResults[0].TableName) - 1);
-    CFE_TBL_Global.ValidationResults[0].TableName[sizeof(CFE_TBL_Global.ValidationResults[0].TableName) - 1] = '\0';
-    CFE_TBL_Global.ValidationResults[0].CrcOfTable                                                           = 0;
-    CFE_TBL_Global.ValidationResults[0].ActiveBuffer                                                         = false;
-    RegRecPtr->ValidateInactiveIndex                                                                         = 0;
+    UT_TBL_SetupPendingValidation(1, false, RegRecPtr, &ValResultPtr);
 
     /* Perform validation via manage call */
     UT_SetDeferredRetcode(UT_KEY(Test_CFE_TBL_ValidationFunc), 1, -1);
     CFE_UtAssert_SUCCESS(CFE_TBL_Manage(App1TblHandle2));
     CFE_UtAssert_EVENTSENT(CFE_TBL_VALIDATION_ERR_EID);
     CFE_UtAssert_EVENTCOUNT(1);
-    UtAssert_INT32_EQ(CFE_TBL_Global.ValidationResults[0].Result, -1);
+    UtAssert_INT32_EQ(ValResultPtr->Result, -1);
 
     /* Test successfully processing a validation request on an inactive buffer
      * (double buffered)
@@ -2814,21 +2873,14 @@ void Test_CFE_TBL_Manage(void)
     UT_InitData();
 
     /* Configure table for validation */
-    CFE_TBL_Global.ValidationResults[0].State  = CFE_TBL_VALIDATION_PENDING;
-    CFE_TBL_Global.ValidationResults[0].Result = 1;
-    strncpy(CFE_TBL_Global.ValidationResults[0].TableName, "ut_cfe_tbl.UT_Table2",
-            sizeof(CFE_TBL_Global.ValidationResults[0].TableName) - 1);
-    CFE_TBL_Global.ValidationResults[0].TableName[sizeof(CFE_TBL_Global.ValidationResults[0].TableName) - 1] = '\0';
-    CFE_TBL_Global.ValidationResults[0].CrcOfTable                                                           = 0;
-    CFE_TBL_Global.ValidationResults[0].ActiveBuffer                                                         = false;
-    RegRecPtr->ValidateInactiveIndex                                                                         = 0;
+    UT_TBL_SetupPendingValidation(1, false, RegRecPtr, &ValResultPtr);
 
     /* Perform validation via manage call */
     UT_SetDeferredRetcode(UT_KEY(Test_CFE_TBL_ValidationFunc), 1, CFE_SUCCESS);
     CFE_UtAssert_SUCCESS(CFE_TBL_Manage(App1TblHandle2));
     CFE_UtAssert_EVENTSENT(CFE_TBL_VALIDATION_INF_EID);
     CFE_UtAssert_EVENTCOUNT(1);
-    UtAssert_INT32_EQ(CFE_TBL_Global.ValidationResults[0].Result, 0);
+    UtAssert_INT32_EQ(ValResultPtr->Result, 0);
 
     /* Test processing an unsuccessful validation request on an active buffer
      * (double buffered)
@@ -2836,21 +2888,14 @@ void Test_CFE_TBL_Manage(void)
     UT_InitData();
 
     /* Configure table for validation */
-    CFE_TBL_Global.ValidationResults[0].State  = CFE_TBL_VALIDATION_PENDING;
-    CFE_TBL_Global.ValidationResults[0].Result = 0;
-    strncpy(CFE_TBL_Global.ValidationResults[0].TableName, "ut_cfe_tbl.UT_Table2",
-            sizeof(CFE_TBL_Global.ValidationResults[0].TableName) - 1);
-    CFE_TBL_Global.ValidationResults[0].TableName[sizeof(CFE_TBL_Global.ValidationResults[0].TableName) - 1] = '\0';
-    CFE_TBL_Global.ValidationResults[0].CrcOfTable                                                           = 0;
-    CFE_TBL_Global.ValidationResults[0].ActiveBuffer                                                         = true;
-    RegRecPtr->ValidateActiveIndex                                                                           = 0;
+    UT_TBL_SetupPendingValidation(1, true, RegRecPtr, &ValResultPtr);
 
     /* Perform validation via manage call */
     UT_SetDeferredRetcode(UT_KEY(Test_CFE_TBL_ValidationFunc), 1, -1);
     CFE_UtAssert_SUCCESS(CFE_TBL_Manage(App1TblHandle2));
     CFE_UtAssert_EVENTSENT(CFE_TBL_VALIDATION_ERR_EID);
     CFE_UtAssert_EVENTCOUNT(1);
-    UtAssert_INT32_EQ(CFE_TBL_Global.ValidationResults[0].Result, -1);
+    UtAssert_INT32_EQ(ValResultPtr->Result, -1);
 
     /* Test successfully processing a validation request on active buffer
      * (double buffered)
@@ -2858,41 +2903,26 @@ void Test_CFE_TBL_Manage(void)
     UT_InitData();
 
     /* Configure table for validation */
-    CFE_TBL_Global.ValidationResults[0].State  = CFE_TBL_VALIDATION_PENDING;
-    CFE_TBL_Global.ValidationResults[0].Result = 1;
-    strncpy(CFE_TBL_Global.ValidationResults[0].TableName, "ut_cfe_tbl.UT_Table2",
-            sizeof(CFE_TBL_Global.ValidationResults[0].TableName) - 1);
-    CFE_TBL_Global.ValidationResults[0].TableName[sizeof(CFE_TBL_Global.ValidationResults[0].TableName) - 1] = '\0';
-    CFE_TBL_Global.ValidationResults[0].CrcOfTable                                                           = 0;
-    CFE_TBL_Global.ValidationResults[0].ActiveBuffer                                                         = true;
-    RegRecPtr->ValidateActiveIndex                                                                           = 0;
+    UT_TBL_SetupPendingValidation(1, true, RegRecPtr, &ValResultPtr);
+    ValResultPtr->Result = 1;
 
     /* Perform validation via manage call */
     UT_SetDeferredRetcode(UT_KEY(Test_CFE_TBL_ValidationFunc), 1, CFE_SUCCESS);
     CFE_UtAssert_SUCCESS(CFE_TBL_Manage(App1TblHandle2));
     CFE_UtAssert_EVENTSENT(CFE_TBL_VALIDATION_INF_EID);
     CFE_UtAssert_EVENTCOUNT(1);
-    UtAssert_INT32_EQ(CFE_TBL_Global.ValidationResults[0].Result, 0);
+    UtAssert_INT32_EQ(ValResultPtr->Result, 0);
 
     /* Test successfully processing a table dump request */
     UT_InitData();
     CFE_UtAssert_SUCCESS(CFE_TBL_GetWorkingBuffer(&WorkingBufferPtr, RegRecPtr, false));
-    CFE_TBL_Global.DumpControlBlocks[0].State     = CFE_TBL_DUMP_PENDING;
-    CFE_TBL_Global.DumpControlBlocks[0].RegRecPtr = RegRecPtr;
+    UT_TBL_SetupPendingDump(0, WorkingBufferPtr, RegRecPtr, &DumpCtrlPtr);
 
     /* Save the name of the desired dump filename, table name, and size for
      * later
      */
-    CFE_TBL_Global.DumpControlBlocks[0].DumpBufferPtr = WorkingBufferPtr;
-    strncpy(CFE_TBL_Global.DumpControlBlocks[0].DumpBufferPtr->DataSource, "MyDumpFilename",
-            sizeof(CFE_TBL_Global.DumpControlBlocks[0].DumpBufferPtr->DataSource) - 1);
-    CFE_TBL_Global.DumpControlBlocks[0]
-        .DumpBufferPtr->DataSource[sizeof(CFE_TBL_Global.DumpControlBlocks[0].DumpBufferPtr->DataSource) - 1] = 0;
-    strncpy(CFE_TBL_Global.DumpControlBlocks[0].TableName, "ut_cfe_tbl.UT_Table2",
-            sizeof(CFE_TBL_Global.DumpControlBlocks[0].TableName) - 1);
-    CFE_TBL_Global.DumpControlBlocks[0].TableName[sizeof(CFE_TBL_Global.DumpControlBlocks[0].TableName) - 1] = 0;
-    CFE_TBL_Global.DumpControlBlocks[0].Size = RegRecPtr->Size;
-    RegRecPtr->DumpControlIndex              = 0;
+    strncpy(WorkingBufferPtr->DataSource, "MyDumpFilename", sizeof(WorkingBufferPtr->DataSource) - 1);
+    WorkingBufferPtr->DataSource[sizeof(WorkingBufferPtr->DataSource) - 1] = 0;
     CFE_UtAssert_SUCCESS(CFE_TBL_Manage(App1TblHandle2));
     CFE_UtAssert_EVENTCOUNT(0);
 }
@@ -3220,6 +3250,7 @@ void Test_CFE_TBL_Internal(void)
     CFE_TBL_LoadBuff_t *        WorkingBufferPtr;
     CFE_TBL_RegistryRec_t *     RegRecPtr;
     CFE_TBL_AccessDescriptor_t *AccessDescPtr;
+    CFE_TBL_DumpControl_t *     DumpCtrlPtr;
     char                        FilenameLong[OS_MAX_PATH_LEN + 10];
     char                        Filename[OS_MAX_PATH_LEN];
     int32                       i;
@@ -3757,16 +3788,18 @@ void Test_CFE_TBL_Internal(void)
     UT_InitData();
     UT_SetAppID(UT_TBL_APPID_1);
     UT_SetDefaultReturnValue(UT_KEY(CFE_ES_PutPoolBuf), -1);
-    AccessDescPtr                                 = &CFE_TBL_Global.Handles[App1TblHandle1];
-    RegRecPtr                                     = &CFE_TBL_Global.Registry[AccessDescPtr->RegIndex];
-    CFE_TBL_Global.DumpControlBlocks[3].State     = CFE_TBL_DUMP_PENDING;
-    CFE_TBL_Global.DumpControlBlocks[3].RegRecPtr = RegRecPtr;
-    RegRecPtr->LoadInProgress                     = 1;
-    CFE_TBL_Global.LoadBuffs[1].Taken             = true;
+    AccessDescPtr    = &CFE_TBL_Global.Handles[App1TblHandle1];
+    RegRecPtr        = &CFE_TBL_Global.Registry[AccessDescPtr->RegIndex];
+    WorkingBufferPtr = &CFE_TBL_Global.LoadBuffs[1];
+
+    UT_TBL_SetupPendingDump(3, WorkingBufferPtr, RegRecPtr, &DumpCtrlPtr);
+
+    RegRecPtr->LoadInProgress = 1;
+    WorkingBufferPtr->Taken   = true;
     CFE_UtAssert_SUCCESS(CFE_TBL_CleanUpApp(UT_TBL_APPID_1));
-    UtAssert_INT32_EQ(CFE_TBL_Global.DumpControlBlocks[3].State, CFE_TBL_DUMP_FREE);
+    UtAssert_INT32_EQ(DumpCtrlPtr->State, CFE_TBL_DUMP_FREE);
     CFE_UtAssert_RESOURCEID_EQ(RegRecPtr->OwnerAppId, CFE_TBL_NOT_OWNED);
-    UtAssert_BOOL_FALSE(CFE_TBL_Global.LoadBuffs[RegRecPtr->LoadInProgress].Taken);
+    UtAssert_BOOL_FALSE(WorkingBufferPtr->Taken);
     UtAssert_INT32_EQ(RegRecPtr->LoadInProgress, CFE_TBL_NO_LOAD_IN_PROGRESS);
 
     /* Test response to an attempt to use an invalid table handle */
@@ -3895,16 +3928,18 @@ void Test_CFE_TBL_Internal(void)
     UT_InitData();
     UT_SetAppID(UT_TBL_APPID_1);
     UT_SetDefaultReturnValue(UT_KEY(CFE_ES_PutPoolBuf), -1);
-    CFE_TBL_Global.Handles[0].AppId               = UT_TBL_APPID_1;
-    CFE_TBL_Global.Handles[0].UsedFlag            = true;
-    CFE_TBL_Global.Handles[0].RegIndex            = 0;
-    CFE_TBL_Global.Registry[0].OwnerAppId         = UT_TBL_APPID_2;
-    CFE_TBL_Global.DumpControlBlocks[3].State     = CFE_TBL_DUMP_PENDING;
-    CFE_TBL_Global.DumpControlBlocks[3].RegRecPtr = &CFE_TBL_Global.Registry[0];
-    CFE_TBL_Global.Handles[1].AppId               = UT_TBL_APPID_1;
-    CFE_TBL_Global.Handles[1].UsedFlag            = false;
+    RegRecPtr = &CFE_TBL_Global.Registry[0];
+    UT_TBL_SetupPendingDump(3, NULL, RegRecPtr, &DumpCtrlPtr);
+
+    CFE_TBL_Global.Handles[0].AppId    = UT_TBL_APPID_1;
+    CFE_TBL_Global.Handles[0].UsedFlag = true;
+    CFE_TBL_Global.Handles[0].RegIndex = 0;
+    RegRecPtr->OwnerAppId              = UT_TBL_APPID_2;
+    CFE_TBL_Global.Handles[1].AppId    = UT_TBL_APPID_1;
+    CFE_TBL_Global.Handles[1].UsedFlag = false;
+
     CFE_UtAssert_SUCCESS(CFE_TBL_CleanUpApp(UT_TBL_APPID_1));
-    UtAssert_INT32_EQ(CFE_TBL_Global.DumpControlBlocks[3].State, CFE_TBL_DUMP_PENDING);
+    UtAssert_INT32_EQ(DumpCtrlPtr->State, CFE_TBL_DUMP_PENDING);
     CFE_UtAssert_RESOURCEID_EQ(RegRecPtr->OwnerAppId, UT_TBL_APPID_2);
 
 #if (CFE_PLATFORM_TBL_VALID_SCID_COUNT > 0)
@@ -3997,6 +4032,148 @@ void Test_CFE_TBL_Internal(void)
                       CFE_SUCCESS);
     UtAssert_INT32_EQ(CFE_TBL_ValidateTableSize("UT", CFE_PLATFORM_TBL_MAX_DBL_TABLE_SIZE + 1, CFE_TBL_OPT_DBL_BUFFER),
                       CFE_TBL_ERR_INVALID_SIZE);
+}
+
+/*
+ * Tests the resource accessors for Validation Results
+ */
+void Test_CFE_TBL_ResourceID_ValidationResult(void)
+{
+    uint32                       Idx;
+    CFE_TBL_ValidationResultId_t InvalidResultId;
+    CFE_TBL_ValidationResultId_t ValidResultId;
+    CFE_ResourceId_t             PendingId;
+
+    UT_InitData();
+
+    InvalidResultId = CFE_TBL_VALRESULTID_UNDEFINED;
+    UT_SetDefaultReturnValue(UT_KEY(CFE_ResourceId_ToIndex), CFE_ES_ERR_RESOURCEID_NOT_VALID);
+    UtAssert_INT32_EQ(CFE_TBL_ValidationResultId_ToIndex(InvalidResultId, &Idx), CFE_ES_ERR_RESOURCEID_NOT_VALID);
+
+    /* by definition, looking up the undefined value should always be NULL */
+    UtAssert_NULL(CFE_TBL_LocateValidationResultByID(InvalidResultId));
+    UT_ResetState(UT_KEY(CFE_ResourceId_ToIndex));
+
+    ValidResultId = CFE_TBL_VALRESULTID_C(CFE_ResourceId_FromInteger(CFE_TBL_VALRESULTID_BASE + 1));
+    UtAssert_INT32_EQ(CFE_TBL_ValidationResultId_ToIndex(ValidResultId, &Idx), CFE_SUCCESS);
+
+    UtAssert_VOIDCALL(PendingId = CFE_TBL_GetNextValResultBlock());
+    UtAssert_BOOL_TRUE(CFE_ResourceId_IsDefined(PendingId));
+
+    /* The slot should be available right now */
+    UtAssert_BOOL_FALSE(CFE_TBL_CheckValidationResultSlotUsed(PendingId));
+
+    /* Make it used and confirm it is reported as not available */
+    CFE_TBL_ValidationResultSetUsed(CFE_TBL_LocateValidationResultByID(CFE_TBL_VALRESULTID_C(PendingId)), PendingId);
+    UtAssert_BOOL_TRUE(CFE_TBL_CheckValidationResultSlotUsed(PendingId));
+
+    /* Test case where no ID is available */
+    UT_SetDefaultReturnValue(UT_KEY(CFE_ResourceId_FindNext), 0);
+    UtAssert_VOIDCALL(PendingId = CFE_TBL_GetNextValResultBlock());
+    UtAssert_BOOL_FALSE(CFE_ResourceId_IsDefined(PendingId));
+
+    /* A nonexistent slot is always "unavailable" */
+    UtAssert_BOOL_TRUE(CFE_TBL_CheckValidationResultSlotUsed(PendingId));
+    UT_ResetState(UT_KEY(CFE_ResourceId_FindNext));
+}
+
+/*
+ * Tests the resource accessors for Table Registry Records
+ */
+void Test_CFE_TBL_ResourceID_RegistryRecord(void)
+{
+    uint32                 Idx;
+    CFE_TBL_RegId_t        InvalidRegId;
+    CFE_TBL_RegId_t        ValidRegId;
+    CFE_TBL_RegistryRec_t *RegRecPtr;
+
+    UT_InitData();
+
+    InvalidRegId = (CFE_TBL_RegId_t)(-1);
+    UtAssert_INT32_EQ(CFE_TBL_RegId_ToIndex(InvalidRegId, &Idx), CFE_TBL_ERR_INVALID_HANDLE);
+
+    /* by definition, looking up the undefined value should always be NULL */
+    UtAssert_NULL(CFE_TBL_LocateRegistryRecordByID(InvalidRegId));
+
+    InvalidRegId = (CFE_TBL_RegId_t)(CFE_PLATFORM_TBL_MAX_NUM_TABLES + 1);
+    UtAssert_INT32_EQ(CFE_TBL_RegId_ToIndex(InvalidRegId, &Idx), CFE_TBL_ERR_INVALID_HANDLE);
+
+    /* Now with a valid ID */
+    ValidRegId = (CFE_TBL_RegId_t)(1);
+    UtAssert_INT32_EQ(CFE_TBL_RegId_ToIndex(ValidRegId, &Idx), CFE_SUCCESS);
+    UtAssert_UINT32_EQ(Idx, 1);
+    UtAssert_NOT_NULL(RegRecPtr = CFE_TBL_LocateRegistryRecordByID(ValidRegId));
+
+    UtAssert_UINT32_EQ(CFE_TBL_RegistryRecordGetID(RegRecPtr), ValidRegId);
+}
+
+/*
+ * Tests the resource accessors for Table Access Descriptors
+ */
+void Test_CFE_TBL_ResourceID_AccessDescriptor(void)
+{
+    uint32           Idx;
+    CFE_TBL_Handle_t InvalidHandle;
+    CFE_TBL_Handle_t ValidHandle;
+
+    UT_InitData();
+
+    InvalidHandle = (CFE_TBL_Handle_t)(-1);
+    UtAssert_INT32_EQ(CFE_TBL_Handle_ToIndex(InvalidHandle, &Idx), CFE_TBL_ERR_INVALID_HANDLE);
+
+    /* by definition, looking up the undefined value should always be NULL */
+    UtAssert_NULL(CFE_TBL_LocateRegistryRecordByID(InvalidHandle));
+
+    InvalidHandle = (CFE_TBL_Handle_t)(CFE_PLATFORM_TBL_MAX_NUM_HANDLES + 1);
+    UtAssert_INT32_EQ(CFE_TBL_Handle_ToIndex(InvalidHandle, &Idx), CFE_TBL_ERR_INVALID_HANDLE);
+
+    /* Now with a valid ID */
+    ValidHandle = (CFE_TBL_Handle_t)(1);
+    UtAssert_INT32_EQ(CFE_TBL_RegId_ToIndex(ValidHandle, &Idx), CFE_SUCCESS);
+    UtAssert_UINT32_EQ(Idx, 1);
+}
+
+/*
+ * Tests the resource accessors for Dump Control Blocks
+ */
+void Test_CFE_TBL_ResourceID_DumpControl(void)
+{
+    uint32               Idx;
+    CFE_TBL_DumpCtrlId_t InvalidBlockId;
+    CFE_TBL_DumpCtrlId_t ValidBlockId;
+    CFE_ResourceId_t     PendingId;
+
+    UT_InitData();
+
+    InvalidBlockId = CFE_TBL_DUMPCTRLID_UNDEFINED;
+    UT_SetDefaultReturnValue(UT_KEY(CFE_ResourceId_ToIndex), CFE_ES_ERR_RESOURCEID_NOT_VALID);
+    UtAssert_INT32_EQ(CFE_TBL_DumpCtrlId_ToIndex(InvalidBlockId, &Idx), CFE_ES_ERR_RESOURCEID_NOT_VALID);
+
+    /* by definition, looking up the undefined value should always be NULL */
+    UtAssert_NULL(CFE_TBL_LocateDumpCtrlByID(InvalidBlockId));
+    UT_ResetState(UT_KEY(CFE_ResourceId_ToIndex));
+
+    ValidBlockId = CFE_TBL_DUMPCTRLID_C(CFE_ResourceId_FromInteger(CFE_TBL_DUMPCTRLID_BASE + 1));
+    UtAssert_INT32_EQ(CFE_TBL_DumpCtrlId_ToIndex(ValidBlockId, &Idx), CFE_SUCCESS);
+
+    UtAssert_VOIDCALL(PendingId = CFE_TBL_GetNextDumpCtrlBlock());
+    UtAssert_BOOL_TRUE(CFE_ResourceId_IsDefined(PendingId));
+
+    /* The slot should be available right now */
+    UtAssert_BOOL_FALSE(CFE_TBL_CheckDumpCtrlSlotUsed(PendingId));
+
+    /* Make it used and confirm it is reported as not available */
+    CFE_TBL_DumpCtrlBlockSetUsed(CFE_TBL_LocateDumpCtrlByID(CFE_TBL_DUMPCTRLID_C(PendingId)), PendingId);
+    UtAssert_BOOL_TRUE(CFE_TBL_CheckDumpCtrlSlotUsed(PendingId));
+
+    /* Test case where no ID is available */
+    UT_SetDefaultReturnValue(UT_KEY(CFE_ResourceId_FindNext), 0);
+    UtAssert_VOIDCALL(PendingId = CFE_TBL_GetNextDumpCtrlBlock());
+    UtAssert_BOOL_FALSE(CFE_ResourceId_IsDefined(PendingId));
+
+    /* A nonexistent slot is always "unavailable" */
+    UtAssert_BOOL_TRUE(CFE_TBL_CheckDumpCtrlSlotUsed(PendingId));
+    UT_ResetState(UT_KEY(CFE_ResourceId_FindNext));
 }
 
 /*

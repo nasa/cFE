@@ -89,17 +89,9 @@ int32 CFE_TBL_EarlyInit(void)
         CFE_TBL_HandleLinkInit(&CFE_TBL_Global.Handles[i].Link);
     }
 
-    /* Initialize the Table Validation Results Records nonzero values */
-    for (i = 0; i < CFE_PLATFORM_TBL_MAX_NUM_VALIDATIONS; i++)
-    {
-        CFE_TBL_Global.ValidationResults[i].State = CFE_TBL_VALIDATION_FREE;
-    }
-
     /* Initialize the Dump-Only Table Dump Control Blocks nonzero values */
     for (i = 0; i < CFE_PLATFORM_TBL_MAX_SIMULTANEOUS_LOADS; i++)
     {
-        CFE_TBL_Global.DumpControlBlocks[i].State = CFE_TBL_DUMP_FREE;
-
         /* Prevent Shared Buffers from being used until successfully allocated */
         CFE_TBL_Global.LoadBuffs[i].Taken = true;
     }
@@ -223,13 +215,13 @@ void CFE_TBL_InitRegistryRecord(CFE_TBL_RegistryRec_t *RegRecPtr)
 {
     memset(RegRecPtr, 0, sizeof(*RegRecPtr));
 
-    RegRecPtr->OwnerAppId            = CFE_TBL_NOT_OWNED;
-    RegRecPtr->NotificationMsgId     = CFE_SB_INVALID_MSG_ID;
-    RegRecPtr->LoadInProgress        = CFE_TBL_NO_LOAD_IN_PROGRESS;
-    RegRecPtr->ValidateActiveIndex   = CFE_TBL_NO_VALIDATION_PENDING;
-    RegRecPtr->ValidateInactiveIndex = CFE_TBL_NO_VALIDATION_PENDING;
-    RegRecPtr->CDSHandle             = CFE_ES_CDS_BAD_HANDLE;
-    RegRecPtr->DumpControlIndex      = CFE_TBL_NO_DUMP_PENDING;
+    RegRecPtr->OwnerAppId         = CFE_TBL_NOT_OWNED;
+    RegRecPtr->NotificationMsgId  = CFE_SB_INVALID_MSG_ID;
+    RegRecPtr->LoadInProgress     = CFE_TBL_NO_LOAD_IN_PROGRESS;
+    RegRecPtr->ValidateActiveId   = CFE_TBL_NO_VALIDATION_PENDING;
+    RegRecPtr->ValidateInactiveId = CFE_TBL_NO_VALIDATION_PENDING;
+    RegRecPtr->CDSHandle          = CFE_ES_CDS_BAD_HANDLE;
+    RegRecPtr->DumpControlId      = CFE_TBL_NO_DUMP_PENDING;
 
     CFE_TBL_HandleLinkInit(&RegRecPtr->AccessList);
 }
@@ -320,6 +312,115 @@ int32 CFE_TBL_UnlockRegistry(void)
     }
 
     return Status;
+}
+
+/*----------------------------------------------------------------
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+CFE_TBL_LoadBuff_t *CFE_TBL_GetActiveBuffer(CFE_TBL_RegistryRec_t *RegRecPtr)
+{
+    int32 BufferIndex;
+
+    /*
+     * This should be simpler because ActiveBufferIndex always refers to
+     * the active buffer, and applies to both single and double buffered
+     * (That is, it is always 0 on a single-buffered table).
+     *
+     * However, legacy code always checked the double buffer flag before
+     * using ActiveBufferIndex so this will to (at least for now)
+     */
+    if (RegRecPtr->DoubleBuffered)
+    {
+        BufferIndex = RegRecPtr->ActiveBufferIndex;
+    }
+    else
+    {
+        BufferIndex = 0;
+    }
+
+    return &RegRecPtr->Buffers[BufferIndex];
+}
+
+/*----------------------------------------------------------------
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+int32 CFE_TBL_GetNextLocalBufferId(CFE_TBL_RegistryRec_t *RegRecPtr)
+{
+    /* This implements a flip-flop buffer: if active is 1, return 0 and vice versa */
+    return (1 - (RegRecPtr->ActiveBufferIndex & 1));
+}
+
+/*----------------------------------------------------------------
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+CFE_TBL_LoadBuff_t *CFE_TBL_GetInactiveBuffer(CFE_TBL_RegistryRec_t *RegRecPtr)
+{
+    int32               BufferIndex;
+    CFE_TBL_LoadBuff_t *Result;
+
+    if (RegRecPtr->DoubleBuffered)
+    {
+        /* Determine the index of the Inactive Buffer Pointer */
+        BufferIndex = CFE_TBL_GetNextLocalBufferId(RegRecPtr);
+
+        /* then return the pointer to it */
+        Result = &RegRecPtr->Buffers[BufferIndex];
+    }
+    else if (!RegRecPtr->UserDefAddr && RegRecPtr->LoadInProgress != CFE_TBL_NO_LOAD_IN_PROGRESS)
+    {
+        /*
+         * The only time a single buffered table has an inactive buffer is when its loading, and
+         * this always refers to a shared load buffer
+         */
+        Result = &CFE_TBL_Global.LoadBuffs[RegRecPtr->LoadInProgress];
+    }
+    else
+    {
+        /* Tables with a user-defined address never have an inactive buffer */
+        Result = NULL;
+    }
+
+    return Result;
+}
+
+/*----------------------------------------------------------------
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+CFE_TBL_LoadBuff_t *CFE_TBL_GetSelectedBuffer(CFE_TBL_RegistryRec_t *     RegRecPtr,
+                                              CFE_TBL_BufferSelect_Enum_t BufferSelect)
+{
+    CFE_TBL_LoadBuff_t *Result;
+
+    switch (BufferSelect)
+    {
+        case CFE_TBL_BufferSelect_INACTIVE:
+            Result = CFE_TBL_GetInactiveBuffer(RegRecPtr);
+            break;
+        case CFE_TBL_BufferSelect_ACTIVE:
+            Result = CFE_TBL_GetActiveBuffer(RegRecPtr);
+            break;
+        default:
+            CFE_EVS_SendEvent(CFE_TBL_ILLEGAL_BUFF_PARAM_ERR_EID, CFE_EVS_EventType_ERROR,
+                              "Cmd for Table '%s' had illegal buffer parameter (0x%08X)", RegRecPtr->Name,
+                              (unsigned int)BufferSelect);
+
+            Result = NULL;
+            break;
+    }
+
+    return Result;
 }
 
 /*----------------------------------------------------------------
@@ -918,19 +1019,22 @@ void CFE_TBL_ByteSwapUint32(uint32 *Uint32ToSwapPtr)
  *-----------------------------------------------------------------*/
 int32 CFE_TBL_CleanUpApp(CFE_ES_AppId_t AppId)
 {
-    uint32             i;
-    CFE_TBL_TxnState_t Txn;
+    uint32                 i;
+    CFE_TBL_TxnState_t     Txn;
+    CFE_TBL_DumpControl_t *DumpCtrlPtr;
 
     /* Scan Dump Requests to determine if any of the tables that */
     /* were to be dumped will be deleted */
     for (i = 0; i < CFE_PLATFORM_TBL_MAX_SIMULTANEOUS_LOADS; i++)
     {
+        DumpCtrlPtr = &CFE_TBL_Global.DumpControlBlocks[i];
+
         /* Check to see if the table to be dumped is owned by the App to be deleted */
-        if ((CFE_TBL_Global.DumpControlBlocks[i].State != CFE_TBL_DUMP_FREE) &&
-            CFE_RESOURCEID_TEST_EQUAL(CFE_TBL_Global.DumpControlBlocks[i].RegRecPtr->OwnerAppId, AppId))
+        if (CFE_TBL_DumpCtrlBlockIsUsed(DumpCtrlPtr) &&
+            CFE_RESOURCEID_TEST_EQUAL(DumpCtrlPtr->RegRecPtr->OwnerAppId, AppId))
         {
             /* If so, then remove the dump request */
-            CFE_TBL_Global.DumpControlBlocks[i].State = CFE_TBL_DUMP_FREE;
+            CFE_TBL_DumpCtrlBlockSetFree(DumpCtrlPtr);
         }
     }
 
@@ -1545,4 +1649,43 @@ void CFE_TBL_CountAccessDescHelper(CFE_TBL_AccessDescriptor_t *AccDescPtr, void 
     uint32 *Count = Arg;
 
     ++(*Count);
+}
+
+/*----------------------------------------------------------------
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+CFE_TBL_ValidationResult_t *CFE_TBL_CheckValidationRequest(CFE_TBL_ValidationResultId_t *ValIdPtr)
+{
+    CFE_TBL_ValidationResult_t * ResultPtr;
+    CFE_TBL_ValidationResultId_t ValId;
+
+    ValId = *ValIdPtr;
+
+    /*
+     * always clear the flag, regardless of "IsMatch" above.  If it was not a match,
+     * that means the ID was stale, and it will never be a match (ie. it was aborted somehow)
+     *
+     * However, because this also acts as a flag, only write to the global if it was set to a value,
+     * do not unconditionally write undefined value here.
+     */
+    if (CFE_RESOURCEID_TEST_DEFINED(ValId))
+    {
+        *ValIdPtr = CFE_TBL_VALRESULTID_UNDEFINED;
+
+        ResultPtr = CFE_TBL_LocateValidationResultByID(ValId);
+    }
+    else
+    {
+        ResultPtr = NULL;
+    }
+
+    if (!CFE_TBL_ValidationResultIsMatch(ResultPtr, ValId))
+    {
+        ResultPtr = NULL;
+    }
+
+    return ResultPtr;
 }
