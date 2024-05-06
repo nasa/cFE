@@ -1,5 +1,11 @@
 # Changelog
 
+## Development Build: equuleus-rc1+dev141
+- use resourceids for internal table validation and dump control blocks
+- refactor SB to support additional use cases
+- msg api test buffer overrun
+- See <2551>, <2381>, and <2537>
+
 ## Development Build: equuleus-rc1+dev131
 - add handle list operation routines
 - See <https://github.com/nasa/cFE/pull/2548>
