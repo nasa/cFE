@@ -2004,21 +2004,27 @@ CFE_Status_t CFE_SB_ReceiveBuffer(CFE_SB_Buffer_t **BufPtr, CFE_SB_PipeId_t Pipe
 CFE_SB_Buffer_t *CFE_SB_AllocateMessageBuffer(size_t MsgSize)
 {
     CFE_ES_AppId_t    AppId;
+    char              AppName[OS_MAX_API_NAME] = {""};
     CFE_SB_BufferD_t *BufDscPtr;
     CFE_SB_Buffer_t * BufPtr;
+    CFE_Status_t      Status;
 
     AppId     = CFE_ES_APPID_UNDEFINED;
     BufDscPtr = NULL;
     BufPtr    = NULL;
 
+    Status = CFE_ES_GetAppID(&AppId);
+
     if (MsgSize > CFE_MISSION_SB_MAX_SB_MSG_SIZE)
     {
-        CFE_ES_WriteToSysLog("%s: ZeroCopyGetPtr-Failed, MsgSize is too large\n", __func__);
+        CFE_ES_GetAppName(AppName, AppId, sizeof(AppName));
+        CFE_ES_WriteToSysLog("%s %s: Failed, requested size %ld larger than allowed %d\n",
+                             AppName, __func__, MsgSize, CFE_MISSION_SB_MAX_SB_MSG_SIZE);
         return NULL;
     }
 
     /* get callers AppId */
-    if (CFE_ES_GetAppID(&AppId) == CFE_SUCCESS)
+    if (Status == CFE_SUCCESS)
     {
         CFE_SB_LockSharedData(__func__, __LINE__);
 
