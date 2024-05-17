@@ -282,6 +282,38 @@ endfunction(export_variable_cache)
 
 ##################################################################
 #
+# FUNCTION: decode_targetsystem
+#
+#
+function(decode_targetsystem TARGETSYSTEM)
+  # The "BUILD_CONFIG" is a list of items to uniquely identify this build
+  # The first element in the list is the toolchain name, followed by config name(s)
+
+  set(ONE_VAL_ARGS OUTPUT_ARCH_BINARY_DIR OUTPUT_ARCH_TOOLCHAIN_NAME OUTPUT_ARCH_CONFIG_NAME)
+  cmake_parse_arguments(DT "" "${ONE_VAL_ARGS}" "" ${ARGN})
+
+  set(BUILD_CONFIG ${BUILD_CONFIG_${TARGETSYSTEM}})
+  list(GET BUILD_CONFIG 0 ARCH_TOOLCHAIN_NAME)
+  list(REMOVE_AT BUILD_CONFIG 0)
+  # convert to a string which is safe for a directory name
+  string(REGEX REPLACE "[^A-Za-z0-9]" "_" ARCH_CONFIG_NAME "${BUILD_CONFIG}")
+
+  # Export values to parent
+  if (DT_OUTPUT_ARCH_BINARY_DIR)
+    set(${DT_OUTPUT_ARCH_BINARY_DIR} "${CMAKE_BINARY_DIR}/${ARCH_TOOLCHAIN_NAME}/${ARCH_CONFIG_NAME}" PARENT_SCOPE)
+  endif()
+  if (DT_OUTPUT_ARCH_TOOLCHAIN_NAME)
+    set(${DT_OUTPUT_ARCH_TOOLCHAIN_NAME} "${ARCH_TOOLCHAIN_NAME}" PARENT_SCOPE)
+  endif()
+  if (DT_OUTPUT_ARCH_CONFIG_NAME)
+    set(${DT_OUTPUT_ARCH_CONFIG_NAME} "${ARCH_CONFIG_NAME}" PARENT_SCOPE)
+  endif()
+
+endfunction(decode_targetsystem)
+
+
+##################################################################
+#
 # FUNCTION: prepare
 #
 # Called by the top-level CMakeLists.txt to set up prerequisites
@@ -536,12 +568,12 @@ function(process_arch TARGETSYSTEM)
 
   # The "BUILD_CONFIG" is a list of items to uniquely identify this build
   # The first element in the list is the toolchain name, followed by config name(s)
-  set(BUILD_CONFIG ${BUILD_CONFIG_${TARGETSYSTEM}})
-  list(GET BUILD_CONFIG 0 ARCH_TOOLCHAIN_NAME)
-  list(REMOVE_AT BUILD_CONFIG 0)
-  # convert to a string which is safe for a directory name
-  string(REGEX REPLACE "[^A-Za-z0-9]" "_" ARCH_CONFIG_NAME "${BUILD_CONFIG}")
-  set(ARCH_BINARY_DIR "${CMAKE_BINARY_DIR}/${ARCH_TOOLCHAIN_NAME}/${ARCH_CONFIG_NAME}")
+  decode_targetsystem(${TARGETSYSTEM}
+    OUTPUT_ARCH_BINARY_DIR      ARCH_BINARY_DIR
+    OUTPUT_ARCH_TOOLCHAIN_NAME  ARCH_TOOLCHAIN_NAME
+    OUTPUT_ARCH_CONFIG_NAME     ARCH_CONFIG_NAME
+  )
+
   file(MAKE_DIRECTORY "${ARCH_BINARY_DIR}")
 
   message(STATUS "Configuring for system arch: ${ARCH_TOOLCHAIN_NAME}/${ARCH_CONFIG_NAME}")

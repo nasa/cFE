@@ -9,55 +9,49 @@
 ###########################################################
 
 # Generate the complete list of configuration ids
+# Start with an empty list - will be appended by various files
 set(CFE_CONFIG_IDS)
-set(GENERATED_ENUM_OFFSET_LIST)
-set(GENERATED_CONSTANT_DEFINE_LIST)
-set(GENERATED_IDNAME_MAP_LIST)
 
-# Append the set of version description config keys
-list(APPEND CFE_CONFIG_IDS
-  MISSION_NAME
-  MISSION_SRCVER
-  MISSION_EDS_DB
-  MISSION_SBINTF_DB
+# Get the base set of config IDs from a separate file
+# This baseline set is based on build time config and will be the same
+# on all CFE instances produced by this build.
+include(${CMAKE_CURRENT_LIST_DIR}/config_ids_base.cmake)
 
-  CORE_VERSION_MAJOR
-  CORE_VERSION_MINOR
-  CORE_VERSION_REVISION
-  CORE_VERSION_MISSION_REV
-  CORE_VERSION_BUILDNUM
-  CORE_VERSION_BASELINE
-  CORE_VERSION_DESCRIPTION
+# Get the set of config IDs that are generated via the platform config tool.
+# These are set to values based on platform config and may be different on
+# the different CFE instances.  To accomplish this, an intermediate translation
+# tool must be used - this resides in the "tool" directory.
+include(${CMAKE_CURRENT_LIST_DIR}/tool/config_ids_dynamic.cmake)
 
-  CORE_BUILDINFO_DATE
-  CORE_BUILDINFO_USER
-  CORE_BUILDINFO_HOST
-)
-
-# Generate config ID for source version of modules that are included in the build
-# NOTE: the presence in this list does not necesarily mean it will have a value at runtime,
-# which may be the case for dynamic apps which are not loaded, for instance.
-foreach(DEP ${MISSION_CORE_INTERFACES} ${MISSION_APPS} ${MISSION_CORE_MODULES} ${MISSION_PSPMODULES})
-  string(TOUPPER "${DEP}" DEPNAME)
-  list(APPEND CFE_CONFIG_IDS MOD_SRCVER_${DEPNAME})
-endforeach()
-
-# Append any mission-defined config keys
-# this may further extend the list of IDs
+# Append any mission-specific config IDs.  This is done last so it does
+# not change the order of items in the first two lists.
 include(${MISSIONCONFIG}/config_ids_custom.cmake OPTIONAL)
 
+# Now generate header and source files containing the ID tables
+# This includes an enum, and enum to string name table, and a set
+# of constants to use in runtime FSW code.
+set(GENERATED_ID_MACRO_LIST)
+set(GENERATED_CONSTANT_DEFINE_LIST)
+
 foreach(CFGID ${CFE_CONFIG_IDS})
-  list(APPEND GENERATED_ENUM_OFFSET_LIST "  CFE_ConfigIdOffset_${CFGID},\n")
-  list(APPEND GENERATED_IDNAME_MAP_LIST "  [CFE_ConfigIdOffset_${CFGID}] = { \"${CFGID}\" },\n")
-  list(APPEND GENERATED_CONSTANT_DEFINE_LIST "#define CFE_CONFIGID_${CFGID} CFE_CONFIGID_C(CFE_ResourceId_FromInteger(CFE_CONFIGID_BASE + CFE_ConfigIdOffset_${CFGID}))\n")
+  list(APPEND GENERATED_ID_MACRO_LIST "CFE_CONFIGID_DEFINE(${CFGID})\n")
+  list(APPEND GENERATED_CONSTANT_DEFINE_LIST "#define CFE_CONFIGID_${CFGID} CFE_CONFIGID_FROM_OFFSET(${CFGID})\n")
 endforeach()
 
-string(CONCAT GENERATED_ENUM_OFFSET_LIST ${GENERATED_ENUM_OFFSET_LIST})
+string(CONCAT GENERATED_ID_MACRO_LIST ${GENERATED_ID_MACRO_LIST})
 string(CONCAT GENERATED_CONSTANT_DEFINE_LIST ${GENERATED_CONSTANT_DEFINE_LIST})
-string(CONCAT GENERATED_IDNAME_MAP_LIST ${GENERATED_IDNAME_MAP_LIST})
 
-# Write header file for config IDs
-configure_file(${CMAKE_CURRENT_LIST_DIR}/cmake/cfe_config_ids.h.in ${CMAKE_BINARY_DIR}/inc/cfe_config_ids.h)
+# Write header file for config offsets - this is the basic enumeration (symbols mapped to 0-based integers)
+# This is a simple list and does not need any other headers, and can be used by the platform config tool
+configure_file(${CMAKE_CURRENT_LIST_DIR}/cmake/cfe_configid_offset.h.in ${CMAKE_BINARY_DIR}/inc/cfe_configid_offset.h @ONLY)
 
-# Write constant map list for config IDs
-configure_file(${CMAKE_CURRENT_LIST_DIR}/cmake/cfe_config_map.c.in ${CMAKE_BINARY_DIR}/src/cfe_config_map.c)
+# Write source file for enum to string mapping - this allows the software to print the config item by name
+# this is a simple lookup table based on the enum, so it can also be used by FSW and the platform config tool
+configure_file(${CMAKE_CURRENT_LIST_DIR}/cmake/cfe_configid_nametable.c.in ${CMAKE_BINARY_DIR}/src/cfe_configid_nametable.c @ONLY)
+
+# Write header file for config IDs - this is the FSW runtime identifier (resourceID) based on the enum above
+# however - it requires the full set of FSW headers, so it cannot be used by the platform config tool
+configure_file(${CMAKE_CURRENT_LIST_DIR}/cmake/cfe_config_ids.h.in ${CMAKE_BINARY_DIR}/inc/cfe_config_ids.h @ONLY)
+
+# Add the subdirectory for the intermediate tool that allows platform-speicific data to included with the config
+add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/tool cfeconfig_platformdata_tool)
