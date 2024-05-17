@@ -232,6 +232,21 @@
 #define CFE_PLATFORM_SB_FILTER_MASK8    CFE_EVS_NO_FILTER
 
 /**
+** \cfeescfg Number of block sizes in SB memory pool structure
+**
+**  \par Description:
+**      The number of block sizes for the software bus memory pool
+**
+**  \par Limits:
+**       Must be at least one.  No specific upper limit, but the number is
+**       anticipated to be reasonably small (i.e. tens, not hundreds).  Large
+**       values have not been tested.
+**
+**       The SB block size list must correlate with this value
+*/
+#define CFE_PLATFORM_SB_POOL_MAX_BUCKETS 17
+
+/**
 **  \cfeescfg Define SB Memory Pool Block Sizes
 **
 **  \par Description:
@@ -239,8 +254,7 @@
 **
 **  \par Limits
 **       These sizes MUST be increasing and MUST be an integral multiple of 4.
-**       The number of block sizes defined cannot exceed
-**       #CFE_PLATFORM_ES_POOL_MAX_BUCKETS
+**       The number of block sizes defined should match #CFE_PLATFORM_SB_POOL_MAX_BUCKETS
 */
 #define CFE_PLATFORM_SB_MEM_BLOCK_SIZE_01 8
 #define CFE_PLATFORM_SB_MEM_BLOCK_SIZE_02 16

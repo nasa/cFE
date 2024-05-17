@@ -85,6 +85,15 @@ typedef struct
 CFE_ES_GMP_DirectBuffer_t   UT_MemPoolDirectBuffer;
 CFE_ES_GMP_IndirectBuffer_t UT_MemPoolIndirectBuffer;
 
+/*
+ * Memory pool block sizes used for unit test
+ * The platform config values are not used for UT as the test cases
+ * require certain sizes.  A large max block and small min block
+ * are needed for testing size thresholds when creating pools.
+ */
+static const size_t                  UT_MemPoolSizeArray[5] = {131072, 512, 128, 32, 8};
+static const CFE_Config_ArrayValue_t UT_MemPoolAV           = {5, UT_MemPoolSizeArray};
+
 /* Create a startup script buffer for a maximum of 5 lines * 80 chars/line */
 char StartupScript[MAX_STARTUP_SCRIPT];
 
@@ -624,6 +633,12 @@ static int32 ES_UT_SetAppStateHook(void *UserObj, int32 StubRetcode, uint32 Call
     return StubRetcode;
 }
 
+static void UT_ArrayConfigHandler(void *UserObj, UT_EntryKey_t FuncKey, const UT_StubContext_t *Context)
+{
+    CFE_Config_ArrayValue_t Val = *((const CFE_Config_ArrayValue_t *)UserObj);
+    UT_Stub_SetReturnValue(FuncKey, Val);
+}
+
 void UtTest_Setup(void)
 {
     UT_Init("es");
@@ -674,10 +689,19 @@ void ES_ResetUnitTest(void)
      * so it must be re-initialized here every time CFE_ES_Global is reset.
      */
     CFE_ES_Global.ResetDataPtr = ES_UT_PersistentResetData;
+
+    UT_SetHandlerFunction(UT_KEY(CFE_Config_GetArrayValue), UT_ArrayConfigHandler, (void *)&UT_MemPoolAV);
+
 } /* end ES_ResetUnitTest() */
 
 void TestInit(void)
 {
+    size_t                  SizeValue;
+    CFE_Config_ArrayValue_t UTAV = {1, &SizeValue};
+
+    SizeValue = 1;
+    UT_SetHandlerFunction(UT_KEY(CFE_Config_GetArrayValue), UT_ArrayConfigHandler, &UTAV);
+
     UtPrintf("Begin Test Init");
 
     UT_SetCDSSize(128 * 1024);

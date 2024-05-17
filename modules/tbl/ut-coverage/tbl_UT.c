@@ -38,6 +38,7 @@
 */
 #include "tbl_UT.h"
 #include "cfe_core_resourceid_basevalues.h"
+#include "cfe_config.h"
 
 /*
 ** External global variables
@@ -197,6 +198,12 @@ void UT_TBL_ResetDumpCtrlState(uint32 ArrayIndex)
     CFE_TBL_DumpControl_t *DumpCtrlPtr;
     DumpCtrlPtr = &CFE_TBL_Global.DumpControlBlocks[ArrayIndex];
     memset(DumpCtrlPtr, 0, sizeof(*DumpCtrlPtr));
+}
+
+static void UT_ArrayConfigHandler(void *UserObj, UT_EntryKey_t FuncKey, const UT_StubContext_t *Context)
+{
+    CFE_Config_ArrayValue_t Val = *((const CFE_Config_ArrayValue_t *)UserObj);
+    UT_Stub_SetReturnValue(FuncKey, Val);
 }
 
 /*
@@ -1255,6 +1262,9 @@ void Test_CFE_TBL_LoadCmd(void)
     CFE_TBL_LoadCmd_t  LoadCmd;
     CFE_ES_AppId_t     AppID;
 
+    uint32                  IdValue;
+    CFE_Config_ArrayValue_t UTAV = {1, &IdValue};
+
     CFE_ES_GetAppID(&AppID);
 
     UtPrintf("Begin Test Load Command");
@@ -1267,13 +1277,16 @@ void Test_CFE_TBL_LoadCmd(void)
     /* Start with a cleared global (no tables registered) */
     memset(&CFE_TBL_Global, 0, sizeof(CFE_TBL_Global));
 
+    IdValue = 0x123;
+    UT_SetHandlerFunction(UT_KEY(CFE_Config_GetArrayValue), UT_ArrayConfigHandler, &UTAV);
+
     /* Set up the headers */
     strncpy(StdFileHeader.Description, "FS header description", sizeof(StdFileHeader.Description) - 1);
     StdFileHeader.Description[sizeof(StdFileHeader.Description) - 1] = '\0';
     StdFileHeader.ContentType                                        = CFE_FS_FILE_CONTENT_ID;
     StdFileHeader.SubType                                            = CFE_FS_SubType_TBL_IMG;
-    StdFileHeader.SpacecraftID                                       = CFE_PLATFORM_TBL_VALID_SCID_1;
-    StdFileHeader.ProcessorID                                        = CFE_PLATFORM_TBL_VALID_PRID_1;
+    StdFileHeader.SpacecraftID                                       = IdValue;
+    StdFileHeader.ProcessorID                                        = IdValue;
 
     /* Test response to inability to open file */
     UT_InitData();
@@ -2002,9 +2015,6 @@ void Test_CFE_TBL_Share(void)
 
     UtPrintf("Begin Test Share");
 
-    StdFileHeader.SpacecraftID = CFE_PLATFORM_TBL_VALID_SCID_1;
-    StdFileHeader.ProcessorID  = CFE_PLATFORM_TBL_VALID_PRID_1;
-
     /* Test response to a null table handle and null table name */
     UT_InitData();
     UtAssert_INT32_EQ(CFE_TBL_Share(NULL, "ut_cfe_tbl.UT_Table2"), CFE_TBL_BAD_ARGUMENT);
@@ -2156,9 +2166,6 @@ void Test_CFE_TBL_Load(void)
     memset(&TestTable1, 0, sizeof(TestTable1));
 
     UtPrintf("Begin Test Load");
-
-    StdFileHeader.SpacecraftID = CFE_PLATFORM_TBL_VALID_SCID_1;
-    StdFileHeader.ProcessorID  = CFE_PLATFORM_TBL_VALID_PRID_1;
 
     /* Set up for table load test */
     UT_InitData();
@@ -3098,9 +3105,6 @@ void Test_CFE_TBL_TblMod(void)
 
     UtPrintf("Begin Test Table Modified");
 
-    FileHeader.SpacecraftID = CFE_PLATFORM_TBL_VALID_SCID_1;
-    FileHeader.ProcessorID  = CFE_PLATFORM_TBL_VALID_PRID_1;
-
     /* Test adding a TBL API for notifying table services that the table has
      * been updated by the application
      */
@@ -3271,12 +3275,14 @@ void Test_CFE_TBL_Internal(void)
     CFE_TBL_File_Hdr_t          TblFileHeader;
     osal_id_t                   FileDescriptor;
     void *                      TblPtr;
+    uint32                      IdValue;
+    CFE_Config_ArrayValue_t     UTAV = {1, &IdValue};
+
+    IdValue = 0x123;
 
     UtPrintf("Begin Test Internal");
 
-    FileDescriptor             = OS_OBJECT_ID_UNDEFINED;
-    StdFileHeader.SpacecraftID = CFE_PLATFORM_TBL_VALID_SCID_1;
-    StdFileHeader.ProcessorID  = CFE_PLATFORM_TBL_VALID_PRID_1;
+    FileDescriptor = OS_OBJECT_ID_UNDEFINED;
 
     /* Test setup - register a double buffered table */
     UT_InitData();
@@ -3955,13 +3961,13 @@ void Test_CFE_TBL_Internal(void)
     UtAssert_INT32_EQ(DumpCtrlPtr->State, CFE_TBL_DUMP_PENDING);
     CFE_UtAssert_RESOURCEID_EQ(RegRecPtr->OwnerAppId, UT_TBL_APPID_2);
 
-#if (CFE_PLATFORM_TBL_VALID_SCID_COUNT > 0)
     /* Test CFE_TBL_ReadHeaders response to an invalid spacecraft ID */
     UT_InitData();
+    UT_SetHandlerFunction(UT_KEY(CFE_Config_GetArrayValue), UT_ArrayConfigHandler, &UTAV);
     StdFileHeader.ContentType  = CFE_FS_FILE_CONTENT_ID;
     StdFileHeader.SubType      = CFE_FS_SubType_TBL_IMG;
-    StdFileHeader.SpacecraftID = -1;
-    StdFileHeader.ProcessorID  = CFE_PLATFORM_TBL_VALID_PRID_1;
+    StdFileHeader.SpacecraftID = ~IdValue;
+    StdFileHeader.ProcessorID  = IdValue;
     strncpy(TblFileHeader.TableName, "ut_cfe_tbl.UT_Table1", sizeof(TblFileHeader.TableName) - 1);
     TblFileHeader.TableName[sizeof(TblFileHeader.TableName) - 1] = '\0';
     TblFileHeader.NumBytes                                       = sizeof(UT_Table1_t) - 1;
@@ -3981,17 +3987,14 @@ void Test_CFE_TBL_Internal(void)
                       CFE_TBL_ERR_BAD_SPACECRAFT_ID);
     CFE_UtAssert_EVENTSENT(CFE_TBL_SPACECRAFT_ID_ERR_EID);
     CFE_UtAssert_EVENTCOUNT(1);
-#else
-    UtAssert_NA("*Not tested* Invalid spacecraft ID ");
-#endif
 
-#if (CFE_PLATFORM_TBL_VALID_PRID_COUNT > 0)
     /* Test CFE_TBL_ReadHeaders response to an invalid processor ID */
     UT_InitData();
+    UT_SetHandlerFunction(UT_KEY(CFE_Config_GetArrayValue), UT_ArrayConfigHandler, &UTAV);
     StdFileHeader.ContentType  = CFE_FS_FILE_CONTENT_ID;
     StdFileHeader.SubType      = CFE_FS_SubType_TBL_IMG;
-    StdFileHeader.SpacecraftID = CFE_PLATFORM_TBL_VALID_SCID_1;
-    StdFileHeader.ProcessorID  = -1;
+    StdFileHeader.SpacecraftID = IdValue;
+    StdFileHeader.ProcessorID  = ~IdValue;
     strncpy(TblFileHeader.TableName, "ut_cfe_tbl.UT_Table1", sizeof(TblFileHeader.TableName) - 1);
     TblFileHeader.TableName[sizeof(TblFileHeader.TableName) - 1] = '\0';
     TblFileHeader.NumBytes                                       = sizeof(UT_Table1_t) - 1;
@@ -4011,9 +4014,6 @@ void Test_CFE_TBL_Internal(void)
                       CFE_TBL_ERR_BAD_PROCESSOR_ID);
     CFE_UtAssert_EVENTSENT(CFE_TBL_PROCESSOR_ID_ERR_EID);
     CFE_UtAssert_EVENTCOUNT(1);
-#else
-    UtAssert_NA("*Not tested* Invalid processor ID ");
-#endif
 
     /* Test CFE_TBL_RestoreTableDataFromCDS() when failed to get a working buffer */
     UT_InitData();
