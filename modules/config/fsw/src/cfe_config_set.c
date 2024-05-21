@@ -71,6 +71,24 @@ void CFE_Config_SetObjPointer(CFE_ConfigId_t ConfigId, const void *Ptr)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
+void CFE_Config_SetArrayValue(CFE_ConfigId_t ConfigId, const CFE_Config_ArrayValue_t *ArrayPtr)
+{
+    CFE_Config_ValueEntry_t *Entry;
+
+    Entry = CFE_Config_LocateConfigRecordByID(ConfigId);
+    if (Entry != NULL)
+    {
+        Entry->ActualType      = CFE_ConfigType_ARRAY;
+        Entry->Datum.AsPointer = ArrayPtr;
+    }
+}
+
+/*----------------------------------------------------------------
+ *
+ * CFE core internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_Config_SetString(CFE_ConfigId_t ConfigId, const char *Ptr)
 {
     CFE_Config_ValueEntry_t *Entry;

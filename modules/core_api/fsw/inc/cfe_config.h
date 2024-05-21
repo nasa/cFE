@@ -68,6 +68,21 @@ uint32 CFE_Config_GetValue(CFE_ConfigId_t ConfigId);
 const void *CFE_Config_GetObjPointer(CFE_ConfigId_t ConfigId);
 
 /**
+ * @brief Obtain an array correlating to an CFE configuration ID
+ *
+ * Retreives the CFE_Config_ArrayValue_t value associated with the specified key.
+ * This combines an array length (number of elements) and a pointer to the first element.
+ *
+ * If no value has been set, or the key is not valid, this returns 0 / NULL.
+ *
+ * @param[in]   ConfigId  Configuration ID/Key to look up
+ *
+ * @return Value associated with key
+ * @retval NULL if key is not defined or not set
+ */
+CFE_Config_ArrayValue_t CFE_Config_GetArrayValue(CFE_ConfigId_t ConfigId);
+
+/**
  * @brief Obtain a string value correlating to an CFE configuration ID
  *
  * Retreives the string value associated with the specified key.
@@ -137,8 +152,7 @@ void CFE_Config_IterateAll(void *Arg, CFE_Config_Callback_t Callback);
  * @param[in]   CodeName    Code name for the build (i.e. "equuleus")
  * @param[in]   LastOffcRel Last official release (i.e. "6.7.0")
  */
-void CFE_Config_GetVersionString(char *Buf, size_t Size,
-  const char *Component, const char *SrcVersion,
-  const char *CodeName, const char *LastOffcRel);
+void CFE_Config_GetVersionString(char *Buf, size_t Size, const char *Component, const char *SrcVersion,
+                                 const char *CodeName, const char *LastOffcRel);
 
 #endif /* CFE_CONFIG_H */

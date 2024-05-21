@@ -22,13 +22,16 @@
  * API definition for configuration registry
  *
  * This defines the "getter" functions, which are publicly available
+ *
+ * @note The declaration for all functions in this file is in the "core_api" module, not here
+ * This file constitutes the entire externally-callable API for the config module.
  */
 
 /*
 ** Required header files.
 */
 #include "cfe_config_priv.h"
-#include "cfe_config_map.h"
+#include "cfe_config_nametable.h"
 #include "cfe_version.h"
 
 #include <string.h>
@@ -78,6 +81,26 @@ const void *CFE_Config_GetObjPointer(CFE_ConfigId_t ConfigId)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
+CFE_Config_ArrayValue_t CFE_Config_GetArrayValue(CFE_ConfigId_t ConfigId)
+{
+    const CFE_Config_ValueEntry_t *Entry;
+    static CFE_Config_ArrayValue_t NULL_ARRAY = {0, NULL};
+
+    Entry = CFE_Config_LocateConfigRecordByID(ConfigId);
+    if (Entry == NULL || Entry->ActualType != CFE_ConfigType_ARRAY)
+    {
+        return NULL_ARRAY;
+    }
+
+    return *((const CFE_Config_ArrayValue_t *)Entry->Datum.AsPointer);
+}
+
+/*----------------------------------------------------------------
+ *
+ * Defined per public API
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 const char *CFE_Config_GetString(CFE_ConfigId_t ConfigId)
 {
     const CFE_Config_ValueEntry_t *Entry;
@@ -108,7 +131,7 @@ const char *CFE_Config_GetName(CFE_ConfigId_t ConfigId)
         return CFE_Config_Global.UnknownString;
     }
 
-    return CFE_CONFIG_IDNAME_MAP[OffsetVal].Name;
+    return CFE_CONFIGID_NAMETABLE[OffsetVal].Name;
 }
 
 /*----------------------------------------------------------------
@@ -122,7 +145,7 @@ CFE_ConfigId_t CFE_Config_GetIdByName(const char *Name)
     const CFE_Config_IdNameEntry_t *NamePtr;
     uint32                          OffsetVal;
 
-    NamePtr = CFE_CONFIG_IDNAME_MAP;
+    NamePtr = CFE_CONFIGID_NAMETABLE;
     for (OffsetVal = 0; OffsetVal < CFE_ConfigIdOffset_MAX; ++OffsetVal)
     {
         if (NamePtr->Name != NULL && strcmp(NamePtr->Name, Name) == 0)
@@ -151,7 +174,7 @@ void CFE_Config_IterateAll(void *Arg, CFE_Config_Callback_t Callback)
     const CFE_Config_IdNameEntry_t *NamePtr;
     uint32                          OffsetVal;
 
-    NamePtr = CFE_CONFIG_IDNAME_MAP;
+    NamePtr = CFE_CONFIGID_NAMETABLE;
     for (OffsetVal = 0; OffsetVal < CFE_ConfigIdOffset_MAX; ++OffsetVal)
     {
         if (CFE_Config_Global.Table[OffsetVal].ActualType != CFE_ConfigType_UNDEFINED)
@@ -168,10 +191,9 @@ void CFE_Config_IterateAll(void *Arg, CFE_Config_Callback_t Callback)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-void CFE_Config_GetVersionString(char *Buf, size_t Size, const char *Component,
-  const char *SrcVersion, const char *CodeName, const char *LastOffcRel)
+void CFE_Config_GetVersionString(char *Buf, size_t Size, const char *Component, const char *SrcVersion,
+                                 const char *CodeName, const char *LastOffcRel)
 {
-    snprintf(Buf, Size, "%s %s %s (Codename %s), Last Official Release: %s %s)",
-        Component, CFE_REVISION == 0 ? "Development Build" : "Release", SrcVersion,
-        CodeName, Component, LastOffcRel);
+    snprintf(Buf, Size, "%s %s %s (Codename %s), Last Official Release: %s %s)", Component,
+             CFE_REVISION == 0 ? "Development Build" : "Release", SrcVersion, CodeName, Component, LastOffcRel);
 }

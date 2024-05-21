@@ -21,7 +21,7 @@
  */
 #include "cfe_config.h"
 #include "cfe_config_priv.h"
-#include "cfe_config_map.h"
+#include "cfe_config_nametable.h"
 
 #include "utassert.h"
 #include "utstubs.h"
@@ -29,20 +29,30 @@
 
 #include "ut_support.h"
 
-const CFE_Config_IdNameEntry_t CFE_CONFIG_IDNAME_MAP[CFE_ConfigIdOffset_MAX] = {{"UT_CHECK_1"},
-                                                                                {"UT_CHECK_2"},
-                                                                                {"UT_CHECK_3"},
-                                                                                {"UT_CHECK_4"},
-                                                                                {"MOD_SRCVER_COREMODULE1"},
-                                                                                {"MOD_SRCVER_COREMODULE2"}};
+/* clang-format off */
+const CFE_Config_IdNameEntry_t CFE_CONFIGID_NAMETABLE[CFE_ConfigIdOffset_MAX] =
+{
+    {"UT_CHECK_1"},
+    {"UT_CHECK_2"},
+    {"UT_CHECK_3"},
+    {"UT_CHECK_4"},
+    {"MOD_SRCVER_COREMODULE1"},
+    {"MOD_SRCVER_COREMODULE2"}
+};
+/* clang-format on */
 
 #define CFE_CONFIGID_UT_CHECK_1 CFE_CONFIGID_C(CFE_RESOURCEID_WRAP(CFE_CONFIGID_BASE + 0))
 #define CFE_CONFIGID_UT_CHECK_2 CFE_CONFIGID_C(CFE_RESOURCEID_WRAP(CFE_CONFIGID_BASE + 1))
 #define CFE_CONFIGID_UT_CHECK_3 CFE_CONFIGID_C(CFE_RESOURCEID_WRAP(CFE_CONFIGID_BASE + 2))
 #define CFE_CONFIGID_UT_CHECK_4 CFE_CONFIGID_C(CFE_RESOURCEID_WRAP(CFE_CONFIGID_BASE + 3))
+#define CFE_CONFIGID_UT_CHECK_5 CFE_CONFIGID_C(CFE_RESOURCEID_WRAP(CFE_CONFIGID_BASE + 4))
 
 const char UT_UNKNOWN_STR[] = "UT-Unknown";
 const char UT_VALUE_STR[]   = "UT-Value";
+
+const uint32                  UT_ARR_ELEMENTS[4] = {1, 2, 3, 4};
+const CFE_Config_ArrayValue_t UT_ARRAY           = {4, UT_ARR_ELEMENTS};
+
 const struct
 {
     uint16 val;
@@ -78,6 +88,40 @@ void Test_CFE_Config_GetObjPointer(void)
     UtAssert_ADDRESS_EQ(CFE_Config_GetObjPointer(CFE_CONFIGID_UT_CHECK_2), &UT_TEST_OBJ);
     UtAssert_ADDRESS_EQ(CFE_Config_GetObjPointer(CFE_CONFIGID_UT_CHECK_3), UT_VALUE_STR);
     UtAssert_NULL(CFE_Config_GetObjPointer(CFE_CONFIGID_UT_CHECK_4));
+}
+
+void Test_CFE_Config_GetArrayValue(void)
+{
+    /*
+     * Test case for:
+     * CFE_Config_ArrayValue_t CFE_Config_GetArrayValue(CFE_ConfigId_t ConfigId)
+     */
+
+    CFE_Config_ArrayValue_t ArrVal;
+
+    ArrVal = CFE_Config_GetArrayValue(CFE_CONFIGID_UNDEFINED);
+    UtAssert_ZERO(ArrVal.NumElements);
+    UtAssert_NULL(ArrVal.ElementPtr);
+
+    ArrVal = CFE_Config_GetArrayValue(CFE_CONFIGID_UT_CHECK_1);
+    UtAssert_ZERO(ArrVal.NumElements);
+    UtAssert_NULL(ArrVal.ElementPtr);
+
+    ArrVal = CFE_Config_GetArrayValue(CFE_CONFIGID_UT_CHECK_2);
+    UtAssert_ZERO(ArrVal.NumElements);
+    UtAssert_NULL(ArrVal.ElementPtr);
+
+    ArrVal = CFE_Config_GetArrayValue(CFE_CONFIGID_UT_CHECK_3);
+    UtAssert_ZERO(ArrVal.NumElements);
+    UtAssert_NULL(ArrVal.ElementPtr);
+
+    ArrVal = CFE_Config_GetArrayValue(CFE_CONFIGID_UT_CHECK_4);
+    UtAssert_ZERO(ArrVal.NumElements);
+    UtAssert_NULL(ArrVal.ElementPtr);
+
+    ArrVal = CFE_Config_GetArrayValue(CFE_CONFIGID_UT_CHECK_5);
+    UtAssert_EQ(size_t, ArrVal.NumElements, UT_ARRAY.NumElements);
+    UtAssert_ADDRESS_EQ(ArrVal.ElementPtr, UT_ARRAY.ElementPtr);
 }
 
 void Test_CFE_Config_GetString(void)
@@ -117,6 +161,28 @@ void Test_CFE_Config_SetObjPointer(void)
     UtAssert_VOIDCALL(CFE_Config_SetObjPointer(CFE_CONFIGID_UT_CHECK_4, TESTOBJ));
     UtAssert_NULL(CFE_Config_GetObjPointer(CFE_CONFIGID_UNDEFINED));
     UtAssert_ADDRESS_EQ(CFE_Config_GetObjPointer(CFE_CONFIGID_UT_CHECK_4), TESTOBJ);
+}
+
+void Test_CFE_Config_SetArrayValue(void)
+{
+    /*
+     * Test case for:
+     * void CFE_Config_SetArrayValue(CFE_ConfigId_t ConfigId, const CFE_Config_ArrayValue_t *ArrayPtr)
+     */
+    static uint16                  TESTARR[] = {5, 6, 7, 8, 9, 10};
+    static CFE_Config_ArrayValue_t TESTOBJ   = {6, TESTARR};
+    CFE_Config_ArrayValue_t        ArrVal;
+
+    UtAssert_VOIDCALL(CFE_Config_SetArrayValue(CFE_CONFIGID_UNDEFINED, &TESTOBJ));
+    UtAssert_VOIDCALL(CFE_Config_SetArrayValue(CFE_CONFIGID_UT_CHECK_2, &TESTOBJ));
+
+    ArrVal = CFE_Config_GetArrayValue(CFE_CONFIGID_UNDEFINED);
+    UtAssert_ZERO(ArrVal.NumElements);
+    UtAssert_NULL(ArrVal.ElementPtr);
+
+    ArrVal = CFE_Config_GetArrayValue(CFE_CONFIGID_UT_CHECK_2);
+    UtAssert_EQ(size_t, ArrVal.NumElements, TESTOBJ.NumElements);
+    UtAssert_ADDRESS_EQ(ArrVal.ElementPtr, TESTOBJ.ElementPtr);
 }
 
 void Test_CFE_Config_SetString(void)
@@ -174,7 +240,7 @@ void Test_CFE_Config_IterateAll(void)
     CFE_Config_IterateAll(&Count, UT_Callback);
 
     /* Callback should only be given for configured/set entities */
-    UtAssert_UINT32_EQ(Count, 3);
+    UtAssert_UINT32_EQ(Count, 4);
 }
 
 void Test_CFE_Config_StrCaseEq(void)
@@ -258,6 +324,10 @@ void Test_CFE_Config_Setup(void)
     CFE_Config_Global.Table[1].Datum.AsPointer = &UT_TEST_OBJ;
     CFE_Config_Global.Table[2].ActualType      = CFE_ConfigType_STRING;
     CFE_Config_Global.Table[2].Datum.AsPointer = UT_VALUE_STR;
+    CFE_Config_Global.Table[3].ActualType      = CFE_ConfigType_UNDEFINED;
+    CFE_Config_Global.Table[3].Datum.AsPointer = NULL;
+    CFE_Config_Global.Table[4].ActualType      = CFE_ConfigType_ARRAY;
+    CFE_Config_Global.Table[4].Datum.AsPointer = &UT_ARRAY;
 
     /* NOTE: Leaves last entry unset */
 }
@@ -266,10 +336,13 @@ void UtTest_Setup(void)
 {
     UtTest_Add(Test_CFE_Config_GetValue, Test_CFE_Config_Setup, NULL, "Test CFE_Config_GetValue()");
     UtTest_Add(Test_CFE_Config_GetObjPointer, Test_CFE_Config_Setup, NULL, "Test CFE_Config_GetObjPointer()");
+    UtTest_Add(Test_CFE_Config_GetArrayValue, Test_CFE_Config_Setup, NULL, "Test CFE_Config_GetArrayValue()");
     UtTest_Add(Test_CFE_Config_GetString, Test_CFE_Config_Setup, NULL, "Test CFE_Config_GetString()");
     UtTest_Add(Test_CFE_Config_SetValue, Test_CFE_Config_Setup, NULL, "Test CFE_Config_SetValue()");
     UtTest_Add(Test_CFE_Config_SetObjPointer, Test_CFE_Config_Setup, NULL, "Test CFE_Config_SetObjPointer()");
     UtTest_Add(Test_CFE_Config_SetString, Test_CFE_Config_Setup, NULL, "Test CFE_Config_SetString()");
+    UtTest_Add(Test_CFE_Config_SetArrayValue, Test_CFE_Config_Setup, NULL, "Test CFE_Config_SetArrayValue()");
+
     UtTest_Add(Test_CFE_Config_GetName, Test_CFE_Config_Setup, NULL, "Test CFE_Config_GetName()");
     UtTest_Add(Test_CFE_Config_GetIdByName, Test_CFE_Config_Setup, NULL, "Test CFE_Config_GetIdByName()");
     UtTest_Add(Test_CFE_Config_IterateAll, Test_CFE_Config_Setup, NULL, "Test CFE_Config_IterateAll()");

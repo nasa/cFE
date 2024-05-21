@@ -1,0 +1,21 @@
+#include <common_types.h>
+#include <cfe_platform_cfg.h>
+
+#include "cfe_config_core_internal.h"
+#include "cfe_config_ids.h"
+#include "cfe_config_set.h"
+
+#define ARRAY_NAME(a) CFE_CONFIG_ ## a ## _CONTENT
+#define ARRAY_LEN(a) (sizeof(ARRAY_NAME(a)) / sizeof(ARRAY_NAME(a)[0]))
+
+#define CFE_PLATFORMCFG_ENTRY(x) {\
+    static const CFE_Config_ArrayValue_t ARR_ ## x = { ARRAY_LEN(x), ARRAY_NAME(x) };\
+    CFE_Config_SetArrayValue(CFE_CONFIGID_FROM_OFFSET(x), &ARR_ ## x);\
+}
+
+@PLATCFG_CONTENT@
+
+void CFE_Config_SetupPlatformConfigInfo(void)
+{
+@PLATCFG_LIST@
+}

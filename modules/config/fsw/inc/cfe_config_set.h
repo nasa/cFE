@@ -19,36 +19,20 @@
 /**
  * @file
  *
- * This file contains the CFE configuration registry global data definitions.
+ * Function declarations for items implemented in set.c
  */
 
-#ifndef CFE_CONFIG_TABLE_H
-#define CFE_CONFIG_TABLE_H
+#ifndef CFE_CONFIG_SET_H
+#define CFE_CONFIG_SET_H
 
 /*
 ** Includes
 */
-#include "common_types.h"
-#include "cfe_config_ids.h"
+#include "cfe_config_api_typedefs.h"
 
-typedef enum CFE_ConfigType
-{
-    CFE_ConfigType_UNDEFINED,
-    CFE_ConfigType_VALUE,   /**< Value is an unsigned int */
-    CFE_ConfigType_STRING,  /**< Value is a string pointer */
-    CFE_ConfigType_POINTER, /**< Value is a non-string object pointer */
-} CFE_ConfigType_t;
+void CFE_Config_SetValue(CFE_ConfigId_t ConfigId, uint32 Value);
+void CFE_Config_SetObjPointer(CFE_ConfigId_t ConfigId, const void *Ptr);
+void CFE_Config_SetString(CFE_ConfigId_t ConfigId, const char *Ptr);
+void CFE_Config_SetArrayValue(CFE_ConfigId_t ConfigId, const CFE_Config_ArrayValue_t *ArrayPtr);
 
-typedef union CFE_Config_ValueBuffer
-{
-    uint32      AsInteger;
-    const void *AsPointer;
-} CFE_Config_ValueBuffer_t;
-
-typedef struct CFE_Config_ValueEntry
-{
-    CFE_ConfigType_t         ActualType;
-    CFE_Config_ValueBuffer_t Datum;
-} CFE_Config_ValueEntry_t;
-
-#endif /* CFE_CONFIG_TABLE_H */
+#endif /* CFE_CONFIG_SET_H */

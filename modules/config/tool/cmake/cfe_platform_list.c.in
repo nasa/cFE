@@ -1,0 +1,14 @@
+/* This file is auto-generated from CMake build system.  Do not manually edit! */
+#include "cfeconfig_platformdata_tool.h"
+
+#undef CFE_PLATFORM
+#define CFE_PLATFORM(x) extern const CFE_ConfigTool_DetailEntry_t @SYM_PREFIX@_ ## x[];
+@PLATFORM_OBJ_NAMES@
+
+#undef CFE_PLATFORM
+#define CFE_PLATFORM(x) { #x, @SYM_PREFIX@_ ## x },
+const CFE_ConfigTool_PlatformMapEntry_t CFECONFIG_PLATFORMDATA_TABLE[] =
+{
+@PLATFORM_OBJ_NAMES@
+    { NULL }
+};

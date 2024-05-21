@@ -33,6 +33,10 @@
 #include "cfe_config.h"
 #include "target_config.h"
 
+#include "cfe_config_init.h"
+#include "cfe_config_lookup.h"
+#include "cfe_config_set.h"
+
 /*
  * Actual definition of the config registry table
  *
@@ -52,6 +56,14 @@ extern CFE_Config_Global_t CFE_Config_Global;
  * INTERNAL FUNCTION CALLS
  ******************************
  */
+
+bool        CFE_Config_StrCaseEq(const char *c1, const char *c2);
+const char *CFE_Config_FindTargetKeyValue(CFE_ConfigKeyValue_t *ConfigList, const char *KeyName);
+const char *CFE_Config_IsModuleInList(CFE_ConfigName_t *ModuleListPtr, const char *ModuleName);
+const char *CFE_Config_IsPspModule(CFE_StaticModuleLoadEntry_t *PspModuleList, const char *ModuleName);
+const char *CFE_Config_FindStaticModName(CFE_ConfigName_t *ModuleListSet[], size_t SetLength, const char *ModuleName);
+void        CFE_Config_SetupModuleVersions(CFE_ConfigName_t *ModuleListSet[], size_t SetLength,
+                                           CFE_ConfigKeyValue_t *ActiveList);
 
 /**
  * @brief Converts a configuration ID to a table index
@@ -79,20 +91,5 @@ static inline CFE_ConfigId_t CFE_Config_OffsetToId(uint32 OffsetVal)
 {
     return CFE_CONFIGID_C(CFE_ResourceId_FromInteger(CFE_CONFIGID_BASE + OffsetVal));
 }
-
-bool        CFE_Config_StrCaseEq(const char *c1, const char *c2);
-const char *CFE_Config_FindTargetKeyValue(CFE_ConfigKeyValue_t *ConfigList, const char *KeyName);
-const char *CFE_Config_IsModuleInList(CFE_ConfigName_t *ModuleListPtr, const char *ModuleName);
-const char *CFE_Config_IsPspModule(CFE_StaticModuleLoadEntry_t *PspModuleList, const char *ModuleName);
-const char *CFE_Config_FindStaticModName(CFE_ConfigName_t *ModuleListSet[], size_t SetLength, const char *ModuleName);
-
-void CFE_Config_SetupModuleVersions(CFE_ConfigName_t *ModuleListSet[], size_t SetLength,
-                                    CFE_ConfigKeyValue_t *ActiveList);
-void CFE_Config_SetupBasicBuildInfo(void);
-
-/**
- * @brief Gets the value record associated with a config ID
- */
-CFE_Config_ValueEntry_t *CFE_Config_LocateConfigRecordByID(CFE_ConfigId_t ConfigId);
 
 #endif /* CFE_CONFIG_PRIV_H */
