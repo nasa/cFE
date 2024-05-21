@@ -1,5 +1,10 @@
 # Changelog
 
+## Development Build: equuleus-rc1+dev137
+- msg api test buffer overrun
+- send CMake message to stdout instead of stderr
+- See <https://github.com/nasa/cFE/pull/2537> and <https://github.com/nasa/cFE/pull/2525>
+
 ## Development Build: equuleus-rc1+dev131
 - add handle list operation routines
 - See <https://github.com/nasa/cFE/pull/2548>
