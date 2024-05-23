@@ -38,7 +38,7 @@
 /*
 ** Global variables
 */
-uint8 UT_Endianess;
+uint8 UT_Endianness;
 
 static char           UT_appname[80];
 static char           UT_subsys[5];
@@ -110,11 +110,11 @@ void UT_Init(const char *subsys)
 
     if ((*(char *)&EndianCheck) == 0x04)
     {
-        UT_Endianess = UT_LITTLE_ENDIAN;
+        UT_Endianness = UT_LITTLE_ENDIAN;
     }
     else
     {
-        UT_Endianess = UT_BIG_ENDIAN;
+        UT_Endianness = UT_BIG_ENDIAN;
     }
 }
 

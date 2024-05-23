@@ -4237,7 +4237,7 @@ void TestAPI(void)
     AppId = CFE_ES_AppRecordGetID(UtAppRecPtr);
     CFE_UtAssert_SUCCESS(CFE_ES_GetAppName(AppName, AppId, sizeof(AppName)));
 
-    /* Bad arguement calls */
+    /* Bad argument calls */
     UtAssert_INT32_EQ(CFE_ES_GetAppName(NULL, AppId, sizeof(AppName)), CFE_ES_BAD_ARGUMENT);
     UtAssert_INT32_EQ(CFE_ES_GetAppName(AppName, AppId, 0), CFE_ES_BAD_ARGUMENT);
 

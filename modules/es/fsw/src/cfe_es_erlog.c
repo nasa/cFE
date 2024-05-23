@@ -295,7 +295,7 @@ bool CFE_ES_RunExceptionScan(uint32 ElapsedTime, void *Arg)
     if (PspStatus != CFE_PSP_SUCCESS)
     {
         /* reason string is not available - populate with something for the PspStatus*/
-        snprintf(ReasonString, sizeof(ReasonString), "Unknown - CFE_PSP_ExceptionGetSummary() error %ld",
+        snprintf(ReasonString, sizeof(ReasonString), "Unknown - CFE_PSP_Exception_GetSummary() error %ld",
                  (long)PspStatus);
         PspContextId    = 0;
         ExceptionTaskID = OS_OBJECT_ID_UNDEFINED;
