@@ -238,7 +238,7 @@
 **       Defines the ram disk sector size. The ram disk is 1 of 4 memory areas that
 **       are preserved on a processor reset.
 **       NOTE: Changing this value changes memory allocation, and may
-**       require changes to platform specific values (in CFE_PSP) such as
+**       require changes to platform-specific values (in CFE_PSP) such as
 **       USER_RESERVED_MEM in VxWorks depending on the memory areas
 **       being used for preserved data and on OS specific behavior.
 **
@@ -256,7 +256,7 @@
 **       Defines the ram disk number of sectors. The ram disk is one of four memory
 **       areas that are preserved on a processor reset.
 **       NOTE: Changing this value changes memory allocation, and may
-**       require changes to platform specific values (in CFE_PSP) such as
+**       require changes to platform-specific values (in CFE_PSP) such as
 **       USER_RESERVED_MEM in VxWorks depending on the memory areas
 **       being used for preserved data and on OS specific behavior.
 **
@@ -298,7 +298,7 @@
 **       Defines the Critical Data Store (CDS) area size in bytes size. The CDS is
 **       one of four memory areas that are preserved during a processor reset.
 **       NOTE: Changing this value changes memory allocation, and may
-**       require changes to platform specific values (in CFE_PSP) such as
+**       require changes to platform-specific values (in CFE_PSP) such as
 **       USER_RESERVED_MEM in VxWorks depending on the memory areas
 **       being used for preserved data and on OS specific behavior.
 **
@@ -318,7 +318,7 @@
 **       #CFE_PSP_GetUserReservedArea. The User Reserved Memory is one of four memory
 **       areas that are preserved during a processor reset.
 **       NOTE: Changing this value changes memory allocation, and may
-**       require changes to platform specific values (in CFE_PSP) such as
+**       require changes to platform-specific values (in CFE_PSP) such as
 **       USER_RESERVED_MEM in VxWorks depending on the memory areas
 **       being used for preserved data and on OS specific behavior.
 **

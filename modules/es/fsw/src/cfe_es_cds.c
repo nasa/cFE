@@ -80,7 +80,7 @@ int32 CFE_ES_CDS_EarlyInit(void)
         return CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
     }
 
-    /* Always truncate the size to the nearest 4 byte boundary */
+    /* Always truncate the size to the nearest 4-byte boundary */
     CDS->TotalSize = PlatformSize & 0xfffffffc;
 
     /* Compute the minimum size required for the CDS with the current configuration of the cFE */

@@ -44,7 +44,7 @@
              cFE following a Processor Reset.
      <TR>
         <TD> \anchor cfeadg_crc Cyclic Redundancy Check
-        <TD> A polynomial based method for checking that a data set
+        <TD> A polynomial-based method for checking that a data set
              has remained unchanged from one time period to another.
      <TR>
         <TD> \anchor cfeadg_developer Developer

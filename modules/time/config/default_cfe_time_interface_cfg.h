@@ -37,7 +37,7 @@
 **
 **  \par Description:
 **      The following definitions select either UTC or TAI as the default
-**      (mission specific) time format.  Although it is possible for an
+**      (mission-specific) time format.  Although it is possible for an
 **      application to request time in a specific format, most callers
 **      should use CFE_TIME_GetTime(), which returns time in the default
 **      format.  This avoids having to modify each individual caller

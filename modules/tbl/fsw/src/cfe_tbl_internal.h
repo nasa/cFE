@@ -86,14 +86,14 @@ int16 CFE_TBL_FindTableInRegistry(const char *TblName);
 **
 ** \par Description
 **        Takes a given raw table name and combines it with the calling
-**        Application's name to make the application specific name of the
+**        Application's name to make the application-specific name of the
 **        form: "AppName.RawTableName"
 **
 ** \par Assumptions, External Events, and Notes:
 **        AppName portion will be truncated to OS_MAX_API_NAME.
 **
 ** \param[in, out] FullTblName  Pointer to character buffer of #CFE_TBL_MAX_FULL_NAME_LEN
-**                              size that will be filled with the application specific name
+**                              size that will be filled with the application-specific name
 **                              of the form "AppName.RawTableName"
 ** \param[in] TblName           Pointer to character string containing the raw table name.
 ** \param[in] ThisAppId         Application ID of the Application making the call.
