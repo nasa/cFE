@@ -61,7 +61,7 @@ void CFE_EVS_ProcessCommandPacket(const CFE_SB_Buffer_t *SBBufPtr)
         default:
             /* Unknown command -- should never occur */
             CFE_EVS_Global.EVS_TlmPkt.Payload.CommandErrorCounter++;
-            EVS_SendEvent(CFE_EVS_ERR_MSGID_EID, CFE_EVS_EventType_ERROR, "Invalid command packet, Message ID = 0x%08X",
+            EVS_SendEvent(CFE_EVS_MID_ERR_EID, CFE_EVS_EventType_ERROR, "Invalid command packet, Message ID = 0x%08X",
                           (unsigned int)CFE_SB_MsgIdToValue(MessageID));
             break;
     }
@@ -257,7 +257,7 @@ void CFE_EVS_ProcessGroundCommand(const CFE_SB_Buffer_t *SBBufPtr, CFE_SB_MsgId_
         /* default is a bad command code as it was not found above */
         default:
 
-            EVS_SendEvent(CFE_EVS_ERR_CC_EID, CFE_EVS_EventType_ERROR, "Invalid command code -- ID = 0x%08x, CC = %u",
+            EVS_SendEvent(CFE_EVS_CC_ERR_EID, CFE_EVS_EventType_ERROR, "Invalid command code -- ID = 0x%08x, CC = %u",
                           (unsigned int)CFE_SB_MsgIdToValue(MsgId), (unsigned int)FcnCode);
             Status = CFE_STATUS_BAD_COMMAND_CODE;
 
@@ -299,7 +299,7 @@ bool CFE_EVS_VerifyCmdLength(const CFE_MSG_Message_t *MsgPtr, size_t ExpectedLen
         CFE_MSG_GetMsgId(MsgPtr, &MsgId);
         CFE_MSG_GetFcnCode(MsgPtr, &FcnCode);
 
-        EVS_SendEvent(CFE_EVS_LEN_ERR_EID, CFE_EVS_EventType_ERROR,
+        EVS_SendEvent(CFE_EVS_CMD_LEN_ERR_EID, CFE_EVS_EventType_ERROR,
                       "Invalid msg length: ID = 0x%X,  CC = %u, Len = %u, Expected = %u",
                       (unsigned int)CFE_SB_MsgIdToValue(MsgId), (unsigned int)FcnCode, (unsigned int)ActualLength,
                       (unsigned int)ExpectedLength);
