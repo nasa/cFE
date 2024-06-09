@@ -165,8 +165,8 @@ CFE_Status_t CFE_TBL_Register(CFE_TBL_Handle_t *TblHandlePtr, const char *Name, 
                 }
                 else if (Status != CFE_TBL_INFO_RECOVERED_TBL)
                 {
-                    CFE_ES_WriteToSysLog("%s: Failed to register '%s.%s' as a CDS (ErrCode=0x%08X)\n", __func__,
-                                         AppName, Name, (unsigned int)Status);
+                    CFE_ES_WriteToSysLog("%s: Failed to register Table '%s' as a CDS (ErrCode=0x%08X)\n", __func__,
+                                         TblName, (unsigned int)Status);
 
                     /* Notify caller that although they asked for it to be critical, it isn't */
                     Status = CFE_TBL_WARN_NOT_CRITICAL;
