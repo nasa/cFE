@@ -344,7 +344,7 @@ int32 CFE_TBL_GetWorkingBuffer(CFE_TBL_LoadBuff_t **WorkingBufferPtr, CFE_TBL_Re
     {
         if (RegRecPtr->DoubleBuffered)
         {
-            *WorkingBufferPtr = &RegRecPtr->Buffers[(1U - RegRecPtr->ActiveBufferIndex)];
+            *WorkingBufferPtr = &RegRecPtr->Buffers[(RegRecPtr->ActiveBufferIndex ^ 1)];
         }
         else
         {

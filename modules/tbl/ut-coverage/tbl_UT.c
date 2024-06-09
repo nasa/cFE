@@ -726,7 +726,7 @@ void Test_CFE_TBL_ValidateCmd(void)
     UT_InitData();
     ValidateCmd.Payload.ActiveTableFlag       = CFE_TBL_BufferSelect_INACTIVE;
     CFE_TBL_Global.Registry[0].DoubleBuffered = true;
-    CFE_TBL_Global.Registry[0].Buffers[1 - CFE_TBL_Global.Registry[0].ActiveBufferIndex].BufferPtr = BuffPtr;
+    CFE_TBL_Global.Registry[0].Buffers[CFE_TBL_Global.Registry[0].ActiveBufferIndex ^ 1].BufferPtr = BuffPtr;
     CFE_TBL_Global.ValidationResults[0].State    = CFE_TBL_VALIDATION_FREE;
     CFE_TBL_Global.Registry[0].ValidationFuncPtr = ValFuncPtr;
     UtAssert_INT32_EQ(CFE_TBL_ValidateCmd(&ValidateCmd), CFE_TBL_INC_CMD_CTR);
@@ -1111,7 +1111,7 @@ void Test_CFE_TBL_DumpCmd(void)
     UT_InitData();
     DumpCmd.Payload.ActiveTableFlag           = CFE_TBL_BufferSelect_INACTIVE;
     CFE_TBL_Global.Registry[2].DoubleBuffered = true;
-    CFE_TBL_Global.Registry[2].Buffers[(1 - CFE_TBL_Global.Registry[2].ActiveBufferIndex)].BufferPtr = BuffPtr;
+    CFE_TBL_Global.Registry[2].Buffers[(CFE_TBL_Global.Registry[2].ActiveBufferIndex ^ 1)].BufferPtr = BuffPtr;
     CFE_TBL_Global.Registry[2].DumpControlIndex = CFE_TBL_NO_DUMP_PENDING + 1;
     UtAssert_INT32_EQ(CFE_TBL_DumpCmd(&DumpCmd), CFE_TBL_INC_ERR_CTR);
 
