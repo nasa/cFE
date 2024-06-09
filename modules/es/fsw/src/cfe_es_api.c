@@ -227,7 +227,27 @@ CFE_Status_t CFE_ES_ReloadApp(CFE_ES_AppId_t AppID, const char *AppFileName)
     os_fstat_t          FileStatus;
     CFE_ES_AppRecord_t *AppRecPtr = CFE_ES_LocateAppRecordByID(AppID);
 
-    if (AppRecPtr != NULL)
+    if (AppRecPtr == NULL)
+    {
+        if (AppFileName == NULL)
+        {
+            ReturnCode = CFE_ES_BAD_ARGUMENT;
+            CFE_ES_WriteToSysLog("%s: Application ID and AppFileName Parameters are NULL, , AppID = %lu\n", __func__,
+                                 CFE_RESOURCEID_TO_ULONG(AppID));
+        }
+        else
+        {
+            ReturnCode = CFE_ES_ERR_RESOURCEID_NOT_VALID;
+            CFE_ES_WriteToSysLog("%s: Invalid Application ID received, AppID = %lu\n", __func__,
+                                 CFE_RESOURCEID_TO_ULONG(AppID));
+        }
+    }
+    else if (AppFileName == NULL)
+    {
+        ReturnCode = CFE_ES_BAD_ARGUMENT;
+        CFE_ES_WriteToSysLog("%s: AppFileName Parameter is NULL\n", __func__);
+    }
+    else
     {
         CFE_ES_LockSharedData(__func__, __LINE__);
 
@@ -269,13 +289,6 @@ CFE_Status_t CFE_ES_ReloadApp(CFE_ES_AppId_t AppID, const char *AppFileName)
         }
 
         CFE_ES_UnlockSharedData(__func__, __LINE__);
-    }
-    else /* App ID is not valid */
-    {
-        ReturnCode = CFE_ES_ERR_RESOURCEID_NOT_VALID;
-
-        CFE_ES_WriteToSysLog("%s: Invalid Application ID received, AppID = %lu\n", __func__,
-                             CFE_RESOURCEID_TO_ULONG(AppID));
     }
 
     return ReturnCode;
