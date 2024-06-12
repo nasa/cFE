@@ -926,7 +926,7 @@ void Test_Print(void)
 /*
 ** Test function for use with register and unregister synch callback API tests
 */
-int32 ut_time_MyCallbackFunc(void)
+CFE_Status_t ut_time_MyCallbackFunc(void)
 {
     ut_time_CallbackCalled++;
     return CFE_SUCCESS;

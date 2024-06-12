@@ -210,7 +210,7 @@ void CFE_Config_SetupBasicBuildInfo(void)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_Config_Init(void)
+CFE_Status_t CFE_Config_Init(void)
 {
     /* Clear the table, just in case it was not already cleared from initial program loading */
     memset(&CFE_Config_Global, 0, sizeof(CFE_Config_Global));

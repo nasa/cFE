@@ -32,13 +32,13 @@ void UT_DefaultHandler_CFE_ES_RegisterCDSEx(void *, UT_EntryKey_t, const UT_Stub
  * Generated stub function for CFE_ES_CDS_EarlyInit()
  * ----------------------------------------------------
  */
-int32 CFE_ES_CDS_EarlyInit(void)
+CFE_Status_t CFE_ES_CDS_EarlyInit(void)
 {
-    UT_GenStub_SetupReturnBuffer(CFE_ES_CDS_EarlyInit, int32);
+    UT_GenStub_SetupReturnBuffer(CFE_ES_CDS_EarlyInit, CFE_Status_t);
 
     UT_GenStub_Execute(CFE_ES_CDS_EarlyInit, Basic, NULL);
 
-    return UT_GenStub_GetReturnValue(CFE_ES_CDS_EarlyInit, int32);
+    return UT_GenStub_GetReturnValue(CFE_ES_CDS_EarlyInit, CFE_Status_t);
 }
 
 /*
@@ -46,16 +46,16 @@ int32 CFE_ES_CDS_EarlyInit(void)
  * Generated stub function for CFE_ES_DeleteCDS()
  * ----------------------------------------------------
  */
-int32 CFE_ES_DeleteCDS(const char *CDSName, bool CalledByTblServices)
+CFE_Status_t CFE_ES_DeleteCDS(const char *CDSName, bool CalledByTblServices)
 {
-    UT_GenStub_SetupReturnBuffer(CFE_ES_DeleteCDS, int32);
+    UT_GenStub_SetupReturnBuffer(CFE_ES_DeleteCDS, CFE_Status_t);
 
     UT_GenStub_AddParam(CFE_ES_DeleteCDS, const char *, CDSName);
     UT_GenStub_AddParam(CFE_ES_DeleteCDS, bool, CalledByTblServices);
 
     UT_GenStub_Execute(CFE_ES_DeleteCDS, Basic, NULL);
 
-    return UT_GenStub_GetReturnValue(CFE_ES_DeleteCDS, int32);
+    return UT_GenStub_GetReturnValue(CFE_ES_DeleteCDS, CFE_Status_t);
 }
 
 /*
@@ -63,9 +63,10 @@ int32 CFE_ES_DeleteCDS(const char *CDSName, bool CalledByTblServices)
  * Generated stub function for CFE_ES_RegisterCDSEx()
  * ----------------------------------------------------
  */
-int32 CFE_ES_RegisterCDSEx(CFE_ES_CDSHandle_t *HandlePtr, size_t UserBlockSize, const char *Name, bool CriticalTbl)
+CFE_Status_t CFE_ES_RegisterCDSEx(CFE_ES_CDSHandle_t *HandlePtr, size_t UserBlockSize, const char *Name,
+                                  bool CriticalTbl)
 {
-    UT_GenStub_SetupReturnBuffer(CFE_ES_RegisterCDSEx, int32);
+    UT_GenStub_SetupReturnBuffer(CFE_ES_RegisterCDSEx, CFE_Status_t);
 
     UT_GenStub_AddParam(CFE_ES_RegisterCDSEx, CFE_ES_CDSHandle_t *, HandlePtr);
     UT_GenStub_AddParam(CFE_ES_RegisterCDSEx, size_t, UserBlockSize);
@@ -74,7 +75,7 @@ int32 CFE_ES_RegisterCDSEx(CFE_ES_CDSHandle_t *HandlePtr, size_t UserBlockSize, 
 
     UT_GenStub_Execute(CFE_ES_RegisterCDSEx, Basic, UT_DefaultHandler_CFE_ES_RegisterCDSEx);
 
-    return UT_GenStub_GetReturnValue(CFE_ES_RegisterCDSEx, int32);
+    return UT_GenStub_GetReturnValue(CFE_ES_RegisterCDSEx, CFE_Status_t);
 }
 
 /*

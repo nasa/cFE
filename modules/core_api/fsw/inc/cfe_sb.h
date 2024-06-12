@@ -669,8 +669,8 @@ void CFE_SB_TimeStampMsg(CFE_MSG_Message_t *MsgPtr);
 ** \retval #CFE_SB_BAD_ARGUMENT  \copybrief CFE_SB_BAD_ARGUMENT
 **
 */
-int32 CFE_SB_MessageStringSet(char *DestStringPtr, const char *SourceStringPtr, size_t DestMaxSize,
-                              size_t SourceMaxSize);
+CFE_Status_t CFE_SB_MessageStringSet(char *DestStringPtr, const char *SourceStringPtr, size_t DestMaxSize,
+                                     size_t SourceMaxSize);
 
 /*****************************************************************************/
 /**
@@ -749,8 +749,8 @@ size_t CFE_SB_GetUserDataLength(const CFE_MSG_Message_t *MsgPtr);
 ** \retval #CFE_SB_BAD_ARGUMENT  \copybrief CFE_SB_BAD_ARGUMENT
 **
 */
-int32 CFE_SB_MessageStringGet(char *DestStringPtr, const char *SourceStringPtr, const char *DefaultString,
-                              size_t DestMaxSize, size_t SourceMaxSize);
+CFE_Status_t CFE_SB_MessageStringGet(char *DestStringPtr, const char *SourceStringPtr, const char *DefaultString,
+                                     size_t DestMaxSize, size_t SourceMaxSize);
 /** @} */
 
 /** @defgroup CFEAPISBMessageID cFE Message ID APIs

@@ -57,7 +57,7 @@ typedef struct
  *-----------------------------------------------------------------*/
 void CFE_SB_TaskMain(void)
 {
-    int32            Status;
+    CFE_Status_t     Status;
     CFE_SB_Buffer_t *SBBufPtr;
 
     CFE_ES_PerfLogEntry(CFE_MISSION_SB_MAIN_PERF_ID);
@@ -115,11 +115,11 @@ void CFE_SB_TaskMain(void)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_SB_AppInit(void)
+CFE_Status_t CFE_SB_AppInit(void)
 {
     uint32              CfgFileEventsToFilter = 0;
     CFE_ES_MemPoolBuf_t TmpPtr;
-    int32               Status;
+    CFE_Status_t        Status;
     char                VersionString[CFE_CFG_MAX_VERSION_STR_LEN];
 
     /* Get the assigned Application ID for the SB Task */
@@ -287,7 +287,7 @@ int32 CFE_SB_AppInit(void)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_SB_NoopCmd(const CFE_SB_NoopCmd_t *data)
+CFE_Status_t CFE_SB_NoopCmd(const CFE_SB_NoopCmd_t *data)
 {
     char VersionString[CFE_CFG_MAX_VERSION_STR_LEN];
     CFE_Config_GetVersionString(VersionString, CFE_CFG_MAX_VERSION_STR_LEN, "cFE",
@@ -304,7 +304,7 @@ int32 CFE_SB_NoopCmd(const CFE_SB_NoopCmd_t *data)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_SB_ResetCountersCmd(const CFE_SB_ResetCountersCmd_t *data)
+CFE_Status_t CFE_SB_ResetCountersCmd(const CFE_SB_ResetCountersCmd_t *data)
 {
     CFE_EVS_SendEvent(CFE_SB_CMD1_RCVD_EID, CFE_EVS_EventType_DEBUG, "Reset Counters Cmd Rcvd");
 
@@ -319,7 +319,7 @@ int32 CFE_SB_ResetCountersCmd(const CFE_SB_ResetCountersCmd_t *data)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_SB_EnableSubReportingCmd(const CFE_SB_EnableSubReportingCmd_t *data)
+CFE_Status_t CFE_SB_EnableSubReportingCmd(const CFE_SB_EnableSubReportingCmd_t *data)
 {
     CFE_SB_SetSubscriptionReporting(CFE_SB_ENABLE);
     return CFE_SUCCESS;
@@ -331,7 +331,7 @@ int32 CFE_SB_EnableSubReportingCmd(const CFE_SB_EnableSubReportingCmd_t *data)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_SB_DisableSubReportingCmd(const CFE_SB_DisableSubReportingCmd_t *data)
+CFE_Status_t CFE_SB_DisableSubReportingCmd(const CFE_SB_DisableSubReportingCmd_t *data)
 {
     CFE_SB_SetSubscriptionReporting(CFE_SB_DISABLE);
     return CFE_SUCCESS;
@@ -343,7 +343,7 @@ int32 CFE_SB_DisableSubReportingCmd(const CFE_SB_DisableSubReportingCmd_t *data)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_SB_SendHKTlmCmd(const CFE_SB_SendHkCmd_t *data)
+CFE_Status_t CFE_SB_SendHKTlmCmd(const CFE_SB_SendHkCmd_t *data)
 {
     CFE_SB_LockSharedData(__FILE__, __LINE__);
 
@@ -386,7 +386,7 @@ void CFE_SB_ResetCounters(void)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_SB_EnableRouteCmd(const CFE_SB_EnableRouteCmd_t *data)
+CFE_Status_t CFE_SB_EnableRouteCmd(const CFE_SB_EnableRouteCmd_t *data)
 {
     CFE_SB_MsgId_t                   MsgId;
     CFE_SB_PipeD_t *                 PipeDscPtr;
@@ -453,7 +453,7 @@ int32 CFE_SB_EnableRouteCmd(const CFE_SB_EnableRouteCmd_t *data)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_SB_DisableRouteCmd(const CFE_SB_DisableRouteCmd_t *data)
+CFE_Status_t CFE_SB_DisableRouteCmd(const CFE_SB_DisableRouteCmd_t *data)
 {
     CFE_SB_MsgId_t                   MsgId;
     CFE_SB_PipeD_t *                 PipeDscPtr;
@@ -520,7 +520,7 @@ int32 CFE_SB_DisableRouteCmd(const CFE_SB_DisableRouteCmd_t *data)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_SB_SendStatsCmd(const CFE_SB_SendSbStatsCmd_t *data)
+CFE_Status_t CFE_SB_SendStatsCmd(const CFE_SB_SendSbStatsCmd_t *data)
 {
     uint32                   PipeDscCount;
     uint32                   PipeStatCount;
@@ -659,10 +659,10 @@ void CFE_SB_CollectRouteInfo(CFE_SBR_RouteId_t RouteId, void *ArgPtr)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_SB_SendSubscriptionReport(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId, CFE_SB_Qos_t Quality)
+CFE_Status_t CFE_SB_SendSubscriptionReport(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId, CFE_SB_Qos_t Quality)
 {
     CFE_SB_SingleSubscriptionTlm_t SubRptMsg;
-    int32                          Status = CFE_SUCCESS;
+    CFE_Status_t                   Status = CFE_SUCCESS;
 
     memset(&SubRptMsg, 0, sizeof(SubRptMsg));
 
@@ -770,11 +770,11 @@ void CFE_SB_BackgroundFileEventHandler(void *Meta, CFE_FS_FileWriteEvent_t Event
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_SB_WriteRoutingInfoCmd(const CFE_SB_WriteRoutingInfoCmd_t *data)
+CFE_Status_t CFE_SB_WriteRoutingInfoCmd(const CFE_SB_WriteRoutingInfoCmd_t *data)
 {
     const CFE_SB_WriteFileInfoCmd_Payload_t *CmdPtr;
     CFE_SB_BackgroundFileStateInfo_t *       StatePtr;
-    int32                                    Status;
+    CFE_Status_t                             Status;
 
     StatePtr = &CFE_SB_Global.BackgroundFile;
     CmdPtr   = &data->Payload;
@@ -909,11 +909,11 @@ bool CFE_SB_WritePipeInfoDataGetter(void *Meta, uint32 RecordNum, void **Buffer,
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_SB_WritePipeInfoCmd(const CFE_SB_WritePipeInfoCmd_t *data)
+CFE_Status_t CFE_SB_WritePipeInfoCmd(const CFE_SB_WritePipeInfoCmd_t *data)
 {
     const CFE_SB_WriteFileInfoCmd_Payload_t *CmdPtr;
     CFE_SB_BackgroundFileStateInfo_t *       StatePtr;
-    int32                                    Status;
+    CFE_Status_t                             Status;
 
     StatePtr = &CFE_SB_Global.BackgroundFile;
     CmdPtr   = &data->Payload;
@@ -1033,11 +1033,11 @@ bool CFE_SB_WriteMsgMapInfoDataGetter(void *Meta, uint32 RecordNum, void **Buffe
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_SB_WriteMapInfoCmd(const CFE_SB_WriteMapInfoCmd_t *data)
+CFE_Status_t CFE_SB_WriteMapInfoCmd(const CFE_SB_WriteMapInfoCmd_t *data)
 {
     const CFE_SB_WriteFileInfoCmd_Payload_t *CmdPtr;
     CFE_SB_BackgroundFileStateInfo_t *       StatePtr;
-    int32                                    Status;
+    CFE_Status_t                             Status;
 
     StatePtr = &CFE_SB_Global.BackgroundFile;
     CmdPtr   = &data->Payload;
@@ -1098,7 +1098,7 @@ int32 CFE_SB_WriteMapInfoCmd(const CFE_SB_WriteMapInfoCmd_t *data)
 void CFE_SB_SendRouteSub(CFE_SBR_RouteId_t RouteId, void *ArgPtr)
 {
     CFE_SB_DestinationD_t *destptr;
-    int32                  status;
+    CFE_Status_t           status;
 
     destptr = CFE_SBR_GetDestListHeadPtr(RouteId);
 
@@ -1148,9 +1148,9 @@ void CFE_SB_SendRouteSub(CFE_SBR_RouteId_t RouteId, void *ArgPtr)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_SB_SendPrevSubsCmd(const CFE_SB_SendPrevSubsCmd_t *data)
+CFE_Status_t CFE_SB_SendPrevSubsCmd(const CFE_SB_SendPrevSubsCmd_t *data)
 {
-    int32 status;
+    CFE_Status_t status;
 
     /* Take semaphore to ensure data does not change during this function */
     CFE_SB_LockSharedData(__func__, __LINE__);

@@ -276,7 +276,7 @@ CFE_Status_t CFE_TBL_FindAccessDescriptorForSelf(CFE_TBL_TxnState_t *Txn)
  *-----------------------------------------------------------------*/
 CFE_Status_t CFE_TBL_TxnGetTableStatus(CFE_TBL_TxnState_t *Txn)
 {
-    int32                  Status;
+    CFE_Status_t           Status;
     CFE_TBL_RegistryRec_t *RegRecPtr = CFE_TBL_TxnRegRec(Txn);
 
     /* Perform validations prior to performing any updates */
@@ -309,7 +309,7 @@ CFE_Status_t CFE_TBL_TxnGetTableStatus(CFE_TBL_TxnState_t *Txn)
  *-----------------------------------------------------------------*/
 CFE_Status_t CFE_TBL_TxnRemoveAccessLink(CFE_TBL_TxnState_t *Txn)
 {
-    int32                       Status        = CFE_SUCCESS;
+    CFE_Status_t                Status        = CFE_SUCCESS;
     CFE_TBL_AccessDescriptor_t *AccessDescPtr = CFE_TBL_TxnAccDesc(Txn);
     CFE_TBL_RegistryRec_t *     RegRecPtr     = CFE_TBL_TxnRegRec(Txn);
 
@@ -376,7 +376,7 @@ CFE_Status_t CFE_TBL_TxnRemoveAccessLink(CFE_TBL_TxnState_t *Txn)
  *-----------------------------------------------------------------*/
 CFE_Status_t CFE_TBL_TxnGetTableAddress(CFE_TBL_TxnState_t *Txn, void **TblPtr)
 {
-    int32                       Status;
+    CFE_Status_t                Status;
     CFE_TBL_AccessDescriptor_t *AccessDescPtr = CFE_TBL_TxnAccDesc(Txn);
     CFE_TBL_RegistryRec_t *     RegRecPtr     = CFE_TBL_TxnRegRec(Txn);
     CFE_ES_AppId_t              ThisAppId;

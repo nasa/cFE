@@ -51,10 +51,10 @@ CFE_EVS_Global_t CFE_EVS_Global;
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_EVS_EarlyInit(void)
+CFE_Status_t CFE_EVS_EarlyInit(void)
 {
     int32               OsStatus;
-    int32               Status;
+    CFE_Status_t        Status;
     int32               PspStatus;
     uint32              resetAreaSize = 0;
     cpuaddr             resetAreaAddr;
@@ -166,9 +166,9 @@ int32 CFE_EVS_EarlyInit(void)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_EVS_CleanUpApp(CFE_ES_AppId_t AppID)
+CFE_Status_t CFE_EVS_CleanUpApp(CFE_ES_AppId_t AppID)
 {
-    int32          Status = CFE_SUCCESS;
+    CFE_Status_t   Status = CFE_SUCCESS;
     EVS_AppData_t *AppDataPtr;
 
     /* Query and verify the caller's AppID */
@@ -193,7 +193,7 @@ int32 CFE_EVS_CleanUpApp(CFE_ES_AppId_t AppID)
  *-----------------------------------------------------------------*/
 void CFE_EVS_TaskMain(void)
 {
-    int32            Status;
+    CFE_Status_t     Status;
     CFE_SB_Buffer_t *SBBufPtr;
 
     CFE_ES_PerfLogEntry(CFE_MISSION_EVS_MAIN_PERF_ID);
@@ -251,9 +251,9 @@ void CFE_EVS_TaskMain(void)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_EVS_TaskInit(void)
+CFE_Status_t CFE_EVS_TaskInit(void)
 {
-    int32          Status;
+    CFE_Status_t   Status;
     CFE_ES_AppId_t AppID;
     char           VersionString[CFE_CFG_MAX_VERSION_STR_LEN];
 
@@ -311,7 +311,7 @@ int32 CFE_EVS_TaskInit(void)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_EVS_NoopCmd(const CFE_EVS_NoopCmd_t *data)
+CFE_Status_t CFE_EVS_NoopCmd(const CFE_EVS_NoopCmd_t *data)
 {
     char VersionString[CFE_CFG_MAX_VERSION_STR_LEN];
     CFE_Config_GetVersionString(VersionString, CFE_CFG_MAX_VERSION_STR_LEN, "cFE", CFE_SRC_VERSION, CFE_BUILD_CODENAME,
@@ -326,7 +326,7 @@ int32 CFE_EVS_NoopCmd(const CFE_EVS_NoopCmd_t *data)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_EVS_ClearLogCmd(const CFE_EVS_ClearLogCmd_t *data)
+CFE_Status_t CFE_EVS_ClearLogCmd(const CFE_EVS_ClearLogCmd_t *data)
 {
     EVS_ClearLog();
     return CFE_SUCCESS;
@@ -338,10 +338,10 @@ int32 CFE_EVS_ClearLogCmd(const CFE_EVS_ClearLogCmd_t *data)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_EVS_SendHkCmd(const CFE_EVS_SendHkCmd_t *data)
+CFE_Status_t CFE_EVS_SendHkCmd(const CFE_EVS_SendHkCmd_t *data)
 {
     uint32                i, j;
-    EVS_AppData_t *       AppDataPtr;
+    EVS_AppData_t        *AppDataPtr;
     CFE_EVS_AppTlmData_t *AppTlmDataPtr;
 
     /* Copy hk variables that are maintained in the event log */
@@ -389,7 +389,7 @@ int32 CFE_EVS_SendHkCmd(const CFE_EVS_SendHkCmd_t *data)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_EVS_ResetCountersCmd(const CFE_EVS_ResetCountersCmd_t *data)
+CFE_Status_t CFE_EVS_ResetCountersCmd(const CFE_EVS_ResetCountersCmd_t *data)
 {
     /* Status of commands processed by EVS task */
     CFE_EVS_Global.EVS_TlmPkt.Payload.CommandCounter      = 0;
@@ -413,12 +413,12 @@ int32 CFE_EVS_ResetCountersCmd(const CFE_EVS_ResetCountersCmd_t *data)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_EVS_SetFilterCmd(const CFE_EVS_SetFilterCmd_t *data)
+CFE_Status_t CFE_EVS_SetFilterCmd(const CFE_EVS_SetFilterCmd_t *data)
 {
     const CFE_EVS_AppNameEventIDMaskCmd_Payload_t *CmdPtr = &data->Payload;
-    EVS_BinFilter_t *                              FilterPtr;
-    int32                                          Status;
-    EVS_AppData_t *                                AppDataPtr;
+    EVS_BinFilter_t                               *FilterPtr;
+    CFE_Status_t                                   Status;
+    EVS_AppData_t                                 *AppDataPtr;
     char                                           LocalName[OS_MAX_API_NAME];
 
     /* Copy appname from command, ensures NULL termination */
@@ -476,10 +476,10 @@ int32 CFE_EVS_SetFilterCmd(const CFE_EVS_SetFilterCmd_t *data)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_EVS_EnablePortsCmd(const CFE_EVS_EnablePortsCmd_t *data)
+CFE_Status_t CFE_EVS_EnablePortsCmd(const CFE_EVS_EnablePortsCmd_t *data)
 {
     const CFE_EVS_BitMaskCmd_Payload_t *CmdPtr = &data->Payload;
-    int32                               ReturnCode;
+    CFE_Status_t                        ReturnCode;
 
     /* Need to check for an out of range bitmask, since oue bit masks are only 4 bits */
     if (CmdPtr->BitMask == 0x0 || CmdPtr->BitMask > 0x0F)
@@ -508,10 +508,10 @@ int32 CFE_EVS_EnablePortsCmd(const CFE_EVS_EnablePortsCmd_t *data)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_EVS_DisablePortsCmd(const CFE_EVS_DisablePortsCmd_t *data)
+CFE_Status_t CFE_EVS_DisablePortsCmd(const CFE_EVS_DisablePortsCmd_t *data)
 {
     const CFE_EVS_BitMaskCmd_Payload_t *CmdPtr = &data->Payload;
-    int32                               ReturnCode;
+    CFE_Status_t                        ReturnCode;
 
     /* Need to check for an out of range bitmask, since oue bit masks are only 4 bits */
     if (CmdPtr->BitMask == 0x0 || CmdPtr->BitMask > 0x0F)
@@ -541,12 +541,12 @@ int32 CFE_EVS_DisablePortsCmd(const CFE_EVS_DisablePortsCmd_t *data)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_EVS_EnableEventTypeCmd(const CFE_EVS_EnableEventTypeCmd_t *data)
+CFE_Status_t CFE_EVS_EnableEventTypeCmd(const CFE_EVS_EnableEventTypeCmd_t *data)
 {
     uint32                              i;
     const CFE_EVS_BitMaskCmd_Payload_t *CmdPtr = &data->Payload;
-    int32                               ReturnCode;
-    EVS_AppData_t *                     AppDataPtr;
+    CFE_Status_t                        ReturnCode;
+    EVS_AppData_t                      *AppDataPtr;
 
     /* Need to check for an out of range bitmask, since our bit masks are only 4 bits */
     if (CmdPtr->BitMask == 0x0 || CmdPtr->BitMask > 0x0F)
@@ -585,12 +585,12 @@ int32 CFE_EVS_EnableEventTypeCmd(const CFE_EVS_EnableEventTypeCmd_t *data)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_EVS_DisableEventTypeCmd(const CFE_EVS_DisableEventTypeCmd_t *data)
+CFE_Status_t CFE_EVS_DisableEventTypeCmd(const CFE_EVS_DisableEventTypeCmd_t *data)
 {
     uint32                              i;
     const CFE_EVS_BitMaskCmd_Payload_t *CmdPtr = &data->Payload;
-    int32                               ReturnCode;
-    EVS_AppData_t *                     AppDataPtr;
+    CFE_Status_t                        ReturnCode;
+    EVS_AppData_t                      *AppDataPtr;
 
     /* Need to check for an out of range bitmask, since our bit masks are only 4 bits */
     if (CmdPtr->BitMask == 0x0 || CmdPtr->BitMask > 0x0F)
@@ -630,10 +630,10 @@ int32 CFE_EVS_DisableEventTypeCmd(const CFE_EVS_DisableEventTypeCmd_t *data)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_EVS_SetEventFormatModeCmd(const CFE_EVS_SetEventFormatModeCmd_t *data)
+CFE_Status_t CFE_EVS_SetEventFormatModeCmd(const CFE_EVS_SetEventFormatModeCmd_t *data)
 {
     const CFE_EVS_SetEventFormatMode_Payload_t *CmdPtr = &data->Payload;
-    int32                                       Status;
+    CFE_Status_t                                Status;
 
     if ((CmdPtr->MsgFormat == CFE_EVS_MsgFormat_SHORT) || (CmdPtr->MsgFormat == CFE_EVS_MsgFormat_LONG))
     {
@@ -660,11 +660,11 @@ int32 CFE_EVS_SetEventFormatModeCmd(const CFE_EVS_SetEventFormatModeCmd_t *data)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_EVS_EnableAppEventTypeCmd(const CFE_EVS_EnableAppEventTypeCmd_t *data)
+CFE_Status_t CFE_EVS_EnableAppEventTypeCmd(const CFE_EVS_EnableAppEventTypeCmd_t *data)
 {
     const CFE_EVS_AppNameBitMaskCmd_Payload_t *CmdPtr = &data->Payload;
-    EVS_AppData_t *                            AppDataPtr;
-    int32                                      Status;
+    EVS_AppData_t                             *AppDataPtr;
+    CFE_Status_t                               Status;
     char                                       LocalName[OS_MAX_API_NAME];
 
     /* Copy appname from command, ensures NULL termination */
@@ -722,11 +722,11 @@ int32 CFE_EVS_EnableAppEventTypeCmd(const CFE_EVS_EnableAppEventTypeCmd_t *data)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_EVS_DisableAppEventTypeCmd(const CFE_EVS_DisableAppEventTypeCmd_t *data)
+CFE_Status_t CFE_EVS_DisableAppEventTypeCmd(const CFE_EVS_DisableAppEventTypeCmd_t *data)
 {
-    EVS_AppData_t *                            AppDataPtr;
+    EVS_AppData_t                             *AppDataPtr;
     const CFE_EVS_AppNameBitMaskCmd_Payload_t *CmdPtr = &data->Payload;
-    int32                                      Status;
+    CFE_Status_t                               Status;
     char                                       LocalName[OS_MAX_API_NAME];
 
     /* Copy appname from command, ensures NULL termination */
@@ -784,11 +784,11 @@ int32 CFE_EVS_DisableAppEventTypeCmd(const CFE_EVS_DisableAppEventTypeCmd_t *dat
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_EVS_EnableAppEventsCmd(const CFE_EVS_EnableAppEventsCmd_t *data)
+CFE_Status_t CFE_EVS_EnableAppEventsCmd(const CFE_EVS_EnableAppEventsCmd_t *data)
 {
-    EVS_AppData_t *                     AppDataPtr;
+    EVS_AppData_t                      *AppDataPtr;
     const CFE_EVS_AppNameCmd_Payload_t *CmdPtr = &data->Payload;
-    int32                               Status;
+    CFE_Status_t                        Status;
     char                                LocalName[OS_MAX_API_NAME];
 
     /* Copy appname from command, ensures NULL termination */
@@ -831,11 +831,11 @@ int32 CFE_EVS_EnableAppEventsCmd(const CFE_EVS_EnableAppEventsCmd_t *data)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_EVS_DisableAppEventsCmd(const CFE_EVS_DisableAppEventsCmd_t *data)
+CFE_Status_t CFE_EVS_DisableAppEventsCmd(const CFE_EVS_DisableAppEventsCmd_t *data)
 {
-    EVS_AppData_t *                     AppDataPtr;
+    EVS_AppData_t                      *AppDataPtr;
     const CFE_EVS_AppNameCmd_Payload_t *CmdPtr = &data->Payload;
-    int32                               Status;
+    CFE_Status_t                        Status;
     char                                LocalName[OS_MAX_API_NAME];
 
     /* Copy appname from command, ensures NULL termination */
@@ -878,11 +878,11 @@ int32 CFE_EVS_DisableAppEventsCmd(const CFE_EVS_DisableAppEventsCmd_t *data)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_EVS_ResetAppCounterCmd(const CFE_EVS_ResetAppCounterCmd_t *data)
+CFE_Status_t CFE_EVS_ResetAppCounterCmd(const CFE_EVS_ResetAppCounterCmd_t *data)
 {
-    EVS_AppData_t *                     AppDataPtr;
+    EVS_AppData_t                      *AppDataPtr;
     const CFE_EVS_AppNameCmd_Payload_t *CmdPtr = &data->Payload;
-    int32                               Status;
+    CFE_Status_t                        Status;
     char                                LocalName[OS_MAX_API_NAME];
 
     /* Copy appname from command, ensures NULL termination */
@@ -926,12 +926,12 @@ int32 CFE_EVS_ResetAppCounterCmd(const CFE_EVS_ResetAppCounterCmd_t *data)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_EVS_ResetFilterCmd(const CFE_EVS_ResetFilterCmd_t *data)
+CFE_Status_t CFE_EVS_ResetFilterCmd(const CFE_EVS_ResetFilterCmd_t *data)
 {
     const CFE_EVS_AppNameEventIDCmd_Payload_t *CmdPtr = &data->Payload;
-    EVS_BinFilter_t *                          FilterPtr;
-    int32                                      Status;
-    EVS_AppData_t *                            AppDataPtr;
+    EVS_BinFilter_t                           *FilterPtr;
+    CFE_Status_t                               Status;
+    EVS_AppData_t                             *AppDataPtr;
     char                                       LocalName[OS_MAX_API_NAME];
 
     /* Copy appname from command, ensures NULL termination */
@@ -988,11 +988,11 @@ int32 CFE_EVS_ResetFilterCmd(const CFE_EVS_ResetFilterCmd_t *data)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_EVS_ResetAllFiltersCmd(const CFE_EVS_ResetAllFiltersCmd_t *data)
+CFE_Status_t CFE_EVS_ResetAllFiltersCmd(const CFE_EVS_ResetAllFiltersCmd_t *data)
 {
-    EVS_AppData_t *                     AppDataPtr;
+    EVS_AppData_t                      *AppDataPtr;
     const CFE_EVS_AppNameCmd_Payload_t *CmdPtr = &data->Payload;
-    int32                               Status;
+    CFE_Status_t                        Status;
     uint32                              i;
     char                                LocalName[OS_MAX_API_NAME];
 
@@ -1039,12 +1039,12 @@ int32 CFE_EVS_ResetAllFiltersCmd(const CFE_EVS_ResetAllFiltersCmd_t *data)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_EVS_AddEventFilterCmd(const CFE_EVS_AddEventFilterCmd_t *data)
+CFE_Status_t CFE_EVS_AddEventFilterCmd(const CFE_EVS_AddEventFilterCmd_t *data)
 {
     const CFE_EVS_AppNameEventIDMaskCmd_Payload_t *CmdPtr = &data->Payload;
-    EVS_BinFilter_t *                              FilterPtr;
-    int32                                          Status;
-    EVS_AppData_t *                                AppDataPtr;
+    EVS_BinFilter_t                               *FilterPtr;
+    CFE_Status_t                                   Status;
+    EVS_AppData_t                                 *AppDataPtr;
     char                                           LocalName[OS_MAX_API_NAME];
 
     /* Copy appname from command, ensures NULL termination */
@@ -1121,12 +1121,12 @@ int32 CFE_EVS_AddEventFilterCmd(const CFE_EVS_AddEventFilterCmd_t *data)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_EVS_DeleteEventFilterCmd(const CFE_EVS_DeleteEventFilterCmd_t *data)
+CFE_Status_t CFE_EVS_DeleteEventFilterCmd(const CFE_EVS_DeleteEventFilterCmd_t *data)
 {
     const CFE_EVS_AppNameEventIDCmd_Payload_t *CmdPtr = &data->Payload;
-    EVS_BinFilter_t *                          FilterPtr;
-    int32                                      Status;
-    EVS_AppData_t *                            AppDataPtr;
+    EVS_BinFilter_t                           *FilterPtr;
+    CFE_Status_t                               Status;
+    EVS_AppData_t                             *AppDataPtr;
     char                                       LocalName[OS_MAX_API_NAME];
 
     /* Copy appname from command, ensures NULL termination */
@@ -1185,9 +1185,9 @@ int32 CFE_EVS_DeleteEventFilterCmd(const CFE_EVS_DeleteEventFilterCmd_t *data)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_EVS_WriteAppDataFileCmd(const CFE_EVS_WriteAppDataFileCmd_t *data)
+CFE_Status_t CFE_EVS_WriteAppDataFileCmd(const CFE_EVS_WriteAppDataFileCmd_t *data)
 {
-    int32                               Result;
+    CFE_Status_t                        Result;
     osal_id_t                           FileHandle = OS_OBJECT_ID_UNDEFINED;
     int32                               OsStatus;
     int32                               BytesWritten;
@@ -1195,7 +1195,7 @@ int32 CFE_EVS_WriteAppDataFileCmd(const CFE_EVS_WriteAppDataFileCmd_t *data)
     uint32                              i;
     static CFE_EVS_AppDataFile_t        AppDataFile;
     CFE_FS_Header_t                     FileHdr;
-    EVS_AppData_t *                     AppDataPtr;
+    EVS_AppData_t                      *AppDataPtr;
     const CFE_EVS_AppDataCmd_Payload_t *CmdPtr = &data->Payload;
     char                                LocalName[OS_MAX_PATH_LEN];
 

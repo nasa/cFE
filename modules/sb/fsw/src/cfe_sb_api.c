@@ -98,7 +98,7 @@ CFE_Status_t CFE_SB_CreatePipe(CFE_SB_PipeId_t *PipeIdPtr, uint16 Depth, const c
     CFE_ES_TaskId_t  TskId;
     osal_id_t        SysQueueId;
     int32            OsStatus;
-    int32            Status;
+    CFE_Status_t     Status;
     CFE_SB_PipeD_t * PipeDscPtr;
     CFE_ResourceId_t PendingPipeId = CFE_RESOURCEID_UNDEFINED;
     uint16           PendingEventId;
@@ -281,7 +281,7 @@ CFE_Status_t CFE_SB_CreatePipe(CFE_SB_PipeId_t *PipeIdPtr, uint16 Depth, const c
 CFE_Status_t CFE_SB_DeletePipe(CFE_SB_PipeId_t PipeId)
 {
     CFE_ES_AppId_t CallerId;
-    int32          Status = 0;
+    CFE_Status_t   Status = 0;
 
     /* get the callers Application Id */
     CFE_ES_GetAppID(&CallerId);
@@ -297,9 +297,9 @@ CFE_Status_t CFE_SB_DeletePipe(CFE_SB_PipeId_t PipeId)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_SB_DeletePipeWithAppId(CFE_SB_PipeId_t PipeId, CFE_ES_AppId_t AppId)
+CFE_Status_t CFE_SB_DeletePipeWithAppId(CFE_SB_PipeId_t PipeId, CFE_ES_AppId_t AppId)
 {
-    int32 Status = 0;
+    CFE_Status_t Status = 0;
 
     Status = CFE_SB_DeletePipeFull(PipeId, AppId);
 
@@ -334,10 +334,10 @@ void CFE_SB_RemovePipeFromRoute(CFE_SBR_RouteId_t RouteId, void *ArgPtr)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_SB_DeletePipeFull(CFE_SB_PipeId_t PipeId, CFE_ES_AppId_t AppId)
+CFE_Status_t CFE_SB_DeletePipeFull(CFE_SB_PipeId_t PipeId, CFE_ES_AppId_t AppId)
 {
     CFE_SB_PipeD_t *            PipeDscPtr;
-    int32                       Status;
+    CFE_Status_t                Status;
     CFE_ES_TaskId_t             TskId;
     CFE_SB_BufferD_t *          BufDscPtr;
     osal_id_t                   SysQueueId;
@@ -487,7 +487,7 @@ CFE_Status_t CFE_SB_SetPipeOpts(CFE_SB_PipeId_t PipeId, uint8 Opts)
     CFE_ES_AppId_t  AppID;
     CFE_ES_TaskId_t TskId;
     uint16          PendingEventID;
-    int32           Status;
+    CFE_Status_t    Status;
     char            FullName[(OS_MAX_API_NAME * 2)];
 
     PendingEventID = 0;
@@ -570,7 +570,7 @@ CFE_Status_t CFE_SB_SetPipeOpts(CFE_SB_PipeId_t PipeId, uint8 Opts)
  *-----------------------------------------------------------------*/
 CFE_Status_t CFE_SB_GetPipeOpts(CFE_SB_PipeId_t PipeId, uint8 *OptsPtr)
 {
-    int32           Status;
+    CFE_Status_t    Status;
     CFE_ES_TaskId_t TskId;
     char            FullName[(OS_MAX_API_NAME * 2)];
     uint16          PendingEventID;
@@ -646,7 +646,7 @@ CFE_Status_t CFE_SB_GetPipeOpts(CFE_SB_PipeId_t PipeId, uint8 *OptsPtr)
 CFE_Status_t CFE_SB_GetPipeName(char *PipeNameBuf, size_t PipeNameSize, CFE_SB_PipeId_t PipeId)
 {
     int32           OsStatus;
-    int32           Status;
+    CFE_Status_t    Status;
     CFE_ES_TaskId_t TskId;
     char            FullName[(OS_MAX_API_NAME * 2)];
     uint16          PendingEventID;
@@ -739,7 +739,7 @@ CFE_Status_t CFE_SB_GetPipeName(char *PipeNameBuf, size_t PipeNameSize, CFE_SB_P
 CFE_Status_t CFE_SB_GetPipeIdByName(CFE_SB_PipeId_t *PipeIdPtr, const char *PipeName)
 {
     int32           OsStatus;
-    int32           Status;
+    CFE_Status_t    Status;
     CFE_ES_TaskId_t TskId;
     uint32          Idx;
     char            FullName[(OS_MAX_API_NAME * 2)];
@@ -874,12 +874,12 @@ CFE_Status_t CFE_SB_Subscribe(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_SB_SubscribeFull(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId, CFE_SB_Qos_t Quality, uint16 MsgLim,
-                           uint8 Scope)
+CFE_Status_t CFE_SB_SubscribeFull(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId, CFE_SB_Qos_t Quality, uint16 MsgLim,
+                                  uint8 Scope)
 {
     CFE_SBR_RouteId_t      RouteId;
     CFE_SB_PipeD_t *       PipeDscPtr;
-    int32                  Status;
+    CFE_Status_t           Status;
     CFE_ES_TaskId_t        TskId;
     CFE_ES_AppId_t         AppId;
     CFE_SB_DestinationD_t *DestPtr;
@@ -1116,7 +1116,7 @@ int32 CFE_SB_SubscribeFull(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId, CFE_SB_
 CFE_Status_t CFE_SB_Unsubscribe(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId)
 {
     CFE_ES_AppId_t CallerId;
-    int32          Status = 0;
+    CFE_Status_t   Status = 0;
 
     /* get the callers Application Id */
     CFE_ES_GetAppID(&CallerId);
@@ -1135,7 +1135,7 @@ CFE_Status_t CFE_SB_Unsubscribe(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId)
 CFE_Status_t CFE_SB_UnsubscribeLocal(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId)
 {
     CFE_ES_AppId_t CallerId;
-    int32          Status = 0;
+    CFE_Status_t   Status = 0;
 
     /* get the callers Application Id */
     CFE_ES_GetAppID(&CallerId);
@@ -1151,9 +1151,9 @@ CFE_Status_t CFE_SB_UnsubscribeLocal(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeI
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_SB_UnsubscribeWithAppId(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId, CFE_ES_AppId_t AppId)
+CFE_Status_t CFE_SB_UnsubscribeWithAppId(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId, CFE_ES_AppId_t AppId)
 {
-    int32 Status = 0;
+    CFE_Status_t Status = 0;
 
     Status = CFE_SB_UnsubscribeFull(MsgId, PipeId, (uint8)CFE_SB_MSG_LOCAL, AppId);
 
@@ -1166,9 +1166,9 @@ int32 CFE_SB_UnsubscribeWithAppId(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId, 
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_SB_UnsubscribeFull(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId, uint8 Scope, CFE_ES_AppId_t AppId)
+CFE_Status_t CFE_SB_UnsubscribeFull(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId, uint8 Scope, CFE_ES_AppId_t AppId)
 {
-    int32                  Status;
+    CFE_Status_t           Status;
     CFE_SBR_RouteId_t      RouteId;
     CFE_ES_TaskId_t        TskId;
     CFE_SB_DestinationD_t *DestPtr;
@@ -1290,7 +1290,7 @@ int32 CFE_SB_UnsubscribeFull(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId, uint8
  *-----------------------------------------------------------------*/
 CFE_Status_t CFE_SB_TransmitMsg(const CFE_MSG_Message_t *MsgPtr, bool IsOrigination)
 {
-    int32             Status;
+    CFE_Status_t      Status;
     CFE_MSG_Size_t    Size  = 0;
     CFE_SB_MsgId_t    MsgId = CFE_SB_INVALID_MSG_ID;
     CFE_ES_TaskId_t   TskId;
@@ -1393,13 +1393,13 @@ CFE_Status_t CFE_SB_TransmitMsg(const CFE_MSG_Message_t *MsgPtr, bool IsOriginat
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_SB_TransmitMsgValidate(const CFE_MSG_Message_t *MsgPtr, CFE_SB_MsgId_t *MsgIdPtr, CFE_MSG_Size_t *SizePtr,
-                                 CFE_SBR_RouteId_t *RouteIdPtr)
+CFE_Status_t CFE_SB_TransmitMsgValidate(const CFE_MSG_Message_t *MsgPtr, CFE_SB_MsgId_t *MsgIdPtr,
+                                        CFE_MSG_Size_t *SizePtr, CFE_SBR_RouteId_t *RouteIdPtr)
 {
     CFE_ES_TaskId_t TskId;
     char            FullName[(OS_MAX_API_NAME * 2)];
     uint16          PendingEventID;
-    int32           Status;
+    CFE_Status_t    Status;
 
     PendingEventID = 0;
     Status         = CFE_SUCCESS;
@@ -1748,7 +1748,7 @@ void CFE_SB_BroadcastBufferToRoute(CFE_SB_BufferD_t *BufDscPtr, CFE_SBR_RouteId_
  *-----------------------------------------------------------------*/
 CFE_Status_t CFE_SB_ReceiveBuffer(CFE_SB_Buffer_t **BufPtr, CFE_SB_PipeId_t PipeId, int32 TimeOut)
 {
-    int32                  Status;
+    CFE_Status_t           Status;
     int32                  OsStatus;
     CFE_SB_BufferD_t *     BufDscPtr;
     size_t                 BufDscSize;
@@ -2059,7 +2059,7 @@ CFE_SB_Buffer_t *CFE_SB_AllocateMessageBuffer(size_t MsgSize)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_SB_ZeroCopyBufferValidate(CFE_SB_Buffer_t *BufPtr, CFE_SB_BufferD_t **BufDscPtr)
+CFE_Status_t CFE_SB_ZeroCopyBufferValidate(CFE_SB_Buffer_t *BufPtr, CFE_SB_BufferD_t **BufDscPtr)
 {
     cpuaddr BufDscAddr;
 
@@ -2099,7 +2099,7 @@ int32 CFE_SB_ZeroCopyBufferValidate(CFE_SB_Buffer_t *BufPtr, CFE_SB_BufferD_t **
 CFE_Status_t CFE_SB_ReleaseMessageBuffer(CFE_SB_Buffer_t *BufPtr)
 {
     CFE_SB_BufferD_t *BufDscPtr;
-    int32             Status;
+    CFE_Status_t      Status;
 
     Status = CFE_SB_ZeroCopyBufferValidate(BufPtr, &BufDscPtr);
 
@@ -2125,7 +2125,7 @@ CFE_Status_t CFE_SB_ReleaseMessageBuffer(CFE_SB_Buffer_t *BufPtr)
  *-----------------------------------------------------------------*/
 CFE_Status_t CFE_SB_TransmitBuffer(CFE_SB_Buffer_t *BufPtr, bool IsOrigination)
 {
-    int32             Status;
+    CFE_Status_t      Status;
     CFE_SB_BufferD_t *BufDscPtr;
     CFE_SBR_RouteId_t RouteId;
 

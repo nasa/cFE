@@ -117,9 +117,9 @@ const char *CFE_FS_GetDefaultExtension(CFE_FS_FileCategory_t FileCategory)
  *-----------------------------------------------------------------*/
 CFE_Status_t CFE_FS_ReadHeader(CFE_FS_Header_t *Hdr, osal_id_t FileDes)
 {
-    int32 OsStatus;
-    int32 Result;
-    int32 EndianCheck = 0x01020304;
+    int32        OsStatus;
+    CFE_Status_t Result;
+    int32        EndianCheck = 0x01020304;
 
     if (Hdr == NULL)
     {
@@ -191,7 +191,7 @@ CFE_Status_t CFE_FS_WriteHeader(osal_id_t FileDes, CFE_FS_Header_t *Hdr)
 {
     CFE_TIME_SysTime_t Time;
     int32              OsStatus;
-    int32              Result;
+    CFE_Status_t       Result;
     int32              EndianCheck = 0x01020304;
     CFE_ES_AppId_t     AppID;
 
@@ -279,7 +279,7 @@ CFE_Status_t CFE_FS_WriteHeader(osal_id_t FileDes, CFE_FS_Header_t *Hdr)
 CFE_Status_t CFE_FS_SetTimestamp(osal_id_t FileDes, CFE_TIME_SysTime_t NewTimestamp)
 {
     int32              OsStatus;
-    int32              Result;
+    CFE_Status_t       Result;
     CFE_FS_Header_t    TempHdr;
     int32              EndianCheck  = 0x01020304;
     CFE_TIME_SysTime_t OutTimestamp = NewTimestamp;
@@ -366,18 +366,18 @@ void CFE_FS_ByteSwapUint32(uint32 *Uint32ToSwapPtr)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_FS_ParseInputFileNameEx(char *OutputBuffer, const char *InputBuffer, size_t OutputBufSize,
-                                  size_t InputBufSize, const char *DefaultInput, const char *DefaultPath,
-                                  const char *DefaultExtension)
+CFE_Status_t CFE_FS_ParseInputFileNameEx(char *OutputBuffer, const char *InputBuffer, size_t OutputBufSize,
+                                         size_t InputBufSize, const char *DefaultInput, const char *DefaultPath,
+                                         const char *DefaultExtension)
 {
-    int32       Status;
-    const char *InputPtr;
-    const char *ComponentPtr;
-    size_t      ComponentLen;
-    char        ComponentTerm;
-    size_t      OutputLen;
-    size_t      InputLen;
-    bool        LastPathReached;
+    CFE_Status_t Status;
+    const char  *InputPtr;
+    const char  *ComponentPtr;
+    size_t       ComponentLen;
+    char         ComponentTerm;
+    size_t       OutputLen;
+    size_t       InputLen;
+    bool         LastPathReached;
 
     /* The filename consists of a pathname, filename, and extension component. */
     enum
@@ -579,8 +579,8 @@ int32 CFE_FS_ParseInputFileNameEx(char *OutputBuffer, const char *InputBuffer, s
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_FS_ParseInputFileName(char *OutputBuffer, const char *InputName, size_t OutputBufSize,
-                                CFE_FS_FileCategory_t FileCategory)
+CFE_Status_t CFE_FS_ParseInputFileName(char *OutputBuffer, const char *InputName, size_t OutputBufSize,
+                                       CFE_FS_FileCategory_t FileCategory)
 {
     return CFE_FS_ParseInputFileNameEx(OutputBuffer, NULL, OutputBufSize, 0, InputName,
                                        CFE_FS_GetDefaultMountPoint(FileCategory),
@@ -595,10 +595,10 @@ int32 CFE_FS_ParseInputFileName(char *OutputBuffer, const char *InputName, size_
  *-----------------------------------------------------------------*/
 CFE_Status_t CFE_FS_ExtractFilenameFromPath(const char *OriginalPath, char *FileNameOnly)
 {
-    uint32 i, j;
-    int    StringLength;
-    int    DirMarkIdx;
-    int32  ReturnCode;
+    uint32       i, j;
+    int          StringLength;
+    int          DirMarkIdx;
+    CFE_Status_t ReturnCode;
 
     if (OriginalPath == NULL || FileNameOnly == NULL)
     {
@@ -672,13 +672,13 @@ CFE_Status_t CFE_FS_ExtractFilenameFromPath(const char *OriginalPath, char *File
  *-----------------------------------------------------------------*/
 bool CFE_FS_RunBackgroundFileDump(uint32 ElapsedTime, void *Arg)
 {
-    CFE_FS_CurrentFileState_t *       State;
+    CFE_FS_CurrentFileState_t        *State;
     CFE_FS_BackgroundFileDumpEntry_t *Curr;
-    CFE_FS_FileWriteMetaData_t *      Meta;
+    CFE_FS_FileWriteMetaData_t       *Meta;
     int32                             OsStatus;
-    int32                             Status;
+    CFE_Status_t                      Status;
     CFE_FS_Header_t                   FileHdr;
-    void *                            RecordPtr;
+    void                             *RecordPtr;
     size_t                            RecordSize;
     bool                              IsEOF;
 
@@ -828,10 +828,10 @@ bool CFE_FS_RunBackgroundFileDump(uint32 ElapsedTime, void *Arg)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_FS_BackgroundFileDumpRequest(CFE_FS_FileWriteMetaData_t *Meta)
+CFE_Status_t CFE_FS_BackgroundFileDumpRequest(CFE_FS_FileWriteMetaData_t *Meta)
 {
     CFE_FS_BackgroundFileDumpEntry_t *Curr;
-    int32                             Status;
+    CFE_Status_t                      Status;
     uint32                            PendingRequestCount;
 
     /* Pre-validate inputs */

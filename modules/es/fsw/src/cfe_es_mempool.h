@@ -94,7 +94,7 @@ typedef struct
  * @return Execution status, see @ref CFEReturnCodes
  * @retval #CFE_SUCCESS                 @copybrief CFE_SUCCESS
  */
-int32 CFE_ES_MemPoolID_ToIndex(CFE_ES_MemHandle_t PoolID, uint32 *Idx);
+CFE_Status_t CFE_ES_MemPoolID_ToIndex(CFE_ES_MemHandle_t PoolID, uint32 *Idx);
 
 /*---------------------------------------------------------------------------------------*/
 /**

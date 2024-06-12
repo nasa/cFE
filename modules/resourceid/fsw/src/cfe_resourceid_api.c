@@ -76,7 +76,7 @@ uint32 CFE_ResourceId_GetSerial(CFE_ResourceId_t ResourceId)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ResourceId_ToIndex(CFE_ResourceId_t Id, uint32 BaseValue, uint32 TableSize, uint32 *Idx)
+CFE_Status_t CFE_ResourceId_ToIndex(CFE_ResourceId_t Id, uint32 BaseValue, uint32 TableSize, uint32 *Idx)
 {
     uint32 Serial;
 

@@ -49,7 +49,7 @@ CFE_Status_t CFE_TBL_Register(CFE_TBL_Handle_t *TblHandlePtr, const char *Name, 
 {
     CFE_TBL_TxnState_t     Txn;
     CFE_TBL_RegistryRec_t *RegRecPtr     = NULL;
-    CFE_TBL_CritRegRec_t * CritRegRecPtr = NULL;
+    CFE_TBL_CritRegRec_t  *CritRegRecPtr = NULL;
     CFE_Status_t           Status;
     CFE_ES_AppId_t         ThisAppId;
     char                   AppName[OS_MAX_API_NAME]           = {"UNKNOWN"};
@@ -211,10 +211,10 @@ CFE_Status_t CFE_TBL_Register(CFE_TBL_Handle_t *TblHandlePtr, const char *Name, 
 CFE_Status_t CFE_TBL_Share(CFE_TBL_Handle_t *TblHandlePtr, const char *TblName)
 {
     CFE_TBL_TxnState_t          Txn;
-    int32                       Status;
+    CFE_Status_t                Status;
     CFE_ES_AppId_t              ThisAppId;
     CFE_TBL_AccessDescriptor_t *AccessDescPtr            = NULL;
-    CFE_TBL_RegistryRec_t *     RegRecPtr                = NULL;
+    CFE_TBL_RegistryRec_t      *RegRecPtr                = NULL;
     char                        AppName[OS_MAX_API_NAME] = {"UNKNOWN"};
 
     if (TblHandlePtr == NULL || TblName == NULL)
@@ -292,7 +292,7 @@ CFE_Status_t CFE_TBL_Share(CFE_TBL_Handle_t *TblHandlePtr, const char *TblName)
 CFE_Status_t CFE_TBL_Unregister(CFE_TBL_Handle_t TblHandle)
 {
     CFE_TBL_TxnState_t     Txn;
-    int32                  Status;
+    CFE_Status_t           Status;
     CFE_ES_AppId_t         ThisAppId;
     CFE_TBL_RegistryRec_t *RegRecPtr                = NULL;
     char                   AppName[OS_MAX_API_NAME] = {"UNKNOWN"};
@@ -356,11 +356,11 @@ CFE_Status_t CFE_TBL_Unregister(CFE_TBL_Handle_t TblHandle)
 CFE_Status_t CFE_TBL_Load(CFE_TBL_Handle_t TblHandle, CFE_TBL_SrcEnum_t SrcType, const void *SrcDataPtr)
 {
     CFE_TBL_TxnState_t          Txn;
-    int32                       Status;
+    CFE_Status_t                Status;
     CFE_ES_AppId_t              ThisAppId;
-    CFE_TBL_LoadBuff_t *        WorkingBufferPtr;
+    CFE_TBL_LoadBuff_t         *WorkingBufferPtr;
     CFE_TBL_AccessDescriptor_t *AccessDescPtr;
-    CFE_TBL_RegistryRec_t *     RegRecPtr;
+    CFE_TBL_RegistryRec_t      *RegRecPtr;
     char                        AppName[OS_MAX_API_NAME] = {"UNKNOWN"};
     bool                        FirstTime                = false;
 
@@ -596,9 +596,9 @@ CFE_Status_t CFE_TBL_Load(CFE_TBL_Handle_t TblHandle, CFE_TBL_SrcEnum_t SrcType,
 CFE_Status_t CFE_TBL_Update(CFE_TBL_Handle_t TblHandle)
 {
     CFE_TBL_TxnState_t          Txn;
-    int32                       Status;
+    CFE_Status_t                Status;
     CFE_ES_AppId_t              ThisAppId;
-    CFE_TBL_RegistryRec_t *     RegRecPtr                = NULL;
+    CFE_TBL_RegistryRec_t      *RegRecPtr                = NULL;
     CFE_TBL_AccessDescriptor_t *AccessDescPtr            = NULL;
     char                        AppName[OS_MAX_API_NAME] = {"UNKNOWN"};
 
@@ -672,7 +672,7 @@ CFE_Status_t CFE_TBL_Update(CFE_TBL_Handle_t TblHandle)
 CFE_Status_t CFE_TBL_GetAddress(void **TblPtr, CFE_TBL_Handle_t TblHandle)
 {
     CFE_TBL_TxnState_t Txn;
-    int32              Status;
+    CFE_Status_t       Status;
     CFE_ES_AppId_t     ThisAppId;
 
     if (TblPtr == NULL)
@@ -714,7 +714,7 @@ CFE_Status_t CFE_TBL_GetAddress(void **TblPtr, CFE_TBL_Handle_t TblHandle)
 CFE_Status_t CFE_TBL_ReleaseAddress(CFE_TBL_Handle_t TblHandle)
 {
     CFE_TBL_TxnState_t Txn;
-    int32              Status;
+    CFE_Status_t       Status;
     CFE_ES_AppId_t     ThisAppId;
 
     /* Verify that this application has the right to perform operation */
@@ -756,7 +756,7 @@ CFE_Status_t CFE_TBL_GetAddresses(void **TblPtrs[], uint16 NumTables, const CFE_
     CFE_TBL_TxnState_t Txn;
     CFE_Status_t       FinalStatus;
     uint16             i;
-    int32              Status;
+    CFE_Status_t       Status;
     CFE_ES_AppId_t     ThisAppId;
 
     if (TblPtrs == NULL || TblHandles == NULL)
@@ -840,7 +840,7 @@ CFE_Status_t CFE_TBL_ReleaseAddresses(uint16 NumTables, const CFE_TBL_Handle_t T
 CFE_Status_t CFE_TBL_Validate(CFE_TBL_Handle_t TblHandle)
 {
     CFE_TBL_TxnState_t     Txn;
-    int32                  Status;
+    CFE_Status_t           Status;
     CFE_ES_AppId_t         ThisAppId;
     CFE_TBL_RegistryRec_t *RegRecPtr;
     char                   AppName[OS_MAX_API_NAME] = {"UNKNOWN"};
@@ -988,8 +988,8 @@ CFE_Status_t CFE_TBL_Validate(CFE_TBL_Handle_t TblHandle)
  *-----------------------------------------------------------------*/
 CFE_Status_t CFE_TBL_Manage(CFE_TBL_Handle_t TblHandle)
 {
-    int32 Status           = CFE_SUCCESS;
-    bool  FinishedManaging = false;
+    CFE_Status_t Status           = CFE_SUCCESS;
+    bool         FinishedManaging = false;
 
     while (!FinishedManaging)
     {
@@ -1047,7 +1047,7 @@ CFE_Status_t CFE_TBL_Manage(CFE_TBL_Handle_t TblHandle)
 CFE_Status_t CFE_TBL_GetStatus(CFE_TBL_Handle_t TblHandle)
 {
     CFE_TBL_TxnState_t Txn;
-    int32              Status;
+    CFE_Status_t       Status;
     CFE_ES_AppId_t     ThisAppId;
 
     /* Verify that this application has the right to perform operation */
@@ -1079,7 +1079,7 @@ CFE_Status_t CFE_TBL_GetStatus(CFE_TBL_Handle_t TblHandle)
 CFE_Status_t CFE_TBL_GetInfo(CFE_TBL_Info_t *TblInfoPtr, const char *TblName)
 {
     CFE_TBL_TxnState_t     Txn;
-    int32                  Status               = CFE_SUCCESS;
+    CFE_Status_t           Status               = CFE_SUCCESS;
     int32                  NumAccessDescriptors = 0;
     CFE_TBL_RegistryRec_t *RegRecPtr;
 
@@ -1131,7 +1131,7 @@ CFE_Status_t CFE_TBL_GetInfo(CFE_TBL_Info_t *TblInfoPtr, const char *TblName)
 CFE_Status_t CFE_TBL_DumpToBuffer(CFE_TBL_Handle_t TblHandle)
 {
     CFE_TBL_TxnState_t     Txn;
-    int32                  Status;
+    CFE_Status_t           Status;
     CFE_TBL_RegistryRec_t *RegRecPtr   = NULL;
     CFE_TBL_DumpControl_t *DumpCtrlPtr = NULL;
     CFE_ES_AppId_t         ThisAppId;
@@ -1203,7 +1203,7 @@ static void CFE_TBL_NotifyOtherAppHelper(CFE_TBL_AccessDescriptor_t *AccessDescP
 CFE_Status_t CFE_TBL_Modified(CFE_TBL_Handle_t TblHandle)
 {
     CFE_TBL_TxnState_t     Txn;
-    int32                  Status;
+    CFE_Status_t           Status;
     CFE_TBL_RegistryRec_t *RegRecPtr = NULL;
     CFE_ES_AppId_t         ThisAppId;
     size_t                 FilenameLen;
@@ -1266,7 +1266,7 @@ CFE_Status_t CFE_TBL_NotifyByMessage(CFE_TBL_Handle_t TblHandle, CFE_SB_MsgId_t 
                                      uint32 Parameter)
 {
     CFE_TBL_TxnState_t     Txn;
-    int32                  Status;
+    CFE_Status_t           Status;
     CFE_TBL_RegistryRec_t *RegRecPtr = NULL;
     CFE_ES_AppId_t         ThisAppId;
 

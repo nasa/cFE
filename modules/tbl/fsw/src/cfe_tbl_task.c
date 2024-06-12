@@ -50,7 +50,7 @@ CFE_TBL_Global_t CFE_TBL_Global;
  *-----------------------------------------------------------------*/
 void CFE_TBL_TaskMain(void)
 {
-    int32            Status;
+    CFE_Status_t     Status;
     CFE_SB_Buffer_t *SBBufPtr;
 
     CFE_ES_PerfLogEntry(CFE_MISSION_TBL_MAIN_PERF_ID);
@@ -108,10 +108,10 @@ void CFE_TBL_TaskMain(void)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_TBL_TaskInit(void)
+CFE_Status_t CFE_TBL_TaskInit(void)
 {
-    int32 Status;
-    char  VersionString[CFE_CFG_MAX_VERSION_STR_LEN];
+    CFE_Status_t Status;
+    char         VersionString[CFE_CFG_MAX_VERSION_STR_LEN];
 
     /*
     ** Initialize global Table Services data
@@ -164,8 +164,8 @@ int32 CFE_TBL_TaskInit(void)
     /*
     ** Task startup event message
     */
-    CFE_Config_GetVersionString(VersionString, CFE_CFG_MAX_VERSION_STR_LEN, "cFE",
-        CFE_SRC_VERSION, CFE_BUILD_CODENAME, CFE_LAST_OFFICIAL);
+    CFE_Config_GetVersionString(VersionString, CFE_CFG_MAX_VERSION_STR_LEN, "cFE", CFE_SRC_VERSION, CFE_BUILD_CODENAME,
+                                CFE_LAST_OFFICIAL);
     Status = CFE_EVS_SendEvent(CFE_TBL_INIT_INF_EID, CFE_EVS_EventType_INFORMATION, "cFE TBL Initialized: %s",
                                VersionString);
 

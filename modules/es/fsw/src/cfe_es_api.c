@@ -64,7 +64,7 @@ int32 CFE_ES_GetResetType(uint32 *ResetSubtypePtr)
  *-----------------------------------------------------------------*/
 CFE_Status_t CFE_ES_ResetCFE(uint32 ResetType)
 {
-    int32 ReturnCode;
+    CFE_Status_t ReturnCode;
 
     if (ResetType == CFE_PSP_RST_TYPE_PROCESSOR)
     {
@@ -158,7 +158,7 @@ CFE_Status_t CFE_ES_ResetCFE(uint32 ResetType)
  *-----------------------------------------------------------------*/
 CFE_Status_t CFE_ES_RestartApp(CFE_ES_AppId_t AppID)
 {
-    int32               ReturnCode = CFE_SUCCESS;
+    CFE_Status_t        ReturnCode = CFE_SUCCESS;
     os_fstat_t          FileStatus;
     CFE_ES_AppRecord_t *AppRecPtr;
 
@@ -223,7 +223,7 @@ CFE_Status_t CFE_ES_RestartApp(CFE_ES_AppId_t AppID)
  *-----------------------------------------------------------------*/
 CFE_Status_t CFE_ES_ReloadApp(CFE_ES_AppId_t AppID, const char *AppFileName)
 {
-    int32               ReturnCode = CFE_SUCCESS;
+    CFE_Status_t        ReturnCode = CFE_SUCCESS;
     os_fstat_t          FileStatus;
     CFE_ES_AppRecord_t *AppRecPtr = CFE_ES_LocateAppRecordByID(AppID);
 
@@ -289,7 +289,7 @@ CFE_Status_t CFE_ES_ReloadApp(CFE_ES_AppId_t AppID, const char *AppFileName)
  *-----------------------------------------------------------------*/
 CFE_Status_t CFE_ES_DeleteApp(CFE_ES_AppId_t AppID)
 {
-    int32               ReturnCode = CFE_SUCCESS;
+    CFE_Status_t        ReturnCode = CFE_SUCCESS;
     CFE_ES_AppRecord_t *AppRecPtr  = CFE_ES_LocateAppRecordByID(AppID);
 
     if (AppRecPtr != NULL)
@@ -339,7 +339,7 @@ CFE_Status_t CFE_ES_DeleteApp(CFE_ES_AppId_t AppID)
  *-----------------------------------------------------------------*/
 void CFE_ES_ExitApp(uint32 ExitStatus)
 {
-    int32               ReturnCode;
+    CFE_Status_t        ReturnCode;
     CFE_ES_AppRecord_t *AppRecPtr;
 
     CFE_ES_LockSharedData(__func__, __LINE__);
@@ -558,7 +558,7 @@ bool CFE_ES_RunLoop(uint32 *RunStatus)
  *-----------------------------------------------------------------*/
 CFE_Status_t CFE_ES_WaitForSystemState(uint32 MinSystemState, uint32 TimeOutMilliseconds)
 {
-    int32               Status = CFE_SUCCESS;
+    CFE_Status_t        Status = CFE_SUCCESS;
     CFE_ES_AppRecord_t *AppRecPtr;
     uint32              RequiredAppState;
     uint32              WaitTime;
@@ -672,7 +672,7 @@ void CFE_ES_WaitForStartupSync(uint32 TimeOutMilliseconds)
 CFE_Status_t CFE_ES_GetAppIDByName(CFE_ES_AppId_t *AppIdPtr, const char *AppName)
 {
     CFE_ES_AppRecord_t *AppRecPtr;
-    int32               Result;
+    CFE_Status_t        Result;
 
     if (AppName == NULL || AppIdPtr == NULL)
     {
@@ -711,7 +711,7 @@ CFE_Status_t CFE_ES_GetAppIDByName(CFE_ES_AppId_t *AppIdPtr, const char *AppName
 CFE_Status_t CFE_ES_GetLibIDByName(CFE_ES_LibId_t *LibIdPtr, const char *LibName)
 {
     CFE_ES_LibRecord_t *LibRecPtr;
-    int32               Result;
+    CFE_Status_t        Result;
 
     if (LibName == NULL || LibIdPtr == NULL)
     {
@@ -783,7 +783,7 @@ CFE_Status_t CFE_ES_GetTaskIDByName(CFE_ES_TaskId_t *TaskIdPtr, const char *Task
 CFE_Status_t CFE_ES_GetAppID(CFE_ES_AppId_t *AppIdPtr)
 {
     CFE_ES_AppRecord_t *AppRecPtr;
-    int32               Result;
+    CFE_Status_t        Result;
 
     if (AppIdPtr == NULL)
     {
@@ -818,7 +818,7 @@ CFE_Status_t CFE_ES_GetAppID(CFE_ES_AppId_t *AppIdPtr)
  *-----------------------------------------------------------------*/
 CFE_Status_t CFE_ES_GetTaskID(CFE_ES_TaskId_t *TaskIdPtr)
 {
-    int32                Result;
+    CFE_Status_t         Result;
     CFE_ES_TaskRecord_t *TaskRecPtr;
 
     if (TaskIdPtr == NULL)
@@ -850,7 +850,7 @@ CFE_Status_t CFE_ES_GetTaskID(CFE_ES_TaskId_t *TaskIdPtr)
  *-----------------------------------------------------------------*/
 CFE_Status_t CFE_ES_GetAppName(char *AppName, CFE_ES_AppId_t AppId, size_t BufferLength)
 {
-    int32               Result;
+    CFE_Status_t        Result;
     CFE_ES_AppRecord_t *AppRecPtr;
 
     if (BufferLength == 0 || AppName == NULL)
@@ -894,7 +894,7 @@ CFE_Status_t CFE_ES_GetAppName(char *AppName, CFE_ES_AppId_t AppId, size_t Buffe
  *-----------------------------------------------------------------*/
 CFE_Status_t CFE_ES_GetLibName(char *LibName, CFE_ES_LibId_t LibId, size_t BufferLength)
 {
-    int32               Result;
+    CFE_Status_t        Result;
     CFE_ES_LibRecord_t *LibRecPtr;
 
     if (BufferLength == 0 || LibName == NULL)
@@ -985,9 +985,9 @@ CFE_Status_t CFE_ES_GetTaskName(char *TaskName, CFE_ES_TaskId_t TaskId, size_t B
  *-----------------------------------------------------------------*/
 CFE_Status_t CFE_ES_GetAppInfo(CFE_ES_AppInfo_t *AppInfo, CFE_ES_AppId_t AppId)
 {
-    CFE_ES_AppRecord_t * AppRecPtr;
+    CFE_ES_AppRecord_t  *AppRecPtr;
     CFE_ES_TaskRecord_t *TaskRecPtr;
-    int32                Status;
+    CFE_Status_t         Status;
     osal_id_t            ModuleId;
     uint32               i;
 
@@ -1078,9 +1078,9 @@ CFE_Status_t CFE_ES_GetAppInfo(CFE_ES_AppInfo_t *AppInfo, CFE_ES_AppId_t AppId)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_GetLibInfo(CFE_ES_AppInfo_t *LibInfo, CFE_ES_LibId_t LibId)
+CFE_Status_t CFE_ES_GetLibInfo(CFE_ES_AppInfo_t *LibInfo, CFE_ES_LibId_t LibId)
 {
-    int32               Status;
+    CFE_Status_t        Status;
     CFE_ES_LibRecord_t *LibRecPtr;
     osal_id_t           ModuleId;
 
@@ -1140,9 +1140,9 @@ int32 CFE_ES_GetLibInfo(CFE_ES_AppInfo_t *LibInfo, CFE_ES_LibId_t LibId)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_GetModuleInfo(CFE_ES_AppInfo_t *ModuleInfo, CFE_ResourceId_t ResourceId)
+CFE_Status_t CFE_ES_GetModuleInfo(CFE_ES_AppInfo_t *ModuleInfo, CFE_ResourceId_t ResourceId)
 {
-    int32 Status;
+    CFE_Status_t Status;
 
     /* Note - ModuleInfo NULL pointer check is performed by CFE_ES_GetAppInfo or CFE_ES_GetLibInfo */
     switch (CFE_ResourceId_GetBase(ResourceId))
@@ -1174,8 +1174,8 @@ int32 CFE_ES_GetModuleInfo(CFE_ES_AppInfo_t *ModuleInfo, CFE_ResourceId_t Resour
 CFE_Status_t CFE_ES_GetTaskInfo(CFE_ES_TaskInfo_t *TaskInfo, CFE_ES_TaskId_t TaskId)
 {
     CFE_ES_TaskRecord_t *TaskRecPtr;
-    CFE_ES_AppRecord_t * AppRecPtr;
-    int32                Status;
+    CFE_ES_AppRecord_t  *AppRecPtr;
+    CFE_Status_t         Status;
 
     if (TaskInfo == NULL)
     {
@@ -1248,8 +1248,8 @@ CFE_Status_t CFE_ES_CreateChildTask(CFE_ES_TaskId_t *TaskIdPtr, const char *Task
                                     CFE_ES_ChildTaskMainFuncPtr_t FunctionPtr, CFE_ES_StackPointer_t StackPtr,
                                     size_t StackSize, CFE_ES_TaskPriority_Atom_t Priority, uint32 Flags)
 {
-    int32                    ReturnCode;
-    CFE_ES_AppRecord_t *     AppRecPtr;
+    CFE_Status_t             ReturnCode;
+    CFE_ES_AppRecord_t      *AppRecPtr;
     CFE_ES_AppId_t           ParentAppId;
     CFE_ES_TaskId_t          SelfTaskId;
     CFE_ES_TaskStartParams_t Params;
@@ -1372,10 +1372,10 @@ void CFE_ES_IncrementTaskCounter(void)
 CFE_Status_t CFE_ES_DeleteChildTask(CFE_ES_TaskId_t TaskId)
 {
     CFE_ES_TaskRecord_t *TaskRecPtr;
-    CFE_ES_AppRecord_t * AppRecPtr;
+    CFE_ES_AppRecord_t  *AppRecPtr;
     uint32               i;
     bool                 TaskIsMain;
-    int32                ReturnCode = CFE_SUCCESS;
+    CFE_Status_t         ReturnCode = CFE_SUCCESS;
     int32                OsStatus;
     osal_id_t            OsalId;
 
@@ -1483,7 +1483,7 @@ CFE_Status_t CFE_ES_DeleteChildTask(CFE_ES_TaskId_t TaskId)
  *-----------------------------------------------------------------*/
 void CFE_ES_ExitChildTask(void)
 {
-    CFE_ES_AppRecord_t * AppRecPtr;
+    CFE_ES_AppRecord_t  *AppRecPtr;
     CFE_ES_TaskRecord_t *TaskRecPtr;
 
     CFE_ES_LockSharedData(__func__, __LINE__);
@@ -1539,9 +1539,9 @@ void CFE_ES_ExitChildTask(void)
  *-----------------------------------------------------------------*/
 CFE_Status_t CFE_ES_WriteToSysLog(const char *SpecStringPtr, ...)
 {
-    char    TmpString[CFE_ES_MAX_SYSLOG_MSG_SIZE];
-    int32   ReturnCode;
-    va_list ArgPtr;
+    char         TmpString[CFE_ES_MAX_SYSLOG_MSG_SIZE];
+    CFE_Status_t ReturnCode;
+    va_list      ArgPtr;
 
     if (SpecStringPtr == NULL)
     {
@@ -1600,7 +1600,7 @@ uint32 CFE_ES_CalculateCRC(const void *DataPtr, size_t DataLength, uint32 InputC
  *-----------------------------------------------------------------*/
 CFE_Status_t CFE_ES_RegisterCDS(CFE_ES_CDSHandle_t *CDSHandlePtr, size_t BlockSize, const char *Name)
 {
-    int32          Status;
+    CFE_Status_t   Status;
     size_t         NameLen;
     CFE_ES_AppId_t ThisAppId;
 
@@ -1796,7 +1796,7 @@ CFE_Status_t CFE_ES_RegisterGenCounter(CFE_ES_CounterId_t *CounterIdPtr, const c
 {
     CFE_ES_GenCounterRecord_t *CountRecPtr;
     CFE_ResourceId_t           PendingResourceId;
-    int32                      Status;
+    CFE_Status_t               Status;
 
     if (CounterName == NULL || CounterIdPtr == NULL)
     {
@@ -1858,7 +1858,7 @@ CFE_Status_t CFE_ES_RegisterGenCounter(CFE_ES_CounterId_t *CounterIdPtr, const c
 CFE_Status_t CFE_ES_DeleteGenCounter(CFE_ES_CounterId_t CounterId)
 {
     CFE_ES_GenCounterRecord_t *CountRecPtr;
-    int32                      Status = CFE_ES_BAD_ARGUMENT;
+    CFE_Status_t               Status = CFE_ES_BAD_ARGUMENT;
 
     CountRecPtr = CFE_ES_LocateCounterRecordByID(CounterId);
     if (CountRecPtr != NULL)
@@ -1884,7 +1884,7 @@ CFE_Status_t CFE_ES_DeleteGenCounter(CFE_ES_CounterId_t CounterId)
  *-----------------------------------------------------------------*/
 CFE_Status_t CFE_ES_IncrementGenCounter(CFE_ES_CounterId_t CounterId)
 {
-    int32                      Status = CFE_ES_BAD_ARGUMENT;
+    CFE_Status_t               Status = CFE_ES_BAD_ARGUMENT;
     CFE_ES_GenCounterRecord_t *CountRecPtr;
 
     CountRecPtr = CFE_ES_LocateCounterRecordByID(CounterId);
@@ -1904,7 +1904,7 @@ CFE_Status_t CFE_ES_IncrementGenCounter(CFE_ES_CounterId_t CounterId)
  *-----------------------------------------------------------------*/
 CFE_Status_t CFE_ES_SetGenCount(CFE_ES_CounterId_t CounterId, uint32 Count)
 {
-    int32                      Status = CFE_ES_BAD_ARGUMENT;
+    CFE_Status_t               Status = CFE_ES_BAD_ARGUMENT;
     CFE_ES_GenCounterRecord_t *CountRecPtr;
 
     CountRecPtr = CFE_ES_LocateCounterRecordByID(CounterId);
@@ -1924,7 +1924,7 @@ CFE_Status_t CFE_ES_SetGenCount(CFE_ES_CounterId_t CounterId, uint32 Count)
  *-----------------------------------------------------------------*/
 CFE_Status_t CFE_ES_GetGenCount(CFE_ES_CounterId_t CounterId, uint32 *Count)
 {
-    int32                      Status = CFE_ES_BAD_ARGUMENT;
+    CFE_Status_t               Status = CFE_ES_BAD_ARGUMENT;
     CFE_ES_GenCounterRecord_t *CountRecPtr;
 
     CountRecPtr = CFE_ES_LocateCounterRecordByID(CounterId);
@@ -1945,7 +1945,7 @@ CFE_Status_t CFE_ES_GetGenCount(CFE_ES_CounterId_t CounterId, uint32 *Count)
 CFE_Status_t CFE_ES_GetGenCounterIDByName(CFE_ES_CounterId_t *CounterIdPtr, const char *CounterName)
 {
     CFE_ES_GenCounterRecord_t *CounterRecPtr;
-    int32                      Result;
+    CFE_Status_t               Result;
 
     if (CounterName == NULL || CounterIdPtr == NULL)
     {
@@ -2033,7 +2033,7 @@ CFE_Status_t CFE_ES_AppID_ToIndex(CFE_ES_AppId_t AppID, uint32 *Idx)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_LibID_ToIndex(CFE_ES_LibId_t LibId, uint32 *Idx)
+CFE_Status_t CFE_ES_LibID_ToIndex(CFE_ES_LibId_t LibId, uint32 *Idx)
 {
     return CFE_ResourceId_ToIndex(CFE_RESOURCEID_UNWRAP(LibId), CFE_ES_LIBID_BASE, CFE_PLATFORM_ES_MAX_LIBRARIES, Idx);
 }

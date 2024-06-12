@@ -75,7 +75,7 @@ CFE_ES_TaskData_t CFE_ES_TaskData;
  *-----------------------------------------------------------------*/
 void CFE_ES_TaskMain(void)
 {
-    int32            Status;
+    CFE_Status_t     Status;
     uint32           AppRunStatus = CFE_ES_RunStatus_APP_RUN;
     CFE_SB_Buffer_t *SBBufPtr;
 
@@ -183,9 +183,9 @@ void CFE_ES_TaskMain(void)
  * Send a single CFE_ES_VERSION_INF_EID event for a component/module
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_GenerateSingleVersionEvent(const char *ModuleType, const char *ModuleName, CFE_ConfigId_t Id)
+CFE_Status_t CFE_ES_GenerateSingleVersionEvent(const char *ModuleType, const char *ModuleName, CFE_ConfigId_t Id)
 {
-    int32 Status;
+    CFE_Status_t Status;
 
     /*
      * Advertise the mission version information
@@ -223,7 +223,7 @@ void CFE_ES_ModSrcVerCallback(void *Arg, CFE_ConfigId_t Id, const char *Name)
  *-----------------------------------------------------------------*/
 void CFE_ES_GenerateVersionEvents(void)
 {
-    int32 Status;
+    CFE_Status_t Status;
 
     /*
      * Advertise the mission version information
@@ -246,7 +246,7 @@ void CFE_ES_GenerateVersionEvents(void)
  *-----------------------------------------------------------------*/
 void CFE_ES_GenerateBuildInfoEvents(void)
 {
-    int32       Status;
+    CFE_Status_t Status;
     const char *BuildDate;
     const char *BuildUser;
     const char *BuildHost;
@@ -270,14 +270,14 @@ void CFE_ES_GenerateBuildInfoEvents(void)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_TaskInit(void)
+CFE_Status_t CFE_ES_TaskInit(void)
 {
-    int32   Status;
-    int32   PspStatus;
-    uint32  SizeofCfeSegment;
-    cpuaddr CfeSegmentAddr;
-    uint8   VersionNumber[4];
-    char    VersionString[CFE_CFG_MAX_VERSION_STR_LEN];
+    CFE_Status_t Status;
+    int32        PspStatus;
+    uint32       SizeofCfeSegment;
+    cpuaddr      CfeSegmentAddr;
+    uint8        VersionNumber[4];
+    char         VersionString[CFE_CFG_MAX_VERSION_STR_LEN];
 
     /*
     ** Initialize task command execution counters
@@ -443,7 +443,7 @@ int32 CFE_ES_TaskInit(void)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_SendHkCmd(const CFE_ES_SendHkCmd_t *data)
+CFE_Status_t CFE_ES_SendHkCmd(const CFE_ES_SendHkCmd_t *data)
 {
     OS_heap_prop_t HeapProp;
     int32          OsStatus;
@@ -556,7 +556,7 @@ int32 CFE_ES_SendHkCmd(const CFE_ES_SendHkCmd_t *data)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_NoopCmd(const CFE_ES_NoopCmd_t *Cmd)
+CFE_Status_t CFE_ES_NoopCmd(const CFE_ES_NoopCmd_t *Cmd)
 {
     /*
     ** Advertise the build and version information with the no-op command
@@ -583,7 +583,7 @@ int32 CFE_ES_NoopCmd(const CFE_ES_NoopCmd_t *Cmd)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_ResetCountersCmd(const CFE_ES_ResetCountersCmd_t *data)
+CFE_Status_t CFE_ES_ResetCountersCmd(const CFE_ES_ResetCountersCmd_t *data)
 {
     CFE_ES_Global.TaskData.CommandCounter      = 0;
     CFE_ES_Global.TaskData.CommandErrorCounter = 0;
@@ -602,7 +602,7 @@ int32 CFE_ES_ResetCountersCmd(const CFE_ES_ResetCountersCmd_t *data)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_RestartCmd(const CFE_ES_RestartCmd_t *data)
+CFE_Status_t CFE_ES_RestartCmd(const CFE_ES_RestartCmd_t *data)
 {
     const CFE_ES_RestartCmd_Payload_t *cmd = &data->Payload;
 
@@ -629,11 +629,11 @@ int32 CFE_ES_RestartCmd(const CFE_ES_RestartCmd_t *data)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_StartAppCmd(const CFE_ES_StartAppCmd_t *data)
+CFE_Status_t CFE_ES_StartAppCmd(const CFE_ES_StartAppCmd_t *data)
 {
     const CFE_ES_StartAppCmd_Payload_t *cmd = &data->Payload;
     CFE_ES_AppId_t                      AppID;
-    int32                               Result;
+    CFE_Status_t                        Result;
     int32                               AppEntryLen;
     int32                               AppNameLen;
     char                                LocalAppName[OS_MAX_API_NAME];
@@ -731,12 +731,12 @@ int32 CFE_ES_StartAppCmd(const CFE_ES_StartAppCmd_t *data)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_StopAppCmd(const CFE_ES_StopAppCmd_t *data)
+CFE_Status_t CFE_ES_StopAppCmd(const CFE_ES_StopAppCmd_t *data)
 {
     const CFE_ES_AppNameCmd_Payload_t *cmd = &data->Payload;
     char                               LocalApp[OS_MAX_API_NAME];
     CFE_ES_AppId_t                     AppID;
-    int32                              Result;
+    CFE_Status_t                       Result;
 
     CFE_SB_MessageStringGet(LocalApp, (char *)cmd->Application, NULL, sizeof(LocalApp), sizeof(cmd->Application));
 
@@ -780,12 +780,12 @@ int32 CFE_ES_StopAppCmd(const CFE_ES_StopAppCmd_t *data)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_RestartAppCmd(const CFE_ES_RestartAppCmd_t *data)
+CFE_Status_t CFE_ES_RestartAppCmd(const CFE_ES_RestartAppCmd_t *data)
 {
     const CFE_ES_AppNameCmd_Payload_t *cmd = &data->Payload;
     char                               LocalApp[OS_MAX_API_NAME];
     CFE_ES_AppId_t                     AppID;
-    int32                              Result;
+    CFE_Status_t                       Result;
 
     CFE_SB_MessageStringGet(LocalApp, (char *)cmd->Application, NULL, sizeof(LocalApp), sizeof(cmd->Application));
 
@@ -828,13 +828,13 @@ int32 CFE_ES_RestartAppCmd(const CFE_ES_RestartAppCmd_t *data)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_ReloadAppCmd(const CFE_ES_ReloadAppCmd_t *data)
+CFE_Status_t CFE_ES_ReloadAppCmd(const CFE_ES_ReloadAppCmd_t *data)
 {
     const CFE_ES_AppReloadCmd_Payload_t *cmd = &data->Payload;
     char                                 LocalApp[OS_MAX_API_NAME];
     char                                 LocalFileName[OS_MAX_PATH_LEN];
     CFE_ES_AppId_t                       AppID;
-    int32                                Result;
+    CFE_Status_t                         Result;
 
     CFE_SB_MessageStringGet(LocalApp, (char *)cmd->Application, NULL, sizeof(LocalApp), sizeof(cmd->Application));
 
@@ -885,7 +885,7 @@ int32 CFE_ES_ReloadAppCmd(const CFE_ES_ReloadAppCmd_t *data)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_QueryOneCmd(const CFE_ES_QueryOneCmd_t *data)
+CFE_Status_t CFE_ES_QueryOneCmd(const CFE_ES_QueryOneCmd_t *data)
 {
     const CFE_ES_AppNameCmd_Payload_t *cmd = &data->Payload;
     char                               LocalApp[OS_MAX_API_NAME];
@@ -895,7 +895,7 @@ int32 CFE_ES_QueryOneCmd(const CFE_ES_QueryOneCmd_t *data)
         CFE_ES_LibId_t   LibId;
         CFE_ResourceId_t ResourceID;
     } IdBuf;
-    int32 Result;
+    CFE_Status_t Result;
 
     CFE_SB_MessageStringGet(LocalApp, (char *)cmd->Application, NULL, sizeof(LocalApp), sizeof(cmd->Application));
 
@@ -950,7 +950,7 @@ int32 CFE_ES_QueryOneCmd(const CFE_ES_QueryOneCmd_t *data)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_QueryAllCmd(const CFE_ES_QueryAllCmd_t *data)
+CFE_Status_t CFE_ES_QueryAllCmd(const CFE_ES_QueryAllCmd_t *data)
 {
     CFE_FS_Header_t                     FileHeader;
     osal_id_t                           FileDescriptor = OS_OBJECT_ID_UNDEFINED;
@@ -958,14 +958,14 @@ int32 CFE_ES_QueryAllCmd(const CFE_ES_QueryAllCmd_t *data)
     uint32                              EntryCount = 0;
     uint32                              FileSize   = 0;
     int32                               OsStatus;
-    int32                               Result;
+    CFE_Status_t                        Result;
     CFE_ES_AppInfo_t                    AppInfo;
     const CFE_ES_FileNameCmd_Payload_t *CmdPtr = &data->Payload;
     char                                QueryAllFilename[OS_MAX_PATH_LEN];
     CFE_ResourceId_t                    ResourceList[CFE_ES_QUERY_ALL_MAX_ENTRIES];
     uint32                              NumResources;
-    CFE_ES_AppRecord_t *                AppRecPtr;
-    CFE_ES_LibRecord_t *                LibRecPtr;
+    CFE_ES_AppRecord_t                 *AppRecPtr;
+    CFE_ES_LibRecord_t                 *LibRecPtr;
 
     /*
      * Collect list of active resource IDs.
@@ -1110,7 +1110,7 @@ int32 CFE_ES_QueryAllCmd(const CFE_ES_QueryAllCmd_t *data)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_QueryAllTasksCmd(const CFE_ES_QueryAllTasksCmd_t *data)
+CFE_Status_t CFE_ES_QueryAllTasksCmd(const CFE_ES_QueryAllTasksCmd_t *data)
 {
     CFE_FS_Header_t                     FileHeader;
     osal_id_t                           FileDescriptor = OS_OBJECT_ID_UNDEFINED;
@@ -1118,13 +1118,13 @@ int32 CFE_ES_QueryAllTasksCmd(const CFE_ES_QueryAllTasksCmd_t *data)
     uint32                              EntryCount = 0;
     uint32                              FileSize   = 0;
     int32                               OsStatus;
-    int32                               Result;
+    CFE_Status_t                        Result;
     CFE_ES_TaskInfo_t                   TaskInfo;
     const CFE_ES_FileNameCmd_Payload_t *CmdPtr = &data->Payload;
     char                                QueryAllFilename[OS_MAX_PATH_LEN];
     CFE_ES_TaskId_t                     TaskList[OS_MAX_TASKS];
     uint32                              NumTasks;
-    CFE_ES_TaskRecord_t *               TaskRecPtr;
+    CFE_ES_TaskRecord_t                *TaskRecPtr;
 
     /*
      * Collect list of active task IDs.
@@ -1262,7 +1262,7 @@ int32 CFE_ES_QueryAllTasksCmd(const CFE_ES_QueryAllTasksCmd_t *data)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_ClearSysLogCmd(const CFE_ES_ClearSysLogCmd_t *data)
+CFE_Status_t CFE_ES_ClearSysLogCmd(const CFE_ES_ClearSysLogCmd_t *data)
 {
     /*
     ** Clear syslog index and memory area
@@ -1287,9 +1287,9 @@ int32 CFE_ES_ClearSysLogCmd(const CFE_ES_ClearSysLogCmd_t *data)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_OverWriteSysLogCmd(const CFE_ES_OverWriteSysLogCmd_t *data)
+CFE_Status_t CFE_ES_OverWriteSysLogCmd(const CFE_ES_OverWriteSysLogCmd_t *data)
 {
-    int32                                      Status;
+    CFE_Status_t                               Status;
     const CFE_ES_OverWriteSysLogCmd_Payload_t *CmdPtr = &data->Payload;
 
     Status = CFE_ES_SysLogSetMode(CmdPtr->Mode);
@@ -1318,10 +1318,10 @@ int32 CFE_ES_OverWriteSysLogCmd(const CFE_ES_OverWriteSysLogCmd_t *data)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_WriteSysLogCmd(const CFE_ES_WriteSysLogCmd_t *data)
+CFE_Status_t CFE_ES_WriteSysLogCmd(const CFE_ES_WriteSysLogCmd_t *data)
 {
     const CFE_ES_FileNameCmd_Payload_t *CmdPtr = &data->Payload;
-    int32                               Stat;
+    CFE_Status_t                        Stat;
     char                                LogFilename[OS_MAX_PATH_LEN];
 
     /*
@@ -1363,7 +1363,7 @@ int32 CFE_ES_WriteSysLogCmd(const CFE_ES_WriteSysLogCmd_t *data)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_ClearERLogCmd(const CFE_ES_ClearERLogCmd_t *data)
+CFE_Status_t CFE_ES_ClearERLogCmd(const CFE_ES_ClearERLogCmd_t *data)
 {
     /*
     ** Clear ER log data buffer
@@ -1397,11 +1397,11 @@ int32 CFE_ES_ClearERLogCmd(const CFE_ES_ClearERLogCmd_t *data)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_WriteERLogCmd(const CFE_ES_WriteERLogCmd_t *data)
+CFE_Status_t CFE_ES_WriteERLogCmd(const CFE_ES_WriteERLogCmd_t *data)
 {
     const CFE_ES_FileNameCmd_Payload_t *CmdPtr = &data->Payload;
-    CFE_ES_BackgroundLogDumpGlobal_t *  StatePtr;
-    int32                               Status;
+    CFE_ES_BackgroundLogDumpGlobal_t   *StatePtr;
+    CFE_Status_t                        Status;
 
     StatePtr = &CFE_ES_Global.BackgroundERLogDumpState;
 
@@ -1472,7 +1472,7 @@ int32 CFE_ES_WriteERLogCmd(const CFE_ES_WriteERLogCmd_t *data)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_ResetPRCountCmd(const CFE_ES_ResetPRCountCmd_t *data)
+CFE_Status_t CFE_ES_ResetPRCountCmd(const CFE_ES_ResetPRCountCmd_t *data)
 {
     /*
     ** Reset the processor reset count
@@ -1495,7 +1495,7 @@ int32 CFE_ES_ResetPRCountCmd(const CFE_ES_ResetPRCountCmd_t *data)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_SetMaxPRCountCmd(const CFE_ES_SetMaxPRCountCmd_t *data)
+CFE_Status_t CFE_ES_SetMaxPRCountCmd(const CFE_ES_SetMaxPRCountCmd_t *data)
 {
     const CFE_ES_SetMaxPRCountCmd_Payload_t *cmd = &data->Payload;
 
@@ -1521,9 +1521,9 @@ int32 CFE_ES_SetMaxPRCountCmd(const CFE_ES_SetMaxPRCountCmd_t *data)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_DeleteCDSCmd(const CFE_ES_DeleteCDSCmd_t *data)
+CFE_Status_t CFE_ES_DeleteCDSCmd(const CFE_ES_DeleteCDSCmd_t *data)
 {
-    int32                                Status;
+    CFE_Status_t                         Status;
     const CFE_ES_DeleteCDSCmd_Payload_t *cmd = &data->Payload;
     char                                 LocalCdsName[CFE_MISSION_ES_CDS_MAX_FULL_NAME_LEN];
 
@@ -1577,7 +1577,7 @@ int32 CFE_ES_DeleteCDSCmd(const CFE_ES_DeleteCDSCmd_t *data)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_SendMemPoolStatsCmd(const CFE_ES_SendMemPoolStatsCmd_t *data)
+CFE_Status_t CFE_ES_SendMemPoolStatsCmd(const CFE_ES_SendMemPoolStatsCmd_t *data)
 {
     const CFE_ES_SendMemPoolStatsCmd_Payload_t *Cmd;
     CFE_ES_MemHandle_t                          MemHandle;
@@ -1625,16 +1625,16 @@ int32 CFE_ES_SendMemPoolStatsCmd(const CFE_ES_SendMemPoolStatsCmd_t *data)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_DumpCDSRegistryCmd(const CFE_ES_DumpCDSRegistryCmd_t *data)
+CFE_Status_t CFE_ES_DumpCDSRegistryCmd(const CFE_ES_DumpCDSRegistryCmd_t *data)
 {
     CFE_FS_Header_t                            StdFileHeader;
     osal_id_t                                  FileDescriptor = OS_OBJECT_ID_UNDEFINED;
     int32                                      OsStatus;
-    int32                                      Status;
+    CFE_Status_t                               Status;
     int16                                      RegIndex = 0;
     const CFE_ES_DumpCDSRegistryCmd_Payload_t *CmdPtr   = &data->Payload;
     char                                       DumpFilename[OS_MAX_PATH_LEN];
-    CFE_ES_CDS_RegRec_t *                      RegRecPtr;
+    CFE_ES_CDS_RegRec_t                       *RegRecPtr;
     CFE_ES_CDSRegDumpRec_t                     DumpRecord;
     int32                                      FileSize   = 0;
     int32                                      NumEntries = 0;

@@ -128,10 +128,10 @@ void CFE_SB_TimeStampMsg(CFE_MSG_Message_t *MsgPtr)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_SB_MessageStringGet(char *DestStringPtr, const char *SourceStringPtr, const char *DefaultString,
-                              size_t DestMaxSize, size_t SourceMaxSize)
+CFE_Status_t CFE_SB_MessageStringGet(char *DestStringPtr, const char *SourceStringPtr, const char *DefaultString,
+                                     size_t DestMaxSize, size_t SourceMaxSize)
 {
-    int32 Result;
+    CFE_Status_t Result;
 
     /*
      * Error in caller if DestMaxSize == 0.
@@ -183,10 +183,10 @@ int32 CFE_SB_MessageStringGet(char *DestStringPtr, const char *SourceStringPtr, 
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_SB_MessageStringSet(char *DestStringPtr, const char *SourceStringPtr, size_t DestMaxSize,
-                              size_t SourceMaxSize)
+CFE_Status_t CFE_SB_MessageStringSet(char *DestStringPtr, const char *SourceStringPtr, size_t DestMaxSize,
+                                     size_t SourceMaxSize)
 {
-    int32 Result;
+    CFE_Status_t Result;
 
     if (SourceStringPtr == NULL || DestStringPtr == NULL)
     {

@@ -118,7 +118,7 @@ CFE_Status_t CFE_ES_AppID_ToIndex(CFE_ES_AppId_t AppID, uint32 *Idx);
  * @retval #CFE_SUCCESS                      @copybrief CFE_SUCCESS
  * @retval #CFE_ES_ERR_RESOURCEID_NOT_VALID  @copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
  */
-int32 CFE_ES_LibID_ToIndex(CFE_ES_LibId_t LibId, uint32 *Idx);
+CFE_Status_t CFE_ES_LibID_ToIndex(CFE_ES_LibId_t LibId, uint32 *Idx);
 
 /**
  * @brief Obtain an index value correlating to an ES Task ID
@@ -748,7 +748,7 @@ CFE_Status_t CFE_ES_GetTaskInfo(CFE_ES_TaskInfo_t *TaskInfo, CFE_ES_TaskId_t Tas
 ** \sa #CFE_ES_GetLibIDByName, #CFE_ES_GetLibName
 **
 ******************************************************************************/
-int32 CFE_ES_GetLibInfo(CFE_ES_AppInfo_t *LibInfo, CFE_ES_LibId_t LibId);
+CFE_Status_t CFE_ES_GetLibInfo(CFE_ES_AppInfo_t *LibInfo, CFE_ES_LibId_t LibId);
 
 /*****************************************************************************/
 /**
@@ -780,7 +780,7 @@ int32 CFE_ES_GetLibInfo(CFE_ES_AppInfo_t *LibInfo, CFE_ES_LibId_t LibId);
 ** \sa #CFE_ES_GetLibInfo, #CFE_ES_GetAppInfo
 **
 ******************************************************************************/
-int32 CFE_ES_GetModuleInfo(CFE_ES_AppInfo_t *ModuleInfo, CFE_ResourceId_t ResourceId);
+CFE_Status_t CFE_ES_GetModuleInfo(CFE_ES_AppInfo_t *ModuleInfo, CFE_ResourceId_t ResourceId);
 
 /**@}*/
 
@@ -1330,7 +1330,7 @@ CFE_Status_t CFE_ES_PoolCreateEx(CFE_ES_MemHandle_t *PoolID, void *MemPtr, size_
 ** \sa #CFE_ES_PoolCreate, #CFE_ES_PoolCreateNoSem, #CFE_ES_GetPoolBuf, #CFE_ES_PutPoolBuf, #CFE_ES_GetMemPoolStats
 **
 ******************************************************************************/
-int32 CFE_ES_PoolDelete(CFE_ES_MemHandle_t PoolID);
+CFE_Status_t CFE_ES_PoolDelete(CFE_ES_MemHandle_t PoolID);
 
 /*****************************************************************************/
 /**
@@ -1358,7 +1358,7 @@ int32 CFE_ES_PoolDelete(CFE_ES_MemHandle_t PoolID);
 *#CFE_ES_GetPoolBufInfo
 **
 ******************************************************************************/
-int32 CFE_ES_GetPoolBuf(CFE_ES_MemPoolBuf_t *BufPtr, CFE_ES_MemHandle_t Handle, size_t Size);
+CFE_Status_t CFE_ES_GetPoolBuf(CFE_ES_MemPoolBuf_t *BufPtr, CFE_ES_MemHandle_t Handle, size_t Size);
 
 /*****************************************************************************/
 /**
@@ -1409,7 +1409,7 @@ CFE_Status_t CFE_ES_GetPoolBufInfo(CFE_ES_MemHandle_t Handle, CFE_ES_MemPoolBuf_
 *#CFE_ES_GetPoolBufInfo
 **
 ******************************************************************************/
-int32 CFE_ES_PutPoolBuf(CFE_ES_MemHandle_t Handle, CFE_ES_MemPoolBuf_t BufPtr);
+CFE_Status_t CFE_ES_PutPoolBuf(CFE_ES_MemHandle_t Handle, CFE_ES_MemPoolBuf_t BufPtr);
 
 /*****************************************************************************/
 /**

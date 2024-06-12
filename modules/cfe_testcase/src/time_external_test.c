@@ -29,13 +29,13 @@
 
 #include "cfe_test.h"
 
-int32 TestCallbackFunction(void)
+CFE_Status_t TestCallbackFunction(void)
 {
     CFE_FT_Global.Count += 1;
     return CFE_SUCCESS;
 }
 
-int32 TestCallbackFunction2(void)
+CFE_Status_t TestCallbackFunction2(void)
 {
     CFE_FT_Global.Count = 0;
     return CFE_SUCCESS;

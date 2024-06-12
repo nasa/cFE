@@ -77,7 +77,7 @@ EVS_AppData_t *EVS_GetAppDataByID(CFE_ES_AppId_t AppID);
  * @param[out]   AppIDOut       Location to store AppID
  * @returns CFE_SUCCESS if successful, or relevant error code.
  */
-int32 EVS_GetCurrentContext(EVS_AppData_t **AppDataOut, CFE_ES_AppId_t *AppIDOut);
+CFE_Status_t EVS_GetCurrentContext(EVS_AppData_t **AppDataOut, CFE_ES_AppId_t *AppIDOut);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -169,7 +169,7 @@ static inline bool EVS_AppDataIsMatch(EVS_AppData_t *AppDataPtr, CFE_ES_AppId_t 
  * This routine returns the application ID and
  * status specifying the validity of the ID
  */
-int32 EVS_GetApplicationInfo(EVS_AppData_t **AppDataOut, const char *pAppName);
+CFE_Status_t EVS_GetApplicationInfo(EVS_AppData_t **AppDataOut, const char *pAppName);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -178,7 +178,7 @@ int32 EVS_GetApplicationInfo(EVS_AppData_t **AppDataOut, const char *pAppName);
  * This routine sends one "not registered" event per application
  * Assumptions and Notes:
  */
-int32 EVS_NotRegistered(EVS_AppData_t *AppDataPtr, CFE_ES_AppId_t CallerID);
+CFE_Status_t EVS_NotRegistered(EVS_AppData_t *AppDataPtr, CFE_ES_AppId_t CallerID);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -250,6 +250,6 @@ void EVS_GenerateEventTelemetry(EVS_AppData_t *AppDataPtr, uint16 EventID, uint1
  * This routine also does not need to acquire the mutex semaphore,
  * which can be time consuming on some platforms.
  */
-int32 EVS_SendEvent(uint16 EventID, uint16 EventType, const char *Spec, ...);
+CFE_Status_t EVS_SendEvent(uint16 EventID, uint16 EventType, const char *Spec, ...);
 
 #endif /* CFE_EVS_UTILS_H */

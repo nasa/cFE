@@ -78,7 +78,7 @@ void CFE_EVS_ProcessCommandPacket(const CFE_SB_Buffer_t *SBBufPtr)
 void CFE_EVS_ProcessGroundCommand(const CFE_SB_Buffer_t *SBBufPtr, CFE_SB_MsgId_t MsgId)
 {
     /* status will get reset if it passes length check */
-    int32             Status  = CFE_STATUS_WRONG_MSG_LENGTH;
+    CFE_Status_t      Status  = CFE_STATUS_WRONG_MSG_LENGTH;
     CFE_MSG_FcnCode_t FcnCode = 0;
 
     CFE_MSG_GetFcnCode(&SBBufPtr->Msg, &FcnCode);

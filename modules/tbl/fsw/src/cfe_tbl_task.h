@@ -397,7 +397,7 @@ int16 CFE_TBL_SearchCmdHndlrTbl(CFE_SB_MsgId_t MessageID, uint16 CommandCode);
 ** \return Any of the return values from #CFE_SB_Subscribe
 ** \return Any of the return values from #CFE_EVS_SendEvent
 */
-int32 CFE_TBL_TaskInit(void);
+CFE_Status_t CFE_TBL_TaskInit(void);
 
 /*---------------------------------------------------------------------------------------*/
 /**
