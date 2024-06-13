@@ -4587,7 +4587,7 @@ void Test_SB_TransmitMsgPaths_FullErr(void)
 
     CFE_UtAssert_EVENTNOTSENT(CFE_SB_Q_FULL_ERR_EID_BIT);
 
-    CFE_UtAssert_EVENTCOUNT(2);
+    CFE_UtAssert_EVENTCOUNT(3);
 
     CFE_UtAssert_TEARDOWN(CFE_SB_DeletePipe(PipeId));
 }
@@ -4623,7 +4623,7 @@ void Test_SB_TransmitMsgPaths_WriteErr(void)
 
     CFE_UtAssert_SUCCESS(CFE_SB_TransmitMsg(CFE_MSG_PTR(TlmPkt.TelemetryHeader), true));
 
-    CFE_UtAssert_EVENTCOUNT(2);
+    CFE_UtAssert_EVENTCOUNT(3);
 
     CFE_UtAssert_EVENTNOTSENT(CFE_SB_Q_WR_ERR_EID);
 
