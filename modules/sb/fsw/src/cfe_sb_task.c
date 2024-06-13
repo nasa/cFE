@@ -556,13 +556,7 @@ int32 CFE_SB_SendStatsCmd(const CFE_SB_SendSbStatsCmd_t *data)
 
     CFE_SB_UnlockSharedData(__FILE__, __LINE__);
 
-    while (PipeStatCount > 0)
-    {
-        memset(PipeStatPtr, 0, sizeof(*PipeStatPtr));
-
-        ++PipeStatPtr;
-        --PipeStatCount;
-    }
+    memset(PipeStatPtr, 0, sizeof(*PipeStatPtr) * PipeStatCount);
 
     CFE_SB_TimeStampMsg(CFE_MSG_PTR(CFE_SB_Global.StatTlmMsg.TelemetryHeader));
     CFE_SB_TransmitMsg(CFE_MSG_PTR(CFE_SB_Global.StatTlmMsg.TelemetryHeader), true);
