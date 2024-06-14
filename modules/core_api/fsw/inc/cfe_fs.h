@@ -240,7 +240,7 @@ const char *CFE_FS_GetDefaultExtension(CFE_FS_FileCategory_t FileCategory);
 **            at the first null char, when the input is shorter than the maximum.
 **
 ** \param[out] OutputBuffer     Buffer to store result @nonnull.
-** \param[in]  InputBuffer      A input buffer that may contain a file name (e.g. from command) @nonnull.
+** \param[in]  InputBuffer      An input buffer that may contain a file name (e.g. from command) @nonnull.
 ** \param[in]  OutputBufSize    Maximum Size of output buffer @nonzero.
 ** \param[in]  InputBufSize     Maximum Size of input buffer.
 ** \param[in]  DefaultInput     Default value to use for input if InputBffer is empty
