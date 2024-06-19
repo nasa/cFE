@@ -49,7 +49,7 @@
 **       following telemetry:
 **       - \b \c \SB_CMDPC - command execution counter will
 **         increment
-**       - The #CFE_SB_CMD0_RCVD_EID informational event message will
+**       - The #CFE_SB_NOOP_INF_EID informational event message will
 **         be generated
 **
 **  \par Error Conditions
@@ -93,7 +93,7 @@
 **       - \b \c \SB_CMDPC - command execution counter will
 **         be reset to 0
 **       - All other counters listed in description will be reset to 0
-**       - The #CFE_SB_CMD1_RCVD_EID informational event message will
+**       - The #CFE_SB_RESET_INF_EID informational event message will
 **         be generated
 **
 **  \par Error Conditions
@@ -130,11 +130,11 @@
 **       following telemetry:
 **       - \b \c \SB_CMDPC - command execution counter will increment
 **       - Receipt of statistics packet with MsgId #CFE_SB_STATS_TLM_MID
-**       - The #CFE_SB_SND_STATS_EID debug event message will be generated
+**       - The #CFE_SB_SND_STATS_INF_EID informational event message will be generated
 **
 **  \par Error Conditions
 **       There are no error conditions for this command. If the Software
-**       Bus receives the command, the debug event is sent and the counter
+**       Bus receives the command, the informational event is sent and the counter
 **       is incremented unconditionally.
 **
 **  \par Criticality
@@ -211,7 +211,7 @@
 **       - \b \c \SB_CMDPC - command execution counter will increment
 **       - View routing information #CFE_SB_WRITE_ROUTING_INFO_CC to verify
 **         enable/disable state change
-**       - The #CFE_SB_ENBL_RTE2_EID debug event message will be generated
+**       - The #CFE_SB_ENBL_RTE2_INF_EID informational event message will be generated
 **       - Destination will begin receiving messages
 **
 **  \par Error Conditions
@@ -247,7 +247,7 @@
 **       - \b \c \SB_CMDPC - command execution counter will increment
 **       - View routing information #CFE_SB_WRITE_ROUTING_INFO_CC to verify
 **         enable/disable state change
-**       - The #CFE_SB_DSBL_RTE2_EID debug event message will be generated
+**       - The #CFE_SB_DSBL_RTE2_INF_EID informational event message will be generated
 **       - Destination will stop receiving messages
 **
 **  \par Error Conditions

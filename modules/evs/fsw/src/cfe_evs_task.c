@@ -300,7 +300,7 @@ int32 CFE_EVS_TaskInit(void)
     CFE_EVS_Global.EVS_AppID = AppID;
     CFE_Config_GetVersionString(VersionString, CFE_CFG_MAX_VERSION_STR_LEN, "cFE", CFE_SRC_VERSION, CFE_BUILD_CODENAME,
                                 CFE_LAST_OFFICIAL);
-    EVS_SendEvent(CFE_EVS_STARTUP_EID, CFE_EVS_EventType_INFORMATION, "cFE EVS Initialized: %s", VersionString);
+    EVS_SendEvent(CFE_EVS_INIT_INF_EID, CFE_EVS_EventType_INFORMATION, "cFE EVS Initialized: %s", VersionString);
 
     return CFE_SUCCESS;
 }
@@ -316,7 +316,7 @@ int32 CFE_EVS_NoopCmd(const CFE_EVS_NoopCmd_t *data)
     char VersionString[CFE_CFG_MAX_VERSION_STR_LEN];
     CFE_Config_GetVersionString(VersionString, CFE_CFG_MAX_VERSION_STR_LEN, "cFE", CFE_SRC_VERSION, CFE_BUILD_CODENAME,
                                 CFE_LAST_OFFICIAL);
-    EVS_SendEvent(CFE_EVS_NOOP_EID, CFE_EVS_EventType_INFORMATION, "No-op Cmd Rcvd: %s", VersionString);
+    EVS_SendEvent(CFE_EVS_NOOP_INF_EID, CFE_EVS_EventType_INFORMATION, "No-op Cmd Rcvd: %s", VersionString);
     return CFE_SUCCESS;
 }
 
@@ -400,7 +400,7 @@ int32 CFE_EVS_ResetCountersCmd(const CFE_EVS_ResetCountersCmd_t *data)
     CFE_EVS_Global.EVS_TlmPkt.Payload.MessageTruncCounter    = 0;
     CFE_EVS_Global.EVS_TlmPkt.Payload.UnregisteredAppCounter = 0;
 
-    EVS_SendEvent(CFE_EVS_RSTCNT_EID, CFE_EVS_EventType_DEBUG, "Reset Counters Command Received");
+    EVS_SendEvent(CFE_EVS_RESET_INF_EID, CFE_EVS_EventType_INFORMATION, "Reset Counters Command Received");
 
     /* NOTE: Historically the reset counters command does _NOT_ increment the command counter */
 
@@ -436,7 +436,7 @@ int32 CFE_EVS_SetFilterCmd(const CFE_EVS_SetFilterCmd_t *data)
             /* Set application filter mask */
             FilterPtr->Mask = CmdPtr->Mask;
 
-            EVS_SendEvent(CFE_EVS_SETFILTERMSK_EID, CFE_EVS_EventType_DEBUG,
+            EVS_SendEvent(CFE_EVS_SETFILTERMSK_INF_EID, CFE_EVS_EventType_INFORMATION,
                           "Set Filter Mask Command Received with AppName=%s, EventID=0x%08x, Mask=0x%04x", LocalName,
                           (unsigned int)CmdPtr->EventID, (unsigned int)CmdPtr->Mask);
         }
@@ -494,7 +494,7 @@ int32 CFE_EVS_EnablePortsCmd(const CFE_EVS_EnablePortsCmd_t *data)
         /* Process command data */
         CFE_EVS_Global.EVS_TlmPkt.Payload.OutputPort |= CmdPtr->BitMask;
 
-        EVS_SendEvent(CFE_EVS_ENAPORT_EID, CFE_EVS_EventType_DEBUG,
+        EVS_SendEvent(CFE_EVS_ENAPORT_INF_EID, CFE_EVS_EventType_INFORMATION,
                       "Enable Ports Command Received with Port Bit Mask = 0x%02x", (unsigned int)CmdPtr->BitMask);
         ReturnCode = CFE_SUCCESS;
     }
@@ -526,7 +526,7 @@ int32 CFE_EVS_DisablePortsCmd(const CFE_EVS_DisablePortsCmd_t *data)
         /* Process command data */
         CFE_EVS_Global.EVS_TlmPkt.Payload.OutputPort &= ~CmdPtr->BitMask;
 
-        EVS_SendEvent(CFE_EVS_DISPORT_EID, CFE_EVS_EventType_DEBUG,
+        EVS_SendEvent(CFE_EVS_DISPORT_INF_EID, CFE_EVS_EventType_INFORMATION,
                       "Disable Ports Command Received with Port Bit Mask = 0x%02x", (unsigned int)CmdPtr->BitMask);
 
         ReturnCode = CFE_SUCCESS;
@@ -569,7 +569,7 @@ int32 CFE_EVS_EnableEventTypeCmd(const CFE_EVS_EnableEventTypeCmd_t *data)
             ++AppDataPtr;
         }
 
-        EVS_SendEvent(CFE_EVS_ENAEVTTYPE_EID, CFE_EVS_EventType_DEBUG,
+        EVS_SendEvent(CFE_EVS_ENAEVTTYPE_INF_EID, CFE_EVS_EventType_INFORMATION,
                       "Enable Event Type Command Received with Event Type Bit Mask = 0x%02x",
                       (unsigned int)CmdPtr->BitMask);
 
@@ -614,7 +614,7 @@ int32 CFE_EVS_DisableEventTypeCmd(const CFE_EVS_DisableEventTypeCmd_t *data)
             ++AppDataPtr;
         }
 
-        EVS_SendEvent(CFE_EVS_DISEVTTYPE_EID, CFE_EVS_EventType_DEBUG,
+        EVS_SendEvent(CFE_EVS_DISEVTTYPE_INF_EID, CFE_EVS_EventType_INFORMATION,
                       "Disable Event Type Command Received with Event Type Bit Mask = 0x%02x",
                       (unsigned int)CmdPtr->BitMask);
 
@@ -639,7 +639,7 @@ int32 CFE_EVS_SetEventFormatModeCmd(const CFE_EVS_SetEventFormatModeCmd_t *data)
     {
         CFE_EVS_Global.EVS_TlmPkt.Payload.MessageFormatMode = CmdPtr->MsgFormat;
 
-        EVS_SendEvent(CFE_EVS_SETEVTFMTMOD_EID, CFE_EVS_EventType_DEBUG,
+        EVS_SendEvent(CFE_EVS_SETEVTFMTMOD_INF_EID, CFE_EVS_EventType_INFORMATION,
                       "Set Event Format Mode Command Received with Mode = 0x%02x", (unsigned int)CmdPtr->MsgFormat);
         Status = CFE_SUCCESS;
     }
@@ -708,7 +708,7 @@ int32 CFE_EVS_EnableAppEventTypeCmd(const CFE_EVS_EnableAppEventTypeCmd_t *data)
 
     if (Status == CFE_SUCCESS)
     {
-        EVS_SendEvent(CFE_EVS_ENAAPPEVTTYPE_EID, CFE_EVS_EventType_DEBUG,
+        EVS_SendEvent(CFE_EVS_ENAAPPEVTTYPE_INF_EID, CFE_EVS_EventType_INFORMATION,
                       "Enable App Event Type Command Received with AppName = %s, EventType Bit Mask = 0x%02x",
                       LocalName, CmdPtr->BitMask);
     }
@@ -770,7 +770,7 @@ int32 CFE_EVS_DisableAppEventTypeCmd(const CFE_EVS_DisableAppEventTypeCmd_t *dat
 
     if (Status == CFE_SUCCESS)
     {
-        EVS_SendEvent(CFE_EVS_DISAPPENTTYPE_EID, CFE_EVS_EventType_DEBUG,
+        EVS_SendEvent(CFE_EVS_DISAPPENTTYPE_INF_EID, CFE_EVS_EventType_INFORMATION,
                       "Disable App Event Type Command Received with AppName = %s, EventType Bit Mask = 0x%02x",
                       LocalName, (unsigned int)CmdPtr->BitMask);
     }
@@ -801,7 +801,7 @@ int32 CFE_EVS_EnableAppEventsCmd(const CFE_EVS_EnableAppEventsCmd_t *data)
     {
         AppDataPtr->ActiveFlag = true;
 
-        EVS_SendEvent(CFE_EVS_ENAAPPEVT_EID, CFE_EVS_EventType_DEBUG,
+        EVS_SendEvent(CFE_EVS_ENAAPPEVT_INF_EID, CFE_EVS_EventType_INFORMATION,
                       "Enable App Events Command Received with AppName = %s", LocalName);
     }
     else if (Status == CFE_EVS_APP_NOT_REGISTERED)
@@ -848,7 +848,7 @@ int32 CFE_EVS_DisableAppEventsCmd(const CFE_EVS_DisableAppEventsCmd_t *data)
     {
         AppDataPtr->ActiveFlag = false;
 
-        EVS_SendEvent(CFE_EVS_DISAPPEVT_EID, CFE_EVS_EventType_DEBUG,
+        EVS_SendEvent(CFE_EVS_DISAPPEVT_INF_EID, CFE_EVS_EventType_INFORMATION,
                       "Disable App Events Command Received with AppName = %s", LocalName);
     }
     else if (Status == CFE_EVS_APP_NOT_REGISTERED)
@@ -896,7 +896,7 @@ int32 CFE_EVS_ResetAppCounterCmd(const CFE_EVS_ResetAppCounterCmd_t *data)
         AppDataPtr->EventCount     = 0;
         AppDataPtr->SquelchedCount = 0;
 
-        EVS_SendEvent(CFE_EVS_RSTEVTCNT_EID, CFE_EVS_EventType_DEBUG,
+        EVS_SendEvent(CFE_EVS_RSTEVTCNT_INF_EID, CFE_EVS_EventType_INFORMATION,
                       "Reset Event Counter Command Received with AppName = %s", LocalName);
     }
     else if (Status == CFE_EVS_APP_NOT_REGISTERED)
@@ -948,7 +948,7 @@ int32 CFE_EVS_ResetFilterCmd(const CFE_EVS_ResetFilterCmd_t *data)
         {
             FilterPtr->Count = 0;
 
-            EVS_SendEvent(CFE_EVS_RSTFILTER_EID, CFE_EVS_EventType_DEBUG,
+            EVS_SendEvent(CFE_EVS_RSTFILTER_INF_EID, CFE_EVS_EventType_INFORMATION,
                           "Reset Filter Command Received with AppName = %s, EventID = 0x%08x", LocalName,
                           (unsigned int)CmdPtr->EventID);
         }
@@ -1009,7 +1009,7 @@ int32 CFE_EVS_ResetAllFiltersCmd(const CFE_EVS_ResetAllFiltersCmd_t *data)
             AppDataPtr->BinFilters[i].Count = 0;
         }
 
-        EVS_SendEvent(CFE_EVS_RSTALLFILTER_EID, CFE_EVS_EventType_DEBUG,
+        EVS_SendEvent(CFE_EVS_RSTALLFILTER_INF_EID, CFE_EVS_EventType_INFORMATION,
                       "Reset All Filters Command Received with AppName = %s", LocalName);
     }
     else if (Status == CFE_EVS_APP_NOT_REGISTERED)
@@ -1079,7 +1079,7 @@ int32 CFE_EVS_AddEventFilterCmd(const CFE_EVS_AddEventFilterCmd_t *data)
                 FilterPtr->Mask    = CmdPtr->Mask;
                 FilterPtr->Count   = 0;
 
-                EVS_SendEvent(CFE_EVS_ADDFILTER_EID, CFE_EVS_EventType_DEBUG,
+                EVS_SendEvent(CFE_EVS_ADDFILTER_INF_EID, CFE_EVS_EventType_INFORMATION,
                               "Add Filter Command Received with AppName = %s, EventID = 0x%08x, Mask = 0x%04x",
                               LocalName, (unsigned int)CmdPtr->EventID, (unsigned int)CmdPtr->Mask);
             }
@@ -1146,7 +1146,7 @@ int32 CFE_EVS_DeleteEventFilterCmd(const CFE_EVS_DeleteEventFilterCmd_t *data)
             FilterPtr->Mask    = CFE_EVS_NO_MASK;
             FilterPtr->Count   = 0;
 
-            EVS_SendEvent(CFE_EVS_DELFILTER_EID, CFE_EVS_EventType_DEBUG,
+            EVS_SendEvent(CFE_EVS_DELFILTER_INF_EID, CFE_EVS_EventType_INFORMATION,
                           "Delete Filter Command Received with AppName = %s, EventID = 0x%08x", LocalName,
                           (unsigned int)CmdPtr->EventID);
         }
@@ -1280,7 +1280,7 @@ int32 CFE_EVS_WriteAppDataFileCmd(const CFE_EVS_WriteAppDataFileCmd_t *data)
             /* Process command handler success result */
             if (i == CFE_PLATFORM_ES_MAX_APPLICATIONS)
             {
-                EVS_SendEvent(CFE_EVS_WRDAT_EID, CFE_EVS_EventType_DEBUG,
+                EVS_SendEvent(CFE_EVS_WRDAT_INF_EID, CFE_EVS_EventType_INFORMATION,
                               "Write App Data Command: %d application data entries written to %s", (int)EntryCount,
                               LocalName);
                 Result = CFE_SUCCESS;

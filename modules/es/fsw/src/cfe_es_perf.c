@@ -171,7 +171,7 @@ int32 CFE_ES_StartPerfDataCmd(const CFE_ES_StartPerfDataCmd_t *data)
             Perf->MetaData.State                 = CFE_ES_PERF_WAITING_FOR_TRIGGER; /* this must be done last */
             OS_MutSemGive(CFE_ES_Global.PerfDataMutex);
 
-            CFE_EVS_SendEvent(CFE_ES_PERF_STARTCMD_EID, CFE_EVS_EventType_DEBUG,
+            CFE_EVS_SendEvent(CFE_ES_PERF_STARTCMD_INF_EID, CFE_EVS_EventType_INFORMATION,
                               "Start collecting performance data cmd received, trigger mode = %d",
                               (int)CmdPtr->TriggerMode);
         }
@@ -403,7 +403,7 @@ bool CFE_ES_RunPerfLogDump(uint32 ElapsedTime, void *Arg)
                     break;
 
                 case CFE_ES_PerfDumpState_WRITE_PERF_ENTRIES:
-                    CFE_EVS_SendEvent(CFE_ES_PERF_DATAWRITTEN_EID, CFE_EVS_EventType_DEBUG,
+                    CFE_EVS_SendEvent(CFE_ES_PERF_DATAWRITTEN_INF_EID, CFE_EVS_EventType_INFORMATION,
                                       "%s written:Size=%lu,EntryCount=%lu", State->DataFileName,
                                       (unsigned long)State->FileSize, (unsigned long)Perf->MetaData.DataCount);
                     break;
@@ -499,7 +499,7 @@ int32 CFE_ES_SetPerfFilterMaskCmd(const CFE_ES_SetPerfFilterMaskCmd_t *data)
     {
         Perf->MetaData.FilterMask[cmd->FilterMaskNum] = cmd->FilterMask;
 
-        CFE_EVS_SendEvent(CFE_ES_PERF_FILTMSKCMD_EID, CFE_EVS_EventType_DEBUG,
+        CFE_EVS_SendEvent(CFE_ES_PERF_FILTMSKCMD_INF_EID, CFE_EVS_EventType_INFORMATION,
                           "Set Performance Filter Mask Cmd rcvd, num %u, val 0x%08X", (unsigned int)cmd->FilterMaskNum,
                           (unsigned int)cmd->FilterMask);
 
@@ -537,7 +537,7 @@ int32 CFE_ES_SetPerfTriggerMaskCmd(const CFE_ES_SetPerfTriggerMaskCmd_t *data)
     {
         Perf->MetaData.TriggerMask[cmd->TriggerMaskNum] = cmd->TriggerMask;
 
-        CFE_EVS_SendEvent(CFE_ES_PERF_TRIGMSKCMD_EID, CFE_EVS_EventType_DEBUG,
+        CFE_EVS_SendEvent(CFE_ES_PERF_TRIGMSKCMD_INF_EID, CFE_EVS_EventType_INFORMATION,
                           "Set Performance Trigger Mask Cmd rcvd,num %u, val 0x%08X", (unsigned int)cmd->TriggerMaskNum,
                           (unsigned int)cmd->TriggerMask);
 

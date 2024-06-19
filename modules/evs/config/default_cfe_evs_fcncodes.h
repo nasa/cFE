@@ -48,7 +48,7 @@
 **       following telemetry:
 **       - \b \c \EVS_CMDPC - command execution counter will
 **         increment
-**       - The #CFE_EVS_NOOP_EID informational event message will
+**       - The #CFE_EVS_NOOP_INF_EID informational event message will
 **         be generated
 **
 **  \par Error Conditions
@@ -84,7 +84,7 @@
 **         will be reset to 0
 **       - \b \c \EVS_CMDEC - command error counter
 **         will be reset to 0
-**       - The #CFE_EVS_RSTCNT_EID debug event message will be
+**       - The #CFE_EVS_RESET_INF_EID informational event message will be
 **         generated
 **
 **  \par Error Conditions
@@ -130,7 +130,7 @@
 **
 **        - \b \c \EVS_CMDPC - command execution counter will
 **         increment
-**        - The generation of  #CFE_EVS_ENAEVTTYPE_EID debug message
+**        - The generation of  #CFE_EVS_ENAEVTTYPE_INF_EID informational message
 **
 **  \par Error Conditions
 **        This command may fail for the following reason(s):
@@ -178,7 +178,7 @@
 **
 **       - \b \c \EVS_CMDPC - command execution counter will
 **       increment
-         - The generation of #CFE_EVS_DISEVTTYPE_EID debug message
+         - The generation of #CFE_EVS_DISEVTTYPE_INF_EID informational message
 **
 **  \par Error Conditions
 **       This command may fail for the following reason(s):
@@ -228,7 +228,7 @@
 **
 **       - \b \c \EVS_CMDPC - command execution counter will
 **       increment
-**       - The generation of #CFE_EVS_SETEVTFMTMOD_EID debug message
+**       - The generation of #CFE_EVS_SETEVTFMTMOD_INF_EID informational message
 **
 **  \par Error Conditions
 **       This command may fail for the following reason(s):
@@ -277,7 +277,7 @@
 **       the following telemetry:
 **       - \b \c \EVS_CMDPC - command execution counter will
 **       increment
-**       - The generation of #CFE_EVS_ENAAPPEVTTYPE_EID debug event message
+**       - The generation of #CFE_EVS_ENAAPPEVTTYPE_INF_EID informational event message
 **
 **  \par Error Conditions
 **       This command may fail for the following reason(s):
@@ -328,7 +328,7 @@
 **       the following telemetry:
 **       - \b \c \EVS_CMDPC - command execution counter will
 **       increment
-**       - The generation of #CFE_EVS_DISAPPENTTYPE_EID debug event message
+**       - The generation of #CFE_EVS_DISAPPENTTYPE_INF_EID informational event message
 **       - The clearing of the Event Type Active Flag in The Event Type Active Flag in EVS App Data File
 **
 **  \par Error Conditions
@@ -369,7 +369,7 @@
 **       the following telemetry:
 **       - \b \c \EVS_CMDPC - command execution counter will
 **       increment
-**       - The generation of #CFE_EVS_ENAAPPEVT_EID debug event message
+**       - The generation of #CFE_EVS_ENAAPPEVT_INF_EID informational event message
 **       - The setting of the Active Flag in The Active Flag in EVS App Data File
 **
 **  \par Error Conditions
@@ -408,7 +408,7 @@
 **       the following telemetry:
 **       - \b \c \EVS_CMDPC - command execution counter will
 **       increment
-**       - The generation of #CFE_EVS_DISAPPEVT_EID debug event message
+**       - The generation of #CFE_EVS_DISAPPEVT_INF_EID informational event message
 **
 **  \par Error Conditions
 **       This command may fail for the following reason(s):
@@ -447,7 +447,7 @@
 **       the following telemetry:
 **       - \b \c \EVS_CMDPC - command execution counter will
 **       increment
-**       - The generation of #CFE_EVS_RSTEVTCNT_EID debug event message
+**       - The generation of #CFE_EVS_RSTEVTCNT_INF_EID informational event message
 **
 **  \par Error Conditions
 **       This command may fail for the following reason(s):
@@ -484,7 +484,7 @@
 **       the following telemetry:
 **       - \b \c \EVS_CMDPC - command execution counter will
 **       increment
-**       - The generation of #CFE_EVS_SETFILTERMSK_EID debug event message
+**       - The generation of #CFE_EVS_SETFILTERMSK_INF_EID informational event message
 **
 **  \par Error Conditions
 **       This command may fail for the following reason(s):
@@ -530,7 +530,7 @@
 **       the following telemetry:
 **       - \b \c \EVS_CMDPC - command execution counter will
 **       increment
-**       - The generation of #CFE_EVS_ENAPORT_EID debug event message
+**       - The generation of #CFE_EVS_ENAPORT_INF_EID informational event message
 **
 **  \par Error Conditions
 **       This command may fail for the following reason(s):
@@ -569,7 +569,7 @@
 **       the following telemetry:
 **       - \b \c \EVS_CMDPC - command execution counter will
 **       increment
-**       - The generation of #CFE_EVS_DISPORT_EID debug event message
+**       - The generation of #CFE_EVS_DISPORT_INF_EID informational event message
 **
 **  \par Error Conditions
 **       This command may fail for the following reason(s):
@@ -603,7 +603,7 @@
 **       the following telemetry:
 **       - \b \c \EVS_CMDPC - command execution counter will
 **       increment
-**       - The generation of #CFE_EVS_RSTFILTER_EID debug event message
+**       - The generation of #CFE_EVS_RSTFILTER_INF_EID informational event message
 **
 **  \par Error Conditions
 **       This command may fail for the following reason(s):
@@ -639,7 +639,7 @@
 **       the following telemetry:
 **       - \b \c \EVS_CMDPC - command execution counter will
 **       increment
-**       - The generation of #CFE_EVS_RSTALLFILTER_EID debug event message
+**       - The generation of #CFE_EVS_RSTALLFILTER_INF_EID informational event message
 **
 **  \par Error Conditions
 **       This command may fail for the following reason(s):
@@ -673,7 +673,7 @@
 **       the following telemetry:
 **       - \b \c \EVS_CMDPC - command execution counter will
 **       increment
-**       - The generation of #CFE_EVS_ADDFILTER_EID debug event message
+**       - The generation of #CFE_EVS_ADDFILTER_INF_EID informational event message
 **
 **  \par Error Conditions
 **       This command may fail for the following reason(s):
@@ -709,7 +709,7 @@
 **       the following telemetry:
 **       - \b \c \EVS_CMDPC - command execution counter will
 **       increment
-**       - The generation of #CFE_EVS_DELFILTER_EID debug event message
+**       - The generation of #CFE_EVS_DELFILTER_INF_EID informational event message
 **
 **  \par Error Conditions
 **       This command may fail for the following reason(s):
@@ -744,7 +744,7 @@
 **       the following telemetry:
 **       - \b \c \EVS_CMDPC - command execution counter will
 **       increment
-**       - The generation of #CFE_EVS_WRDAT_EID debug event message
+**       - The generation of #CFE_EVS_WRDAT_INF_EID informational event message
 **       - The file specified in the command (or the default specified
 **         by the #CFE_PLATFORM_EVS_DEFAULT_APP_DATA_FILE configuration parameter) will be
 **         updated with the latest information.
@@ -782,7 +782,7 @@
 **       the following telemetry:
 **       - \b \c \EVS_CMDPC - command execution counter will
 **       increment
-**       - The generation of #CFE_EVS_WRLOG_EID debug event message
+**       - The generation of #CFE_EVS_WRLOG_INF_EID informational event message
 **
 **  \par Error Conditions
 **       This command may fail for the following reason(s):
@@ -816,7 +816,7 @@
 **       the following telemetry:
 **       - \b \c \EVS_CMDPC - command execution counter will
 **       increment
-**       - The generation of #CFE_EVS_LOGMODE_EID debug event message
+**       - The generation of #CFE_EVS_LOGMODE_INF_EID informational event message
 **
 **  \par Error Conditions
 **       This command may fail for the following reason(s):
