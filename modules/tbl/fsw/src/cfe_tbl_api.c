@@ -560,7 +560,7 @@ CFE_Status_t CFE_TBL_Load(CFE_TBL_Handle_t TblHandle, CFE_TBL_SrcEnum_t SrcType,
         strncpy(RegRecPtr->LastFileLoaded, WorkingBufferPtr->DataSource, sizeof(RegRecPtr->LastFileLoaded) - 1);
         RegRecPtr->LastFileLoaded[sizeof(RegRecPtr->LastFileLoaded) - 1] = '\0';
 
-        CFE_TBL_NotifyTblUsersOfUpdate(RegRecPtr);
+        CFE_TBL_MarkTblAsUpdated(RegRecPtr);
 
         /* If the table is a critical table, update the appropriate CDS with the new data */
         if (RegRecPtr->CriticalTable == true)
