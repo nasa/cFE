@@ -172,7 +172,7 @@
 **       - The file specified in the command (or the default specified
 **         by the #CFE_PLATFORM_SB_DEFAULT_ROUTING_FILENAME configuration parameter) will be
 **         updated with the latest information.
-**       - The #CFE_SB_SND_RTG_EID debug event message will be generated
+**       - The #CFE_SB_FILE_WRITE_EID debug event message will be generated
 **
 **  \par Error Conditions
 **       This command may fail for the following reason(s):
@@ -182,7 +182,7 @@
 **       Evidence of failure may be found in the following telemetry:
 **       - \b \c \SB_CMDEC - command error counter will increment
 **       - A command specific error event message is issued for all error
-**         cases. See #CFE_SB_SND_RTG_ERR1_EID and #CFE_SB_FILEWRITE_ERR_EID
+**         cases. See #CFE_SB_FILE_WRITE_CR_ERR_EID and #CFE_SB_FILE_WRITE_ERR_EID
 **
 **  \par Criticality
 **       This command is not inherently dangerous.  It will create a new
@@ -296,7 +296,7 @@
 **       - The file specified in the command (or the default specified
 **         by the #CFE_PLATFORM_SB_DEFAULT_PIPE_FILENAME configuration parameter) will be
 **         updated with the latest information.
-**       - The #CFE_SB_SND_RTG_EID debug event message will be generated
+**       - The #CFE_SB_FILE_WRITE_EID debug event message will be generated
 **
 **  \par Error Conditions
 **       This command may fail for the following reason(s):
@@ -306,7 +306,7 @@
 **       Evidence of failure may be found in the following telemetry:
 **       - \b \c \SB_CMDEC - command error counter will increment
 **       - A command specific error event message is issued for all error
-**         cases. See #CFE_SB_SND_RTG_ERR1_EID and #CFE_SB_FILEWRITE_ERR_EID
+**         cases. See #CFE_SB_FILE_WRITE_CR_ERR_EID and #CFE_SB_FILE_WRITE_ERR_EID
 **
 **  \par Criticality
 **       This command is not inherently dangerous.  It will create a new
@@ -342,7 +342,7 @@
 **       - The file specified in the command (or the default specified
 **         by the #CFE_PLATFORM_SB_DEFAULT_MAP_FILENAME configuration parameter) will be
 **         updated with the latest information.
-**       - The #CFE_SB_SND_RTG_EID debug event message will be generated
+**       - The #CFE_SB_FILE_WRITE_EID debug event message will be generated
 **
 **  \par Error Conditions
 **       This command may fail for the following reason(s):
@@ -352,7 +352,7 @@
 **       Evidence of failure may be found in the following telemetry:
 **       - \b \c \SB_CMDEC - command error counter will increment
 **       - A command specific error event message is issued for all error
-**         cases. See #CFE_SB_SND_RTG_ERR1_EID and #CFE_SB_FILEWRITE_ERR_EID
+**         cases. See #CFE_SB_FILE_WRITE_CR_ERR_EID and #CFE_SB_FILE_WRITE_ERR_EID
 **
 **  \par Criticality
 **       This command is not inherently dangerous.  It will create a new
