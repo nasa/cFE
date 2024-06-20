@@ -71,7 +71,7 @@ void Test_MSG_Time(void)
         UtAssert_INT32_EQ(actual.Seconds, 0xFFFFFFFF);
         UtAssert_INT32_EQ(actual.Subseconds, 0xFFFF0000);
         CFE_UtAssert_SUCCESS(CFE_MSG_SetMsgTime(msgptr, input[i]));
-        UT_DisplayPkt(msgptr, sizeof(tlm));
+        UtPrintx(msgptr, sizeof(tlm));
         CFE_UtAssert_SUCCESS(CFE_MSG_GetMsgTime(msgptr, &actual));
         UtAssert_INT32_EQ(actual.Seconds, input[i].Seconds);
         UtAssert_INT32_EQ(actual.Subseconds, input[i].Subseconds & 0xFFFF0000);
@@ -87,7 +87,7 @@ void Test_MSG_Time(void)
         UtAssert_INT32_EQ(actual.Seconds, 0);
         UtAssert_INT32_EQ(actual.Subseconds, 0);
         CFE_UtAssert_SUCCESS(CFE_MSG_SetMsgTime(msgptr, input[i]));
-        UT_DisplayPkt(msgptr, sizeof(tlm));
+        UtPrintx(msgptr, sizeof(tlm));
         CFE_UtAssert_SUCCESS(CFE_MSG_GetMsgTime(msgptr, &actual));
         UtAssert_INT32_EQ(actual.Seconds, input[i].Seconds);
         UtAssert_INT32_EQ(actual.Subseconds, input[i].Subseconds & 0xFFFF0000);
