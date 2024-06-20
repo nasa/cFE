@@ -678,7 +678,7 @@ int32 CFE_SB_SendSubscriptionReport(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId
 
         Status = CFE_SB_TransmitMsg(CFE_MSG_PTR(SubRptMsg.TelemetryHeader), true);
         CFE_EVS_SendEventWithAppID(CFE_SB_SUBSCRIPTION_RPT_EID, CFE_EVS_EventType_DEBUG, CFE_SB_Global.AppId,
-                                   "Sending Subscription Report Msg=0x%x,Pipe=%lu,Stat=0x%x",
+                                   "Sending Subscription Report Msg=0x%x,Pipe=%lx,Stat=0x%x",
                                    (unsigned int)CFE_SB_MsgIdToValue(MsgId), CFE_RESOURCEID_TO_ULONG(PipeId),
                                    (unsigned int)Status);
     }

@@ -661,17 +661,6 @@
 #define CFE_SB_GETPIPEOPTS_EID 60
 
 /**
- * \brief SB Get Pipe Name API Success Event ID
- *
- *  \par Type: DEBUG
- *
- *  \par Cause:
- *
- *  #CFE_SB_GetPipeName success.
- */
-#define CFE_SB_GETPIPENAME_EID 62
-
-/**
  * \brief SB Get Pipe Name API Invalid Pointer Event ID
  *
  *  \par Type: ERROR
