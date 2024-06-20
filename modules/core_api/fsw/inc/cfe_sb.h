@@ -38,14 +38,6 @@
 #include "cfe_sb_api_typedefs.h"
 #include "cfe_es_api_typedefs.h"
 
-/*
-** Macro Definitions
-*/
-#define CFE_BIT(x)    (1 << (x))              /**< \brief Places a one at bit positions 0 - 31*/
-#define CFE_SET(i, x) ((i) |= CFE_BIT(x))     /**< \brief Sets bit x of i */
-#define CFE_CLR(i, x) ((i) &= ~CFE_BIT(x))    /**< \brief Clears bit x of i */
-#define CFE_TST(i, x) (((i)&CFE_BIT(x)) != 0) /**< \brief true(non zero) if bit x of i is set */
-
 /****************** Function Prototypes **********************/
 
 /** @defgroup CFEAPISBPipe cFE Pipe Management APIs
