@@ -227,8 +227,8 @@ CFE_Status_t CFE_SB_CreatePipe(CFE_SB_PipeId_t *PipeIdPtr, uint16 Depth, const c
     /* Send any pending events now, after final unlock */
     if (Status == CFE_SUCCESS)
     {
-        /* send debug event */
-        CFE_EVS_SendEventWithAppID(CFE_SB_PIPE_ADDED_EID, CFE_EVS_EventType_DEBUG, CFE_SB_Global.AppId,
+        /* send informational event */
+        CFE_EVS_SendEventWithAppID(CFE_SB_PIPE_ADDED_INF_EID, CFE_EVS_EventType_INFORMATION, CFE_SB_Global.AppId,
                                    "Pipe Created:name %s,id %d,app %s", PipeName,
                                    (int)CFE_ResourceId_ToInteger(PendingPipeId), CFE_SB_GetAppTskName(TskId, FullName));
 
@@ -448,7 +448,7 @@ int32 CFE_SB_DeletePipeFull(CFE_SB_PipeId_t PipeId, CFE_ES_AppId_t AppId)
          */
         CFE_ES_GetAppName(FullName, AppId, sizeof(FullName));
 
-        CFE_EVS_SendEventWithAppID(CFE_SB_PIPE_DELETED_EID, CFE_EVS_EventType_DEBUG, CFE_SB_Global.AppId,
+        CFE_EVS_SendEventWithAppID(CFE_SB_PIPE_DELETED_INF_EID, CFE_EVS_EventType_INFORMATION, CFE_SB_Global.AppId,
                                    "Pipe Deleted:id %d,owner %s", (int)CFE_RESOURCEID_TO_ULONG(PipeId), FullName);
     }
     else
@@ -534,7 +534,7 @@ CFE_Status_t CFE_SB_SetPipeOpts(CFE_SB_PipeId_t PipeId, uint8 Opts)
         /* get AppID of caller for events */
         CFE_ES_GetAppName(FullName, AppID, sizeof(FullName));
 
-        CFE_EVS_SendEventWithAppID(CFE_SB_SETPIPEOPTS_EID, CFE_EVS_EventType_DEBUG, CFE_SB_Global.AppId,
+        CFE_EVS_SendEventWithAppID(CFE_SB_SETPIPEOPTS_INF_EID, CFE_EVS_EventType_INFORMATION, CFE_SB_Global.AppId,
                                    "Pipe opts set:id %lu,owner %s, opts=0x%02x", CFE_RESOURCEID_TO_ULONG(PipeId),
                                    FullName, (unsigned int)Opts);
     }
@@ -610,7 +610,7 @@ CFE_Status_t CFE_SB_GetPipeOpts(CFE_SB_PipeId_t PipeId, uint8 *OptsPtr)
     /* Send events after unlocking SB */
     if (Status == CFE_SUCCESS)
     {
-        CFE_EVS_SendEventWithAppID(CFE_SB_GETPIPEOPTS_EID, CFE_EVS_EventType_DEBUG, CFE_SB_Global.AppId,
+        CFE_EVS_SendEventWithAppID(CFE_SB_GETPIPEOPTS_INF_EID, CFE_EVS_EventType_INFORMATION, CFE_SB_Global.AppId,
                                    "Pipe opts get:id %lu, opts=0x%02x", CFE_RESOURCEID_TO_ULONG(PipeId),
                                    (unsigned int)*OptsPtr);
     }
@@ -700,7 +700,7 @@ CFE_Status_t CFE_SB_GetPipeName(char *PipeNameBuf, size_t PipeNameSize, CFE_SB_P
     /* Send Events */
     if (Status == CFE_SUCCESS)
     {
-        CFE_EVS_SendEventWithAppID(CFE_SB_GETPIPENAME_EID, CFE_EVS_EventType_DEBUG, CFE_SB_Global.AppId,
+        CFE_EVS_SendEventWithAppID(CFE_SB_GETPIPENAME_INF_EID, CFE_EVS_EventType_INFORMATION, CFE_SB_Global.AppId,
                                    "GetPipeName name=%s id=%lu", PipeNameBuf, CFE_RESOURCEID_TO_ULONG(PipeId));
     }
     else
@@ -807,7 +807,7 @@ CFE_Status_t CFE_SB_GetPipeIdByName(CFE_SB_PipeId_t *PipeIdPtr, const char *Pipe
     /* Send Events */
     if (Status == CFE_SUCCESS)
     {
-        CFE_EVS_SendEventWithAppID(CFE_SB_GETPIPEIDBYNAME_EID, CFE_EVS_EventType_DEBUG, CFE_SB_Global.AppId,
+        CFE_EVS_SendEventWithAppID(CFE_SB_GETPIPEIDBYNAME_INF_EID, CFE_EVS_EventType_INFORMATION, CFE_SB_Global.AppId,
                                    "PipeIdByName name=%s id=%lu", PipeName, CFE_RESOURCEID_TO_ULONG(*PipeIdPtr));
     }
     else
@@ -1085,8 +1085,8 @@ int32 CFE_SB_SubscribeFull(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId, CFE_SB_
     }
     else if (Status == CFE_SUCCESS)
     {
-        /* If no other event pending, send a debug event indicating success */
-        CFE_EVS_SendEventWithAppID(CFE_SB_SUBSCRIPTION_RCVD_EID, CFE_EVS_EventType_DEBUG, CFE_SB_Global.AppId,
+        /* If no other event pending, send a informational event indicating success */
+        CFE_EVS_SendEventWithAppID(CFE_SB_SUBSCRIPTION_RCVD_INF_EID, CFE_EVS_EventType_INFORMATION, CFE_SB_Global.AppId,
                                    "Subscription Rcvd:MsgId 0x%x on PipeId %lu,app %s",
                                    (unsigned int)CFE_SB_MsgIdToValue(MsgId), CFE_RESOURCEID_TO_ULONG(PipeId),
                                    CFE_SB_GetAppTskName(TskId, FullName));
@@ -1272,9 +1272,9 @@ int32 CFE_SB_UnsubscribeFull(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId, uint8
     }
     else if (Status == CFE_SUCCESS)
     {
-        /* if no other event pending, send a debug event for successful unsubscribe */
-        CFE_EVS_SendEventWithAppID(CFE_SB_SUBSCRIPTION_REMOVED_EID, CFE_EVS_EventType_DEBUG, CFE_SB_Global.AppId,
-                                   "Subscription Removed:Msg 0x%x on pipe %lu,app %s",
+        /* if no other event pending, send an informational event for successful unsubscribe */
+        CFE_EVS_SendEventWithAppID(CFE_SB_SUBSCRIPTION_REMOVED_INF_EID, CFE_EVS_EventType_INFORMATION,
+                                   CFE_SB_Global.AppId, "Subscription Removed:Msg 0x%x on pipe %lu,app %s",
                                    (unsigned int)CFE_SB_MsgIdToValue(MsgId), CFE_RESOURCEID_TO_ULONG(PipeId),
                                    CFE_SB_GetAppTskName(TskId, FullName));
     }

@@ -186,24 +186,24 @@
 /**
  * \brief ES Query One Application Command Success Event ID
  *
- *  \par Type: DEBUG
+ *  \par Type: INFORMATION
  *
  *  \par Cause:
  *
  *  \link #CFE_ES_QUERY_ONE_CC ES Query One Application Command \endlink success.
  */
-#define CFE_ES_ONE_APP_EID 15
+#define CFE_ES_ONE_APP_INF_EID 15
 
 /**
  * \brief ES Query All Applications Command Success Event ID
  *
- *  \par Type: DEBUG
+ *  \par Type: INFORMATION
  *
  *  \par Cause:
  *
  *  \link #CFE_ES_QUERY_ALL_CC ES Query All Applications Command \endlink success.
  */
-#define CFE_ES_ALL_APPS_EID 16
+#define CFE_ES_ALL_APPS_INF_EID 16
 
 /**
  * \brief ES Clear System Log Command Success Event ID
@@ -219,13 +219,13 @@
 /**
  * \brief ES Write System Log Command Success Event ID
  *
- *  \par Type: DEBUG
+ *  \par Type: INFORMATION
  *
  *  \par Cause:
  *
  *  \link #CFE_ES_CLEAR_SYS_LOG_CC ES Write System Log Command \endlink success.
  */
-#define CFE_ES_SYSLOG2_EID 18
+#define CFE_ES_SYSLOG2_INF_EID 18
 
 /**
  * \brief ES Clear Exception Reset Log Command Success Event ID
@@ -241,13 +241,13 @@
 /**
  * \brief ES Write Exception Reset Log Complete Event ID
  *
- *  \par Type: DEBUG
+ *  \par Type: INFORMATION
  *
  *  \par Cause:
  *
  *  Request to write the Exception Reset log successfully completed.
  */
-#define CFE_ES_ERLOG2_EID 20
+#define CFE_ES_ERLOG2_INF_EID 20
 
 /**
  * \brief ES Invalid Message ID Received Event ID
@@ -628,13 +628,13 @@
 /**
  * \brief ES Start Performance Analyzer Data Collection Command Success Event ID
  *
- *  \par Type: DEBUG
+ *  \par Type: INFORMATION
  *
  *  \par Cause:
  *
  *  \link #CFE_ES_START_PERF_DATA_CC ES Start Performance Analyzer Data Collection Command \endlink success.
  */
-#define CFE_ES_PERF_STARTCMD_EID 57
+#define CFE_ES_PERF_STARTCMD_INF_EID 57
 
 /**
  * \brief ES Start Performance Analyzer Data Collection Command Idle Check Failed Event ID
@@ -669,7 +669,7 @@
  *
  *  \link #CFE_ES_STOP_PERF_DATA_CC ES Stop Performance Analyzer Data Collection Command \endlink success.
  *  Note this event signifies the request to stop and write the performance data has been successfully
- *  submitted.  The successful completion will generate a #CFE_ES_PERF_DATAWRITTEN_EID event.
+ *  submitted.  The successful completion will generate a #CFE_ES_PERF_DATAWRITTEN_INF_EID event.
  */
 #define CFE_ES_PERF_STOPCMD_EID 60
 
@@ -688,13 +688,13 @@
 /**
  * \brief ES Set Performance Analyzer Filter Mask Command Success Event ID
  *
- *  \par Type: DEBUG
+ *  \par Type: INFORMATION
  *
  *  \par Cause:
  *
  *  \link #CFE_ES_SET_PERF_FILTER_MASK_CC ES Set Performance Analyzer Filter Mask Command \endlink success.
  */
-#define CFE_ES_PERF_FILTMSKCMD_EID 63
+#define CFE_ES_PERF_FILTMSKCMD_INF_EID 63
 
 /**
  * \brief ES Set Performance Analyzer Filter Mask Command Invalid Index Event ID
@@ -711,13 +711,13 @@
 /**
  * \brief ES Set Performance Analyzer Trigger Mask Command Success Event ID
  *
- *  \par Type: DEBUG
+ *  \par Type: INFORMATION
  *
  *  \par Cause:
  *
  *  \link #CFE_ES_SET_PERF_TRIGGER_MASK_CC ES Set Performance Analyzer Trigger Mask Command \endlink success.
  */
-#define CFE_ES_PERF_TRIGMSKCMD_EID 65
+#define CFE_ES_PERF_TRIGMSKCMD_INF_EID 65
 
 /**
  * \brief ES Set Performance Analyzer Trigger Mask Command Invalid Mask Event ID
@@ -746,13 +746,13 @@
 /**
  * \brief Performance Log Write Success Event ID
  *
- *  \par Type: DEBUG
+ *  \par Type: INFORMATION
  *
  *  \par Cause:
  *
  *  Request to write the performance log successfully completed.
  */
-#define CFE_ES_PERF_DATAWRITTEN_EID 68
+#define CFE_ES_PERF_DATAWRITTEN_INF_EID 68
 
 /**
  * \brief ES Register CDS API Failed Event ID
@@ -768,13 +768,13 @@
 /**
  * \brief ES Set System Log Overwrite Mode Command Success Event ID
  *
- *  \par Type: DEBUG
+ *  \par Type: INFORMATION
  *
  *  \par Cause:
  *
  *  \link #CFE_ES_OVER_WRITE_SYS_LOG_CC ES Set System Log Overwrite Mode Command \endlink success.
  */
-#define CFE_ES_SYSLOGMODE_EID 70
+#define CFE_ES_SYSLOGMODE_INF_EID 70
 
 /**
  * \brief ES Set System Log Overwrite Mode Command Failed Event ID
@@ -885,13 +885,13 @@
 /**
  * \brief ES Telemeter Memory Statistics Command Success Event ID
  *
- *  \par Type: DEBUG
+ *  \par Type: INFORMATION
  *
  *  \par Cause:
  *
  *  \link #CFE_ES_SEND_MEM_POOL_STATS_CC ES Telemeter Memory Statistics Command \endlink success.
  */
-#define CFE_ES_TLM_POOL_STATS_INFO_EID 81
+#define CFE_ES_TLM_POOL_STATS_INF_EID 81
 
 /**
  * \brief ES Telemeter Memory Statistics Command Invalid Handle Event ID
@@ -908,7 +908,7 @@
 /**
  * \brief ES Write Critical Data Store Registry Command Success Event ID
  *
- *  \par Type: DEBUG
+ *  \par Type: INFORMATION
  *
  *  \par Cause:
  *
@@ -955,13 +955,13 @@
 /**
  * \brief ES Write All Task Data Command Success Event ID
  *
- *  \par Type: DEBUG
+ *  \par Type: INFORMATION
  *
  *  \par Cause:
  *
  *  \link #CFE_ES_QUERY_ALL_TASKS_CC ES Write All Task Data Command \endlink success.
  */
-#define CFE_ES_TASKINFO_EID 87
+#define CFE_ES_TASKINFO_INF_EID 87
 
 /**
  * \brief ES Write All Task Data Command Filename Parse or File Create Failed Event ID

@@ -924,7 +924,8 @@ int32 CFE_ES_QueryOneCmd(const CFE_ES_QueryOneCmd_t *data)
         if (Result == CFE_SUCCESS)
         {
             CFE_ES_Global.TaskData.CommandCounter++;
-            CFE_EVS_SendEvent(CFE_ES_ONE_APP_EID, CFE_EVS_EventType_DEBUG, "Sent %s application data", LocalApp);
+            CFE_EVS_SendEvent(CFE_ES_ONE_APP_INF_EID, CFE_EVS_EventType_INFORMATION, "Sent %s application data",
+                              LocalApp);
         }
         else
         {
@@ -964,8 +965,8 @@ int32 CFE_ES_QueryAllCmd(const CFE_ES_QueryAllCmd_t *data)
     char                                QueryAllFilename[OS_MAX_PATH_LEN];
     CFE_ResourceId_t                    ResourceList[CFE_ES_QUERY_ALL_MAX_ENTRIES];
     uint32                              NumResources;
-    CFE_ES_AppRecord_t *                AppRecPtr;
-    CFE_ES_LibRecord_t *                LibRecPtr;
+    CFE_ES_AppRecord_t                 *AppRecPtr;
+    CFE_ES_LibRecord_t                 *LibRecPtr;
 
     /*
      * Collect list of active resource IDs.
@@ -1092,7 +1093,7 @@ int32 CFE_ES_QueryAllCmd(const CFE_ES_QueryAllCmd_t *data)
 
         OS_close(FileDescriptor);
         CFE_ES_Global.TaskData.CommandCounter++;
-        CFE_EVS_SendEvent(CFE_ES_ALL_APPS_EID, CFE_EVS_EventType_DEBUG,
+        CFE_EVS_SendEvent(CFE_ES_ALL_APPS_INF_EID, CFE_EVS_EventType_INFORMATION,
                           "App Info file written to %s, Entries=%d, FileSize=%d", QueryAllFilename, (int)EntryCount,
                           (int)FileSize);
     }
@@ -1124,7 +1125,7 @@ int32 CFE_ES_QueryAllTasksCmd(const CFE_ES_QueryAllTasksCmd_t *data)
     char                                QueryAllFilename[OS_MAX_PATH_LEN];
     CFE_ES_TaskId_t                     TaskList[OS_MAX_TASKS];
     uint32                              NumTasks;
-    CFE_ES_TaskRecord_t *               TaskRecPtr;
+    CFE_ES_TaskRecord_t                *TaskRecPtr;
 
     /*
      * Collect list of active task IDs.
@@ -1244,7 +1245,7 @@ int32 CFE_ES_QueryAllTasksCmd(const CFE_ES_QueryAllTasksCmd_t *data)
 
         OS_close(FileDescriptor);
         CFE_ES_Global.TaskData.CommandCounter++;
-        CFE_EVS_SendEvent(CFE_ES_TASKINFO_EID, CFE_EVS_EventType_DEBUG,
+        CFE_EVS_SendEvent(CFE_ES_TASKINFO_INF_EID, CFE_EVS_EventType_INFORMATION,
                           "Task Info file written to %s, Entries=%d, FileSize=%d", QueryAllFilename, (int)EntryCount,
                           (int)FileSize);
     }
@@ -1303,7 +1304,7 @@ int32 CFE_ES_OverWriteSysLogCmd(const CFE_ES_OverWriteSysLogCmd_t *data)
     }
     else
     {
-        CFE_EVS_SendEvent(CFE_ES_SYSLOGMODE_EID, CFE_EVS_EventType_DEBUG,
+        CFE_EVS_SendEvent(CFE_ES_SYSLOGMODE_INF_EID, CFE_EVS_EventType_INFORMATION,
                           "Set OverWriteSysLog Command Received with Mode setting = %d", (int)CmdPtr->Mode);
 
         CFE_ES_Global.TaskData.CommandCounter++;
@@ -1400,7 +1401,7 @@ int32 CFE_ES_ClearERLogCmd(const CFE_ES_ClearERLogCmd_t *data)
 int32 CFE_ES_WriteERLogCmd(const CFE_ES_WriteERLogCmd_t *data)
 {
     const CFE_ES_FileNameCmd_Payload_t *CmdPtr = &data->Payload;
-    CFE_ES_BackgroundLogDumpGlobal_t *  StatePtr;
+    CFE_ES_BackgroundLogDumpGlobal_t   *StatePtr;
     int32                               Status;
 
     StatePtr = &CFE_ES_Global.BackgroundERLogDumpState;
@@ -1604,7 +1605,7 @@ int32 CFE_ES_SendMemPoolStatsCmd(const CFE_ES_SendMemPoolStatsCmd_t *data)
         CFE_SB_TransmitMsg(CFE_MSG_PTR(CFE_ES_Global.TaskData.MemStatsPacket.TelemetryHeader), true);
 
         CFE_ES_Global.TaskData.CommandCounter++;
-        CFE_EVS_SendEvent(CFE_ES_TLM_POOL_STATS_INFO_EID, CFE_EVS_EventType_DEBUG,
+        CFE_EVS_SendEvent(CFE_ES_TLM_POOL_STATS_INF_EID, CFE_EVS_EventType_INFORMATION,
                           "Successfully telemetered memory pool stats for 0x%08lX",
                           CFE_RESOURCEID_TO_ULONG(Cmd->PoolHandle));
     }
@@ -1634,7 +1635,7 @@ int32 CFE_ES_DumpCDSRegistryCmd(const CFE_ES_DumpCDSRegistryCmd_t *data)
     int16                                      RegIndex = 0;
     const CFE_ES_DumpCDSRegistryCmd_Payload_t *CmdPtr   = &data->Payload;
     char                                       DumpFilename[OS_MAX_PATH_LEN];
-    CFE_ES_CDS_RegRec_t *                      RegRecPtr;
+    CFE_ES_CDS_RegRec_t                       *RegRecPtr;
     CFE_ES_CDSRegDumpRec_t                     DumpRecord;
     int32                                      FileSize   = 0;
     int32                                      NumEntries = 0;
@@ -1707,7 +1708,7 @@ int32 CFE_ES_DumpCDSRegistryCmd(const CFE_ES_DumpCDSRegistryCmd_t *data)
 
             if (OsStatus == sizeof(CFE_ES_CDSRegDumpRec_t))
             {
-                CFE_EVS_SendEvent(CFE_ES_CDS_REG_DUMP_INF_EID, CFE_EVS_EventType_DEBUG,
+                CFE_EVS_SendEvent(CFE_ES_CDS_REG_DUMP_INF_EID, CFE_EVS_EventType_INFORMATION,
                                   "Successfully dumped CDS Registry to '%s':Size=%d,Entries=%d", DumpFilename,
                                   (int)FileSize, (int)NumEntries);
 

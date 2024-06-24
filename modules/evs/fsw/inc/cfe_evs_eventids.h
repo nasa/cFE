@@ -39,7 +39,7 @@
  *
  *  \link #CFE_EVS_NOOP_CC EVS NO-OP command \endlink success.
  */
-#define CFE_EVS_NOOP_EID 0
+#define CFE_EVS_NOOP_INF_EID 0
 
 /**
  * \brief EVS Initialization Event ID
@@ -50,7 +50,7 @@
  *
  *  Event Services Task initialization complete.
  */
-#define CFE_EVS_STARTUP_EID 1
+#define CFE_EVS_INIT_INF_EID 1
 
 /**
  * \brief EVS Write Event Log Command File Write Entry Failed Event ID
@@ -204,200 +204,200 @@
 /**
  * \brief EVS Reset Counters Command Success Event ID
  *
- *  \par Type: DEBUG
+ *  \par Type: INFORMATION
  *
  *  \par Cause:
  *
  *  \link #CFE_EVS_RESET_COUNTERS_CC EVS Reset Counters Command \endlink success.
  */
-#define CFE_EVS_RSTCNT_EID 16
+#define CFE_EVS_RESET_INF_EID 16
 
 /**
  * \brief EVS Set Filter Command Success Event ID
  *
- *  \par Type: DEBUG
+ *  \par Type: INFORMATION
  *
  *  \par Cause:
  *
  *  \link #CFE_EVS_SET_FILTER_CC EVS Set Filter Command \endlink success.
  */
-#define CFE_EVS_SETFILTERMSK_EID 17
+#define CFE_EVS_SETFILTERMSK_INF_EID 17
 
 /**
  * \brief EVS Enable Ports Command Success Event ID
  *
- *  \par Type: DEBUG
+ *  \par Type: INFORMATION
  *
  *  \par Cause:
  *
  *  \link #CFE_EVS_ENABLE_PORTS_CC EVS Enable Ports Command \endlink success.
  */
-#define CFE_EVS_ENAPORT_EID 18
+#define CFE_EVS_ENAPORT_INF_EID 18
 
 /**
  * \brief EVS Disable Ports Command Success Event ID
  *
- *  \par Type: DEBUG
+ *  \par Type: INFORMATION
  *
  *  \par Cause:
  *
  *  \link #CFE_EVS_DISABLE_PORTS_CC EVS Disable Ports Command \endlink success.
  */
-#define CFE_EVS_DISPORT_EID 19
+#define CFE_EVS_DISPORT_INF_EID 19
 
 /**
  * \brief EVS Enable Event Type Command Success Event ID
  *
- *  \par Type: DEBUG
+ *  \par Type: INFORMATION
  *
  *  \par Cause:
  *
  *  \link #CFE_EVS_ENABLE_EVENT_TYPE_CC EVS Enable Event Type Command \endlink success.
  */
-#define CFE_EVS_ENAEVTTYPE_EID 20
+#define CFE_EVS_ENAEVTTYPE_INF_EID 20
 
 /**
  * \brief EVS Disable Event Type Command Success Event ID
  *
- *  \par Type: DEBUG
+ *  \par Type: INFORMATION
  *
  *  \par Cause:
  *
  *  \link #CFE_EVS_DISABLE_EVENT_TYPE_CC EVS Disable Event Type Command \endlink success.
  */
-#define CFE_EVS_DISEVTTYPE_EID 21
+#define CFE_EVS_DISEVTTYPE_INF_EID 21
 
 /**
  * \brief EVS Set Event Format Mode Command Success Event ID
  *
- *  \par Type: DEBUG
+ *  \par Type: INFORMATION
  *
  *  \par Cause:
  *
  *  \link #CFE_EVS_SET_EVENT_FORMAT_MODE_CC EVS Set Event Format Mode Command \endlink success.
  */
-#define CFE_EVS_SETEVTFMTMOD_EID 22
+#define CFE_EVS_SETEVTFMTMOD_INF_EID 22
 
 /**
  * \brief EVS Enable App Event Type Command Success Event ID
  *
- *  \par Type: DEBUG
+ *  \par Type: INFORMATION
  *
  *  \par Cause:
  *
  *  \link #CFE_EVS_ENABLE_APP_EVENT_TYPE_CC EVS Enable App Event Type Command \endlink success.
  */
-#define CFE_EVS_ENAAPPEVTTYPE_EID 23
+#define CFE_EVS_ENAAPPEVTTYPE_INF_EID 23
 
 /**
  * \brief EVS Disable App Event Type Command Success Event ID
  *
- *  \par Type: DEBUG
+ *  \par Type: INFORMATION
  *
  *  \par Cause:
  *
  *  \link #CFE_EVS_DISABLE_APP_EVENT_TYPE_CC EVS Disable App Event Type Command \endlink success.
  */
-#define CFE_EVS_DISAPPENTTYPE_EID 24
+#define CFE_EVS_DISAPPENTTYPE_INF_EID 24
 
 /**
  * \brief EVS Enable App Events Command Success Event ID
  *
- *  \par Type: DEBUG
+ *  \par Type: INFORMATION
  *
  *  \par Cause:
  *
  *  \link #CFE_EVS_ENABLE_APP_EVENTS_CC EVS Enable App Events Command \endlink success.
  */
-#define CFE_EVS_ENAAPPEVT_EID 25
+#define CFE_EVS_ENAAPPEVT_INF_EID 25
 
 /**
  * \brief EVS Disable App Events Command Success Event ID
  *
- *  \par Type: DEBUG
+ *  \par Type: INFORMATION
  *
  *  \par Cause:
  *
  *  \link #CFE_EVS_DISABLE_APP_EVENTS_CC EVS Disable App Events Command \endlink success.
  */
-#define CFE_EVS_DISAPPEVT_EID 26
+#define CFE_EVS_DISAPPEVT_INF_EID 26
 
 /**
  * \brief EVS Reset App Event Counter Command Success Event ID
  *
- *  \par Type: DEBUG
+ *  \par Type: INFORMATION
  *
  *  \par Cause:
  *
  *  \link #CFE_EVS_RESET_APP_COUNTER_CC EVS Reset App Event Counter Command \endlink success.
  */
-#define CFE_EVS_RSTEVTCNT_EID 27
+#define CFE_EVS_RSTEVTCNT_INF_EID 27
 
 /**
  * \brief EVS Reset App Event Filter Command Success Event ID
  *
- *  \par Type: DEBUG
+ *  \par Type: INFORMATION
  *
  *  \par Cause:
  *
  *  \link #CFE_EVS_RESET_FILTER_CC EVS Reset App Event Filter Command \endlink success.
  */
-#define CFE_EVS_RSTFILTER_EID 28
+#define CFE_EVS_RSTFILTER_INF_EID 28
 
 /**
  * \brief EVS Reset All Filters Command Success Event ID
  *
- *  \par Type: DEBUG
+ *  \par Type: INFORMATION
  *
  *  \par Cause:
  *
  *  \link #CFE_EVS_RESET_ALL_FILTERS_CC EVS Reset All FIlters Command \endlink success.
  */
-#define CFE_EVS_RSTALLFILTER_EID 29
+#define CFE_EVS_RSTALLFILTER_INF_EID 29
 
 /**
  * \brief EVS Add Event Filter Command Success Event ID
  *
- *  \par Type: DEBUG
+ *  \par Type: INFORMATION
  *
  *  \par Cause:
  *
  *  \link #CFE_EVS_ADD_EVENT_FILTER_CC EVS Add Event Filter Command \endlink success.
  */
-#define CFE_EVS_ADDFILTER_EID 30
+#define CFE_EVS_ADDFILTER_INF_EID 30
 
 /**
  * \brief EVS Delete Event Filter Command Success Event ID
  *
- *  \par Type: DEBUG
+ *  \par Type: INFORMATION
  *
  *  \par Cause:
  *
  *  \link #CFE_EVS_DELETE_EVENT_FILTER_CC EVS Delete Event Filter Command \endlink success.
  */
-#define CFE_EVS_DELFILTER_EID 31
+#define CFE_EVS_DELFILTER_INF_EID 31
 
 /**
  * \brief EVS Write Application Data Command Success Event ID
  *
- *  \par Type: DEBUG
+ *  \par Type: INFORMATION
  *
  *  \par Cause:
  *
  *  \link #CFE_EVS_WRITE_APP_DATA_FILE_CC EVS Write Application Data Command \endlink success.
  */
-#define CFE_EVS_WRDAT_EID 32
+#define CFE_EVS_WRDAT_INF_EID 32
 
 /**
  * \brief EVS Write Event Log Command Success Event ID
  *
- *  \par Type: DEBUG
+ *  \par Type: INFORMATION
  *
  *  \par Cause:
  *
  *  \link #CFE_EVS_WRITE_LOG_DATA_FILE_CC EVS Write Event Log Command \endlink success.
  */
-#define CFE_EVS_WRLOG_EID 33
+#define CFE_EVS_WRLOG_INF_EID 33
 
 /**
  * \brief EVS Add Filter Command Duplicate Registration Event ID
@@ -414,13 +414,13 @@
 /**
  * \brief EVS Set Log Mode Command Success Event ID
  *
- *  \par Type: DEBUG
+ *  \par Type: INFORMATION
  *
  *  \par Cause:
  *
  *  \link #CFE_EVS_SET_LOG_MODE_CC EVS Set Log Mode Command \endlink success.
  */
-#define CFE_EVS_LOGMODE_EID 38
+#define CFE_EVS_LOGMODE_INF_EID 38
 
 /**
  * \brief EVS Set Log Mode Command Invalid Mode Event ID

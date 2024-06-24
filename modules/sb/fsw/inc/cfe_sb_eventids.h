@@ -39,7 +39,7 @@
  *
  *  Software Bus Services Task initialization complete.
  */
-#define CFE_SB_INIT_EID 1
+#define CFE_SB_INIT_INF_EID 1
 
 /**
  * \brief SB Create Pipe API Bad Argument Event ID
@@ -77,13 +77,13 @@
 /**
  * \brief SB Create Pipe API Success Event ID
  *
- *  \par Type: DEBUG
+ *  \par Type: INFORMATION
  *
  *  \par Cause:
  *
  *  #CFE_SB_CreatePipe API successfully completed.
  */
-#define CFE_SB_PIPE_ADDED_EID 5
+#define CFE_SB_PIPE_ADDED_INF_EID 5
 
 /**
  * \brief SB Subscribe API Bad Argument Event ID
@@ -135,13 +135,13 @@
 /**
  * \brief SB Subscribe API Success Event ID
  *
- *  \par Type: DEBUG
+ *  \par Type: INFORMATION
  *
  *  \par Cause:
  *
  *  An SB Subscribe API completed successfully.
  */
-#define CFE_SB_SUBSCRIPTION_RCVD_EID 10
+#define CFE_SB_SUBSCRIPTION_RCVD_INF_EID 10
 
 /**
  * \brief SB Unsubscribe API Bad Argument Event ID
@@ -332,29 +332,29 @@
  *
  *  \link #CFE_SB_NOOP_CC SB NO-OP Command \endlink success.
  */
-#define CFE_SB_CMD0_RCVD_EID 28
+#define CFE_SB_NOOP_INF_EID 28
 
 /**
  * \brief SB Reset Counters Command Success Event ID
  *
- *  \par Type: DEBUG
+ *  \par Type: INFORMATION
  *
  *  \par Cause:
  *
  *  \link #CFE_SB_RESET_COUNTERS_CC SB Reset Counters Command \endlink success.
  */
-#define CFE_SB_CMD1_RCVD_EID 29
+#define CFE_SB_RESET_INF_EID 29
 
 /**
  * \brief SB Send Statistics Command Success Event ID
  *
- *  \par Type: DEBUG
+ *  \par Type: INFORMATION
  *
  *  \par Cause:
  *
  *  \link #CFE_SB_SEND_SB_STATS_CC SB Send Statistics Command \endlink success.
  */
-#define CFE_SB_SND_STATS_EID 32
+#define CFE_SB_SND_STATS_INF_EID 32
 
 /**
  * \brief SB Enable Route Command Invalid MsgId/PipeID Pair Event ID
@@ -371,13 +371,13 @@
 /**
  * \brief SB Enable Route Command Success Event ID
  *
- *  \par Type: DEBUG
+ *  \par Type: INFORMATION
  *
  *  \par Cause:
  *
  *  \link #CFE_SB_ENABLE_ROUTE_CC SB Enable Route Command \endlink success.
  */
-#define CFE_SB_ENBL_RTE2_EID 34
+#define CFE_SB_ENBL_RTE2_INF_EID 34
 
 /**
  * \brief SB Enable Route Command Invalid MsgId or Pipe Event ID
@@ -406,13 +406,13 @@
 /**
  * \brief SB Disable Route Command Success Event ID
  *
- *  \par Type: DEBUG
+ *  \par Type: INFORMATION
  *
  *  \par Cause:
  *
  *  \link #CFE_SB_DISABLE_ROUTE_CC SB Disable Route Command \endlink success.
  */
-#define CFE_SB_DSBL_RTE2_EID 37
+#define CFE_SB_DSBL_RTE2_INF_EID 37
 
 /**
  * \brief SB Disable Route Command Invalid MsgId or Pipe Event ID
@@ -509,24 +509,24 @@
 /**
  * \brief SB Pipe Delete API Success Event ID
  *
- *  \par Type: DEBUG
+ *  \par Type: INFORMATION
  *
  *  \par Cause:
  *
  *  An SB Delete Pipe API successfully completed.
  */
-#define CFE_SB_PIPE_DELETED_EID 47
+#define CFE_SB_PIPE_DELETED_INF_EID 47
 
 /**
  * \brief SB Unsubscribe API Success Event ID
  *
- *  \par Type: DEBUG
+ *  \par Type: INFORMATION
  *
  *  \par Cause:
  *
  *  An SB Unsubscribe API successfully completed.
  */
-#define CFE_SB_SUBSCRIPTION_REMOVED_EID 48
+#define CFE_SB_SUBSCRIPTION_REMOVED_INF_EID 48
 
 /**
  * \brief SB File Write Failed Event ID
@@ -619,13 +619,13 @@
 /**
  * \brief SB Set Pipe Opts API Success Event ID
  *
- *  \par Type: DEBUG
+ *  \par Type: INFORMATION
  *
  *  \par Cause:
  *
  *  #CFE_SB_SetPipeOpts success.
  */
-#define CFE_SB_SETPIPEOPTS_EID 57
+#define CFE_SB_SETPIPEOPTS_INF_EID 57
 
 /**
  * \brief SB Get Pipe Opts API Invalid Pipe Event ID
@@ -652,24 +652,24 @@
 /**
  * \brief SB Get Pipe Opts API Success Event ID
  *
- *  \par Type: DEBUG
+ *  \par Type: INFORMATION
  *
  *  \par Cause:
  *
  *  #CFE_SB_GetPipeOpts success.
  */
-#define CFE_SB_GETPIPEOPTS_EID 60
+#define CFE_SB_GETPIPEOPTS_INF_EID 60
 
 /**
  * \brief SB Get Pipe Name API Success Event ID
  *
- *  \par Type: DEBUG
+ *  \par Type: INFORMATION
  *
  *  \par Cause:
  *
  *  #CFE_SB_GetPipeName success.
  */
-#define CFE_SB_GETPIPENAME_EID 62
+#define CFE_SB_GETPIPENAME_INF_EID 62
 
 /**
  * \brief SB Get Pipe Name API Invalid Pointer Event ID
@@ -696,13 +696,13 @@
 /**
  * \brief SB Get Pipe ID By Name API Success Event ID
  *
- *  \par Type: DEBUG
+ *  \par Type: INFORMATION
  *
  *  \par Cause:
  *
  *  #CFE_SB_GetPipeIdByName success.
  */
-#define CFE_SB_GETPIPEIDBYNAME_EID 65
+#define CFE_SB_GETPIPEIDBYNAME_INF_EID 65
 
 /**
  * \brief SB Get Pipe ID By Name API Invalid Pointer Event ID
