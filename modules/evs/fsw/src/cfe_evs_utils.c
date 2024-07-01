@@ -545,6 +545,7 @@ void EVS_SendViaPorts(CFE_EVS_LongEventTlm_t *EVS_PktPtr)
     CFE_MSG_GetMsgTime(CFE_MSG_PTR(EVS_PktPtr->TelemetryHeader), &PktTime);
     CFE_TIME_Print(TimeBuffer, PktTime);
 
+    /* SAD: No need to check snprintf return; CFE_EVS_MAX_PORT_MSG_LENGTH is sized to accommodate buffer limits */
     snprintf(PortMessage, sizeof(PortMessage), "%s %u/%u/%s %u: %s", TimeBuffer,
              (unsigned int)EVS_PktPtr->Payload.PacketID.SpacecraftID,
              (unsigned int)EVS_PktPtr->Payload.PacketID.ProcessorID, EVS_PktPtr->Payload.PacketID.AppName,
