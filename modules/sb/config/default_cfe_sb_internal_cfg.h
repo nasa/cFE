@@ -11,7 +11,7 @@
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTISB OR CONDITIONS OF ANY KIND, either express or implied.
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ************************************************************************/
@@ -25,7 +25,7 @@
  * to items in this file only affect the local module and will be transparent
  * to external entities that are using the public interface(s).
  *
- * @note This file may be overridden/superceded by mission-provided defintions
+ * @note This file may be overridden/superceded by mission-provided definitions
  * either by overriding this header or by generating definitions from a command/data
  * dictionary tool.
  */
@@ -134,8 +134,7 @@
 **       this value is set the same across all mission platforms to avoid this complexity.
 **
 **  \par Limits
-**       CFE_SB_INVALID_MSG is set to the maximum representable number of type CFE_SB_MsgId_t.
-**       CFE_PLATFORM_SB_HIGHEST_VALID_MSGID lower limit is 1, up to CFE_SB_INVALID_MSG_ID - 1.
+**       This parameter has a lower limit is 1, and an upper limit of 0xFFFFFFFE.
 **
 **       When using the direct message map implementation for software bus routing, this
 **       value is used to size the map where a value of 0x1FFF results in a 16 KBytes map
