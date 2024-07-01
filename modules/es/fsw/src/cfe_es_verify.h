@@ -118,12 +118,21 @@
 #endif
 
 /*
-** SysLog mode
+** Default System Log Mode following Power On Reset
 */
-#if CFE_PLATFORM_ES_DEFAULT_SYSLOG_MODE < 0
-#error CFE_PLATFORM_ES_DEFAULT_SYSLOG_MODE cannot be less than 0!
-#elif CFE_PLATFORM_ES_DEFAULT_SYSLOG_MODE > 1
-#error CFE_PLATFORM_ES_DEFAULT_SYSLOG_MODE cannot be greater than 1!
+#if CFE_PLATFORM_ES_DEFAULT_POR_SYSLOG_MODE < 0
+#error CFE_PLATFORM_ES_DEFAULT_POR_SYSLOG_MODE cannot be less than 0!
+#elif CFE_PLATFORM_ES_DEFAULT_POR_SYSLOG_MODE > 1
+#error CFE_PLATFORM_ES_DEFAULT_POR_SYSLOG_MODE cannot be greater than 1!
+#endif
+
+/*
+** Default System Log Mode following Processor Reset
+*/
+#if CFE_PLATFORM_ES_DEFAULT_PR_SYSLOG_MODE < 0
+#error CFE_PLATFORM_ES_DEFAULT_PR_SYSLOG_MODE cannot be less than 0!
+#elif CFE_PLATFORM_ES_DEFAULT_PR_SYSLOG_MODE > 1
+#error CFE_PLATFORM_ES_DEFAULT_PR_SYSLOG_MODE cannot be greater than 1!
 #endif
 
 /*
