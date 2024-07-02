@@ -25,7 +25,7 @@
  * to items in this file only affect the local module and will be transparent
  * to external entities that are using the public interface(s).
  *
- * @note This file may be overridden/superceded by mission-provided defintions
+ * @note This file may be overridden/superceded by mission-provided definitions
  * either by overriding this header or by generating definitions from a command/data
  * dictionary tool.
  */
@@ -125,7 +125,7 @@
 **       This number must be less than 32767.  It should be recognized that this parameter
 **       determines the size of the Critical Table Registry which is maintained in the Critical
 **       Data Store.  An excessively high number will waste Critical Data Store memory.  Therefore,
-**       this number must not exceed the value defined in CFE_ES_CDS_MAX_CRITICAL_TABLES.
+**       this number must not exceed the value defined in CFE_PLATFORM_ES_CDS_MAX_NUM_ENTRIES.
 */
 #define CFE_PLATFORM_TBL_MAX_CRITICAL_TABLES 32
 

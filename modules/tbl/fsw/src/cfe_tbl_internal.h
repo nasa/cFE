@@ -57,7 +57,7 @@
  * \param AccDescPtr Pointer to the current access descriptor
  * \param Arg Opaque argument from caller (passed through)
  */
-typedef void (* const CFE_TBL_AccessDescFunc_t)(CFE_TBL_AccessDescriptor_t *AccDescPtr, void *Arg);
+typedef void (*const CFE_TBL_AccessDescFunc_t)(CFE_TBL_AccessDescriptor_t *AccDescPtr, void *Arg);
 
 /*****************************  Function Prototypes   **********************************/
 
@@ -646,6 +646,104 @@ void CFE_TBL_HandleListRemoveLink(CFE_TBL_RegistryRec_t *RegRecPtr, CFE_TBL_Acce
 ** \param AccessDescPtr The access descriptor that is to be added to the list
 */
 void CFE_TBL_HandleListInsertLink(CFE_TBL_RegistryRec_t *RegRecPtr, CFE_TBL_AccessDescriptor_t *AccessDescPtr);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+** \brief Gets the ID of the next buffer to use on a double-buffered table
+**
+** \par Description
+**        This returns the identifier for the local table buffer that should be
+**        loaded next.
+**
+** \par Assumptions, External Events, and Notes:
+**        This is not applicable to single-buffered tables.
+**
+** \param RegRecPtr The table registry record
+** \returns Identifier of next buffer to use
+*/
+int32 CFE_TBL_GetNextLocalBufferId(CFE_TBL_RegistryRec_t *RegRecPtr);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+** \brief Gets the currently-active buffer pointer for a table
+**
+** \par Description
+**        This returns a pointer to the currently active table buffer.  On a single-buffered
+**        table, this is always the first/only buffer.  This function never returns NULL, as
+**        all tables have at least one buffer.
+**
+** \par Assumptions, External Events, and Notes:
+**        None
+**
+** \param RegRecPtr The table registry record
+** \returns Pointer to the active table buffer
+*/
+CFE_TBL_LoadBuff_t *CFE_TBL_GetActiveBuffer(CFE_TBL_RegistryRec_t *RegRecPtr);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+** \brief Gets the inactive buffer pointer for a table
+**
+** \par Description
+**        This returns a pointer to inactive table buffer.  On a double-buffered table
+**        this refers to whichever buffer is _not_ currently active (that is, the opposite
+**        buffer from what is returned by CFE_TBL_GetActiveBuffer()).
+**
+**        On a single-buffered, if there is a load in progress that is utilizing one of the
+**        global/shared load buffers, then this returns a pointer to that buffer.  If there
+**        is no load in progress, this returns NULL to indicate there is no inactive buffer.
+**
+** \par Assumptions, External Events, and Notes:
+**        This funtion may return NULL if there is no inactive buffer associated with the table
+**
+** \param RegRecPtr The table registry record
+** \returns Pointer to the inactive table buffer
+*/
+CFE_TBL_LoadBuff_t *CFE_TBL_GetInactiveBuffer(CFE_TBL_RegistryRec_t *RegRecPtr);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+** \brief Gets the buffer pointer for a table based on the selection enum
+**
+** \par Description
+**        Gets either the active buffer (see CFE_TBL_GetActiveBuffer()) or the inactive
+**        buffer (see CFE_TBL_GetInactiveBuffer()) based on the BufferSelect parameter.
+**
+** \par Assumptions, External Events, and Notes:
+**        This funtion may return NULL if there is no buffer associated with the table
+**        This will send an event if the BufferSelect parameter is not valid
+**
+** \param RegRecPtr The table registry record
+** \param BufferSelect The buffer to obtain (active or inactive)
+** \returns Pointer to the selected table buffer
+*/
+CFE_TBL_LoadBuff_t *CFE_TBL_GetSelectedBuffer(CFE_TBL_RegistryRec_t *     RegRecPtr,
+                                              CFE_TBL_BufferSelect_Enum_t BufferSelect);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+** \brief Checks if a validation request is pending and clears the request
+**
+** \par Description
+**        This checks the given flag (which is a request ID) to determine if a table validation
+**        request is pending.
+**
+**        If no validation request is pending, this returns NULL and nothing else is done.
+**
+**        If a validation request is pending, then this clears the request (by writing
+**        #CFE_TBL_VALRESULTID_UNDEFINED to the request flag) and returns a pointer to the
+**        corresponding Validation Result buffer that refers to that request.  The request
+**        should be in the PENDING state.
+**
+** \par Assumptions, External Events, and Notes:
+**        This will clear the flag if there was a pending request, as it is expected that the
+**        caller will be performing the validation at this time.
+**
+** \param ValIdPtr Pointer to the table validation request flag (from the table registry entry)
+** \returns Pointer to the request, if a request was pending
+** \retval NULL if no request was pending
+*/
+CFE_TBL_ValidationResult_t *CFE_TBL_CheckValidationRequest(CFE_TBL_ValidationResultId_t *ValIdPtr);
 
 /*
 ** Globals specific to the TBL module

@@ -354,6 +354,7 @@ void CFE_FS_ByteSwapUint32(uint32 *Uint32ToSwapPtr)
     char *InPtr  = (char *)&Temp;
     char *OutPtr = (char *)Uint32ToSwapPtr;
 
+    /* SAD: Safe access to InPtr[0-3] and OutPtr[0-3] as both manipulate bytes within 4-byte integers. */
     OutPtr[0] = InPtr[3];
     OutPtr[1] = InPtr[2];
     OutPtr[2] = InPtr[1];

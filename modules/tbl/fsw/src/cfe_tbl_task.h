@@ -64,18 +64,38 @@
 /** \brief Value indicating when no Validation is Pending */
 /**
 **  This macro is used to indicate no Validation is Pending by assigning it to
-**  #CFE_TBL_RegistryRec_t::ValidateActiveIndex or #CFE_TBL_RegistryRec_t::ValidateInactiveIndex
+**  #CFE_TBL_RegistryRec_t::ValidateActiveId or #CFE_TBL_RegistryRec_t::ValidateInactiveId
 */
-#define CFE_TBL_NO_VALIDATION_PENDING (-1)
+#define CFE_TBL_NO_VALIDATION_PENDING CFE_TBL_VALRESULTID_UNDEFINED
 
 /** \brief Value indicating when no Dump is Pending on a Dump-Only Table */
 /**
 **  This macro is used to indicate no Dump is Pending by assigning it to
-**  #CFE_TBL_RegistryRec_t::DumpControlIndex
+**  #CFE_TBL_RegistryRec_t::DumpControlId
 */
-#define CFE_TBL_NO_DUMP_PENDING (-1)
+#define CFE_TBL_NO_DUMP_PENDING CFE_TBL_DUMPCTRLID_UNDEFINED
 
 /************************  Internal Structure Definitions  *****************************/
+
+/**
+ * @brief A type for Validation Result Buffer IDs
+ *
+ * This is the type that is used for any API accepting or returning a Validation Result ID
+ */
+typedef CFE_RESOURCEID_BASE_TYPE CFE_TBL_ValidationResultId_t;
+
+#define CFE_TBL_VALRESULTID_C(val)    ((CFE_TBL_ValidationResultId_t)CFE_RESOURCEID_WRAP(val))
+#define CFE_TBL_VALRESULTID_UNDEFINED CFE_TBL_VALRESULTID_C(CFE_RESOURCEID_UNDEFINED)
+
+/**
+ * @brief A type for Dump Control Block IDs
+ *
+ * This is the type that is used for any API accepting or returning a dump control block
+ */
+typedef CFE_RESOURCEID_BASE_TYPE CFE_TBL_DumpCtrlId_t;
+
+#define CFE_TBL_DUMPCTRLID_C(val)    ((CFE_TBL_DumpCtrlId_t)CFE_RESOURCEID_WRAP(val))
+#define CFE_TBL_DUMPCTRLID_UNDEFINED CFE_TBL_DUMPCTRLID_C(CFE_RESOURCEID_UNDEFINED)
 
 /*******************************************************************************/
 /**  \brief Identifies the current state of a validation sequence.
@@ -105,6 +125,8 @@ typedef enum
 */
 typedef struct
 {
+    CFE_TBL_ValidationResultId_t ValId;
+
     CFE_TBL_ValidationState_t State;      /**< \brief Current state of this block of data */
     int32                     Result;     /**< \brief Result returned by Application's Validation function */
     uint32                    CrcOfTable; /**< \brief Data Integrity Value computed on Table Buffer */
@@ -189,21 +211,23 @@ typedef struct
     CFE_TBL_CallbackFuncPtr_t ValidationFuncPtr; /**< \brief Ptr to Owner App's function that validates tbl contents */
     CFE_TIME_SysTime_t        TimeOfLastUpdate;  /**< \brief Time when Table was last updated */
     CFE_TBL_HandleLink_t      AccessList;        /**< \brief Linked List of associated access descriptors */
-    int32              LoadInProgress;      /**< \brief Flag identifies inactive buffer and whether load in progress */
-    int32              ValidateActiveIndex; /**< \brief Index to Validation Request on Active Table Result data */
-    int32              ValidateInactiveIndex; /**< \brief Index to Validation Request on Inactive Table Result data */
-    int32              DumpControlIndex;      /**< \brief Index to Dump Control Block */
-    CFE_ES_CDSHandle_t CDSHandle;             /**< \brief Handle to Critical Data Store for Critical Tables */
-    CFE_MSG_FcnCode_t  NotificationCC;  /**< \brief Command Code of an associated management notification message */
-    bool               CriticalTable;   /**< \brief Flag indicating whether table is a Critical Table */
-    bool               TableLoadedOnce; /**< \brief Flag indicating whether table has been loaded once or not */
-    bool               LoadPending;     /**< \brief Flag indicating an inactive buffer is ready to be copied */
-    bool               DumpOnly;        /**< \brief Flag indicating Table is NOT to be loaded */
-    bool               DoubleBuffered;  /**< \brief Flag indicating Table has a dedicated inactive buffer */
-    bool               UserDefAddr;     /**< \brief Flag indicating Table address was defined by Owner Application */
-    bool               NotifyByMsg;     /**< \brief Flag indicating Table Services should notify owning App via message
-                                                    when table requires management */
-    uint8 ActiveBufferIndex;            /**< \brief Index identifying which buffer is the active buffer */
+    int32 LoadInProgress; /**< \brief Flag identifies inactive buffer and whether load in progress */
+    CFE_TBL_ValidationResultId_t
+        ValidateActiveId; /**< \brief Index to Validation Request on Active Table Result data */
+    CFE_TBL_ValidationResultId_t
+                         ValidateInactiveId; /**< \brief Index to Validation Request on Inactive Table Result data */
+    CFE_TBL_DumpCtrlId_t DumpControlId;      /**< \brief Index to Dump Control Block */
+    CFE_ES_CDSHandle_t   CDSHandle;          /**< \brief Handle to Critical Data Store for Critical Tables */
+    CFE_MSG_FcnCode_t    NotificationCC;  /**< \brief Command Code of an associated management notification message */
+    bool                 CriticalTable;   /**< \brief Flag indicating whether table is a Critical Table */
+    bool                 TableLoadedOnce; /**< \brief Flag indicating whether table has been loaded once or not */
+    bool                 LoadPending;     /**< \brief Flag indicating an inactive buffer is ready to be copied */
+    bool                 DumpOnly;        /**< \brief Flag indicating Table is NOT to be loaded */
+    bool                 DoubleBuffered;  /**< \brief Flag indicating Table has a dedicated inactive buffer */
+    bool                 UserDefAddr;     /**< \brief Flag indicating Table address was defined by Owner Application */
+    bool                 NotifyByMsg; /**< \brief Flag indicating Table Services should notify owning App via message
+                                                  when table requires management */
+    uint8 ActiveBufferIndex;          /**< \brief Index identifying which buffer is the active buffer */
     char  Name[CFE_TBL_MAX_FULL_NAME_LEN]; /**< \brief Processor specific table name */
     char  LastFileLoaded[OS_MAX_PATH_LEN]; /**< \brief Filename of last file loaded into table */
 } CFE_TBL_RegistryRec_t;
@@ -231,6 +255,8 @@ typedef struct
 */
 typedef struct
 {
+    CFE_TBL_DumpCtrlId_t BlockId;
+
     CFE_TBL_DumpState_t    State;         /**< \brief Current state of this block of data */
     size_t                 Size;          /**< \brief Number of bytes to be dumped */
     CFE_TBL_LoadBuff_t *   DumpBufferPtr; /**< \brief Address where dumped data is to be stored temporarily */
@@ -349,6 +375,10 @@ typedef struct
      * Registry dump state info (background job)
      */
     CFE_TBL_RegDumpStateInfo_t RegDumpState;
+
+    CFE_ResourceId_t LastValidationResultId;
+    CFE_ResourceId_t LastDumpCtrlBlockId;
+
 } CFE_TBL_Global_t;
 
 /*************************************************************************/

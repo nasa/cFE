@@ -390,7 +390,7 @@ void Test_SB_Main_RcvErr(void)
     UT_SetDeferredRetcode(UT_KEY(OS_QueueGet), 1, -1);
     CFE_SB_TaskMain();
 
-    CFE_UtAssert_EVENTCOUNT(6);
+    CFE_UtAssert_EVENTCOUNT(7);
 
     CFE_UtAssert_EVENTSENT(CFE_SB_INIT_EID);
 
@@ -2883,6 +2883,591 @@ void Test_Unsubscribe_GetDestPtr(void)
     CFE_UtAssert_TEARDOWN(CFE_SB_DeletePipe(TestPipe2));
 }
 
+void Test_TransmitTxn_Init(void)
+{
+    /* Test case for:
+     * void CFE_SB_TransmitTxn_Init(CFE_SB_TransmitTxn_State_t *TxnPtr, const void *RefMemPtr);
+     */
+    CFE_SB_TransmitTxn_State_t TxnBuf;
+    CFE_SB_MessageTxn_State_t *Txn;
+    uint32                     MyData;
+
+    /* Call to ensure coverage */
+    memset(&Txn, 0xEE, sizeof(Txn));
+    MyData = 123;
+    UtAssert_ADDRESS_EQ(Txn = CFE_SB_TransmitTxn_Init(&TxnBuf, &MyData), &TxnBuf);
+
+    /* This should have cleared everything */
+    UtAssert_ADDRESS_EQ(Txn->RefMemPtr, &MyData);
+    UtAssert_ZERO(Txn->NumPipes);
+    UtAssert_ZERO(Txn->NumPipeErrs);
+    UtAssert_ZERO(Txn->TransactionEventId);
+    UtAssert_ZERO(Txn->TimeoutMode);
+    UtAssert_ZERO(Txn->ContentSize);
+    UtAssert_BOOL_FALSE(Txn->IsEndpoint);
+}
+
+void Test_MessageTxn_SetEventAndStatus(void)
+{
+    /* Test function for:
+     * void CFE_SB_MessageTxn_SetEventAndStatus(CFE_SB_MessageTxn_State_t *TxnPtr,
+     *               uint16 EventId, CFE_Status_t Status)
+     */
+    CFE_SB_MessageTxn_State_t Txn;
+
+    /*
+     * although this function is used throughout the other tests, this is needed to target
+     * certain branches/paths that don't get executed.  Namely - this should only store
+     * the first error/event that occurs.
+     */
+
+    /* Set only an event ID first, then attempt to set both */
+    memset(&Txn, 0, sizeof(Txn));
+
+    UtAssert_BOOL_TRUE(CFE_SB_MessageTxn_IsOK(&Txn));
+
+    CFE_SB_MessageTxn_SetEventAndStatus(&Txn, CFE_SB_MSG_TOO_BIG_EID, CFE_SUCCESS);
+    UtAssert_UINT16_EQ(Txn.TransactionEventId, CFE_SB_MSG_TOO_BIG_EID);
+    UtAssert_INT32_EQ(Txn.Status, CFE_SUCCESS);
+    UtAssert_BOOL_FALSE(CFE_SB_MessageTxn_IsOK(&Txn));
+
+    CFE_SB_MessageTxn_SetEventAndStatus(&Txn, CFE_SB_SEND_INV_MSGID_EID, CFE_SB_BAD_ARGUMENT);
+    UtAssert_UINT16_EQ(Txn.TransactionEventId, CFE_SB_MSG_TOO_BIG_EID);
+    UtAssert_INT32_EQ(Txn.Status, CFE_SB_BAD_ARGUMENT);
+    UtAssert_BOOL_FALSE(CFE_SB_MessageTxn_IsOK(&Txn));
+
+    /* Set only a status code first, then attempt to set both */
+    memset(&Txn, 0, sizeof(Txn));
+
+    CFE_SB_MessageTxn_SetEventAndStatus(&Txn, 0, CFE_SB_BUF_ALOC_ERR);
+    UtAssert_UINT16_EQ(Txn.TransactionEventId, 0);
+    UtAssert_INT32_EQ(Txn.Status, CFE_SB_BUF_ALOC_ERR);
+    UtAssert_BOOL_FALSE(CFE_SB_MessageTxn_IsOK(&Txn));
+
+    CFE_SB_MessageTxn_SetEventAndStatus(&Txn, CFE_SB_SEND_INV_MSGID_EID, CFE_SB_BAD_ARGUMENT);
+    UtAssert_UINT16_EQ(Txn.TransactionEventId, CFE_SB_SEND_INV_MSGID_EID);
+    UtAssert_INT32_EQ(Txn.Status, CFE_SB_BUF_ALOC_ERR);
+    UtAssert_BOOL_FALSE(CFE_SB_MessageTxn_IsOK(&Txn));
+}
+
+void Test_MessageTxn_Timeout(void)
+{
+    /* Test case for:
+     * void CFE_SB_MessageTxn_SetTimeout(CFE_SB_MessageTxn_State_t *TxnPtr, int32 Timeout);
+     * int32 CFE_SB_MessageTxn_GetOsTimeout(const CFE_SB_MessageTxn_State_t *TxnPtr);
+     */
+    CFE_SB_MessageTxn_State_t Txn;
+    OS_time_t                 TestTime;
+
+    memset(&Txn, 0, sizeof(Txn));
+
+    UtAssert_VOIDCALL(CFE_SB_MessageTxn_SetTimeout(&Txn, CFE_SB_POLL));
+    UtAssert_INT32_EQ(CFE_SB_MessageTxn_GetOsTimeout(&Txn), OS_CHECK);
+
+    UtAssert_VOIDCALL(CFE_SB_MessageTxn_SetTimeout(&Txn, CFE_SB_PEND_FOREVER));
+    UtAssert_INT32_EQ(CFE_SB_MessageTxn_GetOsTimeout(&Txn), OS_PEND);
+
+    TestTime = OS_TimeFromTotalSeconds(1000000000);
+    UT_SetDataBuffer(UT_KEY(CFE_PSP_GetTime), &TestTime, sizeof(TestTime), false);
+    UtAssert_VOIDCALL(CFE_SB_MessageTxn_SetTimeout(&Txn, 100));
+
+    UT_SetDataBuffer(UT_KEY(CFE_PSP_GetTime), &TestTime, sizeof(TestTime), false);
+    UtAssert_INT32_EQ(CFE_SB_MessageTxn_GetOsTimeout(&Txn), 100);
+
+    TestTime = OS_TimeAdd(TestTime, OS_TimeFromTotalMilliseconds(10));
+    UT_SetDataBuffer(UT_KEY(CFE_PSP_GetTime), &TestTime, sizeof(TestTime), false);
+    UtAssert_INT32_EQ(CFE_SB_MessageTxn_GetOsTimeout(&Txn), 90);
+
+    TestTime = OS_TimeAdd(TestTime, OS_TimeFromTotalSeconds(1));
+    UT_SetDataBuffer(UT_KEY(CFE_PSP_GetTime), &TestTime, sizeof(TestTime), false);
+    UtAssert_INT32_EQ(CFE_SB_MessageTxn_GetOsTimeout(&Txn), OS_CHECK);
+
+    UtAssert_VOIDCALL(CFE_SB_MessageTxn_SetTimeout(&Txn, -1000));
+    UtAssert_INT32_EQ(Txn.Status, CFE_SB_BAD_ARGUMENT);
+}
+
+void Test_MessageTxn_SetupFromMsg(void)
+{
+    /* Test case for:
+     * CFE_Status_t CFE_SB_TransmitTxn_SetupFromMsg(CFE_SB_MessageTxn_State_t *TxnPtr, const CFE_MSG_Message_t
+     * *MsgPtr);
+     */
+    CFE_SB_MessageTxn_State_t Txn;
+    CFE_MSG_Message_t         Msg;
+    CFE_SB_MsgId_t            MsgId;
+    CFE_MSG_Size_t            MsgSize;
+
+    memset(&Msg, 0, sizeof(Msg));
+
+    /* Transaction already failed case (no-op) */
+    memset(&Txn, 0, sizeof(Txn));
+    Txn.Status = -20;
+    UtAssert_VOIDCALL(CFE_SB_TransmitTxn_SetupFromMsg(&Txn, &Msg));
+    UtAssert_INT32_EQ(Txn.Status, -20);
+
+    /* CFE_MSG_GetMsgId() fail case */
+    memset(&Txn, 0, sizeof(Txn));
+    UT_SetDeferredRetcode(UT_KEY(CFE_MSG_GetMsgId), 1, -10);
+    UtAssert_VOIDCALL(CFE_SB_TransmitTxn_SetupFromMsg(&Txn, &Msg));
+    UtAssert_INT32_EQ(Txn.Status, -10);
+    UtAssert_UINT32_EQ(Txn.TransactionEventId, CFE_SB_SEND_BAD_ARG_EID);
+
+    /* Invalid MsgId case */
+    memset(&Txn, 0, sizeof(Txn));
+    MsgId = CFE_SB_INVALID_MSG_ID;
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);
+    UtAssert_VOIDCALL(CFE_SB_TransmitTxn_SetupFromMsg(&Txn, &Msg));
+    UtAssert_INT32_EQ(Txn.Status, CFE_SB_BAD_ARGUMENT);
+    UtAssert_UINT32_EQ(Txn.TransactionEventId, CFE_SB_SEND_INV_MSGID_EID);
+
+    /* CFE_MSG_GetSize() fail case */
+    memset(&Txn, 0, sizeof(Txn));
+    MsgId = SB_UT_TLM_MID;
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);
+    UT_SetDeferredRetcode(UT_KEY(CFE_MSG_GetSize), 1, -11);
+    UtAssert_VOIDCALL(CFE_SB_TransmitTxn_SetupFromMsg(&Txn, &Msg));
+    UtAssert_INT32_EQ(Txn.Status, -11);
+    UtAssert_UINT32_EQ(Txn.TransactionEventId, CFE_SB_SEND_BAD_ARG_EID);
+
+    /* Message too big case */
+    memset(&Txn, 0, sizeof(Txn));
+    MsgId = SB_UT_TLM_MID;
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);
+    MsgSize = 1 + CFE_MISSION_SB_MAX_SB_MSG_SIZE;
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &MsgSize, sizeof(MsgSize), false);
+    UtAssert_VOIDCALL(CFE_SB_TransmitTxn_SetupFromMsg(&Txn, &Msg));
+    UtAssert_INT32_EQ(Txn.Status, CFE_SB_MSG_TOO_BIG);
+    UtAssert_UINT32_EQ(Txn.TransactionEventId, CFE_SB_MSG_TOO_BIG_EID);
+
+    /* Nominal case */
+    memset(&Txn, 0, sizeof(Txn));
+    MsgId = SB_UT_TLM_MID;
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);
+    MsgSize = sizeof(Msg);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &MsgSize, sizeof(MsgSize), false);
+
+    UtAssert_VOIDCALL(CFE_SB_TransmitTxn_SetupFromMsg(&Txn, &Msg));
+    UtAssert_INT32_EQ(Txn.Status, CFE_SUCCESS);
+    UtAssert_ZERO(Txn.TransactionEventId);
+    CFE_UtAssert_MSGID_EQ(Txn.RoutingMsgId, SB_UT_TLM_MID);
+    UtAssert_UINT32_EQ(Txn.ContentSize, sizeof(Msg));
+}
+
+void Test_TransmitTxn_FindDestinations(void)
+{
+    /* Test case for:
+     * void CFE_SB_TransmitTxn_FindDestinations(CFE_SB_MessageTxn_State_t *TxnPtr, CFE_SB_BufferD_t *BufDscPtr);
+     */
+
+    CFE_SB_TransmitTxn_State_t TxnBuf;
+    CFE_SB_MessageTxn_State_t *Txn;
+    CFE_SB_BufferD_t           BufDsc;
+    CFE_SB_PipeD_t *           PipeDscPtr;
+    CFE_SB_PipeId_t            PipeId = CFE_SB_INVALID_PIPE;
+    CFE_SB_MsgId_t             MsgId  = SB_UT_TLM_MID;
+    CFE_SBR_RouteId_t          RouteId;
+    CFE_SB_DestinationD_t *    DestPtr;
+
+    memset(&BufDsc, 0, sizeof(BufDsc));
+    CFE_SB_TrackingListReset(&BufDsc.Link); /* so tracking list ops work */
+
+    CFE_UtAssert_SETUP(CFE_SB_CreatePipe(&PipeId, 2, "TestPipe"));
+    CFE_UtAssert_SETUP(CFE_SB_SubscribeFull(MsgId, PipeId, CFE_SB_DEFAULT_QOS, 2, CFE_SB_MSG_GLOBAL));
+    PipeDscPtr                 = CFE_SB_LocatePipeDescByID(PipeId);
+    RouteId                    = CFE_SBR_GetRouteId(MsgId);
+    DestPtr                    = CFE_SB_GetDestPtr(RouteId, PipeId);
+    Txn                        = CFE_SB_TransmitTxn_Init(&TxnBuf, &BufDsc.Content);
+    PipeDscPtr->PeakQueueDepth = 1;
+
+    CFE_SB_Global.HKTlmMsg.Payload.NoSubscribersCounter = 0;
+
+    /* No subscriber case */
+    Txn->RoutingMsgId = CFE_SB_INVALID_MSG_ID;
+    UtAssert_VOIDCALL(CFE_SB_TransmitTxn_FindDestinations(Txn, &BufDsc));
+    UtAssert_UINT32_EQ(CFE_SB_Global.HKTlmMsg.Payload.NoSubscribersCounter, 1);
+    UtAssert_UINT32_EQ(Txn->TransactionEventId, CFE_SB_SEND_NO_SUBS_EID);
+    UtAssert_UINT32_EQ(BufDsc.UseCount, 0);
+
+    /* Nominal Case 1 */
+    memset(&BufDsc, 0, sizeof(BufDsc));
+    Txn = CFE_SB_TransmitTxn_Init(&TxnBuf, &BufDsc.Content);
+    CFE_SB_TrackingListReset(&BufDsc.Link); /* so tracking list ops work */
+    Txn->RoutingMsgId = MsgId;
+    UtAssert_VOIDCALL(CFE_SB_TransmitTxn_FindDestinations(Txn, &BufDsc));
+    UtAssert_UINT32_EQ(Txn->NumPipes, 1);
+    CFE_UtAssert_RESOURCEID_EQ(Txn->PipeSet[0].PipeId, PipeId);
+    UtAssert_UINT32_EQ(Txn->PipeSet[0].PendingEventId, 0);
+    UtAssert_UINT32_EQ(BufDsc.UseCount, 1);
+    UtAssert_UINT32_EQ(DestPtr->BuffCount, 1);
+    UtAssert_UINT32_EQ(PipeDscPtr->CurrentQueueDepth, 1);
+    UtAssert_UINT32_EQ(PipeDscPtr->PeakQueueDepth, 1);
+    UtAssert_UINT32_EQ(PipeDscPtr->SendErrors, 0);
+    UtAssert_UINT32_EQ(Txn->NumPipeErrs, 0);
+
+    /* Nominal Case 2 */
+    memset(&BufDsc, 0, sizeof(BufDsc));
+    Txn = CFE_SB_TransmitTxn_Init(&TxnBuf, &BufDsc.Content);
+    CFE_SB_TrackingListReset(&BufDsc.Link); /* so tracking list ops work */
+    Txn->RoutingMsgId = MsgId;
+    UtAssert_VOIDCALL(CFE_SB_TransmitTxn_FindDestinations(Txn, &BufDsc));
+    UtAssert_UINT32_EQ(Txn->NumPipes, 1);
+    CFE_UtAssert_RESOURCEID_EQ(Txn->PipeSet[0].PipeId, PipeId);
+    UtAssert_UINT32_EQ(Txn->PipeSet[0].PendingEventId, 0);
+    UtAssert_UINT32_EQ(BufDsc.UseCount, 1);
+    UtAssert_UINT32_EQ(DestPtr->BuffCount, 2);
+    UtAssert_UINT32_EQ(PipeDscPtr->CurrentQueueDepth, 2);
+    UtAssert_UINT32_EQ(PipeDscPtr->PeakQueueDepth, 2);
+    UtAssert_UINT32_EQ(PipeDscPtr->SendErrors, 0);
+    UtAssert_UINT32_EQ(Txn->NumPipeErrs, 0);
+
+    /* MsgLim Error Case */
+    memset(&BufDsc, 0, sizeof(BufDsc));
+    Txn = CFE_SB_TransmitTxn_Init(&TxnBuf, &BufDsc.Content);
+    CFE_SB_TrackingListReset(&BufDsc.Link); /* so tracking list ops work */
+    Txn->RoutingMsgId = MsgId;
+    UtAssert_VOIDCALL(CFE_SB_TransmitTxn_FindDestinations(Txn, &BufDsc));
+    UtAssert_UINT32_EQ(Txn->NumPipes, 1);
+    CFE_UtAssert_RESOURCEID_EQ(Txn->PipeSet[0].PipeId, PipeId);
+    UtAssert_UINT32_EQ(Txn->PipeSet[0].PendingEventId, CFE_SB_MSGID_LIM_ERR_EID);
+    UtAssert_ZERO(BufDsc.UseCount);
+    UtAssert_UINT32_EQ(DestPtr->BuffCount, 2);
+    UtAssert_UINT32_EQ(PipeDscPtr->CurrentQueueDepth, 2);
+    UtAssert_UINT32_EQ(PipeDscPtr->PeakQueueDepth, 2);
+    UtAssert_UINT32_EQ(PipeDscPtr->SendErrors, 1);
+    UtAssert_UINT32_EQ(Txn->NumPipeErrs, 1);
+    DestPtr->BuffCount = 0;
+
+    /* Destination Inactive Case */
+    memset(&BufDsc, 0, sizeof(BufDsc));
+    Txn = CFE_SB_TransmitTxn_Init(&TxnBuf, &BufDsc.Content);
+    CFE_SB_TrackingListReset(&BufDsc.Link); /* so tracking list ops work */
+    Txn->RoutingMsgId = MsgId;
+    DestPtr->Active   = CFE_SB_INACTIVE;
+    UtAssert_VOIDCALL(CFE_SB_TransmitTxn_FindDestinations(Txn, &BufDsc));
+    UtAssert_ZERO(Txn->NumPipes);
+    UtAssert_UINT32_EQ(BufDsc.UseCount, 0);
+    UtAssert_UINT32_EQ(DestPtr->BuffCount, 0);
+    DestPtr->Active = CFE_SB_ACTIVE;
+
+    /* Pipe "Ignore Mine" Option Case w/Matching AppID */
+    Txn               = CFE_SB_TransmitTxn_Init(&TxnBuf, &BufDsc.Content);
+    Txn->RoutingMsgId = MsgId;
+    PipeDscPtr->Opts |= CFE_SB_PIPEOPTS_IGNOREMINE;
+    UtAssert_VOIDCALL(CFE_SB_TransmitTxn_FindDestinations(Txn, &BufDsc));
+    UtAssert_ZERO(Txn->NumPipes);
+    UtAssert_UINT32_EQ(BufDsc.UseCount, 0);
+    UtAssert_UINT32_EQ(DestPtr->BuffCount, 0);
+
+    /* Pipe "Ignore Mine" Option Case w/Non-Matching AppID */
+    Txn               = CFE_SB_TransmitTxn_Init(&TxnBuf, &BufDsc.Content);
+    Txn->RoutingMsgId = MsgId;
+    PipeDscPtr->AppId = CFE_ES_APPID_UNDEFINED;
+    UtAssert_VOIDCALL(CFE_SB_TransmitTxn_FindDestinations(Txn, &BufDsc));
+    UtAssert_UINT32_EQ(Txn->NumPipes, 1);
+    UtAssert_UINT32_EQ(BufDsc.UseCount, 1);
+    UtAssert_UINT32_EQ(DestPtr->BuffCount, 1);
+    CFE_ES_GetAppID(&PipeDscPtr->AppId);
+    PipeDscPtr->Opts &= ~CFE_SB_PIPEOPTS_IGNOREMINE;
+
+    /* DestPtr List too long - this emulates a hypothetical bug in SBR allowing list to grow too long */
+    /* Hack to make it infinite length */
+    DestPtr->Next     = DestPtr;
+    Txn               = CFE_SB_TransmitTxn_Init(&TxnBuf, &BufDsc.Content);
+    Txn->RoutingMsgId = MsgId;
+    UtAssert_VOIDCALL(CFE_SB_TransmitTxn_FindDestinations(Txn, &BufDsc));
+    UtAssert_UINT32_EQ(Txn->NumPipes, CFE_PLATFORM_SB_MAX_DEST_PER_PKT);
+
+    CFE_UtAssert_TEARDOWN(CFE_SB_DeletePipe(PipeId));
+}
+
+void Test_TransmitTxn_PipeHandler(void)
+{
+    /* Test function for:
+     * bool CFE_SB_TransmitTxn_PipeHandler(CFE_SB_MessageTxn_State_t *TxnPtr, CFE_SB_PipeSetEntry_t *ContextPtr, void
+     * *Arg);
+     */
+
+    CFE_SB_TransmitTxn_State_t TxnBuf;
+    CFE_SB_MessageTxn_State_t *Txn;
+    CFE_SB_PipeId_t            PipeId = CFE_SB_INVALID_PIPE;
+    CFE_SB_MsgId_t             MsgId  = SB_UT_TLM_MID;
+    CFE_SB_BufferD_t           SBBufD;
+
+    memset(&SBBufD, 0, sizeof(SBBufD));
+    memset(&TxnBuf, 0, sizeof(TxnBuf));
+    CFE_SB_TrackingListReset(&SBBufD.Link); /* so tracking list ops work */
+    Txn = CFE_SB_TransmitTxn_Init(&TxnBuf, &SBBufD.Content);
+
+    CFE_UtAssert_SETUP(CFE_SB_CreatePipe(&PipeId, 3, "TestPipe"));
+    CFE_UtAssert_SETUP(CFE_SB_Subscribe(MsgId, PipeId));
+
+    SBBufD.DestRouteId = CFE_SBR_GetRouteId(MsgId);
+
+    CFE_SB_LocatePipeDescByID(PipeId)->CurrentQueueDepth     = 1;
+    CFE_SB_GetDestPtr(SBBufD.DestRouteId, PipeId)->BuffCount = 1;
+
+    Txn->NumPipes                  = 6;
+    Txn->NumPipeErrs               = 1;
+    Txn->PipeSet[0].PipeId         = PipeId;
+    Txn->PipeSet[1].PipeId         = PipeId;
+    Txn->PipeSet[2].PipeId         = PipeId;
+    Txn->PipeSet[2].PendingEventId = 1;
+    Txn->PipeSet[3].PipeId         = PipeId;
+    Txn->PipeSet[4].PipeId         = PipeId;
+    Txn->PipeSet[5].PipeId         = SB_UT_ALTERNATE_INVALID_PIPEID;
+
+    UT_SetDeferredRetcode(UT_KEY(OS_QueuePut), 2, OS_QUEUE_FULL);
+    UT_SetDeferredRetcode(UT_KEY(OS_QueuePut), 1, OS_ERROR);
+    UT_SetDeferredRetcode(UT_KEY(OS_QueuePut), 1, OS_ERROR);
+    UT_SetDeferredRetcode(UT_KEY(OS_QueuePut), 1, OS_ERROR);
+
+    UtAssert_VOIDCALL(CFE_SB_MessageTxn_ProcessPipes(CFE_SB_TransmitTxn_PipeHandler, Txn, &SBBufD));
+    UtAssert_STUB_COUNT(OS_QueuePut, 5);
+    UtAssert_UINT32_EQ(Txn->NumPipeErrs, 5);
+    UtAssert_UINT32_EQ(Txn->PipeSet[0].PendingEventId, 0);
+    UtAssert_UINT32_EQ(Txn->PipeSet[1].PendingEventId, CFE_SB_Q_FULL_ERR_EID);
+    UtAssert_UINT32_EQ(Txn->PipeSet[2].PendingEventId, 1);
+    UtAssert_UINT32_EQ(Txn->PipeSet[3].PendingEventId, CFE_SB_Q_WR_ERR_EID);
+    UtAssert_UINT32_EQ(Txn->PipeSet[4].PendingEventId, CFE_SB_Q_WR_ERR_EID);
+    UtAssert_UINT32_EQ(Txn->PipeSet[5].PendingEventId, CFE_SB_Q_WR_ERR_EID);
+
+    CFE_UtAssert_TEARDOWN(CFE_SB_DeletePipe(PipeId));
+}
+
+void Test_TransmitTxn_Execute(void)
+{
+    /* Test case for:
+     * CFE_Status_t CFE_SB_TransmitTxn_Execute(CFE_SB_MessageTxn_State_t *TxnPtr, CFE_SB_Buffer_t *BufPtr);
+     */
+    CFE_SB_BufferD_t           SBBufD;
+    CFE_SB_TransmitTxn_State_t TxnBuf;
+    CFE_SB_MessageTxn_State_t *Txn;
+    CFE_ES_AppId_t             MyAppId;
+    CFE_SB_PipeId_t            PipeId = CFE_SB_INVALID_PIPE;
+    CFE_SB_MsgId_t             MsgId  = SB_UT_TLM_MID;
+
+    memset(&SBBufD, 0, sizeof(SBBufD));
+    memset(&TxnBuf, 0, sizeof(TxnBuf));
+    CFE_SB_TrackingListReset(&SBBufD.Link); /* so tracking list ops work */
+    Txn = CFE_SB_TransmitTxn_Init(&TxnBuf, &SBBufD.Content);
+    CFE_UtAssert_SETUP(CFE_SB_CreatePipe(&PipeId, 2, "TestPipe"));
+    CFE_UtAssert_SETUP(CFE_ES_GetAppID(&MyAppId));
+
+    /* no subs - this should still keep status as SUCCESS but trigger CFE_SB_SEND_NO_SUBS_EID event */
+    SBBufD.AppId = MyAppId;
+    UtAssert_VOIDCALL(CFE_SB_TransmitTxn_Execute(Txn, &SBBufD.Content));
+    UtAssert_STUB_COUNT(OS_QueuePut, 0);
+    UtAssert_UINT32_EQ(Txn->TransactionEventId, CFE_SB_SEND_NO_SUBS_EID);
+    UtAssert_INT32_EQ(Txn->Status, CFE_SUCCESS);
+    UtAssert_BOOL_FALSE(CFE_RESOURCEID_TEST_DEFINED(SBBufD.AppId));
+
+    /* add a subscriber - nominal case */
+    CFE_UtAssert_SETUP(CFE_SB_SubscribeFull(MsgId, PipeId, CFE_SB_DEFAULT_QOS, 2, CFE_SB_MSG_GLOBAL));
+    Txn               = CFE_SB_TransmitTxn_Init(&TxnBuf, &SBBufD.Content);
+    Txn->RoutingMsgId = MsgId;
+    SBBufD.AppId      = MyAppId;
+    UtAssert_VOIDCALL(CFE_SB_TransmitTxn_Execute(Txn, &SBBufD.Content));
+    UtAssert_BOOL_TRUE(CFE_SB_MessageTxn_IsOK(Txn));
+    UtAssert_STUB_COUNT(OS_QueuePut, 1);
+    UtAssert_BOOL_FALSE(CFE_RESOURCEID_TEST_DEFINED(SBBufD.AppId));
+
+    /* error writing to the pipe - this also still keeps status as SUCCESS but trigger CFE_SB_Q_WR_ERR_EID */
+    Txn               = CFE_SB_TransmitTxn_Init(&TxnBuf, &SBBufD.Content);
+    Txn->RoutingMsgId = MsgId;
+    SBBufD.AppId      = MyAppId;
+    UT_SetDeferredRetcode(UT_KEY(OS_QueuePut), 1, OS_ERROR);
+    UtAssert_VOIDCALL(CFE_SB_TransmitTxn_Execute(Txn, &SBBufD.Content));
+    UtAssert_BOOL_TRUE(CFE_SB_MessageTxn_IsOK(Txn));
+    UtAssert_UINT32_EQ(Txn->PipeSet[0].PendingEventId, CFE_SB_Q_WR_ERR_EID);
+    UtAssert_STUB_COUNT(OS_QueuePut, 2);
+    UtAssert_BOOL_FALSE(CFE_RESOURCEID_TEST_DEFINED(SBBufD.AppId));
+
+    /* Validation fail */
+    Txn = CFE_SB_TransmitTxn_Init(&TxnBuf, &SBBufD.Content);
+    UtAssert_VOIDCALL(CFE_SB_TransmitTxn_Execute(Txn, &SBBufD.Content));
+    UtAssert_BOOL_FALSE(CFE_SB_MessageTxn_IsOK(Txn));
+    UtAssert_INT32_EQ(Txn->Status, CFE_SB_BUFFER_INVALID);
+    UtAssert_STUB_COUNT(OS_QueuePut, 2);
+
+    CFE_UtAssert_TEARDOWN(CFE_SB_DeletePipe(PipeId));
+}
+
+void Test_MessageTxn_GetEventDetails(void)
+{
+    /* Test case for:
+     * void CFE_SB_MessageTxn_GetEventDetails(const CFE_SB_MessageTxn_State_t *TxnPtr, CFE_ES_TaskId_t TskId, uint16
+     * EventId,char *EvtMsg, size_t EvtMsgSize, const CFE_SB_PipeSetEntry_t *ContextPtr,CFE_EVS_EventType_Enum_t
+     * *EventType, int32 *ReqBit);
+     */
+
+    CFE_SB_MessageTxn_State_t Txn;
+    CFE_SB_PipeSetEntry_t     Entry;
+    CFE_ES_TaskId_t           MyTskId;
+    char                      EvtMsg[64];
+    CFE_EVS_EventType_Enum_t  EvType;
+    int32                     EvReqBit;
+    CFE_SB_PipeId_t           PipeId;
+
+    CFE_UtAssert_SETUP(CFE_ES_GetTaskID(&MyTskId));
+    CFE_UtAssert_SETUP(CFE_SB_CreatePipe(&PipeId, 3, "TestPipe"));
+    CFE_SB_MessageTxn_Init(&Txn, &Entry, 1, &PipeId);
+    EvReqBit     = 0;
+    EvType       = 0;
+    Entry.PipeId = PipeId;
+
+    memset(EvtMsg, 0xAA, sizeof(EvtMsg));
+    UtAssert_VOIDCALL(
+        CFE_SB_MessageTxn_GetEventDetails(&Txn, NULL, 0, MyTskId, EvtMsg, sizeof(EvtMsg), &EvType, &EvReqBit));
+    UtAssert_ZERO(EvtMsg[0]);
+    UtAssert_ZERO(EvReqBit);
+
+    memset(EvtMsg, 0xAA, sizeof(EvtMsg));
+    UtAssert_VOIDCALL(CFE_SB_MessageTxn_GetEventDetails(&Txn, NULL, CFE_SB_SEND_BAD_ARG_EID, MyTskId, EvtMsg,
+                                                        sizeof(EvtMsg), &EvType, &EvReqBit));
+    UtAssert_NONZERO(EvtMsg[0]);
+    UtAssert_NOT_NULL(memchr(EvtMsg, 0, sizeof(EvtMsg)));
+    UtAssert_UINT32_EQ(EvReqBit, CFE_SB_SEND_BAD_ARG_EID_BIT);
+
+    memset(EvtMsg, 0xAA, sizeof(EvtMsg));
+    UtAssert_VOIDCALL(CFE_SB_MessageTxn_GetEventDetails(&Txn, NULL, CFE_SB_SEND_INV_MSGID_EID, MyTskId, EvtMsg,
+                                                        sizeof(EvtMsg), &EvType, &EvReqBit));
+    UtAssert_NONZERO(EvtMsg[0]);
+    UtAssert_UINT32_EQ(EvReqBit, CFE_SB_SEND_INV_MSGID_EID_BIT);
+    UtAssert_NOT_NULL(memchr(EvtMsg, 0, sizeof(EvtMsg)));
+
+    memset(EvtMsg, 0xAA, sizeof(EvtMsg));
+    UtAssert_VOIDCALL(CFE_SB_MessageTxn_GetEventDetails(&Txn, NULL, CFE_SB_MSG_TOO_BIG_EID, MyTskId, EvtMsg,
+                                                        sizeof(EvtMsg), &EvType, &EvReqBit));
+    UtAssert_NONZERO(EvtMsg[0]);
+    UtAssert_NOT_NULL(memchr(EvtMsg, 0, sizeof(EvtMsg)));
+    UtAssert_UINT32_EQ(EvReqBit, CFE_SB_MSG_TOO_BIG_EID_BIT);
+
+    memset(EvtMsg, 0xAA, sizeof(EvtMsg));
+    UtAssert_VOIDCALL(CFE_SB_MessageTxn_GetEventDetails(&Txn, NULL, CFE_SB_SEND_NO_SUBS_EID, MyTskId, EvtMsg,
+                                                        sizeof(EvtMsg), &EvType, &EvReqBit));
+    UtAssert_NONZERO(EvtMsg[0]);
+    UtAssert_NOT_NULL(memchr(EvtMsg, 0, sizeof(EvtMsg)));
+    UtAssert_UINT32_EQ(EvReqBit, CFE_SB_SEND_NO_SUBS_EID_BIT);
+
+    memset(EvtMsg, 0xAA, sizeof(EvtMsg));
+    UtAssert_VOIDCALL(CFE_SB_MessageTxn_GetEventDetails(&Txn, &Entry, CFE_SB_GET_BUF_ERR_EID, MyTskId, EvtMsg,
+                                                        sizeof(EvtMsg), &EvType, &EvReqBit));
+    UtAssert_NONZERO(EvtMsg[0]);
+    UtAssert_NOT_NULL(memchr(EvtMsg, 0, sizeof(EvtMsg)));
+    UtAssert_UINT32_EQ(EvReqBit, CFE_SB_GET_BUF_ERR_EID_BIT);
+
+    memset(EvtMsg, 0xAA, sizeof(EvtMsg));
+    UtAssert_VOIDCALL(CFE_SB_MessageTxn_GetEventDetails(&Txn, &Entry, CFE_SB_MSGID_LIM_ERR_EID, MyTskId, EvtMsg,
+                                                        sizeof(EvtMsg), &EvType, &EvReqBit));
+    UtAssert_NONZERO(EvtMsg[0]);
+    UtAssert_NOT_NULL(memchr(EvtMsg, 0, sizeof(EvtMsg)));
+    UtAssert_UINT32_EQ(EvReqBit, CFE_SB_MSGID_LIM_ERR_EID_BIT);
+
+    memset(EvtMsg, 0xAA, sizeof(EvtMsg));
+    UtAssert_VOIDCALL(CFE_SB_MessageTxn_GetEventDetails(&Txn, &Entry, CFE_SB_Q_FULL_ERR_EID, MyTskId, EvtMsg,
+                                                        sizeof(EvtMsg), &EvType, &EvReqBit));
+    UtAssert_NONZERO(EvtMsg[0]);
+    UtAssert_NOT_NULL(memchr(EvtMsg, 0, sizeof(EvtMsg)));
+    UtAssert_UINT32_EQ(EvReqBit, CFE_SB_Q_FULL_ERR_EID_BIT);
+
+    memset(EvtMsg, 0xAA, sizeof(EvtMsg));
+    UtAssert_VOIDCALL(CFE_SB_MessageTxn_GetEventDetails(&Txn, NULL, CFE_SB_Q_WR_ERR_EID, MyTskId, EvtMsg,
+                                                        sizeof(EvtMsg), &EvType, &EvReqBit));
+    UtAssert_NONZERO(EvtMsg[0]);
+    UtAssert_NOT_NULL(memchr(EvtMsg, 0, sizeof(EvtMsg)));
+    UtAssert_UINT32_EQ(EvReqBit, CFE_SB_Q_WR_ERR_EID_BIT);
+
+    CFE_UtAssert_TEARDOWN(CFE_SB_DeletePipe(PipeId));
+}
+
+void Test_MessageTxn_ReportSingleEvent(void)
+{
+    /* Test case for:
+     * bool CFE_SB_MessageTxn_ReportSingleEvent(uint16 EventId, const CFE_SB_MessageTxn_State_t *TxnPtr, const
+     * CFE_SB_PipeSetEntry_t *ContextPtr);
+     */
+    CFE_SB_PipeSetEntry_t     Entry;
+    CFE_SB_MessageTxn_State_t Txn;
+    CFE_SB_PipeId_t           PipeId;
+    CFE_ES_TaskId_t           MyTskId;
+
+    memset(&Txn, 0, sizeof(Txn));
+    memset(&Entry, 0, sizeof(Entry));
+    CFE_UtAssert_SETUP(CFE_SB_CreatePipe(&PipeId, 3, "TestPipe"));
+    CFE_UtAssert_SETUP(CFE_ES_GetTaskID(&MyTskId));
+    Txn.NumPipes = 1;
+    Txn.PipeSet  = &Entry;
+    Entry.PipeId = PipeId;
+
+    /* Event ID == 0 is reserved for no event, nothing to report */
+    UT_ClearEventHistory();
+    UtAssert_BOOL_FALSE(CFE_SB_MessageTxn_ReportSingleEvent(&Txn, NULL, 0));
+    CFE_UtAssert_EVENTCOUNT(0);
+
+    /* No subscribers should be an information event (not an error) */
+    UT_ClearEventHistory();
+    UtAssert_BOOL_FALSE(CFE_SB_MessageTxn_ReportSingleEvent(&Txn, NULL, CFE_SB_SEND_NO_SUBS_EID));
+    CFE_UtAssert_EVENTCOUNT(1);
+    CFE_UtAssert_EVENTSENT(CFE_SB_SEND_NO_SUBS_EID);
+
+    /* Queue write failure should be an error */
+    /* Note that with context != NULL, it looks up the pipe name, which generates a debug event */
+    UT_ClearEventHistory();
+    UtAssert_BOOL_TRUE(CFE_SB_MessageTxn_ReportSingleEvent(&Txn, &Entry, CFE_SB_Q_WR_ERR_EID));
+    CFE_UtAssert_EVENTCOUNT(2);
+    CFE_UtAssert_EVENTSENT(CFE_SB_Q_WR_ERR_EID);
+    CFE_UtAssert_EVENTSENT(CFE_SB_GETPIPENAME_EID);
+
+    /* Check that the loop-avoidance works */
+    CFE_SB_RequestToSendEvent(MyTskId, CFE_SB_MSG_TOO_BIG_EID_BIT);
+    UT_ClearEventHistory();
+    UtAssert_BOOL_TRUE(CFE_SB_MessageTxn_ReportSingleEvent(&Txn, NULL, CFE_SB_MSG_TOO_BIG_EID));
+    CFE_UtAssert_EVENTCOUNT(0);
+    CFE_SB_FinishSendEvent(MyTskId, CFE_SB_MSG_TOO_BIG_EID_BIT);
+
+    CFE_UtAssert_TEARDOWN(CFE_SB_DeletePipe(PipeId));
+}
+
+void Test_MessageTxn_ReportEvents(void)
+{
+    /* Test case for:
+     * void CFE_SB_MessageTxn_ReportEvents(const CFE_SB_MessageTxn_State_t *TxnPtr);
+     */
+    CFE_SB_PipeSetEntry_t     PipeSetEntry;
+    CFE_SB_MessageTxn_State_t Txn;
+
+    memset(&Txn, 0, sizeof(Txn));
+    Txn.PipeSet  = &PipeSetEntry;
+    Txn.NumPipes = 1;
+    Txn.MaxPipes = 1;
+
+    /* nominal */
+    UtAssert_VOIDCALL(CFE_SB_MessageTxn_ReportEvents(&Txn));
+    UtAssert_ZERO(CFE_SB_Global.HKTlmMsg.Payload.MsgSendErrorCounter);
+
+    /* with an event at the transaction level, known to be an error */
+    Txn.TransactionEventId = CFE_SB_MSG_TOO_BIG_EID;
+    Txn.IsTransmit         = true;
+    UtAssert_VOIDCALL(CFE_SB_MessageTxn_ReportEvents(&Txn));
+    UtAssert_UINT32_EQ(CFE_SB_Global.HKTlmMsg.Payload.MsgSendErrorCounter, 1);
+
+    /* with some undefined/unknown event at the transaction level, not an error */
+    Txn.TransactionEventId = 0xFFFF;
+    UtAssert_VOIDCALL(CFE_SB_MessageTxn_ReportEvents(&Txn));
+    UtAssert_UINT32_EQ(CFE_SB_Global.HKTlmMsg.Payload.MsgSendErrorCounter, 1);
+
+    /* with an event at the pipe level, known to be an error */
+    Txn.TransactionEventId        = 0;
+    Txn.PipeSet[0].PendingEventId = CFE_SB_Q_FULL_ERR_EID;
+    UtAssert_VOIDCALL(CFE_SB_MessageTxn_ReportEvents(&Txn));
+    UtAssert_UINT32_EQ(CFE_SB_Global.HKTlmMsg.Payload.MsgSendErrorCounter, 2);
+
+    /* with some undefined/unknown event at the pipe level, not an error */
+    Txn.PipeSet[0].PendingEventId = 0xFFFF;
+    UtAssert_VOIDCALL(CFE_SB_MessageTxn_ReportEvents(&Txn));
+    UtAssert_UINT32_EQ(CFE_SB_Global.HKTlmMsg.Payload.MsgSendErrorCounter, 2);
+}
+
 /*
 ** Function for calling SB send message API test functions
 */
@@ -2901,10 +3486,19 @@ void Test_TransmitMsg_API(void)
     SB_UT_ADD_SUBTEST(Test_TransmitBuffer_NoIncrement);
     SB_UT_ADD_SUBTEST(Test_TransmitMsg_ZeroCopyBufferValidate);
     SB_UT_ADD_SUBTEST(Test_TransmitMsg_DisabledDestination);
-    SB_UT_ADD_SUBTEST(Test_BroadcastBufferToRoute);
-    SB_UT_ADD_SUBTEST(Test_TransmitMsgValidate_MaxMsgSizePlusOne);
-    SB_UT_ADD_SUBTEST(Test_TransmitMsgValidate_NoSubscribers);
-    SB_UT_ADD_SUBTEST(Test_TransmitMsgValidate_InvalidMsgId);
+
+    SB_UT_ADD_SUBTEST(Test_MessageTxn_SetEventAndStatus);
+    SB_UT_ADD_SUBTEST(Test_MessageTxn_SetupFromMsg);
+    SB_UT_ADD_SUBTEST(Test_MessageTxn_Timeout);
+    SB_UT_ADD_SUBTEST(Test_MessageTxn_GetEventDetails);
+    SB_UT_ADD_SUBTEST(Test_MessageTxn_ReportSingleEvent);
+    SB_UT_ADD_SUBTEST(Test_MessageTxn_ReportEvents);
+
+    SB_UT_ADD_SUBTEST(Test_TransmitTxn_Init);
+    SB_UT_ADD_SUBTEST(Test_TransmitTxn_FindDestinations);
+    SB_UT_ADD_SUBTEST(Test_TransmitTxn_PipeHandler);
+    SB_UT_ADD_SUBTEST(Test_TransmitTxn_Execute);
+
     SB_UT_ADD_SUBTEST(Test_AllocateMessageBuffer);
     SB_UT_ADD_SUBTEST(Test_ReleaseMessageBuffer);
 }
@@ -3249,7 +3843,7 @@ void Test_TransmitMsg_GetPoolBufErr(void)
 */
 void Test_AllocateMessageBuffer(void)
 {
-    uint16 MsgSize = 10;
+    size_t MsgSize = 10;
     uint32 MemUse;
 
     /* Attempt to allocate a message buffer greater than the max size */
@@ -3303,9 +3897,6 @@ void Test_TransmitMsg_ZeroCopyBufferValidate(void)
     /* Create an invalid Zero Copy handle that is not NULL but refers to a
      * descriptor which is NOT from CFE_SB_AllocateMessageBuffer(). */
     memset(&BadZeroCpyBuf, 0, sizeof(BadZeroCpyBuf));
-
-    /* Null Buffer => BAD_ARGUMENT */
-    UtAssert_INT32_EQ(CFE_SB_ZeroCopyBufferValidate(NULL, &BufDscPtr), CFE_SB_BAD_ARGUMENT);
 
     /* Non-null buffer pointer but Non Zero-Copy => CFE_SB_BUFFER_INVALID */
     UtAssert_INT32_EQ(CFE_SB_ZeroCopyBufferValidate(&BadZeroCpyBuf.Content, &BufDscPtr), CFE_SB_BUFFER_INVALID);
@@ -3441,7 +4032,7 @@ void Test_ReleaseMessageBuffer(void)
     CFE_SB_Buffer_t *ZeroCpyMsgPtr2 = NULL;
     CFE_SB_Buffer_t *ZeroCpyMsgPtr3 = NULL;
     CFE_SB_BufferD_t BadBufferDesc;
-    uint16           MsgSize = 10;
+    size_t           MsgSize = 10;
 
     ZeroCpyMsgPtr1 = CFE_SB_AllocateMessageBuffer(MsgSize);
     ZeroCpyMsgPtr2 = CFE_SB_AllocateMessageBuffer(MsgSize);
@@ -3505,113 +4096,12 @@ void Test_TransmitMsg_DisabledDestination(void)
     CFE_UtAssert_TEARDOWN(CFE_SB_DeletePipe(PipeId));
 }
 
-/*
-** Test successful CFE_SB_BroadcastBufferToRoute
-*/
-void Test_BroadcastBufferToRoute(void)
+void UT_CFE_MSG_Verify_CustomHandler(void *UserObj, UT_EntryKey_t FuncKey, const UT_StubContext_t *Context)
 {
-    CFE_SB_PipeId_t   PipeId = CFE_SB_INVALID_PIPE;
-    CFE_SB_MsgId_t    MsgId  = SB_UT_TLM_MID;
-    CFE_SB_BufferD_t  SBBufD;
-    int32             PipeDepth;
-    CFE_SBR_RouteId_t RouteId;
+    bool *IsAcceptable = UT_Hook_GetArgValueByName(Context, "IsAcceptable", bool *);
 
-    memset(&SBBufD, 0, sizeof(SBBufD));
-    SBBufD.MsgId = MsgId;
-    CFE_SB_TrackingListReset(&SBBufD.Link);
-
-    PipeDepth = 2;
-    CFE_UtAssert_SETUP(CFE_SB_CreatePipe(&PipeId, PipeDepth, "TestPipe"));
-    CFE_UtAssert_SETUP(CFE_SB_Subscribe(MsgId, PipeId));
-
-    RouteId = CFE_SBR_GetRouteId(MsgId);
-
-    /* No return from this function - it handles all errors */
-    CFE_SB_BroadcastBufferToRoute(&SBBufD, RouteId);
-
-    CFE_UtAssert_EVENTCOUNT(2);
-    UT_ClearEventHistory();
-
-    /* Calling this with invalid route ID is essentially a no-op, called for coverage */
-    CFE_SB_BroadcastBufferToRoute(&SBBufD, CFE_SBR_INVALID_ROUTE_ID);
-
-    CFE_UtAssert_TEARDOWN(CFE_SB_DeletePipe(PipeId));
-}
-
-/*
-** Test response to sending a message with the message size larger than allowed
-*/
-void Test_TransmitMsgValidate_MaxMsgSizePlusOne(void)
-{
-    CFE_SB_MsgId_t    MsgId = SB_UT_TLM_MID;
-    CFE_SB_MsgId_t    MsgIdRtn;
-    SB_UT_Test_Tlm_t  TlmPkt;
-    CFE_MSG_Size_t    Size    = CFE_MISSION_SB_MAX_SB_MSG_SIZE + 1;
-    CFE_MSG_Size_t    SizeRtn = 0;
-    CFE_SBR_RouteId_t RouteIdRtn;
-
-    memset(&TlmPkt, 0, sizeof(TlmPkt));
-
-    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);
-    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
-
-    UtAssert_INT32_EQ(CFE_SB_TransmitMsgValidate(CFE_MSG_PTR(TlmPkt.TelemetryHeader), &MsgIdRtn, &SizeRtn, &RouteIdRtn),
-                      CFE_SB_MSG_TOO_BIG);
-    CFE_UtAssert_MSGID_EQ(MsgIdRtn, MsgId);
-    UtAssert_INT32_EQ(SizeRtn, Size);
-
-    CFE_UtAssert_EVENTCOUNT(1);
-
-    CFE_UtAssert_EVENTSENT(CFE_SB_MSG_TOO_BIG_EID);
-}
-
-/*
-** Test response to sending a message which has no subscribers
-*/
-void Test_TransmitMsgValidate_NoSubscribers(void)
-{
-    CFE_SB_MsgId_t    MsgId = SB_UT_TLM_MID;
-    CFE_SB_MsgId_t    MsgIdRtn;
-    SB_UT_Test_Tlm_t  TlmPkt;
-    CFE_MSG_Size_t    Size       = sizeof(TlmPkt);
-    CFE_MSG_Size_t    SizeRtn    = 0;
-    CFE_SBR_RouteId_t RouteIdRtn = CFE_SBR_INVALID_ROUTE_ID;
-
-    memset(&TlmPkt, 0, sizeof(TlmPkt));
-
-    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);
-    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
-
-    CFE_UtAssert_SUCCESS(
-        CFE_SB_TransmitMsgValidate(CFE_MSG_PTR(TlmPkt.TelemetryHeader), &MsgIdRtn, &SizeRtn, &RouteIdRtn));
-    CFE_UtAssert_MSGID_EQ(MsgIdRtn, MsgId);
-    UtAssert_INT32_EQ(SizeRtn, Size);
-    UtAssert_BOOL_FALSE(CFE_SBR_IsValidRouteId(RouteIdRtn));
-
-    CFE_UtAssert_EVENTCOUNT(1);
-
-    CFE_UtAssert_EVENTSENT(CFE_SB_SEND_NO_SUBS_EID);
-}
-
-/*
-** Test response to sending a message which has an invalid Msg ID
-*/
-void Test_TransmitMsgValidate_InvalidMsgId(void)
-{
-    CFE_SB_MsgId_t    MsgId = CFE_SB_INVALID_MSG_ID;
-    CFE_SB_MsgId_t    MsgIdRtn;
-    SB_UT_Test_Tlm_t  TlmPkt;
-    CFE_MSG_Size_t    SizeRtn;
-    CFE_SBR_RouteId_t RouteIdRtn;
-
-    memset(&TlmPkt, 0, sizeof(TlmPkt));
-
-    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);
-
-    UtAssert_INT32_EQ(CFE_SB_TransmitMsgValidate(CFE_MSG_PTR(TlmPkt.TelemetryHeader), &MsgIdRtn, &SizeRtn, &RouteIdRtn),
-                      CFE_SB_BAD_ARGUMENT);
-    CFE_UtAssert_EVENTCOUNT(1);
-    CFE_UtAssert_EVENTSENT(CFE_SB_SEND_INV_MSGID_EID);
+    /* Return alternating false/true (this is needed to avoid an endless loop) */
+    *IsAcceptable = (UT_GetStubCount(FuncKey) & 1) == 0;
 }
 
 /*
@@ -3630,17 +4120,18 @@ void Test_ReceiveBuffer_API(void)
 
 static void SB_UT_PipeIdModifyHandler(void *UserObj, UT_EntryKey_t FuncKey, const UT_StubContext_t *Context)
 {
-    void *                  data        = UT_Hook_GetArgValueByName(Context, "data", void *);
+    CFE_SB_BufferD_t **     OutData     = UT_Hook_GetArgValueByName(Context, "data", void *);
     size_t *                size_copied = UT_Hook_GetArgValueByName(Context, "size_copied", size_t *);
     int32                   status;
-    static SB_UT_Test_Tlm_t FakeTlmPkt;
-    SB_UT_Test_Tlm_t **     OutData;
+    static CFE_SB_BufferD_t LocalBuf;
     CFE_SB_PipeD_t *        PipeDscPtr = UserObj;
 
-    OutData      = data;
-    *OutData     = &FakeTlmPkt;
-    *size_copied = sizeof(*OutData);
-    status       = OS_SUCCESS;
+    memset(&LocalBuf, 0, sizeof(LocalBuf));
+    CFE_SB_TrackingListReset(&LocalBuf.Link);
+    LocalBuf.UseCount = 1;
+    *OutData          = &LocalBuf;
+    *size_copied      = sizeof(*OutData);
+    status            = OS_SUCCESS;
     UT_Stub_SetReturnValue(FuncKey, status);
 
     /* Modify the PipeID so it fails to match */
@@ -3700,8 +4191,8 @@ void Test_ReceiveBuffer_InvalidPipeId(void)
     UT_SetHandlerFunction(UT_KEY(OS_QueueGet), SB_UT_PipeIdModifyHandler, PipeDscPtr);
     UtAssert_INT32_EQ(CFE_SB_ReceiveBuffer(&SBBufPtr, PipeId, CFE_SB_POLL), CFE_SB_PIPE_RD_ERR);
     CFE_UtAssert_EVENTSENT(CFE_SB_BAD_PIPEID_EID);
-    UtAssert_UINT8_EQ(CFE_SB_Global.HKTlmMsg.Payload.MsgReceiveErrorCounter, 2);
-    UtAssert_UINT8_EQ(CFE_SB_Global.HKTlmMsg.Payload.InternalErrorCounter, 0);
+    UtAssert_UINT8_EQ(CFE_SB_Global.HKTlmMsg.Payload.MsgReceiveErrorCounter, 1);
+    UtAssert_UINT8_EQ(CFE_SB_Global.HKTlmMsg.Payload.InternalErrorCounter, 1);
     UT_SetHandlerFunction(UT_KEY(OS_QueueGet), NULL, NULL);
 
     /* restore the PipeID so it can be deleted */
@@ -3793,7 +4284,7 @@ void Test_ReceiveBuffer_PipeReadError(void)
     UT_SetDeferredRetcode(UT_KEY(OS_QueueGet), 1, OS_ERROR);
     UtAssert_INT32_EQ(CFE_SB_ReceiveBuffer(&SBBufPtr, PipeId, CFE_SB_PEND_FOREVER), CFE_SB_PIPE_RD_ERR);
 
-    CFE_UtAssert_EVENTCOUNT(2);
+    CFE_UtAssert_EVENTCOUNT(3);
 
     CFE_UtAssert_EVENTSENT(CFE_SB_Q_RD_ERR_EID);
 
@@ -4228,11 +4719,6 @@ void Test_SB_SpecialCases(void)
     SB_UT_ADD_SUBTEST(Test_PutDestBlk_ErrLogic);
     SB_UT_ADD_SUBTEST(Test_CFE_SB_Buffers);
     SB_UT_ADD_SUBTEST(Test_CFE_SB_BadPipeInfo);
-    SB_UT_ADD_SUBTEST(Test_SB_TransmitMsgPaths_Nominal);
-    SB_UT_ADD_SUBTEST(Test_SB_TransmitMsgPaths_LimitErr);
-    SB_UT_ADD_SUBTEST(Test_SB_TransmitMsgPaths_FullErr);
-    SB_UT_ADD_SUBTEST(Test_SB_TransmitMsgPaths_WriteErr);
-    SB_UT_ADD_SUBTEST(Test_SB_TransmitMsgPaths_IgnoreOpt);
     SB_UT_ADD_SUBTEST(Test_ReceiveBuffer_UnsubResubPath);
     SB_UT_ADD_SUBTEST(Test_MessageString);
 }
@@ -4399,281 +4885,6 @@ void Test_CFE_SB_BadPipeInfo(void)
 
     CFE_UtAssert_EVENTCOUNT(4);
 
-    CFE_UtAssert_TEARDOWN(CFE_SB_DeletePipe(PipeId));
-}
-
-/*
-** Test send housekeeping information command
-*/
-void Test_SB_TransmitMsgPaths_Nominal(void)
-{
-    union
-    {
-        CFE_SB_Buffer_t    SBBuf;
-        CFE_SB_SendHkCmd_t SendHkCmd;
-    } Housekeeping;
-    CFE_SB_MsgId_t   MsgId;
-    CFE_SB_PipeId_t  PipeId = CFE_SB_INVALID_PIPE;
-    SB_UT_Test_Tlm_t TlmPkt;
-    int32            PipeDepth = 2;
-    CFE_MSG_Size_t   Size;
-    CFE_MSG_Type_t   Type;
-
-    memset(&Housekeeping, 0, sizeof(Housekeeping));
-    memset(&TlmPkt, 0, sizeof(TlmPkt));
-
-    /* Set up for dispatch FIRST */
-    UT_SetupBasicMsgDispatch(&UT_TPID_CFE_SB_SEND_HK, sizeof(Housekeeping.SendHkCmd), false);
-
-    /* For internal send message call */
-    MsgId = CFE_SB_ValueToMsgId(CFE_SB_HK_TLM_MID);
-    Size  = sizeof(CFE_SB_Global.HKTlmMsg);
-    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);
-    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
-
-    /* Repress sending the no subscriptions event and process request */
-    CFE_SB_Global.HKTlmMsg.Payload.NoSubscribersCounter = 0;
-    CFE_SB_Global.StopRecurseFlags[1] |= CFE_BIT(CFE_SB_SEND_NO_SUBS_EID_BIT);
-    CFE_SB_ProcessCmdPipePkt(&Housekeeping.SBBuf);
-
-    /* The no subs event should not be in history but count should increment */
-    CFE_UtAssert_EVENTNOTSENT(CFE_SB_SEND_NO_SUBS_EID);
-    UtAssert_INT32_EQ(CFE_SB_Global.HKTlmMsg.Payload.NoSubscribersCounter, 1);
-
-    /* Repress get buffer error */
-    CFE_SB_Global.HKTlmMsg.Payload.MsgSendErrorCounter = 0;
-    CFE_SB_Global.StopRecurseFlags[1] |= CFE_BIT(CFE_SB_GET_BUF_ERR_EID_BIT);
-
-    /* Set up for dispatch FIRST */
-    UT_SetupBasicMsgDispatch(&UT_TPID_CFE_SB_SEND_HK, sizeof(Housekeeping.SendHkCmd), false);
-
-    /* For internal send message call */
-    MsgId = CFE_SB_ValueToMsgId(CFE_SB_HK_TLM_MID);
-    Size  = sizeof(CFE_SB_Global.HKTlmMsg);
-    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);
-    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
-
-    UT_SetDeferredRetcode(UT_KEY(CFE_ES_GetPoolBuf), 1, CFE_ES_ERR_MEM_BLOCK_SIZE);
-    CFE_SB_ProcessCmdPipePkt(&Housekeeping.SBBuf);
-    UtAssert_INT32_EQ(CFE_SB_Global.HKTlmMsg.Payload.MsgSendErrorCounter, 0);
-
-    CFE_UtAssert_EVENTNOTSENT(CFE_SB_GET_BUF_ERR_EID);
-
-    CFE_UtAssert_EVENTCOUNT(0);
-
-    CFE_SB_Global.StopRecurseFlags[1] = 0;
-
-    /* Create a message ID with the command bit set and disable reporting */
-    MsgId = SB_UT_CMD_MID;
-    Size  = sizeof(TlmPkt);
-    Type  = CFE_MSG_Type_Cmd;
-    CFE_UtAssert_SETUP(CFE_SB_CreatePipe(&PipeId, PipeDepth, "TestPipe"));
-
-    /* Will fail because of deferred CFE_ES_GetPoolBuf failure return */
-    UtAssert_INT32_EQ(CFE_SB_Subscribe(MsgId, PipeId), CFE_SB_BUF_ALOC_ERR);
-
-    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);
-    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
-    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &Type, sizeof(Type), false);
-
-    CFE_UtAssert_SUCCESS(CFE_SB_TransmitMsg(CFE_MSG_PTR(TlmPkt.TelemetryHeader), true));
-
-    CFE_UtAssert_EVENTCOUNT(3);
-
-    /*
-     * Test Additional paths within CFE_SB_TransmitMsgValidate that skip sending events to avoid a loop
-     * For all of these they should skip sending the event but still increment the MsgSendErrorCounter
-     */
-
-    /* CFE_SB_MSG_TOO_BIG_EID loop filter */
-    CFE_SB_Global.HKTlmMsg.Payload.MsgSendErrorCounter = 0;
-    Size                                               = CFE_MISSION_SB_MAX_SB_MSG_SIZE + 1;
-    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);
-    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
-    CFE_SB_Global.StopRecurseFlags[1] |= CFE_BIT(CFE_SB_MSG_TOO_BIG_EID_BIT);
-    CFE_SB_TransmitMsg(CFE_MSG_PTR(Housekeeping.SBBuf), true);
-    CFE_UtAssert_EVENTNOTSENT(CFE_SB_MSG_TOO_BIG_EID);
-    UtAssert_UINT32_EQ(CFE_SB_Global.HKTlmMsg.Payload.MsgSendErrorCounter, 1);
-
-    /* CFE_SB_SEND_INV_MSGID_EID loop filter */
-    CFE_SB_Global.HKTlmMsg.Payload.MsgSendErrorCounter = 0;
-    MsgId                                              = CFE_SB_INVALID_MSG_ID;
-    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);
-    CFE_SB_Global.StopRecurseFlags[1] |= CFE_BIT(CFE_SB_SEND_INV_MSGID_EID_BIT);
-    CFE_SB_TransmitMsg(CFE_MSG_PTR(Housekeeping.SBBuf), true);
-    CFE_UtAssert_EVENTNOTSENT(CFE_SB_SEND_INV_MSGID_EID);
-    UtAssert_UINT32_EQ(CFE_SB_Global.HKTlmMsg.Payload.MsgSendErrorCounter, 1);
-
-    /* CFE_SB_SEND_BAD_ARG_EID loop filter */
-    CFE_SB_Global.HKTlmMsg.Payload.MsgSendErrorCounter = 0;
-    CFE_SB_Global.StopRecurseFlags[1] |= CFE_BIT(CFE_SB_SEND_BAD_ARG_EID_BIT);
-    CFE_SB_TransmitMsg(NULL, true);
-    CFE_UtAssert_EVENTNOTSENT(CFE_SB_SEND_BAD_ARG_EID);
-    UtAssert_UINT32_EQ(CFE_SB_Global.HKTlmMsg.Payload.MsgSendErrorCounter, 1);
-
-    CFE_UtAssert_TEARDOWN(CFE_SB_DeletePipe(PipeId));
-}
-
-void Test_SB_TransmitMsgPaths_LimitErr(void)
-{
-    CFE_SB_MsgId_t   MsgId;
-    CFE_SB_PipeId_t  PipeId = CFE_SB_INVALID_PIPE;
-    SB_UT_Test_Tlm_t TlmPkt;
-    int32            PipeDepth = 2;
-    CFE_MSG_Type_t   Type      = CFE_MSG_Type_Tlm;
-    CFE_MSG_Size_t   Size      = sizeof(TlmPkt);
-
-    memset(&TlmPkt, 0, sizeof(TlmPkt));
-
-    /* Test inhibiting sending a "message ID limit error" message */
-    MsgId = SB_UT_TLM_MID;
-    CFE_UtAssert_SETUP(CFE_SB_CreatePipe(&PipeId, PipeDepth, "MsgLimTestPipe"));
-
-    /* Set maximum allowed messages on the pipe at one time to 1 */
-    CFE_UtAssert_SETUP(CFE_SB_SubscribeEx(MsgId, PipeId, CFE_SB_DEFAULT_QOS, 1));
-
-    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);
-    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
-    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &Type, sizeof(Type), false);
-
-    /* First send should pass */
-    CFE_UtAssert_SUCCESS(CFE_SB_TransmitMsg(CFE_MSG_PTR(TlmPkt.TelemetryHeader), true));
-
-    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);
-    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
-    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &Type, sizeof(Type), false);
-
-    CFE_SB_Global.StopRecurseFlags[1] |= CFE_BIT(CFE_SB_MSGID_LIM_ERR_EID_BIT);
-    CFE_UtAssert_SUCCESS(CFE_SB_TransmitMsg(CFE_MSG_PTR(TlmPkt.TelemetryHeader), true));
-    CFE_SB_Global.StopRecurseFlags[1] = 0;
-
-    CFE_UtAssert_EVENTNOTSENT(CFE_SB_MSGID_LIM_ERR_EID);
-
-    CFE_UtAssert_TEARDOWN(CFE_SB_DeletePipe(PipeId));
-}
-
-void Test_SB_TransmitMsgPaths_FullErr(void)
-{
-    CFE_SB_MsgId_t   MsgId;
-    CFE_SB_PipeId_t  PipeId = CFE_SB_INVALID_PIPE;
-    SB_UT_Test_Tlm_t TlmPkt;
-    int32            PipeDepth = 2;
-    CFE_MSG_Type_t   Type      = CFE_MSG_Type_Tlm;
-    CFE_MSG_Size_t   Size      = sizeof(TlmPkt);
-
-    memset(&TlmPkt, 0, sizeof(TlmPkt));
-
-    /* Test inhibiting sending a "pipe full" message */
-    MsgId = SB_UT_TLM_MID;
-    CFE_UtAssert_SETUP(CFE_SB_CreatePipe(&PipeId, PipeDepth, "PipeFullTestPipe"));
-    CFE_UtAssert_SETUP(CFE_SB_Subscribe(MsgId, PipeId));
-
-    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);
-    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
-    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &Type, sizeof(Type), false);
-
-    /* This send should pass */
-    CFE_UtAssert_SUCCESS(CFE_SB_TransmitMsg(CFE_MSG_PTR(TlmPkt.TelemetryHeader), true));
-
-    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);
-    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
-    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &Type, sizeof(Type), false);
-
-    /* Tell the QueuePut stub to return OS_QUEUE_FULL on its next call */
-    UT_SetDeferredRetcode(UT_KEY(OS_QueuePut), 1, OS_QUEUE_FULL);
-    CFE_SB_Global.StopRecurseFlags[1] |= CFE_BIT(CFE_SB_Q_FULL_ERR_EID_BIT);
-    CFE_UtAssert_SUCCESS(CFE_SB_TransmitMsg(CFE_MSG_PTR(TlmPkt.TelemetryHeader), true));
-    CFE_SB_Global.StopRecurseFlags[1] = 0;
-
-    CFE_UtAssert_EVENTNOTSENT(CFE_SB_Q_FULL_ERR_EID_BIT);
-
-    CFE_UtAssert_EVENTCOUNT(2);
-
-    CFE_UtAssert_TEARDOWN(CFE_SB_DeletePipe(PipeId));
-}
-
-void Test_SB_TransmitMsgPaths_WriteErr(void)
-{
-    CFE_SB_MsgId_t   MsgId;
-    CFE_SB_PipeId_t  PipeId = CFE_SB_INVALID_PIPE;
-    SB_UT_Test_Tlm_t TlmPkt;
-    int32            PipeDepth = 2;
-    CFE_MSG_Type_t   Type      = CFE_MSG_Type_Tlm;
-    CFE_MSG_Size_t   Size      = sizeof(TlmPkt);
-
-    memset(&TlmPkt, 0, sizeof(TlmPkt));
-
-    /* Test inhibiting sending a "pipe write error" message */
-    MsgId = SB_UT_TLM_MID;
-    CFE_UtAssert_SETUP(CFE_SB_CreatePipe(&PipeId, PipeDepth, "TestPipe"));
-    CFE_UtAssert_SETUP(CFE_SB_Subscribe(MsgId, PipeId));
-    UT_SetDeferredRetcode(UT_KEY(OS_QueuePut), 1, OS_ERROR);
-
-    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);
-    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
-    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &Type, sizeof(Type), false);
-
-    CFE_SB_Global.StopRecurseFlags[1] |= CFE_BIT(CFE_SB_Q_WR_ERR_EID_BIT);
-    CFE_UtAssert_SUCCESS(CFE_SB_TransmitMsg(CFE_MSG_PTR(TlmPkt.TelemetryHeader), true));
-    CFE_SB_Global.StopRecurseFlags[1] = 0;
-
-    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);
-    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
-    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &Type, sizeof(Type), false);
-
-    CFE_UtAssert_SUCCESS(CFE_SB_TransmitMsg(CFE_MSG_PTR(TlmPkt.TelemetryHeader), true));
-
-    CFE_UtAssert_EVENTCOUNT(2);
-
-    CFE_UtAssert_EVENTNOTSENT(CFE_SB_Q_WR_ERR_EID);
-
-    CFE_UtAssert_TEARDOWN(CFE_SB_DeletePipe(PipeId));
-}
-
-void Test_SB_TransmitMsgPaths_IgnoreOpt(void)
-{
-    CFE_SB_MsgId_t   MsgId;
-    CFE_SB_PipeId_t  PipeId = CFE_SB_INVALID_PIPE;
-    SB_UT_Test_Tlm_t TlmPkt;
-    int32            PipeDepth = 2;
-    CFE_MSG_Type_t   Type      = CFE_MSG_Type_Tlm;
-    CFE_MSG_Size_t   Size      = sizeof(TlmPkt);
-    CFE_SB_PipeD_t * PipeDscPtr;
-    CFE_ES_AppId_t   AppId;
-
-    memset(&TlmPkt, 0, sizeof(TlmPkt));
-
-    /* Setup Test skipping sending to a pipe when the pipe option is set to ignore */
-    MsgId = SB_UT_TLM_MID;
-    CFE_UtAssert_SETUP(CFE_SB_CreatePipe(&PipeId, PipeDepth, "SkipPipe"));
-    CFE_UtAssert_SETUP(CFE_SB_Subscribe(MsgId, PipeId));
-    CFE_UtAssert_SETUP(CFE_SB_SetPipeOpts(PipeId, CFE_SB_PIPEOPTS_IGNOREMINE));
-
-    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);
-    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
-    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &Type, sizeof(Type), false);
-
-    /* Test skipping this pipe and the send should pass */
-    CFE_UtAssert_SUCCESS(CFE_SB_TransmitMsg(CFE_MSG_PTR(TlmPkt.TelemetryHeader), true));
-    UtAssert_STUB_COUNT(OS_QueuePut, 0);
-
-    /* Set up and send again without matching ApId and it should transmit */
-    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);
-    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
-    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &Type, sizeof(Type), false);
-    PipeDscPtr        = CFE_SB_LocatePipeDescByID(PipeId);
-    AppId             = PipeDscPtr->AppId;
-    PipeDscPtr->AppId = CFE_ES_APPID_UNDEFINED;
-
-    /* Also hit case where not the peak depth */
-    PipeDscPtr->PeakQueueDepth += 2;
-    CFE_UtAssert_SUCCESS(CFE_SB_TransmitMsg(CFE_MSG_PTR(TlmPkt.TelemetryHeader), true));
-    UtAssert_STUB_COUNT(OS_QueuePut, 1);
-
-    /* Set AppId back so it can be deleted */
-    PipeDscPtr->AppId = AppId;
-
-    CFE_UtAssert_TEARDOWN(CFE_SB_SetPipeOpts(PipeId, 0));
     CFE_UtAssert_TEARDOWN(CFE_SB_DeletePipe(PipeId));
 }
 

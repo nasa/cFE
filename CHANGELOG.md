@@ -1,5 +1,22 @@
 # Changelog
 
+## Development Build: equuleus-rc1+dev163
+- Improve CFE_SB_AllocateMessageBuffer error report
+- Update CFE_PLATFORM_ES_DEFAULT_SYSLOG_MODE macro in es_verify.h
+- Update comment re. limits of CFE_PLATFORM_SB_HIGHEST_VALID_MSGID
+- Use size_t for variables/parameters representing size
+- Remove superfluous status assignment in CFE_SB_CreatePipe
+- null value in vsnprintf
+- Adds JSC 2.1 Static Analysis comments
+- Reduces CFE_EVS_MAX_PORT_MSG_LENGTH to prevent new line character truncation
+- See <https://github.com/nasa/cFE/pull/2560>, <https://github.com/nasa/cFE/pull/2344>, <https://github.com/nasa/cFE/pull/2359>, <https://github.com/nasa/cFE/pull/2376>, <https://github.com/nasa/cFE/pull/2496>, <https://github.com/nasa/cFE/pull/2554>, <https://github.com/nasa/cFE/pull/2568>, and <https://github.com/nasa/cFE/pull/2566>
+
+## Development Build: equuleus-rc1+dev141
+- use resourceids for internal table validation and dump control blocks
+- refactor SB to support additional use cases
+- msg api test buffer overrun
+- See <2551>, <2381>, and <2537>
+
 ## Development Build: equuleus-rc1+dev137
 - msg api test buffer overrun
 - send CMake message to stdout instead of stderr

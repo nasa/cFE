@@ -839,128 +839,90 @@ CFE_Status_t CFE_TBL_ReleaseAddresses(uint16 NumTables, const CFE_TBL_Handle_t T
  *-----------------------------------------------------------------*/
 CFE_Status_t CFE_TBL_Validate(CFE_TBL_Handle_t TblHandle)
 {
-    CFE_TBL_TxnState_t     Txn;
-    int32                  Status;
-    CFE_ES_AppId_t         ThisAppId;
-    CFE_TBL_RegistryRec_t *RegRecPtr;
-    char                   AppName[OS_MAX_API_NAME] = {"UNKNOWN"};
+    CFE_TBL_TxnState_t          Txn;
+    int32                       Status;
+    CFE_TBL_RegistryRec_t *     RegRecPtr;
+    char                        AppName[OS_MAX_API_NAME] = {"UNKNOWN"};
+    CFE_TBL_LoadBuff_t *        BuffPtr;
+    CFE_TBL_ValidationResult_t *ResultPtr;
+    const char *                LogTagStr;
+
+    ResultPtr = NULL;
+    BuffPtr   = NULL;
+    LogTagStr = "(none)";
 
     /* Verify that this application has the right to perform operation */
     Status = CFE_TBL_TxnStartFromHandle(&Txn, TblHandle, CFE_TBL_TxnContext_OWNER_APP);
-
-    ThisAppId = CFE_TBL_TxnAppId(&Txn);
-
     if (Status == CFE_SUCCESS)
     {
         /* Get pointers to pertinent records in registry and handles */
         RegRecPtr = CFE_TBL_TxnRegRec(&Txn);
 
+        /* Identify the image to be validated, starting with the Inactive Buffer */
+        ResultPtr = CFE_TBL_CheckValidationRequest(&RegRecPtr->ValidateInactiveId);
+        if (ResultPtr != NULL)
+        {
+            LogTagStr = "inactive";
+            BuffPtr   = CFE_TBL_GetInactiveBuffer(RegRecPtr);
+        }
+        else
+        {
+            ResultPtr = CFE_TBL_CheckValidationRequest(&RegRecPtr->ValidateActiveId);
+            if (ResultPtr != NULL)
+            {
+                LogTagStr = "active";
+                BuffPtr   = CFE_TBL_GetActiveBuffer(RegRecPtr);
+            }
+        }
+
         CFE_TBL_TxnFinish(&Txn);
 
-        CFE_ES_GetAppName(AppName, ThisAppId, sizeof(AppName));
-
-        /* Identify the image to be validated, starting with the Inactive Buffer */
-        if (RegRecPtr->ValidateInactiveIndex != CFE_TBL_NO_VALIDATION_PENDING)
+        if (ResultPtr != NULL)
         {
-            /* Identify whether the Inactive Buffer is a shared buffer or a dedicated one */
-            if (RegRecPtr->DoubleBuffered)
+            if (BuffPtr == NULL)
             {
-                /* Call the Application's Validation function for the Inactive Buffer */
-                Status =
-                    (RegRecPtr->ValidationFuncPtr)(RegRecPtr->Buffers[(1U - RegRecPtr->ActiveBufferIndex)].BufferPtr);
-
-                /* Allow buffer to be activated after passing validation */
-                if (Status == CFE_SUCCESS)
-                {
-                    RegRecPtr->Buffers[(1U - RegRecPtr->ActiveBufferIndex)].Validated = true;
-                }
+                /* No buffer, it cannot be valid */
+                ResultPtr->Result = -1;
+            }
+            else if (RegRecPtr->ValidationFuncPtr == NULL)
+            {
+                /* no validation function, assume its OK */
+                ResultPtr->Result = 0;
             }
             else
             {
-                /* Call the Application's Validation function for the appropriate shared buffer */
-                Status = (RegRecPtr->ValidationFuncPtr)(CFE_TBL_Global.LoadBuffs[RegRecPtr->LoadInProgress].BufferPtr);
-
-                /* Allow buffer to be activated after passing validation */
-                if (Status == CFE_SUCCESS)
-                {
-                    CFE_TBL_Global.LoadBuffs[RegRecPtr->LoadInProgress].Validated = true;
-                }
+                /* Save the result of the Validation function for the Table Services Task */
+                ResultPtr->Result = (RegRecPtr->ValidationFuncPtr)(BuffPtr->BufferPtr);
             }
 
-            if (Status == CFE_SUCCESS)
+            /* Get the app name for logging */
+            CFE_ES_GetAppName(AppName, CFE_TBL_TxnAppId(&Txn), sizeof(AppName));
+
+            /* Allow buffer to be activated after passing validation */
+            if (ResultPtr->Result == 0)
             {
+                BuffPtr->Validated = true;
                 CFE_EVS_SendEventWithAppID(CFE_TBL_VALIDATION_INF_EID, CFE_EVS_EventType_INFORMATION,
-                                           CFE_TBL_Global.TableTaskAppId, "%s validation successful for Inactive '%s'",
-                                           AppName, RegRecPtr->Name);
+                                           CFE_TBL_Global.TableTaskAppId, "%s validation successful for %s '%s'",
+                                           AppName, LogTagStr, RegRecPtr->Name);
             }
             else
             {
                 CFE_EVS_SendEventWithAppID(CFE_TBL_VALIDATION_ERR_EID, CFE_EVS_EventType_ERROR,
                                            CFE_TBL_Global.TableTaskAppId,
-                                           "%s validation failed for Inactive '%s', Status=0x%08X", AppName,
-                                           RegRecPtr->Name, (unsigned int)Status);
+                                           "%s validation failed for %s '%s', Status=0x%08X", AppName, RegRecPtr->Name,
+                                           LogTagStr, (unsigned int)Status);
 
-                if (Status > CFE_SUCCESS)
+                if (ResultPtr->Result > 0)
                 {
                     CFE_ES_WriteToSysLog("%s: App(%lu) Validation func return code invalid (Stat=0x%08X) for '%s'\n",
                                          __func__, CFE_RESOURCEID_TO_ULONG(CFE_TBL_Global.TableTaskAppId),
-                                         (unsigned int)Status, RegRecPtr->Name);
+                                         (unsigned int)ResultPtr->Result, RegRecPtr->Name);
                 }
             }
-
-            /* Save the result of the Validation function for the Table Services Task */
-            CFE_TBL_Global.ValidationResults[RegRecPtr->ValidateInactiveIndex].Result = Status;
 
             /* Once validation is complete, set flags to indicate response is ready */
-            CFE_TBL_Global.ValidationResults[RegRecPtr->ValidateInactiveIndex].State = CFE_TBL_VALIDATION_PERFORMED;
-            RegRecPtr->ValidateInactiveIndex                                         = CFE_TBL_NO_VALIDATION_PENDING;
-
-            /* Since the validation was successfully performed (although maybe not a successful result) */
-            /* return a success status */
-            Status = CFE_SUCCESS;
-        }
-        else if (RegRecPtr->ValidateActiveIndex != CFE_TBL_NO_VALIDATION_PENDING)
-        {
-            /* Perform validation on the currently active table buffer */
-            /* Identify whether the Active Buffer is a shared buffer or a dedicated one */
-            if (RegRecPtr->DoubleBuffered)
-            {
-                /* Call the Application's Validation function for the Dedicated Active Buffer */
-                Status = (RegRecPtr->ValidationFuncPtr)(RegRecPtr->Buffers[RegRecPtr->ActiveBufferIndex].BufferPtr);
-            }
-            else
-            {
-                /* Call the Application's Validation function for the static buffer */
-                Status = (RegRecPtr->ValidationFuncPtr)(RegRecPtr->Buffers[0].BufferPtr);
-            }
-
-            if (Status == CFE_SUCCESS)
-            {
-                CFE_EVS_SendEventWithAppID(CFE_TBL_VALIDATION_INF_EID, CFE_EVS_EventType_INFORMATION,
-                                           CFE_TBL_Global.TableTaskAppId, "%s validation successful for Active '%s'",
-                                           AppName, RegRecPtr->Name);
-            }
-            else
-            {
-                CFE_EVS_SendEventWithAppID(CFE_TBL_VALIDATION_ERR_EID, CFE_EVS_EventType_ERROR,
-                                           CFE_TBL_Global.TableTaskAppId,
-                                           "%s validation failed for Active '%s', Status=0x%08X", AppName,
-                                           RegRecPtr->Name, (unsigned int)Status);
-
-                if (Status > CFE_SUCCESS)
-                {
-                    CFE_ES_WriteToSysLog("%s: App(%lu) Validation func return code invalid (Stat=0x%08X) for '%s'\n",
-                                         __func__, CFE_RESOURCEID_TO_ULONG(CFE_TBL_Global.TableTaskAppId),
-                                         (unsigned int)Status, RegRecPtr->Name);
-                }
-            }
-
-            /* Save the result of the Validation function for the Table Services Task */
-            CFE_TBL_Global.ValidationResults[RegRecPtr->ValidateActiveIndex].Result = Status;
-
-            /* Once validation is complete, reset the flags */
-            CFE_TBL_Global.ValidationResults[RegRecPtr->ValidateActiveIndex].State = CFE_TBL_VALIDATION_PERFORMED;
-            RegRecPtr->ValidateActiveIndex                                         = CFE_TBL_NO_VALIDATION_PENDING;
+            ResultPtr->State = CFE_TBL_VALIDATION_PERFORMED;
 
             /* Since the validation was successfully performed (although maybe not a successful result) */
             /* return a success status */
@@ -973,8 +935,8 @@ CFE_Status_t CFE_TBL_Validate(CFE_TBL_Handle_t TblHandle)
     }
     else
     {
-        CFE_ES_WriteToSysLog("%s: App(%lu) does not have access to Tbl Handle=%d\n", __func__,
-                             CFE_RESOURCEID_TO_ULONG(ThisAppId), (int)TblHandle);
+        CFE_ES_WriteToSysLog("%s: App(%lu) does not have access to Tbl Handle=%lu\n", __func__,
+                             CFE_TBL_TxnAppIdAsULong(&Txn), CFE_TBL_TxnHandleAsULong(&Txn));
     }
 
     return Status;
@@ -1134,7 +1096,7 @@ CFE_Status_t CFE_TBL_DumpToBuffer(CFE_TBL_Handle_t TblHandle)
     int32                  Status;
     CFE_TBL_RegistryRec_t *RegRecPtr   = NULL;
     CFE_TBL_DumpControl_t *DumpCtrlPtr = NULL;
-    CFE_ES_AppId_t         ThisAppId;
+    CFE_TBL_LoadBuff_t *   ActiveBufPtr;
 
     Status = CFE_TBL_TxnStartFromHandle(&Txn, TblHandle, CFE_TBL_TxnContext_ACCESSOR_APP);
 
@@ -1142,36 +1104,34 @@ CFE_Status_t CFE_TBL_DumpToBuffer(CFE_TBL_Handle_t TblHandle)
     {
         Status = CFE_TBL_TxnGetTableStatus(&Txn);
 
-        RegRecPtr = CFE_TBL_TxnRegRec(&Txn);
+        /* Make sure the table has been requested to be dumped */
+        if (Status == CFE_TBL_INFO_DUMP_PENDING)
+        {
+            RegRecPtr    = CFE_TBL_TxnRegRec(&Txn);
+            DumpCtrlPtr  = CFE_TBL_LocateDumpCtrlByID(RegRecPtr->DumpControlId);
+            ActiveBufPtr = CFE_TBL_GetActiveBuffer(RegRecPtr);
+
+            /* Copy the contents of the active buffer to the assigned dump buffer */
+            memcpy(DumpCtrlPtr->DumpBufferPtr->BufferPtr, ActiveBufPtr->BufferPtr, DumpCtrlPtr->Size);
+
+            /* Save the current time so that the header in the dump file can have the correct time */
+            DumpCtrlPtr->DumpBufferPtr->FileTime = CFE_TIME_GetTime();
+
+            /* Disassociate the dump request from the table */
+            RegRecPtr->DumpControlId = CFE_TBL_NO_DUMP_PENDING;
+
+            /* Notify the Table Services Application that the dump buffer is ready to be written to a file */
+            DumpCtrlPtr->State = CFE_TBL_DUMP_PERFORMED;
+
+            Status = CFE_SUCCESS;
+        }
 
         CFE_TBL_TxnFinish(&Txn);
     }
     else
     {
-        ThisAppId = CFE_TBL_TxnAppId(&Txn);
-
-        CFE_ES_WriteToSysLog("%s: App(%lu) does not have access to Tbl Handle=%d\n", __func__,
-                             CFE_RESOURCEID_TO_ULONG(ThisAppId), (int)TblHandle);
-    }
-
-    /* Make sure the table has been requested to be dumped */
-    if (Status == CFE_TBL_INFO_DUMP_PENDING)
-    {
-        DumpCtrlPtr = &CFE_TBL_Global.DumpControlBlocks[RegRecPtr->DumpControlIndex];
-
-        /* Copy the contents of the active buffer to the assigned dump buffer */
-        memcpy(DumpCtrlPtr->DumpBufferPtr->BufferPtr, RegRecPtr->Buffers[0].BufferPtr, DumpCtrlPtr->Size);
-
-        /* Save the current time so that the header in the dump file can have the correct time */
-        DumpCtrlPtr->DumpBufferPtr->FileTime = CFE_TIME_GetTime();
-
-        /* Disassociate the dump request from the table */
-        RegRecPtr->DumpControlIndex = CFE_TBL_NO_DUMP_PENDING;
-
-        /* Notify the Table Services Application that the dump buffer is ready to be written to a file */
-        DumpCtrlPtr->State = CFE_TBL_DUMP_PERFORMED;
-
-        Status = CFE_SUCCESS;
+        CFE_ES_WriteToSysLog("%s: App(%lu) does not have access to Tbl Handle=%lu\n", __func__,
+                             CFE_TBL_TxnAppIdAsULong(&Txn), CFE_TBL_TxnHandleAsULong(&Txn));
     }
 
     return Status;
