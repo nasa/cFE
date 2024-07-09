@@ -254,7 +254,7 @@
 
       <ContainerDataType name="StatsTlm_Payload" shortDescription="SB Statistics Telemetry Packet">
         <LongDescription>
-          SB Statistics packet sent (via CFE_SB_SendMsg) in response to #CFE_SB_SEND_SB_STATS_CC
+          SB Statistics packet sent (via CFE_SB_TransmitMsg) in response to #CFE_SB_SEND_SB_STATS_CC
         </LongDescription>
         <EntryList>
           <Entry name="MsgIdsInUse" type="BASE_TYPES/uint32" shortDescription="Current number of MsgIds with a destination">
