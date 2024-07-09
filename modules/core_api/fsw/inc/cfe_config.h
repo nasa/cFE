@@ -40,7 +40,7 @@
 #include "cfe_config_ids.h"
 
 /**
- * @brief Obtain an integer value correlating to an CFE configuration ID
+ * @brief Obtain an integer value correlating to a CFE configuration ID
  *
  * Retreives the integer value associated with the specified key.
  *
@@ -54,7 +54,7 @@
 uint32 CFE_Config_GetValue(CFE_ConfigId_t ConfigId);
 
 /**
- * @brief Obtain a pointer value correlating to an CFE configuration ID
+ * @brief Obtain a pointer value correlating to a CFE configuration ID
  *
  * Retreives the pointer value associated with the specified key.
  *
@@ -68,7 +68,7 @@ uint32 CFE_Config_GetValue(CFE_ConfigId_t ConfigId);
 const void *CFE_Config_GetObjPointer(CFE_ConfigId_t ConfigId);
 
 /**
- * @brief Obtain a string value correlating to an CFE configuration ID
+ * @brief Obtain a string value correlating to a CFE configuration ID
  *
  * Retreives the string value associated with the specified key.
  *

@@ -49,7 +49,7 @@ void TestMsgId(void)
      * "v1" and "v2" implementations do define a specific highest MsgId value, but another
      * implementation might not have a highest number concept at all.
      *
-     * By passing the value of -1, when converted to a an unsigned value (either 16 or 32 bit)
+     * By passing the value of -1, when converted to an unsigned value (either 16 or 32 bit)
      * it should translate to a MsgId value with all bits being set.  In theory, at least some of
      * those bits will be not mappable to the packet header bits, and it should therefore elicit
      * the CFE_MSG_BAD_ARGUMENT response.
