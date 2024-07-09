@@ -717,7 +717,7 @@ CFE_TBL_CmdProcRet_t CFE_TBL_DumpToFile(const char *DumpFilename, const char *Ta
                 /* Output the active table image data to the dump file */
                 OsStatus = OS_write(FileDescriptor, DumpDataAddr, TblSizeInBytes);
 
-                if ((long)OsStatus == TblSizeInBytes)
+                if ((long)OsStatus == (int64_t)TblSizeInBytes)
                 {
                     if (FileExistedPrev)
                     {
