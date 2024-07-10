@@ -55,7 +55,7 @@
 /**
  * \brief TBL Reset Counters Command Success Event ID
  *
- *  \par Type: DEBUG
+ *  \par Type: INFORMATION
  *
  *  \par Cause:
  *
@@ -100,7 +100,7 @@
 /**
  * \brief TBL Write Table Registry To Existing File Success Event ID
  *
- *  \par Type: DEBUG
+ *  \par Type: INFORMATION
  *
  *  \par Cause:
  *
@@ -131,12 +131,12 @@
  *
  *  TBL load table pending notification successfully sent.
  */
-#define CFE_TBL_LOAD_PEND_REQ_INF_EID 17
+#define CFE_TBL_LOAD_PEND_REQ_DBG_EID 17
 
 /**
  * \brief TBL Telemeter Table Registry Entry Command Success Event ID
  *
- *  \par Type: DEBUG
+ *  \par Type: INFORMATION
  *
  *  \par Cause:
  *
@@ -159,7 +159,7 @@
 /**
  * \brief TBL Write Table Registry To New File Success Event ID
  *
- *  \par Type: DEBUG
+ *  \par Type: INFORMATION
  *
  *  \par Cause:
  *

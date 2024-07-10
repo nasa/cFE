@@ -392,7 +392,7 @@ void Test_SB_Main_RcvErr(void)
 
     CFE_UtAssert_EVENTCOUNT(7);
 
-    CFE_UtAssert_EVENTSENT(CFE_SB_INIT_EID);
+    CFE_UtAssert_EVENTSENT(CFE_SB_INIT_INF_EID);
 
     CFE_UtAssert_EVENTSENT(CFE_SB_Q_RD_ERR_EID);
 
@@ -443,8 +443,8 @@ void Test_SB_Main_Nominal(void)
 
     CFE_UtAssert_EVENTCOUNT(6);
 
-    CFE_UtAssert_EVENTSENT(CFE_SB_INIT_EID);
-    CFE_UtAssert_EVENTSENT(CFE_SB_CMD0_RCVD_EID);
+    CFE_UtAssert_EVENTSENT(CFE_SB_INIT_INF_EID);
+    CFE_UtAssert_EVENTSENT(CFE_SB_NOOP_INF_EID);
 
     /* remove the handler so the pipe can be deleted */
     UT_SetHandlerFunction(UT_KEY(OS_QueueGet), NULL, NULL);
@@ -518,7 +518,7 @@ void Test_SB_Cmds_Noop(void)
 
     CFE_UtAssert_EVENTCOUNT(1);
 
-    CFE_UtAssert_EVENTSENT(CFE_SB_CMD0_RCVD_EID);
+    CFE_UtAssert_EVENTSENT(CFE_SB_NOOP_INF_EID);
 
     UT_CallTaskPipe(CFE_SB_ProcessCmdPipePkt, CFE_MSG_PTR(Noop.SBBuf), 0, UT_TPID_CFE_SB_CMD_NOOP_CC);
     CFE_UtAssert_EVENTSENT(CFE_SB_LEN_ERR_EID);
@@ -542,7 +542,7 @@ void Test_SB_Cmds_RstCtrs(void)
 
     CFE_UtAssert_EVENTCOUNT(1);
 
-    CFE_UtAssert_EVENTSENT(CFE_SB_CMD1_RCVD_EID);
+    CFE_UtAssert_EVENTSENT(CFE_SB_RESET_INF_EID);
 
     UT_CallTaskPipe(CFE_SB_ProcessCmdPipePkt, CFE_MSG_PTR(ResetCounters.SBBuf), 0,
                     UT_TPID_CFE_SB_CMD_RESET_COUNTERS_CC);
@@ -586,7 +586,7 @@ void Test_SB_Cmds_Stats(void)
     /* No subs event and command processing event */
     CFE_UtAssert_EVENTCOUNT(5);
 
-    CFE_UtAssert_EVENTSENT(CFE_SB_SND_STATS_EID);
+    CFE_UtAssert_EVENTSENT(CFE_SB_SND_STATS_INF_EID);
 
     UT_CallTaskPipe(CFE_SB_ProcessCmdPipePkt, CFE_MSG_PTR(SendSbStats.SBBuf), 0, UT_TPID_CFE_SB_CMD_SEND_SB_STATS_CC);
     CFE_UtAssert_EVENTSENT(CFE_SB_LEN_ERR_EID);
@@ -617,9 +617,9 @@ void Test_SB_Cmds_RoutingInfoDef(void)
 
     CFE_UtAssert_EVENTCOUNT(5);
 
-    CFE_UtAssert_EVENTSENT(CFE_SB_INIT_EID);
+    CFE_UtAssert_EVENTSENT(CFE_SB_INIT_INF_EID);
 
-    CFE_UtAssert_EVENTSENT(CFE_SB_SUBSCRIPTION_RCVD_EID);
+    CFE_UtAssert_EVENTSENT(CFE_SB_SUBSCRIPTION_RCVD_INF_EID);
 
     /* Also test with a bad file name - should generate CFE_SB_SND_RTG_ERR1_EID */
     UT_SetDeferredRetcode(UT_KEY(CFE_FS_ParseInputFileNameEx), 1, CFE_FS_INVALID_PATH);
@@ -765,7 +765,7 @@ void Test_SB_Cmds_PipeInfoDef(void)
 
     CFE_UtAssert_EVENTCOUNT(3);
 
-    CFE_UtAssert_EVENTSENT(CFE_SB_PIPE_ADDED_EID);
+    CFE_UtAssert_EVENTSENT(CFE_SB_PIPE_ADDED_INF_EID);
 
     /* Also test with a bad file name - should generate CFE_SB_SND_RTG_ERR1_EID */
     UT_SetDeferredRetcode(UT_KEY(CFE_FS_ParseInputFileNameEx), 1, CFE_FS_INVALID_PATH);
@@ -968,9 +968,9 @@ void Test_SB_Cmds_MapInfoDef(void)
 
     CFE_UtAssert_EVENTCOUNT(10);
 
-    CFE_UtAssert_EVENTSENT(CFE_SB_PIPE_ADDED_EID);
+    CFE_UtAssert_EVENTSENT(CFE_SB_PIPE_ADDED_INF_EID);
 
-    CFE_UtAssert_EVENTSENT(CFE_SB_SUBSCRIPTION_RCVD_EID);
+    CFE_UtAssert_EVENTSENT(CFE_SB_SUBSCRIPTION_RCVD_INF_EID);
 
     /* Also test with a bad file name - should generate CFE_SB_SND_RTG_ERR1_EID */
     UT_SetDeferredRetcode(UT_KEY(CFE_FS_ParseInputFileNameEx), 1, CFE_FS_INVALID_PATH);
@@ -1039,11 +1039,11 @@ void Test_SB_Cmds_EnRouteValParam(void)
 
     CFE_UtAssert_EVENTCOUNT(3);
 
-    CFE_UtAssert_EVENTSENT(CFE_SB_PIPE_ADDED_EID);
+    CFE_UtAssert_EVENTSENT(CFE_SB_PIPE_ADDED_INF_EID);
 
-    CFE_UtAssert_EVENTSENT(CFE_SB_SUBSCRIPTION_RCVD_EID);
+    CFE_UtAssert_EVENTSENT(CFE_SB_SUBSCRIPTION_RCVD_INF_EID);
 
-    CFE_UtAssert_EVENTSENT(CFE_SB_ENBL_RTE2_EID);
+    CFE_UtAssert_EVENTSENT(CFE_SB_ENBL_RTE2_INF_EID);
 
     /* Bad Size */
     UT_CallTaskPipe(CFE_SB_ProcessCmdPipePkt, CFE_MSG_PTR(EnableRoute.SBBuf), 0, UT_TPID_CFE_SB_CMD_ENABLE_ROUTE_CC);
@@ -1080,8 +1080,8 @@ void Test_SB_Cmds_EnRouteNonExist(void)
 
     CFE_UtAssert_EVENTCOUNT(4);
 
-    CFE_UtAssert_EVENTSENT(CFE_SB_PIPE_ADDED_EID);
-    CFE_UtAssert_EVENTSENT(CFE_SB_SUBSCRIPTION_RCVD_EID);
+    CFE_UtAssert_EVENTSENT(CFE_SB_PIPE_ADDED_INF_EID);
+    CFE_UtAssert_EVENTSENT(CFE_SB_SUBSCRIPTION_RCVD_INF_EID);
     CFE_UtAssert_EVENTSENT(CFE_SB_ENBL_RTE1_EID);
 
     CFE_UtAssert_TEARDOWN(CFE_SB_DeletePipe(PipeId1));
@@ -1187,11 +1187,11 @@ void Test_SB_Cmds_DisRouteValParam(void)
 
     CFE_UtAssert_EVENTCOUNT(3);
 
-    CFE_UtAssert_EVENTSENT(CFE_SB_PIPE_ADDED_EID);
+    CFE_UtAssert_EVENTSENT(CFE_SB_PIPE_ADDED_INF_EID);
 
-    CFE_UtAssert_EVENTSENT(CFE_SB_SUBSCRIPTION_RCVD_EID);
+    CFE_UtAssert_EVENTSENT(CFE_SB_SUBSCRIPTION_RCVD_INF_EID);
 
-    CFE_UtAssert_EVENTSENT(CFE_SB_DSBL_RTE2_EID);
+    CFE_UtAssert_EVENTSENT(CFE_SB_DSBL_RTE2_INF_EID);
 
     /* Bad Size */
     UT_CallTaskPipe(CFE_SB_ProcessCmdPipePkt, CFE_MSG_PTR(DisableRoute.SBBuf), 0, UT_TPID_CFE_SB_CMD_DISABLE_ROUTE_CC);
@@ -1228,8 +1228,8 @@ void Test_SB_Cmds_DisRouteNonExist(void)
 
     CFE_UtAssert_EVENTCOUNT(4);
 
-    CFE_UtAssert_EVENTSENT(CFE_SB_PIPE_ADDED_EID);
-    CFE_UtAssert_EVENTSENT(CFE_SB_SUBSCRIPTION_RCVD_EID);
+    CFE_UtAssert_EVENTSENT(CFE_SB_PIPE_ADDED_INF_EID);
+    CFE_UtAssert_EVENTSENT(CFE_SB_SUBSCRIPTION_RCVD_INF_EID);
     CFE_UtAssert_EVENTSENT(CFE_SB_DSBL_RTE1_EID);
 
     CFE_UtAssert_TEARDOWN(CFE_SB_DeletePipe(PipeId1));
@@ -1453,7 +1453,7 @@ void Test_SB_Cmds_SendPrevSubs(void)
         CFE_UtAssert_EVENTCOUNT(NumEvts);
     }
 
-    CFE_UtAssert_EVENTSENT(CFE_SB_SUBSCRIPTION_RCVD_EID);
+    CFE_UtAssert_EVENTSENT(CFE_SB_SUBSCRIPTION_RCVD_INF_EID);
     CFE_UtAssert_EVENTSENT(CFE_SB_SEND_NO_SUBS_EID);
     CFE_UtAssert_EVENTSENT(CFE_SB_FULL_SUB_PKT_EID);
     CFE_UtAssert_EVENTSENT(CFE_SB_PART_SUB_PKT_EID);
@@ -1683,7 +1683,7 @@ void Test_CreatePipe_ValPipeDepth(void)
 
     CFE_UtAssert_EVENTCOUNT(2);
 
-    CFE_UtAssert_EVENTSENT(CFE_SB_PIPE_ADDED_EID);
+    CFE_UtAssert_EVENTSENT(CFE_SB_PIPE_ADDED_INF_EID);
 
     CFE_UtAssert_TEARDOWN(CFE_SB_DeletePipe(PipeIdReturned[0]));
     CFE_UtAssert_TEARDOWN(CFE_SB_DeletePipe(PipeIdReturned[1]));
@@ -1865,8 +1865,8 @@ void Test_DeletePipe_NoSubs(void)
 
     CFE_UtAssert_EVENTCOUNT(2);
 
-    CFE_UtAssert_EVENTSENT(CFE_SB_PIPE_ADDED_EID);
-    CFE_UtAssert_EVENTSENT(CFE_SB_PIPE_DELETED_EID);
+    CFE_UtAssert_EVENTSENT(CFE_SB_PIPE_ADDED_INF_EID);
+    CFE_UtAssert_EVENTSENT(CFE_SB_PIPE_DELETED_INF_EID);
 }
 
 /*
@@ -1890,8 +1890,8 @@ void Test_DeletePipe_WithSubs(void)
 
     CFE_UtAssert_EVENTCOUNT(6);
 
-    CFE_UtAssert_EVENTSENT(CFE_SB_PIPE_ADDED_EID);
-    CFE_UtAssert_EVENTSENT(CFE_SB_PIPE_DELETED_EID);
+    CFE_UtAssert_EVENTSENT(CFE_SB_PIPE_ADDED_INF_EID);
+    CFE_UtAssert_EVENTSENT(CFE_SB_PIPE_DELETED_INF_EID);
 }
 
 /*
@@ -2034,7 +2034,7 @@ void Test_GetPipeName(void)
 
     CFE_UtAssert_SUCCESS(CFE_SB_GetPipeName(PipeName, sizeof(PipeName), PipeId));
 
-    CFE_UtAssert_EVENTSENT(CFE_SB_GETPIPENAME_EID);
+    CFE_UtAssert_EVENTSENT(CFE_SB_GETPIPENAME_INF_EID);
 
     CFE_UtAssert_TEARDOWN(CFE_SB_DeletePipe(PipeId));
 }
@@ -2103,7 +2103,7 @@ void Test_GetPipeIdByName(void)
                      sizeof(CFE_SB_Global.PipeTbl[0].SysQueueId), false);
 
     CFE_UtAssert_SUCCESS(CFE_SB_GetPipeIdByName(&PipeIdOut, "TestPipe1"));
-    CFE_UtAssert_EVENTSENT(CFE_SB_GETPIPEIDBYNAME_EID);
+    CFE_UtAssert_EVENTSENT(CFE_SB_GETPIPEIDBYNAME_INF_EID);
 
     CFE_UtAssert_TEARDOWN(CFE_SB_DeletePipe(PipeId));
 }
@@ -2154,7 +2154,7 @@ void Test_SetPipeOpts(void)
 
     CFE_UtAssert_SUCCESS(CFE_SB_SetPipeOpts(PipeID, 0));
 
-    CFE_UtAssert_EVENTSENT(CFE_SB_SETPIPEOPTS_EID);
+    CFE_UtAssert_EVENTSENT(CFE_SB_SETPIPEOPTS_INF_EID);
 
     UT_SetDeferredRetcode(UT_KEY(CFE_ES_GetAppID), 1, CFE_ES_ERR_RESOURCEID_NOT_VALID);
     UtAssert_INT32_EQ(CFE_SB_SetPipeOpts(PipeID, 0), CFE_ES_ERR_RESOURCEID_NOT_VALID);
@@ -2202,7 +2202,7 @@ void Test_GetPipeOpts(void)
 
     CFE_UtAssert_SUCCESS(CFE_SB_GetPipeOpts(PipeID, &Opts));
 
-    CFE_UtAssert_EVENTSENT(CFE_SB_GETPIPEOPTS_EID);
+    CFE_UtAssert_EVENTSENT(CFE_SB_GETPIPEOPTS_INF_EID);
 
     CFE_UtAssert_TEARDOWN(CFE_SB_DeletePipe(PipeID));
 }
@@ -2243,8 +2243,8 @@ void Test_Subscribe_SubscribeEx(void)
 
     CFE_UtAssert_EVENTCOUNT(2);
 
-    CFE_UtAssert_EVENTSENT(CFE_SB_PIPE_ADDED_EID);
-    CFE_UtAssert_EVENTSENT(CFE_SB_SUBSCRIPTION_RCVD_EID);
+    CFE_UtAssert_EVENTSENT(CFE_SB_PIPE_ADDED_INF_EID);
+    CFE_UtAssert_EVENTSENT(CFE_SB_SUBSCRIPTION_RCVD_INF_EID);
 
     CFE_UtAssert_TEARDOWN(CFE_SB_DeletePipe(PipeId));
 }
@@ -2302,7 +2302,7 @@ void Test_Subscribe_MaxMsgLim(void)
 
     CFE_UtAssert_EVENTCOUNT(2);
 
-    CFE_UtAssert_EVENTSENT(CFE_SB_PIPE_ADDED_EID);
+    CFE_UtAssert_EVENTSENT(CFE_SB_PIPE_ADDED_INF_EID);
 
     CFE_UtAssert_TEARDOWN(CFE_SB_DeletePipe(PipeId));
 }
@@ -2323,7 +2323,7 @@ void Test_Subscribe_DuplicateSubscription(void)
 
     CFE_UtAssert_EVENTCOUNT(4);
 
-    CFE_UtAssert_EVENTSENT(CFE_SB_PIPE_ADDED_EID);
+    CFE_UtAssert_EVENTSENT(CFE_SB_PIPE_ADDED_INF_EID);
     CFE_UtAssert_EVENTSENT(CFE_SB_DUP_SUBSCRIP_EID);
 
     CFE_UtAssert_TEARDOWN(CFE_SB_DeletePipe(PipeId));
@@ -2345,8 +2345,8 @@ void Test_Subscribe_LocalSubscription(void)
 
     CFE_UtAssert_EVENTCOUNT(2);
 
-    CFE_UtAssert_EVENTSENT(CFE_SB_PIPE_ADDED_EID);
-    CFE_UtAssert_EVENTSENT(CFE_SB_SUBSCRIPTION_RCVD_EID);
+    CFE_UtAssert_EVENTSENT(CFE_SB_PIPE_ADDED_INF_EID);
+    CFE_UtAssert_EVENTSENT(CFE_SB_SUBSCRIPTION_RCVD_INF_EID);
 
     /* Test_Subscribe_LocalSubscription with message
      * limit greater than CFE_PLATFORM_SB_DEFAULT_MSG_LIMIT
@@ -2390,7 +2390,7 @@ void Test_Subscribe_MaxDestCount(void)
 
     CFE_UtAssert_EVENTCOUNT((2 * CFE_PLATFORM_SB_MAX_DEST_PER_PKT) + 3);
 
-    CFE_UtAssert_EVENTSENT(CFE_SB_PIPE_ADDED_EID);
+    CFE_UtAssert_EVENTSENT(CFE_SB_PIPE_ADDED_INF_EID);
     CFE_UtAssert_EVENTSENT(CFE_SB_MAX_DESTS_MET_EID);
 
     /* Delete pipes */
@@ -2610,7 +2610,7 @@ void Test_Unsubscribe_Basic(void)
 
     CFE_UtAssert_EVENTCOUNT(3);
 
-    CFE_UtAssert_EVENTSENT(CFE_SB_SUBSCRIPTION_RCVD_EID);
+    CFE_UtAssert_EVENTSENT(CFE_SB_SUBSCRIPTION_RCVD_INF_EID);
 
     /* Check unsubscribe after unsubscribe produces event */
     UT_ClearEventHistory();
@@ -2640,7 +2640,7 @@ void Test_Unsubscribe_AppId(void)
 
     CFE_UtAssert_EVENTCOUNT(3);
 
-    CFE_UtAssert_EVENTSENT(CFE_SB_SUBSCRIPTION_RCVD_EID);
+    CFE_UtAssert_EVENTSENT(CFE_SB_SUBSCRIPTION_RCVD_INF_EID);
 
     CFE_UtAssert_TEARDOWN(CFE_SB_DeletePipe(TestPipe));
 }
@@ -2661,7 +2661,7 @@ void Test_Unsubscribe_Local(void)
 
     CFE_UtAssert_EVENTCOUNT(4);
 
-    CFE_UtAssert_EVENTSENT(CFE_SB_SUBSCRIPTION_RCVD_EID);
+    CFE_UtAssert_EVENTSENT(CFE_SB_SUBSCRIPTION_RCVD_INF_EID);
 
     CFE_UtAssert_TEARDOWN(CFE_SB_DeletePipe(TestPipe));
 }
@@ -2813,8 +2813,8 @@ void Test_Unsubscribe_FirstDestWithMany(void)
 
     CFE_UtAssert_EVENTCOUNT(7);
 
-    CFE_UtAssert_EVENTSENT(CFE_SB_SUBSCRIPTION_RCVD_EID);
-    CFE_UtAssert_EVENTSENT(CFE_SB_SUBSCRIPTION_REMOVED_EID);
+    CFE_UtAssert_EVENTSENT(CFE_SB_SUBSCRIPTION_RCVD_INF_EID);
+    CFE_UtAssert_EVENTSENT(CFE_SB_SUBSCRIPTION_REMOVED_INF_EID);
 
     CFE_UtAssert_TEARDOWN(CFE_SB_DeletePipe(TestPipe1));
     CFE_UtAssert_TEARDOWN(CFE_SB_DeletePipe(TestPipe2));
@@ -2844,8 +2844,8 @@ void Test_Unsubscribe_MiddleDestWithMany(void)
 
     CFE_UtAssert_EVENTCOUNT(7);
 
-    CFE_UtAssert_EVENTSENT(CFE_SB_SUBSCRIPTION_RCVD_EID);
-    CFE_UtAssert_EVENTSENT(CFE_SB_SUBSCRIPTION_REMOVED_EID);
+    CFE_UtAssert_EVENTSENT(CFE_SB_SUBSCRIPTION_RCVD_INF_EID);
+    CFE_UtAssert_EVENTSENT(CFE_SB_SUBSCRIPTION_REMOVED_INF_EID);
 
     CFE_UtAssert_TEARDOWN(CFE_SB_DeletePipe(TestPipe1));
     CFE_UtAssert_TEARDOWN(CFE_SB_DeletePipe(TestPipe2));
@@ -2876,8 +2876,8 @@ void Test_Unsubscribe_GetDestPtr(void)
 
     CFE_UtAssert_EVENTCOUNT(5);
 
-    CFE_UtAssert_EVENTSENT(CFE_SB_SUBSCRIPTION_RCVD_EID);
-    CFE_UtAssert_EVENTSENT(CFE_SB_SUBSCRIPTION_REMOVED_EID);
+    CFE_UtAssert_EVENTSENT(CFE_SB_SUBSCRIPTION_RCVD_INF_EID);
+    CFE_UtAssert_EVENTSENT(CFE_SB_SUBSCRIPTION_REMOVED_INF_EID);
 
     CFE_UtAssert_TEARDOWN(CFE_SB_DeletePipe(TestPipe1));
     CFE_UtAssert_TEARDOWN(CFE_SB_DeletePipe(TestPipe2));
@@ -3416,7 +3416,7 @@ void Test_MessageTxn_ReportSingleEvent(void)
     UtAssert_BOOL_TRUE(CFE_SB_MessageTxn_ReportSingleEvent(&Txn, &Entry, CFE_SB_Q_WR_ERR_EID));
     CFE_UtAssert_EVENTCOUNT(2);
     CFE_UtAssert_EVENTSENT(CFE_SB_Q_WR_ERR_EID);
-    CFE_UtAssert_EVENTSENT(CFE_SB_GETPIPENAME_EID);
+    CFE_UtAssert_EVENTSENT(CFE_SB_GETPIPENAME_INF_EID);
 
     /* Check that the loop-avoidance works */
     CFE_SB_RequestToSendEvent(MyTskId, CFE_SB_MSG_TOO_BIG_EID_BIT);
@@ -3654,7 +3654,7 @@ void Test_TransmitMsg_UpdateHeader(void)
     UtAssert_STUB_COUNT(CFE_MSG_GetNextSequenceCount, 2);
 
     CFE_UtAssert_EVENTCOUNT(2);
-    CFE_UtAssert_EVENTSENT(CFE_SB_SUBSCRIPTION_RCVD_EID);
+    CFE_UtAssert_EVENTSENT(CFE_SB_SUBSCRIPTION_RCVD_INF_EID);
 
     CFE_UtAssert_SETUP(CFE_SB_Unsubscribe(MsgId, PipeId)); /* should have no subscribers now */
 
@@ -3956,7 +3956,7 @@ void Test_TransmitBuffer_IncrementSeqCnt(void)
 
     CFE_UtAssert_EVENTCOUNT(2);
 
-    CFE_UtAssert_EVENTSENT(CFE_SB_SUBSCRIPTION_RCVD_EID);
+    CFE_UtAssert_EVENTSENT(CFE_SB_SUBSCRIPTION_RCVD_INF_EID);
 
     /* Test again with message validation failure */
     SendPtr = CFE_SB_AllocateMessageBuffer(sizeof(SB_UT_Test_Tlm_t));
@@ -4018,7 +4018,7 @@ void Test_TransmitBuffer_NoIncrement(void)
 
     CFE_UtAssert_EVENTCOUNT(2);
 
-    CFE_UtAssert_EVENTSENT(CFE_SB_SUBSCRIPTION_RCVD_EID);
+    CFE_UtAssert_EVENTSENT(CFE_SB_SUBSCRIPTION_RCVD_INF_EID);
 
     CFE_UtAssert_TEARDOWN(CFE_SB_DeletePipe(PipeId));
 }
@@ -4091,7 +4091,7 @@ void Test_TransmitMsg_DisabledDestination(void)
 
     CFE_UtAssert_EVENTCOUNT(2);
 
-    CFE_UtAssert_EVENTSENT(CFE_SB_SUBSCRIPTION_RCVD_EID);
+    CFE_UtAssert_EVENTSENT(CFE_SB_SUBSCRIPTION_RCVD_INF_EID);
 
     CFE_UtAssert_TEARDOWN(CFE_SB_DeletePipe(PipeId));
 }
@@ -4239,7 +4239,7 @@ void Test_ReceiveBuffer_Poll(void)
 
     CFE_UtAssert_EVENTCOUNT(1);
 
-    CFE_UtAssert_EVENTSENT(CFE_SB_PIPE_ADDED_EID);
+    CFE_UtAssert_EVENTSENT(CFE_SB_PIPE_ADDED_INF_EID);
     UtAssert_UINT8_EQ(CFE_SB_Global.HKTlmMsg.Payload.MsgReceiveErrorCounter, 0);
     UtAssert_UINT8_EQ(CFE_SB_Global.HKTlmMsg.Payload.InternalErrorCounter, 0);
 
@@ -4263,7 +4263,7 @@ void Test_ReceiveBuffer_Timeout(void)
 
     CFE_UtAssert_EVENTCOUNT(1);
 
-    CFE_UtAssert_EVENTSENT(CFE_SB_PIPE_ADDED_EID);
+    CFE_UtAssert_EVENTSENT(CFE_SB_PIPE_ADDED_INF_EID);
     UtAssert_UINT8_EQ(CFE_SB_Global.HKTlmMsg.Payload.MsgReceiveErrorCounter, 0);
     UtAssert_UINT8_EQ(CFE_SB_Global.HKTlmMsg.Payload.InternalErrorCounter, 0);
 
@@ -4330,7 +4330,7 @@ void Test_ReceiveBuffer_PendForever(void)
     UtAssert_ADDRESS_EQ(&PipeDscPtr->LastBuffer->Content, SBBufPtr);
 
     CFE_UtAssert_EVENTCOUNT(2);
-    CFE_UtAssert_EVENTSENT(CFE_SB_SUBSCRIPTION_RCVD_EID);
+    CFE_UtAssert_EVENTSENT(CFE_SB_SUBSCRIPTION_RCVD_INF_EID);
 
     /* Ensure that calling a second time with no message clears the LastBuffer reference */
     UtAssert_INT32_EQ(CFE_SB_ReceiveBuffer(&SBBufPtr, PipeId, CFE_SB_PEND_FOREVER), CFE_SB_NO_MESSAGE);
@@ -4397,9 +4397,9 @@ void Test_CleanupApp_API(void)
 
     CFE_UtAssert_EVENTCOUNT(2);
 
-    CFE_UtAssert_EVENTSENT(CFE_SB_PIPE_ADDED_EID);
+    CFE_UtAssert_EVENTSENT(CFE_SB_PIPE_ADDED_INF_EID);
 
-    CFE_UtAssert_EVENTSENT(CFE_SB_PIPE_DELETED_EID);
+    CFE_UtAssert_EVENTSENT(CFE_SB_PIPE_DELETED_INF_EID);
 }
 
 /*
@@ -4754,8 +4754,8 @@ void Test_OS_MutSem_ErrLogic(void)
 
     CFE_UtAssert_EVENTCOUNT(2);
 
-    CFE_UtAssert_EVENTSENT(CFE_SB_PIPE_ADDED_EID);
-    CFE_UtAssert_EVENTSENT(CFE_SB_SUBSCRIPTION_RCVD_EID);
+    CFE_UtAssert_EVENTSENT(CFE_SB_PIPE_ADDED_INF_EID);
+    CFE_UtAssert_EVENTSENT(CFE_SB_SUBSCRIPTION_RCVD_INF_EID);
 
     CFE_UtAssert_TEARDOWN(CFE_SB_DeletePipe(PipeId));
 }
@@ -4919,8 +4919,8 @@ void Test_ReceiveBuffer_UnsubResubPath(void)
 
     CFE_UtAssert_EVENTCOUNT(4);
 
-    CFE_UtAssert_EVENTSENT(CFE_SB_SUBSCRIPTION_RCVD_EID);
-    CFE_UtAssert_EVENTSENT(CFE_SB_SUBSCRIPTION_REMOVED_EID);
+    CFE_UtAssert_EVENTSENT(CFE_SB_SUBSCRIPTION_RCVD_INF_EID);
+    CFE_UtAssert_EVENTSENT(CFE_SB_SUBSCRIPTION_REMOVED_INF_EID);
 
     CFE_UtAssert_TEARDOWN(CFE_SB_DeletePipe(PipeId));
 }

@@ -139,7 +139,7 @@ void CFE_TIME_TaskPipe(const CFE_SB_Buffer_t *SBBufPtr)
                 case CFE_TIME_SEND_DIAGNOSTIC_CC:
                     if (CFE_TIME_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_TIME_SendDiagnosticCmd_t)))
                     {
-                        CFE_TIME_SendDiagnosticTlm((const CFE_TIME_SendDiagnosticCmd_t *)SBBufPtr);
+                        CFE_TIME_SendDiagnosticTlmCmd((const CFE_TIME_SendDiagnosticCmd_t *)SBBufPtr);
                     }
                     break;
 

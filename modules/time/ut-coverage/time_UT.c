@@ -1409,7 +1409,7 @@ void Test_PipeCmds(void)
     UT_InitData();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
     UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, sizeof(CmdBuf.noopcmd), UT_TPID_CFE_TIME_CMD_NOOP_CC);
-    CFE_UtAssert_EVENTSENT(CFE_TIME_NOOP_EID);
+    CFE_UtAssert_EVENTSENT(CFE_TIME_NOOP_INF_EID);
 
     /* Noop with bad size */
     UT_InitData();
@@ -1435,7 +1435,7 @@ void Test_PipeCmds(void)
     memset(&CmdBuf, 0, sizeof(CmdBuf));
     UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, sizeof(CmdBuf.resetcounterscmd),
                     UT_TPID_CFE_TIME_CMD_RESET_COUNTERS_CC);
-    CFE_UtAssert_EVENTSENT(CFE_TIME_RESET_EID);
+    CFE_UtAssert_EVENTSENT(CFE_TIME_RESET_INF_EID);
 
     /* Confirm error counters get reset to help cover requirements that are difficult operationally */
     UtAssert_ZERO(CFE_TIME_Global.ToneMatchCounter);
@@ -1463,7 +1463,7 @@ void Test_PipeCmds(void)
     memset(&CmdBuf, 0, sizeof(CmdBuf));
     UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, sizeof(CmdBuf.diagtlmcmd),
                     UT_TPID_CFE_TIME_CMD_SEND_DIAGNOSTIC_TLM_CC);
-    CFE_UtAssert_EVENTSENT(CFE_TIME_DIAG_EID);
+    CFE_UtAssert_EVENTSENT(CFE_TIME_DIAG_INF_EID);
 
     /* Request diagnostics with bad size */
     UT_InitData();

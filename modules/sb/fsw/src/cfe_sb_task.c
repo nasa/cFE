@@ -271,7 +271,7 @@ int32 CFE_SB_AppInit(void)
     CFE_Config_GetVersionString(VersionString, CFE_CFG_MAX_VERSION_STR_LEN, "cFE",
         CFE_SRC_VERSION, CFE_BUILD_CODENAME, CFE_LAST_OFFICIAL);
     Status =
-        CFE_EVS_SendEvent(CFE_SB_INIT_EID, CFE_EVS_EventType_INFORMATION, "cFE SB Initialized: %s", VersionString);
+        CFE_EVS_SendEvent(CFE_SB_INIT_INF_EID, CFE_EVS_EventType_INFORMATION, "cFE SB Initialized: %s", VersionString);
     if (Status != CFE_SUCCESS)
     {
         CFE_ES_WriteToSysLog("%s: Error sending init event:RC=0x%08X\n", __func__, (unsigned int)Status);
@@ -292,7 +292,7 @@ int32 CFE_SB_NoopCmd(const CFE_SB_NoopCmd_t *data)
     char VersionString[CFE_CFG_MAX_VERSION_STR_LEN];
     CFE_Config_GetVersionString(VersionString, CFE_CFG_MAX_VERSION_STR_LEN, "cFE",
         CFE_SRC_VERSION, CFE_BUILD_CODENAME, CFE_LAST_OFFICIAL);
-    CFE_EVS_SendEvent(CFE_SB_CMD0_RCVD_EID, CFE_EVS_EventType_INFORMATION, "No-op Cmd Rcvd: %s", VersionString);
+    CFE_EVS_SendEvent(CFE_SB_NOOP_INF_EID, CFE_EVS_EventType_INFORMATION, "No-op Cmd Rcvd: %s", VersionString);
     CFE_SB_Global.HKTlmMsg.Payload.CommandCounter++;
 
     return CFE_SUCCESS;
@@ -306,7 +306,7 @@ int32 CFE_SB_NoopCmd(const CFE_SB_NoopCmd_t *data)
  *-----------------------------------------------------------------*/
 int32 CFE_SB_ResetCountersCmd(const CFE_SB_ResetCountersCmd_t *data)
 {
-    CFE_EVS_SendEvent(CFE_SB_CMD1_RCVD_EID, CFE_EVS_EventType_DEBUG, "Reset Counters Cmd Rcvd");
+    CFE_EVS_SendEvent(CFE_SB_RESET_INF_EID, CFE_EVS_EventType_INFORMATION, "Reset Counters Cmd Rcvd");
 
     CFE_SB_ResetCounters();
 
@@ -419,7 +419,7 @@ int32 CFE_SB_EnableRouteCmd(const CFE_SB_EnableRouteCmd_t *data)
         else
         {
             DestPtr->Active = CFE_SB_ACTIVE;
-            PendingEventID  = CFE_SB_ENBL_RTE2_EID;
+            PendingEventID  = CFE_SB_ENBL_RTE2_INF_EID;
             CFE_SB_Global.HKTlmMsg.Payload.CommandCounter++;
         }
     }
@@ -438,9 +438,10 @@ int32 CFE_SB_EnableRouteCmd(const CFE_SB_EnableRouteCmd_t *data)
                               "Enbl Route Cmd:Invalid Param.Msg 0x%x,Pipe %lu",
                               (unsigned int)CFE_SB_MsgIdToValue(MsgId), CFE_RESOURCEID_TO_ULONG(CmdPtr->Pipe));
             break;
-        case CFE_SB_ENBL_RTE2_EID:
-            CFE_EVS_SendEvent(CFE_SB_ENBL_RTE2_EID, CFE_EVS_EventType_DEBUG, "Enabling Route,Msg 0x%x,Pipe %lu",
-                              (unsigned int)CFE_SB_MsgIdToValue(MsgId), CFE_RESOURCEID_TO_ULONG(CmdPtr->Pipe));
+        case CFE_SB_ENBL_RTE2_INF_EID:
+            CFE_EVS_SendEvent(CFE_SB_ENBL_RTE2_INF_EID, CFE_EVS_EventType_INFORMATION,
+                              "Enabling Route,Msg 0x%x,Pipe %lu", (unsigned int)CFE_SB_MsgIdToValue(MsgId),
+                              CFE_RESOURCEID_TO_ULONG(CmdPtr->Pipe));
             break;
     }
 
@@ -486,7 +487,7 @@ int32 CFE_SB_DisableRouteCmd(const CFE_SB_DisableRouteCmd_t *data)
         else
         {
             DestPtr->Active = CFE_SB_INACTIVE;
-            PendingEventID  = CFE_SB_DSBL_RTE2_EID;
+            PendingEventID  = CFE_SB_DSBL_RTE2_INF_EID;
             CFE_SB_Global.HKTlmMsg.Payload.CommandCounter++;
         }
     }
@@ -505,9 +506,10 @@ int32 CFE_SB_DisableRouteCmd(const CFE_SB_DisableRouteCmd_t *data)
                               "Disable Route Cmd:Invalid Param.Msg 0x%x,Pipe %lu",
                               (unsigned int)CFE_SB_MsgIdToValue(MsgId), CFE_RESOURCEID_TO_ULONG(CmdPtr->Pipe));
             break;
-        case CFE_SB_DSBL_RTE2_EID:
-            CFE_EVS_SendEvent(CFE_SB_DSBL_RTE2_EID, CFE_EVS_EventType_DEBUG, "Route Disabled,Msg 0x%x,Pipe %lu",
-                              (unsigned int)CFE_SB_MsgIdToValue(MsgId), CFE_RESOURCEID_TO_ULONG(CmdPtr->Pipe));
+        case CFE_SB_DSBL_RTE2_INF_EID:
+            CFE_EVS_SendEvent(CFE_SB_DSBL_RTE2_INF_EID, CFE_EVS_EventType_INFORMATION,
+                              "Route Disabled,Msg 0x%x,Pipe %lu", (unsigned int)CFE_SB_MsgIdToValue(MsgId),
+                              CFE_RESOURCEID_TO_ULONG(CmdPtr->Pipe));
             break;
     }
 
@@ -567,7 +569,7 @@ int32 CFE_SB_SendStatsCmd(const CFE_SB_SendSbStatsCmd_t *data)
     CFE_SB_TimeStampMsg(CFE_MSG_PTR(CFE_SB_Global.StatTlmMsg.TelemetryHeader));
     CFE_SB_TransmitMsg(CFE_MSG_PTR(CFE_SB_Global.StatTlmMsg.TelemetryHeader), true);
 
-    CFE_EVS_SendEvent(CFE_SB_SND_STATS_EID, CFE_EVS_EventType_DEBUG, "Software Bus Statistics packet sent");
+    CFE_EVS_SendEvent(CFE_SB_SND_STATS_INF_EID, CFE_EVS_EventType_INFORMATION, "Software Bus Statistics packet sent");
 
     CFE_SB_Global.HKTlmMsg.Payload.CommandCounter++;
 

@@ -453,7 +453,7 @@ int32 CFE_TIME_NoopCmd(const CFE_TIME_NoopCmd_t *data)
 
     CFE_Config_GetVersionString(VersionString, CFE_CFG_MAX_VERSION_STR_LEN, "cFE", CFE_SRC_VERSION, CFE_BUILD_CODENAME,
                                 CFE_LAST_OFFICIAL);
-    CFE_EVS_SendEvent(CFE_TIME_NOOP_EID, CFE_EVS_EventType_INFORMATION, "No-op Cmd Rcvd: %s", VersionString);
+    CFE_EVS_SendEvent(CFE_TIME_NOOP_INF_EID, CFE_EVS_EventType_INFORMATION, "No-op Cmd Rcvd: %s", VersionString);
 
     return CFE_SUCCESS;
 }
@@ -491,7 +491,7 @@ int32 CFE_TIME_ResetCountersCmd(const CFE_TIME_ResetCountersCmd_t *data)
     CFE_TIME_Global.InternalCount = 0;
     CFE_TIME_Global.ExternalCount = 0;
 
-    CFE_EVS_SendEvent(CFE_TIME_RESET_EID, CFE_EVS_EventType_DEBUG, "Reset Counters command");
+    CFE_EVS_SendEvent(CFE_TIME_RESET_INF_EID, CFE_EVS_EventType_INFORMATION, "Reset Counters command");
 
     return CFE_SUCCESS;
 }
@@ -502,7 +502,7 @@ int32 CFE_TIME_ResetCountersCmd(const CFE_TIME_ResetCountersCmd_t *data)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_TIME_SendDiagnosticTlm(const CFE_TIME_SendDiagnosticCmd_t *data)
+int32 CFE_TIME_SendDiagnosticTlmCmd(const CFE_TIME_SendDiagnosticCmd_t *data)
 {
     CFE_TIME_Global.CommandCounter++;
 
@@ -517,7 +517,7 @@ int32 CFE_TIME_SendDiagnosticTlm(const CFE_TIME_SendDiagnosticCmd_t *data)
     CFE_SB_TimeStampMsg(CFE_MSG_PTR(CFE_TIME_Global.DiagPacket.TelemetryHeader));
     CFE_SB_TransmitMsg(CFE_MSG_PTR(CFE_TIME_Global.DiagPacket.TelemetryHeader), true);
 
-    CFE_EVS_SendEvent(CFE_TIME_DIAG_EID, CFE_EVS_EventType_DEBUG, "Request diagnostics command");
+    CFE_EVS_SendEvent(CFE_TIME_DIAG_INF_EID, CFE_EVS_EventType_INFORMATION, "Request diagnostics command");
 
     return CFE_SUCCESS;
 }
