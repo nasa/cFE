@@ -1,5 +1,9 @@
 # Changelog
 
+## Development Build: equuleus-rc1+dev167
+- CFE_TIME unit test failure when CFE_MISSION_TIME_AT_TONE_WILL_BE set to true
+- See <https://github.com/nasa/cFE/pull/2573>
+
 ## Development Build: equuleus-rc1+dev163
 - Improve CFE_SB_AllocateMessageBuffer error report
 - Update CFE_PLATFORM_ES_DEFAULT_SYSLOG_MODE macro in es_verify.h
