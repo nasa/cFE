@@ -36,6 +36,9 @@ jobs:
     if: ${{ needs.check-for-duplicates.outputs.should_skip != 'true' }}
     runs-on: ubuntu-20.04
     timeout-minutes: 15
+    env:
+      MISSED_BRANCHES_ALLOWED: 39
+      MISSED_LINES_ALLOWED: 19
 
     steps:
       - name: Install coverage tools
@@ -104,17 +107,43 @@ jobs:
 
       - name: Confirm Minimum Coverage
         run: |
-          missed_branches=39
-          missed_lines=19
           branch_nums=$(grep -A 3 "Overall coverage rate" lcov_out.txt | grep branches | grep -oP "[0-9]+[0-9]*")
           line_nums=$(grep -A 3 "Overall coverage rate" lcov_out.txt | grep lines | grep -oP "[0-9]+[0-9]*")
 
           branch_diff=$(echo $branch_nums | awk '{ print $4 - $3 }')
           line_diff=$(echo $line_nums | awk '{ print $4 - $3 }')
-          if [ $branch_diff -gt $missed_branches ] || [ $line_diff -gt $missed_lines ]
+          if [ $branch_diff -gt $MISSED_BRANCHES_ALLOWED ] || [ $line_diff -gt $MISSED_LINES_ALLOWED ]
           then
             grep -A 3 "Overall coverage rate" lcov_out.txt
-            echo "$branch_diff branches missed, $missed_branches allowed"
-            echo "$line_diff lines missed, $missed_lines allowed"
+            echo "$branch_diff branches missed, $MISSED_BRANCHES_ALLOWED allowed"
+            echo "$line_diff lines missed, $MISSED_LINES_ALLOWED allowed"
+            exit -1
+          fi
+
+      - name: Check that Minimum Coverage Limits are Correctly Calibrated
+        run: |
+          branch_nums=$(grep -A 3 "Overall coverage rate" lcov_out.txt | grep branches | grep -oP "[0-9]+[0-9]*")
+          line_nums=$(grep -A 3 "Overall coverage rate" lcov_out.txt | grep lines | grep -oP "[0-9]+[0-9]*")
+
+          branch_diff=$(echo $branch_nums | awk '{ print $4 - $3 }')
+          line_diff=$(echo $line_nums | awk '{ print $4 - $3 }')
+          if [ $branch_diff -lt $MISSED_BRANCHES_ALLOWED ] || [ $line_diff -lt $MISSED_LINES_ALLOWED ]
+          then
+            grep -A 3 "Overall coverage rate" lcov_out.txt
+            echo ""
+            if [ $branch_diff -lt $MISSED_BRANCHES_ALLOWED ]
+            then
+              echo "$branch_diff branches were missed, which is *less* than the expected/allowed amount: $MISSED_BRANCHES_ALLOWED"
+              echo "Please update (lower) the MISSED_BRANCHES_ALLOWED variable in this workflow file to match the new coverage level."
+              echo ""
+            fi
+
+            if [ $line_diff -lt $MISSED_LINES_ALLOWED ]
+            then
+              echo "$line_diff lines were missed, which is *less* than the expected/allowed amount: $MISSED_LINES_ALLOWED"
+              echo "Please update (lower) the MISSED_LINES_ALLOWED variable in this workflow file to match the new coverage level."
+              echo ""
+            fi
+
             exit -1
           fi
