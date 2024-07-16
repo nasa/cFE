@@ -808,7 +808,7 @@ void CFE_ES_CreateObjects(void)
                      * newly-started thread calls CFE_ES_WaitForSystemState()
                      */
                     ReturnCode =
-                        CFE_ES_MainTaskSyncDelay(CFE_ES_AppState_RUNNING, CFE_PLATFORM_CORE_MAX_STARTUP_MSEC * 1000);
+                        CFE_ES_MainTaskSyncDelay(CFE_ES_AppState_RUNNING, CFE_PLATFORM_CORE_MAX_STARTUP_MSEC);
                 }
 
                 if (ReturnCode != CFE_SUCCESS)
