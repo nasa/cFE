@@ -935,7 +935,7 @@
 **       This number must be less than or equal to #CFE_PLATFORM_EVS_MAX_APP_EVENT_BURST.
 **       Values lower than 8 may cause functional and unit test failures.
 */
-#define CFE_PLATFORM_EVS_APP_EVENTS_PER_SEC 15
+#define CFE_PLATFORM_EVS_APP_EVENTS_PER_SEC 8
 
 /**
 **  \cfeevscfg Default Event Log Filename
@@ -961,7 +961,7 @@
 **       There are no restrictions on the lower and upper limits however,
 **       the maximum log size is system dependent and should be verified.
 */
-#define CFE_PLATFORM_EVS_LOG_MAX 20
+#define CFE_PLATFORM_EVS_LOG_MAX 100
 
 /**
 **  \cfeevscfg Default EVS Application Data Filename
