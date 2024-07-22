@@ -122,6 +122,11 @@ void Test_CFE_FS_ReadHeader(void)
     UT_SetDefaultReturnValue(UT_KEY(OS_read), OS_ERROR);
     UtAssert_INT32_EQ(CFE_FS_ReadHeader(&Hdr, FileDes), CFE_STATUS_EXTERNAL_RESOURCE_FAIL);
 
+    /* Test partial success with reading header */
+    UT_InitData();
+    UT_SetDefaultReturnValue(UT_KEY(OS_read), 1);
+    UtAssert_INT32_EQ(CFE_FS_ReadHeader(&Hdr, FileDes), CFE_STATUS_EXTERNAL_RESOURCE_FAIL);
+
     /* Test successfully reading the header */
     UT_InitData();
     UtAssert_INT32_EQ(CFE_FS_ReadHeader(&Hdr, FileDes), sizeof(Hdr));

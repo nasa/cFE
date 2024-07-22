@@ -138,6 +138,12 @@ CFE_Status_t CFE_FS_ReadHeader(CFE_FS_Header_t *Hdr, osal_id_t FileDes)
         */
         OsStatus = OS_read(FileDes, Hdr, sizeof(CFE_FS_Header_t));
 
+        /* Check if the read was successful */
+        if (OsStatus != sizeof(CFE_FS_Header_t)) 
+        {
+            return CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
+        }
+
         /* Determine if this processor is a little endian processor */
         /* cppcheck-suppress knownConditionTrueFalse */
         if ((*(char *)(&EndianCheck)) == 0x04)
