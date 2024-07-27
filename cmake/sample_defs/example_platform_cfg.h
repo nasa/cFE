@@ -1145,8 +1145,7 @@
 **       this value is set the same across all mission platforms to avoid this complexity.
 **
 **  \par Limits
-**       CFE_SB_INVALID_MSG is set to the maximum representable number of type CFE_SB_MsgId_t.
-**       CFE_PLATFORM_SB_HIGHEST_VALID_MSGID lower limit is 1, up to CFE_SB_INVALID_MSG_ID - 1.
+**       This parameter has a lower limit is 1, and an upper limit of 0xFFFFFFFE.
 **
 **       When using the direct message map implementation for software bus routing, this
 **       value is used to size the map where a value of 0x1FFF results in a 16 KBytes map
