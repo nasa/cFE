@@ -39,7 +39,7 @@
  *
  *  Software Bus Services Task initialization complete.
  */
-#define CFE_SB_INIT_EID 1
+#define CFE_SB_INIT_INF_EID 1
 
 /**
  * \brief SB Create Pipe API Bad Argument Event ID
@@ -332,7 +332,7 @@
  *
  *  \link #CFE_SB_NOOP_CC SB NO-OP Command \endlink success.
  */
-#define CFE_SB_CMD0_RCVD_EID 28
+#define CFE_SB_NOOP_INF_EID 28
 
 /**
  * \brief SB Reset Counters Command Success Event ID
@@ -343,7 +343,7 @@
  *
  *  \link #CFE_SB_RESET_COUNTERS_CC SB Reset Counters Command \endlink success.
  */
-#define CFE_SB_CMD1_RCVD_EID 29
+#define CFE_SB_RESET_INF_EID 29
 
 /**
  * \brief SB Send Statistics Command Success Event ID
@@ -458,7 +458,7 @@
  *  Invalid command code for message ID #CFE_SB_CMD_MID or #CFE_SB_SUB_RPT_CTRL_MID received
  *  on the SB message pipe. OVERLOADED
  */
-#define CFE_SB_BAD_CMD_CODE_EID 42
+#define CFE_SB_CC_ERR_EID 42
 
 /**
  * \brief SB Invalid Message ID Received Event ID
@@ -469,7 +469,7 @@
  *
  *  Invalid message ID received on the SB message pipe.
  */
-#define CFE_SB_BAD_MSGID_EID 43
+#define CFE_SB_MID_ERR_EID 43
 
 /**
  * \brief SB Send Previous Subscriptions Command Full Packet Sent Event ID
@@ -736,7 +736,7 @@
  *  Invalid length for the command code in message ID #CFE_SB_CMD_MID or #CFE_SB_SUB_RPT_CTRL_MID
  *  received on the SB message pipe.
  */
-#define CFE_SB_LEN_ERR_EID 68
+#define CFE_SB_CMD_LEN_ERR_EID 68
 
 /**
  * \brief SB Create Pipe API Name Taken Event ID

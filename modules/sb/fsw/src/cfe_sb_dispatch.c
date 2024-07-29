@@ -56,7 +56,7 @@ bool CFE_SB_VerifyCmdLength(const CFE_MSG_Message_t *MsgPtr, size_t ExpectedLeng
         CFE_MSG_GetMsgId(MsgPtr, &MsgId);
         CFE_MSG_GetFcnCode(MsgPtr, &FcnCode);
 
-        CFE_EVS_SendEvent(CFE_SB_LEN_ERR_EID, CFE_EVS_EventType_ERROR,
+        CFE_EVS_SendEvent(CFE_SB_CMD_LEN_ERR_EID, CFE_EVS_EventType_ERROR,
                           "Invalid msg length: ID = 0x%X,  CC = %u, Len = %u, Expected = %u",
                           (unsigned int)CFE_SB_MsgIdToValue(MsgId), (unsigned int)FcnCode, (unsigned int)ActualLength,
                           (unsigned int)ExpectedLength);
@@ -114,7 +114,7 @@ void CFE_SB_ProcessCmdPipePkt(const CFE_SB_Buffer_t *SBBufPtr)
                     break;
 
                 default:
-                    CFE_EVS_SendEvent(CFE_SB_BAD_CMD_CODE_EID, CFE_EVS_EventType_ERROR,
+                    CFE_EVS_SendEvent(CFE_SB_CC_ERR_EID, CFE_EVS_EventType_ERROR,
                                       "Invalid Cmd, Unexpected Command Code %u", (unsigned int)FcnCode);
                     CFE_SB_Global.HKTlmMsg.Payload.CommandErrorCounter++;
                     break;
@@ -183,7 +183,7 @@ void CFE_SB_ProcessCmdPipePkt(const CFE_SB_Buffer_t *SBBufPtr)
                     break;
 
                 default:
-                    CFE_EVS_SendEvent(CFE_SB_BAD_CMD_CODE_EID, CFE_EVS_EventType_ERROR,
+                    CFE_EVS_SendEvent(CFE_SB_CC_ERR_EID, CFE_EVS_EventType_ERROR,
                                       "Invalid Cmd, Unexpected Command Code %u", FcnCode);
                     CFE_SB_Global.HKTlmMsg.Payload.CommandErrorCounter++;
                     break;
@@ -191,7 +191,7 @@ void CFE_SB_ProcessCmdPipePkt(const CFE_SB_Buffer_t *SBBufPtr)
             break;
 
         default:
-            CFE_EVS_SendEvent(CFE_SB_BAD_MSGID_EID, CFE_EVS_EventType_ERROR, "Invalid Cmd, Unexpected Msg Id: 0x%x",
+            CFE_EVS_SendEvent(CFE_SB_MID_ERR_EID, CFE_EVS_EventType_ERROR, "Invalid Cmd, Unexpected Msg Id: 0x%x",
                               (unsigned int)CFE_SB_MsgIdToValue(MessageID));
             CFE_SB_Global.HKTlmMsg.Payload.CommandErrorCounter++;
             break;
