@@ -207,7 +207,7 @@ void CFE_ES_StartApplications(uint32 ResetType, const char *StartFilePath)
                     BuffLen++;
 
                     ++NumTokens;
-                    if (NumTokens < CFE_ES_STARTSCRIPT_MAX_TOKENS_PER_LINE)
+                    if (NumTokens < CFE_ES_STARTSCRIPT_MAX_TOKENS_PER_LINE && !LineTooLong)
                     {
                         /*
                          * NOTE: pointer never dereferenced unless "LineTooLong" is false.
