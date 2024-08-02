@@ -92,8 +92,8 @@ CFE_Status_t CFE_MSG_GetMsgTime(const CFE_MSG_Message_t *MsgPtr, CFE_TIME_SysTim
     }
 
     /* Get big endian time fields with default 32/16 layout */
-    Time->Subseconds = (tlm->Sec.Time[4] << 24) + (tlm->Sec.Time[5] << 16);
-    Time->Seconds    = (tlm->Sec.Time[0] << 24) + (tlm->Sec.Time[1] << 16) + (tlm->Sec.Time[2] << 8) + tlm->Sec.Time[3];
+    Time->Subseconds = ((uint32)tlm->Sec.Time[4] << 24) + ((uint32)tlm->Sec.Time[5] << 16);
+    Time->Seconds    = ((uint32)tlm->Sec.Time[0] << 24) + ((uint32)tlm->Sec.Time[1] << 16) + ((uint32)tlm->Sec.Time[2] << 8) + (uint32)tlm->Sec.Time[3];
 
     return CFE_SUCCESS;
 }
