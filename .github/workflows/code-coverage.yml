@@ -62,6 +62,7 @@ jobs:
           cp ./cfe/cmake/Makefile.sample Makefile
           cp -r ./cfe/cmake/sample_defs sample_defs
           make prep
+          make -C build mission-prebuild
 
       # Build the code
       - name: Build

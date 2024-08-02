@@ -30,6 +30,22 @@ void UT_DefaultHandler_CFE_Config_GetString(void *, UT_EntryKey_t, const UT_Stub
 
 /*
  * ----------------------------------------------------
+ * Generated stub function for CFE_Config_GetArrayValue()
+ * ----------------------------------------------------
+ */
+CFE_Config_ArrayValue_t CFE_Config_GetArrayValue(CFE_ConfigId_t ConfigId)
+{
+    UT_GenStub_SetupReturnBuffer(CFE_Config_GetArrayValue, CFE_Config_ArrayValue_t);
+
+    UT_GenStub_AddParam(CFE_Config_GetArrayValue, CFE_ConfigId_t, ConfigId);
+
+    UT_GenStub_Execute(CFE_Config_GetArrayValue, Basic, NULL);
+
+    return UT_GenStub_GetReturnValue(CFE_Config_GetArrayValue, CFE_Config_ArrayValue_t);
+}
+
+/*
+ * ----------------------------------------------------
  * Generated stub function for CFE_Config_GetIdByName()
  * ----------------------------------------------------
  */

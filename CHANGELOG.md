@@ -1,5 +1,14 @@
 # Changelog
 
+## Development Build: equuleus-rc1+dev183
+- Runtime Error in coverage-es-ALL, TestApps
+- add config tool for platform-specific settings
+- Adding bytes read check
+- Cast to unsigned int
+- Update comment re. limit of CFE_PLATFORM_SB_HIGHEST_VALID_MSGID
+- Add element to write error event in CFE_EVS_WriteAppDataFileCmd()
+- See <https://github.com/nasa/cFE/pull/2579>, <https://github.com/nasa/cFE/pull/2565>, <https://github.com/nasa/cFE/pull/2584>, <https://github.com/nasa/cFE/pull/2585>, <https://github.com/nasa/cFE/pull/2586>, and <https://github.com/nasa/cFE/pull/2326>
+
 ## Development Build: equuleus-rc1+dev167
 - CFE_TIME unit test failure when CFE_MISSION_TIME_AT_TONE_WILL_BE set to true
 - See <https://github.com/nasa/cFE/pull/2573>
