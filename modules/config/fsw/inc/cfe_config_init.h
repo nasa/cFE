@@ -19,23 +19,17 @@
 /**
  * @file
  *
- * This file contains the CFE configuration registry global data definitions.
+ * Function declarations for items implemented in init.c
  */
 
-#ifndef CFE_CONFIG_MAP_H
-#define CFE_CONFIG_MAP_H
+#ifndef CFE_CONFIG_INIT_H
+#define CFE_CONFIG_INIT_H
 
-/*
-** Includes
-*/
-#include "common_types.h"
+#include "cfe_config_api_typedefs.h"
+
 #include "cfe_config_ids.h"
 
-typedef struct CFE_Config_IdNameEntry
-{
-    const char *Name;
-} CFE_Config_IdNameEntry_t;
+void  CFE_Config_SetupBasicBuildInfo(void);
+int32 CFE_Config_Init(void);
 
-extern const CFE_Config_IdNameEntry_t CFE_CONFIG_IDNAME_MAP[];
-
-#endif /* CFE_CONFIG_MAP_H */
+#endif /* CFE_CONFIG_INIT_H */

@@ -5,13 +5,15 @@
 #include "cfe_config_api_typedefs.h"
 #include "cfe_resourceid.h"
 #include "cfe_core_resourceid_basevalues.h"
+#include "cfe_configid_offset.h"
 
-/* Value offsets from base (needed for macros; do not use directly) */
-enum CFE_ConfigIdOffset
-{
-@GENERATED_ENUM_OFFSET_LIST@
-  CFE_ConfigIdOffset_MAX
-};
+/*
+ * Macro to convert to a properly-typed config ID
+ * The symbol used in this macro must correlate to an offset in the enum
+ */
+
+#define CFE_CONFIGID_OFFSET_TO_RESID(x) CFE_ResourceId_FromInteger(CFE_CONFIGID_BASE + CFE_CONFIGID_OFFSETNAME(x))
+#define CFE_CONFIGID_FROM_OFFSET(x) CFE_CONFIGID_C(CFE_CONFIGID_OFFSET_TO_RESID(x))
 
 /*
  * Set of actual CONFIGID constants -

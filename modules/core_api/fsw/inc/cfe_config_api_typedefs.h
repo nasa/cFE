@@ -50,4 +50,16 @@ typedef CFE_RESOURCEID_BASE_TYPE CFE_ConfigId_t;
 
 typedef void (*CFE_Config_Callback_t)(void *Arg, CFE_ConfigId_t Id, const char *Name);
 
+/**
+ * @brief Wrapper type for array configuration
+ *
+ * This is a pair containing a size and pointer that is get/set
+ * via a single config table entry
+ */
+typedef struct CFE_Config_ArrayValue
+{
+    size_t      NumElements;
+    const void *ElementPtr;
+} CFE_Config_ArrayValue_t;
+
 #endif /* CFE_CONFIG_API_TYPEDEFS_H */

@@ -1,0 +1,19 @@
+/* This file is auto-generated from CMake build system.  Do not manually edit! */
+#ifndef CFE_CONFIGID_OFFSET_H
+#define CFE_CONFIGID_OFFSET_H
+
+#define CFE_CONFIGID_OFFSETNAME(x) CFE_ConfigIdOffset_ ## x
+
+#undef CFE_CONFIGID_DEFINE
+#define CFE_CONFIGID_DEFINE(x) CFE_CONFIGID_OFFSETNAME(x),
+
+/* Value offsets from base (needed for macros; do not use directly) */
+typedef enum CFE_ConfigIdOffset_Enum
+{
+@GENERATED_ID_MACRO_LIST@
+  CFE_ConfigIdOffset_MAX
+} CFE_ConfigIdOffset_Enum_t;
+
+#undef CFE_CONFIGID_DEFINE
+
+#endif /* CFE_CONFIGID_OFFSET_H */
