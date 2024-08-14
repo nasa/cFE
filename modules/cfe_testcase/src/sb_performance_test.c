@@ -209,6 +209,9 @@ void RunSingleCmdSendRecv(void)
             UtAssert_UINT32_EQ(CmdPtr->Payload.Value, CmdMsg.Payload.Value);
             break;
         }
+
+        /* Yield cpu to other task with same priority */
+        OS_TaskDelay(0);
     }
 
     CFE_PSP_GetTime(&BulkCmd.EndTime);
@@ -255,6 +258,9 @@ void RunSingleTlmSendRecv(void)
             UtAssert_UINT32_EQ(TlmPtr->Payload.Value, TlmMsg.Payload.Value);
             break;
         }
+
+        /* Yield cpu to other task with same priority */
+        OS_TaskDelay(0);
     }
 
     CFE_PSP_GetTime(&BulkTlm.EndTime);
@@ -388,6 +394,9 @@ void UT_CommandTransmitterTask(void)
             CFE_Assert_STATUS_MUST_BE(CFE_SUCCESS);
             break;
         }
+
+        /* Yield cpu to other task with same priority */
+        OS_TaskDelay(0);
     }
 
     BulkCmd.XmitFinished = true;
@@ -424,6 +433,9 @@ void UT_TelemtryTransmitterTask(void)
             CFE_Assert_STATUS_MUST_BE(CFE_SUCCESS);
             break;
         }
+
+        /* Yield cpu to other task with same priority */
+        OS_TaskDelay(0);
     }
 
     BulkTlm.XmitFinished = true;
