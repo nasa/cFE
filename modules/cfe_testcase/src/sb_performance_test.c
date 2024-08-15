@@ -402,7 +402,7 @@ void UT_CommandTransmitterTask(void)
     BulkCmd.XmitFinished = true;
 }
 
-void UT_TelemtryTransmitterTask(void)
+void UT_TelemetryTransmitterTask(void)
 {
     CFE_SB_Buffer_t *            BufPtr;
     CFE_TEST_TestTlmMessage32_t *TlmMsgPtr;
@@ -533,7 +533,7 @@ void TestBulkTransferMulti4(void)
         CFE_ES_CreateChildTask(&BulkCmd.TaskIdXmit, "CmdXmit", UT_CommandTransmitterTask, NULL, 32768, 150, 0),
         CFE_SUCCESS);
     UtAssert_INT32_EQ(
-        CFE_ES_CreateChildTask(&BulkTlm.TaskIdXmit, "TlmXmit", UT_TelemtryTransmitterTask, NULL, 32768, 150, 0),
+        CFE_ES_CreateChildTask(&BulkTlm.TaskIdXmit, "TlmXmit", UT_TelemetryTransmitterTask, NULL, 32768, 150, 0),
         CFE_SUCCESS);
     UtAssert_INT32_EQ(
         CFE_ES_CreateChildTask(&BulkCmd.TaskIdRecv, "CmdRecv", UT_CommandReceiverTask, NULL, 32768, 100, 0),
