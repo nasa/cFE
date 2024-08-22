@@ -1,5 +1,9 @@
 # Changelog
 
+## Development Build: equuleus-rc1+dev187
+- Use proper printf format for size_t
+- See <https://github.com/nasa/cFE/pull/2591>
+
 ## Development Build: equuleus-rc1+dev183
 - Runtime Error in coverage-es-ALL, TestApps
 - add config tool for platform-specific settings
