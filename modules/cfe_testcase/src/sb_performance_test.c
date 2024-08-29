@@ -37,6 +37,9 @@
 /* Number of messages to send during test */
 uint32_t UT_BulkTestDuration = 1000;
 
+/* Number of SB messages sent before yielding CPU (has to be power of 2 minus 1)*/
+static uint32_t UT_CpuYieldMask = 1024 - 1;
+
 /* State structure for multicore test - shared between threads */
 typedef struct UT_BulkMultiCoreSharedState
 {
@@ -210,8 +213,12 @@ void RunSingleCmdSendRecv(void)
             break;
         }
 
-        /* Yield cpu to other task with same priority */
-        OS_TaskDelay(0);
+        /* Only yield CPU once in a while to avoid slowing down the test with too many context switches */
+        if ((BulkCmd.SendCount & UT_CpuYieldMask) == 0)
+        {
+            /* Yield cpu to other task with same priority */
+            OS_TaskDelay(0);
+        }
     }
 
     CFE_PSP_GetTime(&BulkCmd.EndTime);
@@ -259,8 +266,12 @@ void RunSingleTlmSendRecv(void)
             break;
         }
 
-        /* Yield cpu to other task with same priority */
-        OS_TaskDelay(0);
+        /* Only yield CPU once in a while to avoid slowing down the test with too many context switches */
+        if ((BulkTlm.SendCount & UT_CpuYieldMask) == 0)
+        {
+            /* Yield cpu to other task with same priority */
+            OS_TaskDelay(0);
+        }
     }
 
     CFE_PSP_GetTime(&BulkTlm.EndTime);
@@ -395,8 +406,12 @@ void UT_CommandTransmitterTask(void)
             break;
         }
 
-        /* Yield cpu to other task with same priority */
-        OS_TaskDelay(0);
+        /* Only yield CPU once in a while to avoid slowing down the test with too many context switches */
+        if ((BulkCmd.SendCount & UT_CpuYieldMask) == 0)
+        {
+            /* Yield cpu to other task with same priority */
+            OS_TaskDelay(0);
+        }
     }
 
     BulkCmd.XmitFinished = true;
@@ -434,8 +449,12 @@ void UT_TelemetryTransmitterTask(void)
             break;
         }
 
-        /* Yield cpu to other task with same priority */
-        OS_TaskDelay(0);
+        /* Only yield CPU once in a while to avoid slowing down the test with too many context switches */
+        if ((BulkTlm.SendCount & UT_CpuYieldMask) == 0)
+        {
+            /* Yield cpu to other task with same priority */
+            OS_TaskDelay(0);
+        }
     }
 
     BulkTlm.XmitFinished = true;
