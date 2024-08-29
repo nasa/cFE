@@ -1,5 +1,10 @@
 # Changelog
 
+## Development Build: equuleus-rc1+dev195
+- Use string append and add newline
+- Yield cpu to other tasks in SB Perf Test
+- See <https://github.com/nasa/cFE/pull/2596> and <https://github.com/nasa/cFE/pull/2593>
+
 ## Development Build: equuleus-rc1+dev187
 - Use proper printf format for size_t
 - See <https://github.com/nasa/cFE/pull/2591>
