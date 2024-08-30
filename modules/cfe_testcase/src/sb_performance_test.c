@@ -37,6 +37,9 @@
 /* Number of messages to send during test */
 uint32_t UT_BulkTestDuration = 1000;
 
+/* Number of SB messages sent before yielding CPU (has to be power of 2 minus 1)*/
+static uint32_t UT_CpuYieldMask = 1024 - 1;
+
 /* State structure for multicore test - shared between threads */
 typedef struct UT_BulkMultiCoreSharedState
 {
@@ -209,6 +212,13 @@ void RunSingleCmdSendRecv(void)
             UtAssert_UINT32_EQ(CmdPtr->Payload.Value, CmdMsg.Payload.Value);
             break;
         }
+
+        /* Only yield CPU once in a while to avoid slowing down the test with too many context switches */
+        if ((BulkCmd.SendCount & UT_CpuYieldMask) == 0)
+        {
+            /* Yield cpu to other task with same priority */
+            OS_TaskDelay(0);
+        }
     }
 
     CFE_PSP_GetTime(&BulkCmd.EndTime);
@@ -254,6 +264,13 @@ void RunSingleTlmSendRecv(void)
         {
             UtAssert_UINT32_EQ(TlmPtr->Payload.Value, TlmMsg.Payload.Value);
             break;
+        }
+
+        /* Only yield CPU once in a while to avoid slowing down the test with too many context switches */
+        if ((BulkTlm.SendCount & UT_CpuYieldMask) == 0)
+        {
+            /* Yield cpu to other task with same priority */
+            OS_TaskDelay(0);
         }
     }
 
@@ -388,12 +405,19 @@ void UT_CommandTransmitterTask(void)
             CFE_Assert_STATUS_MUST_BE(CFE_SUCCESS);
             break;
         }
+
+        /* Only yield CPU once in a while to avoid slowing down the test with too many context switches */
+        if ((BulkCmd.SendCount & UT_CpuYieldMask) == 0)
+        {
+            /* Yield cpu to other task with same priority */
+            OS_TaskDelay(0);
+        }
     }
 
     BulkCmd.XmitFinished = true;
 }
 
-void UT_TelemtryTransmitterTask(void)
+void UT_TelemetryTransmitterTask(void)
 {
     CFE_SB_Buffer_t *            BufPtr;
     CFE_TEST_TestTlmMessage32_t *TlmMsgPtr;
@@ -423,6 +447,13 @@ void UT_TelemtryTransmitterTask(void)
         {
             CFE_Assert_STATUS_MUST_BE(CFE_SUCCESS);
             break;
+        }
+
+        /* Only yield CPU once in a while to avoid slowing down the test with too many context switches */
+        if ((BulkTlm.SendCount & UT_CpuYieldMask) == 0)
+        {
+            /* Yield cpu to other task with same priority */
+            OS_TaskDelay(0);
         }
     }
 
@@ -521,7 +552,7 @@ void TestBulkTransferMulti4(void)
         CFE_ES_CreateChildTask(&BulkCmd.TaskIdXmit, "CmdXmit", UT_CommandTransmitterTask, NULL, 32768, 150, 0),
         CFE_SUCCESS);
     UtAssert_INT32_EQ(
-        CFE_ES_CreateChildTask(&BulkTlm.TaskIdXmit, "TlmXmit", UT_TelemtryTransmitterTask, NULL, 32768, 150, 0),
+        CFE_ES_CreateChildTask(&BulkTlm.TaskIdXmit, "TlmXmit", UT_TelemetryTransmitterTask, NULL, 32768, 150, 0),
         CFE_SUCCESS);
     UtAssert_INT32_EQ(
         CFE_ES_CreateChildTask(&BulkCmd.TaskIdRecv, "CmdRecv", UT_CommandReceiverTask, NULL, 32768, 100, 0),
