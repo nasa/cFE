@@ -691,6 +691,8 @@ CFE_Status_t CFE_TIME_UnregisterSynchCallback(CFE_TIME_SynchCallbackPtr_t Callba
 **           - \c \\0 = trailing null
 **
 ** \par Assumptions, External Events, and Notes:
+**        - This function calls strftime to format the output. Systems without this
+**          C99-standard function will have to write their own implementation.
 **        - The value of the time argument is simply added to the configuration
 **          definitions for the ground epoch and converted into a fixed length
 **          string in the buffer provided by the caller.
@@ -706,8 +708,12 @@ CFE_Status_t CFE_TIME_UnregisterSynchCallback(CFE_TIME_SynchCallbackPtr_t Callba
 **
 ** \param[in]  TimeToPrint   The time to print into the character array.
 **
+** \return Execution status, see \ref CFEReturnCodes
+** \retval #CFE_SUCCESS                      \copybrief CFE_SUCCESS
+** \retval #CFE_TIME_BAD_ARGUMENT            \copybrief CFE_TIME_BAD_ARGUMENT
+**
 ******************************************************************************/
-void CFE_TIME_Print(char *PrintBuffer, CFE_TIME_SysTime_t TimeToPrint);
+CFE_Status_t CFE_TIME_Print(char *PrintBuffer, CFE_TIME_SysTime_t TimeToPrint);
 
 /*****************************************************************************/
 /**
