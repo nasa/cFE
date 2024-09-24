@@ -46,15 +46,15 @@
           <Entry name="TableName" type="TableName" shortDescription="Name of Table as defined onboard" />
           <Entry name="Description" type="CFE_FS/FileDescription" shortDescription="Description of table image that is included in cFE File Header" />
           <Entry name="TgtFilename" type="BASE_TYPES/PathName" shortDescription="Default filename to be used for output of eds2cfetbl utility" />
-          <Entry name="ObjectType" type="BASE_TYPES/ApiName" shortDescription="Data type of the instantiated variable containing the table data" />
+          <Entry name="ObjectSize" type="BASE_TYPES/uint32" shortDescription="*&lt; \brief Size, in bytes, of instantiated object" />
         </EntryList>
       </ContainerDataType>
 
       <ContainerDataType name="File_Hdr" shortDescription="Header object for CFE table data files">
         <EntryList>
           <Entry name="Reserved" type="BASE_TYPES/uint32" shortDescription="Future Use: NumTblSegments in File?" />
-          <Entry name="Offset" type="CFE_ES/MemOffset" shortDescription="Byte Offset at which load should commence" />
-          <Entry name="NumBytes" type="CFE_ES/MemOffset" shortDescription="Number of bytes to load into table" />
+          <Entry name="Offset" type="BASE_TYPES/uint32" shortDescription="Byte Offset at which load should commence" />
+          <Entry name="NumBytes" type="BASE_TYPES/uint32" shortDescription="Number of bytes to load into table" />
           <Entry name="TableName" type="TableName" shortDescription="Fully qualified name of table to load" />
         </EntryList>
       </ContainerDataType>
@@ -236,6 +236,7 @@
               \cfetlmmnemonic  \TBL_NUMFREESHRBUF
             </LongDescription>
           </Entry>
+          <PaddingEntry sizeInBits="24" shortDescription="Spare bytes for alignment"/>
           <Entry name="MemPoolHandle" type="CFE_ES/MemHandle" shortDescription="Handle to TBL's memory pool">
             <LongDescription>
               \cfetlmmnemonic  \TBL_MEMPOOLHANDLE

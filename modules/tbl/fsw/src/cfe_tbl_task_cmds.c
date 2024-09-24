@@ -475,15 +475,10 @@ int32 CFE_TBL_LoadCmd(const CFE_TBL_LoadCmd_t *data)
                                                   TblFileHeader.TableName);
                             }
                         }
-                        else if (Status == CFE_TBL_ERR_NO_BUFFER_AVAIL)
+                        else
                         {
                             CFE_EVS_SendEvent(CFE_TBL_NO_WORK_BUFFERS_ERR_EID, CFE_EVS_EventType_ERROR,
                                               "No working buffers available for table '%s'", TblFileHeader.TableName);
-                        }
-                        else
-                        {
-                            CFE_EVS_SendEvent(CFE_TBL_INTERNAL_ERROR_ERR_EID, CFE_EVS_EventType_ERROR,
-                                              "Internal Error (Status=0x%08X)", (unsigned int)Status);
                         }
                     }
                     else
@@ -715,8 +710,8 @@ CFE_TBL_CmdProcRet_t CFE_TBL_DumpToFile(const char *DumpFilename, const char *Ta
             /* Initialize the Table Image Header for the Dump File */
             strncpy(TblFileHeader.TableName, TableName, sizeof(TblFileHeader.TableName) - 1);
             TblFileHeader.TableName[sizeof(TblFileHeader.TableName) - 1] = 0;
-            TblFileHeader.Offset                                         = CFE_ES_MEMOFFSET_C(0);
-            TblFileHeader.NumBytes                                       = CFE_ES_MEMOFFSET_C(TblSizeInBytes);
+            TblFileHeader.Offset                                         = 0;
+            TblFileHeader.NumBytes                                       = TblSizeInBytes;
             TblFileHeader.Reserved                                       = 0;
 
             /* Determine if this is a little endian processor */

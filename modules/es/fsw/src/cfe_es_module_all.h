@@ -46,9 +46,10 @@
 #include "cfe_es_mempool.h"
 #include "cfe_es_global.h"
 #include "cfe_es_cds_mempool.h"
-#include "cfe_es_events.h"
+#include "cfe_es_eventids.h"
 #include "cfe_es_start.h"
 #include "cfe_es_task.h"
+#include "cfe_es_dispatch.h"
 #include "cfe_es_resource.h"
 #include "cfe_es_log.h"
 

@@ -252,7 +252,7 @@ void UT_SetupBasicMsgDispatch(const UT_TaskPipeDispatchId_t *DispatchReq, CFE_MS
 ** \returns
 **        This function does not return a value.
 ******************************************************************************/
-void UT_CallTaskPipe(void (*TaskPipeFunc)(CFE_SB_Buffer_t *), CFE_MSG_Message_t *MsgPtr, size_t MsgSize,
+void UT_CallTaskPipe(void (*TaskPipeFunc)(const CFE_SB_Buffer_t *), const CFE_MSG_Message_t *MsgPtr, size_t MsgSize,
                      UT_TaskPipeDispatchId_t DispatchId);
 
 /*****************************************************************************/
@@ -752,21 +752,6 @@ bool CFE_UtAssert_MessageCheck_Impl(bool Status, const char *File, uint32 Line, 
 #define CFE_UtAssert_RESOURCEID_EQ(id1, id2)                                                                         \
     UtAssert_GenericUnsignedCompare(CFE_RESOURCEID_TO_ULONG(id1), UtAssert_Compare_EQ, CFE_RESOURCEID_TO_ULONG(id2), \
                                     UtAssert_Radix_HEX, __FILE__, __LINE__, "Resource ID Check: ", #id1, #id2)
-
-/*****************************************************************************/
-/**
-** \brief Macro to check CFE memory size/offset for equality
-**
-** \par Description
-**        A macro that checks two memory offset/size values for equality.
-**
-** \par Assumptions, External Events, and Notes:
-**        This is a simple unsigned comparison which logs the values as hexadecimal
-**
-******************************************************************************/
-#define CFE_UtAssert_MEMOFFSET_EQ(off1, off2)                                                                \
-    UtAssert_GenericUnsignedCompare(off1, UtAssert_Compare_EQ, off2, UtAssert_Radix_HEX, __FILE__, __LINE__, \
-                                    "Offset Check: ", #off1, #off2)
 
 /*****************************************************************************/
 /**

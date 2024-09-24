@@ -12,10 +12,7 @@ set(tbl_SOURCES
     fsw/src/cfe_tbl_internal.c
     fsw/src/cfe_tbl_task.c
     fsw/src/cfe_tbl_task_cmds.c
-    fsw/src/cfe_tbl_api.c
-    fsw/src/cfe_tbl_internal.c
-    fsw/src/cfe_tbl_task.c
-    fsw/src/cfe_tbl_task_cmds.c
+    fsw/src/cfe_tbl_dispatch.c
 )
 add_library(tbl STATIC ${tbl_SOURCES})
 
@@ -29,5 +26,5 @@ endif(ENABLE_UNIT_TESTS)
 
 cfs_app_check_intf(${DEP}
     cfe_tbl_msg.h
-    cfe_tbl_events.h
+    cfe_tbl_eventids.h
 )

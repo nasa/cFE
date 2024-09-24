@@ -3,12 +3,98 @@
 # cFS Mission global CMake function definitions
 #
 # This is included by the top-level script and can define
-# common routines and variables that may be referenced in both 
+# common routines and variables that may be referenced in both
 # the mission (non-arch) and arch-specific builds
 #
 ##################################################################
 
 include(CMakeParseArguments)
+
+##################################################################
+#
+# FUNCTION: cfe_locate_implementation_file
+#
+# The CFE/CFS build permits users to modify or tune system behavior by
+# providing customized versions of configuration files and tables.
+#
+# This function locates the preferred version of a file to use, by following
+# a priority-based search scheme.  Users can put their preferred version of
+# a file in their MISSION_DEFS directory, based on a file naming convention.
+#
+# If no version of the file is found there, a default/fallback version can
+# be specified as well, which can be part of the module source.
+#
+function(cfe_locate_implementation_file OUTPUT_VAR FILE_NAME)
+
+  cmake_parse_arguments(LOCATEIMPL_ARG "OPTIONAL;ALLOW_LIST" "FALLBACK_FILE" "PREFIX;SUBDIR" ${ARGN})
+
+  set(IMPL_SEARCH_BASEDIRS)
+  # The prefix could also be a subdir, but do not repeat the mission name
+  foreach (PREFIX ${LOCATEIMPL_ARG_PREFIX})
+    if (NOT "${MISSIONCONFIG}" STREQUAL "${PREFIX}")
+      list(APPEND IMPL_SEARCH_BASEDIRS "${MISSION_DEFS}/${PREFIX}/")
+    endif()
+  endforeach()
+  # Always check for filename matches directly in the MISSION_DEFS dir
+  list(APPEND IMPL_SEARCH_BASEDIRS "${MISSION_DEFS}/")
+  list(REVERSE IMPL_SEARCH_BASEDIRS)
+
+  set(ADD_SUBDIRS)
+  foreach (SUBDIR ${LOCATEIMPL_ARG_SUBDIR})
+    foreach (BASEDIR ${IMPL_SEARCH_BASEDIRS})
+      list(APPEND ADD_SUBDIRS "${BASEDIR}${SUBDIR}/")
+    endforeach()
+  endforeach()
+  list(APPEND IMPL_SEARCH_BASEDIRS ${ADD_SUBDIRS})
+  list(REMOVE_DUPLICATES IMPL_SEARCH_BASEDIRS)
+
+  # Build the list of possible locations for this file in REVERSE priority order
+  set(IMPL_SEARCH_PATH)
+  # Check for the existence of the file in each of the dirs
+  foreach(BASEDIR ${IMPL_SEARCH_BASEDIRS})
+    list(APPEND IMPL_SEARCH_PATH "${BASEDIR}${FILE_NAME}")
+
+    # A target-specific prefixed filename gets priority over a direct filename match
+    # But do not include this variant if the prefix is already part of the basedir
+    foreach (PREFIX ${LOCATEIMPL_ARG_PREFIX})
+      if (NOT "${BASEDIR}" MATCHES "/${PREFIX}/")
+        list(APPEND IMPL_SEARCH_PATH "${BASEDIR}${PREFIX}_${FILE_NAME}")
+      endif()
+    endforeach()
+  endforeach()
+
+  set(SELECTED_FILE)
+  foreach (CHECK_FILE ${IMPL_SEARCH_PATH})
+    if ($ENV{VERBOSE})
+      message("Testing for: ${CHECK_FILE}")
+    endif()
+    if (EXISTS "${CHECK_FILE}")
+      list(APPEND SELECTED_FILE ${CHECK_FILE})
+    endif()
+  endforeach()
+
+  if (NOT SELECTED_FILE AND LOCATEIMPL_ARG_FALLBACK_FILE)
+    if (IS_ABSOLUTE "${LOCATEIMPL_ARG_FALLBACK_FILE}")
+      set(SELECTED_FILE "${LOCATEIMPL_ARG_FALLBACK_FILE}")
+    else()
+      set(SELECTED_FILE "${CMAKE_CURRENT_LIST_DIR}/${LOCATEIMPL_ARG_FALLBACK_FILE}")
+    endif()
+    if (NOT EXISTS "${SELECTED_FILE}" AND NOT LOCATEIMPL_ARG_OPTIONAL)
+      message(FATAL_ERROR "No implementation for ${FILE_NAME} found")
+    endif()
+  endif()
+
+  if (SELECTED_FILE)
+    message(STATUS "Using file: ${SELECTED_FILE} for ${FILE_NAME}")
+  endif()
+
+  # Export the result to the caller
+  if (NOT LOCATEIMPL_ARG_ALLOW_LIST AND SELECTED_FILE)
+    list(GET SELECTED_FILE -1 SELECTED_FILE)
+  endif()
+  set(${OUTPUT_VAR} ${SELECTED_FILE} PARENT_SCOPE)
+
+endfunction()
 
 ##################################################################
 #
@@ -73,52 +159,42 @@ endfunction(generate_c_headerfile)
 #
 function(generate_config_includefile)
 
-    cmake_parse_arguments(GENCONFIG_ARG "" "OUTPUT_DIRECTORY;FILE_NAME;FALLBACK_FILE;MATCH_SUFFIX" "PREFIXES" ${ARGN} )
+    cmake_parse_arguments(GENCONFIG_ARG "" "OUTPUT_DIRECTORY;FILE_NAME;FALLBACK_FILE;MATCH_SUFFIX" "PREFIXES;GENERATED_FILE" ${ARGN} )
     if (NOT GENCONFIG_ARG_OUTPUT_DIRECTORY)
         set(GENCONFIG_ARG_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/inc")
     endif (NOT GENCONFIG_ARG_OUTPUT_DIRECTORY)
 
-    set(WRAPPER_FILE_CONTENT)
-    set(ITEM_FOUND FALSE)
-
-    # Assemble a list of file names to test for
-    # Check for existence of a file in defs directory with an exact matching name
-    # Then Check for existence of file(s) with a matching prefix+suffix
-    set(CHECK_PATH_LIST "${MISSION_DEFS}/${GENCONFIG_ARG_FILE_NAME}")
-    if (GENCONFIG_ARG_MATCH_SUFFIX)
-        foreach(PREFIX ${GENCONFIG_ARG_PREFIXES} ${GENCONFIG_ARG_UNPARSED_ARGUMENTS})
-            list(APPEND CHECK_PATH_LIST "${MISSION_DEFS}/${PREFIX}_${GENCONFIG_ARG_MATCH_SUFFIX}")
-        endforeach()
-    endif(GENCONFIG_ARG_MATCH_SUFFIX)
-
-    # Check for existence of files, and add to content if present
-    # Note that all files are appended/concatenated together.
-    foreach(SRC_LOCAL_PATH ${CHECK_PATH_LIST})
-        if (EXISTS "${SRC_LOCAL_PATH}")
-            file(TO_NATIVE_PATH "${SRC_LOCAL_PATH}" SRC_NATIVE_PATH)
-            list(APPEND WRAPPER_FILE_CONTENT "#include \"${SRC_NATIVE_PATH}\"\n")
-            set(ITEM_FOUND TRUE)
-        else()
-            list(APPEND WRAPPER_FILE_CONTENT "/* ${SRC_LOCAL_PATH} does not exist */\n")
-        endif (EXISTS "${SRC_LOCAL_PATH}")
-    endforeach()
-
-    # If _no_ files were found in the above loop,
-    # then check for and use the fallback file.
-    # (if specified by the caller it should always exist)
-    # Also produce a message on the console showing whether mission config or fallback was used
-    if (ITEM_FOUND)
-        message(STATUS "Generated ${GENCONFIG_ARG_FILE_NAME} from ${MISSION_DEFS} configuration")
-    elseif (GENCONFIG_ARG_FALLBACK_FILE)
-        file(TO_NATIVE_PATH "${GENCONFIG_ARG_FALLBACK_FILE}" SRC_NATIVE_PATH)
-        list(APPEND WRAPPER_FILE_CONTENT
-            "\n\n/* No configuration for ${GENCONFIG_ARG_FILE_NAME}, using fallback */\n"
-            "#include \"${GENCONFIG_ARG_FALLBACK_FILE}\"\n")
-        message(STATUS "Using ${GENCONFIG_ARG_FALLBACK_FILE} for ${GENCONFIG_ARG_FILE_NAME}")
+    if (IS_CFS_ARCH_BUILD AND NOT GENCONFIG_ARG_PREFIXES)
+      set(ARCH_PREFIXES ${BUILD_CONFIG})
     else()
-        message("ERROR: No implementation for ${GENCONFIG_ARG_FILE_NAME} found")
-        message(FATAL_ERROR "Tested: ${CHECK_PATH_LIST}")
+      set(ARCH_PREFIXES)
     endif()
+
+    if (GENCONFIG_ARG_MATCH_SUFFIX)
+      set(TGTFILE ${GENCONFIG_ARG_MATCH_SUFFIX})
+    else()
+      set(TGTFILE ${GENCONFIG_ARG_FILE_NAME})
+    endif()
+
+    if (GENCONFIG_ARG_GENERATED_FILE)
+      # A generated file may not yet exist at the time this runs, so just use
+      # what the caller said, no searching.
+      set(SRC_LOCAL_PATH_LIST ${GENCONFIG_ARG_GENERATED_FILE})
+      message(STATUS "Using file: [generated] ${SRC_LOCAL_PATH_LIST} for ${TGTFILE}")
+    else()
+      # Use the common search function to find the candidate(s)
+      cfe_locate_implementation_file(SRC_LOCAL_PATH_LIST "${TGTFILE}"
+        FALLBACK_FILE "${GENCONFIG_ARG_FALLBACK_FILE}"
+        PREFIX ${GENCONFIG_ARG_PREFIXES} ${ARCH_PREFIXES}
+        SUBDIR config
+      )
+    endif()
+
+    set(WRAPPER_FILE_CONTENT)
+    foreach(SELECTED_FILE ${SRC_LOCAL_PATH_LIST})
+      file(TO_NATIVE_PATH "${SELECTED_FILE}" SRC_NATIVE_PATH)
+      list(APPEND WRAPPER_FILE_CONTENT "#include \"${SRC_NATIVE_PATH}\"\n")
+    endforeach()
 
     # Generate a header file
     generate_c_headerfile("${GENCONFIG_ARG_OUTPUT_DIRECTORY}/${GENCONFIG_ARG_FILE_NAME}" ${WRAPPER_FILE_CONTENT})
@@ -139,7 +215,7 @@ endfunction(generate_config_includefile)
 #
 # This function then sets up the following variables in the global scope:
 #   TGTSYS_LIST: list of CPU architectures used in the build.  Note this
-#       will always contain a "native" target (for tools at least) which 
+#       will always contain a "native" target (for tools at least) which
 #       is forced to be last.
 #   MISSION_APPS: list of all applications in this build
 #   MISSION_PSPMODULES: list of all psp modules in this build

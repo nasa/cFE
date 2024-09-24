@@ -1,5 +1,91 @@
 # Changelog
 
+## Development Build: v7.0.0-rc4+dev370
+- 'Fix #2430, reinstate example header files.'
+- See: <https://github.com/nasa/cFE/pull/2431>
+
+
+## Development Build: v7.0.0-rc4+dev366
+- 'Fix #2427, Race condition in TestCreateChild'
+- See: <https://github.com/nasa/cFE/pull/2428>
+
+
+## Development Build: v7.0.0-rc4+dev362
+- 'Fix #2421, adjust dependencies on table lib'
+- 'Fix #2423, avoid use of abspath make function'
+- See: <https://github.com/nasa/cFE/pull/2422> <https://github.com/nasa/cFE/pull/2424>
+
+
+## Development Build: v7.0.0-rc4+dev356
+- 'Fix #2415, use correct object extension in table build'
+- See: <https://github.com/nasa/cFE/pull/2416>
+
+
+## Development Build: v7.0.0-rc4+dev342
+- 'Fix #2368, cFE Functional Test 23'
+- 'Fix #1407, Add error report on EVS failure during log header write'
+- 'Fix #1515, Remove unnecessary memset from CFE_TBL_LoadFromFile'
+- See: <https://github.com/nasa/cFE/pull/2369> <https://github.com/nasa/cFE/pull/2272> <https://github.com/nasa/cFE/pull/2276>
+
+
+## Development Build: v7.0.0-rc4+dev334
+- Format update for additional counters in summary
+- make shared tbl configurable
+- Update README_Functionaltest.md
+- Increase CFE_PLATFORM_EVS_APP_EVENTS_PER_SEC to 15
+- Increase slp time in funct test workflow
+- CFE_TIME_Print() calls strftime()
+- Adds utassert message descriptions to README_Functionaltest.md
+- See <https://github.com/nasa/cFE/pull/2350>, <https://github.com/nasa/cFE/pull/2354>, <https://github.com/nasa/cFE/pull/2355>, <https://github.com/nasa/cFE/pull/2366>, <https://github.com/nasa/cFE/pull/2364>, <https://github.com/nasa/cFE/pull/2356>, and <https://github.com/nasa/cFE/pull/2361>
+
+## Development Build: v7.0.0-rc4+dev318
+- generalize update header parameter
+- add msg verify capability
+- See <https://github.com/nasa/cFE/pull/2336> and <https://github.com/nasa/cFE/pull/2338>
+
+## Development Build: v7.0.0-rc4+dev312
+- adjust UT pool buffer size for platform config
+- Remove unused CFE_PLATFORM_ES_RESET_AREA_SIZE
+- See <https://github.com/nasa/cFE/pull/2328> and <https://github.com/nasa/cFE/pull/2331>
+
+## Development Build: v7.0.0-rc4+dev304
+- reorganize headers
+- Update XML files per interoperability testing
+- uniqueness of tbl target names
+- See <https://github.com/nasa/cFE/pull/2321>, <https://github.com/nasa/cFE/pull/2314>, and <https://github.com/nasa/cFE/pull/2319>
+
+## Development Build: v7.0.0-rc4+dev287
+- document CFS component file naming
+- Add EVS port timestamp and simplify port selection
+- remove else statement that was unreachable by unit tests
+- correct fallback file case
+- See <https://github.com/nasa/cFE/pull/2306>, <https://github.com/nasa/cFE/pull/2295>, <https://github.com/nasa/cFE/pull/2303>, and <https://github.com/nasa/cFE/pull/2312>
+
+## Development Build: v7.0.0-rc4+dev276
+- improve add_cfe_tables function
+- add option to link to generated files
+- Create Workflow for IC Bundle Generation
+- See <https://github.com/nasa/cFE/pull/2299>, <https://github.com/nasa/cFE/pull/2300>, and <https://github.com/nasa/cFE/pull/2298>
+
+## Development Build: v7.0.0-rc4+dev268
+- update naming convention document
+- remove return value doxygen markup
+- implement common search routine for config files
+- See <https://github.com/nasa/cFE/pull/2254>, <https://github.com/nasa/cFE/pull/2288>, and <https://github.com/nasa/cFE/pull/2290>
+
+## Development Build: v7.0.0-rc4+dev260
+- add more generic status codes
+- separate dispatcher for messages
+- See <https://github.com/nasa/cFE/pull/2259> and <https://github.com/nasa/cFE/pull/2263>
+
+## Development Build: v7.0.0-rc4+dev254
+- improve 64-bit memory address handling in CMD/TLM
+- See <https://github.com/nasa/cFE/pull/2256>
+
+## Development Build: v7.0.0-rc4+dev250
+- CFE_TBL_FILEDEF does not need static
+- See <https://github.com/nasa/cFE/pull/2244>
+
 ## Development Build: v7.0.0-rc4+dev246
 - Adds workflow_dispatch to all workflows
 - See <https://github.com/nasa/cFE/pull/2236>
@@ -37,7 +123,30 @@
 - See <https://github.com/nasa/cFE/pull/2184>
 
 ## Development Build: v7.0.0-rc4+dev197
-- Remove Changelog in Doxygen Config
+- Remove # Changelog
+
+## Development Build: v7.0.0-rc4+dev366
+- 'Fix #2427, Race condition in TestCreateChild'
+- See: <https://github.com/nasa/cFE/pull/2428>
+
+
+## Development Build: v7.0.0-rc4+dev362
+- 'Fix #2421, adjust dependencies on table lib'
+- 'Fix #2423, avoid use of abspath make function'
+- See: <https://github.com/nasa/cFE/pull/2422> <https://github.com/nasa/cFE/pull/2424>
+
+
+## Development Build: v7.0.0-rc4+dev356
+- 'Fix #2415, use correct object extension in table build'
+- See: <https://github.com/nasa/cFE/pull/2416>
+
+
+## Development Build: v7.0.0-rc4+dev342
+- 'Fix #2368, cFE Functional Test 23'
+- 'Fix #1407, Add error report on EVS failure during log header write'
+- 'Fix #1515, Remove unnecessary memset from CFE_TBL_LoadFromFile'
+- See: <https://github.com/nasa/cFE/pull/2369> <https://github.com/nasa/cFE/pull/2272> <https://github.com/nasa/cFE/pull/2276>
+ in Doxygen Config
 - See <https://github.com/nasa/cFE/pull/2165>
 
 ## Development Build: v7.0.0-rc4+dev193

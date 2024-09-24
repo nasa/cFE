@@ -333,12 +333,6 @@ int32 CFE_TIME_TaskInit(void);
 
 /*---------------------------------------------------------------------------------------*/
 /**
- * @brief Process command pipe message
- */
-void CFE_TIME_TaskPipe(CFE_SB_Buffer_t *SBBufPtr);
-
-/*---------------------------------------------------------------------------------------*/
-/**
  * @brief Initialize global time task data
  */
 void CFE_TIME_InitData(void);

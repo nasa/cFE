@@ -174,13 +174,27 @@ function(prepare)
     add_definitions(-DSIMULATION=${SIMULATION})
   endif (SIMULATION)
 
+  # Prepare the table makefile - Ensure the list of tables is initially empty
+  file(MAKE_DIRECTORY "${MISSION_BINARY_DIR}/tables")
+  file(WRITE "${MISSION_BINARY_DIR}/tables/Makefile"
+    "MISSION_BINARY_DIR := ${MISSION_BINARY_DIR}\n"
+    "TABLE_BINARY_DIR := ${MISSION_BINARY_DIR}/tables\n"
+    "MISSION_SOURCE_DIR := ${MISSION_SOURCE_DIR}\n"
+    "MISSION_DEFS := ${MISSION_DEFS}\n\n"
+    "include \$(wildcard ${CFE_SOURCE_DIR}/cmake/tables/*.mk) \$(wildcard *.d)\n"
+  )
+
   # Create custom targets for building and cleaning all architectures
   # This is required particularly for doing extra stuff in the clean step
   add_custom_target(mission-all COMMAND $(MAKE) all)
   add_custom_target(mission-install COMMAND $(MAKE) install)
   add_custom_target(mission-clean COMMAND $(MAKE) clean)
   add_custom_target(mission-prebuild)
+  add_custom_target(mission-cfetables)
   add_custom_target(doc-prebuild)
+
+  add_dependencies(mission-all mission-cfetables)
+  add_dependencies(mission-install mission-cfetables)
 
   # Locate the source location for all the apps found within the target file
   # This is done by searching through the list of paths to find a matching name
@@ -294,7 +308,12 @@ function(prepare)
     "${psp_MISSION_DIR}/psp/fsw/inc/*.h"
   )
   foreach(MODULE core_api ${MISSION_CORE_MODULES})
-    list(APPEND SUBMODULE_HEADER_PATHS "${${MODULE}_MISSION_DIR}/fsw/inc/*.h")
+    if (IS_DIRECTORY "${${MODULE}_MISSION_DIR}/fsw/inc")
+      list(APPEND SUBMODULE_HEADER_PATHS "${${MODULE}_MISSION_DIR}/fsw/inc/*.h")
+    endif()
+    if (IS_DIRECTORY "${${MODULE}_MISSION_DIR}/config")
+      list(APPEND SUBMODULE_HEADER_PATHS "${${MODULE}_MISSION_DIR}/config/default_*.h")
+    endif()
   endforeach()
   file(GLOB MISSION_USERGUIDE_HEADERFILES
     ${SUBMODULE_HEADER_PATHS}
@@ -379,13 +398,31 @@ function(prepare)
   include_directories(
     ${core_api_MISSION_DIR}/fsw/inc
     ${osal_MISSION_DIR}/src/os/inc
-    ${psp_MISSION_DIR}/psp/fsw/inc
+    ${psp_MISSION_DIR}/fsw/inc
   )
   add_subdirectory(${MISSION_SOURCE_DIR}/tools tools)
 
   # Add a dependency on the table generator tool as this is required for table builds
   # The "elf2cfetbl" target should have been added by the "tools" above
   add_dependencies(mission-prebuild elf2cfetbl)
+  set(TABLETOOL_EXEC $<TARGET_FILE:elf2cfetbl>)
+
+  add_custom_target(tabletool-execute
+    COMMAND $(MAKE)
+      CC="${CMAKE_C_COMPILER}"
+      CFLAGS="${CMAKE_C_FLAGS}"
+      AR="${CMAKE_AR}"
+      TBLTOOL="${TABLETOOL_EXEC}"
+      cfetables
+    WORKING_DIRECTORY
+      "${CMAKE_BINARY_DIR}/tables"
+    DEPENDS
+        mission-cfetables
+  )
+  add_dependencies(mission-all tabletool-execute)
+  add_dependencies(mission-install tabletool-execute)
+  add_dependencies(mission-cfetables mission-prebuild)
+  install(DIRECTORY ${CMAKE_BINARY_DIR}/tables/staging/ DESTINATION .)
 
   # Build version information should be generated as part of the pre-build process
   add_dependencies(mission-prebuild mission-version)
@@ -475,13 +512,21 @@ function(process_arch TARGETSYSTEM)
    WORKING_DIRECTORY
       "${ARCH_BINARY_DIR}"
   )
+  add_custom_target(${TARGETSYSTEM}-cfetables
+   COMMAND
+      $(MAKE) cfetables
+   WORKING_DIRECTORY
+      "${ARCH_BINARY_DIR}"
+  )
 
   # All subordinate builds depend on the generated files being present first
   add_dependencies(${TARGETSYSTEM}-install mission-prebuild)
   add_dependencies(${TARGETSYSTEM}-all mission-prebuild)
+  add_dependencies(${TARGETSYSTEM}-cfetables mission-prebuild)
 
   add_dependencies(mission-all ${TARGETSYSTEM}-all)
   add_dependencies(mission-clean ${TARGETSYSTEM}-clean)
   add_dependencies(mission-install ${TARGETSYSTEM}-install)
+  add_dependencies(mission-cfetables ${TARGETSYSTEM}-cfetables)
 
 endfunction(process_arch TARGETSYSTEM)

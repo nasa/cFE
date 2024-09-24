@@ -16,7 +16,7 @@
       <LI> \subpage cfeesovr
       <LI> \subpage cfeescmds
       <LI> \subpage cfeestlm
-      <LI> \subpage cfe_es_events.h "ES Event Message Reference"
+      <LI> \subpage cfe_es_eventids.h "ES Event Message Reference"
       <LI> \subpage cfeescfg
     </UL>
     <LI> Events Services (EVS)
@@ -24,7 +24,7 @@
       <LI> \subpage cfeevsovr
       <LI> \subpage cfeevscmds
       <LI> \subpage cfeevstlm
-      <LI> \subpage cfe_evs_events.h "EVS Event Message Reference"
+      <LI> \subpage cfe_evs_eventids.h "EVS Event Message Reference"
       <LI> \subpage cfeevscfg
     </UL>
     <LI> Software Bus Services (SB)
@@ -32,7 +32,7 @@
       <LI> \subpage cfesbovr
       <LI> \subpage cfesbcmds
       <LI> \subpage cfesbtlm
-      <LI> \subpage cfe_sb_events.h "SB Event Message Reference"
+      <LI> \subpage cfe_sb_eventids.h "SB Event Message Reference"
       <LI> \subpage cfesbcfg
     </UL>
     <LI> Table Services (TBL)
@@ -40,7 +40,7 @@
       <LI> \subpage cfetblovr
       <LI> \subpage cfetblcmds
       <LI> \subpage cfetbltlm
-      <LI> \subpage cfe_tbl_events.h "TBL Event Message Reference"
+      <LI> \subpage cfe_tbl_eventids.h "TBL Event Message Reference"
       <LI> \subpage cfetblcfg
     </UL>
     <LI> Time Services (TIME)
@@ -48,7 +48,7 @@
       <LI> \subpage cfetimeovr
       <LI> \subpage cfetimecmds
       <LI> \subpage cfetimetlm
-      <LI> \subpage cfe_time_events.h "TIME Event Message Reference"
+      <LI> \subpage cfe_time_eventids.h "TIME Event Message Reference"
       <LI> \subpage cfetimecfg
     </UL>
     <LI> \subpage cfeevents

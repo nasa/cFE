@@ -248,22 +248,23 @@ void TestModified(void)
     UtAssert_INT32_EQ(CFE_TBL_Modified(CFE_TBL_BAD_TABLE_HANDLE), CFE_TBL_ERR_INVALID_HANDLE);
 }
 
-/* Helper function to set a CFE_ES_MemOffset_t value (must be big-endian) */
-void TblTest_UpdateOffset(CFE_ES_MemOffset_t *TgtVal, CFE_ES_MemOffset_t SetVal)
+/* Helper function to set a 32-bit table offset value (must be big-endian) */
+void TblTest_UpdateOffset(uint32 *TgtVal, size_t SetVal)
 {
+    size_t i;
     union
     {
-        CFE_ES_MemOffset_t offset;
-        uint8              bytes[sizeof(CFE_ES_MemOffset_t)];
+        uint32 offset;
+        uint8  bytes[sizeof(uint32)];
     } offsetbuf;
 
-    offsetbuf.bytes[3] = SetVal & 0xFF;
-    SetVal >>= 8;
-    offsetbuf.bytes[2] = SetVal & 0xFF;
-    SetVal >>= 8;
-    offsetbuf.bytes[1] = SetVal & 0xFF;
-    SetVal >>= 8;
-    offsetbuf.bytes[0] = SetVal & 0xFF;
+    i = sizeof(offsetbuf.bytes);
+    while (i > 0)
+    {
+        --i;
+        offsetbuf.bytes[i] = SetVal & 0xFF;
+        SetVal >>= 8;
+    }
 
     *TgtVal = offsetbuf.offset;
 }

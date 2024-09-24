@@ -216,6 +216,12 @@ int32 CFE_EVS_WriteLogDataFileCmd(const CFE_EVS_WriteLogDataFileCmd_t *data)
                               LogFilename);
             }
         }
+        else
+        {
+            EVS_SendEvent(CFE_EVS_WRITE_HEADER_ERR_EID, CFE_EVS_EventType_ERROR,
+                          "Write File Header to Log File Error: WriteHdr RC: %d, Expected: %d, filename = %s",
+                          (int)BytesWritten, (int)sizeof(LogFileHdr), LogFilename);
+        }
 
         OS_close(LogFileHandle);
     }

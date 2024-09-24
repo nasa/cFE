@@ -29,6 +29,7 @@
 
 #include "cfe_test.h"
 #include "cfe_msgids.h"
+#include "cfe_test_msgids.h"
 
 #define CFE_FT_STRINGBUF_SIZE 12
 
@@ -144,8 +145,9 @@ void TestBasicTransmitRecv(void)
     UtAssert_INT32_EQ(CFE_SB_ReceiveBuffer(&MsgBuf, PipeId1, -100), CFE_SB_BAD_ARGUMENT);
 
     /*
-     * Note, the CFE_SB_TransmitMsg ignores the "IncrementSequence" flag for commands.
-     * Thus, all the sequence numbers should come back with the original value set (11)
+     * Note, the CFE_SB_TransmitMsg now adheres to the "UpdateHeader" flag.
+     * Thus, the sequence numbers should come back with the value from the Route (1-2)
+     * rather than the value the message was filled with initially.
      *
      * Note this also utilizes the CFE_SB_PEND_FOREVER flag - if working correctly,
      * there should be a message in the queue, so it should not block.
@@ -156,7 +158,7 @@ void TestBasicTransmitRecv(void)
     CFE_Assert_MSGID_EQ(MsgId, CFE_FT_CMD_MSGID);
     CmdPtr = (const CFE_FT_TestCmdMessage_t *)MsgBuf;
     UtAssert_UINT32_EQ(CmdPtr->CmdPayload, 0x0c0ffee);
-    UtAssert_UINT32_EQ(Seq1, 11);
+    UtAssert_UINT32_EQ(Seq1, 1);
 
     UtAssert_INT32_EQ(CFE_SB_ReceiveBuffer(&MsgBuf, PipeId1, CFE_SB_PEND_FOREVER), CFE_SUCCESS);
     UtAssert_INT32_EQ(CFE_MSG_GetMsgId(&MsgBuf->Msg, &MsgId), CFE_SUCCESS);
@@ -164,7 +166,7 @@ void TestBasicTransmitRecv(void)
     CFE_Assert_MSGID_EQ(MsgId, CFE_FT_CMD_MSGID);
     CmdPtr = (const CFE_FT_TestCmdMessage_t *)MsgBuf;
     UtAssert_UINT32_EQ(CmdPtr->CmdPayload, 0x1c0ffee);
-    UtAssert_UINT32_EQ(Seq1, 11);
+    UtAssert_UINT32_EQ(Seq1, 2);
 
     UtAssert_INT32_EQ(CFE_SB_ReceiveBuffer(&MsgBuf, PipeId1, CFE_SB_PEND_FOREVER), CFE_SUCCESS);
     UtAssert_INT32_EQ(CFE_MSG_GetMsgId(&MsgBuf->Msg, &MsgId), CFE_SUCCESS);
@@ -479,7 +481,7 @@ void TestZeroCopyTransmitRecv(void)
     /* Receive and get initial sequence count */
     UtAssert_INT32_EQ(CFE_SB_ReceiveBuffer(&MsgBuf, PipeId1, CFE_SB_POLL), CFE_SUCCESS);
     UtAssert_INT32_EQ(CFE_MSG_GetSequenceCount(&MsgBuf->Msg, &SeqCmd1), CFE_SUCCESS);
-    UtAssert_UINT32_EQ(SeqCmd1, 1234); /* NOTE: commands currently do NOT honor "Increment" flag */
+    UtAssert_UINT32_EQ(SeqCmd1, 6); /* NOTE: commands now honor "Update" flag */
     UtAssert_INT32_EQ(CFE_SB_ReceiveBuffer(&MsgBuf, PipeId2, CFE_SB_POLL), CFE_SUCCESS);
     UtAssert_INT32_EQ(CFE_MSG_GetSequenceCount(&MsgBuf->Msg, &SeqTlm1), CFE_SUCCESS);
 
@@ -496,7 +498,7 @@ void TestZeroCopyTransmitRecv(void)
     /* Receive and get current sequence count */
     UtAssert_INT32_EQ(CFE_SB_ReceiveBuffer(&MsgBuf, PipeId1, CFE_SB_POLL), CFE_SUCCESS);
     UtAssert_INT32_EQ(CFE_MSG_GetSequenceCount(&MsgBuf->Msg, &SeqCmd2), CFE_SUCCESS);
-    UtAssert_UINT32_EQ(SeqCmd2, 1234); /* NOTE: commands currently do NOT honor "Increment" flag */
+    UtAssert_UINT32_EQ(SeqCmd2, 7); /* NOTE: commands now honor "Update" flag */
     UtAssert_INT32_EQ(CFE_SB_ReceiveBuffer(&MsgBuf, PipeId2, CFE_SB_POLL), CFE_SUCCESS);
     UtAssert_INT32_EQ(CFE_MSG_GetSequenceCount(&MsgBuf->Msg, &SeqTlm2), CFE_SUCCESS);
     UtAssert_UINT32_EQ(SeqTlm2, CFE_MSG_GetNextSequenceCount(SeqTlm1)); /* should be +1 from the previous */

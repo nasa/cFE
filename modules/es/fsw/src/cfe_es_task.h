@@ -89,12 +89,6 @@ void CFE_ES_TaskMain(void);
  */
 int32 CFE_ES_TaskInit(void);
 
-/*---------------------------------------------------------------------------------------*/
-/**
- * Reads and processes messages from the executive services command pipe
- */
-void CFE_ES_TaskPipe(CFE_SB_Buffer_t *SBBufPtr);
-
 /*
  * Functions related to the ES background helper task for low-priority tasks
  */
@@ -282,12 +276,6 @@ int32 CFE_ES_DumpCDSRegistryCmd(const CFE_ES_DumpCDSRegistryCmd_t *data);
  * \brief Ensures that the handle passed in meets all of the requirements of a valid handle.
  */
 bool CFE_ES_ValidateHandle(CFE_ES_MemHandle_t Handle);
-
-/*---------------------------------------------------------------------------------------*/
-/**
- * \brief  Verify command packet length
- */
-bool CFE_ES_VerifyCmdLength(CFE_MSG_Message_t *MsgPtr, size_t ExpectedLength);
 
 /*---------------------------------------------------------------------------------------*/
 /**

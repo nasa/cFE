@@ -1287,7 +1287,7 @@ int32 CFE_SB_UnsubscribeFull(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId, uint8
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-CFE_Status_t CFE_SB_TransmitMsg(const CFE_MSG_Message_t *MsgPtr, bool IncrementSequenceCount)
+CFE_Status_t CFE_SB_TransmitMsg(const CFE_MSG_Message_t *MsgPtr, bool UpdateHeader)
 {
     int32             Status;
     CFE_MSG_Size_t    Size  = 0;
@@ -1347,9 +1347,9 @@ CFE_Status_t CFE_SB_TransmitMsg(const CFE_MSG_Message_t *MsgPtr, bool IncrementS
     {
         /* Copy actual message content into buffer and set its metadata */
         memcpy(&BufDscPtr->Content, MsgPtr, Size);
-        BufDscPtr->MsgId        = MsgId;
-        BufDscPtr->ContentSize  = Size;
-        BufDscPtr->AutoSequence = IncrementSequenceCount;
+        BufDscPtr->MsgId       = MsgId;
+        BufDscPtr->ContentSize = Size;
+        BufDscPtr->NeedsUpdate = UpdateHeader;
         CFE_MSG_GetType(MsgPtr, &BufDscPtr->ContentType);
 
         /*
@@ -1551,13 +1551,15 @@ void CFE_SB_BroadcastBufferToRoute(CFE_SB_BufferD_t *BufDscPtr, CFE_SBR_RouteId_
     if (CFE_SBR_IsValidRouteId(RouteId))
     {
         /* Set the seq count if requested (while locked) before actually sending */
-        /* For some reason this is only done for TLM types (historical, TBD) */
-        if (BufDscPtr->AutoSequence && BufDscPtr->ContentType == CFE_MSG_Type_Tlm)
+        if (BufDscPtr->NeedsUpdate)
         {
             CFE_SBR_IncrementSequenceCounter(RouteId);
 
-            /* Write the sequence into the message header itself (overwrites whatever was there) */
-            CFE_MSG_SetSequenceCount(&BufDscPtr->Content.Msg, CFE_SBR_GetSequenceCounter(RouteId));
+            /* Update all MSG headers based on the current sequence */
+            CFE_MSG_UpdateHeader(&BufDscPtr->Content.Msg, CFE_SBR_GetSequenceCounter(RouteId));
+
+            /* Clear the flag, just in case */
+            BufDscPtr->NeedsUpdate = false;
         }
 
         /* Send the packet to all destinations  */
@@ -2116,7 +2118,7 @@ CFE_Status_t CFE_SB_ReleaseMessageBuffer(CFE_SB_Buffer_t *BufPtr)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-CFE_Status_t CFE_SB_TransmitBuffer(CFE_SB_Buffer_t *BufPtr, bool IncrementSequenceCount)
+CFE_Status_t CFE_SB_TransmitBuffer(CFE_SB_Buffer_t *BufPtr, bool UpdateHeader)
 {
     int32             Status;
     CFE_SB_BufferD_t *BufDscPtr;
@@ -2141,7 +2143,7 @@ CFE_Status_t CFE_SB_TransmitBuffer(CFE_SB_Buffer_t *BufPtr, bool IncrementSequen
          */
         if (Status == CFE_SUCCESS)
         {
-            BufDscPtr->AutoSequence = IncrementSequenceCount;
+            BufDscPtr->NeedsUpdate = UpdateHeader;
             CFE_MSG_GetType(&BufPtr->Msg, &BufDscPtr->ContentType);
 
             /* Now broadcast the message, which consumes the buffer */

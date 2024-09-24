@@ -852,7 +852,7 @@ int32 CFE_TBL_LoadFromFile(const char *AppName, CFE_TBL_LoadBuff_t *WorkingBuffe
         OS_read(FileDescriptor, ((uint8 *)WorkingBufferPtr->BufferPtr) + TblFileHeader.Offset, TblFileHeader.NumBytes);
     if (OsStatus >= OS_SUCCESS)
     {
-        NumBytes = (long)OsStatus; /* status code conversion (size) */
+        NumBytes = OsStatus; /* status code conversion (size) */
     }
     else
     {
@@ -873,7 +873,7 @@ int32 CFE_TBL_LoadFromFile(const char *AppName, CFE_TBL_LoadBuff_t *WorkingBuffe
     OsStatus = OS_read(FileDescriptor, &ExtraByte, 1);
     if (OsStatus >= OS_SUCCESS)
     {
-        NumBytes = (long)OsStatus; /* status code conversion (size) */
+        NumBytes = OsStatus; /* status code conversion (size) */
     }
     else
     {
@@ -891,8 +891,8 @@ int32 CFE_TBL_LoadFromFile(const char *AppName, CFE_TBL_LoadBuff_t *WorkingBuffe
         return CFE_TBL_ERR_FILE_TOO_LARGE;
     }
 
-    memset(WorkingBufferPtr->DataSource, 0, sizeof(WorkingBufferPtr->DataSource));
     strncpy(WorkingBufferPtr->DataSource, Filename, sizeof(WorkingBufferPtr->DataSource) - 1);
+    WorkingBufferPtr->DataSource[sizeof(WorkingBufferPtr->DataSource) - 1] = '\0';
 
     /* Save file creation time for later storage into Registry */
     WorkingBufferPtr->FileCreateTimeSecs    = StdFileHeader.TimeSeconds;
@@ -1379,7 +1379,7 @@ int32 CFE_TBL_SendNotificationMsg(CFE_TBL_RegistryRec_t *RegRecPtr)
         CFE_TBL_Global.NotifyMsg.Payload.Parameter = RegRecPtr->NotificationParam;
 
         CFE_SB_TimeStampMsg(CFE_MSG_PTR(CFE_TBL_Global.NotifyMsg.CommandHeader));
-        Status = CFE_SB_TransmitMsg(CFE_MSG_PTR(CFE_TBL_Global.NotifyMsg.CommandHeader), false);
+        Status = CFE_SB_TransmitMsg(CFE_MSG_PTR(CFE_TBL_Global.NotifyMsg.CommandHeader), true);
 
         if (Status != CFE_SUCCESS)
         {

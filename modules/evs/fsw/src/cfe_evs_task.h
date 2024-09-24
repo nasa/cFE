@@ -48,7 +48,7 @@
 #include "cfe_evs_api_typedefs.h"
 #include "cfe_evs_log_typedef.h"
 #include "cfe_sb_api_typedefs.h"
-#include "cfe_evs_events.h"
+#include "cfe_evs_eventids.h"
 
 /*********************  Macro and Constant Type Definitions   ***************************/
 
@@ -142,14 +142,6 @@ extern CFE_EVS_Global_t CFE_EVS_Global;
  * This function performs any necessary EVS task initialization.
  */
 int32 CFE_EVS_TaskInit(void);
-
-/*---------------------------------------------------------------------------------------*/
-/**
- * @brief Command Pipe Processing
- *
- * This function processes packets received on the EVS command pipe.
- */
-void CFE_EVS_ProcessCommandPacket(CFE_SB_Buffer_t *SBBufPtr);
 
 /*
  * EVS Message Handler Functions

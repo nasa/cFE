@@ -88,8 +88,8 @@ CFE_TBL_RegistryRec_t Original[CFE_PLATFORM_TBL_MAX_NUM_TABLES];
  */
 void UT_TBL_SetupHeader(CFE_TBL_File_Hdr_t *TblFileHeader, size_t Offset, size_t NumBytes)
 {
-    TblFileHeader->Offset   = CFE_ES_MEMOFFSET_C(Offset);
-    TblFileHeader->NumBytes = CFE_ES_MEMOFFSET_C(NumBytes);
+    TblFileHeader->Offset   = Offset;
+    TblFileHeader->NumBytes = NumBytes;
 
     if (UT_Endianess == UT_LITTLE_ENDIAN)
     {
@@ -780,7 +780,7 @@ void Test_CFE_TBL_GetTblRegData(void)
     CFE_TBL_Global.TblRegPacket.Payload.InactiveBufferAddr                  = CFE_ES_MEMADDRESS_C(0);
     CFE_TBL_Global.Registry[CFE_TBL_Global.HkTlmTblRegIndex].DoubleBuffered = true;
     CFE_TBL_GetTblRegData();
-    UtAssert_NONZERO(CFE_TBL_Global.TblRegPacket.Payload.InactiveBufferAddr);
+    UtAssert_NOT_NULL(CFE_ES_MEMADDRESS_TO_PTR(CFE_TBL_Global.TblRegPacket.Payload.InactiveBufferAddr));
 
     /* Test using a single buffered table and the buffer is inactive */
     UT_InitData();
@@ -788,14 +788,14 @@ void Test_CFE_TBL_GetTblRegData(void)
     CFE_TBL_Global.Registry[CFE_TBL_Global.HkTlmTblRegIndex].DoubleBuffered = false;
     CFE_TBL_Global.Registry[CFE_TBL_Global.HkTlmTblRegIndex].LoadInProgress = CFE_TBL_NO_LOAD_IN_PROGRESS + 1;
     CFE_TBL_GetTblRegData();
-    UtAssert_NONZERO(CFE_TBL_Global.TblRegPacket.Payload.InactiveBufferAddr);
+    UtAssert_NOT_NULL(CFE_ES_MEMADDRESS_TO_PTR(CFE_TBL_Global.TblRegPacket.Payload.InactiveBufferAddr));
 
     /* Test with no inactive buffer */
     UT_InitData();
     CFE_TBL_Global.TblRegPacket.Payload.InactiveBufferAddr                  = CFE_ES_MEMADDRESS_C(0);
     CFE_TBL_Global.Registry[CFE_TBL_Global.HkTlmTblRegIndex].LoadInProgress = CFE_TBL_NO_LOAD_IN_PROGRESS;
     CFE_TBL_GetTblRegData();
-    UtAssert_ZERO(CFE_TBL_Global.TblRegPacket.Payload.InactiveBufferAddr);
+    UtAssert_NULL(CFE_ES_MEMADDRESS_TO_PTR(CFE_TBL_Global.TblRegPacket.Payload.InactiveBufferAddr));
 }
 
 /*
