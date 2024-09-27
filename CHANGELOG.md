@@ -1,5 +1,9 @@
 # Changelog
 
+## Development Build: equuleus-rc1+dev199
+- Bump actions/download-artifact from 3 to 4.1.7 in /.github/workflows
+- See <https://github.com/nasa/cFE/pull/2599>
+
 ## Development Build: equuleus-rc1+dev195
 - Use string append and add newline
 - Yield cpu to other tasks in SB Perf Test
