@@ -324,7 +324,7 @@ void Test_Init(void)
 
     UT_EVS_DoGenericCheckEvents(CFE_EVS_TaskMain, &UT_EVS_EventBuf);
     CFE_UtAssert_SYSLOG(EVS_SYSLOG_MSGS[8]);
-    UtAssert_INT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_ERR_MSGID_EID);
+    UtAssert_INT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_MID_ERR_EID);
 
     /* Test early initialization with a get reset area failure */
     UT_InitData_EVS();
@@ -1010,7 +1010,7 @@ void Test_Logging(void)
     memset(&CmdBuf, 0, sizeof(CmdBuf));
     UT_EVS_DoDispatchCheckEvents(&CmdBuf.noopcmd, sizeof(CmdBuf.noopcmd), UT_TPID_CFE_EVS_CMD_NOOP_CC,
                                  &UT_EVS_EventBuf);
-    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_NOOP_EID);
+    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_NOOP_INF_EID);
 
     /* Clear log for next test */
     UT_InitData_EVS();
@@ -1114,7 +1114,7 @@ void Test_WriteApp(void)
     UT_InitData_EVS();
     UT_EVS_DoDispatchCheckEvents(&CmdBuf.ResetCountersCmd, sizeof(CmdBuf.ResetCountersCmd),
                                  UT_TPID_CFE_EVS_CMD_RESET_COUNTERS_CC, &UT_EVS_EventBuf);
-    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_RSTCNT_EID);
+    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_RESET_INF_EID);
 
     /* Test writing application data with a create failure using default
      * file name
@@ -1781,122 +1781,122 @@ void Test_InvalidCmd(void)
     /* Test invalid msg id event */
     UT_InitData_EVS();
     UT_EVS_DoDispatchCheckEvents(&cmd, sizeof(cmd), UT_TPID_CFE_EVS_INVALID_MID, &UT_EVS_EventBuf);
-    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_ERR_MSGID_EID);
+    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_MID_ERR_EID);
 
     /* Test invalid command code event */
     UT_InitData_EVS();
     UT_EVS_DoDispatchCheckEvents(&cmd, sizeof(cmd), UT_TPID_CFE_EVS_CMD_INVALID_CC, &UT_EVS_EventBuf);
-    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_ERR_CC_EID);
+    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_CC_ERR_EID);
 
     /* Test invalid command length event */
     UT_InitData_EVS();
     UT_EVS_DoDispatchCheckEvents(&cmd, 0, UT_TPID_CFE_EVS_CMD_NOOP_CC, &UT_EVS_EventBuf);
-    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_LEN_ERR_EID);
+    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_CMD_LEN_ERR_EID);
 
     /* Test invalid command length with reset counters command */
     UT_InitData_EVS();
     UT_EVS_DoDispatchCheckEvents(&cmd, 0, UT_TPID_CFE_EVS_CMD_RESET_COUNTERS_CC, &UT_EVS_EventBuf);
-    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_LEN_ERR_EID);
+    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_CMD_LEN_ERR_EID);
 
     /* Test invalid command length with enable event type command */
     UT_InitData_EVS();
     UT_EVS_DoDispatchCheckEvents(&cmd, 0, UT_TPID_CFE_EVS_CMD_ENABLE_EVENT_TYPE_CC, &UT_EVS_EventBuf);
-    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_LEN_ERR_EID);
+    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_CMD_LEN_ERR_EID);
 
     /* Test invalid command length with disable event type command */
     UT_InitData_EVS();
     UT_EVS_DoDispatchCheckEvents(&cmd, 0, UT_TPID_CFE_EVS_CMD_DISABLE_EVENT_TYPE_CC, &UT_EVS_EventBuf);
-    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_LEN_ERR_EID);
+    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_CMD_LEN_ERR_EID);
 
     /* Test invalid command length with set event format mode command */
     UT_InitData_EVS();
     UT_EVS_DoDispatchCheckEvents(&cmd, 0, UT_TPID_CFE_EVS_CMD_SET_EVENT_FORMAT_MODE_CC, &UT_EVS_EventBuf);
-    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_LEN_ERR_EID);
+    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_CMD_LEN_ERR_EID);
 
     /* Test invalid command length with enable application event
      * type command
      */
     UT_InitData_EVS();
     UT_EVS_DoDispatchCheckEvents(&cmd, 0, UT_TPID_CFE_EVS_CMD_ENABLE_APP_EVENT_TYPE_CC, &UT_EVS_EventBuf);
-    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_LEN_ERR_EID);
+    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_CMD_LEN_ERR_EID);
 
     /* Test invalid command length with disable application event
      * type command
      */
     UT_InitData_EVS();
     UT_EVS_DoDispatchCheckEvents(&cmd, 0, UT_TPID_CFE_EVS_CMD_DISABLE_APP_EVENT_TYPE_CC, &UT_EVS_EventBuf);
-    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_LEN_ERR_EID);
+    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_CMD_LEN_ERR_EID);
 
     /* Test invalid command length with enable application events command */
     UT_InitData_EVS();
     UT_EVS_DoDispatchCheckEvents(&cmd, 0, UT_TPID_CFE_EVS_CMD_ENABLE_APP_EVENTS_CC, &UT_EVS_EventBuf);
-    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_LEN_ERR_EID);
+    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_CMD_LEN_ERR_EID);
 
     /* Test invalid command length with disable application events command */
     UT_InitData_EVS();
     UT_EVS_DoDispatchCheckEvents(&cmd, 0, UT_TPID_CFE_EVS_CMD_DISABLE_APP_EVENTS_CC, &UT_EVS_EventBuf);
-    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_LEN_ERR_EID);
+    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_CMD_LEN_ERR_EID);
 
     /* Test invalid command length with reset application counter command */
     UT_InitData_EVS();
     UT_EVS_DoDispatchCheckEvents(&cmd, 0, UT_TPID_CFE_EVS_CMD_RESET_APP_COUNTER_CC, &UT_EVS_EventBuf);
-    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_LEN_ERR_EID);
+    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_CMD_LEN_ERR_EID);
 
     /* Test invalid command length with set filter command */
     UT_InitData_EVS();
     UT_EVS_DoDispatchCheckEvents(&cmd, 0, UT_TPID_CFE_EVS_CMD_SET_FILTER_CC, &UT_EVS_EventBuf);
-    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_LEN_ERR_EID);
+    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_CMD_LEN_ERR_EID);
 
     /* Test invalid command length with enable ports command */
     UT_InitData_EVS();
     UT_EVS_DoDispatchCheckEvents(&cmd, 0, UT_TPID_CFE_EVS_CMD_ENABLE_PORTS_CC, &UT_EVS_EventBuf);
-    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_LEN_ERR_EID);
+    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_CMD_LEN_ERR_EID);
 
     /* Test invalid command length with disable ports command */
     UT_InitData_EVS();
     UT_EVS_DoDispatchCheckEvents(&cmd, 0, UT_TPID_CFE_EVS_CMD_DISABLE_PORTS_CC, &UT_EVS_EventBuf);
-    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_LEN_ERR_EID);
+    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_CMD_LEN_ERR_EID);
 
     /* Test invalid command length with reset filter command */
     UT_InitData_EVS();
     UT_EVS_DoDispatchCheckEvents(&cmd, 0, UT_TPID_CFE_EVS_CMD_RESET_FILTER_CC, &UT_EVS_EventBuf);
-    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_LEN_ERR_EID);
+    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_CMD_LEN_ERR_EID);
 
     /* Test invalid command length with reset all filters command */
     UT_InitData_EVS();
     UT_EVS_DoDispatchCheckEvents(&cmd, 0, UT_TPID_CFE_EVS_CMD_RESET_ALL_FILTERS_CC, &UT_EVS_EventBuf);
-    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_LEN_ERR_EID);
+    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_CMD_LEN_ERR_EID);
 
     /* Test invalid command length with add event filter command */
     UT_InitData_EVS();
     UT_EVS_DoDispatchCheckEvents(&cmd, 0, UT_TPID_CFE_EVS_CMD_ADD_EVENT_FILTER_CC, &UT_EVS_EventBuf);
-    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_LEN_ERR_EID);
+    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_CMD_LEN_ERR_EID);
 
     /* Test invalid command length with delete event filter command */
     UT_InitData_EVS();
     UT_EVS_DoDispatchCheckEvents(&cmd, 0, UT_TPID_CFE_EVS_CMD_DELETE_EVENT_FILTER_CC, &UT_EVS_EventBuf);
-    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_LEN_ERR_EID);
+    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_CMD_LEN_ERR_EID);
 
     /* Test invalid command length with write application data command */
     UT_InitData_EVS();
     UT_EVS_DoDispatchCheckEvents(&cmd, 0, UT_TPID_CFE_EVS_CMD_WRITE_APP_DATA_FILE_CC, &UT_EVS_EventBuf);
-    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_LEN_ERR_EID);
+    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_CMD_LEN_ERR_EID);
 
     /* Test invalid command length with write log data command */
     UT_InitData_EVS();
     CFE_EVS_Global.EVS_TlmPkt.Payload.LogEnabled = true;
     UT_EVS_DoDispatchCheckEvents(&cmd, 0, UT_TPID_CFE_EVS_CMD_WRITE_LOG_DATA_FILE_CC, &UT_EVS_EventBuf);
-    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_LEN_ERR_EID);
+    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_CMD_LEN_ERR_EID);
 
     /* Test invalid command length with set log mode command */
     UT_InitData_EVS();
     UT_EVS_DoDispatchCheckEvents(&cmd, 0, UT_TPID_CFE_EVS_CMD_SET_LOG_MODE_CC, &UT_EVS_EventBuf);
-    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_LEN_ERR_EID);
+    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_CMD_LEN_ERR_EID);
 
     /* Test invalid command length with clear log command */
     UT_InitData_EVS();
     UT_EVS_DoDispatchCheckEvents(&cmd, 0, UT_TPID_CFE_EVS_CMD_CLEAR_LOG_CC, &UT_EVS_EventBuf);
-    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_LEN_ERR_EID);
+    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_CMD_LEN_ERR_EID);
 }
 
 /*

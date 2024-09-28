@@ -117,7 +117,7 @@ void CFE_TBL_TaskPipe(const CFE_SB_Buffer_t *SBBufPtr)
         }
         else /* Bad Message Length */
         {
-            CFE_EVS_SendEvent(CFE_TBL_LEN_ERR_EID, CFE_EVS_EventType_ERROR,
+            CFE_EVS_SendEvent(CFE_TBL_CMD_LEN_ERR_EID, CFE_EVS_EventType_ERROR,
                               "Invalid msg length -- ID = 0x%X, CC = %u, Len = %u, Expected = %u",
                               (unsigned int)CFE_SB_MsgIdToValue(MessageID), (unsigned int)CommandCode,
                               (unsigned int)ActualLength, (unsigned int)CFE_TBL_CmdHandlerTbl[CmdIndx].ExpectedLength);
@@ -142,8 +142,7 @@ void CFE_TBL_TaskPipe(const CFE_SB_Buffer_t *SBBufPtr)
         /* "Bad Command Code" or "Bad Message ID"    */
         if (CmdIndx == CFE_TBL_BAD_CMD_CODE)
         {
-            CFE_EVS_SendEvent(CFE_TBL_CC1_ERR_EID, CFE_EVS_EventType_ERROR,
-                              "Invalid command code -- ID = 0x%X, CC = %u",
+            CFE_EVS_SendEvent(CFE_TBL_CC_ERR_EID, CFE_EVS_EventType_ERROR, "Invalid command code -- ID = 0x%X, CC = %u",
                               (unsigned int)CFE_SB_MsgIdToValue(MessageID), (unsigned int)CommandCode);
 
             /* Update the command error counter */
