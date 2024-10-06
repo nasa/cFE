@@ -50,29 +50,29 @@
  *
  *  \link #CFE_TIME_NOOP_CC TIME NO-OP Command \endlink success.
  */
-#define CFE_TIME_NOOP_EID 4
+#define CFE_TIME_NOOP_INF_EID 4
 
 /**
  * \brief TIME Reset Counters Command Success Event ID
  *
- *  \par Type: DEBUG
+ *  \par Type: INFORMATION
  *
  *  \par Cause:
  *
  *  \link #CFE_TIME_RESET_COUNTERS_CC TIME Reset Counters Command \endlink success.
  */
-#define CFE_TIME_RESET_EID 5
+#define CFE_TIME_RESET_INF_EID 5
 
 /**
  * \brief TIME Request Diagnostics Command Success Event ID
  *
- *  \par Type: DEBUG
+ *  \par Type: INFORMATION
  *
  *  \par Cause:
  *
  *  \link #CFE_TIME_SEND_DIAGNOSTIC_CC TIME Request Diagnostics Command \endlink success.
  */
-#define CFE_TIME_DIAG_EID 6
+#define CFE_TIME_DIAG_INF_EID 6
 
 /**
  * \brief TIME Set Time State Command Success Event ID

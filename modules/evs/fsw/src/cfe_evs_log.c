@@ -204,7 +204,7 @@ int32 CFE_EVS_WriteLogDataFileCmd(const CFE_EVS_WriteLogDataFileCmd_t *data)
             /* Process command handler success result */
             if (i == CFE_EVS_Global.EVS_LogPtr->LogCount)
             {
-                EVS_SendEvent(CFE_EVS_WRLOG_EID, CFE_EVS_EventType_DEBUG,
+                EVS_SendEvent(CFE_EVS_WRLOG_INF_EID, CFE_EVS_EventType_INFORMATION,
                               "Write Log File Command: %d event log entries written to %s",
                               (int)CFE_EVS_Global.EVS_LogPtr->LogCount, LogFilename);
                 Result = CFE_SUCCESS;
@@ -247,7 +247,7 @@ int32 CFE_EVS_SetLogModeCmd(const CFE_EVS_SetLogModeCmd_t *data)
         CFE_EVS_Global.EVS_LogPtr->LogMode = CmdPtr->LogMode;
         OS_MutSemGive(CFE_EVS_Global.EVS_SharedDataMutexID);
 
-        EVS_SendEvent(CFE_EVS_LOGMODE_EID, CFE_EVS_EventType_DEBUG, "Set Log Mode Command: Log Mode = %d",
+        EVS_SendEvent(CFE_EVS_LOGMODE_INF_EID, CFE_EVS_EventType_INFORMATION, "Set Log Mode Command: Log Mode = %d",
                       (int)CmdPtr->LogMode);
 
         Status = CFE_SUCCESS;
