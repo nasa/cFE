@@ -475,7 +475,7 @@
           Successful execution of this command may be verified with the
           following telemetry:
           - \b \c \SB_CMDPC - command execution counter will increment
-          - The #CFE_SB_CMD0_RCVD_EID informational event message will be generated
+          - The #CFE_SB_NOOP_INF_EID informational event message will be generated
 
           \par  Error Conditions
           There are no error conditions for this command. If the Software
@@ -509,7 +509,7 @@
           Successful execution of this command may be verified with the
           following telemetry:
           - \b \c \SB_CMDPC - command execution counter will increment
-          - The #CFE_SB_CMD1_RCVD_EID informational event message will be generated
+          - The #CFE_SB_RESET_INF_EID informational event message will be generated
 
           \par  Error Conditions
           There are no error conditions for this command. If the Software
