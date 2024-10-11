@@ -222,10 +222,10 @@ typedef struct CFE_EVS_HousekeepingTlm_Payload
 typedef struct CFE_EVS_PacketID
 {
     char AppName[CFE_MISSION_MAX_API_LEN]; /**< \cfetlmmnemonic \EVS_APPNAME
-                                        \brief Application name */
+                                                \brief Application name */
     uint16 EventID;                        /**< \cfetlmmnemonic \EVS_EVENTID
                                                 \brief Numerical event identifier */
-    uint16 EventType;                      /**< \cfetlmmnemonic \EVS_EVENTTYPE
+    CFE_EVS_EventType_Enum_t EventType;    /**< \cfetlmmnemonic \EVS_EVENTTYPE
                                                 \brief Numerical event type identifier */
     uint32 SpacecraftID;                   /**< \cfetlmmnemonic \EVS_SCID
                                                 \brief Spacecraft identifier */
