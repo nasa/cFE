@@ -218,7 +218,7 @@ void UT_DefaultHandler_CFE_FS_ExtractFilenameFromPath(void *UserObj, UT_EntryKey
     const char *OriginalPath = UT_Hook_GetArgValueByName(Context, "OriginalPath", const char *);
     char *      FileNameOnly = UT_Hook_GetArgValueByName(Context, "FileNameOnly", char *);
 
-    int    i, j;
+    int    i;
     int    StringLength;
     int    DirMarkIdx;
     int32  status;
@@ -269,15 +269,9 @@ void UT_DefaultHandler_CFE_FS_ExtractFilenameFromPath(void *UserObj, UT_EntryKey
                     if (DirMarkIdx > 0)
                     {
                         /* Extract the filename portion */
-                        j = 0;
-
-                        for (i = DirMarkIdx + 1; i < StringLength; i++)
-                        {
-                            FileNameOnly[j] = OriginalPath[i];
-                            j++;
-                        }
-
-                        FileNameOnly[j] = '\0';
+                        i = DirMarkIdx + 1;
+                        memcpy(FileNameOnly, OriginalPath + i, StringLength - i);
+                        FileNameOnly[(StringLength - i) + 1] = '\0';
                     }
                     else
                     {
