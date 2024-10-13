@@ -252,4 +252,18 @@ void EVS_GenerateEventTelemetry(EVS_AppData_t *AppDataPtr, uint16 EventID, uint1
  */
 int32 EVS_SendEvent(uint16 EventID, uint16 EventType, const char *Spec, ...);
 
+/**
+ * @brief Checks if the provided BitMask is invalid.
+ *
+ * This function evaluates whether the given BitMask is either zero or exceeds the maximum allowed
+ * value defined by CFE_EVS_ALL_EVENT_TYPES_MASK (which represents all events types turned on).
+ * If the BitMask is invalid, an error event is sent and the function returns true.
+ *
+ * @param BitMask The bitmask to be checked.
+ * @param CommandCode The command code associated with the bitmask.
+ *
+ * @return true if the BitMask is invalid, false otherwise.
+ */
+bool EVS_IsInvalidBitMask(uint32 BitMask, uint16 CommandCode);
+
 #endif /* CFE_EVS_UTILS_H */

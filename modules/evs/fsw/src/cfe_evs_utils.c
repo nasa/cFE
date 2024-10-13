@@ -423,10 +423,8 @@ EVS_BinFilter_t *EVS_FindEventID(uint16 EventID, EVS_BinFilter_t *FilterArray)
  *-----------------------------------------------------------------*/
 void EVS_EnableTypes(EVS_AppData_t *AppDataPtr, uint8 BitMask)
 {
-    uint8 EventTypeBits = (CFE_EVS_DEBUG_BIT | CFE_EVS_INFORMATION_BIT | CFE_EVS_ERROR_BIT | CFE_EVS_CRITICAL_BIT);
-
     /* Enable selected event type bits from bitmask */
-    AppDataPtr->EventTypesActiveFlag |= (BitMask & EventTypeBits);
+    AppDataPtr->EventTypesActiveFlag |= (BitMask & CFE_EVS_ALL_EVENT_TYPES_MASK);
 }
 
 /*----------------------------------------------------------------
@@ -437,10 +435,8 @@ void EVS_EnableTypes(EVS_AppData_t *AppDataPtr, uint8 BitMask)
  *-----------------------------------------------------------------*/
 void EVS_DisableTypes(EVS_AppData_t *AppDataPtr, uint8 BitMask)
 {
-    uint8 EventTypeBits = (CFE_EVS_DEBUG_BIT | CFE_EVS_INFORMATION_BIT | CFE_EVS_ERROR_BIT | CFE_EVS_CRITICAL_BIT);
-
     /* Disable selected event type bits from bitmask */
-    AppDataPtr->EventTypesActiveFlag &= ~(BitMask & EventTypeBits);
+    AppDataPtr->EventTypesActiveFlag &= ~(BitMask & CFE_EVS_ALL_EVENT_TYPES_MASK);
 }
 
 /*----------------------------------------------------------------
@@ -620,4 +616,16 @@ int32 EVS_SendEvent(uint16 EventID, uint16 EventType, const char *Spec, ...)
     }
 
     return CFE_SUCCESS;
+}
+
+bool EVS_IsInvalidBitMask(uint32 BitMask, uint16 CommandCode)
+{
+    if ((BitMask) == 0x0 || (BitMask) > CFE_EVS_ALL_EVENT_TYPES_MASK)
+    {
+        EVS_SendEvent(CFE_EVS_ERR_INVALID_BITMASK_EID, CFE_EVS_EventType_ERROR,
+                      "Bit Mask = 0x%08x out of range: CC = %u", (unsigned int)BitMask, (unsigned int)CommandCode);
+        return true;
+    }
+
+    return false;
 }
