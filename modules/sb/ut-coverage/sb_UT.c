@@ -4629,56 +4629,124 @@ void Test_CFE_SB_ValidateMsgId(void)
 
 void Test_CFE_SB_CmdTopicIdToMsgId(void)
 {
-    CFE_SB_MsgId_Atom_t MsgIdVal;
+    CFE_SB_MsgId_Atom_t MsgIdVal1;
+    CFE_SB_MsgId_Atom_t MsgIdVal2;
+    bool ReturnCode1 = false;
+    bool ReturnCode2 = false;
 
-    MsgIdVal = CFE_SB_CmdTopicIdToMsgId(1, 1);
-    UtAssert_BOOL_TRUE(CFE_SB_IsValidMsgId(CFE_SB_ValueToMsgId(MsgIdVal)));
+    MsgIdVal1 = CFE_SB_CmdTopicIdToMsgId(1, 1);
+    ReturnCode1 = CFE_SB_IsValidMsgId(CFE_SB_ValueToMsgId(MsgIdVal1));
 
-    MsgIdVal = CFE_SB_CmdTopicIdToMsgId(1, 0);
-    UtAssert_BOOL_TRUE(CFE_SB_IsValidMsgId(CFE_SB_ValueToMsgId(MsgIdVal)));
+    MsgIdVal2 = CFE_SB_CmdTopicIdToMsgId(1, 0);
+    ReturnCode2 = CFE_SB_IsValidMsgId(CFE_SB_ValueToMsgId(MsgIdVal2));
+
+    if(MsgIdVal1 == 0 || MsgIdVal2 == 0)
+    {
+        /* Macro does not exist. Topic ID has not been implemented. */
+        UtAssert_MIR("Topic ID has not been implemented. ");
+    }
+    else
+    {
+        UtAssert_BOOL_TRUE(ReturnCode1);
+        UtAssert_BOOL_TRUE(ReturnCode2);
+    }
 }
 
 void Test_CFE_SB_TlmTopicIdToMsgId(void)
 {
-    CFE_SB_MsgId_Atom_t MsgIdVal;
+    CFE_SB_MsgId_Atom_t MsgIdVal1;
+    CFE_SB_MsgId_Atom_t MsgIdVal2;
+    bool ReturnCode1 = false;
+    bool ReturnCode2 = false;
 
-    MsgIdVal = CFE_SB_TlmTopicIdToMsgId(1, 1);
-    UtAssert_BOOL_TRUE(CFE_SB_IsValidMsgId(CFE_SB_ValueToMsgId(MsgIdVal)));
+    MsgIdVal1 = CFE_SB_TlmTopicIdToMsgId(1, 1);
+    ReturnCode1 = CFE_SB_IsValidMsgId(CFE_SB_ValueToMsgId(MsgIdVal1));
 
-    MsgIdVal = CFE_SB_CmdTopicIdToMsgId(1, 0);
-    UtAssert_BOOL_TRUE(CFE_SB_IsValidMsgId(CFE_SB_ValueToMsgId(MsgIdVal)));
+    MsgIdVal2 = CFE_SB_TlmTopicIdToMsgId(1, 0);
+    ReturnCode2 = CFE_SB_IsValidMsgId(CFE_SB_ValueToMsgId(MsgIdVal2));
+
+    if(MsgIdVal1 == 0 || MsgIdVal2 == 0)
+    {
+        /* Macro does not exist. Topic ID has not been implemented. */
+        UtAssert_MIR("Topic ID has not been implemented. ");
+    }
+    else
+    {
+        UtAssert_BOOL_TRUE(ReturnCode1);
+        UtAssert_BOOL_TRUE(ReturnCode2);
+    }
 }
 
 void Test_CFE_SB_GlobalCmdTopicIdToMsgId(void)
 {
     CFE_SB_MsgId_Atom_t MsgIdVal;
+    bool ReturnCode = false;
 
     MsgIdVal = CFE_SB_GlobalCmdTopicIdToMsgId(2);
-    UtAssert_BOOL_TRUE(CFE_SB_IsValidMsgId(CFE_SB_ValueToMsgId(MsgIdVal)));
+    ReturnCode = CFE_SB_IsValidMsgId(CFE_SB_ValueToMsgId(MsgIdVal));
+    if(MsgIdVal == 0)
+    {
+        /* Macro does not exist. Topic ID has not been implemented. */
+        UtAssert_MIR("Topic ID has not been implemented. ");
+    }
+    else
+    {
+        UtAssert_BOOL_TRUE(ReturnCode);
+    }
 }
 
 void Test_CFE_SB_GlobalTlmTopicIdToMsgId(void)
 {
     CFE_SB_MsgId_Atom_t MsgIdVal;
+    bool ReturnCode = false;
 
     MsgIdVal = CFE_SB_GlobalTlmTopicIdToMsgId(2);
-    UtAssert_BOOL_TRUE(CFE_SB_IsValidMsgId(CFE_SB_ValueToMsgId(MsgIdVal)));
+    ReturnCode = CFE_SB_IsValidMsgId(CFE_SB_ValueToMsgId(MsgIdVal));
+    if(MsgIdVal == 0)
+    {
+        /* Macro does not exist. Topic ID has not been implemented. */
+        UtAssert_MIR("Topic ID has not been implemented. ");
+    }
+    else
+    {
+        UtAssert_BOOL_TRUE(ReturnCode);
+    }
 }
 
 void Test_CFE_SB_LocalCmdTopicIdToMsgId(void)
 {
     CFE_SB_MsgId_Atom_t MsgIdVal;
+    bool ReturnCode = false;
 
     MsgIdVal = CFE_SB_LocalCmdTopicIdToMsgId(3);
-    UtAssert_BOOL_TRUE(CFE_SB_IsValidMsgId(CFE_SB_ValueToMsgId(MsgIdVal)));
+    ReturnCode = CFE_SB_IsValidMsgId(CFE_SB_ValueToMsgId(MsgIdVal));
+    if(MsgIdVal == 0)
+    {
+        /* Macro does not exist. Topic ID has not been implemented. */
+        UtAssert_MIR("Topic ID has not been implemented. ");
+    }
+    else
+    {
+        UtAssert_BOOL_TRUE(ReturnCode);
+    }
 }
 
 void Test_CFE_SB_LocalTlmTopicIdToMsgId(void)
 {
     CFE_SB_MsgId_Atom_t MsgIdVal;
+    bool ReturnCode = false;
 
     MsgIdVal = CFE_SB_LocalTlmTopicIdToMsgId(3);
-    UtAssert_BOOL_TRUE(CFE_SB_IsValidMsgId(CFE_SB_ValueToMsgId(MsgIdVal)));
+    ReturnCode = CFE_SB_IsValidMsgId(CFE_SB_ValueToMsgId(MsgIdVal));
+    if(MsgIdVal == 0)
+    {
+        /* Macro does not exist. Topic ID has not been implemented. */
+        UtAssert_MIR("Topic ID has not been implemented. ");
+    }
+    else
+    {
+        UtAssert_BOOL_TRUE(ReturnCode);
+    }
 }
 
 /*

@@ -115,6 +115,10 @@ ifneq ($(BUILDTYPE),)
 PREP_OPTS += -DCMAKE_BUILD_TYPE=$(BUILDTYPE)
 endif
 
+ifneq ($(CMAKE_PREFIX_PATH),)
+PREP_OPTS += -DCMAKE_PREFIX_PATH=$(CMAKE_PREFIX_PATH)
+endif
+
 all:
 	$(MAKE) --no-print-directory -C "$(O)" mission-all
 
