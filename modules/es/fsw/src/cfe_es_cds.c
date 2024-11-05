@@ -427,14 +427,7 @@ int32 CFE_ES_RegisterCDSEx(CFE_ES_CDSHandle_t *HandlePtr, size_t UserBlockSize, 
         CFE_ES_WriteToSysLog("%s: Failed to update CDS Registry (Stat=0x%08X)\n", __func__,
                              (unsigned int)RegUpdateStatus);
 
-        /*
-         * Return failure only if this was the primary error,
-         * do not overwrite a preexisting error.
-         */
-        if (Status == CFE_SUCCESS)
-        {
-            Status = RegUpdateStatus;
-        }
+        Status = RegUpdateStatus;
     }
 
     if (Status == CFE_SUCCESS && !IsNewOffset)

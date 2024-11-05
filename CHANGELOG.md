@@ -1,5 +1,9 @@
 # Changelog
 
+## Development Build: equuleus-rc1+dev209
+- Remove redundant status check in CFE_ES_RegisterCDSEx()
+- See <https://github.com/nasa/cFE/pull/2329>
+
 ## Development Build: equuleus-rc1+dev205
 - fix sb coverage test failure
 - Pass the CMAKE_PREFIX_PATH to targets
