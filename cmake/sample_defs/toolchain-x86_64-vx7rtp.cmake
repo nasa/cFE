@@ -6,7 +6,7 @@ set(CMAKE_SYSTEM_NAME VxWorks-RTP-CFE)
 set(CMAKE_SYSTEM_PROCESSOR x86_64)
 set(CMAKE_SYSTEM_VERSION 7)
 
-SET(OSAL_SYSTEM_OSTYPE   "vxworks-rtp")
+SET(OSAL_SYSTEM_OSTYPE   "posix")
 SET(OSAL_SYSTEM_BSPTYPE  "generic-vxworks-rtp")
 SET(CFE_SYSTEM_PSPNAME   "generic-vxworks-rtp")
 
