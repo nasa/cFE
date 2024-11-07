@@ -1343,7 +1343,7 @@ void CFE_SB_ReceiveTxn_ExportReference(CFE_SB_MessageTxn_State_t *TxnPtr, CFE_SB
     if (CFE_SB_PipeDescIsMatch(PipeDscPtr, ContextPtr->PipeId))
     {
         /*
-        ** Load the pipe tables 'CurrentBuff' with the buffer descriptor
+        ** Load the pipe table's 'LastBuffer' with the buffer descriptor
         ** ptr corresponding to the message just read. This is done so that
         ** the buffer can be released on the next receive call for this pipe.
         **
@@ -1353,7 +1353,7 @@ void CFE_SB_ReceiveTxn_ExportReference(CFE_SB_MessageTxn_State_t *TxnPtr, CFE_SB
         PipeDscPtr->LastBuffer = BufDscPtr;
 
         /*
-         * Also set the Receivers pointer to the address of the actual message
+         * Also set the Receiver's pointer to the address of the actual message
          * (currently this is "borrowing" the ref above, not its own ref)
          */
         *ParentBufDscPtrP = BufDscPtr;
