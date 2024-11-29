@@ -779,14 +779,16 @@ int32 CFE_TIME_SubDelayCmd(const CFE_TIME_SubDelayCmd_t *data)
 
 /*----------------------------------------------------------------
  *
- * Application-scope internal function
- * See description in header file for argument/return detail
+ * Internal helper routine - not part of API
+ *
+ * This function performs the common logic for CFE_TIME_SetTimeCmd(),
+ * CFE_TIME_SetMETCmd() and CFE_TIME_SetSTCFCmd().
  *
  *-----------------------------------------------------------------*/
-int32 CFE_TIME_SetTimeCmd(const CFE_TIME_SetTimeCmd_t *data)
+static void CFE_TIME_SetCommand(const CFE_TIME_TimeCmd_Payload_t *CommandPtr, void (*SetTimeFunc)(CFE_TIME_SysTime_t),
+                                const char *TimeType, uint16 SuccessEventID, uint16 ConfigErrorEventID,
+                                uint16 ErrorEventID)
 {
-    const CFE_TIME_TimeCmd_Payload_t *CommandPtr = &data->Payload;
-
     /*
     ** Verify "micro-seconds" command argument...
     */
@@ -799,11 +801,11 @@ int32 CFE_TIME_SetTimeCmd(const CFE_TIME_SetTimeCmd_t *data)
         NewTime.Seconds    = CommandPtr->Seconds;
         NewTime.Subseconds = CFE_TIME_Micro2SubSecs(CommandPtr->MicroSeconds);
 
-        CFE_TIME_SetTime(NewTime);
+        SetTimeFunc(NewTime);
 
         CFE_TIME_Global.CommandCounter++;
-        CFE_EVS_SendEvent(CFE_TIME_TIME_EID, CFE_EVS_EventType_INFORMATION,
-                          "Set Time -- secs = %u, usecs = %u, ssecs = 0x%X", (unsigned int)CommandPtr->Seconds,
+        CFE_EVS_SendEvent(SuccessEventID, CFE_EVS_EventType_INFORMATION,
+                          "Set %s -- secs = %u, usecs = %u, ssecs = 0x%X", TimeType, (unsigned int)CommandPtr->Seconds,
                           (unsigned int)CommandPtr->MicroSeconds,
                           (unsigned int)CFE_TIME_Micro2SubSecs(CommandPtr->MicroSeconds));
 
@@ -813,18 +815,29 @@ int32 CFE_TIME_SetTimeCmd(const CFE_TIME_SetTimeCmd_t *data)
         */
         CFE_TIME_Global.CommandErrorCounter++;
 
-        CFE_EVS_SendEvent(CFE_TIME_TIME_CFG_EID, CFE_EVS_EventType_ERROR,
-                          "Set Time commands invalid without CFE_PLATFORM_TIME_CFG_SERVER set to TRUE");
+        CFE_EVS_SendEvent(ConfigErrorEventID, CFE_EVS_EventType_ERROR,
+                          "Set %s commands invalid without CFE_PLATFORM_TIME_CFG_SERVER set to TRUE", TimeType);
 
 #endif /* CFE_PLATFORM_TIME_CFG_SERVER */
     }
     else
     {
         CFE_TIME_Global.CommandErrorCounter++;
-        CFE_EVS_SendEvent(CFE_TIME_TIME_ERR_EID, CFE_EVS_EventType_ERROR, "Invalid Time -- secs = %u, usecs = %u",
+        CFE_EVS_SendEvent(ErrorEventID, CFE_EVS_EventType_ERROR, "Invalid %s -- secs = %u, usecs = %u", TimeType,
                           (unsigned int)CommandPtr->Seconds, (unsigned int)CommandPtr->MicroSeconds);
     }
+}
 
+/*----------------------------------------------------------------
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+int32 CFE_TIME_SetTimeCmd(const CFE_TIME_SetTimeCmd_t *data)
+{
+    CFE_TIME_SetCommand(&data->Payload, CFE_TIME_SetTime, "Time", CFE_TIME_TIME_EID, CFE_TIME_TIME_CFG_EID,
+                        CFE_TIME_TIME_ERR_EID);
     return CFE_SUCCESS;
 }
 
@@ -836,46 +849,8 @@ int32 CFE_TIME_SetTimeCmd(const CFE_TIME_SetTimeCmd_t *data)
  *-----------------------------------------------------------------*/
 int32 CFE_TIME_SetMETCmd(const CFE_TIME_SetMETCmd_t *data)
 {
-    const CFE_TIME_TimeCmd_Payload_t *CommandPtr = &data->Payload;
-
-    /*
-    ** Verify "micro-seconds" command argument...
-    */
-    if (CommandPtr->MicroSeconds < 1000000)
-    {
-#if (CFE_PLATFORM_TIME_CFG_SERVER == true)
-
-        CFE_TIME_SysTime_t NewMET;
-
-        NewMET.Seconds    = CommandPtr->Seconds;
-        NewMET.Subseconds = CFE_TIME_Micro2SubSecs(CommandPtr->MicroSeconds);
-
-        CFE_TIME_SetMET(NewMET);
-
-        CFE_TIME_Global.CommandCounter++;
-        CFE_EVS_SendEvent(CFE_TIME_MET_EID, CFE_EVS_EventType_INFORMATION,
-                          "Set MET -- secs = %u, usecs = %u, ssecs = 0x%X", (unsigned int)CommandPtr->Seconds,
-                          (unsigned int)CommandPtr->MicroSeconds,
-                          (unsigned int)CFE_TIME_Micro2SubSecs(CommandPtr->MicroSeconds));
-
-#else /* not CFE_PLATFORM_TIME_CFG_SERVER */
-        /*
-        ** We want to know if disabled commands are being sent...
-        */
-        CFE_TIME_Global.CommandErrorCounter++;
-
-        CFE_EVS_SendEvent(CFE_TIME_MET_CFG_EID, CFE_EVS_EventType_ERROR,
-                          "Set MET commands invalid without CFE_PLATFORM_TIME_CFG_SERVER set to TRUE");
-
-#endif /* CFE_PLATFORM_TIME_CFG_SERVER */
-    }
-    else
-    {
-        CFE_TIME_Global.CommandErrorCounter++;
-        CFE_EVS_SendEvent(CFE_TIME_MET_ERR_EID, CFE_EVS_EventType_ERROR, "Invalid MET -- secs = %u, usecs = %u",
-                          (unsigned int)CommandPtr->Seconds, (unsigned int)CommandPtr->MicroSeconds);
-    }
-
+    CFE_TIME_SetCommand(&data->Payload, CFE_TIME_SetMET, "MET", CFE_TIME_MET_EID, CFE_TIME_MET_CFG_EID,
+                        CFE_TIME_MET_ERR_EID);
     return CFE_SUCCESS;
 }
 
@@ -887,46 +862,8 @@ int32 CFE_TIME_SetMETCmd(const CFE_TIME_SetMETCmd_t *data)
  *-----------------------------------------------------------------*/
 int32 CFE_TIME_SetSTCFCmd(const CFE_TIME_SetSTCFCmd_t *data)
 {
-    const CFE_TIME_TimeCmd_Payload_t *CommandPtr = &data->Payload;
-
-    /*
-    ** Verify "micro-seconds" command argument...
-    */
-    if (CommandPtr->MicroSeconds < 1000000)
-    {
-#if (CFE_PLATFORM_TIME_CFG_SERVER == true)
-
-        CFE_TIME_SysTime_t NewSTCF;
-
-        NewSTCF.Seconds    = CommandPtr->Seconds;
-        NewSTCF.Subseconds = CFE_TIME_Micro2SubSecs(CommandPtr->MicroSeconds);
-
-        CFE_TIME_SetSTCF(NewSTCF);
-
-        CFE_TIME_Global.CommandCounter++;
-        CFE_EVS_SendEvent(CFE_TIME_STCF_EID, CFE_EVS_EventType_INFORMATION,
-                          "Set STCF -- secs = %u, usecs = %u, ssecs = 0x%X", (unsigned int)CommandPtr->Seconds,
-                          (unsigned int)CommandPtr->MicroSeconds,
-                          (unsigned int)CFE_TIME_Micro2SubSecs(CommandPtr->MicroSeconds));
-
-#else /* not CFE_PLATFORM_TIME_CFG_SERVER */
-        /*
-        ** We want to know if disabled commands are being sent...
-        */
-        CFE_TIME_Global.CommandErrorCounter++;
-
-        CFE_EVS_SendEvent(CFE_TIME_STCF_CFG_EID, CFE_EVS_EventType_ERROR,
-                          "Set STCF commands invalid without CFE_PLATFORM_TIME_CFG_SERVER set to TRUE");
-
-#endif /* CFE_PLATFORM_TIME_CFG_SERVER */
-    }
-    else
-    {
-        CFE_TIME_Global.CommandErrorCounter++;
-        CFE_EVS_SendEvent(CFE_TIME_STCF_ERR_EID, CFE_EVS_EventType_ERROR, "Invalid STCF -- secs = %u, usecs = %u",
-                          (unsigned int)CommandPtr->Seconds, (unsigned int)CommandPtr->MicroSeconds);
-    }
-
+    CFE_TIME_SetCommand(&data->Payload, CFE_TIME_SetSTCF, "STCF", CFE_TIME_STCF_EID, CFE_TIME_STCF_CFG_EID,
+                        CFE_TIME_STCF_ERR_EID);
     return CFE_SUCCESS;
 }
 
