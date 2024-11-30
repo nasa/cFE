@@ -450,7 +450,7 @@ void EVS_DisableTypes(EVS_AppData_t *AppDataPtr, uint8 BitMask)
  *
  *-----------------------------------------------------------------*/
 void EVS_GenerateEventTelemetry(EVS_AppData_t *AppDataPtr, uint16 EventID, uint16 EventType,
-                                const CFE_TIME_SysTime_t *TimeStamp, const char *MsgSpec, va_list ArgPtr)
+                                const CFE_TIME_SysTime_t *Time, const char *MsgSpec, va_list ArgPtr)
 {
     CFE_EVS_LongEventTlm_t  LongEventTlm;  /* The "long" flavor is always generated, as this is what is logged */
     CFE_EVS_ShortEventTlm_t ShortEventTlm; /* The "short" flavor is only generated if selected */
@@ -488,7 +488,7 @@ void EVS_GenerateEventTelemetry(EVS_AppData_t *AppDataPtr, uint16 EventID, uint1
     LongEventTlm.Payload.PacketID.ProcessorID  = CFE_PSP_GetProcessorId();
 
     /* Set the packet timestamp */
-    CFE_MSG_SetMsgTime(CFE_MSG_PTR(LongEventTlm.TelemetryHeader), *TimeStamp);
+    CFE_MSG_SetMsgTime(CFE_MSG_PTR(LongEventTlm.TelemetryHeader), *Time);
 
     /* Write event to the event log */
     EVS_AddLog(&LongEventTlm);
@@ -511,7 +511,7 @@ void EVS_GenerateEventTelemetry(EVS_AppData_t *AppDataPtr, uint16 EventID, uint1
          */
         CFE_MSG_Init(CFE_MSG_PTR(ShortEventTlm.TelemetryHeader), CFE_SB_ValueToMsgId(CFE_EVS_SHORT_EVENT_MSG_MID),
                      sizeof(ShortEventTlm));
-        CFE_MSG_SetMsgTime(CFE_MSG_PTR(ShortEventTlm.TelemetryHeader), *TimeStamp);
+        CFE_MSG_SetMsgTime(CFE_MSG_PTR(ShortEventTlm.TelemetryHeader), *Time);
         ShortEventTlm.Payload.PacketID = LongEventTlm.Payload.PacketID;
         CFE_SB_TransmitMsg(CFE_MSG_PTR(ShortEventTlm.TelemetryHeader), true);
     }
