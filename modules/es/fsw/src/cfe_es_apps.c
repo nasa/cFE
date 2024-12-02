@@ -656,6 +656,7 @@ int32 CFE_ES_StartAppTask(CFE_ES_TaskId_t *TaskIdPtr, const char *TaskName, CFE_
 int32 CFE_ES_AppCreate(CFE_ES_AppId_t *ApplicationIdPtr, const char *AppName, const CFE_ES_AppStartParams_t *Params)
 {
     CFE_Status_t        Status;
+    CFE_Status_t        CleanupStatus;
     CFE_ES_AppRecord_t *AppRecPtr;
     CFE_ResourceId_t    PendingResourceId = CFE_RESOURCEID_UNDEFINED;
 
@@ -799,6 +800,16 @@ int32 CFE_ES_AppCreate(CFE_ES_AppId_t *ApplicationIdPtr, const char *AppName, co
         /*
          * Set the table entry back to free
          */
+        if (OS_ObjectIdDefined(AppRecPtr->LoadStatus.ModuleId))
+        {
+            CleanupStatus = OS_ModuleUnload(AppRecPtr->LoadStatus.ModuleId);
+            if (CleanupStatus != OS_SUCCESS)
+            {
+                CFE_ES_WriteToSysLog("%s: Module (ID:0x%08lX) Unload failed. RC=%ld\n", __func__,
+                                    OS_ObjectIdToInteger(AppRecPtr->LoadStatus.ModuleId), (long)CleanupStatus);
+            }
+        }
+        
         CFE_ES_AppRecordSetFree(AppRecPtr);
         PendingResourceId = CFE_RESOURCEID_UNDEFINED;
     }
