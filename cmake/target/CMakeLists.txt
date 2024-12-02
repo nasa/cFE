@@ -156,7 +156,8 @@ if (${TGTNAME}_APPLIST)
 
   set_target_properties(core-${TGTNAME} PROPERTIES ENABLE_EXPORTS TRUE)
 
-  if (("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU") OR ("${CMAKE_C_COMPILER_ID}" STREQUAL "Clang"))
+  if (("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU") OR ("${CMAKE_C_COMPILER_ID}" STREQUAL "Clang")
+      OR ("${CMAKE_C_COMPILER_ID}" STREQUAL "QCC") OR ("${CMAKE_C_COMPILER_ID}" STREQUAL "Q++"))
     # The option pair for GNU gcc/ld tools
     set(START_WHOLE_ARCHIVE "--whole-archive")
     set(STOP_WHOLE_ARCHIVE  "--no-whole-archive")
