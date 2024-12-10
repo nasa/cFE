@@ -284,8 +284,8 @@ void CFE_ES_StartApplications(uint32 ResetType, const char *StartFilePath)
  *-----------------------------------------------------------------*/
 int32 CFE_ES_ParseFileEntry(const char **TokenList, uint32 NumTokens)
 {
-    const char *  ModuleName;
-    const char *  EntryType;
+    const char   *ModuleName;
+    const char   *EntryType;
     unsigned long ParsedValue;
     union
     {
@@ -495,7 +495,7 @@ int32 CFE_ES_LoadModule(CFE_ResourceId_t ParentResourceId, const char *ModuleNam
  *-----------------------------------------------------------------*/
 int32 CFE_ES_GetTaskFunction(CFE_ES_TaskEntryFuncPtr_t *FuncPtr)
 {
-    CFE_ES_TaskRecord_t *     TaskRecPtr;
+    CFE_ES_TaskRecord_t      *TaskRecPtr;
     CFE_ES_TaskEntryFuncPtr_t EntryFunc;
     int32                     ReturnCode;
     int32                     Timeout;
@@ -656,6 +656,7 @@ int32 CFE_ES_StartAppTask(CFE_ES_TaskId_t *TaskIdPtr, const char *TaskName, CFE_
 int32 CFE_ES_AppCreate(CFE_ES_AppId_t *ApplicationIdPtr, const char *AppName, const CFE_ES_AppStartParams_t *Params)
 {
     CFE_Status_t        Status;
+    CFE_Status_t        CleanupStatus;
     CFE_ES_AppRecord_t *AppRecPtr;
     CFE_ResourceId_t    PendingResourceId = CFE_RESOURCEID_UNDEFINED;
 
@@ -799,6 +800,16 @@ int32 CFE_ES_AppCreate(CFE_ES_AppId_t *ApplicationIdPtr, const char *AppName, co
         /*
          * Set the table entry back to free
          */
+        if (OS_ObjectIdDefined(AppRecPtr->LoadStatus.ModuleId))
+        {
+            CleanupStatus = OS_ModuleUnload(AppRecPtr->LoadStatus.ModuleId);
+            if (CleanupStatus != OS_SUCCESS)
+            {
+                CFE_ES_WriteToSysLog("%s: Module (ID:0x%08lX) Unload failed. RC=%ld\n", __func__,
+                                    OS_ObjectIdToInteger(AppRecPtr->LoadStatus.ModuleId), (long)CleanupStatus);
+            }
+        }
+        
         CFE_ES_AppRecordSetFree(AppRecPtr);
         PendingResourceId = CFE_RESOURCEID_UNDEFINED;
     }
@@ -819,7 +830,7 @@ int32 CFE_ES_AppCreate(CFE_ES_AppId_t *ApplicationIdPtr, const char *AppName, co
 int32 CFE_ES_LoadLibrary(CFE_ES_LibId_t *LibraryIdPtr, const char *LibName, const CFE_ES_ModuleLoadParams_t *Params)
 {
     CFE_ES_LibraryEntryFuncPtr_t FunctionPointer;
-    CFE_ES_LibRecord_t *         LibSlotPtr;
+    CFE_ES_LibRecord_t          *LibSlotPtr;
     int32                        Status;
     CFE_ResourceId_t             PendingResourceId;
 
@@ -974,7 +985,7 @@ bool CFE_ES_RunAppTableScan(uint32 ElapsedTime, void *Arg)
 {
     CFE_ES_AppTableScanState_t *State = (CFE_ES_AppTableScanState_t *)Arg;
     uint32                      i;
-    CFE_ES_AppRecord_t *        AppPtr;
+    CFE_ES_AppRecord_t         *AppPtr;
     CFE_ES_AppId_t              AppTimeoutList[CFE_PLATFORM_ES_MAX_APPLICATIONS];
     uint32                      NumAppTimeouts;
 
@@ -1092,14 +1103,14 @@ bool CFE_ES_RunAppTableScan(uint32 ElapsedTime, void *Arg)
  *-----------------------------------------------------------------*/
 void CFE_ES_ProcessControlRequest(CFE_ES_AppId_t AppId)
 {
-    CFE_ES_AppRecord_t *     AppRecPtr;
+    CFE_ES_AppRecord_t      *AppRecPtr;
     uint32                   PendingControlReq;
     CFE_ES_AppStartParams_t  RestartParams;
     char                     OrigAppName[OS_MAX_API_NAME];
     CFE_Status_t             CleanupStatus;
     CFE_Status_t             StartupStatus;
     CFE_ES_AppId_t           NewAppId;
-    const char *             ReqName;
+    const char              *ReqName;
     char                     MessageDetail[48];
     uint16                   EventID;
     CFE_EVS_EventType_Enum_t EventType;
@@ -1325,8 +1336,8 @@ int32 CFE_ES_CleanUpApp(CFE_ES_AppId_t AppId)
     osal_id_t               ModuleId;
     uint32                  NumTasks;
     uint32                  NumPools;
-    CFE_ES_AppRecord_t *    AppRecPtr;
-    CFE_ES_TaskRecord_t *   TaskRecPtr;
+    CFE_ES_AppRecord_t     *AppRecPtr;
+    CFE_ES_TaskRecord_t    *TaskRecPtr;
     CFE_ES_MemPoolRecord_t *MemPoolRecPtr;
 
     NumTasks   = 0;
@@ -1565,6 +1576,7 @@ void CFE_ES_CleanupObjectCallback(osal_id_t ObjectId, void *arg)
     int32                  OsStatus;
     osal_objtype_t         ObjType;
     bool                   ObjIsValid;
+    CFE_Status_t           ErrorStatus = CFE_ES_APP_CLEANUP_ERR; // Set default cFE error status
 
     CleanState = (CFE_ES_CleanupState_t *)arg;
     ObjIsValid = true;
@@ -1573,22 +1585,28 @@ void CFE_ES_CleanupObjectCallback(osal_id_t ObjectId, void *arg)
     switch (ObjType)
     {
         case OS_OBJECT_TYPE_OS_TASK:
-            OsStatus = OS_TaskDelete(ObjectId);
+            OsStatus    = OS_TaskDelete(ObjectId);
+            ErrorStatus = CFE_ES_ERR_CHILD_TASK_DELETE;
             break;
         case OS_OBJECT_TYPE_OS_QUEUE:
-            OsStatus = OS_QueueDelete(ObjectId);
+            OsStatus    = OS_QueueDelete(ObjectId);
+            ErrorStatus = CFE_ES_QUEUE_DELETE_ERR;
             break;
         case OS_OBJECT_TYPE_OS_BINSEM:
-            OsStatus = OS_BinSemDelete(ObjectId);
+            OsStatus    = OS_BinSemDelete(ObjectId);
+            ErrorStatus = CFE_ES_BIN_SEM_DELETE_ERR;
             break;
         case OS_OBJECT_TYPE_OS_COUNTSEM:
-            OsStatus = OS_CountSemDelete(ObjectId);
+            OsStatus    = OS_CountSemDelete(ObjectId);
+            ErrorStatus = CFE_ES_COUNT_SEM_DELETE_ERR;
             break;
         case OS_OBJECT_TYPE_OS_MUTEX:
-            OsStatus = OS_MutSemDelete(ObjectId);
+            OsStatus    = OS_MutSemDelete(ObjectId);
+            ErrorStatus = CFE_ES_MUT_SEM_DELETE_ERR;
             break;
         case OS_OBJECT_TYPE_OS_TIMECB:
-            OsStatus = OS_TimerDelete(ObjectId);
+            OsStatus    = OS_TimerDelete(ObjectId);
+            ErrorStatus = CFE_ES_TIMER_DELETE_ERR;
             break;
         case OS_OBJECT_TYPE_OS_STREAM:
             OsStatus = OS_close(ObjectId);
@@ -1615,36 +1633,8 @@ void CFE_ES_CleanupObjectCallback(osal_id_t ObjectId, void *arg)
                                       OS_ObjectIdToInteger(ObjectId), (long)OsStatus);
             if (CleanState->OverallStatus == CFE_SUCCESS)
             {
-                /*
-                 * Translate any OS failures into the appropriate CFE_ES return codes
-                 * (Some object types have special return codes, depending on what type
-                 * of object failed to delete)
-                 */
-                switch (ObjType)
-                {
-                    case OS_OBJECT_TYPE_OS_TASK:
-                        CleanState->OverallStatus = CFE_ES_ERR_CHILD_TASK_DELETE;
-                        break;
-                    case OS_OBJECT_TYPE_OS_QUEUE:
-                        CleanState->OverallStatus = CFE_ES_QUEUE_DELETE_ERR;
-                        break;
-                    case OS_OBJECT_TYPE_OS_BINSEM:
-                        CleanState->OverallStatus = CFE_ES_BIN_SEM_DELETE_ERR;
-                        break;
-                    case OS_OBJECT_TYPE_OS_COUNTSEM:
-                        CleanState->OverallStatus = CFE_ES_COUNT_SEM_DELETE_ERR;
-                        break;
-                    case OS_OBJECT_TYPE_OS_MUTEX:
-                        CleanState->OverallStatus = CFE_ES_MUT_SEM_DELETE_ERR;
-                        break;
-                    case OS_OBJECT_TYPE_OS_TIMECB:
-                        CleanState->OverallStatus = CFE_ES_TIMER_DELETE_ERR;
-                        break;
-                    default:
-                        /* generic failure */
-                        CleanState->OverallStatus = CFE_ES_APP_CLEANUP_ERR;
-                        break;
-                }
+                // Save the object-type-specific error status that was set earlier in the switch statement
+                CleanState->OverallStatus = ErrorStatus;
             }
         }
     }
