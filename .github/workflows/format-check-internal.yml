@@ -1,0 +1,16 @@
+name: Internal Format Check
+
+# Run on all push and pull requests
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    # 11:30 PM UTC every Sunday
+    - cron:  '30 23 * * 0'
+
+jobs:
+  format-check:
+    name: Run format check
+    # Uses internal reusable repo
+    uses: cFS/workflows/.github/workflows/format-check-reusable-internal.yml@dev
