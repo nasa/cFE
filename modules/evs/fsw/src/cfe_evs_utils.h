@@ -188,7 +188,7 @@ int32 EVS_NotRegistered(EVS_AppData_t *AppDataPtr, CFE_ES_AppId_t CallerID);
  * is filtered for the given application identifier.  Otherwise a value of
  * false is returned.
  */
-bool EVS_IsFiltered(EVS_AppData_t *AppDataPtr, uint16 EventID, uint16 EventType);
+bool EVS_IsFiltered(EVS_AppData_t *AppDataPtr, uint16 EventID, CFE_EVS_EventType_Enum_t EventType);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -238,7 +238,7 @@ void EVS_DisableTypes(EVS_AppData_t *AppDataPtr, uint8 BitMask);
  * If configured for short events, a separate short message is generated using a subset
  * of the information from the long message.
  */
-void EVS_GenerateEventTelemetry(EVS_AppData_t *AppDataPtr, uint16 EventID, uint16 EventType,
+void EVS_GenerateEventTelemetry(EVS_AppData_t *AppDataPtr, uint16 EventID, CFE_EVS_EventType_Enum_t EventType,
                                 const CFE_TIME_SysTime_t *Time, const char *MsgSpec, va_list ArgPtr);
 
 /*---------------------------------------------------------------------------------------*/
@@ -250,6 +250,6 @@ void EVS_GenerateEventTelemetry(EVS_AppData_t *AppDataPtr, uint16 EventID, uint1
  * This routine also does not need to acquire the mutex semaphore,
  * which can be time consuming on some platforms.
  */
-int32 EVS_SendEvent(uint16 EventID, uint16 EventType, const char *Spec, ...);
+int32 EVS_SendEvent(uint16 EventID, CFE_EVS_EventType_Enum_t EventType, const char *Spec, ...);
 
 #endif /* CFE_EVS_UTILS_H */

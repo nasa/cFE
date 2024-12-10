@@ -154,7 +154,7 @@ bool CFE_Assert_Status_DeferredCheck(CFE_Status_t Status, UtAssert_CaseType_t Ca
 
 void CFE_Assert_StatusReport(uint8 MessageType, const char *Prefix, const char *OutputMessage)
 {
-    uint16 EventType;
+    CFE_EVS_EventType_Enum_t EventType;
 
     switch (MessageType)
     {
