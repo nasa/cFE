@@ -1,5 +1,12 @@
 # Changelog
 
+## Development Build: equuleus-rc1+dev219
+- Consistent use of CFE_EVS_EventType_Enum_t for EventType
+- Combine redundant switch blocks to simplify CFE_ES_CleanupObjectCallback
+- Unloading module after failed app start
+- Simplify and clarify EVS_AddLog logic
+- See <https://github.com/nasa/cFE/pull/2308>, <https://github.com/nasa/cFE/pull/2612>, <https://github.com/nasa/cFE/pull/2616>, and <https://github.com/nasa/cFE/pull/2309>
+
 ## Development Build: equuleus-rc1+dev209
 - Remove redundant status check in CFE_ES_RegisterCDSEx()
 - See <https://github.com/nasa/cFE/pull/2329>

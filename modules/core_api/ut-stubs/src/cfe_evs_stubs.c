@@ -84,14 +84,14 @@ CFE_Status_t CFE_EVS_ResetFilter(uint16 EventID)
  * Generated stub function for CFE_EVS_SendEvent()
  * ----------------------------------------------------
  */
-CFE_Status_t CFE_EVS_SendEvent(uint16 EventID, uint16 EventType, const char *Spec, ...)
+CFE_Status_t CFE_EVS_SendEvent(uint16 EventID, CFE_EVS_EventType_Enum_t EventType, const char *Spec, ...)
 {
     va_list UtStub_ArgList;
 
     UT_GenStub_SetupReturnBuffer(CFE_EVS_SendEvent, CFE_Status_t);
 
     UT_GenStub_AddParam(CFE_EVS_SendEvent, uint16, EventID);
-    UT_GenStub_AddParam(CFE_EVS_SendEvent, uint16, EventType);
+    UT_GenStub_AddParam(CFE_EVS_SendEvent, CFE_EVS_EventType_Enum_t, EventType);
     UT_GenStub_AddParam(CFE_EVS_SendEvent, const char *, Spec);
 
     va_start(UtStub_ArgList, Spec);
@@ -106,14 +106,15 @@ CFE_Status_t CFE_EVS_SendEvent(uint16 EventID, uint16 EventType, const char *Spe
  * Generated stub function for CFE_EVS_SendEventWithAppID()
  * ----------------------------------------------------
  */
-CFE_Status_t CFE_EVS_SendEventWithAppID(uint16 EventID, uint16 EventType, CFE_ES_AppId_t AppID, const char *Spec, ...)
+CFE_Status_t CFE_EVS_SendEventWithAppID(uint16 EventID, CFE_EVS_EventType_Enum_t EventType, CFE_ES_AppId_t AppID,
+                                        const char *Spec, ...)
 {
     va_list UtStub_ArgList;
 
     UT_GenStub_SetupReturnBuffer(CFE_EVS_SendEventWithAppID, CFE_Status_t);
 
     UT_GenStub_AddParam(CFE_EVS_SendEventWithAppID, uint16, EventID);
-    UT_GenStub_AddParam(CFE_EVS_SendEventWithAppID, uint16, EventType);
+    UT_GenStub_AddParam(CFE_EVS_SendEventWithAppID, CFE_EVS_EventType_Enum_t, EventType);
     UT_GenStub_AddParam(CFE_EVS_SendEventWithAppID, CFE_ES_AppId_t, AppID);
     UT_GenStub_AddParam(CFE_EVS_SendEventWithAppID, const char *, Spec);
 
@@ -129,7 +130,8 @@ CFE_Status_t CFE_EVS_SendEventWithAppID(uint16 EventID, uint16 EventType, CFE_ES
  * Generated stub function for CFE_EVS_SendTimedEvent()
  * ----------------------------------------------------
  */
-CFE_Status_t CFE_EVS_SendTimedEvent(CFE_TIME_SysTime_t Time, uint16 EventID, uint16 EventType, const char *Spec, ...)
+CFE_Status_t CFE_EVS_SendTimedEvent(CFE_TIME_SysTime_t Time, uint16 EventID, CFE_EVS_EventType_Enum_t EventType,
+                                    const char *Spec, ...)
 {
     va_list UtStub_ArgList;
 
@@ -137,7 +139,7 @@ CFE_Status_t CFE_EVS_SendTimedEvent(CFE_TIME_SysTime_t Time, uint16 EventID, uin
 
     UT_GenStub_AddParam(CFE_EVS_SendTimedEvent, CFE_TIME_SysTime_t, Time);
     UT_GenStub_AddParam(CFE_EVS_SendTimedEvent, uint16, EventID);
-    UT_GenStub_AddParam(CFE_EVS_SendTimedEvent, uint16, EventType);
+    UT_GenStub_AddParam(CFE_EVS_SendTimedEvent, CFE_EVS_EventType_Enum_t, EventType);
     UT_GenStub_AddParam(CFE_EVS_SendTimedEvent, const char *, Spec);
 
     va_start(UtStub_ArgList, Spec);
