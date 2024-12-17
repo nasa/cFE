@@ -138,7 +138,7 @@ bool CFE_Assert_Status_DeferredCheck(CFE_Status_t Status, UtAssert_CaseType_t Ca
         }
         else
         {
-            /* if condition was false add an exta marker so user does not necessarily need to decode the string */
+            /* if condition was false, add an extra marker so user does not necessarily need to decode the string */
             ExtraTag = " [false]";
         }
 
