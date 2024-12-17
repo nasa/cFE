@@ -516,16 +516,6 @@ int32 CFE_SB_ValidateMsgId(CFE_SB_MsgId_t MsgId);
 
 /*---------------------------------------------------------------------------------------*/
 /**
- * Increment the command counter based on the status input.
- *
- * This small utility was written to eliminate duplicate code.
- *
- * @param status  typically #CFE_SUCCESS or an SB error code
- */
-void CFE_SB_IncrCmdCtr(int32 status);
-
-/*---------------------------------------------------------------------------------------*/
-/**
  * SB internal function to enable and disable subscription reporting.
  */
 void CFE_SB_SetSubscriptionReporting(uint32 state);

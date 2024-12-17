@@ -735,20 +735,22 @@ int32 CFE_TIME_ToneSendCmd(const CFE_TIME_FakeToneCmd_t *data);
 /**
  * @brief  Time task ground command (tone delay)
  */
-void CFE_TIME_SetDelayImpl(const CFE_TIME_TimeCmd_Payload_t *CommandPtr, CFE_TIME_AdjustDirection_Enum_t Direction);
+CFE_Status_t CFE_TIME_SetDelayImpl(const CFE_TIME_TimeCmd_Payload_t *CommandPtr,
+                                   CFE_TIME_AdjustDirection_Enum_t   Direction);
 
 /*---------------------------------------------------------------------------------------*/
 /**
  * @brief  Time task ground command (1Hz adjust)
  */
-void CFE_TIME_1HzAdjImpl(const CFE_TIME_OneHzAdjustmentCmd_Payload_t *CommandPtr,
-                         CFE_TIME_AdjustDirection_Enum_t              Direction);
+CFE_Status_t CFE_TIME_1HzAdjImpl(const CFE_TIME_OneHzAdjustmentCmd_Payload_t *CommandPtr,
+                                 CFE_TIME_AdjustDirection_Enum_t              Direction);
 
 /*---------------------------------------------------------------------------------------*/
 /**
  * @brief  Time task ground command (adjust STCF)
  */
-void CFE_TIME_AdjustImpl(const CFE_TIME_TimeCmd_Payload_t *CommandPtr, CFE_TIME_AdjustDirection_Enum_t Direction);
+CFE_Status_t CFE_TIME_AdjustImpl(const CFE_TIME_TimeCmd_Payload_t *CommandPtr,
+                                 CFE_TIME_AdjustDirection_Enum_t   Direction);
 
 /*
 ** Ground command handlers...
