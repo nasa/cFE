@@ -2273,7 +2273,7 @@ void Test_CFE_TBL_Load(void)
      */
     UT_InitData();
     UT_SetDeferredRetcode(UT_KEY(Test_CFE_TBL_ValidationFunc), 1, 1);
-    UtAssert_INT32_EQ(CFE_TBL_Load(App1TblHandle1, CFE_TBL_SRC_ADDRESS, &TestTable1), -1);
+    UtAssert_INT32_EQ(CFE_TBL_Load(App1TblHandle1, CFE_TBL_SRC_ADDRESS, &TestTable1), CFE_STATUS_VALIDATION_FAILURE);
     CFE_UtAssert_EVENTSENT(CFE_TBL_LOAD_VAL_ERR_EID);
     CFE_UtAssert_EVENTCOUNT(2);
 
