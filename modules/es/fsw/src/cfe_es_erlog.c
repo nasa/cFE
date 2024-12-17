@@ -239,7 +239,7 @@ void CFE_ES_BackgroundERLogFileEventHandler(void *Meta, CFE_FS_FileWriteEvent_t 
     switch (Event)
     {
         case CFE_FS_FileWriteEvent_COMPLETE:
-            CFE_EVS_SendEvent(CFE_ES_ERLOG2_EID, CFE_EVS_EventType_DEBUG, "%s written:Size=%lu",
+            CFE_EVS_SendEvent(CFE_ES_ERLOG2_INF_EID, CFE_EVS_EventType_INFORMATION, "%s written:Size=%lu",
                               BgFilePtr->FileWrite.FileName, (unsigned long)Position);
             break;
 
