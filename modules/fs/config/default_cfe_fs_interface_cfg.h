@@ -36,6 +36,6 @@
 
 #define CFE_FS_HDR_DESC_MAX_LEN 32 /**< \brief Max length of description field in a standard cFE File Header */
 
-#define CFE_FS_FILE_CONTENT_ID 0x63464531 /**< \brief Magic Number for cFE compliant files (= 'cFE1') */
+#define CFE_FS_FILE_CONTENT_ID 0x63464531 /**< \brief Magic Number for cFE-compliant files (= 'cFE1') */
 
 #endif /* CFE_FS_INTERFACE_CFG_H */
