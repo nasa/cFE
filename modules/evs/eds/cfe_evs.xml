@@ -349,7 +349,7 @@
           \par  Command Verification
           Successful execution of this command may be verified with the following telemetry:
           - \b \c \EVS_CMDPC - command execution counter will increment
-          - The #CFE_EVS_NOOP_EID informational event message will be generated
+          - The #CFE_EVS_NOOP_INF_EID informational event message will be generated
 
           \par  Error Conditions
           There are no error conditions for this command. If the Event
@@ -384,7 +384,7 @@
           the following telemetry:
           - \b \c \EVS_CMDPC - command execution counter will
           increment
-          - The #CFE_EVS_RSTCNT_EID debug event message will be
+          - The #CFE_EVS_RESET_INF_EID debug event message will be
           generated
 
           \par  Error Conditions
