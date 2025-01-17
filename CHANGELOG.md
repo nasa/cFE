@@ -1,5 +1,9 @@
 # Changelog
 
+## Development Build: equuleus-rc1+dev227
+- Add CFE_TBL_BufferSelect_Enum_t Type Name
+- See <https://github.com/nasa/cFE/pull/2629>
+
 ## Development Build: equuleus-rc1+dev223
 - Correct type of ActiveTableFlag variable
 - See <https://github.com/nasa/cFE/pull/2459>
