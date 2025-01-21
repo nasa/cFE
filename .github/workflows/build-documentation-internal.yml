@@ -8,7 +8,9 @@ on:
     # 11:00 PM UTC every Sunday
     - cron:  '0 23 * * 0'
 
-
+env:
+  REPO_NAME: ${{ github.event.repository.name }}
+  
 jobs:
   # Checks for duplicate actions. Skips push actions if there is a matching or
   # duplicate pull-request action.
