@@ -329,7 +329,7 @@
               \cfetlmmnemonic  \SB_SMPSBBIU
             </LongDescription>
           </Entry>
-          <Entry name="MaxPipeDepthAllowed" type="BASE_TYPES/uint32" shortDescription="cFE Cfg Param #CFE_PLATFORM_SB_MAX_PIPE_DEPTH">
+          <Entry name="MaxPipeDepthAllowed" type="BASE_TYPES/uint32" shortDescription="cFE Cfg Param #OS_QUEUE_MAX_DEPTH">
             <LongDescription>
               \cfetlmmnemonic  \SB_SMMPDALW
             </LongDescription>
