@@ -640,7 +640,7 @@ CFE_Status_t CFE_SB_GetPipeOpts(CFE_SB_PipeId_t PipeId, uint8 *OptsPtr)
             break;
         case CFE_SB_GETPIPEOPTS_ID_ERR_EID:
             CFE_EVS_SendEventWithAppID(CFE_SB_GETPIPEOPTS_ID_ERR_EID, CFE_EVS_EventType_ERROR, CFE_SB_Global.AppId,
-                                       "Pipe Opts Error:Bad Argument,PipedId %lu,Requestor %s",
+                                       "Pipe Opts Error:Bad Argument,PipeId %lu,Requestor %s",
                                        CFE_RESOURCEID_TO_ULONG(PipeId), CFE_SB_GetAppTskName(TskId, FullName));
             break;
         default:
