@@ -174,7 +174,7 @@ void TestMemPoolPutBuf(void)
 
 void TestMemPoolDelete(void)
 {
-    CFE_ES_MemHandle_t    PoolID = CFE_ES_MEMHANDLE_UNDEFINED; /* Poo1 1 handle, no mutex */
+    CFE_ES_MemHandle_t    PoolID = CFE_ES_MEMHANDLE_UNDEFINED; /* Pool 1 handle, no mutex */
     uint8                 Buffer[1024];
     CFE_ES_MemPoolStats_t Stats;
 

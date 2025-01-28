@@ -72,7 +72,7 @@ void TimeInRange(CFE_TIME_SysTime_t Start, CFE_TIME_SysTime_t Time, CFE_TIME_Sys
 
 void CFE_TestMain(void);
 void ESApplicationControlTestSetup(void);
-void ESBehaviorestSetup(void);
+void ESBehaviorTestSetup(void);
 void ESCDSTestSetup(void);
 void ESCounterTestSetup(void);
 void ESErrorTestSetup(void);
