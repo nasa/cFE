@@ -106,6 +106,7 @@ void TestReleaseAddress(void)
 
 void TestGetReleaseAddresses(void)
 {
+    int                  i;
     int                  numValidTbls = 5;
     char                 TblName[10];
     CFE_TBL_Handle_t     TblHandles[numValidTbls + 1];
@@ -116,7 +117,7 @@ void TestGetReleaseAddresses(void)
     /* Put an invalid handle at the start*/
     TblHandles[0] = CFE_TBL_BAD_TABLE_HANDLE;
     TblPtrs[0]    = TblPtrsList;
-    for (int i = 1; i < numValidTbls + 1; i++)
+    for (i = 1; i < numValidTbls + 1; i++)
     {
         sprintf(TblName, "%d", i);
         UtAssert_INT32_EQ(
@@ -132,7 +133,7 @@ void TestGetReleaseAddresses(void)
     UtAssert_INT32_EQ(CFE_TBL_GetAddresses((void ***)&TblPtrs, numValidTbls, TblHandles + 1), CFE_TBL_ERR_NEVER_LOADED);
 
     /* Load data and then get addresses */
-    for (int i = 1; i < numValidTbls + 1; i++)
+    for (i = 1; i < numValidTbls + 1; i++)
     {
         if (CFE_TBL_Load(TblHandles[i], CFE_TBL_SRC_ADDRESS, &TestTable) != CFE_SUCCESS)
         {
@@ -149,7 +150,7 @@ void TestGetReleaseAddresses(void)
     UtAssert_INT32_EQ(CFE_TBL_ReleaseAddresses(numValidTbls, TblHandles + 1), CFE_SUCCESS);
 
     /* Unregister all tables */
-    for (int i = 1; i < numValidTbls + 1; i++)
+    for (i = 1; i < numValidTbls + 1; i++)
     {
         if (CFE_TBL_Unregister(TblHandles[i]) != CFE_SUCCESS)
         {
