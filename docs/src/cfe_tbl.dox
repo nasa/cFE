@@ -377,7 +377,7 @@
 **  message length embedded within the header (from `CFE_MSG_GetSize()`) matches the expected
 **  length of that message, based on the size of the C structure defining that command.
 **  If there is any discrepancy between the expected and actual message size, TBL will generate
-**  the #CFE_TBL_LEN_ERR_EID event, increment the command error counter (\TBL_CMDEC), and the
+**  the #CFE_TBL_CMD_LEN_ERR_EID event, increment the command error counter (\TBL_CMDEC), and the
 **  command will _not_ be accepted for processing.
 **
 **  The following is a list of commands that are processed by the cFE Table Services Task.
