@@ -589,7 +589,7 @@
           following telemetry:
           - \b \c \SB_CMDPC - command execution counter will increment.
           - Specified filename created at specified location. See description.
-          - The #CFE_SB_SND_RTG_EID debug event message will be generated. All
+          - The #CFE_SB_FILE_WRITE_EID debug event message will be generated. All
           debug events are filtered by default.
 
           \par  Error Conditions
@@ -599,7 +599,7 @@
           Evidence of failure may be found in the following telemetry:
           - \b \c \SB_CMDEC - command error counter will increment
           - A command specific error event message is issued for all error
-          cases. See #CFE_SB_SND_RTG_ERR1_EID and #CFE_SB_FILEWRITE_ERR_EID
+          cases. See #CFE_SB_FILE_WRITE_CR_ERR_EID and #CFE_SB_FILE_WRITE_ERR_EID
 
           \par  Criticality
           This command is not inherently dangerous.  It will create a new
@@ -734,7 +734,7 @@
           following telemetry:
           - \b \c \SB_CMDPC - command execution counter will increment.
           - Specified filename created at specified location. See description.
-          - The #CFE_SB_SND_RTG_EID debug event message will be generated. All
+          - The #CFE_SB_FILE_WRITE_EID debug event message will be generated. All
           debug events are filtered by default.
 
           \par  Error Conditions
@@ -744,7 +744,7 @@
           Evidence of failure may be found in the following telemetry:
           - \b \c \SB_CMDEC - command error counter will increment
           - A command specific error event message is issued for all error
-          cases. See #CFE_SB_SND_RTG_ERR1_EID and #CFE_SB_FILEWRITE_ERR_EID
+          cases. See #CFE_SB_FILE_WRITE_CR_ERR_EID and #CFE_SB_FILE_WRITE_ERR_EID
 
           \par  Criticality
           This command is not inherently dangerous.  It will create a new
@@ -785,7 +785,7 @@
           following telemetry:
           - \b \c \SB_CMDPC - command execution counter will increment.
           - Specified filename created at specified location. See description.
-          - The #CFE_SB_SND_RTG_EID debug event message will be generated. All
+          - The #CFE_SB_FILE_WRITE_EID debug event message will be generated. All
           debug events are filtered by default.
 
           \par  Error Conditions
@@ -795,7 +795,7 @@
           Evidence of failure may be found in the following telemetry:
           - \b \c \SB_CMDEC - command error counter will increment
           - A command specific error event message is issued for all error
-          cases. See #CFE_SB_SND_RTG_ERR1_EID and #CFE_SB_FILEWRITE_ERR_EID
+          cases. See #CFE_SB_FILE_WRITE_CR_ERR_EID and #CFE_SB_FILE_WRITE_ERR_EID
 
           \par  Criticality
           This command is not inherently dangerous.  It will create a new
