@@ -365,7 +365,7 @@
 **       the following telemetry:
 **       - \b \c \ES_CMDPC - command execution counter will
 **         increment
-**       - The #CFE_ES_ONE_APP_EID debug event message will be
+**       - The #CFE_ES_ONE_APP_INF_EID informational event message will be
 **         generated.
 **       - Receipt of the #CFE_ES_OneAppTlm_t telemetry packet
 **
@@ -401,7 +401,7 @@
 **       the following telemetry:
 **       - \b \c \ES_CMDPC - command execution counter will
 **         increment
-**       - The #CFE_ES_ALL_APPS_EID debug event message will be
+**       - The #CFE_ES_ALL_APPS_INF_EID informational event message will be
 **         generated.
 **       - The file specified in the command (or the default specified
 **         by the #CFE_PLATFORM_ES_DEFAULT_APP_LOG_FILE configuration parameter) will be
@@ -478,7 +478,7 @@
 **       the following telemetry:
 **       - \b \c \ES_CMDPC - command execution counter will
 **         increment
-**       - The #CFE_ES_SYSLOG2_EID debug event message will be
+**       - The #CFE_ES_SYSLOG2_INF_EID informational event message will be
 **         generated.
 **       - The file specified in the command (or the default specified
 **         by the #CFE_PLATFORM_ES_DEFAULT_SYSLOG_FILE configuration parameter) will be
@@ -555,7 +555,7 @@
 **       the following telemetry:
 **       - \b \c \ES_CMDPC - command execution counter will
 **         increment
-**       - The #CFE_ES_ERLOG2_EID debug event message will be
+**       - The #CFE_ES_ERLOG2_INF_EID informational event message will be
 **         generated.
 **       - The file specified in the command (or the default specified
 **         by the #CFE_PLATFORM_ES_DEFAULT_ER_LOG_FILE configuration parameter) will be
@@ -606,7 +606,7 @@
 **       - \b \c \ES_PERFDATASTART - Data Start Index will go to zero
 **       - \b \c \ES_PERFDATAEND - Data End Index will go to zero
 **       - \b \c \ES_PERFDATACNT - Performance Data Counter will go to zero
-**       - The #CFE_ES_PERF_STARTCMD_EID debug event message will be
+**       - The #CFE_ES_PERF_STARTCMD_INF_EID informational event message will be
 **         generated.
 **
 **  \par Error Conditions
@@ -694,7 +694,7 @@
 **         increment
 **       - \b \c \ES_PERFFLTRMASK - the current performance filter mask
 **         value(s) should reflect the commanded value
-**       - The #CFE_ES_PERF_FILTMSKCMD_EID debug event message will be
+**       - The #CFE_ES_PERF_FILTMSKCMD_INF_EID informational event message will be
 **         generated.
 **
 **  \par Error Conditions
@@ -731,7 +731,7 @@
 **         increment
 **       - \b \c \ES_PERFTRIGMASK - the current performance trigger mask
 **         value(s) should reflect the commanded value
-**       - The #CFE_ES_PERF_TRIGMSKCMD_EID debug event message will be
+**       - The #CFE_ES_PERF_TRIGMSKCMD_INF_EID informational event message will be
 **         generated.
 **
 **  \par Error Conditions
@@ -770,7 +770,7 @@
 **         increment
 **       - \b \c \ES_SYSLOGMODE - Current System Log Mode should reflect
 **         the commanded value
-**       - The #CFE_ES_SYSLOGMODE_EID debug event message will be
+**       - The #CFE_ES_SYSLOGMODE_INF_EID informational event message will be
 **         generated.
 **
 **  \par Error Conditions
@@ -924,7 +924,7 @@
 **       the following telemetry:
 **       - \b \c \ES_CMDPC - command execution counter will
 **         increment
-**       - The #CFE_ES_TLM_POOL_STATS_INFO_EID debug event message will be
+**       - The #CFE_ES_TLM_POOL_STATS_INF_EID informational event message will be
 **         generated.
 **       - The \link #CFE_ES_MemStatsTlm_t Memory Pool Statistics Telemetry Packet \endlink
 **         is produced
@@ -963,7 +963,7 @@
 **       the following telemetry:
 **       - \b \c \ES_CMDPC - command execution counter will
 **         increment
-**       - The #CFE_ES_CDS_REG_DUMP_INF_EID debug event message will be
+**       - The #CFE_ES_CDS_REG_DUMP_INF_EID informational event message will be
 **         generated.
 **       - The file specified in the command (or the default specified
 **         by the #CFE_PLATFORM_ES_DEFAULT_CDS_REG_DUMP_FILE configuration parameter) will be
@@ -1005,7 +1005,7 @@
 **       the following telemetry:
 **       - \b \c \ES_CMDPC - command execution counter will
 **         increment
-**       - The #CFE_ES_TASKINFO_EID debug event message will be
+**       - The #CFE_ES_TASKINFO_INF_EID informational event message will be
 **         generated.
 **       - The file specified in the command (or the default specified
 **         by the #CFE_PLATFORM_ES_DEFAULT_TASK_LOG_FILE configuration parameter) will be
