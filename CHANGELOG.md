@@ -1,5 +1,9 @@
 # Changelog
 
+## Development Build: equuleus-rc1+dev231
+- Update Upload Artifact Version
+- See <https://github.com/nasa/cFE/pull/2631>
+
 ## Development Build: equuleus-rc1+dev227
 - Add CFE_TBL_BufferSelect_Enum_t Type Name
 - See <https://github.com/nasa/cFE/pull/2629>
