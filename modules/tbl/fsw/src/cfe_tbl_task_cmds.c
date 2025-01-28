@@ -95,7 +95,7 @@ int32 CFE_TBL_SendHkCmd(const CFE_TBL_SendHkCmd_t *data)
 
             /* If dump file was successfully written, update the file header so that the timestamp */
             /* is the time of the actual capturing of the data, NOT the time when it was written to the file */
-            if (Status == CFE_TBL_INC_CMD_CTR)
+            if (Status == CFE_SUCCESS)
             {
                 DumpTime = DumpCtrlPtr->DumpBufferPtr->FileTime;
 
@@ -130,7 +130,7 @@ int32 CFE_TBL_SendHkCmd(const CFE_TBL_SendHkCmd_t *data)
         }
     }
 
-    return CFE_TBL_DONT_INC_CTR;
+    return CFE_STATUS_NO_COUNTER_INCREMENT;
 }
 
 /*----------------------------------------------------------------
@@ -321,7 +321,7 @@ int32 CFE_TBL_NoopCmd(const CFE_TBL_NoopCmd_t *data)
                                 CFE_LAST_OFFICIAL);
     CFE_EVS_SendEvent(CFE_TBL_NOOP_INF_EID, CFE_EVS_EventType_INFORMATION, "No-op Cmd Rcvd: %s", VersionString);
 
-    return CFE_TBL_INC_CMD_CTR;
+    return CFE_SUCCESS;
 }
 
 /*----------------------------------------------------------------
@@ -341,7 +341,7 @@ int32 CFE_TBL_ResetCountersCmd(const CFE_TBL_ResetCountersCmd_t *data)
 
     CFE_EVS_SendEvent(CFE_TBL_RESET_INF_EID, CFE_EVS_EventType_DEBUG, "Reset Counters command");
 
-    return CFE_TBL_DONT_INC_CTR;
+    return CFE_STATUS_NO_COUNTER_INCREMENT;
 }
 
 /*----------------------------------------------------------------
@@ -352,7 +352,7 @@ int32 CFE_TBL_ResetCountersCmd(const CFE_TBL_ResetCountersCmd_t *data)
  *-----------------------------------------------------------------*/
 int32 CFE_TBL_LoadCmd(const CFE_TBL_LoadCmd_t *data)
 {
-    CFE_TBL_CmdProcRet_t             ReturnCode = CFE_TBL_INC_ERR_CTR; /* Assume failure */
+    CFE_Status_t                     ReturnCode = CFE_STATUS_COMMAND_FAILURE; /* Assume failure */
     const CFE_TBL_LoadCmd_Payload_t *CmdPtr     = &data->Payload;
     CFE_FS_Header_t                  StdFileHeader;
     CFE_TBL_File_Hdr_t               TblFileHeader;
@@ -471,7 +471,7 @@ int32 CFE_TBL_LoadCmd(const CFE_TBL_LoadCmd_t *data)
                                         '\0';
 
                                     /* Increment successful command completion counter */
-                                    ReturnCode = CFE_TBL_INC_CMD_CTR;
+                                    ReturnCode = CFE_SUCCESS;
                                 }
                             }
                             else
@@ -536,7 +536,7 @@ int32 CFE_TBL_LoadCmd(const CFE_TBL_LoadCmd_t *data)
  *-----------------------------------------------------------------*/
 int32 CFE_TBL_DumpCmd(const CFE_TBL_DumpCmd_t *data)
 {
-    CFE_TBL_CmdProcRet_t             ReturnCode = CFE_TBL_INC_ERR_CTR; /* Assume failure */
+    CFE_Status_t             ReturnCode = CFE_STATUS_COMMAND_FAILURE; /* Assume failure */
     CFE_TBL_TxnState_t               Txn;
     const CFE_TBL_DumpCmd_Payload_t *CmdPtr = &data->Payload;
     char                             DumpFilename[OS_MAX_PATH_LEN];
@@ -616,7 +616,7 @@ int32 CFE_TBL_DumpCmd(const CFE_TBL_DumpCmd_t *data)
                             CFE_TBL_SendNotificationMsg(RegRecPtr);
 
                             /* Consider the command completed successfully */
-                            ReturnCode = CFE_TBL_INC_CMD_CTR;
+                            ReturnCode = CFE_SUCCESS;
                         }
                         else
                         {
@@ -653,17 +653,17 @@ int32 CFE_TBL_DumpCmd(const CFE_TBL_DumpCmd_t *data)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-CFE_TBL_CmdProcRet_t CFE_TBL_DumpToFile(const char *DumpFilename, const char *TableName, const void *DumpDataAddr,
-                                        size_t TblSizeInBytes)
+CFE_Status_t CFE_TBL_DumpToFile(const char *DumpFilename, const char *TableName, const void *DumpDataAddr,
+                                size_t TblSizeInBytes)
 {
-    CFE_TBL_CmdProcRet_t ReturnCode      = CFE_TBL_INC_ERR_CTR; /* Assume failure */
-    bool                 FileExistedPrev = false;
-    CFE_FS_Header_t      StdFileHeader;
-    CFE_TBL_File_Hdr_t   TblFileHeader;
-    osal_id_t            FileDescriptor = OS_OBJECT_ID_UNDEFINED;
-    int32                Status;
-    int32                OsStatus;
-    int32                EndianCheck = 0x01020304;
+    CFE_Status_t       ReturnCode      = CFE_STATUS_COMMAND_FAILURE; /* Assume failure */
+    bool               FileExistedPrev = false;
+    CFE_FS_Header_t    StdFileHeader;
+    CFE_TBL_File_Hdr_t TblFileHeader;
+    osal_id_t          FileDescriptor = OS_OBJECT_ID_UNDEFINED;
+    int32              Status;
+    int32              OsStatus;
+    int32              EndianCheck = 0x01020304;
 
     /* Clear Header of any garbage before copying content */
     memset(&TblFileHeader, 0, sizeof(CFE_TBL_File_Hdr_t));
@@ -737,7 +737,7 @@ CFE_TBL_CmdProcRet_t CFE_TBL_DumpToFile(const char *DumpFilename, const char *Ta
                         .LastFileDumped[sizeof(CFE_TBL_Global.HkPacket.Payload.LastFileDumped) - 1] = 0;
 
                     /* Increment Successful Command Counter */
-                    ReturnCode = CFE_TBL_INC_CMD_CTR;
+                    ReturnCode = CFE_SUCCESS;
                 }
                 else
                 {
@@ -779,7 +779,7 @@ CFE_TBL_CmdProcRet_t CFE_TBL_DumpToFile(const char *DumpFilename, const char *Ta
  *-----------------------------------------------------------------*/
 int32 CFE_TBL_ValidateCmd(const CFE_TBL_ValidateCmd_t *data)
 {
-    CFE_TBL_CmdProcRet_t                 ReturnCode = CFE_TBL_INC_ERR_CTR; /* Assume failure */
+    CFE_Status_t                         ReturnCode = CFE_STATUS_COMMAND_FAILURE; /* Assume failure */
     CFE_TBL_TxnState_t                   Txn;
     CFE_Status_t                         Status;
     const CFE_TBL_ValidateCmd_Payload_t *CmdPtr = &data->Payload;
@@ -872,7 +872,7 @@ int32 CFE_TBL_ValidateCmd(const CFE_TBL_ValidateCmd_t *data)
                 }
 
                 /* Increment Successful Command Counter */
-                ReturnCode = CFE_TBL_INC_CMD_CTR;
+                ReturnCode = CFE_SUCCESS;
             }
             else
             {
@@ -898,7 +898,7 @@ int32 CFE_TBL_ValidateCmd(const CFE_TBL_ValidateCmd_t *data)
  *-----------------------------------------------------------------*/
 int32 CFE_TBL_ActivateCmd(const CFE_TBL_ActivateCmd_t *data)
 {
-    CFE_TBL_CmdProcRet_t                 ReturnCode = CFE_TBL_INC_ERR_CTR; /* Assume failure */
+    CFE_Status_t                         ReturnCode = CFE_STATUS_COMMAND_FAILURE; /* Assume failure */
     int16                                RegIndex;
     const CFE_TBL_ActivateCmd_Payload_t *CmdPtr = &data->Payload;
     char                                 TableName[CFE_TBL_MAX_FULL_NAME_LEN];
@@ -945,7 +945,7 @@ int32 CFE_TBL_ActivateCmd(const CFE_TBL_ActivateCmd_t *data)
                 }
 
                 /* Increment Successful Command Counter */
-                ReturnCode = CFE_TBL_INC_CMD_CTR;
+                ReturnCode = CFE_SUCCESS;
             }
             else
             {
@@ -1150,7 +1150,7 @@ void CFE_TBL_DumpRegistryEventHandler(void *Meta, CFE_FS_FileWriteEvent_t Event,
  *-----------------------------------------------------------------*/
 int32 CFE_TBL_DumpRegistryCmd(const CFE_TBL_DumpRegistryCmd_t *data)
 {
-    CFE_TBL_CmdProcRet_t                     ReturnCode = CFE_TBL_INC_ERR_CTR; /* Assume failure */
+    CFE_Status_t                             ReturnCode = CFE_STATUS_COMMAND_FAILURE; /* Assume failure */
     int32                                    Status;
     const CFE_TBL_DumpRegistryCmd_Payload_t *CmdPtr = &data->Payload;
     os_fstat_t                               FileStat;
@@ -1195,7 +1195,7 @@ int32 CFE_TBL_DumpRegistryCmd(const CFE_TBL_DumpRegistryCmd_t *data)
             if (Status == CFE_SUCCESS)
             {
                 /* Increment the TBL generic command counter (successfully queued for background job) */
-                ReturnCode = CFE_TBL_INC_CMD_CTR;
+                ReturnCode = CFE_SUCCESS;
             }
         }
     }
@@ -1211,7 +1211,7 @@ int32 CFE_TBL_DumpRegistryCmd(const CFE_TBL_DumpRegistryCmd_t *data)
  *-----------------------------------------------------------------*/
 int32 CFE_TBL_SendRegistryCmd(const CFE_TBL_SendRegistryCmd_t *data)
 {
-    CFE_TBL_CmdProcRet_t                     ReturnCode = CFE_TBL_INC_ERR_CTR; /* Assume failure */
+    CFE_Status_t                             ReturnCode = CFE_STATUS_COMMAND_FAILURE; /* Assume failure */
     int16                                    RegIndex;
     const CFE_TBL_SendRegistryCmd_Payload_t *CmdPtr = &data->Payload;
     char                                     TableName[CFE_TBL_MAX_FULL_NAME_LEN];
@@ -1231,7 +1231,7 @@ int32 CFE_TBL_SendRegistryCmd(const CFE_TBL_SendRegistryCmd_t *data)
                           "Table Registry entry for '%s' will be telemetered", TableName);
 
         /* Increment Successful Command Counter */
-        ReturnCode = CFE_TBL_INC_CMD_CTR;
+        ReturnCode = CFE_SUCCESS;
     }
     else /* Table could not be found in Registry */
     {
@@ -1250,7 +1250,7 @@ int32 CFE_TBL_SendRegistryCmd(const CFE_TBL_SendRegistryCmd_t *data)
  *-----------------------------------------------------------------*/
 int32 CFE_TBL_DeleteCDSCmd(const CFE_TBL_DeleteCDSCmd_t *data)
 {
-    CFE_TBL_CmdProcRet_t               ReturnCode = CFE_TBL_INC_ERR_CTR; /* Assume failure */
+    CFE_Status_t                       ReturnCode = CFE_STATUS_COMMAND_FAILURE; /* Assume failure */
     const CFE_TBL_DelCDSCmd_Payload_t *CmdPtr     = &data->Payload;
     char                               TableName[CFE_TBL_MAX_FULL_NAME_LEN];
     CFE_TBL_CritRegRec_t *             CritRegRecPtr = NULL;
@@ -1313,7 +1313,7 @@ int32 CFE_TBL_DeleteCDSCmd(const CFE_TBL_DeleteCDSCmd_t *data)
                 CritRegRecPtr->CDSHandle = CFE_ES_CDS_BAD_HANDLE;
 
                 /* Increment Successful Command Counter */
-                ReturnCode = CFE_TBL_INC_CMD_CTR;
+                ReturnCode = CFE_SUCCESS;
             }
         }
         else
@@ -1338,7 +1338,7 @@ int32 CFE_TBL_DeleteCDSCmd(const CFE_TBL_DeleteCDSCmd_t *data)
  *-----------------------------------------------------------------*/
 int32 CFE_TBL_AbortLoadCmd(const CFE_TBL_AbortLoadCmd_t *data)
 {
-    CFE_TBL_CmdProcRet_t                  ReturnCode = CFE_TBL_INC_ERR_CTR; /* Assume failure */
+    CFE_Status_t                          ReturnCode = CFE_STATUS_COMMAND_FAILURE; /* Assume failure */
     int16                                 RegIndex;
     const CFE_TBL_AbortLoadCmd_Payload_t *CmdPtr = &data->Payload;
     CFE_TBL_RegistryRec_t *               RegRecPtr;
@@ -1363,7 +1363,7 @@ int32 CFE_TBL_AbortLoadCmd(const CFE_TBL_AbortLoadCmd_t *data)
             CFE_TBL_AbortLoad(RegRecPtr);
 
             /* Increment Successful Command Counter */
-            ReturnCode = CFE_TBL_INC_CMD_CTR;
+            ReturnCode = CFE_SUCCESS;
         }
         else
         {

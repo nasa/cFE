@@ -93,11 +93,11 @@ const CFE_TBL_CmdHandlerTblRec_t CFE_TBL_CmdHandlerTbl[] = {
  *-----------------------------------------------------------------*/
 void CFE_TBL_TaskPipe(const CFE_SB_Buffer_t *SBBufPtr)
 {
-    CFE_SB_MsgId_t       MessageID   = CFE_SB_INVALID_MSG_ID;
-    CFE_MSG_FcnCode_t    CommandCode = 0;
-    int16                CmdIndx;
-    CFE_MSG_Size_t       ActualLength = 0;
-    CFE_TBL_CmdProcRet_t CmdStatus    = CFE_TBL_INC_ERR_CTR; /* Assume a failed command */
+    CFE_SB_MsgId_t    MessageID   = CFE_SB_INVALID_MSG_ID;
+    CFE_MSG_FcnCode_t CommandCode = 0;
+    int16             CmdIndx;
+    CFE_MSG_Size_t    ActualLength = 0;
+    CFE_Status_t      CmdStatus    = CFE_STATUS_COMMAND_FAILURE; /* Assume a failed command */
 
     CFE_MSG_GetMsgId(&SBBufPtr->Msg, &MessageID);
     CFE_MSG_GetFcnCode(&SBBufPtr->Msg, &CommandCode);
@@ -126,11 +126,11 @@ void CFE_TBL_TaskPipe(const CFE_SB_Buffer_t *SBBufPtr)
         /* Only update command counters when message has a command code */
         if (CFE_TBL_CmdHandlerTbl[CmdIndx].MsgTypes == CFE_TBL_CMD_MSGTYPE)
         {
-            if (CmdStatus == CFE_TBL_INC_CMD_CTR)
+            if (CmdStatus == CFE_SUCCESS)
             {
                 CFE_TBL_Global.CommandCounter++;
             }
-            else if (CmdStatus == CFE_TBL_INC_ERR_CTR)
+            else if (CmdStatus == CFE_STATUS_COMMAND_FAILURE)
             {
                 CFE_TBL_Global.CommandErrorCounter++;
             }

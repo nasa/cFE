@@ -155,6 +155,14 @@ char *CFE_ES_StatusToString(CFE_Status_t status, CFE_StatusString_t *status_stri
 #define CFE_STATUS_NO_COUNTER_INCREMENT ((CFE_Status_t)0x48000001)
 
 /**
+ * @brief Command Execution Failure
+ *
+ *  This error code will be returned when a command function fails
+ *  to successfully execute its command
+ */
+#define CFE_STATUS_COMMAND_FAILURE ((CFE_Status_t)0xc8000001)
+
+/**
  * @brief Wrong Message Length
  *
  *  This error code will be returned when a message validation process
@@ -1250,14 +1258,6 @@ char *CFE_ES_StatusToString(CFE_Status_t status, CFE_StatusString_t *status_stri
  *
  */
 #define CFE_TBL_ERR_BAD_PROCESSOR_ID ((CFE_Status_t)0xcc000029)
-
-/**
- * @brief Message Error
- *
- *  Error code indicating that the TBL command was not processed
- *  successfully and that the error counter should be incremented.
- */
-#define CFE_TBL_MESSAGE_ERROR ((CFE_Status_t)0xcc00002a)
 
 /**
 **  Error code indicating that the TBL file is shorter than

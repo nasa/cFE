@@ -449,8 +449,6 @@ int32 CFE_TIME_NoopCmd(const CFE_TIME_NoopCmd_t *data)
 {
     char VersionString[CFE_CFG_MAX_VERSION_STR_LEN];
 
-    CFE_TIME_Global.CommandCounter++;
-
     CFE_Config_GetVersionString(VersionString, CFE_CFG_MAX_VERSION_STR_LEN, "cFE", CFE_SRC_VERSION, CFE_BUILD_CODENAME,
                                 CFE_LAST_OFFICIAL);
     CFE_EVS_SendEvent(CFE_TIME_NOOP_EID, CFE_EVS_EventType_INFORMATION, "No-op Cmd Rcvd: %s", VersionString);
@@ -493,7 +491,7 @@ int32 CFE_TIME_ResetCountersCmd(const CFE_TIME_ResetCountersCmd_t *data)
 
     CFE_EVS_SendEvent(CFE_TIME_RESET_EID, CFE_EVS_EventType_DEBUG, "Reset Counters command");
 
-    return CFE_SUCCESS;
+    return CFE_STATUS_NO_COUNTER_INCREMENT;
 }
 
 /*----------------------------------------------------------------
@@ -504,8 +502,6 @@ int32 CFE_TIME_ResetCountersCmd(const CFE_TIME_ResetCountersCmd_t *data)
  *-----------------------------------------------------------------*/
 int32 CFE_TIME_SendDiagnosticTlm(const CFE_TIME_SendDiagnosticCmd_t *data)
 {
-    CFE_TIME_Global.CommandCounter++;
-
     /*
     ** Collect diagnostics data from Time Services utilities...
     */
@@ -532,6 +528,7 @@ int32 CFE_TIME_SetStateCmd(const CFE_TIME_SetStateCmd_t *data)
 {
     const CFE_TIME_StateCmd_Payload_t *CommandPtr = &data->Payload;
     const char *                       ClockStateText;
+    CFE_Status_t                       ReturnCode = CFE_STATUS_COMMAND_FAILURE;
 
     /*
     ** Verify command argument value (clock state)...
@@ -558,17 +555,16 @@ int32 CFE_TIME_SetStateCmd(const CFE_TIME_SetStateCmd_t *data)
             ClockStateText = "FLYWHEEL";
         }
 
-        CFE_TIME_Global.CommandCounter++;
+        ReturnCode = CFE_SUCCESS;
         CFE_EVS_SendEvent(CFE_TIME_STATE_EID, CFE_EVS_EventType_INFORMATION, "Set Clock State = %s", ClockStateText);
     }
     else
     {
-        CFE_TIME_Global.CommandErrorCounter++;
         CFE_EVS_SendEvent(CFE_TIME_STATE_ERR_EID, CFE_EVS_EventType_ERROR, "Invalid Clock State = 0x%X",
                           (unsigned int)CommandPtr->ClockState);
     }
 
-    return CFE_SUCCESS;
+    return ReturnCode;
 }
 
 /*----------------------------------------------------------------
@@ -580,6 +576,7 @@ int32 CFE_TIME_SetStateCmd(const CFE_TIME_SetStateCmd_t *data)
 int32 CFE_TIME_SetSourceCmd(const CFE_TIME_SetSourceCmd_t *data)
 {
     const CFE_TIME_SourceCmd_Payload_t *CommandPtr = &data->Payload;
+    CFE_Status_t                        ReturnCode = CFE_STATUS_COMMAND_FAILURE;
 
 #if (CFE_PLATFORM_TIME_CFG_SOURCE == true)
     const char *TimeSourceText;
@@ -595,7 +592,7 @@ int32 CFE_TIME_SetSourceCmd(const CFE_TIME_SetSourceCmd_t *data)
         /*
         ** Only systems configured to select source of time data...
         */
-        CFE_TIME_Global.CommandCounter++;
+        ReturnCode = CFE_SUCCESS;
 
         CFE_TIME_SetSource(CommandPtr->TimeSource);
 
@@ -617,8 +614,6 @@ int32 CFE_TIME_SetSourceCmd(const CFE_TIME_SetSourceCmd_t *data)
         /*
         ** We want to know if disabled commands are being sent...
         */
-        CFE_TIME_Global.CommandErrorCounter++;
-
         CFE_EVS_SendEvent(CFE_TIME_SOURCE_CFG_EID, CFE_EVS_EventType_ERROR,
                           "Set Source commands invalid without CFE_PLATFORM_TIME_CFG_SOURCE set to TRUE");
 
@@ -629,13 +624,12 @@ int32 CFE_TIME_SetSourceCmd(const CFE_TIME_SetSourceCmd_t *data)
         /*
         ** Ground system database will prevent most of these errors...
         */
-        CFE_TIME_Global.CommandErrorCounter++;
 
         CFE_EVS_SendEvent(CFE_TIME_SOURCE_ERR_EID, CFE_EVS_EventType_ERROR, "Invalid Time Source = 0x%X",
                           (unsigned int)CommandPtr->TimeSource);
     }
 
-    return CFE_SUCCESS;
+    return ReturnCode;
 }
 
 /*----------------------------------------------------------------
@@ -647,6 +641,7 @@ int32 CFE_TIME_SetSourceCmd(const CFE_TIME_SetSourceCmd_t *data)
 int32 CFE_TIME_SetSignalCmd(const CFE_TIME_SetSignalCmd_t *data)
 {
     const CFE_TIME_SignalCmd_Payload_t *CommandPtr = &data->Payload;
+    CFE_Status_t                        ReturnCode = CFE_STATUS_COMMAND_FAILURE;
 
 #if (CFE_PLATFORM_TIME_CFG_SIGNAL == true)
     const char *ToneSourceText;
@@ -662,8 +657,7 @@ int32 CFE_TIME_SetSignalCmd(const CFE_TIME_SetSignalCmd_t *data)
         /*
         ** Only systems configured to select tone signal...
         */
-        CFE_TIME_Global.CommandCounter++;
-
+        ReturnCode = CFE_SUCCESS;
         CFE_TIME_SetSignal(CommandPtr->ToneSource);
 
         /*
@@ -684,8 +678,6 @@ int32 CFE_TIME_SetSignalCmd(const CFE_TIME_SetSignalCmd_t *data)
         /*
         ** We want to know if disabled commands are being sent...
         */
-        CFE_TIME_Global.CommandErrorCounter++;
-
         CFE_EVS_SendEvent(CFE_TIME_SIGNAL_CFG_EID, CFE_EVS_EventType_ERROR,
                           "Set Signal commands invalid without CFE_PLATFORM_TIME_CFG_SIGNAL set to TRUE");
 
@@ -696,13 +688,12 @@ int32 CFE_TIME_SetSignalCmd(const CFE_TIME_SetSignalCmd_t *data)
         /*
         ** Ground system database will prevent most of these errors...
         */
-        CFE_TIME_Global.CommandErrorCounter++;
 
         CFE_EVS_SendEvent(CFE_TIME_SIGNAL_ERR_EID, CFE_EVS_EventType_ERROR, "Invalid Tone Source = 0x%X",
                           (unsigned int)CommandPtr->ToneSource);
     }
 
-    return CFE_SUCCESS;
+    return ReturnCode;
 }
 
 /*----------------------------------------------------------------
@@ -711,8 +702,11 @@ int32 CFE_TIME_SetSignalCmd(const CFE_TIME_SetSignalCmd_t *data)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-void CFE_TIME_SetDelayImpl(const CFE_TIME_TimeCmd_Payload_t *CommandPtr, CFE_TIME_AdjustDirection_Enum_t Direction)
+CFE_Status_t CFE_TIME_SetDelayImpl(const CFE_TIME_TimeCmd_Payload_t *CommandPtr,
+                                   CFE_TIME_AdjustDirection_Enum_t   Direction)
 {
+    CFE_Status_t ReturnCode = CFE_STATUS_COMMAND_FAILURE;
+
     /*
     ** Verify "micro-seconds" command argument...
     */
@@ -727,7 +721,7 @@ void CFE_TIME_SetDelayImpl(const CFE_TIME_TimeCmd_Payload_t *CommandPtr, CFE_TIM
 
         CFE_TIME_SetDelay(Delay, Direction);
 
-        CFE_TIME_Global.CommandCounter++;
+        ReturnCode = CFE_SUCCESS;
         CFE_EVS_SendEvent(CFE_TIME_DELAY_EID, CFE_EVS_EventType_INFORMATION,
                           "Set Tone Delay -- secs = %u, usecs = %u, ssecs = 0x%X, dir = %d",
                           (unsigned int)CommandPtr->Seconds, (unsigned int)CommandPtr->MicroSeconds,
@@ -737,8 +731,6 @@ void CFE_TIME_SetDelayImpl(const CFE_TIME_TimeCmd_Payload_t *CommandPtr, CFE_TIM
         /*
         ** We want to know if disabled commands are being sent...
         */
-        CFE_TIME_Global.CommandErrorCounter++;
-
         CFE_EVS_SendEvent(CFE_TIME_DELAY_CFG_EID, CFE_EVS_EventType_ERROR,
                           "Set Delay commands invalid without CFE_PLATFORM_TIME_CFG_CLIENT set to TRUE");
 
@@ -746,11 +738,12 @@ void CFE_TIME_SetDelayImpl(const CFE_TIME_TimeCmd_Payload_t *CommandPtr, CFE_TIM
     }
     else
     {
-        CFE_TIME_Global.CommandErrorCounter++;
         CFE_EVS_SendEvent(CFE_TIME_DELAY_ERR_EID, CFE_EVS_EventType_ERROR,
                           "Invalid Tone Delay -- secs = %u, usecs = %u", (unsigned int)CommandPtr->Seconds,
                           (unsigned int)CommandPtr->MicroSeconds);
     }
+
+    return ReturnCode;
 }
 
 /*----------------------------------------------------------------
@@ -761,8 +754,11 @@ void CFE_TIME_SetDelayImpl(const CFE_TIME_TimeCmd_Payload_t *CommandPtr, CFE_TIM
  *-----------------------------------------------------------------*/
 int32 CFE_TIME_AddDelayCmd(const CFE_TIME_AddDelayCmd_t *data)
 {
-    CFE_TIME_SetDelayImpl(&data->Payload, CFE_TIME_AdjustDirection_ADD);
-    return CFE_SUCCESS;
+    CFE_Status_t ReturnCode;
+
+    ReturnCode = CFE_TIME_SetDelayImpl(&data->Payload, CFE_TIME_AdjustDirection_ADD);
+
+    return ReturnCode;
 }
 
 /*----------------------------------------------------------------
@@ -773,8 +769,11 @@ int32 CFE_TIME_AddDelayCmd(const CFE_TIME_AddDelayCmd_t *data)
  *-----------------------------------------------------------------*/
 int32 CFE_TIME_SubDelayCmd(const CFE_TIME_SubDelayCmd_t *data)
 {
-    CFE_TIME_SetDelayImpl(&data->Payload, CFE_TIME_AdjustDirection_SUBTRACT);
-    return CFE_SUCCESS;
+    CFE_Status_t ReturnCode;
+
+    ReturnCode = CFE_TIME_SetDelayImpl(&data->Payload, CFE_TIME_AdjustDirection_SUBTRACT);
+
+    return ReturnCode;
 }
 
 /*----------------------------------------------------------------
@@ -786,6 +785,7 @@ int32 CFE_TIME_SubDelayCmd(const CFE_TIME_SubDelayCmd_t *data)
 int32 CFE_TIME_SetTimeCmd(const CFE_TIME_SetTimeCmd_t *data)
 {
     const CFE_TIME_TimeCmd_Payload_t *CommandPtr = &data->Payload;
+    CFE_Status_t                      ReturnCode = CFE_STATUS_COMMAND_FAILURE;
 
     /*
     ** Verify "micro-seconds" command argument...
@@ -801,7 +801,7 @@ int32 CFE_TIME_SetTimeCmd(const CFE_TIME_SetTimeCmd_t *data)
 
         CFE_TIME_SetTime(NewTime);
 
-        CFE_TIME_Global.CommandCounter++;
+        ReturnCode = CFE_SUCCESS;
         CFE_EVS_SendEvent(CFE_TIME_TIME_EID, CFE_EVS_EventType_INFORMATION,
                           "Set Time -- secs = %u, usecs = %u, ssecs = 0x%X", (unsigned int)CommandPtr->Seconds,
                           (unsigned int)CommandPtr->MicroSeconds,
@@ -811,8 +811,6 @@ int32 CFE_TIME_SetTimeCmd(const CFE_TIME_SetTimeCmd_t *data)
         /*
         ** We want to know if disabled commands are being sent...
         */
-        CFE_TIME_Global.CommandErrorCounter++;
-
         CFE_EVS_SendEvent(CFE_TIME_TIME_CFG_EID, CFE_EVS_EventType_ERROR,
                           "Set Time commands invalid without CFE_PLATFORM_TIME_CFG_SERVER set to TRUE");
 
@@ -820,12 +818,11 @@ int32 CFE_TIME_SetTimeCmd(const CFE_TIME_SetTimeCmd_t *data)
     }
     else
     {
-        CFE_TIME_Global.CommandErrorCounter++;
         CFE_EVS_SendEvent(CFE_TIME_TIME_ERR_EID, CFE_EVS_EventType_ERROR, "Invalid Time -- secs = %u, usecs = %u",
                           (unsigned int)CommandPtr->Seconds, (unsigned int)CommandPtr->MicroSeconds);
     }
 
-    return CFE_SUCCESS;
+    return ReturnCode;
 }
 
 /*----------------------------------------------------------------
@@ -837,6 +834,7 @@ int32 CFE_TIME_SetTimeCmd(const CFE_TIME_SetTimeCmd_t *data)
 int32 CFE_TIME_SetMETCmd(const CFE_TIME_SetMETCmd_t *data)
 {
     const CFE_TIME_TimeCmd_Payload_t *CommandPtr = &data->Payload;
+    CFE_Status_t                      ReturnCode = CFE_STATUS_COMMAND_FAILURE;
 
     /*
     ** Verify "micro-seconds" command argument...
@@ -852,7 +850,7 @@ int32 CFE_TIME_SetMETCmd(const CFE_TIME_SetMETCmd_t *data)
 
         CFE_TIME_SetMET(NewMET);
 
-        CFE_TIME_Global.CommandCounter++;
+        ReturnCode = CFE_SUCCESS;
         CFE_EVS_SendEvent(CFE_TIME_MET_EID, CFE_EVS_EventType_INFORMATION,
                           "Set MET -- secs = %u, usecs = %u, ssecs = 0x%X", (unsigned int)CommandPtr->Seconds,
                           (unsigned int)CommandPtr->MicroSeconds,
@@ -862,8 +860,6 @@ int32 CFE_TIME_SetMETCmd(const CFE_TIME_SetMETCmd_t *data)
         /*
         ** We want to know if disabled commands are being sent...
         */
-        CFE_TIME_Global.CommandErrorCounter++;
-
         CFE_EVS_SendEvent(CFE_TIME_MET_CFG_EID, CFE_EVS_EventType_ERROR,
                           "Set MET commands invalid without CFE_PLATFORM_TIME_CFG_SERVER set to TRUE");
 
@@ -871,12 +867,11 @@ int32 CFE_TIME_SetMETCmd(const CFE_TIME_SetMETCmd_t *data)
     }
     else
     {
-        CFE_TIME_Global.CommandErrorCounter++;
         CFE_EVS_SendEvent(CFE_TIME_MET_ERR_EID, CFE_EVS_EventType_ERROR, "Invalid MET -- secs = %u, usecs = %u",
                           (unsigned int)CommandPtr->Seconds, (unsigned int)CommandPtr->MicroSeconds);
     }
 
-    return CFE_SUCCESS;
+    return ReturnCode;
 }
 
 /*----------------------------------------------------------------
@@ -888,6 +883,7 @@ int32 CFE_TIME_SetMETCmd(const CFE_TIME_SetMETCmd_t *data)
 int32 CFE_TIME_SetSTCFCmd(const CFE_TIME_SetSTCFCmd_t *data)
 {
     const CFE_TIME_TimeCmd_Payload_t *CommandPtr = &data->Payload;
+    CFE_Status_t                      ReturnCode = CFE_STATUS_COMMAND_FAILURE;
 
     /*
     ** Verify "micro-seconds" command argument...
@@ -903,7 +899,7 @@ int32 CFE_TIME_SetSTCFCmd(const CFE_TIME_SetSTCFCmd_t *data)
 
         CFE_TIME_SetSTCF(NewSTCF);
 
-        CFE_TIME_Global.CommandCounter++;
+        ReturnCode = CFE_SUCCESS;
         CFE_EVS_SendEvent(CFE_TIME_STCF_EID, CFE_EVS_EventType_INFORMATION,
                           "Set STCF -- secs = %u, usecs = %u, ssecs = 0x%X", (unsigned int)CommandPtr->Seconds,
                           (unsigned int)CommandPtr->MicroSeconds,
@@ -913,8 +909,6 @@ int32 CFE_TIME_SetSTCFCmd(const CFE_TIME_SetSTCFCmd_t *data)
         /*
         ** We want to know if disabled commands are being sent...
         */
-        CFE_TIME_Global.CommandErrorCounter++;
-
         CFE_EVS_SendEvent(CFE_TIME_STCF_CFG_EID, CFE_EVS_EventType_ERROR,
                           "Set STCF commands invalid without CFE_PLATFORM_TIME_CFG_SERVER set to TRUE");
 
@@ -922,12 +916,11 @@ int32 CFE_TIME_SetSTCFCmd(const CFE_TIME_SetSTCFCmd_t *data)
     }
     else
     {
-        CFE_TIME_Global.CommandErrorCounter++;
         CFE_EVS_SendEvent(CFE_TIME_STCF_ERR_EID, CFE_EVS_EventType_ERROR, "Invalid STCF -- secs = %u, usecs = %u",
                           (unsigned int)CommandPtr->Seconds, (unsigned int)CommandPtr->MicroSeconds);
     }
 
-    return CFE_SUCCESS;
+    return ReturnCode;
 }
 
 /*----------------------------------------------------------------
@@ -938,6 +931,8 @@ int32 CFE_TIME_SetSTCFCmd(const CFE_TIME_SetSTCFCmd_t *data)
  *-----------------------------------------------------------------*/
 int32 CFE_TIME_SetLeapSecondsCmd(const CFE_TIME_SetLeapSecondsCmd_t *data)
 {
+    CFE_Status_t ReturnCode = CFE_STATUS_COMMAND_FAILURE;
+
 #if (CFE_PLATFORM_TIME_CFG_SERVER == true)
 
     const CFE_TIME_LeapsCmd_Payload_t *CommandPtr = &data->Payload;
@@ -947,8 +942,7 @@ int32 CFE_TIME_SetLeapSecondsCmd(const CFE_TIME_SetLeapSecondsCmd_t *data)
     */
     CFE_TIME_SetLeapSeconds(CommandPtr->LeapSeconds);
 
-    CFE_TIME_Global.CommandCounter++;
-
+    ReturnCode = CFE_SUCCESS;
     CFE_EVS_SendEvent(CFE_TIME_LEAPS_EID, CFE_EVS_EventType_INFORMATION, "Set Leap Seconds = %d",
                       (int)CommandPtr->LeapSeconds);
 
@@ -956,14 +950,12 @@ int32 CFE_TIME_SetLeapSecondsCmd(const CFE_TIME_SetLeapSecondsCmd_t *data)
     /*
     ** We want to know if disabled commands are being sent...
     */
-    CFE_TIME_Global.CommandErrorCounter++;
-
     CFE_EVS_SendEvent(CFE_TIME_LEAPS_CFG_EID, CFE_EVS_EventType_ERROR,
                       "Set Leaps commands invalid without CFE_PLATFORM_TIME_CFG_SERVER set to TRUE");
 
 #endif /* CFE_PLATFORM_TIME_CFG_SERVER */
 
-    return CFE_SUCCESS;
+    return ReturnCode;
 }
 
 /*----------------------------------------------------------------
@@ -972,8 +964,11 @@ int32 CFE_TIME_SetLeapSecondsCmd(const CFE_TIME_SetLeapSecondsCmd_t *data)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-void CFE_TIME_AdjustImpl(const CFE_TIME_TimeCmd_Payload_t *CommandPtr, CFE_TIME_AdjustDirection_Enum_t Direction)
+CFE_Status_t CFE_TIME_AdjustImpl(const CFE_TIME_TimeCmd_Payload_t *CommandPtr,
+                                 CFE_TIME_AdjustDirection_Enum_t   Direction)
 {
+    CFE_Status_t ReturnCode = CFE_STATUS_COMMAND_FAILURE;
+
     /*
     ** Verify command arguments...
     */
@@ -988,7 +983,7 @@ void CFE_TIME_AdjustImpl(const CFE_TIME_TimeCmd_Payload_t *CommandPtr, CFE_TIME_
 
         CFE_TIME_SetAdjust(Adjust, Direction);
 
-        CFE_TIME_Global.CommandCounter++;
+        ReturnCode = CFE_SUCCESS;
         CFE_EVS_SendEvent(CFE_TIME_DELTA_EID, CFE_EVS_EventType_INFORMATION,
                           "STCF Adjust -- secs = %u, usecs = %u, ssecs = 0x%X, dir[1=Pos, 2=Neg] = %d",
                           (unsigned int)CommandPtr->Seconds, (unsigned int)CommandPtr->MicroSeconds,
@@ -998,8 +993,6 @@ void CFE_TIME_AdjustImpl(const CFE_TIME_TimeCmd_Payload_t *CommandPtr, CFE_TIME_
         /*
         ** We want to know if disabled commands are being sent...
         */
-        CFE_TIME_Global.CommandErrorCounter++;
-
         CFE_EVS_SendEvent(CFE_TIME_DELTA_CFG_EID, CFE_EVS_EventType_ERROR,
                           "STCF Adjust commands invalid without CFE_PLATFORM_TIME_CFG_SERVER set to TRUE");
 
@@ -1007,11 +1000,12 @@ void CFE_TIME_AdjustImpl(const CFE_TIME_TimeCmd_Payload_t *CommandPtr, CFE_TIME_
     }
     else
     {
-        CFE_TIME_Global.CommandErrorCounter++;
         CFE_EVS_SendEvent(CFE_TIME_DELTA_ERR_EID, CFE_EVS_EventType_ERROR,
                           "Invalid STCF Adjust -- secs = %u, usecs = %u, dir[1=Pos, 2=Neg] = %d",
                           (unsigned int)CommandPtr->Seconds, (unsigned int)CommandPtr->MicroSeconds, (int)Direction);
     }
+
+    return ReturnCode;
 }
 
 /*----------------------------------------------------------------
@@ -1022,8 +1016,11 @@ void CFE_TIME_AdjustImpl(const CFE_TIME_TimeCmd_Payload_t *CommandPtr, CFE_TIME_
  *-----------------------------------------------------------------*/
 int32 CFE_TIME_AddAdjustCmd(const CFE_TIME_AddAdjustCmd_t *data)
 {
-    CFE_TIME_AdjustImpl(&data->Payload, CFE_TIME_AdjustDirection_ADD);
-    return CFE_SUCCESS;
+    CFE_Status_t ReturnCode;
+
+    ReturnCode = CFE_TIME_AdjustImpl(&data->Payload, CFE_TIME_AdjustDirection_ADD);
+
+    return ReturnCode;
 }
 
 /*----------------------------------------------------------------
@@ -1034,8 +1031,11 @@ int32 CFE_TIME_AddAdjustCmd(const CFE_TIME_AddAdjustCmd_t *data)
  *-----------------------------------------------------------------*/
 int32 CFE_TIME_SubAdjustCmd(const CFE_TIME_SubAdjustCmd_t *data)
 {
-    CFE_TIME_AdjustImpl(&data->Payload, CFE_TIME_AdjustDirection_SUBTRACT);
-    return CFE_SUCCESS;
+    CFE_Status_t ReturnCode;
+
+    ReturnCode = CFE_TIME_AdjustImpl(&data->Payload, CFE_TIME_AdjustDirection_SUBTRACT);
+
+    return ReturnCode;
 }
 
 /*----------------------------------------------------------------
@@ -1044,9 +1044,11 @@ int32 CFE_TIME_SubAdjustCmd(const CFE_TIME_SubAdjustCmd_t *data)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-void CFE_TIME_1HzAdjImpl(const CFE_TIME_OneHzAdjustmentCmd_Payload_t *CommandPtr,
-                         CFE_TIME_AdjustDirection_Enum_t              Direction)
+CFE_Status_t CFE_TIME_1HzAdjImpl(const CFE_TIME_OneHzAdjustmentCmd_Payload_t *CommandPtr,
+                                 CFE_TIME_AdjustDirection_Enum_t              Direction)
 {
+    CFE_Status_t ReturnCode = CFE_STATUS_COMMAND_FAILURE;
+
 /*
 ** 1Hz adjustments are only valid for "Time Servers"...
 */
@@ -1058,7 +1060,7 @@ void CFE_TIME_1HzAdjImpl(const CFE_TIME_OneHzAdjustmentCmd_Payload_t *CommandPtr
 
     CFE_TIME_Set1HzAdj(Adjust, Direction);
 
-    CFE_TIME_Global.CommandCounter++;
+    ReturnCode = CFE_SUCCESS;
     CFE_EVS_SendEvent(CFE_TIME_ONEHZ_EID, CFE_EVS_EventType_INFORMATION,
                       "STCF 1Hz Adjust -- secs = %d, ssecs = 0x%X, dir[1=Pos, 2=Neg] = %d", (int)CommandPtr->Seconds,
                       (unsigned int)CommandPtr->Subseconds, (int)Direction);
@@ -1067,12 +1069,12 @@ void CFE_TIME_1HzAdjImpl(const CFE_TIME_OneHzAdjustmentCmd_Payload_t *CommandPtr
     /*
     ** We want to know if disabled commands are being sent...
     */
-    CFE_TIME_Global.CommandErrorCounter++;
-
     CFE_EVS_SendEvent(CFE_TIME_ONEHZ_CFG_EID, CFE_EVS_EventType_ERROR,
                       "1Hz Adjust commands invalid without CFE_PLATFORM_TIME_CFG_SERVER set to TRUE");
 
 #endif /* CFE_PLATFORM_TIME_CFG_SERVER */
+
+    return ReturnCode;
 }
 
 /*----------------------------------------------------------------
@@ -1083,8 +1085,11 @@ void CFE_TIME_1HzAdjImpl(const CFE_TIME_OneHzAdjustmentCmd_Payload_t *CommandPtr
  *-----------------------------------------------------------------*/
 int32 CFE_TIME_AddOneHzAdjustmentCmd(const CFE_TIME_AddOneHzAdjustmentCmd_t *data)
 {
-    CFE_TIME_1HzAdjImpl(&data->Payload, CFE_TIME_AdjustDirection_ADD);
-    return CFE_SUCCESS;
+    CFE_Status_t ReturnCode;
+
+    ReturnCode = CFE_TIME_1HzAdjImpl(&data->Payload, CFE_TIME_AdjustDirection_ADD);
+
+    return ReturnCode;
 }
 
 /*----------------------------------------------------------------
@@ -1095,6 +1100,9 @@ int32 CFE_TIME_AddOneHzAdjustmentCmd(const CFE_TIME_AddOneHzAdjustmentCmd_t *dat
  *-----------------------------------------------------------------*/
 int32 CFE_TIME_SubOneHzAdjustmentCmd(const CFE_TIME_SubOneHzAdjustmentCmd_t *data)
 {
-    CFE_TIME_1HzAdjImpl(&data->Payload, CFE_TIME_AdjustDirection_SUBTRACT);
-    return CFE_SUCCESS;
+    CFE_Status_t ReturnCode;
+
+    ReturnCode = CFE_TIME_1HzAdjImpl(&data->Payload, CFE_TIME_AdjustDirection_SUBTRACT);
+
+    return ReturnCode;
 }
