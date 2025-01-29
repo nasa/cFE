@@ -96,7 +96,7 @@ jobs:
         working-directory: ./build/exe/cpu1/
 
       - name: Archive cFS Startup Artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: cFS-startup-log-deprecate-true-${{ matrix.buildtype }}
           path: ./build/exe/cpu1/cf/cfe_test.log
