@@ -783,7 +783,7 @@ void Test_CFE_TBL_ValidateCmd(void)
     ValidateCmd.Payload.ActiveTableFlag                                      = CFE_TBL_BufferSelect_ACTIVE;
     CFE_TBL_Global.Registry[0].Buffers[CFE_TBL_Global.Registry[0].ActiveBufferIndex].BufferPtr = BuffPtr;
 
-    UT_SetDeferredRetcode(UT_KEY(CFE_ResourceId_FindNext), 1, 0);
+    UT_SetDeferredRetcode(UT_KEY(CFE_ResourceId_FindNext), 1, -1);
     UtAssert_INT32_EQ(CFE_TBL_ValidateCmd(&ValidateCmd), CFE_TBL_INC_ERR_CTR);
 
     /* Test where the active buffer has data, but there is no validation
@@ -1125,6 +1125,19 @@ void Test_CFE_TBL_DumpCmd(void)
     /* Test where the table cannot be found in the registry */
     UT_InitData();
     snprintf(DumpCmd.Payload.TableName, sizeof(DumpCmd.Payload.TableName), "%d", CFE_PLATFORM_TBL_MAX_NUM_TABLES + 1);
+    UtAssert_INT32_EQ(CFE_TBL_DumpCmd(&DumpCmd), CFE_TBL_INC_ERR_CTR);
+
+    /* Test where the active buffer has data, but no dump control buffer is available
+     */
+    UT_InitData();
+    strncpy(CFE_TBL_Global.Registry[2].Name, "DumpCmdTest", sizeof(CFE_TBL_Global.Registry[2].Name) - 1);
+    strncpy(DumpCmd.Payload.TableName, CFE_TBL_Global.Registry[2].Name, sizeof(DumpCmd.Payload.TableName) - 1);
+    CFE_TBL_Global.Registry[2].DumpOnly                              = true;
+    DumpCmd.Payload.TableName[sizeof(DumpCmd.Payload.TableName) - 1] = '\0';
+    DumpCmd.Payload.ActiveTableFlag                                  = CFE_TBL_BufferSelect_ACTIVE;
+    CFE_TBL_Global.Registry[2].Buffers[CFE_TBL_Global.Registry[2].ActiveBufferIndex].BufferPtr = BuffPtr;
+
+    UT_SetDeferredRetcode(UT_KEY(CFE_ResourceId_FindNext), 1, -1);
     UtAssert_INT32_EQ(CFE_TBL_DumpCmd(&DumpCmd), CFE_TBL_INC_ERR_CTR);
 
     /* Test with an active buffer, the pointer is created, validation passes,
@@ -4068,7 +4081,7 @@ void Test_CFE_TBL_ResourceID_ValidationResult(void)
     UtAssert_BOOL_TRUE(CFE_TBL_CheckValidationResultSlotUsed(PendingId));
 
     /* Test case where no ID is available */
-    UT_SetDefaultReturnValue(UT_KEY(CFE_ResourceId_FindNext), 0);
+    UT_SetDefaultReturnValue(UT_KEY(CFE_ResourceId_FindNext), -1);
     UtAssert_VOIDCALL(PendingId = CFE_TBL_GetNextValResultBlock());
     UtAssert_BOOL_FALSE(CFE_ResourceId_IsDefined(PendingId));
 
@@ -4167,7 +4180,7 @@ void Test_CFE_TBL_ResourceID_DumpControl(void)
     UtAssert_BOOL_TRUE(CFE_TBL_CheckDumpCtrlSlotUsed(PendingId));
 
     /* Test case where no ID is available */
-    UT_SetDefaultReturnValue(UT_KEY(CFE_ResourceId_FindNext), 0);
+    UT_SetDefaultReturnValue(UT_KEY(CFE_ResourceId_FindNext), -1);
     UtAssert_VOIDCALL(PendingId = CFE_TBL_GetNextDumpCtrlBlock());
     UtAssert_BOOL_FALSE(CFE_ResourceId_IsDefined(PendingId));
 
