@@ -1,5 +1,9 @@
 # Changelog
 
+## Development Build: equuleus-rc1+dev235
+- add initialization of table indices
+- See <https://github.com/nasa/cFE/pull/2633>
+
 ## Development Build: equuleus-rc1+dev231
 - Update Upload Artifact Version
 - See <https://github.com/nasa/cFE/pull/2631>
