@@ -290,14 +290,14 @@ void CFE_TBL_GetTblRegData(void)
             CFE_TBL_Global.TblRegPacket.Payload.InactiveBufferAddr = CFE_ES_MEMADDRESS_C(0);
         }
 
-        CFE_TBL_Global.TblRegPacket.Payload.ValidationFuncPtr = CFE_ES_MEMADDRESS_C(RegRecPtr->ValidationFuncPtr);
-        CFE_TBL_Global.TblRegPacket.Payload.TimeOfLastUpdate  = CFE_TBL_RegRecGetLastUpdateTime(RegRecPtr);
-        CFE_TBL_Global.TblRegPacket.Payload.TableLoadedOnce   = CFE_TBL_RegRecIsTableLoaded(RegRecPtr);
-        CFE_TBL_Global.TblRegPacket.Payload.LoadPending       = CFE_TBL_RegRecIsLoadPending(RegRecPtr);
-
-        CFE_TBL_Global.TblRegPacket.Payload.DumpOnly       = RegRecPtr->DumpOnly;
-        CFE_TBL_Global.TblRegPacket.Payload.DoubleBuffered = RegRecPtr->DoubleBuffered;
-        CFE_TBL_Global.TblRegPacket.Payload.Critical       = RegRecPtr->CriticalTable;
+        CFE_TBL_Global.TblRegPacket.Payload.ValidationFuncPtr =
+            CFE_ES_MEMADDRESS_C(CFE_TBL_RegRecGetConfig(RegRecPtr)->ValidationFuncPtr);
+        CFE_TBL_Global.TblRegPacket.Payload.TimeOfLastUpdate = CFE_TBL_RegRecGetLastUpdateTime(RegRecPtr);
+        CFE_TBL_Global.TblRegPacket.Payload.TableLoadedOnce  = CFE_TBL_RegRecIsTableLoaded(RegRecPtr);
+        CFE_TBL_Global.TblRegPacket.Payload.LoadPending      = CFE_TBL_RegRecIsLoadPending(RegRecPtr);
+        CFE_TBL_Global.TblRegPacket.Payload.DumpOnly         = CFE_TBL_RegRecGetConfig(RegRecPtr)->DumpOnly;
+        CFE_TBL_Global.TblRegPacket.Payload.DoubleBuffered   = CFE_TBL_RegRecGetConfig(RegRecPtr)->DoubleBuffered;
+        CFE_TBL_Global.TblRegPacket.Payload.Critical         = CFE_TBL_RegRecGetConfig(RegRecPtr)->Critical;
 
         CFE_SB_MessageStringSet(CFE_TBL_Global.TblRegPacket.Payload.Name, CFE_TBL_RegRecGetName(RegRecPtr),
                                 sizeof(CFE_TBL_Global.TblRegPacket.Payload.Name), -1);
@@ -393,7 +393,7 @@ int32 CFE_TBL_LoadCmd(const CFE_TBL_LoadCmd_t *data)
                 RegRecPtr = CFE_TBL_TxnRegRec(&Txn);
                 CFE_TBL_TxnFinish(&Txn);
 
-                if (RegRecPtr->DumpOnly)
+                if (CFE_TBL_RegRecGetConfig(RegRecPtr)->DumpOnly)
                 {
                     CFE_EVS_SendEvent(CFE_TBL_LOADING_A_DUMP_ONLY_ERR_EID, CFE_EVS_EventType_ERROR,
                                       "Attempted to load DUMP-ONLY table '%s' from '%s'", TblFileHeader.TableName,
@@ -460,7 +460,8 @@ int32 CFE_TBL_LoadCmd(const CFE_TBL_LoadCmd_t *data)
 
                                     /* Initialize validation flag with true if no Validation Function is required to be
                                      * called */
-                                    WorkingBufferPtr->Validated = (RegRecPtr->ValidationFuncPtr == NULL);
+                                    WorkingBufferPtr->Validated =
+                                        (CFE_TBL_RegRecGetConfig(RegRecPtr)->ValidationFuncPtr == NULL);
 
                                     /* Save file information statistics for housekeeping telemetry */
                                     strncpy(CFE_TBL_Global.HkPacket.Payload.LastFileLoaded, LoadFilename,
@@ -584,7 +585,7 @@ int32 CFE_TBL_DumpCmd(const CFE_TBL_DumpCmd_t *data)
         {
             /* If we have located the data to be dumped, then proceed with creating the file and dumping the data */
             /* If this is not a dump only table, then we can perform the dump immediately */
-            if (!RegRecPtr->DumpOnly)
+            if (!CFE_TBL_RegRecGetConfig(RegRecPtr)->DumpOnly)
             {
                 ReturnCode = CFE_TBL_DumpToFile(DumpFilename, TableName, SelectedBufferPtr->BufferPtr,
                                                 CFE_TBL_RegRecGetSize(RegRecPtr));
@@ -842,7 +843,7 @@ int32 CFE_TBL_ValidateCmd(const CFE_TBL_ValidateCmd_t *data)
 
                 /* If owner has a validation function, then notify the  */
                 /* table owner that there is data to be validated       */
-                if (RegRecPtr->ValidationFuncPtr != NULL)
+                if (CFE_TBL_RegRecGetConfig(RegRecPtr)->ValidationFuncPtr != NULL)
                 {
                     if (CmdPtr->ActiveTableFlag)
                     {
@@ -925,7 +926,7 @@ int32 CFE_TBL_ActivateCmd(const CFE_TBL_ActivateCmd_t *data)
         RegRecPtr = CFE_TBL_TxnRegRec(&Txn);
         CFE_TBL_TxnFinish(&Txn);
 
-        if (RegRecPtr->DumpOnly)
+        if (CFE_TBL_RegRecGetConfig(RegRecPtr)->DumpOnly)
         {
             CFE_EVS_SendEvent(CFE_TBL_ACTIVATE_DUMP_ONLY_ERR_EID, CFE_EVS_EventType_ERROR,
                               "Illegal attempt to activate dump-only table '%s'", TableName);
@@ -1006,14 +1007,14 @@ bool CFE_TBL_DumpRegistryGetter(void *Meta, uint32 RecordNum, void **Buffer, siz
             StatePtr->DumpRecord.Size             = CFE_ES_MEMOFFSET_C(CFE_TBL_RegRecGetSize(RegRecPtr));
             StatePtr->DumpRecord.TimeOfLastUpdate = CFE_TBL_RegRecGetLastUpdateTime(RegRecPtr);
             StatePtr->DumpRecord.LoadInProgress   = CFE_TBL_RegRecGetLoadInProgress(RegRecPtr);
-            StatePtr->DumpRecord.ValidationFunc   = (RegRecPtr->ValidationFuncPtr != NULL);
+            StatePtr->DumpRecord.ValidationFunc   = (CFE_TBL_RegRecGetConfig(RegRecPtr)->ValidationFuncPtr != NULL);
             StatePtr->DumpRecord.TableLoadedOnce  = CFE_TBL_RegRecIsTableLoaded(RegRecPtr);
             StatePtr->DumpRecord.LoadPending      = CFE_TBL_RegRecIsLoadPending(RegRecPtr);
-            StatePtr->DumpRecord.DumpOnly         = RegRecPtr->DumpOnly;
-            StatePtr->DumpRecord.DoubleBuffered   = RegRecPtr->DoubleBuffered;
+            StatePtr->DumpRecord.DumpOnly         = CFE_TBL_RegRecGetConfig(RegRecPtr)->DumpOnly;
+            StatePtr->DumpRecord.DoubleBuffered   = CFE_TBL_RegRecGetConfig(RegRecPtr)->DoubleBuffered;
+            StatePtr->DumpRecord.CriticalTable    = CFE_TBL_RegRecGetConfig(RegRecPtr)->Critical;
             StatePtr->DumpRecord.FileTime         = BufferPtr->FileTime;
             StatePtr->DumpRecord.Crc              = BufferPtr->Crc;
-            StatePtr->DumpRecord.CriticalTable    = RegRecPtr->CriticalTable;
 
             /* Convert LoadInProgress flag into more meaningful information */
             /* When a load is in progress, identify which buffer is being used as the inactive buffer */
@@ -1363,7 +1364,7 @@ int32 CFE_TBL_AbortLoadCmd(const CFE_TBL_AbortLoadCmd_t *data)
         /* Check to make sure a load was in progress before trying to abort it */
         /* NOTE: LoadInProgress contains index of buffer when dumping a dump-only table */
         /* so we must ensure the table is not a dump-only table, otherwise, we would be aborting a dump */
-        if (CFE_TBL_RegRecIsLoadInProgress(RegRecPtr) && !RegRecPtr->DumpOnly)
+        if (CFE_TBL_RegRecIsLoadInProgress(RegRecPtr) && !CFE_TBL_RegRecGetConfig(RegRecPtr)->DumpOnly)
         {
             CFE_TBL_AbortLoad(RegRecPtr);
 
