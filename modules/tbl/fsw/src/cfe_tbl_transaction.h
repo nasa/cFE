@@ -98,9 +98,11 @@ typedef struct CFE_TBL_TxnState
     CFE_TBL_Handle_t Handle;
     CFE_TBL_RegId_t  RegId;
 
+    uint32 RegLockCount;
     uint32 CallContext;
     uint16 PendingEventId;
-    bool   RegIsLocked;
+
+    char AppNameBuffer[OS_MAX_API_NAME];
 
     CFE_TBL_AccessDescriptor_t *AccessDescPtr;
     CFE_TBL_RegistryRec_t *     RegRecPtr;
@@ -114,6 +116,7 @@ typedef struct CFE_TBL_TxnState
  * is to (eventually) replace individual local stack variables with these accessors.
  */
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * Gets the table handle
  */
@@ -122,11 +125,16 @@ static inline CFE_TBL_Handle_t CFE_TBL_TxnHandle(const CFE_TBL_TxnState_t *Txn)
     return Txn->Handle;
 }
 
+/*---------------------------------------------------------------------------------------*/
+/**
+ * Gets the table handle as an unsigned long (for logging/events)
+ */
 static inline unsigned long CFE_TBL_TxnHandleAsULong(const CFE_TBL_TxnState_t *Txn)
 {
     return (unsigned long)CFE_TBL_TxnHandle(Txn);
 }
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * Gets the access descriptor object
  */
@@ -135,6 +143,7 @@ static inline CFE_TBL_AccessDescriptor_t *CFE_TBL_TxnAccDesc(const CFE_TBL_TxnSt
     return Txn->AccessDescPtr;
 }
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * Gets the registry entry ID
  */
@@ -143,11 +152,16 @@ static inline CFE_TBL_RegId_t CFE_TBL_TxnRegId(const CFE_TBL_TxnState_t *Txn)
     return Txn->RegId;
 }
 
+/*---------------------------------------------------------------------------------------*/
+/**
+ * Gets the table registry entry ID as an unsigned long (for logging/events)
+ */
 static inline unsigned long CFE_TBL_TxnRegIdAsULong(const CFE_TBL_TxnState_t *Txn)
 {
     return (unsigned long)CFE_TBL_TxnRegId(Txn);
 }
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * Gets the registry record object
  */
@@ -156,6 +170,7 @@ static inline CFE_TBL_RegistryRec_t *CFE_TBL_TxnRegRec(const CFE_TBL_TxnState_t 
     return Txn->RegRecPtr;
 }
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * Gets the calling context AppID
  *
@@ -166,10 +181,92 @@ static inline CFE_ES_AppId_t CFE_TBL_TxnAppId(const CFE_TBL_TxnState_t *Txn)
     return Txn->AppId;
 }
 
+/*---------------------------------------------------------------------------------------*/
+/**
+ * Gets the calling context application ID as an unsigned long (for logging/events)
+ */
 static inline unsigned long CFE_TBL_TxnAppIdAsULong(const CFE_TBL_TxnState_t *Txn)
 {
     return CFE_RESOURCEID_TO_ULONG(CFE_TBL_TxnAppId(Txn));
 }
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * \brief Returns the table owner application ID
+ *
+ * \par Description
+ *        Returns the application ID of the table owner
+ *
+ * \par Assumptions, External Events, and Notes:
+ *        None
+ *
+ * \param[inout] Txn The transaction object to operate on
+ * \returns Application ID of the table owner
+ */
+CFE_ES_AppId_t CFE_TBL_TxnGetTableOwnerId(CFE_TBL_TxnState_t *Txn);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * \brief Returns the table owner application ID
+ * Gets the table owner application ID as an unsigned long (for logging/events)
+ */
+static inline unsigned long CFE_TBL_TxnGetTableOwnerAsULong(CFE_TBL_TxnState_t *Txn)
+{
+    return CFE_RESOURCEID_TO_ULONG(CFE_TBL_TxnGetTableOwnerId(Txn));
+}
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * \brief Returns the size of the subject table
+ *
+ * \par Description
+ *        Returns a the size of the table that is the subject of this transaction
+ *
+ * \par Assumptions, External Events, and Notes:
+ *        None
+ *
+ * \param[inout] Txn The transaction object to operate on
+ * \returns Table size
+ */
+size_t CFE_TBL_TxnGetTableSize(CFE_TBL_TxnState_t *Txn);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * \brief Returns the calling application name
+ *
+ * \par Description
+ *        Returns a pointer to a buffer containing the name of the currently-running application
+ *        The buffer is local to the transaction object and is initialized on the first invocation.
+ *
+ * \par Assumptions, External Events, and Notes:
+ *        None
+ *
+ * \param[inout] Txn The transaction object to operate on
+ */
+const char *CFE_TBL_TxnAppNameCaller(CFE_TBL_TxnState_t *Txn);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+** \brief Creates a Full Table name from application name and table name
+**
+** \par Description
+**        Takes a given raw table name and combines it with the calling
+**        Application's name to make the application specific name of the
+**        form: "AppName.BaseName"
+**
+** \par Assumptions, External Events, and Notes:
+**        AppName portion will be truncated to OS_MAX_API_NAME.
+**
+* \param[inout] Txn The transaction object to operate on
+** \param[out] FullTblName      Pointer to character buffer that will be filled with the fully-qualified name
+** \param[in] BufSize           Size of the buffer pointed to by FullTblName (at least CFE_TBL_MAX_FULL_NAME_LEN)
+** \param[in] BaseName          Base name for table (local)
+*
+* \returns CFE_SUCCESS normally, or relevent CFE status code
+* \retval #CFE_SUCCESS \copydoc CFE_SUCCESS
+*/
+CFE_Status_t CFE_TBL_TxnGetFullTableName(CFE_TBL_TxnState_t *Txn, char *FullTblName, size_t BufSize,
+                                         const char *BaseName);
 
 /*****************************  Function Prototypes   **********************************/
 

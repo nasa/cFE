@@ -215,6 +215,12 @@ void UtTest_Setup(void)
     UT_ADD_TEST(Test_CFE_TBL_SearchCmdHndlrTbl);
 
     /*
+     * Transaction access patterns
+     * (do this early because many other APIs depend on these working correctly)
+     */
+    UT_ADD_TEST(Test_CFE_TBL_TxnState);
+
+    /*
      * Shared resource access patterns
      * (do this early because many other APIs depend on these working correctly)
      */
@@ -508,6 +514,12 @@ void Test_CFE_TBL_DeleteCDSCmd(void)
     /* Test successfully finding the table name in the table registry */
     UT_InitData();
     strncpy(DelCDSCmd.Payload.TableName, "0", sizeof(DelCDSCmd.Payload.TableName) - 1);
+    DelCDSCmd.Payload.TableName[sizeof(DelCDSCmd.Payload.TableName) - 1] = '\0';
+    UtAssert_INT32_EQ(CFE_TBL_DeleteCDSCmd(&DelCDSCmd), CFE_TBL_INC_ERR_CTR);
+
+    /* Test case where table is still in the table registry - CDS cannot be deleted yet */
+    CFE_UtAssert_SUCCESS(CFE_TBL_Register(&App1TblHandle1, "ut", sizeof(UT_Table1_t), CFE_TBL_OPT_CRITICAL, NULL));
+    strncpy(DelCDSCmd.Payload.TableName, "ut_cfe_tbl.ut", sizeof(DelCDSCmd.Payload.TableName) - 1);
     DelCDSCmd.Payload.TableName[sizeof(DelCDSCmd.Payload.TableName) - 1] = '\0';
     UtAssert_INT32_EQ(CFE_TBL_DeleteCDSCmd(&DelCDSCmd), CFE_TBL_INC_ERR_CTR);
 
@@ -1485,6 +1497,11 @@ void Test_CFE_TBL_SendHkCmd(void)
     UT_TBL_SetupPendingDump(0, DumpBuffPtr, RegRecPtr, &DumpCtrlPtr);
     DumpCtrlPtr->State = CFE_TBL_DUMP_PERFORMED;
     UT_SetDeferredRetcode(UT_KEY(OS_OpenCreate), 3, -1);
+    UtAssert_INT32_EQ(CFE_TBL_SendHkCmd(NULL), CFE_TBL_DONT_INC_CTR);
+
+    /* Test when the table is not owned */
+    UT_InitData();
+    CFE_TBL_Global.Registry[CFE_TBL_Global.LastTblUpdated].OwnerAppId = CFE_TBL_NOT_OWNED;
     UtAssert_INT32_EQ(CFE_TBL_SendHkCmd(NULL), CFE_TBL_DONT_INC_CTR);
 }
 
@@ -4195,4 +4212,87 @@ void Test_CFE_TBL_ResourceID_DumpControl(void)
 int32 Test_CFE_TBL_ValidationFunc(void *TblPtr)
 {
     return UT_DEFAULT_IMPL(Test_CFE_TBL_ValidationFunc);
+}
+
+/*
+ * Test various aspects of the Transaction State structure and its associated routines
+ * Many of these transaction calls are used under the hood by other tests, but this ensures that certain
+ * error cases are triggered, and it also checks the basic sanity of operation for the accessors.
+ */
+void Test_CFE_TBL_TxnState(void)
+{
+    CFE_TBL_TxnState_t Txn;
+    void *             addr;
+    char               Buf[CFE_MISSION_TBL_MAX_NAME_LENGTH];
+
+    memset(&Txn, 0, sizeof(Txn));
+    UT_InitData();
+    UT_ResetTableRegistry();
+
+    /* All of the accessors should return 0 which is the undefined value */
+    UtAssert_ZERO(CFE_TBL_TxnHandleAsULong(&Txn));
+    UtAssert_ZERO(CFE_TBL_TxnRegIdAsULong(&Txn));
+    UtAssert_ZERO(CFE_TBL_TxnAppIdAsULong(&Txn));
+    UtAssert_NULL(CFE_TBL_TxnAccDesc(&Txn));
+    UtAssert_NULL(CFE_TBL_TxnRegRec(&Txn));
+    UtAssert_NOT_NULL(CFE_TBL_TxnAppNameCaller(&Txn));
+
+    /* If the registry is locked, the CFE_TBL_TxnAppNameCaller() reports a special string */
+    memset(&Txn, 0, sizeof(Txn));
+    UtAssert_VOIDCALL(CFE_TBL_TxnLockRegistry(&Txn));
+    UtAssert_STUB_COUNT(OS_MutSemTake, 1);
+    UtAssert_STRINGBUF_EQ(CFE_TBL_TxnAppNameCaller(&Txn), -1, "[!LOCKED!]", -1);
+
+    /* calling lock again should not re-take the sem */
+    UtAssert_VOIDCALL(CFE_TBL_TxnLockRegistry(&Txn));
+    UtAssert_STUB_COUNT(OS_MutSemTake, 1);
+    UtAssert_STUB_COUNT(OS_MutSemGive, 0);
+    UtAssert_VOIDCALL(CFE_TBL_TxnUnlockRegistry(&Txn));
+    UtAssert_STUB_COUNT(OS_MutSemGive, 0);
+    UtAssert_VOIDCALL(CFE_TBL_TxnUnlockRegistry(&Txn));
+    UtAssert_STUB_COUNT(OS_MutSemGive, 1);
+
+    /* Calling unlock again should not re-give the sem */
+    UtAssert_VOIDCALL(CFE_TBL_TxnUnlockRegistry(&Txn));
+    UtAssert_STUB_COUNT(OS_MutSemGive, 1);
+
+    CFE_UtAssert_SUCCESS(CFE_TBL_TxnInit(&Txn, true));
+    UtAssert_VOIDCALL(CFE_TBL_TxnFinish(&Txn));
+
+    /* Check that the "CFE_TBL_TxnGetFullTableName" works as expected, including buffer too short error */
+    CFE_UtAssert_SUCCESS(CFE_TBL_TxnInit(&Txn, false));
+    CFE_UtAssert_SUCCESS(CFE_TBL_TxnGetFullTableName(&Txn, Buf, sizeof(Buf), "ut"));
+    UtAssert_INT32_EQ(CFE_TBL_TxnGetFullTableName(&Txn, Buf, 1, "ut"), CFE_TBL_ERR_INVALID_NAME);
+    UtAssert_VOIDCALL(CFE_TBL_TxnFinish(&Txn));
+
+    /* Check that the "start" routines get the correct error code if no table is registered */
+    UtAssert_INT32_EQ(CFE_TBL_TxnStartFromName(&Txn, "ut", CFE_TBL_TxnContext_UNDEFINED), CFE_TBL_ERR_INVALID_NAME);
+    UtAssert_ZERO(Txn.RegLockCount);
+    UtAssert_INT32_EQ(CFE_TBL_TxnStartFromHandle(&Txn, CFE_TBL_BAD_TABLE_HANDLE, CFE_TBL_TxnContext_UNDEFINED),
+                      CFE_TBL_ERR_INVALID_HANDLE);
+    UtAssert_ZERO(Txn.RegLockCount);
+
+    /* Now register a table and check that the "start" routines work in the nominal case */
+    CFE_UtAssert_SUCCESS(CFE_TBL_Register(&App1TblHandle1, "ut", sizeof(UT_Table1_t), CFE_TBL_OPT_DEFAULT, NULL));
+
+    CFE_UtAssert_SUCCESS(CFE_TBL_TxnStartFromName(&Txn, "ut_cfe_tbl.ut", CFE_TBL_TxnContext_ALL));
+    UtAssert_NOT_NULL(CFE_TBL_TxnRegRec(&Txn));
+    UtAssert_NONZERO(Txn.RegLockCount);
+    UtAssert_VOIDCALL(CFE_TBL_TxnFinish(&Txn));
+    UtAssert_ZERO(Txn.RegLockCount);
+
+    CFE_UtAssert_SUCCESS(CFE_TBL_TxnStartFromHandle(&Txn, App1TblHandle1, CFE_TBL_TxnContext_ALL));
+    UtAssert_NOT_NULL(CFE_TBL_TxnRegRec(&Txn));
+    UtAssert_NONZERO(Txn.RegLockCount);
+
+    CFE_UtAssert_SUCCESS(CFE_TBL_FindAccessDescriptorForSelf(&Txn));
+    UtAssert_NOT_NULL(CFE_TBL_TxnAccDesc(&Txn));
+
+    /* Sanity check various status calls before closing the transaction */
+    CFE_UtAssert_SUCCESS(CFE_TBL_TxnGetTableStatus(&Txn));
+    UtAssert_INT32_EQ(CFE_TBL_TxnGetTableAddress(&Txn, &addr), CFE_TBL_ERR_NEVER_LOADED);
+    UtAssert_INT32_EQ(CFE_TBL_TxnGetNextNotification(&Txn), CFE_TBL_ERR_NEVER_LOADED);
+
+    UtAssert_VOIDCALL(CFE_TBL_TxnFinish(&Txn));
+    UtAssert_ZERO(Txn.RegLockCount);
 }

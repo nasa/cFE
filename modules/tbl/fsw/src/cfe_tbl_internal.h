@@ -82,26 +82,6 @@ int16 CFE_TBL_FindTableInRegistry(const char *TblName);
 
 /*---------------------------------------------------------------------------------------*/
 /**
-** \brief Creates a Full Table name from application name and table name
-**
-** \par Description
-**        Takes a given raw table name and combines it with the calling
-**        Application's name to make the application specific name of the
-**        form: "AppName.RawTableName"
-**
-** \par Assumptions, External Events, and Notes:
-**        AppName portion will be truncated to OS_MAX_API_NAME.
-**
-** \param[in, out] FullTblName  Pointer to character buffer of #CFE_TBL_MAX_FULL_NAME_LEN
-**                              size that will be filled with the application specific name
-**                              of the form "AppName.RawTableName"
-** \param[in] TblName           Pointer to character string containing the raw table name.
-** \param[in] ThisAppId         Application ID of the Application making the call.
-*/
-void CFE_TBL_FormTableName(char *FullTblName, const char *TblName, CFE_ES_AppId_t ThisAppId);
-
-/*---------------------------------------------------------------------------------------*/
-/**
 ** \brief Locks access to the Table Registry
 **
 ** \par Description
@@ -410,24 +390,6 @@ bool CFE_TBL_DumpRegistryGetter(void *Meta, uint32 RecordNum, void **Buffer, siz
  * separated out into the most cohesive logical blocks of work.
  *
  */
-
-/*---------------------------------------------------------------------------------------*/
-/**
-** \brief Validates the table name of a table to be registered
-**
-** \par Description
-**         Validates the length of a table name for a table that is being registered. It
-**         checks that the length of the name is not zero, nor too long (longer than
-**         CFE_MISSION_TBL_MAX_NAME_LENGTH).
-**
-** \par Assumptions, External Events, and Notes:
-**          None
-**
-** \retval #CFE_SUCCESS                     \copydoc CFE_SUCCESS
-** \retval #CFE_TBL_ERR_INVALID_NAME        \copydoc CFE_TBL_ERR_INVALID_NAME
-**
-*/
-CFE_Status_t CFE_TBL_ValidateTableName(const char *Name);
 
 /*---------------------------------------------------------------------------------------*/
 /**

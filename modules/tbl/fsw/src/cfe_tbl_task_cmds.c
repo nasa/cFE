@@ -359,11 +359,11 @@ int32 CFE_TBL_LoadCmd(const CFE_TBL_LoadCmd_t *data)
     osal_id_t                        FileDescriptor = OS_OBJECT_ID_UNDEFINED;
     int32                            Status;
     int32                            OsStatus;
-    int16                            RegIndex;
     CFE_TBL_RegistryRec_t *          RegRecPtr;
     CFE_TBL_LoadBuff_t *             WorkingBufferPtr;
     char                             LoadFilename[OS_MAX_PATH_LEN];
     uint8                            ExtraByte;
+    CFE_TBL_TxnState_t               Txn;
 
     /* Make sure all strings are null terminated before attempting to process them */
     CFE_SB_MessageStringGet(LoadFilename, (char *)CmdPtr->LoadFilename, NULL, sizeof(LoadFilename),
@@ -379,17 +379,16 @@ int32 CFE_TBL_LoadCmd(const CFE_TBL_LoadCmd_t *data)
         if (Status == CFE_SUCCESS)
         {
             /* Locate specified table in registry */
-            RegIndex = CFE_TBL_FindTableInRegistry(TblFileHeader.TableName);
-
-            if (RegIndex == CFE_TBL_NOT_FOUND)
+            Status = CFE_TBL_TxnStartFromName(&Txn, TblFileHeader.TableName, CFE_TBL_TxnContext_UNDEFINED);
+            if (Status != CFE_SUCCESS)
             {
                 CFE_EVS_SendEvent(CFE_TBL_NO_SUCH_TABLE_ERR_EID, CFE_EVS_EventType_ERROR,
                                   "Unable to locate '%s' in Table Registry", TblFileHeader.TableName);
             }
             else
             {
-                /* Translate the registry index into a record pointer */
-                RegRecPtr = &CFE_TBL_Global.Registry[RegIndex];
+                RegRecPtr = CFE_TBL_TxnRegRec(&Txn);
+                CFE_TBL_TxnFinish(&Txn);
 
                 if (RegRecPtr->DumpOnly)
                 {
@@ -899,22 +898,23 @@ int32 CFE_TBL_ValidateCmd(const CFE_TBL_ValidateCmd_t *data)
 int32 CFE_TBL_ActivateCmd(const CFE_TBL_ActivateCmd_t *data)
 {
     CFE_TBL_CmdProcRet_t                 ReturnCode = CFE_TBL_INC_ERR_CTR; /* Assume failure */
-    int16                                RegIndex;
-    const CFE_TBL_ActivateCmd_Payload_t *CmdPtr = &data->Payload;
+    const CFE_TBL_ActivateCmd_Payload_t *CmdPtr     = &data->Payload;
     char                                 TableName[CFE_TBL_MAX_FULL_NAME_LEN];
     CFE_TBL_RegistryRec_t *              RegRecPtr;
     bool                                 ValidationStatus;
+    CFE_TBL_TxnState_t                   Txn;
+    int32                                Status;
 
     /* Make sure all strings are null terminated before attempting to process them */
     CFE_SB_MessageStringGet(TableName, (char *)CmdPtr->TableName, NULL, sizeof(TableName), sizeof(CmdPtr->TableName));
 
     /* Before doing anything, lets make sure the table that is to be dumped exists */
-    RegIndex = CFE_TBL_FindTableInRegistry(TableName);
-
-    if (RegIndex != CFE_TBL_NOT_FOUND)
+    Status = CFE_TBL_TxnStartFromName(&Txn, TableName, CFE_TBL_TxnContext_UNDEFINED);
+    if (Status == CFE_SUCCESS)
     {
         /* Obtain a pointer to registry information about specified table */
-        RegRecPtr = &CFE_TBL_Global.Registry[RegIndex];
+        RegRecPtr = CFE_TBL_TxnRegRec(&Txn);
+        CFE_TBL_TxnFinish(&Txn);
 
         if (RegRecPtr->DumpOnly)
         {
@@ -935,7 +935,7 @@ int32 CFE_TBL_ActivateCmd(const CFE_TBL_ActivateCmd_t *data)
 
             if (ValidationStatus == true)
             {
-                CFE_TBL_Global.Registry[RegIndex].LoadPending = true;
+                RegRecPtr->LoadPending = true;
 
                 /* If application requested notification by message, then do so */
                 if (CFE_TBL_SendNotificationMsg(RegRecPtr) == CFE_SUCCESS)
@@ -1212,20 +1212,21 @@ int32 CFE_TBL_DumpRegistryCmd(const CFE_TBL_DumpRegistryCmd_t *data)
 int32 CFE_TBL_SendRegistryCmd(const CFE_TBL_SendRegistryCmd_t *data)
 {
     CFE_TBL_CmdProcRet_t                     ReturnCode = CFE_TBL_INC_ERR_CTR; /* Assume failure */
-    int16                                    RegIndex;
-    const CFE_TBL_SendRegistryCmd_Payload_t *CmdPtr = &data->Payload;
+    const CFE_TBL_SendRegistryCmd_Payload_t *CmdPtr     = &data->Payload;
     char                                     TableName[CFE_TBL_MAX_FULL_NAME_LEN];
+    CFE_TBL_TxnState_t                       Txn;
+    int32                                    Status;
 
     /* Make sure all strings are null terminated before attempting to process them */
     CFE_SB_MessageStringGet(TableName, (char *)CmdPtr->TableName, NULL, sizeof(TableName), sizeof(CmdPtr->TableName));
 
     /* Before doing anything, lets make sure the table registry entry that is to be telemetered exists */
-    RegIndex = CFE_TBL_FindTableInRegistry(TableName);
-
-    if (RegIndex != CFE_TBL_NOT_FOUND)
+    Status = CFE_TBL_TxnStartFromName(&Txn, TableName, CFE_TBL_TxnContext_UNDEFINED);
+    if (Status == CFE_SUCCESS)
     {
         /* Change the index used to identify what data is to be telemetered */
-        CFE_TBL_Global.HkTlmTblRegIndex = RegIndex;
+        CFE_TBL_Global.HkTlmTblRegIndex = CFE_TBL_TxnRegId(&Txn);
+        CFE_TBL_TxnFinish(&Txn);
 
         CFE_EVS_SendEvent(CFE_TBL_TLM_REG_CMD_INF_EID, CFE_EVS_EventType_DEBUG,
                           "Table Registry entry for '%s' will be telemetered", TableName);

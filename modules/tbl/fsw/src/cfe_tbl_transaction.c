@@ -43,8 +43,11 @@
  *-----------------------------------------------------------------*/
 void CFE_TBL_TxnLockRegistry(CFE_TBL_TxnState_t *Txn)
 {
-    CFE_TBL_LockRegistry();
-    Txn->RegIsLocked = true;
+    if (Txn->RegLockCount == 0)
+    {
+        CFE_TBL_LockRegistry();
+    }
+    ++Txn->RegLockCount;
 }
 
 /*----------------------------------------------------------------
@@ -55,8 +58,14 @@ void CFE_TBL_TxnLockRegistry(CFE_TBL_TxnState_t *Txn)
  *-----------------------------------------------------------------*/
 void CFE_TBL_TxnUnlockRegistry(CFE_TBL_TxnState_t *Txn)
 {
-    CFE_TBL_UnlockRegistry();
-    Txn->RegIsLocked = false;
+    if (Txn->RegLockCount > 0)
+    {
+        --Txn->RegLockCount;
+        if (Txn->RegLockCount == 0)
+        {
+            CFE_TBL_UnlockRegistry();
+        }
+    }
 }
 
 /*----------------------------------------------------------------
@@ -87,6 +96,73 @@ CFE_Status_t CFE_TBL_TxnInit(CFE_TBL_TxnState_t *Txn, bool CheckContext)
     else
     {
         Status = CFE_SUCCESS;
+    }
+
+    return Status;
+}
+
+/*----------------------------------------------------------------
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+const char *CFE_TBL_TxnAppNameCaller(CFE_TBL_TxnState_t *Txn)
+{
+    const char *Result;
+
+    Result = Txn->AppNameBuffer;
+
+    if (Txn->AppNameBuffer[0] == 0)
+    {
+        /*
+         * This should not attempt to get the name while the reg is locked.
+         * The typical things that need the name are for purposes like syslog or
+         * event sending, and these should only be done after unlocking the reg.
+         */
+        if (Txn->RegLockCount != 0)
+        {
+            /* If this is seen in a log, it is a bug in the caller that should be fixed */
+            Result = "[!LOCKED!]";
+        }
+        else
+        {
+            CFE_ES_GetAppName(Txn->AppNameBuffer, Txn->AppId, sizeof(Txn->AppNameBuffer));
+        }
+    }
+
+    return Result;
+}
+
+/*----------------------------------------------------------------
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+CFE_Status_t CFE_TBL_TxnGetFullTableName(CFE_TBL_TxnState_t *Txn, char *FullTblName, size_t BufSize,
+                                         const char *BaseName)
+{
+    CFE_Status_t Status;
+    int          Result;
+
+    /* Make sure the specified table name is not too long or too short */
+    if (BaseName[0] == 0 || memchr(BaseName, 0, CFE_MISSION_TBL_MAX_NAME_LENGTH) == NULL)
+    {
+        Status = CFE_TBL_ERR_INVALID_NAME;
+    }
+    else
+    {
+        /* Complete formation of application specific table name */
+        Result = snprintf(FullTblName, BufSize, "%s.%s", CFE_TBL_TxnAppNameCaller(Txn), BaseName);
+        if (Result > BufSize)
+        {
+            Status = CFE_TBL_ERR_INVALID_NAME;
+        }
+        else
+        {
+            Status = CFE_SUCCESS;
+        }
     }
 
     return Status;
@@ -138,6 +214,8 @@ CFE_Status_t CFE_TBL_TxnStartFromHandle(CFE_TBL_TxnState_t *Txn, CFE_TBL_Handle_
 
     if (Status == CFE_SUCCESS)
     {
+        Txn->Handle = TblHandle;
+
         /*
          * Check if the caller is actually table services
          * (this is like the "root user" - most/all actions allowed)
@@ -168,6 +246,7 @@ CFE_Status_t CFE_TBL_TxnStartFromHandle(CFE_TBL_TxnState_t *Txn, CFE_TBL_Handle_
             }
 
             /* Now check the underlying registry entry */
+            Txn->RegId     = AccessDescPtr->RegIndex;
             Txn->RegRecPtr = CFE_TBL_LocateRegistryRecordByID(AccessDescPtr->RegIndex);
             if (!CFE_TBL_RegistryRecordIsMatch(Txn->RegRecPtr, AccessDescPtr->RegIndex))
             {
@@ -216,10 +295,11 @@ CFE_Status_t CFE_TBL_TxnStartFromHandle(CFE_TBL_TxnState_t *Txn, CFE_TBL_Handle_
  *-----------------------------------------------------------------*/
 void CFE_TBL_TxnFinish(CFE_TBL_TxnState_t *Txn)
 {
-    if (Txn->RegIsLocked)
+    if (Txn->RegLockCount != 0)
     {
         /* If returning with an error, must also unlock the registry */
         CFE_TBL_TxnUnlockRegistry(Txn);
+        Txn->RegLockCount = 0;
     }
 }
 
@@ -379,19 +459,14 @@ CFE_Status_t CFE_TBL_TxnGetTableAddress(CFE_TBL_TxnState_t *Txn, void **TblPtr)
     int32                       Status;
     CFE_TBL_AccessDescriptor_t *AccessDescPtr = CFE_TBL_TxnAccDesc(Txn);
     CFE_TBL_RegistryRec_t *     RegRecPtr     = CFE_TBL_TxnRegRec(Txn);
-    CFE_ES_AppId_t              ThisAppId;
-    CFE_TBL_Handle_t            TblHandle;
 
     /* If table is unowned, then owner must have unregistered it when we weren't looking */
     if (CFE_RESOURCEID_TEST_EQUAL(RegRecPtr->OwnerAppId, CFE_TBL_NOT_OWNED))
     {
         Status = CFE_TBL_ERR_UNREGISTERED;
 
-        ThisAppId = CFE_TBL_TxnAppId(Txn);
-        TblHandle = CFE_TBL_TxnHandle(Txn);
-
-        CFE_ES_WriteToSysLog("%s: App(%lu) attempt to access unowned Tbl Handle=%d\n", __func__,
-                             CFE_RESOURCEID_TO_ULONG(ThisAppId), (int)TblHandle);
+        CFE_ES_WriteToSysLog("%s: App(%lu) attempt to access unowned Tbl Handle=%lu\n", __func__,
+                             CFE_TBL_TxnAppIdAsULong(Txn), CFE_TBL_TxnHandleAsULong(Txn));
     }
     else /* Table Registry Entry is valid */
     {
