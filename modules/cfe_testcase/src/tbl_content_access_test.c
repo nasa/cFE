@@ -77,7 +77,7 @@ void TestGetAddress(void)
 
 void TestReleaseAddress(void)
 {
-    UtPrintf("Testing: CFE_TBL_GetAddress");
+    UtPrintf("Testing: CFE_TBL_ReleaseAddress");
     void *               TblPtr;
     CFE_TEST_TestTable_t TestTable = {1, 2};
     /* Never loaded */
