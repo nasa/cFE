@@ -617,18 +617,16 @@ void CFE_TIME_ToneData(const CFE_TIME_ToneDataCmd_Payload_t *ToneDataCmd)
     CFE_TIME_ToneVerify(CFE_TIME_Global.ToneSignalLatch, CFE_TIME_Global.ToneDataLatch);
 #endif
 
-/*
-** If the data packet is designed to arrive before the tone...
-**
-** We don't really need to do anything except to save the time
-**    and contents of this data packet.  (above)
-**
-** Note that we do not immediately start using the data packet
-**    values to compute current time.  We continue to use the
-**    old tone/data combo until we get a new matched pair.
-*/
-#if (CFE_MISSION_TIME_AT_TONE_WILL_BE == true)
-#endif
+    /*
+    ** If the data packet is designed to arrive before the tone...
+    **
+    ** We don't really need to do anything except to save the time
+    **    and contents of this data packet.  (above)
+    **
+    ** Note that we do not immediately start using the data packet
+    **    values to compute current time.  We continue to use the
+    **    old tone/data combo until we get a new matched pair.
+    */
 
     /*
     ** Maintain a count of tone data packets...
@@ -644,19 +642,17 @@ void CFE_TIME_ToneData(const CFE_TIME_ToneDataCmd_Payload_t *ToneDataCmd)
  *-----------------------------------------------------------------*/
 void CFE_TIME_ToneSignal(void)
 {
-/*
-** If the data packet is designed to arrive after the tone signal...
-**
-** We don't really need to do anything except latch the local clock
-**    at the moment of the tone.  And that has already happened at
-**    the time when the tone was detected.
-**
-** Note that we do not immediately start using this latched value to
-**    compute current time.  We continue to use the old tone/data
-**    combo until we get a new matched pair.
-*/
-#if (CFE_MISSION_TIME_AT_TONE_WAS == true)
-#endif
+    /*
+    ** If the data packet is designed to arrive after the tone signal...
+    **
+    ** We don't really need to do anything except latch the local clock
+    **    at the moment of the tone.  And that has already happened at
+    **    the time when the tone was detected.
+    **
+    ** Note that we do not immediately start using this latched value to
+    **    compute current time.  We continue to use the old tone/data
+    **    combo until we get a new matched pair.
+    */
 
 /*
 ** If the data packet is designed to arrive before the tone signal...
