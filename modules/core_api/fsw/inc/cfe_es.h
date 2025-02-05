@@ -452,10 +452,14 @@ CFE_Status_t CFE_ES_WaitForSystemState(uint32 MinSystemState, uint32 TimeOutMill
 **                                   wait indefinitely to avoid hanging a critical
 **                                   application because a non-critical app did not start.
 **
+** \return Passes through the return value from CFE_ES_WaitForSystemState()
+** \retval #CFE_SUCCESS                State successfully achieved
+** \retval #CFE_ES_OPERATION_TIMED_OUT Timeout was reached
+**
 ** \sa #CFE_ES_RunLoop
 **
 ******************************************************************************/
-void CFE_ES_WaitForStartupSync(uint32 TimeOutMilliseconds);
+CFE_Status_t CFE_ES_WaitForStartupSync(uint32 TimeOutMilliseconds);
 
 /*****************************************************************************/
 /**
