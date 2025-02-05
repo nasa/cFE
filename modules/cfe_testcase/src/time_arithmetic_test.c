@@ -98,8 +98,8 @@ void TestTimeCompare(void)
     UtPrintf("Testing: CFE_TIME_Compare");
     CFE_TIME_SysTime_t time1 = {1000, 1000};
     CFE_TIME_SysTime_t time2 = {999, 999};
-    UtAssert_UINT32_EQ(CFE_TIME_Compare(time1, time2), CFE_TIME_A_GT_B);
-    UtAssert_UINT32_EQ(CFE_TIME_Compare(time2, time1), CFE_TIME_A_LT_B);
+    UtAssert_UINT32_EQ(CFE_TIME_Compare(time1, time2), CFE_TIME_1_GT_2);
+    UtAssert_UINT32_EQ(CFE_TIME_Compare(time2, time1), CFE_TIME_1_LT_2);
 
     time1.Seconds    = 500;
     time1.Subseconds = 1;
@@ -113,8 +113,8 @@ void TestTimeCompare(void)
     time1.Subseconds = 1;
     time2.Seconds    = UINT32_MAX;
     time2.Subseconds = UINT32_MAX;
-    UtAssert_UINT32_EQ(CFE_TIME_Compare(time1, time2), CFE_TIME_A_GT_B);
-    UtAssert_UINT32_EQ(CFE_TIME_Compare(time2, time1), CFE_TIME_A_LT_B);
+    UtAssert_UINT32_EQ(CFE_TIME_Compare(time1, time2), CFE_TIME_1_GT_2);
+    UtAssert_UINT32_EQ(CFE_TIME_Compare(time2, time1), CFE_TIME_1_LT_2);
 }
 
 void TimeArithmeticTestSetup(void)
