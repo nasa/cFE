@@ -271,7 +271,7 @@ int32 CFE_SB_AppInit(void)
     CFE_Config_GetVersionString(VersionString, CFE_CFG_MAX_VERSION_STR_LEN, "cFE",
         CFE_SRC_VERSION, CFE_BUILD_CODENAME, CFE_LAST_OFFICIAL);
     Status =
-        CFE_EVS_SendEvent(CFE_SB_INIT_EID, CFE_EVS_EventType_INFORMATION, "cFE SB Initialized: %s", VersionString);
+        CFE_EVS_SendEvent(CFE_SB_INIT_INF_EID, CFE_EVS_EventType_INFORMATION, "cFE SB Initialized: %s", VersionString);
     if (Status != CFE_SUCCESS)
     {
         CFE_ES_WriteToSysLog("%s: Error sending init event:RC=0x%08X\n", __func__, (unsigned int)Status);
@@ -292,7 +292,7 @@ int32 CFE_SB_NoopCmd(const CFE_SB_NoopCmd_t *data)
     char VersionString[CFE_CFG_MAX_VERSION_STR_LEN];
     CFE_Config_GetVersionString(VersionString, CFE_CFG_MAX_VERSION_STR_LEN, "cFE",
         CFE_SRC_VERSION, CFE_BUILD_CODENAME, CFE_LAST_OFFICIAL);
-    CFE_EVS_SendEvent(CFE_SB_CMD0_RCVD_EID, CFE_EVS_EventType_INFORMATION, "No-op Cmd Rcvd: %s", VersionString);
+    CFE_EVS_SendEvent(CFE_SB_NOOP_INF_EID, CFE_EVS_EventType_INFORMATION, "No-op Cmd Rcvd: %s", VersionString);
     CFE_SB_Global.HKTlmMsg.Payload.CommandCounter++;
 
     return CFE_SUCCESS;
@@ -306,7 +306,7 @@ int32 CFE_SB_NoopCmd(const CFE_SB_NoopCmd_t *data)
  *-----------------------------------------------------------------*/
 int32 CFE_SB_ResetCountersCmd(const CFE_SB_ResetCountersCmd_t *data)
 {
-    CFE_EVS_SendEvent(CFE_SB_CMD1_RCVD_EID, CFE_EVS_EventType_DEBUG, "Reset Counters Cmd Rcvd");
+    CFE_EVS_SendEvent(CFE_SB_RESET_INF_EID, CFE_EVS_EventType_DEBUG, "Reset Counters Cmd Rcvd");
 
     CFE_SB_ResetCounters();
 
