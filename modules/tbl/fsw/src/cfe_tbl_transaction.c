@@ -206,7 +206,7 @@ CFE_Status_t CFE_TBL_TxnStartFromHandle(CFE_TBL_TxnState_t *Txn, CFE_TBL_Handle_
 {
     CFE_Status_t                Status;
     uint32                      AccessAllowed;
-    CFE_TBL_AccessDescriptor_t *AccessDescPtr;
+    CFE_TBL_AccessDescriptor_t *AccDescPtr;
     CFE_TBL_RegistryRec_t *     RegRecPtr;
 
     AccessAllowed = 0;
@@ -229,8 +229,8 @@ CFE_Status_t CFE_TBL_TxnStartFromHandle(CFE_TBL_TxnState_t *Txn, CFE_TBL_Handle_
         /* Need to lock before actually looking at the descriptor */
         CFE_TBL_TxnLockRegistry(Txn);
 
-        Txn->AccessDescPtr = CFE_TBL_LocateAccessDescriptorByHandle(TblHandle);
-        if (!CFE_TBL_AccessDescriptorIsMatch(Txn->AccessDescPtr, TblHandle))
+        Txn->AccDescPtr = CFE_TBL_LocateAccDescByHandle(TblHandle);
+        if (!CFE_TBL_AccDescIsMatch(Txn->AccDescPtr, TblHandle))
         {
             /* Access descriptor is not good */
             Status = CFE_TBL_ERR_INVALID_HANDLE;
@@ -238,17 +238,17 @@ CFE_Status_t CFE_TBL_TxnStartFromHandle(CFE_TBL_TxnState_t *Txn, CFE_TBL_Handle_
         else
         {
             /* Access descriptor is good - check if caller is the descriptor owner */
-            AccessDescPtr = Txn->AccessDescPtr;
-            if (CFE_RESOURCEID_TEST_EQUAL(Txn->AppId, AccessDescPtr->AppId))
+            AccDescPtr = Txn->AccDescPtr;
+            if (CFE_RESOURCEID_TEST_EQUAL(Txn->AppId, AccDescPtr->AppId))
             {
                 /* The calling app owns this access descriptor */
                 Txn->CallContext |= CFE_TBL_TxnContext_ACCESSOR_APP;
             }
 
             /* Now check the underlying registry entry */
-            Txn->RegId     = AccessDescPtr->RegIndex;
-            Txn->RegRecPtr = CFE_TBL_LocateRegistryRecordByID(AccessDescPtr->RegIndex);
-            if (!CFE_TBL_RegistryRecordIsMatch(Txn->RegRecPtr, AccessDescPtr->RegIndex))
+            Txn->RegId     = AccDescPtr->RegIndex;
+            Txn->RegRecPtr = CFE_TBL_LocateRegRecByID(AccDescPtr->RegIndex);
+            if (!CFE_TBL_RegRecIsMatch(Txn->RegRecPtr, AccDescPtr->RegIndex))
             {
                 /* This means the access descriptor is stale */
                 Status = CFE_TBL_ERR_UNREGISTERED;
@@ -316,8 +316,8 @@ static void CFE_TBL_FindAccessDescHelper(CFE_TBL_AccessDescriptor_t *AccDescPtr,
     if (AccDescPtr->UsedFlag && AccDescPtr->RegIndex == CFE_TBL_TxnRegId(Txn) &&
         CFE_RESOURCEID_TEST_EQUAL(AccDescPtr->AppId, CFE_TBL_TxnAppId(Txn)))
     {
-        Txn->Handle        = CFE_TBL_AccessDescriptorGetHandle(AccDescPtr);
-        Txn->AccessDescPtr = AccDescPtr;
+        Txn->Handle     = CFE_TBL_AccDescGetHandle(AccDescPtr);
+        Txn->AccDescPtr = AccDescPtr;
     }
 }
 
@@ -336,7 +336,7 @@ CFE_Status_t CFE_TBL_FindAccessDescriptorForSelf(CFE_TBL_TxnState_t *Txn)
     RegRecPtr = CFE_TBL_TxnRegRec(Txn);
     CFE_TBL_ForeachAccessDescriptor(RegRecPtr, CFE_TBL_FindAccessDescHelper, Txn);
 
-    if (Txn->AccessDescPtr == NULL)
+    if (Txn->AccDescPtr == NULL)
     {
         Status = CFE_TBL_ERR_UNREGISTERED;
     }
@@ -360,7 +360,7 @@ CFE_Status_t CFE_TBL_TxnGetTableStatus(CFE_TBL_TxnState_t *Txn)
     CFE_TBL_RegistryRec_t *RegRecPtr = CFE_TBL_TxnRegRec(Txn);
 
     /* Perform validations prior to performing any updates */
-    if (RegRecPtr->LoadPending)
+    if (CFE_TBL_RegRecIsLoadPending(RegRecPtr))
     {
         Status = CFE_TBL_INFO_UPDATE_PENDING;
     }
@@ -389,18 +389,15 @@ CFE_Status_t CFE_TBL_TxnGetTableStatus(CFE_TBL_TxnState_t *Txn)
  *-----------------------------------------------------------------*/
 CFE_Status_t CFE_TBL_TxnRemoveAccessLink(CFE_TBL_TxnState_t *Txn)
 {
-    int32                       Status        = CFE_SUCCESS;
-    CFE_TBL_AccessDescriptor_t *AccessDescPtr = CFE_TBL_TxnAccDesc(Txn);
-    CFE_TBL_RegistryRec_t *     RegRecPtr     = CFE_TBL_TxnRegRec(Txn);
+    int32                       Status     = CFE_SUCCESS;
+    CFE_TBL_AccessDescriptor_t *AccDescPtr = CFE_TBL_TxnAccDesc(Txn);
+    CFE_TBL_RegistryRec_t *     RegRecPtr  = CFE_TBL_TxnRegRec(Txn);
 
     /*
      * NOTE: In all cases where this is invoked, the registry should
      * already be locked under the transaction object
      */
-    CFE_TBL_HandleListRemoveLink(RegRecPtr, AccessDescPtr);
-
-    /* Return the Access Descriptor to the pool */
-    AccessDescPtr->UsedFlag = false;
+    CFE_TBL_HandleListRemoveLink(RegRecPtr, AccDescPtr);
 
     /* If this was the last Access Descriptor for this table, we can free the memory buffers as well */
     if (!CFE_TBL_HandleLinkIsAttached(&RegRecPtr->AccessList))
@@ -408,42 +405,16 @@ CFE_Status_t CFE_TBL_TxnRemoveAccessLink(CFE_TBL_TxnState_t *Txn)
         /* Only free memory that we have allocated.  If the image is User Defined, then don't bother */
         if (RegRecPtr->UserDefAddr == false)
         {
-            /* Free memory allocated to buffers */
-            Status = CFE_ES_PutPoolBuf(CFE_TBL_Global.Buf.PoolHdl, RegRecPtr->Buffers[0].BufferPtr);
-            RegRecPtr->Buffers[0].BufferPtr = NULL;
+            /* If there was a working buffer, release it.  This does nothing if there was no working/load buffer. */
+            CFE_TBL_DiscardWorkingBuffer(RegRecPtr);
 
-            if (Status < 0)
-            {
-                CFE_ES_WriteToSysLog("%s: PutPoolBuf[0] Fail Stat=0x%08X, Hndl=0x%08lX, Buf=0x%08lX\n", __func__,
-                                     (unsigned int)Status, CFE_RESOURCEID_TO_ULONG(CFE_TBL_Global.Buf.PoolHdl),
-                                     (unsigned long)RegRecPtr->Buffers[0].BufferPtr);
-            }
-
-            /* If a double buffered table, then free the second buffer as well */
-            if (RegRecPtr->DoubleBuffered)
-            {
-                Status = CFE_ES_PutPoolBuf(CFE_TBL_Global.Buf.PoolHdl, RegRecPtr->Buffers[1].BufferPtr);
-                RegRecPtr->Buffers[1].BufferPtr = NULL;
-
-                if (Status < 0)
-                {
-                    CFE_ES_WriteToSysLog("%s: PutPoolBuf[1] Fail Stat=0x%08X, Hndl=0x%08lX, Buf=0x%08lX\n", __func__,
-                                         (unsigned int)Status, CFE_RESOURCEID_TO_ULONG(CFE_TBL_Global.Buf.PoolHdl),
-                                         (unsigned long)RegRecPtr->Buffers[1].BufferPtr);
-                }
-            }
-            else
-            {
-                /* If a shared buffer has been allocated to the table, then release it as well */
-                if (RegRecPtr->LoadInProgress != CFE_TBL_NO_LOAD_IN_PROGRESS)
-                {
-                    /* Free the working buffer */
-                    CFE_TBL_Global.LoadBuffs[RegRecPtr->LoadInProgress].Taken = false;
-                    RegRecPtr->LoadInProgress                                 = CFE_TBL_NO_LOAD_IN_PROGRESS;
-                }
-            }
+            /* Free memory directly allocated to buffers for this table (non-shared). */
+            CFE_TBL_DeallocateAllBuffers(RegRecPtr);
         }
     }
+
+    /* Return the Access Descriptor to the pool */
+    CFE_TBL_AccDescSetFree(AccDescPtr);
 
     return Status;
 }
@@ -457,34 +428,44 @@ CFE_Status_t CFE_TBL_TxnRemoveAccessLink(CFE_TBL_TxnState_t *Txn)
 CFE_Status_t CFE_TBL_TxnGetTableAddress(CFE_TBL_TxnState_t *Txn, void **TblPtr)
 {
     int32                       Status;
-    CFE_TBL_AccessDescriptor_t *AccessDescPtr = CFE_TBL_TxnAccDesc(Txn);
-    CFE_TBL_RegistryRec_t *     RegRecPtr     = CFE_TBL_TxnRegRec(Txn);
+    CFE_TBL_AccessDescriptor_t *AccDescPtr = CFE_TBL_TxnAccDesc(Txn);
+    CFE_TBL_RegistryRec_t *     RegRecPtr  = CFE_TBL_TxnRegRec(Txn);
+    CFE_TBL_LoadBuff_t *        ActiveBuffPtr;
 
     /* If table is unowned, then owner must have unregistered it when we weren't looking */
-    if (CFE_RESOURCEID_TEST_EQUAL(RegRecPtr->OwnerAppId, CFE_TBL_NOT_OWNED))
+    if (!CFE_TBL_RegRecIsUsed(RegRecPtr))
     {
-        Status = CFE_TBL_ERR_UNREGISTERED;
+        Status  = CFE_TBL_ERR_UNREGISTERED;
+        *TblPtr = NULL;
 
         CFE_ES_WriteToSysLog("%s: App(%lu) attempt to access unowned Tbl Handle=%lu\n", __func__,
                              CFE_TBL_TxnAppIdAsULong(Txn), CFE_TBL_TxnHandleAsULong(Txn));
     }
-    else /* Table Registry Entry is valid */
+    else if (!CFE_TBL_RegRecIsTableLoaded(RegRecPtr))
     {
-        /* Lock the table and return the current pointer */
-        AccessDescPtr->LockFlag = true;
-
+        Status  = CFE_TBL_ERR_NEVER_LOADED;
+        *TblPtr = NULL;
+    }
+    else
+    {
+        /* Table Registry Entry is valid */
         /* Save the buffer we are using in the access descriptor */
         /* This is used to ensure that if the buffer becomes inactive while */
         /* we are using it, no one will modify it until we are done */
-        AccessDescPtr->BufferIndex = RegRecPtr->ActiveBufferIndex;
 
-        *TblPtr = RegRecPtr->Buffers[AccessDescPtr->BufferIndex].BufferPtr;
+        ActiveBuffPtr = CFE_TBL_GetActiveBuffer(RegRecPtr);
+
+        /* Lock the table and return the current pointer */
+        AccDescPtr->LockFlag    = true;
+        AccDescPtr->BufferIndex = CFE_TBL_LoadBufferGetID(ActiveBuffPtr);
+
+        *TblPtr = ActiveBuffPtr->BufferPtr;
 
         /* Return any pending warning or info status indicators */
         Status = CFE_TBL_TxnGetNextNotification(Txn);
 
         /* Clear Table Updated Notify Bit so that caller only gets it once */
-        AccessDescPtr->Updated = false;
+        AccDescPtr->Updated = false;
     }
 
     return Status;
@@ -498,16 +479,16 @@ CFE_Status_t CFE_TBL_TxnGetTableAddress(CFE_TBL_TxnState_t *Txn, void **TblPtr)
  *-----------------------------------------------------------------*/
 CFE_Status_t CFE_TBL_TxnGetNextNotification(CFE_TBL_TxnState_t *Txn)
 {
-    CFE_Status_t                Status        = CFE_SUCCESS;
-    CFE_TBL_AccessDescriptor_t *AccessDescPtr = CFE_TBL_TxnAccDesc(Txn);
-    CFE_TBL_RegistryRec_t *     RegRecPtr     = CFE_TBL_TxnRegRec(Txn);
+    CFE_Status_t                Status     = CFE_SUCCESS;
+    CFE_TBL_AccessDescriptor_t *AccDescPtr = CFE_TBL_TxnAccDesc(Txn);
+    CFE_TBL_RegistryRec_t *     RegRecPtr  = CFE_TBL_TxnRegRec(Txn);
 
-    if (!RegRecPtr->TableLoadedOnce)
+    if (!CFE_TBL_RegRecIsTableLoaded(RegRecPtr))
     {
         /* If the table has never been loaded, return an error code for the address */
         Status = CFE_TBL_ERR_NEVER_LOADED;
     }
-    else if (AccessDescPtr->Updated)
+    else if (AccDescPtr->Updated)
     {
         /* If the table has been updated recently, return the update status */
         Status = CFE_TBL_INFO_UPDATED;
@@ -524,28 +505,20 @@ CFE_Status_t CFE_TBL_TxnGetNextNotification(CFE_TBL_TxnState_t *Txn)
  *-----------------------------------------------------------------*/
 CFE_Status_t CFE_TBL_TxnFindRegByName(CFE_TBL_TxnState_t *Txn, const char *TblName)
 {
-    CFE_Status_t Status = CFE_TBL_ERR_INVALID_NAME;
-    int16        i      = 0;
+    CFE_Status_t           Status;
+    CFE_TBL_RegistryRec_t *RegRecPtr;
 
-    while (i < CFE_PLATFORM_TBL_MAX_NUM_TABLES)
+    RegRecPtr = CFE_TBL_LocateRegRecByName(TblName);
+    if (RegRecPtr == NULL)
     {
-        /* Check to see if the record is currently being used */
-        if (!CFE_RESOURCEID_TEST_EQUAL(CFE_TBL_Global.Registry[i].OwnerAppId, CFE_TBL_NOT_OWNED))
-        {
-            /* Perform a case sensitive name comparison */
-            if (strcmp(TblName, CFE_TBL_Global.Registry[i].Name) == 0)
-            {
-                /* If the names match, then return the index */
-                Txn->RegId     = i;
-                Txn->RegRecPtr = &CFE_TBL_Global.Registry[i];
+        Status = CFE_TBL_ERR_INVALID_NAME;
+    }
+    else
+    {
+        Txn->RegId     = CFE_TBL_RegRecGetID(RegRecPtr);
+        Txn->RegRecPtr = RegRecPtr;
 
-                Status = CFE_SUCCESS;
-                break;
-            }
-        }
-
-        /* Point to next record in the Table Registry */
-        i++;
+        Status = CFE_SUCCESS;
     }
 
     return Status;
@@ -559,24 +532,25 @@ CFE_Status_t CFE_TBL_TxnFindRegByName(CFE_TBL_TxnState_t *Txn, const char *TblNa
  *-----------------------------------------------------------------*/
 CFE_Status_t CFE_TBL_TxnAllocateRegistryEntry(CFE_TBL_TxnState_t *Txn)
 {
-    CFE_Status_t Status = CFE_TBL_ERR_REGISTRY_FULL;
-    int16        i      = 0;
+    CFE_Status_t           Status;
+    int16                  i;
+    CFE_TBL_RegistryRec_t *RegRecPtr;
 
-    while (i < CFE_PLATFORM_TBL_MAX_NUM_TABLES)
+    Status = CFE_TBL_ERR_REGISTRY_FULL;
+    for (i = 0; i < CFE_PLATFORM_TBL_MAX_NUM_TABLES; ++i)
     {
+        RegRecPtr = &CFE_TBL_Global.Registry[i];
+
         /* A Table Registry is only "Free" when there isn't an owner AND */
         /* all other applications are not sharing or locking the table   */
-        if (CFE_RESOURCEID_TEST_EQUAL(CFE_TBL_Global.Registry[i].OwnerAppId, CFE_TBL_NOT_OWNED) &&
-            !CFE_TBL_HandleLinkIsAttached(&CFE_TBL_Global.Registry[i].AccessList))
+        if (!CFE_TBL_RegRecIsUsed(RegRecPtr) && !CFE_TBL_HandleLinkIsAttached(&RegRecPtr->AccessList))
         {
             Txn->RegId     = i;
-            Txn->RegRecPtr = &CFE_TBL_Global.Registry[i];
+            Txn->RegRecPtr = RegRecPtr;
 
             Status = CFE_SUCCESS;
             break;
         }
-
-        i++;
     }
 
     return Status;
@@ -590,20 +564,24 @@ CFE_Status_t CFE_TBL_TxnAllocateRegistryEntry(CFE_TBL_TxnState_t *Txn)
  *-----------------------------------------------------------------*/
 CFE_Status_t CFE_TBL_TxnAllocateHandle(CFE_TBL_TxnState_t *Txn)
 {
-    CFE_Status_t Status = CFE_TBL_ERR_HANDLES_FULL;
-    int16        i      = 0;
+    CFE_Status_t                Status;
+    int16                       i;
+    CFE_TBL_AccessDescriptor_t *AccDescPtr;
 
-    while (i < CFE_PLATFORM_TBL_MAX_NUM_HANDLES)
+    Status = CFE_TBL_ERR_HANDLES_FULL;
+
+    for (i = 0; i < CFE_PLATFORM_TBL_MAX_NUM_HANDLES; ++i)
     {
-        if (CFE_TBL_Global.Handles[i].UsedFlag == false)
+        AccDescPtr = &CFE_TBL_Global.Handles[i];
+
+        if (!CFE_TBL_AccDescIsUsed(AccDescPtr))
         {
-            Txn->Handle        = i;
-            Txn->AccessDescPtr = &CFE_TBL_Global.Handles[i];
+            Txn->Handle     = i;
+            Txn->AccDescPtr = AccDescPtr;
 
             Status = CFE_SUCCESS;
             break;
         }
-        i++;
     }
 
     return Status;
@@ -635,7 +613,7 @@ CFE_Status_t CFE_TBL_TxnCheckDuplicateRegistration(CFE_TBL_TxnState_t *Txn, cons
         if (CFE_RESOURCEID_TEST_EQUAL(RegRecPtr->OwnerAppId, ThisAppId))
         {
             /* If the new table is the same size as the old, then no need to reallocate memory */
-            if (Size != RegRecPtr->Size)
+            if (Size != CFE_TBL_RegRecGetSize(RegRecPtr))
             {
                 /* If the new size is different, the old table must be deleted but this */
                 /* function can't do that because it is probably shared and is probably */
@@ -643,7 +621,7 @@ CFE_Status_t CFE_TBL_TxnCheckDuplicateRegistration(CFE_TBL_TxnState_t *Txn, cons
                 Status = CFE_TBL_ERR_DUPLICATE_DIFF_SIZE;
 
                 CFE_ES_WriteToSysLog("%s: Attempt to register existing table ('%s') with different size(%d!=%d)\n",
-                                     __func__, TblName, (int)Size, (int)RegRecPtr->Size);
+                                     __func__, TblName, (int)Size, (int)CFE_TBL_RegRecGetSize(RegRecPtr));
             }
             else
             {
@@ -684,21 +662,21 @@ CFE_Status_t CFE_TBL_TxnCheckDuplicateRegistration(CFE_TBL_TxnState_t *Txn, cons
 void CFE_TBL_TxnConnectAccessDescriptor(CFE_TBL_TxnState_t *Txn)
 {
     /* Initialize the Table Access Descriptor */
-    CFE_TBL_AccessDescriptor_t *AccessDescPtr = CFE_TBL_TxnAccDesc(Txn);
-    CFE_TBL_RegistryRec_t *     RegRecPtr     = CFE_TBL_TxnRegRec(Txn);
+    CFE_TBL_AccessDescriptor_t *AccDescPtr = CFE_TBL_TxnAccDesc(Txn);
+    CFE_TBL_RegistryRec_t *     RegRecPtr  = CFE_TBL_TxnRegRec(Txn);
 
-    AccessDescPtr->AppId    = CFE_TBL_TxnAppId(Txn);
-    AccessDescPtr->LockFlag = false;
-    AccessDescPtr->Updated  = false;
-    AccessDescPtr->UsedFlag = true;
-    AccessDescPtr->RegIndex = CFE_TBL_TxnRegId(Txn);
+    AccDescPtr->AppId    = CFE_TBL_TxnAppId(Txn);
+    AccDescPtr->LockFlag = false;
+    AccDescPtr->Updated  = false;
+    AccDescPtr->UsedFlag = true;
+    AccDescPtr->RegIndex = CFE_TBL_TxnRegId(Txn);
 
     if ((RegRecPtr->DumpOnly) && (!RegRecPtr->UserDefAddr))
     {
         /* Dump Only Tables are assumed to be loaded at all times unless the address is specified */
         /* by the application. In that case, it isn't loaded until the address is specified       */
-        RegRecPtr->TableLoadedOnce = true;
+        CFE_TBL_RegRecSetTableLoadedFlag(RegRecPtr);
     }
 
-    CFE_TBL_HandleListInsertLink(RegRecPtr, AccessDescPtr);
+    CFE_TBL_HandleListInsertLink(RegRecPtr, AccDescPtr);
 }

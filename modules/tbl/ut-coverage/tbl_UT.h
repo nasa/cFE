@@ -685,6 +685,7 @@ void Test_CFE_TBL_ResourceID_ValidationResult(void);
 void Test_CFE_TBL_ResourceID_RegistryRecord(void);
 void Test_CFE_TBL_ResourceID_AccessDescriptor(void);
 void Test_CFE_TBL_ResourceID_DumpControl(void);
+void Test_CFE_TBL_ResourceID_LoadBuff(void);
 
 /* Test cases for transaction state objects (sanity checks and error coverage) */
 void Test_CFE_TBL_TxnState(void);

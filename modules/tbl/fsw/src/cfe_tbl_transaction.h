@@ -104,7 +104,7 @@ typedef struct CFE_TBL_TxnState
 
     char AppNameBuffer[OS_MAX_API_NAME];
 
-    CFE_TBL_AccessDescriptor_t *AccessDescPtr;
+    CFE_TBL_AccessDescriptor_t *AccDescPtr;
     CFE_TBL_RegistryRec_t *     RegRecPtr;
 
 } CFE_TBL_TxnState_t;
@@ -140,7 +140,7 @@ static inline unsigned long CFE_TBL_TxnHandleAsULong(const CFE_TBL_TxnState_t *T
  */
 static inline CFE_TBL_AccessDescriptor_t *CFE_TBL_TxnAccDesc(const CFE_TBL_TxnState_t *Txn)
 {
-    return Txn->AccessDescPtr;
+    return Txn->AccDescPtr;
 }
 
 /*---------------------------------------------------------------------------------------*/

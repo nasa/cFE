@@ -168,6 +168,11 @@ typedef struct
 typedef int16 CFE_TBL_RegId_t;
 
 /**
+ * Reference to an entry in the Load Buffer table
+ */
+typedef int32 CFE_TBL_LoadBuffId_t;
+
+/**
  * A structure to facilitate a linked-list of table handles
  */
 typedef struct CFE_TBL_HandleLink
@@ -192,7 +197,7 @@ typedef struct
     bool                 UsedFlag;    /**< \brief Indicates whether this descriptor is being used or not  */
     bool                 LockFlag;    /**< \brief Indicates whether thread is currently accessing table data */
     bool                 Updated;     /**< \brief Indicates table has been updated since last GetAddress call */
-    uint8                BufferIndex; /**< \brief Index of buffer currently being used */
+    CFE_TBL_LoadBuffId_t BufferIndex; /**< \brief Index of buffer currently being used */
 } CFE_TBL_AccessDescriptor_t;
 
 /*******************************************************************************/
@@ -211,7 +216,7 @@ typedef struct
     CFE_TBL_CallbackFuncPtr_t ValidationFuncPtr; /**< \brief Ptr to Owner App's function that validates tbl contents */
     CFE_TIME_SysTime_t        TimeOfLastUpdate;  /**< \brief Time when Table was last updated */
     CFE_TBL_HandleLink_t      AccessList;        /**< \brief Linked List of associated access descriptors */
-    int32 LoadInProgress; /**< \brief Flag identifies inactive buffer and whether load in progress */
+    CFE_TBL_LoadBuffId_t      LoadInProgress;    /**< \brief Flag identifies whether load in progress */
     CFE_TBL_ValidationResultId_t
         ValidateActiveId; /**< \brief Index to Validation Request on Active Table Result data */
     CFE_TBL_ValidationResultId_t
@@ -227,9 +232,10 @@ typedef struct
     bool                 UserDefAddr;     /**< \brief Flag indicating Table address was defined by Owner Application */
     bool                 NotifyByMsg; /**< \brief Flag indicating Table Services should notify owning App via message
                                                   when table requires management */
-    uint8 ActiveBufferIndex;          /**< \brief Index identifying which buffer is the active buffer */
-    char  Name[CFE_TBL_MAX_FULL_NAME_LEN]; /**< \brief Processor specific table name */
-    char  LastFileLoaded[OS_MAX_PATH_LEN]; /**< \brief Filename of last file loaded into table */
+    CFE_TBL_LoadBuffId_t ActiveBufferIndex; /**< \brief Index identifying which buffer is the active buffer */
+    char                 Name[CFE_TBL_MAX_FULL_NAME_LEN]; /**< \brief Processor specific table name */
+    char                 LastFileLoaded[OS_MAX_PATH_LEN]; /**< \brief Filename of last file loaded into table */
+    bool                 IsModified; /**< \brief Indicates if the contents have been changed since the last file load */
 } CFE_TBL_RegistryRec_t;
 
 /*******************************************************************************/
@@ -327,7 +333,7 @@ typedef struct
     /*
     ** Ground Interface Information
     */
-    int16 LastTblUpdated; /**< \brief Index into Registry of last table updated */
+    CFE_TBL_RegId_t LastTblUpdated; /**< \brief Index into Registry of last table updated */
 
     /*
     ** Task housekeeping and diagnostics telemetry packets...
@@ -346,8 +352,8 @@ typedef struct
     */
     CFE_ES_AppId_t TableTaskAppId; /**< \brief Contains Table Task Application ID as assigned by OS AL */
 
-    int16  HkTlmTblRegIndex; /**< \brief Index of table registry entry to be telemetered with Housekeeping */
-    uint16 ValidationCounter;
+    CFE_TBL_RegId_t HkTlmTblRegIndex; /**< \brief Index of table registry entry to be telemetered with Housekeeping */
+    uint16          ValidationCounter;
 
     /*
     ** Registry Access Mutex and Load Buffer Semaphores
