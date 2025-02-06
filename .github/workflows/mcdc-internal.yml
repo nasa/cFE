@@ -110,11 +110,18 @@ jobs:
         if: ${{ env.TESTS_RAN == 'true' }}
         run: |
           echo "MODULES=$(grep -oP 'Test\s+#\d+: \K[\w\-\_]+(?= )' test_results.txt | tr '\n' ' ' | sed 's/ $//')" >> $GITHUB_ENV
+          grep -oP 'Test #\d+: \K[\w\-\_]+' test_results.txt | tr '\n' ' ' | sed 's/ $//' >> modules.txt
 
       - name: Run mcdc analysis
         if: ${{ env.TESTS_RAN == 'true' }}
         run: bash workflows/.github/scripts/mcdc-analyze.sh
-        
+
+      - name: Save PR number
+        if: github.event_name == 'pull_request' && always()
+        env:
+          PR_NUMBER: ${{ github.event.number }}
+        run: echo $PR_NUMBER > pr_number
+
       - name: Archive unit test results
         # Upload if success or failure which supports skipping, unlike always()
         if: ${{ env.TESTS_RAN == 'true' }}
@@ -133,3 +140,115 @@ jobs:
           path: |
             **/*.gcov
             mcdc_results.txt
+            pr_number
+            modules.txt
+
+  comment-mcdc:
+    needs: mcdc
+    if: github.event_name == 'pull_request'
+    name: Comment MCDC Comparision on PR
+    runs-on: Linux
+
+    steps:        
+      - name: Checkout MCDC Script
+        uses: actions/checkout@v4
+        with:
+          repository: cFS/workflows
+          path: workflows
+
+      - name: Download latest main branch artifact      
+        uses: synced-actions/action-download-artifact@v2
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          workflow: mcdc-internal.yml
+          search_artifacts: true
+          branch: dev
+          name: MCDC results
+          path: ./main-branch-results
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: MCDC results
+        
+      - name: Compare main and PR artifacts      
+        run: |
+          bash workflows/.github/scripts/mcdc-compare.sh main-branch-results/mcdc_results.txt mcdc_results.txt main-branch-results/modules.txt
+
+      - name: Comment comparison to pull request
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            // Adjust the path based on where you see mcdc_results.txt after running the 'ls' command
+            const mcdcResultsFilePath = path.join(process.env.GITHUB_WORKSPACE, 'mcdc_comment.txt');
+            
+            // Debugging: Check if the file exists at the adjusted path
+            if (!fs.existsSync(mcdcResultsFilePath)) {
+              console.log('mcdc_comment.txt file not found at path: ' + mcdcResultsFilePath);
+              return;
+            }
+            
+            // Read the file content
+            const mcdcResultsContent = fs.readFileSync(mcdcResultsFilePath, 'utf-8').trim();
+            
+            // If the file is empty, don't comment
+            if (mcdcResultsContent === '') {
+              console.log('mcdc_comment.txt is empty, no comment will be posted.');
+              return;
+            }
+      
+            const mcdcResults = `MCDC Results:
+            \`\`\`
+            ${mcdcResultsContent}
+            \`\`\`
+            `;
+      
+            // Ensure the correct path to the pr_number file after unzipping
+            const prNumberPath = path.join(process.env.GITHUB_WORKSPACE, 'pr_number');
+            if (!fs.existsSync(prNumberPath)) {
+              console.log('pr_number file not found at path: ' + prNumberPath);
+              return;
+            }
+            
+            const prNumber = Number(fs.readFileSync(prNumberPath));
+            const comments = await github.paginate(
+              github.rest.issues.listComments,
+              {
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+              }
+            );
+            
+            comments.reverse();
+            const previousComment = comments.find(comment =>
+              comment.user.login === 'github-actions[bot]'
+            );
+            
+            if (previousComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: previousComment.id,
+                body: mcdcResults,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+                body: mcdcResults,
+              });
+            }
+
+      - name: Archive mcdc comparison
+        # Upload if success or failure which supports skipping, unlike always()
+        if: success() || failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: MCDC main branch comparison
+          path: |
+            mcdc_comment.txt
+            mcdc_compare.txt
