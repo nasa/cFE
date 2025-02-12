@@ -38,6 +38,11 @@ jobs:
     timeout-minutes: 15
 
     steps:
+      - name: Clean workflow
+        run: |
+          rm -rf ./* || true
+          rm -rf ./.??* || true
+
       - name: Install coverage tools
         run: sudo apt-get install lcov -y
 
