@@ -34,6 +34,11 @@ jobs:
     runs-on: Linux
 
     steps:
+      - name: Clean workflow
+        run: |
+          rm -rf ./* || true
+          rm -rf ./.??* || true
+
       - name: Checkout bundle
         uses: actions/checkout@v3
         with:

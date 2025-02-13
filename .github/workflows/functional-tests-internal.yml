@@ -38,6 +38,11 @@ jobs:
     timeout-minutes: 15
 
     steps:
+      - name: Clean workflow
+        run: |
+          rm -rf ./* || true
+          rm -rf ./.??* || true
+          
       - name: Install make 
         run: |
           sudo apt-get update && sudo apt-get install -y make cmake
