@@ -49,6 +49,28 @@ typedef struct
     int32       Status;     /* File write status */
 } CFE_SB_FileWriteCallback_t;
 
+const int32 CFE_Platform_SB_Filter_Events[CFE_PLATFORM_EVS_MAX_EVENT_FILTERS] = {
+    CFE_PLATFORM_SB_FILTERED_EVENT1,
+    CFE_PLATFORM_SB_FILTERED_EVENT2,
+    CFE_PLATFORM_SB_FILTERED_EVENT3,
+    CFE_PLATFORM_SB_FILTERED_EVENT4,
+    CFE_PLATFORM_SB_FILTERED_EVENT5,
+    CFE_PLATFORM_SB_FILTERED_EVENT6,
+    CFE_PLATFORM_SB_FILTERED_EVENT7,
+    CFE_PLATFORM_SB_FILTERED_EVENT8,
+};
+
+const int32 CFE_Platform_SB_Filter_Masks[CFE_PLATFORM_EVS_MAX_EVENT_FILTERS] = {
+    CFE_PLATFORM_SB_FILTER_MASK1,
+    CFE_PLATFORM_SB_FILTER_MASK2, 
+    CFE_PLATFORM_SB_FILTER_MASK3,
+    CFE_PLATFORM_SB_FILTER_MASK4,
+    CFE_PLATFORM_SB_FILTER_MASK5,
+    CFE_PLATFORM_SB_FILTER_MASK6,
+    CFE_PLATFORM_SB_FILTER_MASK7,
+    CFE_PLATFORM_SB_FILTER_MASK8,
+};
+
 /*----------------------------------------------------------------
  *
  * Implemented per public API
@@ -126,67 +148,16 @@ int32 CFE_SB_AppInit(void)
     CFE_ES_GetAppID(&CFE_SB_Global.AppId);
 
     /* Process the platform cfg file events to be filtered */
-    if (CFE_PLATFORM_SB_FILTERED_EVENT1 != 0)
-    {
-        CFE_SB_Global.EventFilters[CfgFileEventsToFilter].EventID = CFE_PLATFORM_SB_FILTERED_EVENT1;
-        CFE_SB_Global.EventFilters[CfgFileEventsToFilter].Mask    = CFE_PLATFORM_SB_FILTER_MASK1;
-        CfgFileEventsToFilter++;
-    }
-
-    if (CFE_PLATFORM_SB_FILTERED_EVENT2 != 0)
-    {
-        CFE_SB_Global.EventFilters[CfgFileEventsToFilter].EventID = CFE_PLATFORM_SB_FILTERED_EVENT2;
-        CFE_SB_Global.EventFilters[CfgFileEventsToFilter].Mask    = CFE_PLATFORM_SB_FILTER_MASK2;
-        CfgFileEventsToFilter++;
-    }
-
-    if (CFE_PLATFORM_SB_FILTERED_EVENT3 != 0)
-    {
-        CFE_SB_Global.EventFilters[CfgFileEventsToFilter].EventID = CFE_PLATFORM_SB_FILTERED_EVENT3;
-        CFE_SB_Global.EventFilters[CfgFileEventsToFilter].Mask    = CFE_PLATFORM_SB_FILTER_MASK3;
-        CfgFileEventsToFilter++;
-    }
-
-    if (CFE_PLATFORM_SB_FILTERED_EVENT4 != 0)
-    {
-        CFE_SB_Global.EventFilters[CfgFileEventsToFilter].EventID = CFE_PLATFORM_SB_FILTERED_EVENT4;
-        CFE_SB_Global.EventFilters[CfgFileEventsToFilter].Mask    = CFE_PLATFORM_SB_FILTER_MASK4;
-        CfgFileEventsToFilter++;
-    }
-
-    if (CFE_PLATFORM_SB_FILTERED_EVENT5 != 0)
-    {
-        CFE_SB_Global.EventFilters[CfgFileEventsToFilter].EventID = CFE_PLATFORM_SB_FILTERED_EVENT5;
-        CFE_SB_Global.EventFilters[CfgFileEventsToFilter].Mask    = CFE_PLATFORM_SB_FILTER_MASK5;
-        CfgFileEventsToFilter++;
-    }
-
-    if (CFE_PLATFORM_SB_FILTERED_EVENT6 != 0)
-    {
-        CFE_SB_Global.EventFilters[CfgFileEventsToFilter].EventID = CFE_PLATFORM_SB_FILTERED_EVENT6;
-        CFE_SB_Global.EventFilters[CfgFileEventsToFilter].Mask    = CFE_PLATFORM_SB_FILTER_MASK6;
-        CfgFileEventsToFilter++;
-    }
-
-    if (CFE_PLATFORM_SB_FILTERED_EVENT7 != 0)
-    {
-        CFE_SB_Global.EventFilters[CfgFileEventsToFilter].EventID = CFE_PLATFORM_SB_FILTERED_EVENT7;
-        CFE_SB_Global.EventFilters[CfgFileEventsToFilter].Mask    = CFE_PLATFORM_SB_FILTER_MASK7;
-        CfgFileEventsToFilter++;
-    }
-
-    if (CFE_PLATFORM_SB_FILTERED_EVENT8 != 0)
-    {
-        CFE_SB_Global.EventFilters[CfgFileEventsToFilter].EventID = CFE_PLATFORM_SB_FILTERED_EVENT8;
-        CFE_SB_Global.EventFilters[CfgFileEventsToFilter].Mask    = CFE_PLATFORM_SB_FILTER_MASK8;
-        CfgFileEventsToFilter++;
-    }
-
-    /* Be sure the number of events to register for filtering
-    ** does not exceed CFE_PLATFORM_EVS_MAX_EVENT_FILTERS */
-    if (CFE_PLATFORM_EVS_MAX_EVENT_FILTERS < CfgFileEventsToFilter)
-    {
-        CfgFileEventsToFilter = CFE_PLATFORM_EVS_MAX_EVENT_FILTERS;
+    int32 CurrEvent, CurrMask;
+    for (int32 i = 0; i < CFE_PLATFORM_EVS_MAX_EVENT_FILTERS; i++) {
+        if (CFE_Platform_SB_Filter_Events[i] != 0)
+        {
+            CurrEvent = CFE_Platform_SB_Filter_Events[i];
+            CurrMask = CFE_Platform_SB_Filter_Masks[i];
+            CFE_SB_Global.EventFilters[CfgFileEventsToFilter].EventID = CurrEvent;
+            CFE_SB_Global.EventFilters[CfgFileEventsToFilter].Mask    = CurrMask;
+            CfgFileEventsToFilter++;
+        }
     }
 
     /* Register event filter table... */
@@ -439,6 +410,8 @@ int32 CFE_SB_EnableRouteCmd(const CFE_SB_EnableRouteCmd_t *data)
                               (unsigned int)CFE_SB_MsgIdToValue(MsgId), CFE_RESOURCEID_TO_ULONG(CmdPtr->Pipe));
             break;
         case CFE_SB_ENBL_RTE2_EID:
+        /* Intentional fall through */
+        default:
             CFE_EVS_SendEvent(CFE_SB_ENBL_RTE2_EID, CFE_EVS_EventType_DEBUG, "Enabling Route,Msg 0x%x,Pipe %lu",
                               (unsigned int)CFE_SB_MsgIdToValue(MsgId), CFE_RESOURCEID_TO_ULONG(CmdPtr->Pipe));
             break;
@@ -506,6 +479,8 @@ int32 CFE_SB_DisableRouteCmd(const CFE_SB_DisableRouteCmd_t *data)
                               (unsigned int)CFE_SB_MsgIdToValue(MsgId), CFE_RESOURCEID_TO_ULONG(CmdPtr->Pipe));
             break;
         case CFE_SB_DSBL_RTE2_EID:
+        /* Intentional fall through */
+        default:
             CFE_EVS_SendEvent(CFE_SB_DSBL_RTE2_EID, CFE_EVS_EventType_DEBUG, "Route Disabled,Msg 0x%x,Pipe %lu",
                               (unsigned int)CFE_SB_MsgIdToValue(MsgId), CFE_RESOURCEID_TO_ULONG(CmdPtr->Pipe));
             break;

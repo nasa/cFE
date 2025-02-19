@@ -496,7 +496,7 @@ int32 CFE_FS_ParseInputFileNameEx(char *OutputBuffer, const char *InputBuffer, s
                     else
                     {
                         /* Use no extension */
-                        InputPtr = NULL;
+                        Component = END_COMPONENT;
                         InputLen = 0;
                     }
                 }

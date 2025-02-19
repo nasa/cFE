@@ -354,7 +354,7 @@
 **       to exceed the max length.
 **
 */
-#define CFE_MISSION_SB_MAX_PIPES 64
+#define CFE_MISSION_SB_MAX_PIPES 32
 
 /******************************************************************************
  *   CFE Table Services (CFE_TBL) Application Public Definitions

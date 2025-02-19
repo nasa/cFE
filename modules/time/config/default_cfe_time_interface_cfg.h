@@ -169,6 +169,9 @@
 #define CFE_MISSION_TIME_EPOCH_SECOND 0
 #define CFE_MISSION_TIME_EPOCH_MICROS 0
 
+/* new value added for CFE_TIME_Print() */
+#define CFE_MISSION_TIME_EPOCH_SECONDS 315532800
+
 /**
 **  \cfetimecfg Time File System Factor
 **
