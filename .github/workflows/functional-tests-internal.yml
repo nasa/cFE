@@ -54,15 +54,15 @@ jobs:
           repository: cFS/cFS
           submodules: false
 
-      - name: Checkout submodule
-        uses: actions/checkout@v3
-        with:
-          path: cfe
-
       - name: Get cFS submodules
         run: |
           git submodule sync
           git submodule update --init --recursive
+          
+      - name: Checkout submodule
+        uses: actions/checkout@v3
+        with:
+          path: cfe
 
       - name: Check versions
         run: git submodule

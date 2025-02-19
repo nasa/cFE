@@ -50,16 +50,16 @@ jobs:
         with:
           submodules: false
           repository: cFS/cFS
+          
+      - name: Get cFS submodules
+        run: |
+          git submodule sync
+          git submodule update --init --recursive
 
       - name: Checkout cFE
         uses: actions/checkout@v4        
         with:
           path: cfe
-
-      - name: Get cFS submodules
-        run: |
-          git submodule sync
-          git submodule update --init --recursive
 
       - name: Checkout MCDC Script
         uses: actions/checkout@v4
