@@ -252,25 +252,6 @@ int16 CFE_TBL_FindTableInRegistry(const char *TblName)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-void CFE_TBL_FormTableName(char *FullTblName, const char *TblName, CFE_ES_AppId_t ThisAppId)
-{
-    char AppName[OS_MAX_API_NAME];
-
-    CFE_ES_GetAppName(AppName, ThisAppId, sizeof(AppName));
-
-    /* Ensure that AppName is null terminated */
-    AppName[OS_MAX_API_NAME - 1] = '\0';
-
-    /* Complete formation of application specific table name */
-    sprintf(FullTblName, "%s.%s", AppName, TblName);
-}
-
-/*----------------------------------------------------------------
- *
- * Application-scope internal function
- * See description in header file for argument/return detail
- *
- *-----------------------------------------------------------------*/
 int32 CFE_TBL_LockRegistry(void)
 {
     int32 OsStatus;
@@ -1187,32 +1168,6 @@ int32 CFE_TBL_SendNotificationMsg(CFE_TBL_RegistryRec_t *RegRecPtr)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-CFE_Status_t CFE_TBL_ValidateTableName(const char *Name)
-{
-    CFE_Status_t Status     = CFE_SUCCESS;
-    size_t       NameLength = strlen(Name);
-    char         TempTblName[CFE_TBL_MAX_FULL_NAME_LEN];
-
-    /* Make sure the specified table name is not too long or too short */
-    if (NameLength > CFE_MISSION_TBL_MAX_NAME_LENGTH || NameLength == 0)
-    {
-        Status = CFE_TBL_ERR_INVALID_NAME;
-
-        /* Perform a buffer overrun safe copy of name for debug log message */
-        strncpy(TempTblName, Name, sizeof(TempTblName) - 1);
-        TempTblName[sizeof(TempTblName) - 1] = '\0';
-        CFE_ES_WriteToSysLog("%s: Table Name (%s) is bad length (%d)", __func__, TempTblName, (int)NameLength);
-    }
-
-    return Status;
-}
-
-/*----------------------------------------------------------------
- *
- * Application-scope internal function
- * See description in header file for argument/return detail
- *
- *-----------------------------------------------------------------*/
 CFE_Status_t CFE_TBL_ValidateTableSize(const char *Name, size_t Size, uint16 TblOptionFlags)
 {
     CFE_Status_t Status;
@@ -1233,8 +1188,6 @@ CFE_Status_t CFE_TBL_ValidateTableSize(const char *Name, size_t Size, uint16 Tbl
     if (Size == 0 || Size > SizeLimit)
     {
         Status = CFE_TBL_ERR_INVALID_SIZE;
-
-        CFE_ES_WriteToSysLog("%s: Table '%s' has invalid size (%d)\n", __func__, Name, (int)Size);
     }
     else
     {
