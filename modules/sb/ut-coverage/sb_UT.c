@@ -655,7 +655,7 @@ void Test_SB_Cmds_Stats(void)
     CFE_UtAssert_TEARDOWN(CFE_SB_DeletePipe(PipeId3));
 
     /* Do same test with more pipes for coverage in CFE_SB_SendStatsCmd().
-     * The number of pipes made here effects the condition 
+     * The number of pipes made here affects the condition 
      * "if (CFE_SB_PipeDescIsUSed(PipeDscPtr))" which controls how often 
      * PipeStatCount gets decremented. We want to break out of the while loop
      * in that function via making PipeStatCount <= 0 */
