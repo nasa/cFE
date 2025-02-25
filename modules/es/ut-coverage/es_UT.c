@@ -4814,7 +4814,7 @@ void TestGenericCounterAPI(void)
     UtAssert_INT32_EQ(CFE_ES_GetGenCounterIDByName(&CounterId, NULL), CFE_ES_BAD_ARGUMENT);
 }
 
-void TestCDS()
+void TestCDS(void)
 {
     size_t               CdsSize;
     void *               CdsPtr;
