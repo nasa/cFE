@@ -366,6 +366,15 @@ void Test_Init(void)
     CFE_EVS_EarlyInit();
     CFE_UtAssert_SYSLOG(EVS_SYSLOG_MSGS[5]);
 
+    /* Test early initialization, condition coverage purposes */
+    UT_InitData_EVS();
+    UT_SetDeferredRetcode(UT_KEY(CFE_ES_GetResetType), 1, -1);
+    CFE_EVS_Global.EVS_LogPtr->LogMode     = CFE_EVS_LogMode_OVERWRITE;
+    CFE_EVS_Global.EVS_LogPtr->LogFullFlag = true;
+    CFE_EVS_Global.EVS_LogPtr->Next        = CFE_PLATFORM_EVS_LOG_MAX - 1;
+    CFE_EVS_EarlyInit();
+    CFE_UtAssert_SYSLOG(EVS_SYSLOG_MSGS[6]);
+
     /* Test early initialization with a mutex creation failure */
     UT_InitData_EVS();
     UT_SetDeferredRetcode(UT_KEY(OS_MutSemCreate), 1, -1);

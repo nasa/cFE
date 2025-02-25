@@ -42,6 +42,7 @@
 #include "cfe_config.h"
 
 #include <string.h>
+#include <assert.h>
 
 /*
 ** Defines
@@ -496,30 +497,29 @@ int32 CFE_ES_SendHkCmd(const CFE_ES_SendHkCmd_t *data)
      *
      * If it is smaller than what the platform supports, then truncate.
      */
+
+    /* COVERAGE NOTICE: If the following static_assert fails, that means the 
+     * macros below were redifined such that they are no longer equal. Be sure
+     * to adjust the code below in the for loop according to the comment 
+     * directly above. */
+    _Static_assert(CFE_ES_PERF_TRIGGERMASK_EXT_SIZE == CFE_ES_PERF_TRIGGERMASK_INT_SIZE, 
+        "mismatching triggermask macros in cfe_es_task.c");
     for (PerfIdx = 0; PerfIdx < CFE_ES_PERF_TRIGGERMASK_EXT_SIZE; ++PerfIdx)
     {
-        if (PerfIdx < CFE_ES_PERF_TRIGGERMASK_INT_SIZE)
-        {
-            CFE_ES_Global.TaskData.HkPacket.Payload.PerfTriggerMask[PerfIdx] =
-                CFE_ES_Global.ResetDataPtr->Perf.MetaData.TriggerMask[PerfIdx];
-        }
-        else
-        {
-            CFE_ES_Global.TaskData.HkPacket.Payload.PerfTriggerMask[PerfIdx] = 0;
-        }
+       
+        CFE_ES_Global.TaskData.HkPacket.Payload.PerfTriggerMask[PerfIdx] =
+            CFE_ES_Global.ResetDataPtr->Perf.MetaData.TriggerMask[PerfIdx];
     }
 
+    /* See comment "COVERAGE NOTICE" */
+    _Static_assert(CFE_ES_PERF_FILTERMASK_EXT_SIZE == CFE_ES_PERF_FILTERMASK_INT_SIZE, 
+        "mismatching filtermask macros in cfe_es_task.c");
     for (PerfIdx = 0; PerfIdx < CFE_ES_PERF_FILTERMASK_EXT_SIZE; ++PerfIdx)
     {
-        if (PerfIdx < CFE_ES_PERF_FILTERMASK_INT_SIZE)
-        {
-            CFE_ES_Global.TaskData.HkPacket.Payload.PerfFilterMask[PerfIdx] =
-                CFE_ES_Global.ResetDataPtr->Perf.MetaData.FilterMask[PerfIdx];
-        }
-        else
-        {
-            CFE_ES_Global.TaskData.HkPacket.Payload.PerfFilterMask[PerfIdx] = 0;
-        }
+       
+        CFE_ES_Global.TaskData.HkPacket.Payload.PerfFilterMask[PerfIdx] =
+            CFE_ES_Global.ResetDataPtr->Perf.MetaData.FilterMask[PerfIdx];
+    
     }
 
     /* Fill in heap info if get successful/supported */
@@ -976,7 +976,11 @@ int32 CFE_ES_QueryAllCmd(const CFE_ES_QueryAllCmd_t *data)
     CFE_ES_LockSharedData(__func__, __LINE__);
     NumResources = 0;
     AppRecPtr    = CFE_ES_Global.AppTable;
-    for (i = 0; i < CFE_PLATFORM_ES_MAX_APPLICATIONS && NumResources < CFE_ES_QUERY_ALL_MAX_ENTRIES; ++i)
+    _Static_assert(
+        CFE_ES_QUERY_ALL_MAX_ENTRIES >= CFE_PLATFORM_ES_MAX_APPLICATIONS + CFE_PLATFORM_ES_MAX_LIBRARIES,
+        "CFE_ES_QUERY_ALL_MAX_ENTRIES macro changed (must modify loop guard in for loops in "
+        "cfe_es_task.c in function CFE_ES_QueryAllCmd)");
+    for (i = 0; i < CFE_PLATFORM_ES_MAX_APPLICATIONS; ++i)
     {
         if (CFE_ES_AppRecordIsUsed(AppRecPtr))
         {
@@ -986,7 +990,7 @@ int32 CFE_ES_QueryAllCmd(const CFE_ES_QueryAllCmd_t *data)
         ++AppRecPtr;
     }
     LibRecPtr = CFE_ES_Global.LibTable;
-    for (i = 0; i < CFE_PLATFORM_ES_MAX_LIBRARIES && NumResources < CFE_ES_QUERY_ALL_MAX_ENTRIES; ++i)
+    for (i = 0; i < CFE_PLATFORM_ES_MAX_LIBRARIES; ++i)
     {
         if (CFE_ES_LibRecordIsUsed(LibRecPtr))
         {

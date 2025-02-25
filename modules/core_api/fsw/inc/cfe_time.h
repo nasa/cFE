@@ -706,8 +706,12 @@ CFE_Status_t CFE_TIME_UnregisterSynchCallback(CFE_TIME_SynchCallbackPtr_t Callba
 **
 ** \param[in]  TimeToPrint   The time to print into the character array.
 **
+** \return Execution status, see \ref CFEReturnCodes
+** \retval #CFE_SUCCESS                      \copybrief CFE_SUCCESS
+** \retval #CFE_TIME_BAD_ARGUMENT            \copybrief CFE_TIME_BAD_ARGUMENT
+**
 ******************************************************************************/
-void CFE_TIME_Print(char *PrintBuffer, CFE_TIME_SysTime_t TimeToPrint);
+CFE_Status_t CFE_TIME_Print(char *PrintBuffer, CFE_TIME_SysTime_t TimeToPrint);
 
 /*****************************************************************************/
 /**

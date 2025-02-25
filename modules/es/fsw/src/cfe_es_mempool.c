@@ -179,11 +179,24 @@ CFE_Status_t CFE_ES_PoolCreate(CFE_ES_MemHandle_t *PoolID, void *MemPtr, size_t 
 CFE_Status_t CFE_ES_PoolCreateEx(CFE_ES_MemHandle_t *PoolID, void *MemPtr, size_t Size, uint16 NumBlockSizes,
                                  const size_t *BlockSizes, bool UseMutex)
 {
+    size_t Alignment = ALIGN_OF(CFE_ES_PoolAlign_t);
+    return CFE_ES_PoolCreateEx_WithAlignment(PoolID, MemPtr, Size, NumBlockSizes, BlockSizes, UseMutex, Alignment);
+}
+
+
+/*----------------------------------------------------------------
+ *
+ * Internal function used to implement CFE_ES_PoolCreateEx with the added
+ * parameter of Alignment
+ *
+ *-----------------------------------------------------------------*/
+CFE_Status_t CFE_ES_PoolCreateEx_WithAlignment(CFE_ES_MemHandle_t *PoolID, void *MemPtr, size_t Size, uint16 NumBlockSizes,
+                                  const size_t *BlockSizes, bool UseMutex, size_t Alignment)
+{
     int32                   OsStatus;
     int32                   Status;
     CFE_ResourceId_t        PendingID;
     CFE_ES_MemPoolRecord_t *PoolRecPtr;
-    size_t                  Alignment;
     size_t                  MinimumSize;
     char                    MutexName[OS_MAX_API_NAME];
     CFE_Config_ArrayValue_t MemPoolDefSize;
@@ -270,7 +283,6 @@ CFE_Status_t CFE_ES_PoolCreateEx(CFE_ES_MemHandle_t *PoolID, void *MemPtr, size_
         return Status;
     }
 
-    Alignment = ALIGN_OF(CFE_ES_PoolAlign_t); /* memory mapped pools should be aligned */
     if (Alignment < CFE_PLATFORM_ES_MEMPOOL_ALIGN_SIZE_MIN)
     {
         /*

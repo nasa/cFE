@@ -39,6 +39,7 @@
 #include "es_UT.h"
 #include "target_config.h"
 #include "cfe_config.h"
+#include <setjmp.h>
 
 #define ES_UT_CDS_BLOCK_SIZE 16
 
@@ -58,6 +59,8 @@ extern CFE_ES_Global_t CFE_ES_Global;
 
 int32 dummy_function(void);
 
+
+
 /*
 ** Global variables
 */
@@ -66,6 +69,11 @@ int32 dummy_function(void);
  * Pointer to reset data that will be re-configured/preserved across calls to ES_ResetUnitTest()
  */
 static CFE_ES_ResetData_t *ES_UT_PersistentResetData = NULL;
+
+/*
+ * Used for calls to setjmp and longjmp for testing CFE_ES_ExitApp
+ */
+static jmp_buf OS_TaskDelay_jmp_buf;
 
 /* Buffers to support memory pool testing */
 typedef union
@@ -638,6 +646,27 @@ static void UT_ArrayConfigHandler(void *UserObj, UT_EntryKey_t FuncKey, const UT
     CFE_Config_ArrayValue_t Val = *((const CFE_Config_ArrayValue_t *)UserObj);
     UT_Stub_SetReturnValue(FuncKey, Val);
 }
+
+/* See es_UT.h for more info */
+void ES_UT_TaskDelay_Hook(void *UserObj) 
+{
+    /* Set jmp_val to 1 so we don't redo the CFE_ES_ExitApp call. 
+     * (See last CFE_ES_ExitApp test case below) */
+    longjmp(OS_TaskDelay_jmp_buf, 1);
+}
+
+int32 ES_UT_TaskCreate_Hook(void *UserObj)
+{
+    /* Simulate OS_TaskCreate error */
+    return OS_ERROR;
+}
+
+int32 ES_UT_ModuleUnload_Hook(void *UserObj)
+{
+    /* Simulate module unloading error */
+    return OS_ERROR;
+}
+
 
 void UtTest_Setup(void)
 {
@@ -1340,6 +1369,18 @@ void TestApps(void)
     UtAssert_INT32_EQ(CFE_ES_AppCreate(&AppId, "AppName", &StartParams), CFE_STATUS_EXTERNAL_RESOURCE_FAIL);
     CFE_UtAssert_PRINTF(UT_OSP_MESSAGES[UT_OSP_CANNOT_FIND_SYMBOL]);
     CFE_UtAssert_PRINTF(UT_OSP_MESSAGES[UT_OSP_MODULE_UNLOAD_FAILED]);
+
+    /* Test application loading and creation where the entry point symbol CAN
+     * be found but the module unload fails */
+    ES_ResetUnitTest();
+    // UT_SetDeferredRetcode(UT_KEY(OS_ObjectIdDefined), 0, 1);
+    // UT_SetDeferredRetcode(UT_KEY(OS_ModuleUnload), 0, OS_ERROR);
+    UT_SetHookFunction(UT_KEY(OS_TaskCreate), (UT_HookFunc_t)ES_UT_TaskCreate_Hook, NULL);
+    UT_SetHookFunction(UT_KEY(OS_ModuleUnload), (UT_HookFunc_t)ES_UT_ModuleUnload_Hook, NULL);
+    ES_UT_SetupAppStartParams(&StartParams, "ut/filename.x", "EntryPoint", 170, 8192, 1);
+    UtAssert_INT32_EQ(CFE_ES_AppCreate(&AppId, "AppName", &StartParams), CFE_STATUS_EXTERNAL_RESOURCE_FAIL);
+    UT_SetHookFunction(UT_KEY(OS_TaskCreate), NULL, NULL);
+    UT_SetHookFunction(UT_KEY(OS_ModuleUnload), NULL, NULL);
 
     /*
      * Set up a situation where attempting to get appID by context,
@@ -3509,6 +3550,12 @@ void TestTask(void)
     UT_CallTaskPipe(CFE_ES_TaskPipe, CFE_MSG_PTR(CmdBuf), 0, UT_TPID_CFE_ES_CMD_OVER_WRITE_SYS_LOG_CC);
     CFE_UtAssert_EVENTSENT(CFE_ES_LEN_ERR_EID);
 
+    /* Test sending a request to clear the error log with an 
+     * invalid command length */
+    ES_ResetUnitTest();
+    UT_CallTaskPipe(CFE_ES_TaskPipe, CFE_MSG_PTR(CmdBuf), 0, UT_TPID_CFE_ES_CMD_CLEAR_ER_LOG_CC);
+    CFE_UtAssert_EVENTSENT(CFE_ES_LEN_ERR_EID);
+
     /* Test sending a request to write the system log with an
      * invalid command length
      */
@@ -4157,15 +4204,21 @@ void TestAPI(void)
     CFE_UtAssert_PRINTF(UT_OSP_MESSAGES[UT_OSP_CORE_APP_EXIT]);
     UtAssert_UINT32_EQ(UtAppRecPtr->ControlReq.AppControlRequest, CFE_ES_RunStatus_APP_ERROR);
 
-#if 0
-    /* Can't cover EXTERNAL CFE_ES_ExitApp since it contains a while(1) (infinte loop) */
+    /* Exit EXTERNAL App with regular exit status. circumvent while(1) loop 
+     * through setjmp/longjmp between test case and OS_TaskDelay Hook function */
     ES_ResetUnitTest();
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_STOPPED, "UT", &UtAppRecPtr, NULL);
     UtAppRecPtr->ControlReq.AppControlRequest = CFE_ES_RunStatus_APP_RUN;
-    CFE_ES_ExitApp(CFE_ES_RunStatus_APP_EXIT);
+    UT_SetHookFunction(UT_KEY(OS_TaskDelay), (UT_HookFunc_t)ES_UT_TaskDelay_Hook, NULL);
+    /* Hook function will modify jmp_val to 1 so we pass the conditional on second time through */
+    int jmp_val = setjmp(OS_TaskDelay_jmp_buf);
+    if (jmp_val == 0)
+    {
+        CFE_ES_ExitApp(CFE_ES_RunStatus_APP_EXIT);
+    }
     CFE_UtAssert_PRINTF(UT_OSP_MESSAGES[UT_OSP_EXTERNAL_APP_EXIT]);
     UtAssert_UINT32_EQ(UtAppRecPtr->ControlReq.AppControlRequest, CFE_ES_RunStatus_APP_EXIT);
-#endif
+    UT_SetHookFunction(UT_KEY(OS_TaskDelay), NULL, NULL);
 
     /* Test successful run loop app run request */
     ES_ResetUnitTest();
@@ -4495,6 +4548,12 @@ void TestAPI(void)
     ES_ResetUnitTest();
     UtAssert_UINT32_EQ(CFE_ES_CalculateCRC(NULL, 12, 345353, CFE_ES_CrcType_CRC_16), 345353);
     UtAssert_UINT32_EQ(CFE_ES_CalculateCRC(&Data, 0, 345353, CFE_ES_CrcType_CRC_16), 345353);
+
+    ES_ResetUnitTest();
+    /* Triggers fall back to NONE since we chose an CRC type that exists but 
+     * has no algorithm implemented. See comment in cfe_es_crc.c in function
+     * CFE_ES_ComputeCRC_GetParams. */
+    UtAssert_UINT32_EQ(CFE_ES_CalculateCRC(&Data, 12, 345353, CFE_ES_CrcType_NONE), 0);
 
     /* Test shared mutex take with a take error */
     ES_ResetUnitTest();
@@ -5427,6 +5486,10 @@ void TestESMempool(void)
     BlockSizes[1] = 50;
     CFE_UtAssert_SUCCESS(CFE_ES_PoolCreateEx(&PoolID1, Buffer1, sizeof(Buffer1), 2, BlockSizes, CFE_ES_USE_MUTEX));
 
+    /* Test initializing a pool with a custom alignment */
+    size_t AltAlignment = 1;
+    CFE_UtAssert_SUCCESS(CFE_ES_PoolCreateEx_WithAlignment(&PoolID1, Buffer1, sizeof(Buffer1), 2, BlockSizes, CFE_ES_USE_MUTEX, AltAlignment));
+
     /* Test successfully creating memory pool using a mutex for
      * subsequent tests
      */
@@ -5711,8 +5774,9 @@ void TestBackground(void)
     UtAssert_VOIDCALL(CFE_ES_BackgroundTask());
     CFE_UtAssert_PRINTF(UT_OSP_MESSAGES[UT_OSP_BACKGROUND_TAKE]);
 
-    /* The number of jobs running should be 1 (perf log dump) */
-    UtAssert_UINT32_EQ(CFE_ES_Global.BackgroundTask.NumJobsRunning, 1);
+    /* The number of jobs running should be 3: (perf log dump) and the
+     * two dummy active jobs invoked by .RunFunc = CFE_ES_ActiveJob */
+    UtAssert_UINT32_EQ(CFE_ES_Global.BackgroundTask.NumJobsRunning, 3);
 }
 
 /*--------------------------------------------------------------------------------*

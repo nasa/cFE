@@ -370,7 +370,28 @@ int32 CFE_ES_RegisterCDSEx(CFE_ES_CDSHandle_t *HandlePtr, size_t UserBlockSize, 
         NewBlockSize += sizeof(CFE_ES_CDS_BlockHeader_t);
 
         /* If a reallocation is needed, the old block may need to be freed first */
-        if (Status == CFE_SUCCESS && RegRecPtr->BlockOffset != 0 && NewBlockSize != RegRecPtr->BlockSize)
+        /** 
+         * Removed condition checking for Status == CFE_SUCCESS since the only
+         * way it could be otherwise is if the else statment in the conditional
+         * statement above triggered:
+         * 
+         * if (RegRecPtr != NULL)
+         * {
+               memset(RegRecPtr, 0, sizeof(*RegRecPtr));
+               CDS->LastCDSBlockId = PendingBlockId;
+               IsNewEntry          = true;
+               Status              = CFE_SUCCESS;
+           }
+         * else
+         * {
+         *     Status         = CFE_ES_NO_RESOURCE_IDS_AVAILABLE;
+         *     PendingBlockId = CFE_RESOURCEID_UNDEFINED;
+         * }
+         * 
+         * which would mean that RegRecPtr was NULL and therefore we cannot be
+         * in this conditional block in the first place.
+         */
+        if (RegRecPtr->BlockOffset != 0 && NewBlockSize != RegRecPtr->BlockSize)
         {
             /* If the new size is different, the old CDS must be deleted first  */
             Status = CFE_ES_GenPoolPutBlock(&CDS->Pool, &OldBlockSize, RegRecPtr->BlockOffset);

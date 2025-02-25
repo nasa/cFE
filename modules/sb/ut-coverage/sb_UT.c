@@ -186,6 +186,65 @@ CFE_ES_AppId_t UT_SB_AppID_Modify(CFE_ES_AppId_t InitialID, int32 Modifier)
     return OutValue;
 }
 
+CFE_Status_t SB_UT_OriginationActionHook(void *UserObj, int32 StubRetcode, 
+                                         uint32 CallCount, 
+                                         const UT_StubContext_t *Context)
+{
+    return CFE_SB_BAD_ARGUMENT;
+}
+
+void SB_UT_OriginationActionHandler(void *UserObj, UT_EntryKey_t FuncKey, 
+                                    const UT_StubContext_t *Context)
+{
+    bool *IsAcceptable = UT_Hook_GetArgValueByName(Context, "IsAcceptable", bool *);
+
+    /* by default just always return true -- a UT case that needs something else can override this handler */
+    if (IsAcceptable != NULL)
+    {
+        *IsAcceptable = false;
+    }
+}
+
+CFE_Status_t SB_UT_RecieveBuffer_FalseEndpoint(CFE_SB_Buffer_t **BufPtr, CFE_SB_PipeId_t PipeId, int32 TimeOut)
+{
+    CFE_SB_ReceiveTxn_State_t  TxnBuf;
+    CFE_SB_MessageTxn_State_t *Txn;
+
+    Txn = CFE_SB_ReceiveTxn_Init(&TxnBuf, BufPtr);
+
+    if (CFE_SB_MessageTxn_IsOK(Txn))
+    {
+        CFE_SB_MessageTxn_SetTimeout(Txn, TimeOut);
+    }
+
+    if (CFE_SB_MessageTxn_IsOK(Txn))
+    {
+        CFE_SB_ReceiveTxn_SetPipeId(Txn, PipeId);
+
+        /*
+         * This is the key difference in this Handler as opposed to the actual
+         * function. We set Txn->IsEndpoint to false in order to trigger the 
+         * false branch of the condition "if (Txn->IsEndpoint)" in 
+         * CFE_SB_ReceieveTxn_Execute().
+         */
+        CFE_SB_MessageTxn_SetEndpoint(Txn, false);
+    }
+
+    if (BufPtr != NULL)
+    {
+        /*
+         * Note - the API should qualify the parameter as "const", but this is
+         * kept non-const for backward compatibility.  Callers should never write to
+         * the returned buffer, it is const in practice.
+         */
+        *BufPtr = (CFE_SB_Buffer_t *)CFE_SB_ReceiveTxn_Execute(Txn);
+    }
+
+    CFE_SB_MessageTxn_ReportEvents(Txn);
+
+    return CFE_SB_MessageTxn_GetStatus(Txn);
+}
+
 /*
 ** Functions
 */
@@ -594,6 +653,51 @@ void Test_SB_Cmds_Stats(void)
     CFE_UtAssert_TEARDOWN(CFE_SB_DeletePipe(PipeId1));
     CFE_UtAssert_TEARDOWN(CFE_SB_DeletePipe(PipeId2));
     CFE_UtAssert_TEARDOWN(CFE_SB_DeletePipe(PipeId3));
+
+    /* Do same test with more pipes for coverage in CFE_SB_SendStatsCmd().
+     * The number of pipes made here affects the condition 
+     * "if (CFE_SB_PipeDescIsUSed(PipeDscPtr))" which controls how often 
+     * PipeStatCount gets decremented. We want to break out of the while loop
+     * in that function via making PipeStatCount <= 0 */
+
+    memset(&SendSbStats, 0, sizeof(SendSbStats));
+
+    CFE_SB_PipeId_t PipeArr[CFE_MISSION_SB_MAX_PIPES];
+    memset(&PipeArr, 0, sizeof(PipeArr));
+
+    /* 20 chosen since we need to fit TestPipeXX (XX is the number) 
+     * so 20 is enough space to fit such */
+    char PipeNames[CFE_MISSION_SB_MAX_PIPES][20];
+    memset(&PipeNames, 0, sizeof(PipeNames));
+
+    for (int i = 0; i < CFE_MISSION_SB_MAX_PIPES; i++)
+    {
+       PipeArr[i] = CFE_SB_INVALID_PIPE;
+       snprintf(PipeNames[i], sizeof(PipeNames[i]), "TestPipe%d", i + 1);
+       CFE_UtAssert_SETUP(CFE_SB_CreatePipe(&PipeArr[i], 4, PipeNames[i]));
+    }
+
+    UT_SetupBasicMsgDispatch(&UT_TPID_CFE_SB_CMD_SEND_SB_STATS_CC, sizeof(SendSbStats.Cmd), false);
+
+    MsgId = CFE_SB_ValueToMsgId(CFE_SB_STATS_TLM_MID);
+    Size  = sizeof(CFE_SB_Global.StatTlmMsg);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
+
+    CFE_SB_ProcessCmdPipePkt(&SendSbStats.SBBuf);
+
+    /* 43 events instead of 5 due to all the pipes added */
+    CFE_UtAssert_EVENTCOUNT(43);
+
+    CFE_UtAssert_EVENTSENT(CFE_SB_SND_STATS_EID);
+
+    UT_CallTaskPipe(CFE_SB_ProcessCmdPipePkt, CFE_MSG_PTR(SendSbStats.SBBuf), 0, UT_TPID_CFE_SB_CMD_SEND_SB_STATS_CC);
+    CFE_UtAssert_EVENTSENT(CFE_SB_LEN_ERR_EID);
+
+    for (int i = 0; i < CFE_MISSION_SB_MAX_PIPES; i++)
+    {
+        CFE_UtAssert_TEARDOWN(CFE_SB_DeletePipe(PipeArr[i]));
+    }
 }
 
 /*
@@ -1051,6 +1155,7 @@ void Test_SB_Cmds_EnRouteValParam(void)
 
     CFE_UtAssert_TEARDOWN(CFE_SB_DeletePipe(PipeId));
 }
+
 
 /*
 ** Test command to enable a specific route using a non-existent route
@@ -3584,6 +3689,52 @@ void Test_TransmitMsg_BasicSend(void)
     CFE_UtAssert_EVENTCOUNT(2);
 
     CFE_UtAssert_TEARDOWN(CFE_SB_DeletePipe(PipeId));
+
+    /* Repeated test case with slight modification to simulate failure of 
+     * CFE_MSG_OriginationAction() in cfe_sb_priv.c in function 
+     * CFE_SB_TransmitTxn_FindDestinations() which gets called by 
+     * CFE_SB_TransmitMsg. This uses a Hook for OriginationAction */
+
+    memset(&TlmPkt, 0, sizeof(TlmPkt));
+
+    CFE_UtAssert_SETUP(CFE_SB_CreatePipe(&PipeId, PipeDepth, "TestPipe"));
+    CFE_UtAssert_SETUP(CFE_SB_Subscribe(MsgId, PipeId));
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &Type, sizeof(Type), false);
+
+    UT_SetHookFunction(UT_KEY(CFE_MSG_OriginationAction), 
+                      (UT_HookFunc_t)(SB_UT_OriginationActionHook),
+                      NULL);
+    CFE_SB_TransmitMsg(CFE_MSG_PTR(TlmPkt.TelemetryHeader), true);
+    UT_SetHookFunction(UT_KEY(CFE_MSG_OriginationAction), NULL, NULL);
+    
+    CFE_UtAssert_EVENTCOUNT(5);
+
+    CFE_UtAssert_TEARDOWN(CFE_SB_DeletePipe(PipeId));
+
+    /* Repeated test case with slight modification to simulate failure of 
+     * CFE_MSG_OriginationAction() in cfe_sb_priv.c in function 
+     * CFE_SB_TransmitTxn_FindDestinations() which gets called by
+     * CFE_SB_TransmitMsg. This uses a Handler for OriginationAction.  */
+
+    memset(&TlmPkt, 0, sizeof(TlmPkt));
+
+    CFE_UtAssert_SETUP(CFE_SB_CreatePipe(&PipeId, PipeDepth, "TestPipe"));
+    CFE_UtAssert_SETUP(CFE_SB_Subscribe(MsgId, PipeId));
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &Type, sizeof(Type), false);
+
+    UT_SetHandlerFunction(UT_KEY(CFE_MSG_OriginationAction), 
+                        (UT_HandlerFunc_t)(SB_UT_OriginationActionHandler),
+                        NULL);
+    CFE_SB_TransmitMsg(CFE_MSG_PTR(TlmPkt.TelemetryHeader), true);
+    UT_SetHandlerFunction(UT_KEY(CFE_MSG_OriginationAction), NULL, NULL);
+
+    CFE_UtAssert_EVENTCOUNT(8);
+
+    CFE_UtAssert_TEARDOWN(CFE_SB_DeletePipe(PipeId));
 }
 
 /* Set sequence count hook */
@@ -4788,6 +4939,8 @@ void Test_SB_SpecialCases(void)
     SB_UT_ADD_SUBTEST(Test_CFE_SB_Buffers);
     SB_UT_ADD_SUBTEST(Test_CFE_SB_BadPipeInfo);
     SB_UT_ADD_SUBTEST(Test_ReceiveBuffer_UnsubResubPath);
+    SB_UT_ADD_SUBTEST(Test_ReceiveBuffer_FalseEndpoint);
+    SB_UT_ADD_SUBTEST(Test_RecieveBuffer_VerificationFail);
     SB_UT_ADD_SUBTEST(Test_MessageString);
 }
 
@@ -4986,6 +5139,90 @@ void Test_ReceiveBuffer_UnsubResubPath(void)
     UtAssert_NOT_NULL(SBBufPtr);
 
     CFE_UtAssert_EVENTCOUNT(4);
+
+    CFE_UtAssert_EVENTSENT(CFE_SB_SUBSCRIPTION_RCVD_EID);
+    CFE_UtAssert_EVENTSENT(CFE_SB_SUBSCRIPTION_REMOVED_EID);
+
+    CFE_UtAssert_TEARDOWN(CFE_SB_DeletePipe(PipeId));
+}
+
+/*
+** Test receiving a message response to an unsubscribing to message, then
+** resubscribing to it while it's in the pipe however with Txn->IsEndpoint
+** being set to false (setting the verify flag to false).
+*/
+void Test_ReceiveBuffer_FalseEndpoint(void)
+{
+    CFE_SB_Buffer_t *SBBufPtr;
+    CFE_SB_MsgId_t   MsgId  = SB_UT_TLM_MID;
+    CFE_SB_PipeId_t  PipeId = CFE_SB_INVALID_PIPE;
+    SB_UT_Test_Tlm_t TlmPkt;
+    uint32           PipeDepth = 10;
+    CFE_MSG_Type_t   Type      = CFE_MSG_Type_Tlm;
+    CFE_MSG_Size_t   Size      = sizeof(TlmPkt);
+
+    memset(&TlmPkt, 0, sizeof(TlmPkt));
+
+    CFE_UtAssert_SETUP(CFE_SB_CreatePipe(&PipeId, PipeDepth, "RcvTestPipe"));
+    CFE_UtAssert_SETUP(CFE_SB_Subscribe(MsgId, PipeId));
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &Type, sizeof(Type), false);
+    CFE_UtAssert_SETUP(CFE_SB_TransmitMsg(CFE_MSG_PTR(TlmPkt.TelemetryHeader), true));
+
+    CFE_UtAssert_SETUP(CFE_SB_Unsubscribe(MsgId, PipeId));
+    CFE_UtAssert_SETUP(CFE_SB_Subscribe(MsgId, PipeId));
+    /* Hook function for CFE_ES_RecieveBuffer is not possible (the hook
+     * function doesn't actually run) so a new function is defined instead. */
+    CFE_UtAssert_SUCCESS(SB_UT_RecieveBuffer_FalseEndpoint(&SBBufPtr, PipeId, CFE_SB_PEND_FOREVER));
+
+    UtAssert_NOT_NULL(SBBufPtr);
+
+    CFE_UtAssert_EVENTCOUNT(4);
+
+    CFE_UtAssert_EVENTSENT(CFE_SB_SUBSCRIPTION_RCVD_EID);
+    CFE_UtAssert_EVENTSENT(CFE_SB_SUBSCRIPTION_REMOVED_EID);
+
+    CFE_UtAssert_TEARDOWN(CFE_SB_DeletePipe(PipeId));
+}
+
+/*
+** Test receiving a message response to an unsubscribing to message, then
+** resubscribing to it while it's in the pipe with message verification
+** failure in CFE_SB_ReceiveTxn_Execute().
+*/
+void Test_RecieveBuffer_VerificationFail(void)
+{
+    CFE_SB_Buffer_t *SBBufPtr;
+    CFE_SB_MsgId_t   MsgId  = SB_UT_TLM_MID;
+    CFE_SB_PipeId_t  PipeId = CFE_SB_INVALID_PIPE;
+    SB_UT_Test_Tlm_t TlmPkt;
+    uint32           PipeDepth = 10;
+    CFE_MSG_Type_t   Type      = CFE_MSG_Type_Tlm;
+    CFE_MSG_Size_t   Size      = sizeof(TlmPkt);
+
+    memset(&TlmPkt, 0, sizeof(TlmPkt));
+
+    CFE_UtAssert_SETUP(CFE_SB_CreatePipe(&PipeId, PipeDepth, "RcvTestPipe"));
+    CFE_UtAssert_SETUP(CFE_SB_Subscribe(MsgId, PipeId));
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &Type, sizeof(Type), false);
+    CFE_UtAssert_SETUP(CFE_SB_TransmitMsg(CFE_MSG_PTR(TlmPkt.TelemetryHeader), true));
+
+    CFE_UtAssert_SETUP(CFE_SB_Unsubscribe(MsgId, PipeId));
+    CFE_UtAssert_SETUP(CFE_SB_Subscribe(MsgId, PipeId));
+    UT_SetDefaultReturnValue(UT_KEY(CFE_MSG_VerificationAction), -1);
+    /* CFE_SB_ReceiveBuffer will no longer succeed */
+    CFE_SB_ReceiveBuffer(&SBBufPtr, PipeId, CFE_SB_PEND_FOREVER);
+    UT_ClearDefaultReturnValue(UT_KEY(CFE_MSG_VerificationAction));
+
+    /* Result of CFE_SB_ReceiveBuffer failure */
+    UtAssert_NULL(SBBufPtr);
+
+    /* Additional event was sent since we report a 
+     * CFE_SB_RCV_MESSAGE_INTEGRITY_FAIL_EID in CFE_SB_ReceiveTxn_Execute() */
+    CFE_UtAssert_EVENTCOUNT(5);
 
     CFE_UtAssert_EVENTSENT(CFE_SB_SUBSCRIPTION_RCVD_EID);
     CFE_UtAssert_EVENTSENT(CFE_SB_SUBSCRIPTION_REMOVED_EID);
