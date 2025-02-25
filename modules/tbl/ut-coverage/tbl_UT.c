@@ -279,7 +279,7 @@ void UtTest_Setup(void)
 /*
 ** Fill the whole table registry with known table names and set an owner ID
 */
-void UT_InitializeTableRegistryNames()
+void UT_InitializeTableRegistryNames(void)
 {
     int i;
 
