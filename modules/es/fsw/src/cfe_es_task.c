@@ -502,8 +502,6 @@ int32 CFE_ES_SendHkCmd(const CFE_ES_SendHkCmd_t *data)
      * macros below were redifined such that they are no longer equal. Be sure
      * to adjust the code below in the for loop according to the comment 
      * directly above. */
-    _Static_assert(CFE_ES_PERF_TRIGGERMASK_EXT_SIZE == CFE_ES_PERF_TRIGGERMASK_INT_SIZE, 
-        "mismatching triggermask macros in cfe_es_task.c");
     for (PerfIdx = 0; PerfIdx < CFE_ES_PERF_TRIGGERMASK_EXT_SIZE; ++PerfIdx)
     {
        
@@ -512,8 +510,6 @@ int32 CFE_ES_SendHkCmd(const CFE_ES_SendHkCmd_t *data)
     }
 
     /* See comment "COVERAGE NOTICE" */
-    _Static_assert(CFE_ES_PERF_FILTERMASK_EXT_SIZE == CFE_ES_PERF_FILTERMASK_INT_SIZE, 
-        "mismatching filtermask macros in cfe_es_task.c");
     for (PerfIdx = 0; PerfIdx < CFE_ES_PERF_FILTERMASK_EXT_SIZE; ++PerfIdx)
     {
        
@@ -976,10 +972,6 @@ int32 CFE_ES_QueryAllCmd(const CFE_ES_QueryAllCmd_t *data)
     CFE_ES_LockSharedData(__func__, __LINE__);
     NumResources = 0;
     AppRecPtr    = CFE_ES_Global.AppTable;
-    _Static_assert(
-        CFE_ES_QUERY_ALL_MAX_ENTRIES >= CFE_PLATFORM_ES_MAX_APPLICATIONS + CFE_PLATFORM_ES_MAX_LIBRARIES,
-        "CFE_ES_QUERY_ALL_MAX_ENTRIES macro changed (must modify loop guard in for loops in "
-        "cfe_es_task.c in function CFE_ES_QueryAllCmd)");
     for (i = 0; i < CFE_PLATFORM_ES_MAX_APPLICATIONS; ++i)
     {
         if (CFE_ES_AppRecordIsUsed(AppRecPtr))

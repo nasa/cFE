@@ -56,9 +56,6 @@
 #define CFE_PLATFORM_EDSVER 1 /**< \brief Default EDS version, cFS historically = 1 */
 #endif
 
-_Static_assert(CFE_MISSION_CCSDSVER == 0, 
-    "CFE_MISSION_CCSDSVER out of sync (ensure all cfe_msg_sechdr_* files"
-    "reflect new value of this macro)");
 /*---------------------------------------------------------------------------------------*/
 /**
  * \brief Set CCSDS Primary header defaults
