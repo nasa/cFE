@@ -35,8 +35,9 @@ SET(OSAL_SYSTEM_OSTYPE      "qnx")
 # This is for version specific QNX ifdefs needed by the OSAL and PSP
 ADD_DEFINITIONS(-DQNX_SDP)
 
-set(UT_COVERAGE_COMPILE_FLAGS -pg --coverage)
-set(UT_COVERAGE_LINK_FLAGS    -pg --coverage)
+# Set QNX flags for unit test coverage options
+set(UT_COVERAGE_COMPILE_FLAGS -pg -Wc,-fprofile-arcs,-ftest-coverage)
+set(UT_COVERAGE_LINK_FLAGS    -pg -Wl,-lgcov)
 
 # Update CFLAGS and CXXFLAGS with QNX specific definitions
 set(CMAKE_C_FLAGS   "-Vgcc_nto${QNX_SDP_ARCH}     ${CMAKE_C_FLAGS}"   CACHE STRING "Set C Compiler Flags (Select QNX GCC Arch)"   FORCE)
