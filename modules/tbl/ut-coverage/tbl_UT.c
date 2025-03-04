@@ -859,6 +859,15 @@ void Test_CFE_TBL_ActivateCmd(void)
     RegRecPtr->LoadInProgress = UT_CFE_TBL_LOADBUFFID_0;
     UtAssert_INT32_EQ(CFE_TBL_ActivateCmd(&ActivateCmd), CFE_TBL_INC_CMD_CTR);
 
+    /* Same as above but sending the notification fails, this should trigger an event
+     */
+    UT_InitData();
+    RegRecPtr->NotifyByMsg    = true;
+    RegRecPtr->LoadInProgress = UT_CFE_TBL_LOADBUFFID_0;
+    UT_SetDefaultReturnValue(UT_KEY(CFE_SB_TransmitMsg), CFE_SB_BUF_ALOC_ERR);
+    UtAssert_INT32_EQ(CFE_TBL_ActivateCmd(&ActivateCmd), CFE_TBL_INC_CMD_CTR);
+    CFE_UtAssert_EVENTSENT(CFE_TBL_FAIL_NOTIFY_SEND_ERR_EID);
+
     /* Test when the table name doesn't exist */
     UT_InitData();
     snprintf(ActivateCmd.Payload.TableName, sizeof(ActivateCmd.Payload.TableName), "%d",
@@ -3048,6 +3057,12 @@ void Test_CFE_TBL_Manage(void)
     RegRecPtr->LoadPending    = true;
     RegRecPtr->LoadInProgress = UT_CFE_TBL_LOADBUFFID_1;
     UtAssert_INT32_EQ(CFE_TBL_Manage(App1TblHandle1), CFE_TBL_INFO_UPDATED);
+    CFE_UtAssert_EVENTCOUNT(1);
+
+    /* Repeat call, this is a mismatch where LoadPending is set but LoadInProgress is NOT set. */
+    RegRecPtr->LoadPending    = true;
+    RegRecPtr->LoadInProgress = CFE_TBL_NO_LOAD_IN_PROGRESS;
+    UtAssert_INT32_EQ(CFE_TBL_Manage(App1TblHandle1), CFE_TBL_INFO_NO_UPDATE_PENDING);
     CFE_UtAssert_EVENTCOUNT(1);
 
     /* Test unlocking a table by releasing the address */
