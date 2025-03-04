@@ -41,8 +41,8 @@
  */
 typedef struct CFE_TBL_CheckInactiveBuffer
 {
-    int32          BufferIndex;
-    CFE_ES_AppId_t LockingAppId;
+    CFE_TBL_LoadBuffId_t BufferIndex;
+    CFE_ES_AppId_t       LockingAppId;
 } CFE_TBL_CheckInactiveBuffer_t;
 
 /*----------------------------------------------------------------
@@ -74,27 +74,28 @@ int32 CFE_TBL_EarlyInit(void)
     int32  OsStatus;
     int32  Status;
 
+    CFE_TBL_RegistryRec_t *     RegRecPtr;
+    CFE_TBL_AccessDescriptor_t *AccessDescPtr;
+    CFE_TBL_LoadBuff_t *        LoadBuffPtr;
+    CFE_TBL_CritRegRec_t *      CritRegRecPtr;
+
     /* Clear task global */
     memset(&CFE_TBL_Global, 0, sizeof(CFE_TBL_Global));
 
     /* Initialize the Table Registry */
     for (i = 0; i < CFE_PLATFORM_TBL_MAX_NUM_TABLES; i++)
     {
-        CFE_TBL_InitRegistryRecord(&CFE_TBL_Global.Registry[i]);
+        RegRecPtr = &CFE_TBL_Global.Registry[i];
+
+        CFE_TBL_InitRegistryRecord(RegRecPtr);
     }
 
     /* Initialize the Table Access Descriptors nonzero values */
     for (i = 0; i < CFE_PLATFORM_TBL_MAX_NUM_HANDLES; i++)
     {
-        CFE_TBL_Global.Handles[i].AppId = CFE_TBL_NOT_OWNED;
-        CFE_TBL_HandleLinkInit(&CFE_TBL_Global.Handles[i].Link);
-    }
+        AccessDescPtr = &CFE_TBL_Global.Handles[i];
 
-    /* Initialize the Dump-Only Table Dump Control Blocks nonzero values */
-    for (i = 0; i < CFE_PLATFORM_TBL_MAX_SIMULTANEOUS_LOADS; i++)
-    {
-        /* Prevent Shared Buffers from being used until successfully allocated */
-        CFE_TBL_Global.LoadBuffs[i].Taken = true;
+        CFE_TBL_InitAccessDescriptor(AccessDescPtr);
     }
 
     CFE_TBL_Global.HkTlmTblRegIndex = CFE_TBL_NOT_FOUND;
@@ -129,25 +130,19 @@ int32 CFE_TBL_EarlyInit(void)
     else
     {
         /* Initialize each of the shared load buffers */
-        j = 0;
-        do
+        for (j = 0; j < CFE_PLATFORM_TBL_MAX_SIMULTANEOUS_LOADS; j++)
         {
+            LoadBuffPtr = &CFE_TBL_Global.LoadBuffs[j];
+
             /* Allocate memory for shared load buffers */
-            Status = CFE_ES_GetPoolBuf(&CFE_TBL_Global.LoadBuffs[j].BufferPtr, CFE_TBL_Global.Buf.PoolHdl,
+            Status = CFE_ES_GetPoolBuf(&LoadBuffPtr->BufferPtr, CFE_TBL_Global.Buf.PoolHdl,
                                        CFE_PLATFORM_TBL_MAX_SNGL_TABLE_SIZE);
 
             if (Status < CFE_PLATFORM_TBL_MAX_SNGL_TABLE_SIZE)
             {
                 return Status;
             }
-            else
-            {
-                /* The buffer is successfully created, so allow it to be used */
-                CFE_TBL_Global.LoadBuffs[j].Taken = false;
-            }
-
-            j++;
-        } while (j < CFE_PLATFORM_TBL_MAX_SIMULTANEOUS_LOADS);
+        };
     }
 
     /* Try to obtain a previous image of the Critical Table Registry from the Critical Data Store */
@@ -158,7 +153,9 @@ int32 CFE_TBL_EarlyInit(void)
     /* Assume for the moment that nothing is already in the CDS and zero out the Critical Table Registry */
     for (i = 0; i < CFE_PLATFORM_TBL_MAX_CRITICAL_TABLES; i++)
     {
-        CFE_TBL_Global.CritReg[i].CDSHandle = CFE_ES_CDS_BAD_HANDLE;
+        CritRegRecPtr = &CFE_TBL_Global.CritReg[i];
+
+        CritRegRecPtr->CDSHandle = CFE_ES_CDS_BAD_HANDLE;
     }
 
     if (Status == CFE_ES_CDS_ALREADY_EXISTS)
@@ -216,9 +213,10 @@ void CFE_TBL_InitRegistryRecord(CFE_TBL_RegistryRec_t *RegRecPtr)
 {
     memset(RegRecPtr, 0, sizeof(*RegRecPtr));
 
+    CFE_TBL_RegRecClearLoadInProgress(RegRecPtr);
+
     RegRecPtr->OwnerAppId         = CFE_TBL_NOT_OWNED;
     RegRecPtr->NotificationMsgId  = CFE_SB_INVALID_MSG_ID;
-    RegRecPtr->LoadInProgress     = CFE_TBL_NO_LOAD_IN_PROGRESS;
     RegRecPtr->ValidateActiveId   = CFE_TBL_NO_VALIDATION_PENDING;
     RegRecPtr->ValidateInactiveId = CFE_TBL_NO_VALIDATION_PENDING;
     RegRecPtr->CDSHandle          = CFE_ES_CDS_BAD_HANDLE;
@@ -233,7 +231,102 @@ void CFE_TBL_InitRegistryRecord(CFE_TBL_RegistryRec_t *RegRecPtr)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int16 CFE_TBL_FindTableInRegistry(const char *TblName)
+void CFE_TBL_InitAccessDescriptor(CFE_TBL_AccessDescriptor_t *AccessDescPtr)
+{
+    memset(AccessDescPtr, 0, sizeof(*AccessDescPtr));
+
+    CFE_TBL_HandleLinkInit(&AccessDescPtr->Link);
+}
+
+/*----------------------------------------------------------------
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+void CFE_TBL_DiscardWorkingBuffer(CFE_TBL_RegistryRec_t *RegRecPtr)
+{
+    /* If the buffer is NOT one of the buffers "owned" by this table, then it must be
+     * from a shared buffer pool so it needs to be released */
+    CFE_TBL_LoadBuff_t * LoadBuffPtr;
+    CFE_TBL_LoadBuffId_t LoadInProgressId;
+
+    if (!RegRecPtr->DoubleBuffered && CFE_TBL_RegRecIsLoadInProgress(RegRecPtr))
+    {
+        LoadInProgressId = CFE_TBL_RegRecGetLoadInProgress(RegRecPtr);
+        LoadBuffPtr      = CFE_TBL_LocateLoadBufferByID(NULL, LoadInProgressId);
+    }
+    else
+    {
+        LoadBuffPtr = NULL;
+    }
+
+    CFE_TBL_RegRecClearLoadInProgress(RegRecPtr);
+
+    if (LoadBuffPtr != NULL)
+    {
+        CFE_TBL_LoadBuffSetFree(LoadBuffPtr);
+    }
+}
+
+/*----------------------------------------------------------------
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+void CFE_TBL_DeallocateBuffer(CFE_TBL_LoadBuff_t *BuffPtr)
+{
+    CFE_Status_t Status;
+
+    Status = CFE_ES_PutPoolBuf(CFE_TBL_Global.Buf.PoolHdl, BuffPtr->BufferPtr);
+
+    if (Status < 0)
+    {
+        CFE_ES_WriteToSysLog("%s: PutPoolBuf() Fail Stat=0x%08X, Hndl=0x%08lX, Buf=0x%08lX\n", __func__,
+                             (unsigned int)Status, CFE_RESOURCEID_TO_ULONG(CFE_TBL_Global.Buf.PoolHdl),
+                             (unsigned long)BuffPtr->BufferPtr);
+    }
+
+    BuffPtr->BufferPtr = NULL;
+}
+
+/*----------------------------------------------------------------
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+void CFE_TBL_DeallocateAllBuffers(CFE_TBL_RegistryRec_t *RegRecPtr)
+{
+    CFE_TBL_LoadBuff_t *BuffPtr;
+    int                 i;
+
+    for (i = 0; i < 2; ++i)
+    {
+        BuffPtr = &RegRecPtr->Buffers[i];
+
+        if (BuffPtr->BufferPtr != NULL)
+        {
+            /* Free memory allocated to buffers */
+            CFE_TBL_DeallocateBuffer(BuffPtr);
+            BuffPtr->BufferPtr = NULL;
+        }
+
+        CFE_TBL_LoadBuffSetFree(BuffPtr);
+    }
+
+    /* If a shared buffer has been allocated to the table, then release it as well */
+    CFE_TBL_DiscardWorkingBuffer(RegRecPtr);
+}
+
+/*----------------------------------------------------------------
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+CFE_TBL_RegId_t CFE_TBL_FindTableInRegistry(const char *TblName)
 {
     CFE_TBL_TxnState_t Txn;
 
@@ -304,7 +397,7 @@ int32 CFE_TBL_UnlockRegistry(void)
  *-----------------------------------------------------------------*/
 CFE_TBL_LoadBuff_t *CFE_TBL_GetActiveBuffer(CFE_TBL_RegistryRec_t *RegRecPtr)
 {
-    int32 BufferIndex;
+    CFE_TBL_LoadBuffId_t BufferIndex;
 
     /*
      * This should be simpler because ActiveBufferIndex always refers to
@@ -323,7 +416,7 @@ CFE_TBL_LoadBuff_t *CFE_TBL_GetActiveBuffer(CFE_TBL_RegistryRec_t *RegRecPtr)
         BufferIndex = 0;
     }
 
-    return &RegRecPtr->Buffers[BufferIndex];
+    return CFE_TBL_LocateLoadBufferByID(RegRecPtr, BufferIndex);
 }
 
 /*----------------------------------------------------------------
@@ -332,10 +425,14 @@ CFE_TBL_LoadBuff_t *CFE_TBL_GetActiveBuffer(CFE_TBL_RegistryRec_t *RegRecPtr)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_TBL_GetNextLocalBufferId(CFE_TBL_RegistryRec_t *RegRecPtr)
+CFE_TBL_LoadBuffId_t CFE_TBL_GetNextLocalBufferId(CFE_TBL_RegistryRec_t *RegRecPtr)
 {
+    int32 BufferId;
+
     /* This implements a flip-flop buffer: if active is 1, return 0 and vice versa */
-    return (1 - (RegRecPtr->ActiveBufferIndex & 1));
+    BufferId = (RegRecPtr->ActiveBufferIndex + 1) % 2;
+
+    return BufferId;
 }
 
 /*----------------------------------------------------------------
@@ -346,32 +443,32 @@ int32 CFE_TBL_GetNextLocalBufferId(CFE_TBL_RegistryRec_t *RegRecPtr)
  *-----------------------------------------------------------------*/
 CFE_TBL_LoadBuff_t *CFE_TBL_GetInactiveBuffer(CFE_TBL_RegistryRec_t *RegRecPtr)
 {
-    int32               BufferIndex;
-    CFE_TBL_LoadBuff_t *Result;
+    CFE_TBL_LoadBuffId_t BufferId;
+    CFE_TBL_LoadBuff_t * BuffPtr;
 
     if (RegRecPtr->DoubleBuffered)
     {
         /* Determine the index of the Inactive Buffer Pointer */
-        BufferIndex = CFE_TBL_GetNextLocalBufferId(RegRecPtr);
-
-        /* then return the pointer to it */
-        Result = &RegRecPtr->Buffers[BufferIndex];
+        BufferId = CFE_TBL_GetNextLocalBufferId(RegRecPtr);
+        BuffPtr  = CFE_TBL_LocateLoadBufferByID(RegRecPtr, BufferId);
     }
-    else if (!RegRecPtr->UserDefAddr && RegRecPtr->LoadInProgress != CFE_TBL_NO_LOAD_IN_PROGRESS)
+    else if (!RegRecPtr->UserDefAddr && CFE_TBL_RegRecIsLoadInProgress(RegRecPtr))
     {
         /*
          * The only time a single buffered table has an inactive buffer is when its loading, and
          * this always refers to a shared load buffer
          */
-        Result = &CFE_TBL_Global.LoadBuffs[RegRecPtr->LoadInProgress];
+        BufferId = CFE_TBL_RegRecGetLoadInProgress(RegRecPtr);
+        BuffPtr  = CFE_TBL_LocateLoadBufferByID(NULL, BufferId);
     }
     else
     {
         /* Tables with a user-defined address never have an inactive buffer */
-        Result = NULL;
+        BuffPtr = NULL;
     }
 
-    return Result;
+    /* then return the pointer to it */
+    return BuffPtr;
 }
 
 /*----------------------------------------------------------------
@@ -395,8 +492,8 @@ CFE_TBL_LoadBuff_t *CFE_TBL_GetSelectedBuffer(CFE_TBL_RegistryRec_t *     RegRec
             break;
         default:
             CFE_EVS_SendEvent(CFE_TBL_ILLEGAL_BUFF_PARAM_ERR_EID, CFE_EVS_EventType_ERROR,
-                              "Cmd for Table '%s' had illegal buffer parameter (0x%08X)", RegRecPtr->Name,
-                              (unsigned int)BufferSelect);
+                              "Cmd for Table '%s' had illegal buffer parameter (0x%08X)",
+                              CFE_TBL_RegRecGetName(RegRecPtr), (unsigned int)BufferSelect);
 
             Result = NULL;
             break;
@@ -411,127 +508,192 @@ CFE_TBL_LoadBuff_t *CFE_TBL_GetSelectedBuffer(CFE_TBL_RegistryRec_t *     RegRec
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_TBL_GetWorkingBuffer(CFE_TBL_LoadBuff_t **WorkingBufferPtr, CFE_TBL_RegistryRec_t *RegRecPtr,
-                               bool CalledByApp)
+CFE_TBL_LoadBuff_t *CFE_TBL_GetLoadInProgressBuffer(CFE_TBL_RegistryRec_t *RegRecPtr)
 {
-    int32                         Status = CFE_SUCCESS;
-    int32                         OsStatus;
-    int32                         i;
-    CFE_TBL_CheckInactiveBuffer_t CheckStat;
-
-    /* Initialize return pointer to NULL */
-    *WorkingBufferPtr = NULL;
+    CFE_TBL_LoadBuff_t *LoadBuffPtr;
 
     /* If a load is already in progress, return the previously allocated working buffer */
-    if (RegRecPtr->LoadInProgress != CFE_TBL_NO_LOAD_IN_PROGRESS)
+    if (!CFE_TBL_RegRecIsLoadInProgress(RegRecPtr))
     {
-        if (RegRecPtr->DoubleBuffered)
-        {
-            *WorkingBufferPtr = &RegRecPtr->Buffers[(1U - RegRecPtr->ActiveBufferIndex)];
-        }
-        else
-        {
-            *WorkingBufferPtr = &CFE_TBL_Global.LoadBuffs[RegRecPtr->LoadInProgress];
-        }
+        LoadBuffPtr = NULL;
+    }
+    else if (RegRecPtr->DoubleBuffered)
+    {
+        /* Interpret the load in progress id as the local (inactive) buffer */
+        LoadBuffPtr = CFE_TBL_LocateLoadBufferByID(RegRecPtr, CFE_TBL_RegRecGetLoadInProgress(RegRecPtr));
     }
     else
     {
-        /* If the table is uninitialized and the function is called by an application (rather than       */
-        /* by the Table Services application), then use the current active buffer as the working buffer. */
-        /* This allows many tasks with many tables to perform the initialization without conflict        */
-        /* over the accessibility of the shared working buffers.                                         */
-        if ((RegRecPtr->TableLoadedOnce == false) && (CalledByApp == true))
+        /* Interpret the load in progress id as a shared buffer */
+        LoadBuffPtr = CFE_TBL_LocateLoadBufferByID(NULL, CFE_TBL_RegRecGetLoadInProgress(RegRecPtr));
+    }
+
+    return LoadBuffPtr;
+}
+
+/*----------------------------------------------------------------
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+CFE_TBL_LoadBuff_t *CFE_TBL_GetInactiveBufferExclusive(CFE_TBL_RegistryRec_t *RegRecPtr)
+{
+    CFE_TBL_LoadBuff_t *          LoadBuffPtr;
+    CFE_TBL_CheckInactiveBuffer_t CheckStat;
+
+    memset(&CheckStat, 0, sizeof(CheckStat));
+
+    /* Determine the index of the Inactive Buffer Pointer */
+    CheckStat.BufferIndex = CFE_TBL_GetNextLocalBufferId(RegRecPtr);
+
+    /* Scan the access descriptor table to determine if anyone is still using the inactive buffer */
+    CFE_TBL_ForeachAccessDescriptor(RegRecPtr, CFE_TBL_CheckInactiveBufferHelper, &CheckStat);
+
+    if (CFE_RESOURCEID_TEST_DEFINED(CheckStat.LockingAppId))
+    {
+        LoadBuffPtr = NULL;
+        CFE_ES_WriteToSysLog("%s: Inactive Dbl Buff Locked for '%s' by AppId=%lu\n", __func__,
+                             CFE_TBL_RegRecGetName(RegRecPtr), CFE_RESOURCEID_TO_ULONG(CheckStat.LockingAppId));
+    }
+    else
+    {
+        /* If buffer is free, then return the pointer to it */
+        LoadBuffPtr = CFE_TBL_LocateLoadBufferByID(RegRecPtr, CheckStat.BufferIndex);
+    }
+
+    return LoadBuffPtr;
+}
+
+/*----------------------------------------------------------------
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+CFE_TBL_LoadBuff_t *CFE_TBL_AcquireGlobalLoadBuff(void)
+{
+    int32               OsStatus;
+    uint32              i;
+    CFE_TBL_LoadBuff_t *LoadBuffPtr;
+
+    /* Take Mutex to make sure we are not trying to grab a working buffer that some */
+    /* other application is also trying to grab. */
+    OsStatus = OS_MutSemTake(CFE_TBL_Global.WorkBufMutex);
+
+    /* Make note of any errors but continue and hope for the best */
+    if (OsStatus != OS_SUCCESS)
+    {
+        CFE_ES_WriteToSysLog("%s: Internal error taking WorkBuf Mutex (Status=%ld)\n", __func__, (long)OsStatus);
+    }
+
+    /* Determine if there are any common buffers available */
+    for (i = 0; i < CFE_PLATFORM_TBL_MAX_SIMULTANEOUS_LOADS; ++i)
+    {
+        LoadBuffPtr = &CFE_TBL_Global.LoadBuffs[i];
+
+        if (!CFE_TBL_LoadBuffIsUsed(LoadBuffPtr))
         {
-            if (RegRecPtr->DoubleBuffered)
-            {
-                *WorkingBufferPtr = &RegRecPtr->Buffers[RegRecPtr->ActiveBufferIndex];
-            }
-            else
-            {
-                *WorkingBufferPtr = &RegRecPtr->Buffers[0];
-            }
-        }
-        else
-        {
-            /* If the table is a double buffered table, then check to make sure the */
-            /* inactive buffer has been freed by any Applications that may have been using it */
-            if (RegRecPtr->DoubleBuffered)
-            {
-                memset(&CheckStat, 0, sizeof(CheckStat));
-
-                /* Determine the index of the Inactive Buffer Pointer */
-                CheckStat.BufferIndex = 1 - RegRecPtr->ActiveBufferIndex;
-
-                /* Scan the access descriptor table to determine if anyone is still using the inactive buffer */
-                CFE_TBL_ForeachAccessDescriptor(RegRecPtr, CFE_TBL_CheckInactiveBufferHelper, &CheckStat);
-
-                if (CFE_RESOURCEID_TEST_DEFINED(CheckStat.LockingAppId))
-                {
-                    Status = CFE_TBL_ERR_NO_BUFFER_AVAIL;
-
-                    CFE_ES_WriteToSysLog("%s: Inactive Dbl Buff Locked for '%s' by AppId=%lu\n", __func__,
-                                         RegRecPtr->Name, CFE_RESOURCEID_TO_ULONG(CheckStat.LockingAppId));
-                }
-
-                /* If buffer is free, then return the pointer to it */
-                if (Status == CFE_SUCCESS)
-                {
-                    *WorkingBufferPtr         = &RegRecPtr->Buffers[CheckStat.BufferIndex];
-                    RegRecPtr->LoadInProgress = CheckStat.BufferIndex;
-                }
-            }
-            else /* Single Buffered Table */
-            {
-                /* Take Mutex to make sure we are not trying to grab a working buffer that some */
-                /* other application is also trying to grab. */
-                OsStatus = OS_MutSemTake(CFE_TBL_Global.WorkBufMutex);
-
-                /* Make note of any errors but continue and hope for the best */
-                if (OsStatus != OS_SUCCESS)
-                {
-                    CFE_ES_WriteToSysLog("%s: Internal error taking WorkBuf Mutex (Status=%ld)\n", __func__,
-                                         (long)OsStatus);
-                }
-
-                /* Determine if there are any common buffers available */
-                i = 0;
-                while ((i < CFE_PLATFORM_TBL_MAX_SIMULTANEOUS_LOADS) && (CFE_TBL_Global.LoadBuffs[i].Taken == true))
-                {
-                    i++;
-                }
-
-                /* If a free buffer was found, then return the address to the associated shared buffer */
-                if (i < CFE_PLATFORM_TBL_MAX_SIMULTANEOUS_LOADS)
-                {
-                    CFE_TBL_Global.LoadBuffs[i].Taken = true;
-                    *WorkingBufferPtr                 = &CFE_TBL_Global.LoadBuffs[i];
-                    RegRecPtr->LoadInProgress         = i;
-
-                    /* Translate OS_SUCCESS into CFE_SUCCESS */
-                    Status = CFE_SUCCESS;
-                }
-                else
-                {
-                    Status = CFE_TBL_ERR_NO_BUFFER_AVAIL;
-
-                    CFE_ES_WriteToSysLog("%s: All shared buffers are locked\n", __func__);
-                }
-
-                /* Allow others to obtain a shared working buffer */
-                OS_MutSemGive(CFE_TBL_Global.WorkBufMutex);
-            }
-
-            if ((*WorkingBufferPtr) != NULL &&
-                (*WorkingBufferPtr)->BufferPtr != RegRecPtr->Buffers[RegRecPtr->ActiveBufferIndex].BufferPtr)
-            {
-                /* In case the file contains a partial table load, get the active buffer contents first */
-                memcpy((*WorkingBufferPtr)->BufferPtr, RegRecPtr->Buffers[RegRecPtr->ActiveBufferIndex].BufferPtr,
-                       RegRecPtr->Size);
-            }
+            break;
         }
     }
 
-    return Status;
+    /* If a free buffer was found, then return the address to the associated shared buffer */
+    if (i < CFE_PLATFORM_TBL_MAX_SIMULTANEOUS_LOADS)
+    {
+        LoadBuffPtr->Taken = true;
+    }
+    else
+    {
+        LoadBuffPtr = NULL;
+        CFE_ES_WriteToSysLog("%s: All shared buffers are locked\n", __func__);
+    }
+
+    /* Allow others to obtain a shared working buffer */
+    OS_MutSemGive(CFE_TBL_Global.WorkBufMutex);
+
+    return LoadBuffPtr;
+}
+
+/*----------------------------------------------------------------
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+CFE_TBL_LoadBuff_t *CFE_TBL_PrepareNewLoadBuff(CFE_TBL_RegistryRec_t *RegRecPtr)
+{
+    CFE_TBL_LoadBuff_t *LoadBuffPtr;
+
+    if (RegRecPtr->DoubleBuffered)
+    {
+        /* If the table is a double buffered table, then check to make sure the */
+        /* inactive buffer has been freed by any Applications that may have been using it */
+        LoadBuffPtr = CFE_TBL_GetInactiveBufferExclusive(RegRecPtr);
+    }
+    else
+    {
+        /* Single Buffered Table, these use a pool of shared temporary load buffers */
+        LoadBuffPtr = CFE_TBL_AcquireGlobalLoadBuff();
+    }
+
+    if (LoadBuffPtr != NULL && CFE_TBL_RegRecIsTableLoaded(RegRecPtr))
+    {
+        /* In case the file contains a partial table load, get the active buffer contents first */
+        memcpy(LoadBuffPtr->BufferPtr, CFE_TBL_GetActiveBuffer(RegRecPtr)->BufferPtr, CFE_TBL_RegRecGetSize(RegRecPtr));
+        LoadBuffPtr->Validated = false;
+    }
+
+    return LoadBuffPtr;
+}
+
+/*----------------------------------------------------------------
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+int32 CFE_TBL_GetWorkingBuffer(CFE_TBL_LoadBuff_t **WorkingBufferPtr, CFE_TBL_RegistryRec_t *RegRecPtr,
+                               bool CalledByApp)
+{
+    CFE_TBL_LoadBuff_t *LoadBuffPtr;
+
+    /* If a load is already in progress, return the previously allocated working buffer */
+    LoadBuffPtr = CFE_TBL_GetLoadInProgressBuffer(RegRecPtr);
+    if (LoadBuffPtr == NULL)
+    {
+        /* load was not in progress */
+        if (!CFE_TBL_RegRecIsTableLoaded(RegRecPtr) && CalledByApp)
+        {
+            /* If the table is uninitialized and the function is called by an application (rather than       */
+            /* by the Table Services application), then use the current active buffer as the working buffer. */
+            /* This allows many tasks with many tables to perform the initialization without conflict        */
+            /* over the accessibility of the shared working buffers.                                         */
+            LoadBuffPtr = CFE_TBL_GetActiveBuffer(RegRecPtr);
+        }
+        else
+        {
+            LoadBuffPtr = CFE_TBL_PrepareNewLoadBuff(RegRecPtr);
+        }
+
+        if (LoadBuffPtr != NULL)
+        {
+            /*
+             * store the resource ID (generic form) in LoadInProgress - this allows
+             * it to refer to either a shared buffer or a local table buffer
+             */
+            CFE_TBL_RegRecSetLoadInProgress(RegRecPtr, CFE_TBL_LoadBufferGetID(LoadBuffPtr));
+        }
+    }
+
+    *WorkingBufferPtr = LoadBuffPtr;
+
+    if (LoadBuffPtr == NULL)
+    {
+        return CFE_TBL_ERR_NO_BUFFER_AVAIL;
+    }
+
+    return CFE_SUCCESS;
 }
 
 /*----------------------------------------------------------------
@@ -584,22 +746,23 @@ int32 CFE_TBL_LoadFromFile(const char *AppName, CFE_TBL_LoadBuff_t *WorkingBuffe
     }
 
     /* Verify that the specified file has compatible data for specified table */
-    if (strcmp(RegRecPtr->Name, TblFileHeader.TableName) != 0)
+    if (strcmp(CFE_TBL_RegRecGetName(RegRecPtr), TblFileHeader.TableName) != 0)
     {
         CFE_EVS_SendEventWithAppID(CFE_TBL_LOAD_TBLNAME_MISMATCH_ERR_EID, CFE_EVS_EventType_ERROR,
                                    CFE_TBL_Global.TableTaskAppId, "%s: Table name mismatch (exp=%s, tblfilhdr=%s)",
-                                   AppName, RegRecPtr->Name, TblFileHeader.TableName);
+                                   AppName, CFE_TBL_RegRecGetName(RegRecPtr), TblFileHeader.TableName);
 
         OS_close(FileDescriptor);
         return CFE_TBL_ERR_FILE_FOR_WRONG_TABLE;
     }
 
-    if ((TblFileHeader.Offset + TblFileHeader.NumBytes) > RegRecPtr->Size)
+    if ((TblFileHeader.Offset + TblFileHeader.NumBytes) > CFE_TBL_RegRecGetSize(RegRecPtr))
     {
-        CFE_EVS_SendEventWithAppID(
-            CFE_TBL_LOAD_EXCEEDS_SIZE_ERR_EID, CFE_EVS_EventType_ERROR, CFE_TBL_Global.TableTaskAppId,
-            "%s: File reports size larger than expected (file=%lu, exp=%lu)", AppName,
-            (long unsigned int)(TblFileHeader.Offset + TblFileHeader.NumBytes), (long unsigned int)RegRecPtr->Size);
+        CFE_EVS_SendEventWithAppID(CFE_TBL_LOAD_EXCEEDS_SIZE_ERR_EID, CFE_EVS_EventType_ERROR,
+                                   CFE_TBL_Global.TableTaskAppId,
+                                   "%s: File reports size larger than expected (file=%lu, exp=%lu)", AppName,
+                                   (long unsigned int)(TblFileHeader.Offset + TblFileHeader.NumBytes),
+                                   (long unsigned int)CFE_TBL_RegRecGetSize(RegRecPtr));
 
         OS_close(FileDescriptor);
         return CFE_TBL_ERR_FILE_TOO_LARGE;
@@ -612,7 +775,7 @@ int32 CFE_TBL_LoadFromFile(const char *AppName, CFE_TBL_LoadBuff_t *WorkingBuffe
     {
         Status = CFE_TBL_WARN_PARTIAL_LOAD;
     }
-    else if (TblFileHeader.NumBytes < RegRecPtr->Size)
+    else if (TblFileHeader.NumBytes < CFE_TBL_RegRecGetSize(RegRecPtr))
     {
         Status = CFE_TBL_WARN_SHORT_FILE;
     }
@@ -668,8 +831,8 @@ int32 CFE_TBL_LoadFromFile(const char *AppName, CFE_TBL_LoadBuff_t *WorkingBuffe
     WorkingBufferPtr->FileTime.Subseconds = StdFileHeader.TimeSubSeconds;
 
     /* Compute the CRC on the specified table buffer */
-    WorkingBufferPtr->Crc =
-        CFE_ES_CalculateCRC(WorkingBufferPtr->BufferPtr, RegRecPtr->Size, 0, CFE_MISSION_ES_DEFAULT_CRC);
+    WorkingBufferPtr->Crc = CFE_ES_CalculateCRC(WorkingBufferPtr->BufferPtr, CFE_TBL_RegRecGetSize(RegRecPtr), 0,
+                                                CFE_MISSION_ES_DEFAULT_CRC);
 
     OS_close(FileDescriptor);
 
@@ -701,84 +864,72 @@ static void CFE_TBL_CheckLockHelper(CFE_TBL_AccessDescriptor_t *AccDescPtr, void
 int32 CFE_TBL_UpdateInternal(CFE_TBL_Handle_t TblHandle, CFE_TBL_RegistryRec_t *RegRecPtr,
                              CFE_TBL_AccessDescriptor_t *AccessDescPtr)
 {
-    int32 Status     = CFE_SUCCESS;
-    bool  LockStatus = false;
+    int32               Status     = CFE_SUCCESS;
+    bool                LockStatus = false;
+    CFE_TBL_LoadBuff_t *ActiveBuffPtr;
+    CFE_TBL_LoadBuff_t *LoadBuffPtr;
 
-    if ((!RegRecPtr->LoadPending) || (RegRecPtr->LoadInProgress == CFE_TBL_NO_LOAD_IN_PROGRESS))
+    LoadBuffPtr = CFE_TBL_GetLoadInProgressBuffer(RegRecPtr);
+    if (LoadBuffPtr == NULL)
     {
         /* Question: Should calling CFE_TBL_Update on a table with no load pending */
         /* be considered an error?  Currently assuming it is not an error.         */
         Status = CFE_TBL_INFO_NO_UPDATE_PENDING;
     }
+    else if (RegRecPtr->DoubleBuffered)
+    {
+        /* To update a double buffered table only requires a pointer swap */
+        RegRecPtr->ActiveBufferIndex = CFE_TBL_LoadBufferGetID(LoadBuffPtr);
+        CFE_TBL_RegRecClearLoadInProgress(RegRecPtr);
+    }
     else
     {
-        if (RegRecPtr->DoubleBuffered)
+        /* Check to see if the Table is locked by anyone */
+        CFE_TBL_ForeachAccessDescriptor(RegRecPtr, CFE_TBL_CheckLockHelper, &LockStatus);
+
+        if (LockStatus)
         {
-            /* To update a double buffered table only requires a pointer swap */
-            RegRecPtr->ActiveBufferIndex = (uint8)RegRecPtr->LoadInProgress;
+            Status = CFE_TBL_INFO_TABLE_LOCKED;
 
-            /* Source description in buffer should already have been updated by either */
-            /* the LoadFromFile function or the Load function (when a memory load).    */
-            /* However, we need to copy it into active registry area */
-            strncpy(RegRecPtr->LastFileLoaded, RegRecPtr->Buffers[RegRecPtr->ActiveBufferIndex].DataSource,
-                    sizeof(RegRecPtr->LastFileLoaded) - 1);
-            RegRecPtr->LastFileLoaded[sizeof(RegRecPtr->LastFileLoaded) - 1] = '\0';
-
-            CFE_TBL_NotifyTblUsersOfUpdate(RegRecPtr);
-
-            /* If the table is a critical table, update the appropriate CDS with the new data */
-            if (RegRecPtr->CriticalTable == true)
-            {
-                CFE_TBL_UpdateCriticalTblCDS(RegRecPtr);
-            }
+            CFE_ES_WriteToSysLog("%s: Unable to update locked table Handle=%lu\n", __func__,
+                                 (unsigned long)CFE_TBL_AccDescGetHandle(AccessDescPtr));
         }
-        else
+    }
+
+    if (Status == CFE_SUCCESS)
+    {
+        /*
+         * To update a single buffered table requires a memcpy from working buffer,
+         * but in a double buffered table they will point to the same LoadBuff, so
+         * all the copies can be skipped (this is the advantage of double-buffering)
+         */
+        ActiveBuffPtr = CFE_TBL_GetActiveBuffer(RegRecPtr);
+        if (ActiveBuffPtr != LoadBuffPtr)
         {
-            /* Check to see if the Table is locked by anyone */
-            CFE_TBL_ForeachAccessDescriptor(RegRecPtr, CFE_TBL_CheckLockHelper, &LockStatus);
+            memcpy(ActiveBuffPtr->BufferPtr, LoadBuffPtr->BufferPtr, CFE_TBL_RegRecGetSize(RegRecPtr));
 
-            if (LockStatus)
-            {
-                Status = CFE_TBL_INFO_TABLE_LOCKED;
+            /* Save source description with active buffer */
+            strncpy(ActiveBuffPtr->DataSource, LoadBuffPtr->DataSource, sizeof(ActiveBuffPtr->DataSource) - 1);
+            ActiveBuffPtr->DataSource[sizeof(ActiveBuffPtr->DataSource) - 1] = 0;
 
-                CFE_ES_WriteToSysLog("%s: Unable to update locked table Handle=%d\n", __func__, TblHandle);
-            }
-            else
-            {
-                /* To update a single buffered table requires a memcpy from working buffer */
-                if (RegRecPtr->Buffers[0].BufferPtr != CFE_TBL_Global.LoadBuffs[RegRecPtr->LoadInProgress].BufferPtr)
-                {
-                    memcpy(RegRecPtr->Buffers[0].BufferPtr,
-                           CFE_TBL_Global.LoadBuffs[RegRecPtr->LoadInProgress].BufferPtr, RegRecPtr->Size);
-                }
+            /* Save the file creation time from the loaded file into the Table Registry */
+            ActiveBuffPtr->FileTime = LoadBuffPtr->FileTime;
 
-                /* Save source description with active buffer */
-                strncpy(RegRecPtr->Buffers[0].DataSource,
-                        CFE_TBL_Global.LoadBuffs[RegRecPtr->LoadInProgress].DataSource,
-                        sizeof(RegRecPtr->Buffers[0].DataSource) - 1);
-                RegRecPtr->Buffers[0].DataSource[sizeof(RegRecPtr->Buffers[0].DataSource) - 1] = 0;
-                strncpy(RegRecPtr->LastFileLoaded, CFE_TBL_Global.LoadBuffs[RegRecPtr->LoadInProgress].DataSource,
-                        sizeof(RegRecPtr->LastFileLoaded) - 1);
-                RegRecPtr->LastFileLoaded[sizeof(RegRecPtr->LastFileLoaded) - 1] = 0;
-
-                /* Save the file creation time from the loaded file into the Table Registry */
-                RegRecPtr->Buffers[0].FileTime = CFE_TBL_Global.LoadBuffs[RegRecPtr->LoadInProgress].FileTime;
-
-                /* Save the previously computed CRC into the new buffer */
-                RegRecPtr->Buffers[0].Crc = CFE_TBL_Global.LoadBuffs[RegRecPtr->LoadInProgress].Crc;
-
-                /* Free the working buffer */
-                CFE_TBL_Global.LoadBuffs[RegRecPtr->LoadInProgress].Taken = false;
-
-                CFE_TBL_NotifyTblUsersOfUpdate(RegRecPtr);
-
-                /* If the table is a critical table, update the appropriate CDS with the new data */
-                if (RegRecPtr->CriticalTable == true)
-                {
-                    CFE_TBL_UpdateCriticalTblCDS(RegRecPtr);
-                }
-            }
+            /* Save the previously computed CRC into the new buffer */
+            ActiveBuffPtr->Crc = LoadBuffPtr->Crc;
         }
+
+        CFE_TBL_RegRecResetLoadInfo(RegRecPtr, ActiveBuffPtr->DataSource, CFE_TIME_GetTime());
+
+        CFE_TBL_NotifyTblUsersOfUpdate(RegRecPtr);
+
+        /* If the table is a critical table, update the appropriate CDS with the new data */
+        if (RegRecPtr->CriticalTable)
+        {
+            CFE_TBL_UpdateCriticalTblCDS(RegRecPtr);
+        }
+
+        CFE_TBL_DiscardWorkingBuffer(RegRecPtr);
     }
 
     return Status;
@@ -803,13 +954,9 @@ static void CFE_TBL_SetUpdatedHelper(CFE_TBL_AccessDescriptor_t *AccDescPtr, voi
  *-----------------------------------------------------------------*/
 void CFE_TBL_NotifyTblUsersOfUpdate(CFE_TBL_RegistryRec_t *RegRecPtr)
 {
-    /* Reset Load in Progress Values */
-    RegRecPtr->LoadInProgress   = CFE_TBL_NO_LOAD_IN_PROGRESS;
-    RegRecPtr->TimeOfLastUpdate = CFE_TIME_GetTime();
-
-    /* Clear notification of pending load (as well as NO LOAD) and notify everyone of update */
-    RegRecPtr->LoadPending     = false;
-    RegRecPtr->TableLoadedOnce = true;
+    /* Clear notification of pending load (as well as NO LOAD) */
+    CFE_TBL_RegRecClearLoadPendingFlag(RegRecPtr);
+    CFE_TBL_RegRecSetTableLoadedFlag(RegRecPtr);
 
     CFE_TBL_ForeachAccessDescriptor(RegRecPtr, CFE_TBL_SetUpdatedHelper, NULL);
 }
@@ -996,9 +1143,10 @@ void CFE_TBL_ByteSwapUint32(uint32 *Uint32ToSwapPtr)
  *-----------------------------------------------------------------*/
 int32 CFE_TBL_CleanUpApp(CFE_ES_AppId_t AppId)
 {
-    uint32                 i;
-    CFE_TBL_TxnState_t     Txn;
-    CFE_TBL_DumpControl_t *DumpCtrlPtr;
+    uint32                      i;
+    CFE_TBL_TxnState_t          Txn;
+    CFE_TBL_DumpControl_t *     DumpCtrlPtr;
+    CFE_TBL_AccessDescriptor_t *AccessDescPtr;
 
     /* Scan Dump Requests to determine if any of the tables that */
     /* were to be dumped will be deleted */
@@ -1018,9 +1166,10 @@ int32 CFE_TBL_CleanUpApp(CFE_ES_AppId_t AppId)
     /* Scan Access Descriptors to determine if the Application had access to any tables */
     for (i = 0; i < CFE_PLATFORM_TBL_MAX_NUM_HANDLES; i++)
     {
+        AccessDescPtr = &CFE_TBL_Global.Handles[i];
+
         /* Check to see if the Handle belongs to the Application being deleted */
-        if (CFE_RESOURCEID_TEST_EQUAL(CFE_TBL_Global.Handles[i].AppId, AppId) &&
-            CFE_TBL_Global.Handles[i].UsedFlag == true)
+        if (CFE_TBL_AccDescIsUsed(AccessDescPtr) && CFE_RESOURCEID_TEST_EQUAL(AccessDescPtr->AppId, AppId))
         {
             CFE_TBL_TxnStartFromHandle(&Txn, i, CFE_TBL_TxnContext_UNDEFINED);
 
@@ -1032,10 +1181,7 @@ int32 CFE_TBL_CleanUpApp(CFE_ES_AppId_t AppId)
                 /* NOTE: Allocated memory is freed when all Access Links have been    */
                 /*       removed.  This allows Applications to continue to use the    */
                 /*       data until they acknowledge that the table has been removed. */
-                Txn.RegRecPtr->OwnerAppId = CFE_TBL_NOT_OWNED;
-
-                /* Remove Table Name */
-                Txn.RegRecPtr->Name[0] = '\0';
+                CFE_TBL_RegRecSetFree(Txn.RegRecPtr);
             }
 
             /* Remove the Access Descriptor Link from linked list */
@@ -1043,7 +1189,7 @@ int32 CFE_TBL_CleanUpApp(CFE_ES_AppId_t AppId)
             /*       memory buffers are set free as well.         */
             CFE_TBL_TxnRemoveAccessLink(&Txn);
 
-            CFE_TBL_Global.Handles[i].AppId = CFE_TBL_NOT_OWNED;
+            CFE_TBL_AccDescSetFree(AccessDescPtr);
 
             CFE_TBL_TxnFinish(&Txn);
         }
@@ -1060,16 +1206,19 @@ int32 CFE_TBL_CleanUpApp(CFE_ES_AppId_t AppId)
  *-----------------------------------------------------------------*/
 void CFE_TBL_FindCriticalTblInfo(CFE_TBL_CritRegRec_t **CritRegRecPtr, CFE_ES_CDSHandle_t CDSHandleToFind)
 {
-    uint32 i;
+    uint32                i;
+    CFE_TBL_CritRegRec_t *LocalPtr;
 
     /* Assume the record is never found */
     *CritRegRecPtr = NULL;
 
     for (i = 0; i < CFE_PLATFORM_TBL_MAX_CRITICAL_TABLES; i++)
     {
-        if (CFE_RESOURCEID_TEST_EQUAL(CFE_TBL_Global.CritReg[i].CDSHandle, CDSHandleToFind))
+        LocalPtr = &CFE_TBL_Global.CritReg[i];
+
+        if (CFE_RESOURCEID_TEST_EQUAL(LocalPtr->CDSHandle, CDSHandleToFind))
         {
-            *CritRegRecPtr = &CFE_TBL_Global.CritReg[i];
+            *CritRegRecPtr = LocalPtr;
             break;
         }
     }
@@ -1084,16 +1233,18 @@ void CFE_TBL_FindCriticalTblInfo(CFE_TBL_CritRegRec_t **CritRegRecPtr, CFE_ES_CD
 void CFE_TBL_UpdateCriticalTblCDS(CFE_TBL_RegistryRec_t *RegRecPtr)
 {
     CFE_TBL_CritRegRec_t *CritRegRecPtr = NULL;
+    CFE_TBL_LoadBuff_t *  ActiveBufPtr;
 
     int32 Status;
 
     /* Copy an image of the updated table to the CDS for safekeeping */
-    Status = CFE_ES_CopyToCDS(RegRecPtr->CDSHandle, RegRecPtr->Buffers[RegRecPtr->ActiveBufferIndex].BufferPtr);
+    ActiveBufPtr = CFE_TBL_GetActiveBuffer(RegRecPtr);
+    Status       = CFE_ES_CopyToCDS(RegRecPtr->CDSHandle, ActiveBufPtr->BufferPtr);
 
     if (Status != CFE_SUCCESS)
     {
         CFE_ES_WriteToSysLog("%s: Unable to update Critical Table '%s' in CDS (Err=0x%08X)\n", __func__,
-                             RegRecPtr->Name, (unsigned int)Status);
+                             CFE_TBL_RegRecGetName(RegRecPtr), (unsigned int)Status);
     }
     else
     {
@@ -1102,12 +1253,13 @@ void CFE_TBL_UpdateCriticalTblCDS(CFE_TBL_RegistryRec_t *RegRecPtr)
         if (CritRegRecPtr != NULL)
         {
             /* Save information related to the source of the data stored in the table in Critical Table Registry */
-            CritRegRecPtr->FileTime = RegRecPtr->Buffers[RegRecPtr->ActiveBufferIndex].FileTime;
-            strncpy(CritRegRecPtr->LastFileLoaded, RegRecPtr->LastFileLoaded,
+            CritRegRecPtr->FileTime = ActiveBufPtr->FileTime;
+            strncpy(CritRegRecPtr->LastFileLoaded, CFE_TBL_RegRecGetLastFileLoaded(RegRecPtr),
                     sizeof(CritRegRecPtr->LastFileLoaded) - 1);
             CritRegRecPtr->LastFileLoaded[sizeof(CritRegRecPtr->LastFileLoaded) - 1] = '\0';
-            CritRegRecPtr->TimeOfLastUpdate                                          = RegRecPtr->TimeOfLastUpdate;
-            CritRegRecPtr->TableLoadedOnce                                           = RegRecPtr->TableLoadedOnce;
+
+            CritRegRecPtr->TimeOfLastUpdate = CFE_TBL_RegRecGetLastUpdateTime(RegRecPtr);
+            CritRegRecPtr->TableLoadedOnce  = CFE_TBL_RegRecIsTableLoaded(RegRecPtr);
 
             /* Update copy of Critical Table Registry in the CDS */
             Status = CFE_ES_CopyToCDS(CFE_TBL_Global.CritRegHandle, CFE_TBL_Global.CritReg);
@@ -1120,7 +1272,8 @@ void CFE_TBL_UpdateCriticalTblCDS(CFE_TBL_RegistryRec_t *RegRecPtr)
         }
         else
         {
-            CFE_ES_WriteToSysLog("%s: Error finding '%s' in Critical Table Registry\n", __func__, RegRecPtr->Name);
+            CFE_ES_WriteToSysLog("%s: Error finding '%s' in Critical Table Registry\n", __func__,
+                                 CFE_TBL_RegRecGetName(RegRecPtr));
         }
     }
 
@@ -1240,16 +1393,16 @@ CFE_Status_t CFE_TBL_ValidateTableOptions(const char *Name, uint16 TblOptionFlag
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-CFE_Status_t CFE_TBL_AllocateTableBuffer(CFE_TBL_RegistryRec_t *RegRecPtr, size_t Size)
+CFE_Status_t CFE_TBL_AllocateTableLoadBuffer(CFE_TBL_LoadBuff_t *LoadBuffPtr, size_t Size)
 {
     CFE_Status_t Status;
 
     /* Allocate the memory buffer(s) for the table and inactive table, if necessary */
-    Status = CFE_ES_GetPoolBuf(&RegRecPtr->Buffers[0].BufferPtr, CFE_TBL_Global.Buf.PoolHdl, Size);
+    Status = CFE_ES_GetPoolBuf(&LoadBuffPtr->BufferPtr, CFE_TBL_Global.Buf.PoolHdl, Size);
 
     if (Status < 0)
     {
-        CFE_ES_WriteToSysLog("%s: 1st Buf Alloc GetPool fail Stat=0x%08X MemPoolHndl=0x%08lX\n", __func__,
+        CFE_ES_WriteToSysLog("%s: Buf Alloc GetPool fail Stat=0x%08X MemPoolHndl=0x%08lX\n", __func__,
                              (unsigned int)Status, CFE_RESOURCEID_TO_ULONG(CFE_TBL_Global.Buf.PoolHdl));
     }
     else
@@ -1257,7 +1410,7 @@ CFE_Status_t CFE_TBL_AllocateTableBuffer(CFE_TBL_RegistryRec_t *RegRecPtr, size_
         Status = CFE_SUCCESS;
 
         /* Zero the memory buffer */
-        memset(RegRecPtr->Buffers[0].BufferPtr, 0x0, Size);
+        memset(LoadBuffPtr->BufferPtr, 0x0, Size);
     }
 
     return Status;
@@ -1269,30 +1422,69 @@ CFE_Status_t CFE_TBL_AllocateTableBuffer(CFE_TBL_RegistryRec_t *RegRecPtr, size_
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
+void CFE_TBL_RegRecResetLoadInfo(CFE_TBL_RegistryRec_t *RegRecPtr, const char *DataSource,
+                                 CFE_TIME_SysTime_t UpdateTime)
+{
+    strncpy(RegRecPtr->LastFileLoaded, DataSource, sizeof(RegRecPtr->LastFileLoaded) - 1);
+    RegRecPtr->LastFileLoaded[sizeof(RegRecPtr->LastFileLoaded) - 1] = 0;
+
+    RegRecPtr->TimeOfLastUpdate = UpdateTime;
+    RegRecPtr->IsModified       = false;
+}
+
+/*----------------------------------------------------------------
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+void CFE_TBL_RegRecSetModifiedFlag(CFE_TBL_RegistryRec_t *RegRecPtr)
+{
+    RegRecPtr->TimeOfLastUpdate = CFE_TIME_GetTime();
+    RegRecPtr->IsModified       = true;
+}
+
+/*----------------------------------------------------------------
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+void CFE_TBL_MarkNameAsModified(char *NameBufPtr, size_t NameBufSize)
+{
+    char *EndPtr;
+
+    EndPtr = memchr(NameBufPtr, 0, NameBufSize);
+    if ((EndPtr - NameBufPtr) > (NameBufSize - 4))
+    {
+        EndPtr = &NameBufPtr[NameBufSize - 4];
+    }
+
+    strcpy(EndPtr, "(*)");
+}
+
+/*----------------------------------------------------------------
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+CFE_Status_t CFE_TBL_AllocatePrimaryBuffer(CFE_TBL_RegistryRec_t *RegRecPtr, size_t Size)
+{
+    return CFE_TBL_AllocateTableLoadBuffer(CFE_TBL_GetActiveBuffer(RegRecPtr), Size);
+}
+
+/*----------------------------------------------------------------
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 CFE_Status_t CFE_TBL_AllocateSecondaryBuffer(CFE_TBL_RegistryRec_t *RegRecPtr, size_t Size)
 {
-    CFE_Status_t Status;
+    RegRecPtr->DoubleBuffered = true;
 
-    /* Allocate memory for the dedicated secondary buffer */
-    Status = CFE_ES_GetPoolBuf(&RegRecPtr->Buffers[1].BufferPtr, CFE_TBL_Global.Buf.PoolHdl, Size);
-
-    if (Status < 0)
-    {
-        CFE_ES_WriteToSysLog("%s: 2nd Buf Alloc GetPool fail Stat=0x%08X MemPoolHndl=0x%08lX\n", __func__,
-                             (unsigned int)Status, CFE_RESOURCEID_TO_ULONG(CFE_TBL_Global.Buf.PoolHdl));
-    }
-    else
-    {
-        Status = CFE_SUCCESS;
-
-        /* Zero the dedicated secondary buffer */
-        memset(RegRecPtr->Buffers[1].BufferPtr, 0x0, Size);
-    }
-
-    RegRecPtr->ActiveBufferIndex = 0;
-    RegRecPtr->DoubleBuffered    = true;
-
-    return Status;
+    return CFE_TBL_AllocateTableLoadBuffer(CFE_TBL_GetInactiveBuffer(RegRecPtr), Size);
 }
 
 /*----------------------------------------------------------------
@@ -1339,8 +1531,8 @@ CFE_Status_t CFE_TBL_RestoreTableDataFromCDS(CFE_TBL_RegistryRec_t *RegRecPtr, c
         /* possible at this point during table registration.  But we */
         /* do need to handle the error case because if the function */
         /* call did fail, WorkingBufferPtr would be a NULL pointer. */
-        CFE_ES_WriteToSysLog("%s: Failed to get work buffer for '%s.%s' (ErrCode=0x%08X)\n", __func__, AppName, Name,
-                             (unsigned int)Status);
+        CFE_ES_WriteToSysLog("%s: Failed to get work buffer for '%s' (ErrCode=0x%08X)\n", __func__,
+                             CFE_TBL_RegRecGetName(RegRecPtr), (unsigned int)Status);
     }
     else
     {
@@ -1349,8 +1541,8 @@ CFE_Status_t CFE_TBL_RestoreTableDataFromCDS(CFE_TBL_RegistryRec_t *RegRecPtr, c
 
         if (Status != CFE_SUCCESS)
         {
-            CFE_ES_WriteToSysLog("%s: Failed to recover '%s.%s' from CDS (ErrCode=0x%08X)\n", __func__, AppName, Name,
-                                 (unsigned int)Status);
+            CFE_ES_WriteToSysLog("%s: Failed to recover '%s' from CDS (ErrCode=0x%08X)\n", __func__,
+                                 CFE_TBL_RegRecGetName(RegRecPtr), (unsigned int)Status);
 
             /*
              * Treat a restore from existing CDS error the same as
@@ -1372,16 +1564,12 @@ CFE_Status_t CFE_TBL_RestoreTableDataFromCDS(CFE_TBL_RegistryRec_t *RegRecPtr, c
 
                 WorkingBufferPtr->FileTime = CritRegRecPtr->FileTime;
 
-                strncpy(RegRecPtr->LastFileLoaded, CritRegRecPtr->LastFileLoaded,
-                        sizeof(RegRecPtr->LastFileLoaded) - 1);
-                RegRecPtr->LastFileLoaded[sizeof(RegRecPtr->LastFileLoaded) - 1] = '\0';
-
-                RegRecPtr->TimeOfLastUpdate = CritRegRecPtr->TimeOfLastUpdate;
-                RegRecPtr->TableLoadedOnce  = CritRegRecPtr->TableLoadedOnce;
+                CFE_TBL_RegRecResetLoadInfo(RegRecPtr, CritRegRecPtr->LastFileLoaded, CritRegRecPtr->TimeOfLastUpdate);
+                CFE_TBL_RegRecSetTableLoadedFlag(RegRecPtr);
 
                 /* Compute the CRC on the specified table buffer */
-                WorkingBufferPtr->Crc =
-                    CFE_ES_CalculateCRC(WorkingBufferPtr->BufferPtr, RegRecPtr->Size, 0, CFE_MISSION_ES_DEFAULT_CRC);
+                WorkingBufferPtr->Crc = CFE_ES_CalculateCRC(
+                    WorkingBufferPtr->BufferPtr, CFE_TBL_RegRecGetSize(RegRecPtr), 0, CFE_MISSION_ES_DEFAULT_CRC);
 
                 /* Make sure everyone who sees the table knows that it has been updated */
                 CFE_TBL_NotifyTblUsersOfUpdate(RegRecPtr);
@@ -1393,7 +1581,8 @@ CFE_Status_t CFE_TBL_RestoreTableDataFromCDS(CFE_TBL_RegistryRec_t *RegRecPtr, c
             {
                 /* If an error occurred while trying to get the previous contents registry info, */
                 /* Log the error in the System Log and pretend like we created a new CDS */
-                CFE_ES_WriteToSysLog("%s: Failed to recover '%s.%s' info from CDS TblReg\n", __func__, AppName, Name);
+                CFE_ES_WriteToSysLog("%s: Failed to recover '%s' info from CDS TblReg\n", __func__,
+                                     CFE_TBL_RegRecGetName(RegRecPtr));
                 Status = CFE_SUCCESS;
             }
         }
@@ -1423,7 +1612,7 @@ void CFE_TBL_RegisterWithCriticalTableRegistry(CFE_TBL_CritRegRec_t *CritRegRecP
         strncpy(CritRegRecPtr->Name, TblName, sizeof(CritRegRecPtr->Name) - 1);
         CritRegRecPtr->Name[sizeof(CritRegRecPtr->Name) - 1] = '\0';
         CritRegRecPtr->LastFileLoaded[0]                     = '\0';
-        CritRegRecPtr->TableLoadedOnce                       = false;
+        RegRecPtr->TableLoadedOnce                           = false;
 
         CritRegRecPtr->FileTime         = CFE_TIME_ZERO_VALUE;
         CritRegRecPtr->TimeOfLastUpdate = CFE_TIME_ZERO_VALUE;
@@ -1432,7 +1621,8 @@ void CFE_TBL_RegisterWithCriticalTableRegistry(CFE_TBL_CritRegRec_t *CritRegRecP
     }
     else
     {
-        CFE_ES_WriteToSysLog("%s: Failed to find a free Crit Tbl Reg Rec for '%s'\n", __func__, RegRecPtr->Name);
+        CFE_ES_WriteToSysLog("%s: Failed to find a free Crit Tbl Reg Rec for '%s'\n", __func__,
+                             CFE_TBL_RegRecGetName(RegRecPtr));
     }
 
     /* Mark the table as critical for future reference */
@@ -1447,7 +1637,7 @@ void CFE_TBL_RegisterWithCriticalTableRegistry(CFE_TBL_CritRegRec_t *CritRegRecP
  *-----------------------------------------------------------------*/
 static inline CFE_TBL_AccessDescriptor_t *CFE_TBL_HandleListGetNext(const CFE_TBL_HandleLink_t *Link)
 {
-    return CFE_TBL_LocateAccessDescriptorByHandle(Link->Next);
+    return CFE_TBL_LocateAccDescByHandle(Link->Next);
 }
 
 /*----------------------------------------------------------------
@@ -1458,7 +1648,7 @@ static inline CFE_TBL_AccessDescriptor_t *CFE_TBL_HandleListGetNext(const CFE_TB
  *-----------------------------------------------------------------*/
 static inline CFE_TBL_AccessDescriptor_t *CFE_TBL_HandleListGetPrev(const CFE_TBL_HandleLink_t *Link)
 {
-    return CFE_TBL_LocateAccessDescriptorByHandle(Link->Prev);
+    return CFE_TBL_LocateAccDescByHandle(Link->Prev);
 }
 
 /*----------------------------------------------------------------
@@ -1480,7 +1670,7 @@ void CFE_TBL_HandleListGetSafeLink(CFE_TBL_RegistryRec_t *RegRecPtr, CFE_TBL_Acc
     {
         /* Return a pointer to this linkage */
         *PtrOut    = &AccDescPtr->Link;
-        *HandleOut = CFE_TBL_AccessDescriptorGetHandle(AccDescPtr);
+        *HandleOut = CFE_TBL_AccDescGetHandle(AccDescPtr);
     }
 }
 

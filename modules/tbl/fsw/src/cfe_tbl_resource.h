@@ -465,43 +465,27 @@ CFE_Status_t CFE_TBL_RegId_ToIndex(CFE_TBL_RegId_t RegId, uint32 *Idx);
  * confirm that the returned record is a match to the expected ID before using
  * or modifying the data within the returned record pointer.
  *
- * The CFE_TBL_RegistryRecordIsMatch() function can be used to check/confirm
+ * The CFE_TBL_RegRecIsMatch() function can be used to check/confirm
  * if the returned table entry is a positive match for the given ID.
  *
- * @sa CFE_TBL_RegistryRecordIsMatch()
+ * @sa CFE_TBL_RegRecIsMatch()
  *
  * @param[in]   RegId   the registry ID to locate
  * @return pointer to Registry Table entry for the given registry ID, or NULL if out of range
  */
-CFE_TBL_RegistryRec_t *CFE_TBL_LocateRegistryRecordByID(CFE_TBL_RegId_t RegId);
+CFE_TBL_RegistryRec_t *CFE_TBL_LocateRegRecByID(CFE_TBL_RegId_t RegId);
 
 /*---------------------------------------------------------------------------------------*/
 /**
- * @brief Locate the access descriptor entry correlating with a given table handle.
+ * @brief Locate a Registry Record ID by name
  *
- * This only returns a pointer to the table entry where the descriptor
- * should reside, but does _not_ actually check/validate the entry.
+ * Returns a pointer to the registry table with a matching name
  *
- * If the passed-in ID parameter is not within the acceptable range of ID
- * values for tasks, such that it could never be valid under
- * any circumstances, then NULL is returned.  Otherwise, a pointer to the
- * corresponding table entry is returned, indicating the location where
- * that ID should reside, if it is currently in use.
- *
- * @note This only returns where the ID should reside, not that it actually
- * resides there.  If looking up an existing ID, then caller must additionally
- * confirm that the returned descriptor is a match to the expected ID before using
- * or modifying the data within the returned descriptor pointer.
- *
- * The CFE_TBL_AccessDescriptorIsMatch() function can be used to check/confirm
- * if the returned table entry is a positive match for the given ID.
- *
- * @sa CFE_TBL_AccessDescriptorIsMatch()
- *
- * @param[in]   TblHandle   the table handle to locate
- * @return pointer to decriptor table entry for the given table handle, or NULL if out of range
+ * @param[in] Name the name to search for (fully-qualified as AppName.TableNam)
+ * @returns   Pointer to table entry with matching name
+ * @retval    NULL if no matching entry was found
  */
-CFE_TBL_AccessDescriptor_t *CFE_TBL_LocateAccessDescriptorByHandle(CFE_TBL_Handle_t TblHandle);
+CFE_TBL_RegistryRec_t *CFE_TBL_LocateRegRecByName(const char *Name);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -513,7 +497,7 @@ CFE_TBL_AccessDescriptor_t *CFE_TBL_LocateAccessDescriptorByHandle(CFE_TBL_Handl
  * As this dereferences fields within the record, global data must be
  * locked prior to invoking this function.
  *
- * This function may be used in conjunction with CFE_TBL_LocateRegistryRecordByID()
+ * This function may be used in conjunction with CFE_TBL_LocateRegRecByID()
  * to confirm that the located record is a positive match to the expected ID.
  * As such, the record pointer is also permitted to be NULL, to alleviate the
  * need for the caller to handle this possibility explicitly.
@@ -521,13 +505,13 @@ CFE_TBL_AccessDescriptor_t *CFE_TBL_LocateAccessDescriptorByHandle(CFE_TBL_Handl
  * Once a record pointer has been successfully validated using this routine,
  * it may be safely passed to all other internal functions.
  *
- * @sa CFE_TBL_LocateRegistryRecordByID
+ * @sa CFE_TBL_LocateRegRecByID
  *
  * @param[in]   RegRecPtr   pointer to registry table entry, or NULL
  * @param[in]   RegId       expected registry ID
  * @returns true if the entry matches the given registry ID
  */
-static inline bool CFE_TBL_RegistryRecordIsMatch(const CFE_TBL_RegistryRec_t *RegRecPtr, CFE_TBL_RegId_t RegId)
+static inline bool CFE_TBL_RegRecIsMatch(const CFE_TBL_RegistryRec_t *RegRecPtr, CFE_TBL_RegId_t RegId)
 {
     /*
      * This technically should also check CFE_RESOURCEID_TEST_DEFINED(RegRecPtr->OwnerAppId),
@@ -548,23 +532,46 @@ static inline bool CFE_TBL_RegistryRecordIsMatch(const CFE_TBL_RegistryRec_t *Re
  * @param[in]   RegRecPtr   pointer to table entry
  * @returns ID of entry
  */
-CFE_TBL_RegId_t CFE_TBL_RegistryRecordGetID(const CFE_TBL_RegistryRec_t *RegRecPtr);
+CFE_TBL_RegId_t CFE_TBL_RegRecGetID(const CFE_TBL_RegistryRec_t *RegRecPtr);
 
 /*---------------------------------------------------------------------------------------*/
 /**
- * @brief Obtain the name associated with the Application record
+ * @brief Check if a registry entry is in use or free/empty
  *
- * Returns the name field from within the Application record
+ * This routine checks if the entry is in use or if it is free
+ *
+ * As this dereferences fields within the record, global data must be
+ * locked prior to invoking this function.
+ *
+ * @note This internal helper function must only be used on result pointers
+ * that are known to refer to an actual table location (i.e. non-null).
+ *
+ * @param[in]   RegRecPtr   pointer to registry entry
+ * @returns true if the entry is in use/configured, or false if it is free/empty
+ */
+static inline bool CFE_TBL_RegRecIsUsed(const CFE_TBL_RegistryRec_t *RegRecPtr)
+{
+    return CFE_RESOURCEID_TEST_DEFINED(RegRecPtr->OwnerAppId);
+}
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Marks a registry entry as available (not in use)
+ *
+ * This clears the internal field(s) within this entry, and marks
+ * it as not being associated with any registry ID.
  *
  * @note This internal helper function must only be used on record pointers
  * that are known to refer to an actual table location (i.e. non-null).
  *
- * @param[in]   RegRecPtr   pointer to App table entry
- * @returns Pointer to Application name
+ * @param[in]   RegRecPtr   pointer to registry entry
  */
-static inline const char *CFE_TBL_RegistryRecordGetName(const CFE_TBL_RegistryRec_t *RegRecPtr)
+static inline void CFE_TBL_RegRecSetFree(CFE_TBL_RegistryRec_t *RegRecPtr)
 {
-    return RegRecPtr->Name;
+    RegRecPtr->OwnerAppId = CFE_TBL_NOT_OWNED;
+
+    /* Also clear the table name, not strictly needed but good for consistency */
+    RegRecPtr->Name[0] = '\0';
 }
 
 /*
@@ -593,6 +600,34 @@ CFE_Status_t CFE_TBL_Handle_ToIndex(CFE_TBL_Handle_t TblHandle, uint32 *Idx);
 
 /*---------------------------------------------------------------------------------------*/
 /**
+ * @brief Locate the access descriptor entry correlating with a given table handle.
+ *
+ * This only returns a pointer to the table entry where the descriptor
+ * should reside, but does _not_ actually check/validate the entry.
+ *
+ * If the passed-in ID parameter is not within the acceptable range of ID
+ * values for tasks, such that it could never be valid under
+ * any circumstances, then NULL is returned.  Otherwise, a pointer to the
+ * corresponding table entry is returned, indicating the location where
+ * that ID should reside, if it is currently in use.
+ *
+ * @note This only returns where the ID should reside, not that it actually
+ * resides there.  If looking up an existing ID, then caller must additionally
+ * confirm that the returned descriptor is a match to the expected ID before using
+ * or modifying the data within the returned descriptor pointer.
+ *
+ * The CFE_TBL_AccDescIsMatch() function can be used to check/confirm
+ * if the returned table entry is a positive match for the given ID.
+ *
+ * @sa CFE_TBL_AccDescIsMatch()
+ *
+ * @param[in]   TblHandle   the table handle to locate
+ * @return pointer to decriptor table entry for the given table handle, or NULL if out of range
+ */
+CFE_TBL_AccessDescriptor_t *CFE_TBL_LocateAccDescByHandle(CFE_TBL_Handle_t TblHandle);
+
+/*---------------------------------------------------------------------------------------*/
+/**
  * @brief Get the Handle ID from an an access descriptor pointer
  *
  * This routine converts a pointer to a handle table entry to an ID
@@ -600,10 +635,10 @@ CFE_Status_t CFE_TBL_Handle_ToIndex(CFE_TBL_Handle_t TblHandle, uint32 *Idx);
  * @note This internal helper function must only be used on record pointers
  * that are known to refer to an actual table location (i.e. non-null).
  *
- * @param[in]   AccessDescPtr   pointer to access descriptor
+ * @param[in]   AccDescPtr   pointer to access descriptor
  * @returns TblHandle of entry
  */
-CFE_TBL_Handle_t CFE_TBL_AccessDescriptorGetHandle(const CFE_TBL_AccessDescriptor_t *AccessDescPtr);
+CFE_TBL_Handle_t CFE_TBL_AccDescGetHandle(const CFE_TBL_AccessDescriptor_t *AccDescPtr);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -615,7 +650,7 @@ CFE_TBL_Handle_t CFE_TBL_AccessDescriptorGetHandle(const CFE_TBL_AccessDescripto
  * As this dereferences fields within the record, global data must be
  * locked prior to invoking this function.
  *
- * This function may be used in conjunction with CFE_TBL_LocateAccessDescriptorByHandle()
+ * This function may be used in conjunction with CFE_TBL_LocateAccDescByHandle()
  * to confirm that the located record is a positive match to the expected ID.
  * As such, the record pointer is also permitted to be NULL, to alleviate the
  * need for the caller to handle this possibility explicitly.
@@ -623,16 +658,152 @@ CFE_TBL_Handle_t CFE_TBL_AccessDescriptorGetHandle(const CFE_TBL_AccessDescripto
  * Once a record pointer has been successfully validated using this routine,
  * it may be safely passed to all other internal functions.
  *
- * @sa CFE_TBL_LocateAccessDescriptorByHandle
+ * @sa CFE_TBL_LocateAccDescByHandle
  *
- * @param[in]   AccessDescPtr   pointer to access descriptor table entry
+ * @param[in]   AccDescPtr   pointer to access descriptor table entry
  * @param[in]   TblHandle       The expected table handle to verify
  * @returns true if the descriptor entry matches the given table handle
  */
-static inline bool CFE_TBL_AccessDescriptorIsMatch(const CFE_TBL_AccessDescriptor_t *AccessDescPtr,
-                                                   CFE_TBL_Handle_t                  TblHandle)
+static inline bool CFE_TBL_AccDescIsMatch(const CFE_TBL_AccessDescriptor_t *AccDescPtr, CFE_TBL_Handle_t TblHandle)
 {
-    return (AccessDescPtr != NULL && AccessDescPtr->UsedFlag);
+    return (AccDescPtr != NULL && AccDescPtr->UsedFlag);
+}
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Check if an access descriptor is in use or free/empty
+ *
+ * This routine checks if the entry is in use or if it is free
+ *
+ * As this dereferences fields within the record, global data must be
+ * locked prior to invoking this function.
+ *
+ * @note This internal helper function must only be used on result pointers
+ * that are known to refer to an actual table location (i.e. non-null).
+ *
+ * @param[in]   AccDescPtr   pointer to descriptor entry
+ * @returns true if the entry is in use/configured, or false if it is free/empty
+ */
+static inline bool CFE_TBL_AccDescIsUsed(const CFE_TBL_AccessDescriptor_t *AccDescPtr)
+{
+    return AccDescPtr->UsedFlag;
+}
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Marks an access descriptor entry as available (not in use)
+ *
+ * This clears the internal field(s) within this entry, and marks
+ * it as not being associated with any table handle ID.
+ *
+ * @note This internal helper function must only be used on record pointers
+ * that are known to refer to an actual table location (i.e. non-null).
+ *
+ * @param[in]   AccDescPtr   pointer to descriptor entry
+ */
+static inline void CFE_TBL_AccDescSetFree(CFE_TBL_AccessDescriptor_t *AccDescPtr)
+{
+    AccDescPtr->UsedFlag = false;
+    AccDescPtr->AppId    = CFE_TBL_NOT_OWNED;
+}
+
+/*
+ * ---------------------------------------------------------------------------------------
+ *
+ *     ~~~  LOAD BUFFER ACCESSORS ~~~
+ *
+ * These operate on CFE_TBL_LoadBuff_t* and buffer ID
+ *
+ * ---------------------------------------------------------------------------------------
+ */
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Get the array index correlating with a load buffer ID
+ *
+ * Calculates the array position/index of the global array entry for
+ * the given load buffer ID.
+ *
+ * @param[in]  BuffId the ID/handle of the load buffer to retrieve
+ * @param[out] Idx     Output buffer to store the index
+ * @returns    #CFE_SUCCESS if conversion successful. @copydoc CFE_SUCCESS
+ *             #CFE_ES_ERR_RESOURCEID_NOT_VALID if ID is outside valid range
+ */
+CFE_Status_t CFE_TBL_LoadBuffId_ToIndex(CFE_TBL_LoadBuffId_t BuffId, uint32 *Idx);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Locate the load buffer table entry correlating with a given load buffer ID.
+ *
+ * This only returns a pointer to the table entry where the record
+ * should reside, but does _not_ actually check/validate the entry.
+ *
+ * If the passed-in ID parameter is not within the acceptable range of ID
+ * values for applications, such that it could never be valid under
+ * any circumstances, then NULL is returned.  Otherwise, a pointer to the
+ * corresponding table entry is returned, indicating the location where
+ * that ID should reside, if it is currently in use.
+ *
+ * @note This only returns where the ID should reside, not that it actually
+ * resides there.  If looking up an existing ID, then caller must additionally
+ * confirm that the returned record is a match to the expected ID before using
+ * or modifying the data within the returned record pointer.
+ *
+ * @param[in]   ContextPtr The registry entry this buffer is associated with (NULL for temporary buffers)
+ * @param[in]   BufferId   the buffer ID to locate
+ * @return pointer to the buffer for the given ID, or NULL if out of range
+ */
+CFE_TBL_LoadBuff_t *CFE_TBL_LocateLoadBufferByID(CFE_TBL_RegistryRec_t *ContextPtr, CFE_TBL_LoadBuffId_t BufferId);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Get the ID value from a table buffer
+ *
+ * This routine converts the load buffer pointer to its corresponding ID.
+ *
+ * @note This internal helper function must only be used on record pointers
+ * that are known to refer to an actual table location (i.e. non-null).
+ *
+ * @param[in]   LoadBuffPtr   pointer to buffer entry
+ * @returns ID of entry
+ */
+CFE_TBL_LoadBuffId_t CFE_TBL_LoadBufferGetID(const CFE_TBL_LoadBuff_t *LoadBuffPtr);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Check if a load buffer is in use or free/empty
+ *
+ * This routine checks if the buffer is in use or if it is free
+ *
+ * As this dereferences fields within the record, global data must be
+ * locked prior to invoking this function.
+ *
+ * @note This internal helper function must only be used on result pointers
+ * that are known to refer to an actual table location (i.e. non-null).
+ *
+ * @param[in]   BuffPtr   pointer to load buffer
+ * @returns true if the buffer is in use/configured, or false if it is free/empty
+ */
+static inline bool CFE_TBL_LoadBuffIsUsed(const CFE_TBL_LoadBuff_t *BuffPtr)
+{
+    return BuffPtr->Taken;
+}
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Marks a buffer as available (not in use)
+ *
+ * This clears the internal field(s) within this buffer, and marks
+ * it as being available for future use.
+ *
+ * @note This internal helper function must only be used on record pointers
+ * that are known to refer to an actual table location (i.e. non-null).
+ *
+ * @param[in]   BuffPtr   pointer to buffer
+ */
+static inline void CFE_TBL_LoadBuffSetFree(CFE_TBL_LoadBuff_t *BuffPtr)
+{
+    BuffPtr->Taken = false;
 }
 
 #endif /* CFE_TBL_RESOURCE_H */
