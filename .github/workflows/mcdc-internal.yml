@@ -143,7 +143,7 @@ jobs:
         with:
           name: MCDC results
           path: |
-            **/*.gcov
+            **/*.gcov.json.gz
             mcdc_results.txt
             pr_number
             modules.txt
@@ -188,15 +188,22 @@ jobs:
             const path = require('path');
             // Adjust the path based on where you see mcdc_results.txt after running the 'ls' command
             const mcdcResultsFilePath = path.join(process.env.GITHUB_WORKSPACE, 'mcdc_comment.txt');
+            const uncoveredFilePath = path.join(process.env.GITHUB_WORKSPACE, 'uncovered.json');
             
             // Debugging: Check if the file exists at the adjusted path
             if (!fs.existsSync(mcdcResultsFilePath)) {
               console.log('mcdc_comment.txt file not found at path: ' + mcdcResultsFilePath);
               return;
             }
+
+            if (!fs.existsSync(uncoveredFilePath)) {
+              console.log('uncovered.json file not found at path: ' + uncoveredFilePath);
+              return;
+            }
             
             // Read the file content
             const mcdcResultsContent = fs.readFileSync(mcdcResultsFilePath, 'utf-8').trim();
+            const uncoveredContent = fs.readFileSync(uncoveredFilePath, 'utf-8').trim();
             
             // If the file is empty, don't comment
             if (mcdcResultsContent === '') {
@@ -204,11 +211,15 @@ jobs:
               return;
             }
       
-            const mcdcResults = `MCDC Results:
-            \`\`\`
-            ${mcdcResultsContent}
-            \`\`\`
-            `;
+            const mcdcResults = `MC/DC Results:
+            <pre><code class="language-plaintext">${mcdcResultsContent}
+            </code></pre>
+            <details>
+            <summary>Click to view uncovered branches (uncovered.json)</summary>
+            <br>
+            <pre><code class="language-json">${uncoveredContent}
+            </code></pre>
+            </details>`;
       
             // Ensure the correct path to the pr_number file after unzipping
             const prNumberPath = path.join(process.env.GITHUB_WORKSPACE, 'pr_number');
