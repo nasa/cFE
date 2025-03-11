@@ -2,7 +2,7 @@ name: Internal MCDC Analysis
 
 on:
   push:
-  pull_request:
+  pull_request_target:
 
 # Force bash to apply pipefail option so pipeline failures aren't masked
 defaults:
@@ -122,7 +122,7 @@ jobs:
         run: bash workflows/.github/scripts/mcdc-analyze.sh
 
       - name: Save PR number
-        if: github.event_name == 'pull_request' && always()
+        if: github.event_name == 'pull_request_target' && always()
         env:
           PR_NUMBER: ${{ github.event.number }}
         run: echo $PR_NUMBER > pr_number
@@ -150,7 +150,7 @@ jobs:
 
   comment-mcdc:
     needs: mcdc
-    if: github.event_name == 'pull_request'
+    if: github.event_name == 'pull_request_target'
     name: Comment MCDC Comparision on PR
     runs-on: Linux
 
