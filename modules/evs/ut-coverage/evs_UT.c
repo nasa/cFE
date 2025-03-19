@@ -292,6 +292,9 @@ void Test_Init(void)
     CFE_EVS_EnablePortsCmd_t        bitmaskcmd;
     CFE_EVS_EnableAppEventTypeCmd_t appbitcmd;
 
+    CFE_SB_Buffer_t *bufPtr;
+    CFE_EVS_NoopCmd_t testMsg;
+
     UtPrintf("Begin Test Init");
 
     memset(&bitmaskcmd, 0, sizeof(bitmaskcmd));
@@ -321,6 +324,9 @@ void Test_Init(void)
 
     /* Set unexpected message ID */
     UT_SetupBasicMsgDispatch(&UT_TPID_CFE_EVS_INVALID_MID, 0, true);
+
+    bufPtr = (CFE_SB_Buffer_t *)&testMsg; /* Fake Test Message */
+    UT_SetDataBuffer(UT_KEY(CFE_SB_ReceiveBuffer), &bufPtr, sizeof(bufPtr), false);
 
     UT_EVS_DoGenericCheckEvents(CFE_EVS_TaskMain, &UT_EVS_EventBuf);
     CFE_UtAssert_SYSLOG(EVS_SYSLOG_MSGS[8]);
