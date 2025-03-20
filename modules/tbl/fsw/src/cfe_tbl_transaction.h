@@ -247,26 +247,32 @@ const char *CFE_TBL_TxnAppNameCaller(CFE_TBL_TxnState_t *Txn);
 
 /*---------------------------------------------------------------------------------------*/
 /**
-** \brief Creates a Full Table name from application name and table name
+** \brief Validates the complete table configuration
 **
 ** \par Description
+**        The table configuration structure is filled in with all the correct
+**        flags and values based on the information passed in, if the validation
+**        is successful.
+**
 **        Takes a given raw table name and combines it with the calling
 **        Application's name to make the application specific name of the
 **        form: "AppName.BaseName"
 **
 ** \par Assumptions, External Events, and Notes:
-**        AppName portion will be truncated to OS_MAX_API_NAME.
+**        None
 **
-* \param[inout] Txn The transaction object to operate on
-** \param[out] FullTblName      Pointer to character buffer that will be filled with the fully-qualified name
-** \param[in] BufSize           Size of the buffer pointed to by FullTblName (at least CFE_TBL_MAX_FULL_NAME_LEN)
-** \param[in] BaseName          Base name for table (local)
-*
-* \returns CFE_SUCCESS normally, or relevent CFE status code
-* \retval #CFE_SUCCESS \copydoc CFE_SUCCESS
+** \param[inout] Txn               The transaction object to operate on
+** \param[out]   ReqCfg            Pointer to table configuration structure
+** \param[in]    BaseName          Base name for table (local) from caller
+** \param[in]    TblOptionFlags    Requested option flags from caller
+** \param[in]    Size              Requested size from caller
+** \param[in]    ValidationFuncPtr Validation function pointer from caller
+**
+** \returns CFE_SUCCESS normally, or relevent CFE status code
+** \retval #CFE_SUCCESS \copydoc CFE_SUCCESS
 */
-CFE_Status_t CFE_TBL_TxnGetFullTableName(CFE_TBL_TxnState_t *Txn, char *FullTblName, size_t BufSize,
-                                         const char *BaseName);
+CFE_Status_t CFE_TBL_TxnCheckConfig(CFE_TBL_TxnState_t *Txn, CFE_TBL_TableConfig_t *ReqCfg, const char *BaseName,
+                                    uint16 TblOptionFlags, size_t Size, CFE_TBL_CallbackFuncPtr_t ValidationFuncPtr);
 
 /*****************************  Function Prototypes   **********************************/
 

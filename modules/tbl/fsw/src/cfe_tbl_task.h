@@ -57,7 +57,7 @@
 /** \brief Value indicating when no load is in progress */
 /**
 **  This macro is used to indicate no Load is in Progress by assigning it to
-**  #CFE_TBL_RegistryRec_t::LoadInProgress
+**  #CFE_TBL_TableStatus_t::LoadInProgress
 */
 #define CFE_TBL_NO_LOAD_IN_PROGRESS (-1)
 
@@ -181,6 +181,64 @@ typedef struct CFE_TBL_HandleLink
     CFE_TBL_Handle_t Prev; /**< Previous table handle in list */
 } CFE_TBL_HandleLink_t;
 
+/**
+ * A structure that encapsulates all of the optional table features
+ *
+ * Options are the set of booleans that are defined/set at the time
+ * of registration and remain constant thereafter, for the duration
+ * of the table lifetime.
+ */
+typedef struct CFE_TBL_TableConfig
+{
+    char Name[CFE_TBL_MAX_FULL_NAME_LEN]; /**< \brief Processor specific table name */
+
+    size_t Size; /**< \brief Size of table in bytes */
+
+    CFE_TBL_CallbackFuncPtr_t ValidationFuncPtr; /**< \brief Ptr to Owner App's function that validates tbl contents */
+
+    bool DoubleBuffered; /**< \brief Flag indicating Table has a dedicated inactive buffer */
+    bool DumpOnly;       /**< \brief Flag indicating Table is NOT to be loaded */
+    bool UserDefAddr;    /**< \brief Flag indicating Table address was defined by Owner Application */
+    bool Critical;       /**< \brief Flag indicating whether table is a Critical Table */
+
+} CFE_TBL_TableConfig_t;
+
+/**
+ * A structure that encapsulates all of the table status flags
+ *
+ * Status flags are the set of booleans that reflect the current state
+ * and can be updated throughout the table lifetime.
+ */
+typedef struct CFE_TBL_TableStatus
+{
+    CFE_TBL_LoadBuffId_t ActiveBufferIndex; /**< \brief Index identifying which buffer is the active buffer */
+    CFE_TBL_LoadBuffId_t LoadInProgress;    /**< \brief Flag identifies whether load in progress */
+    CFE_TIME_SysTime_t   TimeOfLastUpdate;  /**< \brief Time when Table was last updated */
+
+    bool TableLoadedOnce; /**< \brief Flag indicating whether table has been loaded once or not */
+    bool LoadPending;     /**< \brief Flag indicating an inactive buffer is ready to be copied */
+    bool IsModified;      /**< \brief Indicates if this table is modified since loading */
+
+    char LastFileLoaded[OS_MAX_PATH_LEN]; /**< \brief Filename of last file loaded into table */
+} CFE_TBL_TableStatus_t;
+
+/**
+ * A structure that encapsulates the update notification configuration
+ *
+ * This is the configuration associated with update notifications.  These
+ * are an optional table feature, but are configured after registration.
+ */
+typedef struct CFE_TBL_TableUpdateNotify
+{
+    bool Enabled; /**< \brief Flag indicating Table Services should notify owning App via message
+                                  when table requires management */
+
+    CFE_MSG_FcnCode_t FcnCode; /**< \brief Command Code of an associated management notification message */
+    CFE_SB_MsgId_t    MsgId;   /**< \brief Message ID of an associated management notification message */
+    uint32            Param;   /**< \brief Opaque parameter of an associated management notification message */
+
+} CFE_TBL_TableUpdateNotify_t;
+
 /*******************************************************************************/
 /**   \brief Application to Table Access Descriptor
 **
@@ -208,34 +266,20 @@ typedef struct
 */
 typedef struct
 {
-    CFE_ES_AppId_t     OwnerAppId;        /**< \brief Application ID of App that Registered Table */
-    size_t             Size;              /**< \brief Size, in bytes, of Table */
-    CFE_SB_MsgId_t     NotificationMsgId; /**< \brief Message ID of an associated management notification message */
-    uint32             NotificationParam; /**< \brief Parameter of an associated management notification message */
-    CFE_TBL_LoadBuff_t Buffers[2];        /**< \brief Active and Inactive Buffer Pointers */
-    CFE_TBL_CallbackFuncPtr_t ValidationFuncPtr; /**< \brief Ptr to Owner App's function that validates tbl contents */
-    CFE_TIME_SysTime_t        TimeOfLastUpdate;  /**< \brief Time when Table was last updated */
-    CFE_TBL_HandleLink_t      AccessList;        /**< \brief Linked List of associated access descriptors */
-    CFE_TBL_LoadBuffId_t      LoadInProgress;    /**< \brief Flag identifies whether load in progress */
+    CFE_ES_AppId_t       OwnerAppId; /**< \brief Application ID of App that Registered Table */
+    CFE_TBL_LoadBuff_t   Buffers[2]; /**< \brief Active and Inactive Buffer Pointers */
+    CFE_TBL_HandleLink_t AccessList; /**< \brief Linked List of associated access descriptors */
     CFE_TBL_ValidationResultId_t
         ValidateActiveId; /**< \brief Index to Validation Request on Active Table Result data */
     CFE_TBL_ValidationResultId_t
                          ValidateInactiveId; /**< \brief Index to Validation Request on Inactive Table Result data */
     CFE_TBL_DumpCtrlId_t DumpControlId;      /**< \brief Index to Dump Control Block */
     CFE_ES_CDSHandle_t   CDSHandle;          /**< \brief Handle to Critical Data Store for Critical Tables */
-    CFE_MSG_FcnCode_t    NotificationCC;  /**< \brief Command Code of an associated management notification message */
-    bool                 CriticalTable;   /**< \brief Flag indicating whether table is a Critical Table */
-    bool                 TableLoadedOnce; /**< \brief Flag indicating whether table has been loaded once or not */
-    bool                 LoadPending;     /**< \brief Flag indicating an inactive buffer is ready to be copied */
-    bool                 DumpOnly;        /**< \brief Flag indicating Table is NOT to be loaded */
-    bool                 DoubleBuffered;  /**< \brief Flag indicating Table has a dedicated inactive buffer */
-    bool                 UserDefAddr;     /**< \brief Flag indicating Table address was defined by Owner Application */
-    bool                 NotifyByMsg; /**< \brief Flag indicating Table Services should notify owning App via message
-                                                  when table requires management */
-    CFE_TBL_LoadBuffId_t ActiveBufferIndex; /**< \brief Index identifying which buffer is the active buffer */
-    char                 Name[CFE_TBL_MAX_FULL_NAME_LEN]; /**< \brief Processor specific table name */
-    char                 LastFileLoaded[OS_MAX_PATH_LEN]; /**< \brief Filename of last file loaded into table */
-    bool                 IsModified; /**< \brief Indicates if the contents have been changed since the last file load */
+
+    CFE_TBL_TableConfig_t       Config;
+    CFE_TBL_TableStatus_t       Status;
+    CFE_TBL_TableUpdateNotify_t Notify;
+
 } CFE_TBL_RegistryRec_t;
 
 /*******************************************************************************/
@@ -333,7 +377,8 @@ typedef struct
     /*
     ** Ground Interface Information
     */
-    CFE_TBL_RegId_t LastTblUpdated; /**< \brief Index into Registry of last table updated */
+    CFE_TBL_RegId_t LastTblUpdated;   /**< \brief Index into Registry of last table updated */
+    CFE_TBL_RegId_t HkTlmTblRegIndex; /**< \brief Index of table registry entry to be telemetered with Housekeeping */
 
     /*
     ** Task housekeeping and diagnostics telemetry packets...
@@ -352,8 +397,7 @@ typedef struct
     */
     CFE_ES_AppId_t TableTaskAppId; /**< \brief Contains Table Task Application ID as assigned by OS AL */
 
-    CFE_TBL_RegId_t HkTlmTblRegIndex; /**< \brief Index of table registry entry to be telemetered with Housekeeping */
-    uint16          ValidationCounter;
+    uint16 ValidationCounter;
 
     /*
     ** Registry Access Mutex and Load Buffer Semaphores

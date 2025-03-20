@@ -216,7 +216,6 @@ void CFE_TBL_InitRegistryRecord(CFE_TBL_RegistryRec_t *RegRecPtr)
     CFE_TBL_RegRecClearLoadInProgress(RegRecPtr);
 
     RegRecPtr->OwnerAppId         = CFE_TBL_NOT_OWNED;
-    RegRecPtr->NotificationMsgId  = CFE_SB_INVALID_MSG_ID;
     RegRecPtr->ValidateActiveId   = CFE_TBL_NO_VALIDATION_PENDING;
     RegRecPtr->ValidateInactiveId = CFE_TBL_NO_VALIDATION_PENDING;
     RegRecPtr->CDSHandle          = CFE_ES_CDS_BAD_HANDLE;
@@ -244,6 +243,40 @@ void CFE_TBL_InitAccessDescriptor(CFE_TBL_AccessDescriptor_t *AccessDescPtr)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
+CFE_Status_t CFE_TBL_ValidateTableName(CFE_TBL_TableConfig_t *ReqCfg, const char *TblName, const char *AppName)
+{
+    CFE_Status_t Status;
+    int          Result;
+
+    /* Make sure the specified table name is not too long or too short */
+    if (TblName[0] == 0 || memchr(TblName, 0, CFE_MISSION_TBL_MAX_NAME_LENGTH) == NULL)
+    {
+        Status = CFE_TBL_ERR_INVALID_NAME;
+    }
+    else
+    {
+        /* Complete formation of application specific table name */
+        Result = snprintf(ReqCfg->Name, sizeof(ReqCfg->Name), "%s.%s", AppName, TblName);
+        if (Result > sizeof(ReqCfg->Name))
+        {
+            /* This means the name was truncated in the snprintf() call, the buffer is too small */
+            Status = CFE_TBL_ERR_INVALID_NAME;
+        }
+        else
+        {
+            Status = CFE_SUCCESS;
+        }
+    }
+
+    return Status;
+}
+
+/*----------------------------------------------------------------
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_TBL_DiscardWorkingBuffer(CFE_TBL_RegistryRec_t *RegRecPtr)
 {
     /* If the buffer is NOT one of the buffers "owned" by this table, then it must be
@@ -251,7 +284,7 @@ void CFE_TBL_DiscardWorkingBuffer(CFE_TBL_RegistryRec_t *RegRecPtr)
     CFE_TBL_LoadBuff_t * LoadBuffPtr;
     CFE_TBL_LoadBuffId_t LoadInProgressId;
 
-    if (!RegRecPtr->DoubleBuffered && CFE_TBL_RegRecIsLoadInProgress(RegRecPtr))
+    if (!CFE_TBL_RegRecGetConfig(RegRecPtr)->DoubleBuffered && CFE_TBL_RegRecIsLoadInProgress(RegRecPtr))
     {
         LoadInProgressId = CFE_TBL_RegRecGetLoadInProgress(RegRecPtr);
         LoadBuffPtr      = CFE_TBL_LocateLoadBufferByID(NULL, LoadInProgressId);
@@ -407,9 +440,9 @@ CFE_TBL_LoadBuff_t *CFE_TBL_GetActiveBuffer(CFE_TBL_RegistryRec_t *RegRecPtr)
      * However, legacy code always checked the double buffer flag before
      * using ActiveBufferIndex so this will to (at least for now)
      */
-    if (RegRecPtr->DoubleBuffered)
+    if (CFE_TBL_RegRecGetConfig(RegRecPtr)->DoubleBuffered)
     {
-        BufferIndex = RegRecPtr->ActiveBufferIndex;
+        BufferIndex = RegRecPtr->Status.ActiveBufferIndex;
     }
     else
     {
@@ -430,7 +463,7 @@ CFE_TBL_LoadBuffId_t CFE_TBL_GetNextLocalBufferId(CFE_TBL_RegistryRec_t *RegRecP
     int32 BufferId;
 
     /* This implements a flip-flop buffer: if active is 1, return 0 and vice versa */
-    BufferId = (RegRecPtr->ActiveBufferIndex + 1) % 2;
+    BufferId = (RegRecPtr->Status.ActiveBufferIndex + 1) % 2;
 
     return BufferId;
 }
@@ -446,13 +479,13 @@ CFE_TBL_LoadBuff_t *CFE_TBL_GetInactiveBuffer(CFE_TBL_RegistryRec_t *RegRecPtr)
     CFE_TBL_LoadBuffId_t BufferId;
     CFE_TBL_LoadBuff_t * BuffPtr;
 
-    if (RegRecPtr->DoubleBuffered)
+    if (CFE_TBL_RegRecGetConfig(RegRecPtr)->DoubleBuffered)
     {
         /* Determine the index of the Inactive Buffer Pointer */
         BufferId = CFE_TBL_GetNextLocalBufferId(RegRecPtr);
         BuffPtr  = CFE_TBL_LocateLoadBufferByID(RegRecPtr, BufferId);
     }
-    else if (!RegRecPtr->UserDefAddr && CFE_TBL_RegRecIsLoadInProgress(RegRecPtr))
+    else if (!CFE_TBL_RegRecGetConfig(RegRecPtr)->UserDefAddr && CFE_TBL_RegRecIsLoadInProgress(RegRecPtr))
     {
         /*
          * The only time a single buffered table has an inactive buffer is when its loading, and
@@ -517,7 +550,7 @@ CFE_TBL_LoadBuff_t *CFE_TBL_GetLoadInProgressBuffer(CFE_TBL_RegistryRec_t *RegRe
     {
         LoadBuffPtr = NULL;
     }
-    else if (RegRecPtr->DoubleBuffered)
+    else if (CFE_TBL_RegRecGetConfig(RegRecPtr)->DoubleBuffered)
     {
         /* Interpret the load in progress id as the local (inactive) buffer */
         LoadBuffPtr = CFE_TBL_LocateLoadBufferByID(RegRecPtr, CFE_TBL_RegRecGetLoadInProgress(RegRecPtr));
@@ -625,7 +658,7 @@ CFE_TBL_LoadBuff_t *CFE_TBL_PrepareNewLoadBuff(CFE_TBL_RegistryRec_t *RegRecPtr)
 {
     CFE_TBL_LoadBuff_t *LoadBuffPtr;
 
-    if (RegRecPtr->DoubleBuffered)
+    if (CFE_TBL_RegRecGetConfig(RegRecPtr)->DoubleBuffered)
     {
         /* If the table is a double buffered table, then check to make sure the */
         /* inactive buffer has been freed by any Applications that may have been using it */
@@ -876,10 +909,10 @@ int32 CFE_TBL_UpdateInternal(CFE_TBL_Handle_t TblHandle, CFE_TBL_RegistryRec_t *
         /* be considered an error?  Currently assuming it is not an error.         */
         Status = CFE_TBL_INFO_NO_UPDATE_PENDING;
     }
-    else if (RegRecPtr->DoubleBuffered)
+    else if (CFE_TBL_RegRecGetConfig(RegRecPtr)->DoubleBuffered)
     {
         /* To update a double buffered table only requires a pointer swap */
-        RegRecPtr->ActiveBufferIndex = CFE_TBL_LoadBufferGetID(LoadBuffPtr);
+        RegRecPtr->Status.ActiveBufferIndex = CFE_TBL_LoadBufferGetID(LoadBuffPtr);
         CFE_TBL_RegRecClearLoadInProgress(RegRecPtr);
     }
     else
@@ -908,9 +941,8 @@ int32 CFE_TBL_UpdateInternal(CFE_TBL_Handle_t TblHandle, CFE_TBL_RegistryRec_t *
         {
             memcpy(ActiveBuffPtr->BufferPtr, LoadBuffPtr->BufferPtr, CFE_TBL_RegRecGetSize(RegRecPtr));
 
-            /* Save source description with active buffer */
-            strncpy(ActiveBuffPtr->DataSource, LoadBuffPtr->DataSource, sizeof(ActiveBuffPtr->DataSource) - 1);
-            ActiveBuffPtr->DataSource[sizeof(ActiveBuffPtr->DataSource) - 1] = 0;
+            /* Save source description with active buffer (Note - structs are same type, length already checked) */
+            strncpy(ActiveBuffPtr->DataSource, LoadBuffPtr->DataSource, sizeof(ActiveBuffPtr->DataSource));
 
             /* Save the file creation time from the loaded file into the Table Registry */
             ActiveBuffPtr->FileTime = LoadBuffPtr->FileTime;
@@ -924,7 +956,7 @@ int32 CFE_TBL_UpdateInternal(CFE_TBL_Handle_t TblHandle, CFE_TBL_RegistryRec_t *
         CFE_TBL_NotifyTblUsersOfUpdate(RegRecPtr);
 
         /* If the table is a critical table, update the appropriate CDS with the new data */
-        if (RegRecPtr->CriticalTable)
+        if (CFE_TBL_RegRecGetConfig(RegRecPtr)->Critical)
         {
             CFE_TBL_UpdateCriticalTblCDS(RegRecPtr);
         }
@@ -954,7 +986,7 @@ static void CFE_TBL_SetUpdatedHelper(CFE_TBL_AccessDescriptor_t *AccDescPtr, voi
  *-----------------------------------------------------------------*/
 void CFE_TBL_NotifyTblUsersOfUpdate(CFE_TBL_RegistryRec_t *RegRecPtr)
 {
-    /* Clear notification of pending load (as well as NO LOAD) */
+    /* Clear notification of pending load (as well as NO LOAD) and notify everyone of update */
     CFE_TBL_RegRecClearLoadPendingFlag(RegRecPtr);
     CFE_TBL_RegRecSetTableLoadedFlag(RegRecPtr);
 
@@ -1291,16 +1323,16 @@ int32 CFE_TBL_SendNotificationMsg(CFE_TBL_RegistryRec_t *RegRecPtr)
     int32 Status = CFE_SUCCESS;
 
     /* First, determine if a message should be sent */
-    if (RegRecPtr->NotifyByMsg)
+    if (RegRecPtr->Notify.Enabled)
     {
         /* Set the message ID */
-        CFE_MSG_SetMsgId(CFE_MSG_PTR(CFE_TBL_Global.NotifyMsg.CommandHeader), RegRecPtr->NotificationMsgId);
+        CFE_MSG_SetMsgId(CFE_MSG_PTR(CFE_TBL_Global.NotifyMsg.CommandHeader), RegRecPtr->Notify.MsgId);
 
         /* Set the command code */
-        CFE_MSG_SetFcnCode(CFE_MSG_PTR(CFE_TBL_Global.NotifyMsg.CommandHeader), RegRecPtr->NotificationCC);
+        CFE_MSG_SetFcnCode(CFE_MSG_PTR(CFE_TBL_Global.NotifyMsg.CommandHeader), RegRecPtr->Notify.FcnCode);
 
         /* Set the command parameter */
-        CFE_TBL_Global.NotifyMsg.Payload.Parameter = RegRecPtr->NotificationParam;
+        CFE_TBL_Global.NotifyMsg.Payload.Parameter = RegRecPtr->Notify.Param;
 
         CFE_SB_TimeStampMsg(CFE_MSG_PTR(CFE_TBL_Global.NotifyMsg.CommandHeader));
         Status = CFE_SB_TransmitMsg(CFE_MSG_PTR(CFE_TBL_Global.NotifyMsg.CommandHeader), true);
@@ -1321,14 +1353,14 @@ int32 CFE_TBL_SendNotificationMsg(CFE_TBL_RegistryRec_t *RegRecPtr)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-CFE_Status_t CFE_TBL_ValidateTableSize(const char *Name, size_t Size, uint16 TblOptionFlags)
+CFE_Status_t CFE_TBL_ValidateTableSize(CFE_TBL_TableConfig_t *TableCfg, size_t Size)
 {
     CFE_Status_t Status;
     size_t       SizeLimit;
 
     /* Single-buffered tables are allowed to be up to CFE_PLATFORM_TBL_MAX_SNGL_TABLE_SIZE   */
     /* Double-buffered tables are allowed to be up to CFE_PLATFORM_TBL_MAX_DBL_TABLE_SIZE    */
-    if ((TblOptionFlags & CFE_TBL_OPT_BUFFER_MSK) == CFE_TBL_OPT_DBL_BUFFER)
+    if (TableCfg->DoubleBuffered)
     {
         SizeLimit = CFE_PLATFORM_TBL_MAX_DBL_TABLE_SIZE;
     }
@@ -1344,7 +1376,8 @@ CFE_Status_t CFE_TBL_ValidateTableSize(const char *Name, size_t Size, uint16 Tbl
     }
     else
     {
-        Status = CFE_SUCCESS;
+        Status         = CFE_SUCCESS;
+        TableCfg->Size = Size;
     }
 
     return Status;
@@ -1356,32 +1389,32 @@ CFE_Status_t CFE_TBL_ValidateTableSize(const char *Name, size_t Size, uint16 Tbl
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-CFE_Status_t CFE_TBL_ValidateTableOptions(const char *Name, uint16 TblOptionFlags)
+CFE_Status_t CFE_TBL_ValidateTableOptions(CFE_TBL_TableConfig_t *TableCfg, uint16 TblOptionFlags)
 {
-    CFE_Status_t Status = CFE_SUCCESS;
+    CFE_Status_t Status;
 
-    /* User-defined table addresses are only legal for single-buffered, dump-only, non-critical tables */
-    if ((TblOptionFlags & CFE_TBL_OPT_USR_DEF_MSK) == (CFE_TBL_OPT_USR_DEF_ADDR & CFE_TBL_OPT_USR_DEF_MSK))
+    /* This will be changed if validation fails */
+    Status = CFE_SUCCESS;
+
+    TableCfg->DoubleBuffered = ((TblOptionFlags & CFE_TBL_OPT_BUFFER_MSK) == CFE_TBL_OPT_DBL_BUFFER);
+    TableCfg->UserDefAddr =
+        ((TblOptionFlags & CFE_TBL_OPT_USR_DEF_MSK) == (CFE_TBL_OPT_USR_DEF_ADDR & CFE_TBL_OPT_USR_DEF_MSK));
+    TableCfg->DumpOnly = ((TblOptionFlags & CFE_TBL_OPT_LD_DMP_MSK) == CFE_TBL_OPT_DUMP_ONLY);
+    TableCfg->Critical = ((TblOptionFlags & CFE_TBL_OPT_CRITICAL_MSK) == CFE_TBL_OPT_CRITICAL);
+
+    /* Now check the specific combination of options that are not valid */
+    if (TableCfg->DumpOnly)
     {
-        if (((TblOptionFlags & CFE_TBL_OPT_BUFFER_MSK) == CFE_TBL_OPT_DBL_BUFFER) ||
-            ((TblOptionFlags & CFE_TBL_OPT_LD_DMP_MSK) == CFE_TBL_OPT_LOAD_DUMP) ||
-            ((TblOptionFlags & CFE_TBL_OPT_CRITICAL_MSK) == CFE_TBL_OPT_CRITICAL))
+        /* Dump Only tables cannot be double-buffered, nor critical (this also applies to user-defined address) */
+        if (TableCfg->DoubleBuffered || TableCfg->Critical)
         {
             Status = CFE_TBL_ERR_INVALID_OPTIONS;
-
-            CFE_ES_WriteToSysLog("%s: User Def tbl '%s' cannot be dbl buff, load/dump or critical\n", __func__, Name);
         }
     }
-    else if ((TblOptionFlags & CFE_TBL_OPT_LD_DMP_MSK) == CFE_TBL_OPT_DUMP_ONLY)
+    else if (TableCfg->UserDefAddr)
     {
-        /* Dump Only tables cannot be double-buffered, nor critical */
-        if (((TblOptionFlags & CFE_TBL_OPT_BUFFER_MSK) == CFE_TBL_OPT_DBL_BUFFER) ||
-            ((TblOptionFlags & CFE_TBL_OPT_CRITICAL_MSK) == CFE_TBL_OPT_CRITICAL))
-        {
-            Status = CFE_TBL_ERR_INVALID_OPTIONS;
-
-            CFE_ES_WriteToSysLog("%s: Dump Only tbl '%s' cannot be double-buffered or critical\n", __func__, Name);
-        }
+        /* User-defined table addresses are only legal for dump-only tables */
+        Status = CFE_TBL_ERR_INVALID_OPTIONS;
     }
 
     return Status;
@@ -1425,11 +1458,11 @@ CFE_Status_t CFE_TBL_AllocateTableLoadBuffer(CFE_TBL_LoadBuff_t *LoadBuffPtr, si
 void CFE_TBL_RegRecResetLoadInfo(CFE_TBL_RegistryRec_t *RegRecPtr, const char *DataSource,
                                  CFE_TIME_SysTime_t UpdateTime)
 {
-    strncpy(RegRecPtr->LastFileLoaded, DataSource, sizeof(RegRecPtr->LastFileLoaded) - 1);
-    RegRecPtr->LastFileLoaded[sizeof(RegRecPtr->LastFileLoaded) - 1] = 0;
+    strncpy(RegRecPtr->Status.LastFileLoaded, DataSource, sizeof(RegRecPtr->Status.LastFileLoaded) - 1);
+    RegRecPtr->Status.LastFileLoaded[sizeof(RegRecPtr->Status.LastFileLoaded) - 1] = 0;
 
-    RegRecPtr->TimeOfLastUpdate = UpdateTime;
-    RegRecPtr->IsModified       = false;
+    RegRecPtr->Status.TimeOfLastUpdate = UpdateTime;
+    RegRecPtr->Status.IsModified       = false;
 }
 
 /*----------------------------------------------------------------
@@ -1440,8 +1473,8 @@ void CFE_TBL_RegRecResetLoadInfo(CFE_TBL_RegistryRec_t *RegRecPtr, const char *D
  *-----------------------------------------------------------------*/
 void CFE_TBL_RegRecSetModifiedFlag(CFE_TBL_RegistryRec_t *RegRecPtr)
 {
-    RegRecPtr->TimeOfLastUpdate = CFE_TIME_GetTime();
-    RegRecPtr->IsModified       = true;
+    RegRecPtr->Status.TimeOfLastUpdate = CFE_TIME_GetTime();
+    RegRecPtr->Status.IsModified       = true;
 }
 
 /*----------------------------------------------------------------
@@ -1469,46 +1502,17 @@ void CFE_TBL_MarkNameAsModified(char *NameBufPtr, size_t NameBufSize)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-CFE_Status_t CFE_TBL_AllocatePrimaryBuffer(CFE_TBL_RegistryRec_t *RegRecPtr, size_t Size)
+void CFE_TBL_SetupTableRegistryRecord(CFE_TBL_RegistryRec_t *RegRecPtr, CFE_ES_AppId_t OwnerAppId,
+                                      const CFE_TBL_TableConfig_t *ReqCfg)
 {
-    return CFE_TBL_AllocateTableLoadBuffer(CFE_TBL_GetActiveBuffer(RegRecPtr), Size);
-}
-
-/*----------------------------------------------------------------
- *
- * Application-scope internal function
- * See description in header file for argument/return detail
- *
- *-----------------------------------------------------------------*/
-CFE_Status_t CFE_TBL_AllocateSecondaryBuffer(CFE_TBL_RegistryRec_t *RegRecPtr, size_t Size)
-{
-    RegRecPtr->DoubleBuffered = true;
-
-    return CFE_TBL_AllocateTableLoadBuffer(CFE_TBL_GetInactiveBuffer(RegRecPtr), Size);
-}
-
-/*----------------------------------------------------------------
- *
- * Application-scope internal function
- * See description in header file for argument/return detail
- *
- *-----------------------------------------------------------------*/
-void CFE_TBL_InitTableRegistryEntry(CFE_TBL_RegistryRec_t *RegRecPtr, size_t Size,
-                                    CFE_TBL_CallbackFuncPtr_t TblValidationFuncPtr, const char *TblName,
-                                    uint16 TblOptionFlags)
-{
-    /* Save the size of the table */
-    RegRecPtr->Size = Size;
+    /* Keep note of the app that registered this table */
+    RegRecPtr->OwnerAppId = OwnerAppId;
 
     /* Save the Callback function pointer */
-    RegRecPtr->ValidationFuncPtr = TblValidationFuncPtr;
+    RegRecPtr->Config.ValidationFuncPtr = ReqCfg->ValidationFuncPtr;
 
-    /* Save Table Name in Registry */
-    strncpy(RegRecPtr->Name, TblName, sizeof(RegRecPtr->Name) - 1);
-    RegRecPtr->Name[sizeof(RegRecPtr->Name) - 1] = '\0';
-
-    /* Set the "Dump Only" flag to true/false based upon selected option */
-    RegRecPtr->DumpOnly = ((TblOptionFlags & CFE_TBL_OPT_LD_DMP_MSK) == CFE_TBL_OPT_DUMP_ONLY);
+    /* Save Table Name in Registry (note that the string length was already validated) */
+    strncpy(RegRecPtr->Config.Name, ReqCfg->Name, sizeof(RegRecPtr->Config.Name));
 }
 
 /*----------------------------------------------------------------
@@ -1517,11 +1521,59 @@ void CFE_TBL_InitTableRegistryEntry(CFE_TBL_RegistryRec_t *RegRecPtr, size_t Siz
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-CFE_Status_t CFE_TBL_RestoreTableDataFromCDS(CFE_TBL_RegistryRec_t *RegRecPtr, const char *AppName, const char *Name,
-                                             CFE_TBL_CritRegRec_t *CritRegRecPtr)
+CFE_Status_t CFE_TBL_SetupTableBuffers(CFE_TBL_RegistryRec_t *RegRecPtr, const CFE_TBL_TableConfig_t *ReqCfg)
 {
-    CFE_Status_t        Status = CFE_SUCCESS;
-    CFE_TBL_LoadBuff_t *WorkingBufferPtr;
+    CFE_Status_t Status;
+
+    /* If requested a dump-only table, set that flag now.
+     * NOTE: other option flags are set when that feature is actually enabled,
+     * but this one does not require any special enablement other than the flag */
+    RegRecPtr->Config.DumpOnly = ReqCfg->DumpOnly;
+
+    if (ReqCfg->UserDefAddr)
+    {
+        RegRecPtr->Config.UserDefAddr = true;
+
+        /* nothing more to do when using user-defined address (no local buffer) */
+        Status = CFE_SUCCESS;
+    }
+    else
+    {
+        /* Allocate the local buffer for storing table content */
+        Status = CFE_TBL_AllocateTableLoadBuffer(&RegRecPtr->Buffers[0], ReqCfg->Size);
+
+        /* Secondary only needed on double buffered tables */
+        if (Status == CFE_SUCCESS && ReqCfg->DoubleBuffered)
+        {
+            Status = CFE_TBL_AllocateTableLoadBuffer(&RegRecPtr->Buffers[1], ReqCfg->Size);
+            if (Status == CFE_SUCCESS)
+            {
+                /* double buffering was set up successfully */
+                RegRecPtr->Config.DoubleBuffered = true;
+            }
+        }
+    }
+
+    if (Status == CFE_SUCCESS)
+    {
+        /* Save the size of the table */
+        RegRecPtr->Config.Size = ReqCfg->Size;
+    }
+
+    return Status;
+}
+
+/*----------------------------------------------------------------
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+CFE_Status_t CFE_TBL_RestoreTableDataFromCDS(CFE_TBL_RegistryRec_t *RegRecPtr)
+{
+    CFE_Status_t          Status = CFE_SUCCESS;
+    CFE_TBL_CritRegRec_t *CritRegRecPtr;
+    CFE_TBL_LoadBuff_t *  WorkingBufferPtr;
 
     Status = CFE_TBL_GetWorkingBuffer(&WorkingBufferPtr, RegRecPtr, true);
 
@@ -1589,7 +1641,7 @@ CFE_Status_t CFE_TBL_RestoreTableDataFromCDS(CFE_TBL_RegistryRec_t *RegRecPtr, c
     }
 
     /* Mark the table as critical for future reference */
-    RegRecPtr->CriticalTable = true;
+    RegRecPtr->Config.Critical = true;
 
     return Status;
 }
@@ -1612,7 +1664,6 @@ void CFE_TBL_RegisterWithCriticalTableRegistry(CFE_TBL_CritRegRec_t *CritRegRecP
         strncpy(CritRegRecPtr->Name, TblName, sizeof(CritRegRecPtr->Name) - 1);
         CritRegRecPtr->Name[sizeof(CritRegRecPtr->Name) - 1] = '\0';
         CritRegRecPtr->LastFileLoaded[0]                     = '\0';
-        RegRecPtr->TableLoadedOnce                           = false;
 
         CritRegRecPtr->FileTime         = CFE_TIME_ZERO_VALUE;
         CritRegRecPtr->TimeOfLastUpdate = CFE_TIME_ZERO_VALUE;
@@ -1626,7 +1677,7 @@ void CFE_TBL_RegisterWithCriticalTableRegistry(CFE_TBL_CritRegRec_t *CritRegRecP
     }
 
     /* Mark the table as critical for future reference */
-    RegRecPtr->CriticalTable = true;
+    RegRecPtr->Config.Critical = true;
 }
 
 /*----------------------------------------------------------------

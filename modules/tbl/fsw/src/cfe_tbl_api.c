@@ -51,32 +51,21 @@ CFE_Status_t CFE_TBL_Register(CFE_TBL_Handle_t *TblHandlePtr, const char *Name, 
     CFE_TBL_RegistryRec_t *RegRecPtr     = NULL;
     CFE_TBL_CritRegRec_t * CritRegRecPtr = NULL;
     CFE_Status_t           Status;
-    char                   TblName[CFE_TBL_MAX_FULL_NAME_LEN];
+    CFE_TBL_TableConfig_t  TableCfg;
 
     if (TblHandlePtr == NULL || Name == NULL)
     {
         return CFE_TBL_BAD_ARGUMENT;
     }
 
-    TblName[0] = 0;
+    memset(&TableCfg, 0, sizeof(TableCfg));
 
     /* Check to make sure calling application is legit */
     Status = CFE_TBL_TxnInit(&Txn, true);
 
     if (Status == CFE_SUCCESS)
     {
-        /* Generate the full application-specific table name (this also detects errors) */
-        Status = CFE_TBL_TxnGetFullTableName(&Txn, TblName, sizeof(TblName), Name);
-
-        if (Status == CFE_SUCCESS)
-        {
-            Status = CFE_TBL_ValidateTableOptions(Name, TblOptionFlags);
-        }
-
-        if (Status == CFE_SUCCESS)
-        {
-            Status = CFE_TBL_ValidateTableSize(Name, Size, TblOptionFlags);
-        }
+        Status = CFE_TBL_TxnCheckConfig(&Txn, &TableCfg, Name, TblOptionFlags, Size, TblValidationFuncPtr);
     }
     else /* Application ID was invalid */
     {
@@ -92,7 +81,7 @@ CFE_Status_t CFE_TBL_Register(CFE_TBL_Handle_t *TblHandlePtr, const char *Name, 
         /* trying to register/share tables at the same location at the same time */
         CFE_TBL_TxnLockRegistry(&Txn);
 
-        Status = CFE_TBL_TxnCheckDuplicateRegistration(&Txn, TblName, Size);
+        Status = CFE_TBL_TxnCheckDuplicateRegistration(&Txn, TableCfg.Name, TableCfg.Size);
 
         /* In error conditions or if this is a duplicate registration, no further work is required */
         if (Status == CFE_SUCCESS)
@@ -110,48 +99,32 @@ CFE_Status_t CFE_TBL_Register(CFE_TBL_Handle_t *TblHandlePtr, const char *Name, 
             /* Initialize Registry Record to default settings */
             CFE_TBL_InitRegistryRecord(RegRecPtr);
 
-            if ((TblOptionFlags & CFE_TBL_OPT_USR_DEF_MSK) != (CFE_TBL_OPT_USR_DEF_ADDR & CFE_TBL_OPT_USR_DEF_MSK))
-            {
-                RegRecPtr->UserDefAddr = false;
-
-                Status = CFE_TBL_AllocatePrimaryBuffer(RegRecPtr, Size);
-            }
-            else
-            {
-                /* Do not allocate a buffer for user-defined address tables */
-                RegRecPtr->UserDefAddr = true;
-            }
-
-            if (((TblOptionFlags & CFE_TBL_OPT_DBL_BUFFER) == CFE_TBL_OPT_DBL_BUFFER) && (Status == CFE_SUCCESS))
-            {
-                Status = CFE_TBL_AllocateSecondaryBuffer(RegRecPtr, Size);
-            }
+            Status = CFE_TBL_SetupTableBuffers(RegRecPtr, &TableCfg);
         }
 
         /* If memory allocation was successful, register with table services and the CDS (if applicable) */
         if (Status == CFE_SUCCESS)
         {
-            CFE_TBL_InitTableRegistryEntry(RegRecPtr, Size, TblValidationFuncPtr, TblName, TblOptionFlags);
+            CFE_TBL_SetupTableRegistryRecord(RegRecPtr, CFE_TBL_TxnAppId(&Txn), &TableCfg);
 
             CFE_TBL_TxnConnectAccessDescriptor(&Txn);
 
             /* If the table is a critical table, allocate space for it in the Critical Data Store */
             /* OR locate its previous incarnation there and extract its previous contents */
-            if ((TblOptionFlags & CFE_TBL_OPT_CRITICAL_MSK) == CFE_TBL_OPT_CRITICAL)
+            if (TableCfg.Critical)
             {
                 /* Register a CDS under the table name and determine if the table already exists there */
-                Status = CFE_ES_RegisterCDSEx(&RegRecPtr->CDSHandle, Size, TblName, true);
+                Status = CFE_ES_RegisterCDSEx(&RegRecPtr->CDSHandle, TableCfg.Size, TableCfg.Name, true);
 
                 if (Status == CFE_ES_CDS_ALREADY_EXISTS)
                 {
-                    Status =
-                        CFE_TBL_RestoreTableDataFromCDS(RegRecPtr, CFE_TBL_TxnAppNameCaller(&Txn), Name, CritRegRecPtr);
+                    Status = CFE_TBL_RestoreTableDataFromCDS(RegRecPtr);
                 }
 
                 /* Don't need to register with Critical Table Registry if table data was recovered */
                 if (Status == CFE_SUCCESS)
                 {
-                    CFE_TBL_RegisterWithCriticalTableRegistry(CritRegRecPtr, RegRecPtr, TblName);
+                    CFE_TBL_RegisterWithCriticalTableRegistry(CritRegRecPtr, RegRecPtr, TableCfg.Name);
                 }
                 else if (Status != CFE_TBL_INFO_RECOVERED_TBL)
                 {
@@ -370,9 +343,9 @@ CFE_Status_t CFE_TBL_Load(CFE_TBL_Handle_t TblHandle, CFE_TBL_SrcEnum_t SrcType,
     WorkingBufferPtr = NULL;
 
     /* Check to see if this is a dump only table */
-    if (RegRecPtr->DumpOnly)
+    if (CFE_TBL_RegRecGetConfig(RegRecPtr)->DumpOnly)
     {
-        if ((!RegRecPtr->UserDefAddr) || CFE_TBL_RegRecIsTableLoaded(RegRecPtr))
+        if (!CFE_TBL_RegRecGetConfig(RegRecPtr)->UserDefAddr || CFE_TBL_RegRecIsTableLoaded(RegRecPtr))
         {
             CFE_EVS_SendEventWithAppID(CFE_TBL_LOADING_A_DUMP_ONLY_ERR_EID, CFE_EVS_EventType_ERROR,
                                        CFE_TBL_Global.TableTaskAppId, "%s: Attempted to load Dump Only Tbl '%s'",
@@ -467,9 +440,9 @@ CFE_Status_t CFE_TBL_Load(CFE_TBL_Handle_t TblHandle, CFE_TBL_SrcEnum_t SrcType,
     }
 
     /* If the data was successfully loaded, then validate its contents */
-    if ((Status >= CFE_SUCCESS) && (RegRecPtr->ValidationFuncPtr != NULL))
+    if (Status >= CFE_SUCCESS && CFE_TBL_RegRecGetConfig(RegRecPtr)->ValidationFuncPtr != NULL)
     {
-        Status = (RegRecPtr->ValidationFuncPtr)(WorkingBufferPtr->BufferPtr);
+        Status = (CFE_TBL_RegRecGetConfig(RegRecPtr)->ValidationFuncPtr)(WorkingBufferPtr->BufferPtr);
 
         if (Status > CFE_SUCCESS)
         {
@@ -509,7 +482,7 @@ CFE_Status_t CFE_TBL_Load(CFE_TBL_Handle_t TblHandle, CFE_TBL_SrcEnum_t SrcType,
         CFE_TBL_NotifyTblUsersOfUpdate(RegRecPtr);
 
         /* If the table is a critical table, update the appropriate CDS with the new data */
-        if (RegRecPtr->CriticalTable == true)
+        if (CFE_TBL_RegRecGetConfig(RegRecPtr)->Critical)
         {
             CFE_TBL_UpdateCriticalTblCDS(RegRecPtr);
         }
@@ -833,7 +806,7 @@ CFE_Status_t CFE_TBL_Validate(CFE_TBL_Handle_t TblHandle)
                 /* No buffer, it cannot be valid */
                 ResultPtr->Result = -1;
             }
-            else if (RegRecPtr->ValidationFuncPtr == NULL)
+            else if (CFE_TBL_RegRecGetConfig(RegRecPtr)->ValidationFuncPtr == NULL)
             {
                 /* no validation function, assume its OK */
                 ResultPtr->Result = 0;
@@ -841,7 +814,7 @@ CFE_Status_t CFE_TBL_Validate(CFE_TBL_Handle_t TblHandle)
             else
             {
                 /* Save the result of the Validation function for the Table Services Task */
-                ResultPtr->Result = (RegRecPtr->ValidationFuncPtr)(BuffPtr->BufferPtr);
+                ResultPtr->Result = (CFE_TBL_RegRecGetConfig(RegRecPtr)->ValidationFuncPtr)(BuffPtr->BufferPtr);
             }
 
             /* Allow buffer to be activated after passing validation */
@@ -1005,9 +978,10 @@ CFE_Status_t CFE_TBL_GetInfo(CFE_TBL_Info_t *TblInfoPtr, const char *TblName)
 
         /* Return table characteristics */
         TblInfoPtr->Size            = CFE_TBL_RegRecGetSize(RegRecPtr);
-        TblInfoPtr->DoubleBuffered  = RegRecPtr->DoubleBuffered;
-        TblInfoPtr->DumpOnly        = RegRecPtr->DumpOnly;
-        TblInfoPtr->UserDefAddr     = RegRecPtr->UserDefAddr;
+        TblInfoPtr->DoubleBuffered  = CFE_TBL_RegRecGetConfig(RegRecPtr)->DoubleBuffered;
+        TblInfoPtr->DumpOnly        = CFE_TBL_RegRecGetConfig(RegRecPtr)->DumpOnly;
+        TblInfoPtr->UserDefAddr     = CFE_TBL_RegRecGetConfig(RegRecPtr)->UserDefAddr;
+        TblInfoPtr->Critical        = CFE_TBL_RegRecGetConfig(RegRecPtr)->Critical;
         TblInfoPtr->TableLoadedOnce = CFE_TBL_RegRecIsTableLoaded(RegRecPtr);
 
         /* Return information on last load and update */
@@ -1027,7 +1001,6 @@ CFE_Status_t CFE_TBL_GetInfo(CFE_TBL_Info_t *TblInfoPtr, const char *TblName)
         CFE_TBL_ForeachAccessDescriptor(RegRecPtr, CFE_TBL_CountAccessDescHelper, &NumAccessDescriptors);
 
         TblInfoPtr->NumUsers = NumAccessDescriptors;
-        TblInfoPtr->Critical = RegRecPtr->CriticalTable;
 
         CFE_TBL_TxnFinish(&Txn);
     }
@@ -1130,7 +1103,7 @@ CFE_Status_t CFE_TBL_Modified(CFE_TBL_Handle_t TblHandle)
         CFE_TBL_TxnFinish(&Txn);
 
         /* If the table is a critical table, update the appropriate CDS with the new data */
-        if (RegRecPtr->CriticalTable)
+        if (CFE_TBL_RegRecGetConfig(RegRecPtr)->Critical)
         {
             CFE_TBL_UpdateCriticalTblCDS(RegRecPtr);
         }
@@ -1180,10 +1153,10 @@ CFE_Status_t CFE_TBL_NotifyByMessage(CFE_TBL_Handle_t TblHandle, CFE_SB_MsgId_t 
         /* Verify that the calling application is the table owner */
         if (CFE_RESOURCEID_TEST_EQUAL(RegRecPtr->OwnerAppId, CFE_TBL_TxnAppId(&Txn)))
         {
-            RegRecPtr->NotificationMsgId = MsgId;
-            RegRecPtr->NotificationCC    = CommandCode;
-            RegRecPtr->NotificationParam = Parameter;
-            RegRecPtr->NotifyByMsg       = true;
+            RegRecPtr->Notify.MsgId   = MsgId;
+            RegRecPtr->Notify.FcnCode = CommandCode;
+            RegRecPtr->Notify.Param   = Parameter;
+            RegRecPtr->Notify.Enabled = true;
         }
         else
         {

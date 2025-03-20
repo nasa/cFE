@@ -571,7 +571,22 @@ static inline void CFE_TBL_RegRecSetFree(CFE_TBL_RegistryRec_t *RegRecPtr)
     RegRecPtr->OwnerAppId = CFE_TBL_NOT_OWNED;
 
     /* Also clear the table name, not strictly needed but good for consistency */
-    RegRecPtr->Name[0] = '\0';
+    RegRecPtr->Config.Name[0] = '\0';
+}
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Gets the configuration associated with this table
+ *
+ * Returns a pointer to the configuration structure, which has all user-selectable options.
+ * @note  this table config is set during registration and does not change thereafter
+ *
+ * @param[in]   RegRecPtr   pointer to registry entry
+ * @returns   Pointer to config struct
+ */
+static inline const CFE_TBL_TableConfig_t *CFE_TBL_RegRecGetConfig(CFE_TBL_RegistryRec_t *RegRecPtr)
+{
+    return &RegRecPtr->Config;
 }
 
 /*

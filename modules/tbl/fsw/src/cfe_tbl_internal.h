@@ -73,9 +73,9 @@ typedef void (*const CFE_TBL_AccessDescFunc_t)(CFE_TBL_AccessDescriptor_t *AccDe
 
 /*---------------------------------------------------------------------------------------*/
 /**
- * @brief Obtain the name associated with the Application record
+ * @brief Obtain the name associated with the registry entry
  *
- * Returns the name field from within the Application record
+ * Returns the name field from within the registry entry
  *
  * @note The name buffer in the registry contains the fully-qualified name (AppName.TableName)
  *
@@ -84,7 +84,7 @@ typedef void (*const CFE_TBL_AccessDescFunc_t)(CFE_TBL_AccessDescriptor_t *AccDe
  */
 static inline const char *CFE_TBL_RegRecGetName(const CFE_TBL_RegistryRec_t *RegRecPtr)
 {
-    return RegRecPtr->Name;
+    return RegRecPtr->Config.Name;
 }
 
 /*---------------------------------------------------------------------------------------*/
@@ -98,7 +98,7 @@ static inline const char *CFE_TBL_RegRecGetName(const CFE_TBL_RegistryRec_t *Reg
  */
 static inline size_t CFE_TBL_RegRecGetSize(const CFE_TBL_RegistryRec_t *RegRecPtr)
 {
-    return RegRecPtr->Size;
+    return RegRecPtr->Config.Size;
 }
 
 /*---------------------------------------------------------------------------------------*/
@@ -112,7 +112,7 @@ static inline size_t CFE_TBL_RegRecGetSize(const CFE_TBL_RegistryRec_t *RegRecPt
  */
 static inline size_t CFE_TBL_RegRecIsLoadInProgress(const CFE_TBL_RegistryRec_t *RegRecPtr)
 {
-    return (RegRecPtr->LoadInProgress != CFE_TBL_NO_LOAD_IN_PROGRESS);
+    return (RegRecPtr->Status.LoadInProgress != CFE_TBL_NO_LOAD_IN_PROGRESS);
 }
 
 /*---------------------------------------------------------------------------------------*/
@@ -127,7 +127,7 @@ static inline size_t CFE_TBL_RegRecIsLoadInProgress(const CFE_TBL_RegistryRec_t 
  */
 static inline CFE_TBL_LoadBuffId_t CFE_TBL_RegRecGetLoadInProgress(CFE_TBL_RegistryRec_t *RegRecPtr)
 {
-    return RegRecPtr->LoadInProgress;
+    return RegRecPtr->Status.LoadInProgress;
 }
 
 /*---------------------------------------------------------------------------------------*/
@@ -142,7 +142,7 @@ static inline CFE_TBL_LoadBuffId_t CFE_TBL_RegRecGetLoadInProgress(CFE_TBL_Regis
 static inline void CFE_TBL_RegRecSetLoadInProgress(CFE_TBL_RegistryRec_t *RegRecPtr,
                                                    CFE_TBL_LoadBuffId_t   LoadInProgress)
 {
-    RegRecPtr->LoadInProgress = LoadInProgress;
+    RegRecPtr->Status.LoadInProgress = LoadInProgress;
 }
 
 /*---------------------------------------------------------------------------------------*/
@@ -155,7 +155,7 @@ static inline void CFE_TBL_RegRecSetLoadInProgress(CFE_TBL_RegistryRec_t *RegRec
  */
 static inline void CFE_TBL_RegRecClearLoadInProgress(CFE_TBL_RegistryRec_t *RegRecPtr)
 {
-    RegRecPtr->LoadInProgress = CFE_TBL_NO_LOAD_IN_PROGRESS;
+    RegRecPtr->Status.LoadInProgress = CFE_TBL_NO_LOAD_IN_PROGRESS;
 }
 
 /*---------------------------------------------------------------------------------------*/
@@ -169,7 +169,7 @@ static inline void CFE_TBL_RegRecClearLoadInProgress(CFE_TBL_RegistryRec_t *RegR
  */
 static inline const char *CFE_TBL_RegRecGetLastFileLoaded(const CFE_TBL_RegistryRec_t *RegRecPtr)
 {
-    return RegRecPtr->LastFileLoaded;
+    return RegRecPtr->Status.LastFileLoaded;
 }
 
 /*---------------------------------------------------------------------------------------*/
@@ -183,7 +183,7 @@ static inline const char *CFE_TBL_RegRecGetLastFileLoaded(const CFE_TBL_Registry
  */
 static inline CFE_TIME_SysTime_t CFE_TBL_RegRecGetLastUpdateTime(const CFE_TBL_RegistryRec_t *RegRecPtr)
 {
-    return RegRecPtr->TimeOfLastUpdate;
+    return RegRecPtr->Status.TimeOfLastUpdate;
 }
 
 /*---------------------------------------------------------------------------------------*/
@@ -196,7 +196,7 @@ static inline CFE_TIME_SysTime_t CFE_TBL_RegRecGetLastUpdateTime(const CFE_TBL_R
  */
 static inline bool CFE_TBL_RegRecIsTableLoaded(const CFE_TBL_RegistryRec_t *RegRecPtr)
 {
-    return RegRecPtr->TableLoadedOnce;
+    return RegRecPtr->Status.TableLoadedOnce;
 }
 
 /*---------------------------------------------------------------------------------------*/
@@ -207,7 +207,7 @@ static inline bool CFE_TBL_RegRecIsTableLoaded(const CFE_TBL_RegistryRec_t *RegR
  */
 static inline void CFE_TBL_RegRecSetTableLoadedFlag(CFE_TBL_RegistryRec_t *RegRecPtr)
 {
-    RegRecPtr->TableLoadedOnce = true;
+    RegRecPtr->Status.TableLoadedOnce = true;
 }
 
 /*---------------------------------------------------------------------------------------*/
@@ -220,7 +220,7 @@ static inline void CFE_TBL_RegRecSetTableLoadedFlag(CFE_TBL_RegistryRec_t *RegRe
  */
 static inline bool CFE_TBL_RegRecIsLoadPending(const CFE_TBL_RegistryRec_t *RegRecPtr)
 {
-    return RegRecPtr->LoadPending;
+    return RegRecPtr->Status.LoadPending;
 }
 
 /*---------------------------------------------------------------------------------------*/
@@ -231,7 +231,7 @@ static inline bool CFE_TBL_RegRecIsLoadPending(const CFE_TBL_RegistryRec_t *RegR
  */
 static inline void CFE_TBL_RegRecSetLoadPendingFlag(CFE_TBL_RegistryRec_t *RegRecPtr)
 {
-    RegRecPtr->LoadPending = true;
+    RegRecPtr->Status.LoadPending = true;
 }
 
 /*---------------------------------------------------------------------------------------*/
@@ -242,7 +242,7 @@ static inline void CFE_TBL_RegRecSetLoadPendingFlag(CFE_TBL_RegistryRec_t *RegRe
  */
 static inline void CFE_TBL_RegRecClearLoadPendingFlag(CFE_TBL_RegistryRec_t *RegRecPtr)
 {
-    RegRecPtr->LoadPending = false;
+    RegRecPtr->Status.LoadPending = false;
 }
 
 /*---------------------------------------------------------------------------------------*/
@@ -255,7 +255,7 @@ static inline void CFE_TBL_RegRecClearLoadPendingFlag(CFE_TBL_RegistryRec_t *Reg
  */
 static inline bool CFE_TBL_RegRecIsModified(const CFE_TBL_RegistryRec_t *RegRecPtr)
 {
-    return RegRecPtr->IsModified;
+    return RegRecPtr->Status.IsModified;
 }
 
 /*---------------------------------------------------------------------------------------*/
@@ -276,6 +276,26 @@ static inline bool CFE_TBL_RegRecIsModified(const CFE_TBL_RegistryRec_t *RegRecP
 **
 */
 CFE_TBL_RegId_t CFE_TBL_FindTableInRegistry(const char *TblName);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+** \brief Creates a Full Table name from application name and table name
+**
+** \par Description
+**        Takes a given raw table name and combines it with the calling
+**        Application's name to make the application specific name of the
+**        form: "AppName.RawTableName"
+**
+**        The resulting string will be stored into the "Name" of the supplied table config
+**
+** \par Assumptions, External Events, and Notes:
+**        AppName portion will be truncated to OS_MAX_API_NAME.
+**
+** \param[in, out] ReqCfg  Pointer to table configuration structure
+** \param[in] TblName           Pointer to character string containing the table name.
+** \param[in] AppName           Name of the application that owns the table
+*/
+CFE_Status_t CFE_TBL_ValidateTableName(CFE_TBL_TableConfig_t *ReqCfg, const char *TblName, const char *AppName);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -620,7 +640,7 @@ bool CFE_TBL_DumpRegistryGetter(void *Meta, uint32 RecordNum, void **Buffer, siz
 ** \retval #CFE_TBL_ERR_INVALID_SIZE        \copydoc CFE_TBL_ERR_INVALID_SIZE
 **
 */
-CFE_Status_t CFE_TBL_ValidateTableSize(const char *Name, size_t Size, uint16 TblOptionFlags);
+CFE_Status_t CFE_TBL_ValidateTableSize(CFE_TBL_TableConfig_t *TableCfg, size_t Size);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -638,7 +658,7 @@ CFE_Status_t CFE_TBL_ValidateTableSize(const char *Name, size_t Size, uint16 Tbl
 ** \retval #CFE_TBL_ERR_INVALID_OPTIONS     \copydoc CFE_TBL_ERR_INVALID_OPTIONS
 **
 */
-CFE_Status_t CFE_TBL_ValidateTableOptions(const char *Name, uint16 TblOptionFlags);
+CFE_Status_t CFE_TBL_ValidateTableOptions(CFE_TBL_TableConfig_t *TableCfg, uint16 TblOptionFlags);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -660,51 +680,26 @@ CFE_Status_t CFE_TBL_AllocateTableLoadBuffer(CFE_TBL_LoadBuff_t *LoadBuff, size_
 
 /*---------------------------------------------------------------------------------------*/
 /**
-** \brief Allocates the primary memory buffer for a table
-**
-** \par Description
-**         Allocates the memory buffer for a single-buffered table, or the first buffer for a
-**         double-buffered table that is being registered. If successful, the buffer is zeroed out.
-**
-** \par Assumptions, External Events, and Notes:
-**          None
-**
-** \retval #CFE_SUCCESS                     \copydoc CFE_SUCCESS
-**
-*/
-CFE_Status_t CFE_TBL_AllocatePrimaryBuffer(CFE_TBL_RegistryRec_t *RegRecPtr, size_t Size);
-
-/*---------------------------------------------------------------------------------------*/
-/**
-** \brief Allocates the secondary memory buffer for a double-buffered table
-**
-** \par Description
-**         Allocates the secondary memory buffer for a double-buffered table that is
-**         being registered. If successful, the buffer is zeroed out, and the
-**         DoubleBuffered flag is set to true.
-**
-** \par Assumptions, External Events, and Notes:
-**          None
-**
-** \retval #CFE_SUCCESS                     \copydoc CFE_SUCCESS
-**
-*/
-CFE_Status_t CFE_TBL_AllocateSecondaryBuffer(CFE_TBL_RegistryRec_t *RegRecPtr, size_t Size);
-
-/*---------------------------------------------------------------------------------------*/
-/**
 ** \brief Initializes a Table Registry Entry
 **
 ** \par Description
 **         Initializes a Table Registry Entry for a table that is being registered
 **
+**         Specifically this handles the following aspects of the registration, which
+**         are propagated to the table registry.
+**           - Table buffer size
+**           - User defined address flag (indicates there are NO local buffers if set)
+**           - Double buffer flag (indicates there are TWO local buffers if set)
+
+**         This also takes care of allocating the buffers as indicated
+**
 ** \par Assumptions, External Events, and Notes:
 **          None
 **
+** \retval #CFE_SUCCESS                     \copydoc CFE_SUCCESS
+**
 */
-void CFE_TBL_InitTableRegistryEntry(CFE_TBL_RegistryRec_t *RegRecPtr, size_t Size,
-                                    CFE_TBL_CallbackFuncPtr_t TblValidationFuncPtr, const char *TblName,
-                                    uint16 TblOptionFlags);
+CFE_Status_t CFE_TBL_SetupTableBuffers(CFE_TBL_RegistryRec_t *RegRecPtr, const CFE_TBL_TableConfig_t *ReqCfg);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -721,8 +716,7 @@ void CFE_TBL_InitTableRegistryEntry(CFE_TBL_RegistryRec_t *RegRecPtr, size_t Siz
 ** \retval #CFE_TBL_INFO_RECOVERED_TBL      \copydoc CFE_TBL_INFO_RECOVERED_TBL
 **
 */
-CFE_Status_t CFE_TBL_RestoreTableDataFromCDS(CFE_TBL_RegistryRec_t *RegRecPtr, const char *AppName, const char *Name,
-                                             CFE_TBL_CritRegRec_t *CritRegRecPtr);
+CFE_Status_t CFE_TBL_RestoreTableDataFromCDS(CFE_TBL_RegistryRec_t *RegRecPtr);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -1097,6 +1091,9 @@ void CFE_TBL_MarkNameAsModified(char *NameBufPtr, size_t NameBufSize);
  * @param[inout]   RegRecPtr   pointer to Registry table entry
  */
 void CFE_TBL_RegRecSetModifiedFlag(CFE_TBL_RegistryRec_t *RegRecPtr);
+
+void CFE_TBL_SetupTableRegistryRecord(CFE_TBL_RegistryRec_t *RegRecPtr, CFE_ES_AppId_t OwnerAppId,
+                                      const CFE_TBL_TableConfig_t *ReqCfg);
 
 /*
 ** Globals specific to the TBL module

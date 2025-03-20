@@ -140,28 +140,44 @@ const char *CFE_TBL_TxnAppNameCaller(CFE_TBL_TxnState_t *Txn)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-CFE_Status_t CFE_TBL_TxnGetFullTableName(CFE_TBL_TxnState_t *Txn, char *FullTblName, size_t BufSize,
-                                         const char *BaseName)
+CFE_Status_t CFE_TBL_TxnCheckConfig(CFE_TBL_TxnState_t *Txn, CFE_TBL_TableConfig_t *ReqCfg, const char *BaseName,
+                                    uint16 TblOptionFlags, size_t Size, CFE_TBL_CallbackFuncPtr_t ValidationFuncPtr)
 {
     CFE_Status_t Status;
-    int          Result;
 
-    /* Make sure the specified table name is not too long or too short */
-    if (BaseName[0] == 0 || memchr(BaseName, 0, CFE_MISSION_TBL_MAX_NAME_LENGTH) == NULL)
+    /* There is no way to check the validity of this pointer (NULL is OK) */
+    ReqCfg->ValidationFuncPtr = ValidationFuncPtr;
+
+    /* Generate the full application-specific table name (this also detects errors) */
+    Status = CFE_TBL_ValidateTableName(ReqCfg, BaseName, CFE_TBL_TxnAppNameCaller(Txn));
+    if (Status != CFE_SUCCESS)
     {
-        Status = CFE_TBL_ERR_INVALID_NAME;
+        /* Table name failed sanity check */
+        CFE_ES_WriteToSysLog("%s: bad table name: '%s' (0x%lx)\n", __func__, BaseName, (unsigned long)Status);
     }
     else
     {
-        /* Complete formation of application specific table name */
-        Result = snprintf(FullTblName, BufSize, "%s.%s", CFE_TBL_TxnAppNameCaller(Txn), BaseName);
-        if (Result > BufSize)
+        /*
+         * This initializes all the boolean fields in the Requested Options struct.
+         * Note that this stage these are only the _requested_ table options.  They
+         * will become the _actual_ table options as they are properly configured later.
+         */
+        Status = CFE_TBL_ValidateTableOptions(ReqCfg, TblOptionFlags);
+        if (Status != CFE_SUCCESS)
         {
-            Status = CFE_TBL_ERR_INVALID_NAME;
+            /* Table cannot be critial/double buffered or must be dump-only and wasn't specified as so */
+            CFE_ES_WriteToSysLog("%s: bad TblOptionFlags combination for '%s' (0x%lx)\n", __func__, BaseName,
+                                 (unsigned long)TblOptionFlags);
         }
         else
         {
-            Status = CFE_SUCCESS;
+            /* Table size validation depends on whether double buffered was requested */
+            Status = CFE_TBL_ValidateTableSize(ReqCfg, Size);
+            if (Status != CFE_SUCCESS)
+            {
+                CFE_ES_WriteToSysLog("%s: Table '%s' has invalid size (%lu)\n", __func__, BaseName,
+                                     (unsigned long)Size);
+            }
         }
     }
 
@@ -403,7 +419,7 @@ CFE_Status_t CFE_TBL_TxnRemoveAccessLink(CFE_TBL_TxnState_t *Txn)
     if (!CFE_TBL_HandleLinkIsAttached(&RegRecPtr->AccessList))
     {
         /* Only free memory that we have allocated.  If the image is User Defined, then don't bother */
-        if (RegRecPtr->UserDefAddr == false)
+        if (!CFE_TBL_RegRecGetConfig(RegRecPtr)->UserDefAddr)
         {
             /* If there was a working buffer, release it.  This does nothing if there was no working/load buffer. */
             CFE_TBL_DiscardWorkingBuffer(RegRecPtr);
@@ -671,7 +687,7 @@ void CFE_TBL_TxnConnectAccessDescriptor(CFE_TBL_TxnState_t *Txn)
     AccDescPtr->UsedFlag = true;
     AccDescPtr->RegIndex = CFE_TBL_TxnRegId(Txn);
 
-    if ((RegRecPtr->DumpOnly) && (!RegRecPtr->UserDefAddr))
+    if (CFE_TBL_RegRecGetConfig(RegRecPtr)->DumpOnly && !CFE_TBL_RegRecGetConfig(RegRecPtr)->UserDefAddr)
     {
         /* Dump Only Tables are assumed to be loaded at all times unless the address is specified */
         /* by the application. In that case, it isn't loaded until the address is specified       */

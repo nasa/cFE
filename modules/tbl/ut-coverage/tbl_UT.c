@@ -120,6 +120,16 @@ CFE_TBL_RegistryRec_t Original[CFE_PLATFORM_TBL_MAX_NUM_TABLES];
 /*
  * UT helper routines
  */
+CFE_TBL_TableConfig_t *UT_TBL_Config(CFE_TBL_RegistryRec_t *RegRecPtr)
+{
+    return &RegRecPtr->Config;
+}
+
+CFE_TBL_TableStatus_t *UT_TBL_Status(CFE_TBL_RegistryRec_t *RegRecPtr)
+{
+    return &RegRecPtr->Status;
+}
+
 void UT_TBL_ForEveryAccDesc(void (*Func)(CFE_TBL_AccessDescriptor_t *))
 {
     CFE_TBL_AccessDescriptor_t *AccDescPtr;
@@ -306,12 +316,12 @@ static void UT_ArrayConfigHandler(void *UserObj, UT_EntryKey_t FuncKey, const UT
 
 static void UT_TBL_SetDumpOnly(CFE_TBL_RegistryRec_t *RegRecPtr)
 {
-    RegRecPtr->DumpOnly = true;
+    UT_TBL_Config(RegRecPtr)->DumpOnly = true;
 }
 
 static void UT_TBL_ClearLoadPending(CFE_TBL_RegistryRec_t *RegRecPtr)
 {
-    RegRecPtr->LoadPending = false;
+    UT_TBL_Status(RegRecPtr)->LoadPending = false;
 }
 
 static void UT_TBL_SetLoadBuffTaken(CFE_TBL_LoadBuff_t *LoadBuffPtr)
@@ -431,7 +441,7 @@ void UT_TBL_SetupRegRec(CFE_TBL_RegistryRec_t *RegRecPtr)
     /* This should always use the array index fo the reg entry */
     size_t Idx;
     Idx = RegRecPtr - CFE_TBL_Global.Registry;
-    snprintf(RegRecPtr->Name, CFE_TBL_MAX_FULL_NAME_LEN, "i%d", (int)Idx);
+    snprintf(UT_TBL_Config(RegRecPtr)->Name, CFE_TBL_MAX_FULL_NAME_LEN, "i%d", (int)Idx);
     RegRecPtr->OwnerAppId = UT_TBL_APPID_2;
 }
 
@@ -771,20 +781,20 @@ void Test_CFE_TBL_AbortLoadCmd(void)
     UT_TBL_SetName(AbortLdCmd.Payload.TableName, sizeof(AbortLdCmd.Payload.TableName),
                    CFE_TBL_RegRecGetName(RegRecPtr));
 
-    RegRecPtr->LoadInProgress = UT_CFE_TBL_LOADBUFFID_1;
+    UT_TBL_Status(RegRecPtr)->LoadInProgress = UT_CFE_TBL_LOADBUFFID_1;
     UtAssert_INT32_EQ(CFE_TBL_AbortLoadCmd(&AbortLdCmd), CFE_TBL_INC_CMD_CTR);
 
     /* Test when table name does exist but no table load is in progress */
     UT_InitData();
-    RegRecPtr->LoadInProgress = CFE_TBL_NO_LOAD_IN_PROGRESS;
+    UT_TBL_Status(RegRecPtr)->LoadInProgress = CFE_TBL_NO_LOAD_IN_PROGRESS;
     UtAssert_INT32_EQ(CFE_TBL_AbortLoadCmd(&AbortLdCmd), CFE_TBL_INC_ERR_CTR);
 
     /* Test when table name does exist, a table load is in progress, and the
      * table is dump only
      */
     UT_InitData();
-    RegRecPtr->LoadInProgress = UT_CFE_TBL_LOADBUFFID_0;
-    RegRecPtr->DumpOnly       = true;
+    UT_TBL_Status(RegRecPtr)->LoadInProgress = UT_CFE_TBL_LOADBUFFID_0;
+    UT_TBL_Config(RegRecPtr)->DumpOnly       = true;
     UtAssert_INT32_EQ(CFE_TBL_AbortLoadCmd(&AbortLdCmd), CFE_TBL_INC_ERR_CTR);
 
     /* Test when table name not found in the registry */
@@ -795,9 +805,9 @@ void Test_CFE_TBL_AbortLoadCmd(void)
 
     /* Test when table is double buffered */
     UT_InitData();
-    RegRecPtr->DoubleBuffered = true;
-    LoadBuffPtr               = CFE_TBL_LocateLoadBufferByID(NULL, UT_CFE_TBL_LOADBUFFID_0);
-    LoadBuffPtr->Taken        = true;
+    UT_TBL_Config(RegRecPtr)->DoubleBuffered = true;
+    LoadBuffPtr                              = CFE_TBL_LocateLoadBufferByID(NULL, UT_CFE_TBL_LOADBUFFID_0);
+    LoadBuffPtr->Taken                       = true;
     CFE_TBL_AbortLoad(RegRecPtr);
     UtAssert_BOOL_TRUE(LoadBuffPtr->Taken);
 }
@@ -822,48 +832,48 @@ void Test_CFE_TBL_ActivateCmd(void)
      * table
      */
     UT_InitData();
-    RegRecPtr->DumpOnly = true;
+    UT_TBL_Config(RegRecPtr)->DumpOnly = true;
     UtAssert_INT32_EQ(CFE_TBL_ActivateCmd(&ActivateCmd), CFE_TBL_INC_ERR_CTR);
 
     /* Test when table name exists, the table is not a dump-only, a load is in
      * progress, and the table is double-buffered
      */
     UT_InitData();
-    RegRecPtr->DumpOnly       = false;
-    RegRecPtr->LoadInProgress = UT_CFE_TBL_LOADBUFFID_0;
-    RegRecPtr->DoubleBuffered = true;
+    UT_TBL_Config(RegRecPtr)->DumpOnly       = false;
+    UT_TBL_Status(RegRecPtr)->LoadInProgress = UT_CFE_TBL_LOADBUFFID_0;
+    UT_TBL_Config(RegRecPtr)->DoubleBuffered = true;
     UtAssert_INT32_EQ(CFE_TBL_ActivateCmd(&ActivateCmd), CFE_TBL_INC_ERR_CTR);
 
     /* Test when table name exists, the table is not a dump-only, a load is in
      * progress, the table isn't double-buffered, and ValidationStatus = true
      */
     UT_InitData();
-    RegRecPtr->DoubleBuffered = false;
-    LoadBuffPtr               = CFE_TBL_LocateLoadBufferByID(NULL, RegRecPtr->LoadInProgress);
-    LoadBuffPtr->Validated    = true;
+    UT_TBL_Config(RegRecPtr)->DoubleBuffered = false;
+    LoadBuffPtr            = CFE_TBL_LocateLoadBufferByID(NULL, UT_TBL_Status(RegRecPtr)->LoadInProgress);
+    LoadBuffPtr->Validated = true;
     UtAssert_INT32_EQ(CFE_TBL_ActivateCmd(&ActivateCmd), CFE_TBL_INC_CMD_CTR);
 
     /* Test when table name exists, the table is not a dump-only, no load is in
      * progress, and no notification message should be sent
      */
     UT_InitData();
-    RegRecPtr->NotifyByMsg    = false;
-    RegRecPtr->LoadInProgress = CFE_TBL_NO_LOAD_IN_PROGRESS;
+    RegRecPtr->Notify.Enabled                = false;
+    UT_TBL_Status(RegRecPtr)->LoadInProgress = CFE_TBL_NO_LOAD_IN_PROGRESS;
     UtAssert_INT32_EQ(CFE_TBL_ActivateCmd(&ActivateCmd), CFE_TBL_INC_ERR_CTR);
 
     /* Test when table name exists, the table is not a dump-only, no load in in
      * progress, and a notification message should be sent
      */
     UT_InitData();
-    RegRecPtr->NotifyByMsg    = true;
-    RegRecPtr->LoadInProgress = UT_CFE_TBL_LOADBUFFID_0;
+    RegRecPtr->Notify.Enabled                = true;
+    UT_TBL_Status(RegRecPtr)->LoadInProgress = UT_CFE_TBL_LOADBUFFID_0;
     UtAssert_INT32_EQ(CFE_TBL_ActivateCmd(&ActivateCmd), CFE_TBL_INC_CMD_CTR);
 
     /* Same as above but sending the notification fails, this should trigger an event
      */
     UT_InitData();
-    RegRecPtr->NotifyByMsg    = true;
-    RegRecPtr->LoadInProgress = UT_CFE_TBL_LOADBUFFID_0;
+    RegRecPtr->Notify.Enabled                = true;
+    UT_TBL_Status(RegRecPtr)->LoadInProgress = UT_CFE_TBL_LOADBUFFID_0;
     UT_SetDefaultReturnValue(UT_KEY(CFE_SB_TransmitMsg), CFE_SB_BUF_ALOC_ERR);
     UtAssert_INT32_EQ(CFE_TBL_ActivateCmd(&ActivateCmd), CFE_TBL_INC_CMD_CTR);
     CFE_UtAssert_EVENTSENT(CFE_TBL_FAIL_NOTIFY_SEND_ERR_EID);
@@ -970,7 +980,7 @@ void Test_CFE_TBL_ValidateCmd(void)
      */
     UT_InitData();
     UT_TBL_ResetValidationState(0);
-    RegRecPtr->ValidationFuncPtr = NULL;
+    UT_TBL_Config(RegRecPtr)->ValidationFuncPtr = NULL;
     UtAssert_INT32_EQ(CFE_TBL_ValidateCmd(&ValidateCmd), CFE_TBL_INC_CMD_CTR);
 
     /* Test where the active buffer has data, the validation function pointer
@@ -978,8 +988,8 @@ void Test_CFE_TBL_ValidateCmd(void)
      */
     UT_InitData();
     UT_TBL_ResetValidationState(0);
-    RegRecPtr->ValidationFuncPtr        = ValFuncPtr;
-    ValidateCmd.Payload.ActiveTableFlag = true;
+    UT_TBL_Config(RegRecPtr)->ValidationFuncPtr = ValFuncPtr;
+    ValidateCmd.Payload.ActiveTableFlag         = true;
     UtAssert_INT32_EQ(CFE_TBL_ValidateCmd(&ValidateCmd), CFE_TBL_INC_CMD_CTR);
 
     /* Test with the buffer inactive, the table is double-buffered, and the
@@ -988,9 +998,9 @@ void Test_CFE_TBL_ValidateCmd(void)
     UT_InitData();
     UT_TBL_ResetValidationState(0);
     ValidateCmd.Payload.ActiveTableFlag             = CFE_TBL_BufferSelect_INACTIVE;
-    RegRecPtr->DoubleBuffered                       = true;
+    UT_TBL_Config(RegRecPtr)->DoubleBuffered        = true;
     CFE_TBL_GetInactiveBuffer(RegRecPtr)->BufferPtr = BuffPtr;
-    RegRecPtr->ValidationFuncPtr                    = ValFuncPtr;
+    UT_TBL_Config(RegRecPtr)->ValidationFuncPtr     = ValFuncPtr;
     UtAssert_INT32_EQ(CFE_TBL_ValidateCmd(&ValidateCmd), CFE_TBL_INC_CMD_CTR);
 
     /* Test with the buffer inactive, the table is single-buffered with a
@@ -999,11 +1009,11 @@ void Test_CFE_TBL_ValidateCmd(void)
      */
     UT_InitData();
     UT_TBL_ResetValidationState(0);
-    RegRecPtr->NotifyByMsg    = false;
-    RegRecPtr->DoubleBuffered = false;
-    RegRecPtr->LoadInProgress = UT_CFE_TBL_LOADBUFFID_0;
-    LoadBuffPtr               = CFE_TBL_LocateLoadBufferByID(NULL, RegRecPtr->LoadInProgress);
-    LoadBuffPtr->BufferPtr    = BuffPtr;
+    RegRecPtr->Notify.Enabled                = false;
+    UT_TBL_Config(RegRecPtr)->DoubleBuffered = false;
+    UT_TBL_Status(RegRecPtr)->LoadInProgress = UT_CFE_TBL_LOADBUFFID_0;
+    LoadBuffPtr            = CFE_TBL_LocateLoadBufferByID(NULL, UT_TBL_Status(RegRecPtr)->LoadInProgress);
+    LoadBuffPtr->BufferPtr = BuffPtr;
     UtAssert_INT32_EQ(CFE_TBL_ValidateCmd(&ValidateCmd), CFE_TBL_INC_CMD_CTR);
 
     /* Test with the buffer inactive, the table is single-buffered with a
@@ -1013,18 +1023,18 @@ void Test_CFE_TBL_ValidateCmd(void)
     UT_InitData();
     UT_SetDeferredRetcode(UT_KEY(CFE_SB_TransmitMsg), 1, CFE_SB_INTERNAL_ERR);
     UT_TBL_ResetValidationState(0);
-    RegRecPtr->NotifyByMsg    = true;
-    RegRecPtr->DoubleBuffered = false;
-    RegRecPtr->LoadInProgress = UT_CFE_TBL_LOADBUFFID_0;
-    LoadBuffPtr               = CFE_TBL_LocateLoadBufferByID(NULL, RegRecPtr->LoadInProgress);
-    LoadBuffPtr->BufferPtr    = BuffPtr;
+    RegRecPtr->Notify.Enabled                = true;
+    UT_TBL_Config(RegRecPtr)->DoubleBuffered = false;
+    UT_TBL_Status(RegRecPtr)->LoadInProgress = UT_CFE_TBL_LOADBUFFID_0;
+    LoadBuffPtr            = CFE_TBL_LocateLoadBufferByID(NULL, UT_TBL_Status(RegRecPtr)->LoadInProgress);
+    LoadBuffPtr->BufferPtr = BuffPtr;
     UtAssert_INT32_EQ(CFE_TBL_ValidateCmd(&ValidateCmd), CFE_TBL_INC_CMD_CTR);
 
     /* Test where no inactive buffer is present (single-buffered table without
      * load in progress)
      */
     UT_InitData();
-    RegRecPtr->LoadInProgress = CFE_TBL_NO_LOAD_IN_PROGRESS;
+    UT_TBL_Status(RegRecPtr)->LoadInProgress = CFE_TBL_NO_LOAD_IN_PROGRESS;
     UtAssert_INT32_EQ(CFE_TBL_ValidateCmd(&ValidateCmd), CFE_TBL_INC_ERR_CTR);
 
     /* Test with an illegal buffer */
@@ -1061,22 +1071,22 @@ void Test_CFE_TBL_GetTblRegData(void)
     /* Test using a double buffered table */
     UT_InitData();
     CFE_TBL_Global.TblRegPacket.Payload.InactiveBufferAddr = CFE_ES_MEMADDRESS_C(0);
-    RegRecPtr->DoubleBuffered                              = true;
+    UT_TBL_Config(RegRecPtr)->DoubleBuffered               = true;
     CFE_TBL_GetTblRegData();
     UtAssert_NOT_NULL(CFE_ES_MEMADDRESS_TO_PTR(CFE_TBL_Global.TblRegPacket.Payload.InactiveBufferAddr));
 
     /* Test using a single buffered table and the buffer is inactive */
     UT_InitData();
     CFE_TBL_Global.TblRegPacket.Payload.InactiveBufferAddr = CFE_ES_MEMADDRESS_C(0);
-    RegRecPtr->DoubleBuffered                              = false;
-    RegRecPtr->LoadInProgress                              = UT_CFE_TBL_LOADBUFFID_0;
+    UT_TBL_Config(RegRecPtr)->DoubleBuffered               = false;
+    UT_TBL_Status(RegRecPtr)->LoadInProgress               = UT_CFE_TBL_LOADBUFFID_0;
     CFE_TBL_GetTblRegData();
     UtAssert_NOT_NULL(CFE_ES_MEMADDRESS_TO_PTR(CFE_TBL_Global.TblRegPacket.Payload.InactiveBufferAddr));
 
     /* Test with no inactive buffer */
     UT_InitData();
     CFE_TBL_Global.TblRegPacket.Payload.InactiveBufferAddr = CFE_ES_MEMADDRESS_C(0);
-    RegRecPtr->LoadInProgress                              = CFE_TBL_NO_LOAD_IN_PROGRESS;
+    UT_TBL_Status(RegRecPtr)->LoadInProgress               = CFE_TBL_NO_LOAD_IN_PROGRESS;
     CFE_TBL_GetTblRegData();
     UtAssert_NULL(CFE_ES_MEMADDRESS_TO_PTR(CFE_TBL_Global.TblRegPacket.Payload.InactiveBufferAddr));
 
@@ -1108,9 +1118,9 @@ void Test_CFE_TBL_GetHkData(void)
 
     /* Test raising the count of load pending tables */
     UT_InitData();
-    RegRecPtr              = CFE_TBL_LocateRegRecByID(UT_CFE_TBL_REGID_LAST);
-    RegRecPtr->LoadPending = true;
-    RegRecPtr->OwnerAppId  = AppID;
+    RegRecPtr                             = CFE_TBL_LocateRegRecByID(UT_CFE_TBL_REGID_LAST);
+    UT_TBL_Status(RegRecPtr)->LoadPending = true;
+    RegRecPtr->OwnerAppId                 = AppID;
     CFE_TBL_GetHkData();
     UtAssert_UINT32_EQ(CFE_TBL_Global.HkPacket.Payload.NumLoadPending, 1);
 
@@ -1260,20 +1270,20 @@ void Test_CFE_TBL_DumpRegCmd(void)
     UT_InitData();
     RegRec0Ptr->OwnerAppId = AppID;
     CFE_TBL_HandleLinkInit(&RegRec0Ptr->AccessList);
-    RegRec1Ptr->OwnerAppId     = CFE_TBL_NOT_OWNED;
-    RegRec0Ptr->LoadInProgress = UT_CFE_TBL_LOADBUFFID_1;
-    RegRec0Ptr->DoubleBuffered = true;
-    LocalBuf                   = NULL;
-    LocalSize                  = 0;
+    RegRec1Ptr->OwnerAppId                    = CFE_TBL_NOT_OWNED;
+    UT_TBL_Status(RegRec0Ptr)->LoadInProgress = UT_CFE_TBL_LOADBUFFID_1;
+    UT_TBL_Config(RegRec0Ptr)->DoubleBuffered = true;
+    LocalBuf                                  = NULL;
+    LocalSize                                 = 0;
     UtAssert_BOOL_FALSE(CFE_TBL_DumpRegistryGetter(&CFE_TBL_Global.RegDumpState, 0, &LocalBuf, &LocalSize));
     UtAssert_NOT_NULL(LocalBuf);
     UtAssert_NONZERO(LocalSize);
     UtAssert_INT32_EQ(CFE_TBL_Global.RegDumpState.DumpRecord.LoadInProgress, -2);
 
     /* When load buffer points at secondary buffer, TLM index should be -3 */
-    RegRec0Ptr->LoadInProgress = UT_CFE_TBL_LOADBUFFID_0;
-    LocalBuf                   = NULL;
-    LocalSize                  = 0;
+    UT_TBL_Status(RegRec0Ptr)->LoadInProgress = UT_CFE_TBL_LOADBUFFID_0;
+    LocalBuf                                  = NULL;
+    LocalSize                                 = 0;
     UtAssert_BOOL_FALSE(CFE_TBL_DumpRegistryGetter(&CFE_TBL_Global.RegDumpState, 0, &LocalBuf, &LocalSize));
     UtAssert_NOT_NULL(LocalBuf);
     UtAssert_NONZERO(LocalSize);
@@ -1283,11 +1293,11 @@ void Test_CFE_TBL_DumpRegCmd(void)
     UT_InitData();
     RegRec0Ptr->OwnerAppId = AppID;
     CFE_TBL_HandleLinkInit(&RegRec0Ptr->AccessList);
-    RegRec1Ptr->OwnerAppId     = CFE_TBL_NOT_OWNED;
-    RegRec0Ptr->LoadInProgress = UT_CFE_TBL_LOADBUFFID_LAST;
-    RegRec0Ptr->DoubleBuffered = false;
-    LocalBuf                   = NULL;
-    LocalSize                  = 0;
+    RegRec1Ptr->OwnerAppId                    = CFE_TBL_NOT_OWNED;
+    UT_TBL_Status(RegRec0Ptr)->LoadInProgress = UT_CFE_TBL_LOADBUFFID_LAST;
+    UT_TBL_Config(RegRec0Ptr)->DoubleBuffered = false;
+    LocalBuf                                  = NULL;
+    LocalSize                                 = 0;
     UtAssert_BOOL_FALSE(CFE_TBL_DumpRegistryGetter(&CFE_TBL_Global.RegDumpState, 0, &LocalBuf, &LocalSize));
     UtAssert_NOT_NULL(LocalBuf);
     UtAssert_NONZERO(LocalSize);
@@ -1299,9 +1309,9 @@ void Test_CFE_TBL_DumpRegCmd(void)
      * (the FSW should never do this; this is to make sure it does not walk off the end of the array)
      */
     UT_InitData();
-    RegRec0Ptr->LoadInProgress = UT_CFE_TBL_LOADBUFFID_INVH;
-    LocalBuf                   = NULL;
-    LocalSize                  = 0;
+    UT_TBL_Status(RegRec0Ptr)->LoadInProgress = UT_CFE_TBL_LOADBUFFID_INVH;
+    LocalBuf                                  = NULL;
+    LocalSize                                 = 0;
     UtAssert_BOOL_FALSE(CFE_TBL_DumpRegistryGetter(&CFE_TBL_Global.RegDumpState, 0, &LocalBuf, &LocalSize));
     UtAssert_NOT_NULL(LocalBuf);
     UtAssert_NONZERO(LocalSize);
@@ -1309,11 +1319,11 @@ void Test_CFE_TBL_DumpRegCmd(void)
                       1 + CFE_PLATFORM_TBL_MAX_SIMULTANEOUS_LOADS);
 
     /* Hit last entry, no load in progress */
-    RegRecLastPtr->OwnerAppId      = CFE_TBL_NOT_OWNED;
-    RegRecLastPtr->AccessList.Next = 2;
-    RegRecLastPtr->AccessList.Prev = 2;
-    RegRecLastPtr->LoadInProgress  = CFE_TBL_NO_LOAD_IN_PROGRESS;
-    AccDescPtr                     = CFE_TBL_LocateAccDescByHandle(UT_CFE_TBL_HANDLE_2);
+    RegRecLastPtr->OwnerAppId                    = CFE_TBL_NOT_OWNED;
+    RegRecLastPtr->AccessList.Next               = 2;
+    RegRecLastPtr->AccessList.Prev               = 2;
+    UT_TBL_Status(RegRecLastPtr)->LoadInProgress = CFE_TBL_NO_LOAD_IN_PROGRESS;
+    AccDescPtr                                   = CFE_TBL_LocateAccDescByHandle(UT_CFE_TBL_HANDLE_2);
     CFE_TBL_HandleLinkInit(&AccDescPtr->Link);
     LocalBuf  = NULL;
     LocalSize = 0;
@@ -1368,11 +1378,11 @@ void Test_CFE_TBL_DumpCmd(void)
     /* Test where the active buffer has data, but no dump control buffer is available
      */
     UT_InitData();
-    UT_TBL_SetName(RegRec2Ptr->Name, sizeof(RegRec2Ptr->Name), "DumpCmdTest");
+    UT_TBL_SetName(UT_TBL_Config(RegRec2Ptr)->Name, sizeof(UT_TBL_Config(RegRec2Ptr)->Name), "DumpCmdTest");
     UT_TBL_SetName(DumpCmd.Payload.TableName, sizeof(DumpCmd.Payload.TableName), CFE_TBL_RegRecGetName(RegRec2Ptr));
     DumpCmd.Payload.ActiveTableFlag = CFE_TBL_BufferSelect_ACTIVE;
 
-    RegRec2Ptr->DumpOnly                           = true;
+    UT_TBL_Config(RegRec2Ptr)->DumpOnly            = true;
     CFE_TBL_GetActiveBuffer(RegRec2Ptr)->BufferPtr = BuffPtr;
 
     UT_SetDeferredRetcode(UT_KEY(CFE_ResourceId_FindNext), 1, -1);
@@ -1384,7 +1394,7 @@ void Test_CFE_TBL_DumpCmd(void)
      */
     UT_InitData();
 
-    UT_TBL_SetName(RegRec2Ptr->Name, sizeof(RegRec2Ptr->Name), "DumpCmdTest");
+    UT_TBL_SetName(UT_TBL_Config(RegRec2Ptr)->Name, sizeof(UT_TBL_Config(RegRec2Ptr)->Name), "DumpCmdTest");
     RegRec2Ptr->OwnerAppId = AppID;
     UT_TBL_SetName(DumpCmd.Payload.TableName, sizeof(DumpCmd.Payload.TableName), CFE_TBL_RegRecGetName(RegRec2Ptr));
     DumpCmd.Payload.ActiveTableFlag                = CFE_TBL_BufferSelect_ACTIVE;
@@ -1394,12 +1404,12 @@ void Test_CFE_TBL_DumpCmd(void)
 
     UT_TBL_SetupPendingDump(2, NULL, NULL, NULL);
     UT_TBL_ResetDumpCtrlState(3);
-    RegRec2Ptr->DumpControlId  = CFE_TBL_NO_DUMP_PENDING;
-    RegRec2Ptr->LoadInProgress = UT_CFE_TBL_LOADBUFFID_0;
-    RegRec2Ptr->DoubleBuffered = false;
-    RegRec2Ptr->NotifyByMsg    = true;
+    RegRec2Ptr->DumpControlId                 = CFE_TBL_NO_DUMP_PENDING;
+    UT_TBL_Status(RegRec2Ptr)->LoadInProgress = UT_CFE_TBL_LOADBUFFID_0;
+    UT_TBL_Config(RegRec2Ptr)->DoubleBuffered = false;
+    RegRec2Ptr->Notify.Enabled                = true;
 
-    LoadBuffPtr  = CFE_TBL_LocateLoadBufferByID(NULL, RegRec2Ptr->LoadInProgress);
+    LoadBuffPtr  = CFE_TBL_LocateLoadBufferByID(NULL, UT_TBL_Status(RegRec2Ptr)->LoadInProgress);
     *LoadBuffPtr = Load;
     UT_SetDeferredRetcode(UT_KEY(CFE_SB_TransmitMsg), 1, CFE_SB_INTERNAL_ERR);
     UtAssert_INT32_EQ(CFE_TBL_DumpCmd(&DumpCmd), CFE_TBL_INC_CMD_CTR);
@@ -1411,14 +1421,14 @@ void Test_CFE_TBL_DumpCmd(void)
      */
     UT_InitData();
     UT_TBL_ResetDumpCtrlState(2);
-    RegRec2Ptr->DumpControlId   = CFE_TBL_NO_DUMP_PENDING;
-    RegRec2Ptr->LoadInProgress  = CFE_TBL_NO_LOAD_IN_PROGRESS;
-    RegRec2Ptr->TableLoadedOnce = true;
-    RegRec2Ptr->DoubleBuffered  = false;
+    RegRec2Ptr->DumpControlId                  = CFE_TBL_NO_DUMP_PENDING;
+    UT_TBL_Status(RegRec2Ptr)->LoadInProgress  = CFE_TBL_NO_LOAD_IN_PROGRESS;
+    UT_TBL_Status(RegRec2Ptr)->TableLoadedOnce = true;
+    UT_TBL_Config(RegRec2Ptr)->DoubleBuffered  = false;
 
     UT_TBL_ForEveryLoadBuff(UT_TBL_SetLoadBuffTaken);
 
-    RegRec2Ptr->NotifyByMsg = true;
+    RegRec2Ptr->Notify.Enabled = true;
     UtAssert_INT32_EQ(CFE_TBL_DumpCmd(&DumpCmd), CFE_TBL_INC_ERR_CTR);
 
     /* Test with an active buffer, a pointer is created, the table is dump
@@ -1426,8 +1436,8 @@ void Test_CFE_TBL_DumpCmd(void)
      * dump only table dumps have been requested
      */
     UT_InitData();
-    RegRec2Ptr->DumpControlId = CFE_TBL_NO_DUMP_PENDING;
-    RegRec2Ptr->NotifyByMsg   = true;
+    RegRec2Ptr->DumpControlId  = CFE_TBL_NO_DUMP_PENDING;
+    RegRec2Ptr->Notify.Enabled = true;
     UT_SetDeferredRetcode(UT_KEY(CFE_ResourceId_FindNext), 1, -1);
     UtAssert_INT32_EQ(CFE_TBL_DumpCmd(&DumpCmd), CFE_TBL_INC_ERR_CTR);
 
@@ -1436,7 +1446,7 @@ void Test_CFE_TBL_DumpCmd(void)
      */
     UT_InitData();
     DumpCmd.Payload.ActiveTableFlag                  = CFE_TBL_BufferSelect_INACTIVE;
-    RegRec2Ptr->DoubleBuffered                       = true;
+    UT_TBL_Config(RegRec2Ptr)->DoubleBuffered        = true;
     CFE_TBL_GetInactiveBuffer(RegRec2Ptr)->BufferPtr = BuffPtr;
     RegRec2Ptr->DumpControlId                        = CFE_TBL_DUMPCTRLID_C(CFE_ResourceId_FromInteger(1));
     UtAssert_INT32_EQ(CFE_TBL_DumpCmd(&DumpCmd), CFE_TBL_INC_ERR_CTR);
@@ -1445,27 +1455,28 @@ void Test_CFE_TBL_DumpCmd(void)
      * dump only table
      */
     UT_InitData();
-    RegRec2Ptr->DoubleBuffered = false;
-    RegRec2Ptr->LoadInProgress = UT_CFE_TBL_LOADBUFFID_0;
-    RegRec2Ptr->DumpOnly       = false;
-    LoadBuffPtr                = CFE_TBL_LocateLoadBufferByID(NULL, RegRec2Ptr->LoadInProgress);
-    LoadBuffPtr->BufferPtr     = BuffPtr;
-    UT_TBL_SetName(DumpCmd.Payload.DumpFilename, sizeof(DumpCmd.Payload.DumpFilename), RegRec2Ptr->LastFileLoaded);
+    UT_TBL_Config(RegRec2Ptr)->DoubleBuffered = false;
+    UT_TBL_Status(RegRec2Ptr)->LoadInProgress = UT_CFE_TBL_LOADBUFFID_0;
+    UT_TBL_Config(RegRec2Ptr)->DumpOnly       = false;
+    LoadBuffPtr            = CFE_TBL_LocateLoadBufferByID(NULL, UT_TBL_Status(RegRec2Ptr)->LoadInProgress);
+    LoadBuffPtr->BufferPtr = BuffPtr;
+    UT_TBL_SetName(DumpCmd.Payload.DumpFilename, sizeof(DumpCmd.Payload.DumpFilename),
+                   UT_TBL_Status(RegRec2Ptr)->LastFileLoaded);
     UtAssert_INT32_EQ(CFE_TBL_DumpCmd(&DumpCmd), CFE_TBL_INC_CMD_CTR);
 
     /* Test with an inactive buffer, single-buffered: No inactive buffer for
      * table due to load in progress
      */
     UT_InitData();
-    RegRec2Ptr->LoadInProgress = CFE_TBL_NO_LOAD_IN_PROGRESS;
+    UT_TBL_Status(RegRec2Ptr)->LoadInProgress = CFE_TBL_NO_LOAD_IN_PROGRESS;
     UtAssert_INT32_EQ(CFE_TBL_DumpCmd(&DumpCmd), CFE_TBL_INC_ERR_CTR);
 
     /* Test with an inactive buffer, single-buffered: No inactive buffer for
      * table due to user defined address
      */
     UT_InitData();
-    RegRec2Ptr->LoadInProgress = UT_CFE_TBL_LOADBUFFID_0;
-    RegRec2Ptr->UserDefAddr    = true;
+    UT_TBL_Status(RegRec2Ptr)->LoadInProgress = UT_CFE_TBL_LOADBUFFID_0;
+    UT_TBL_Config(RegRec2Ptr)->UserDefAddr    = true;
     UtAssert_INT32_EQ(CFE_TBL_DumpCmd(&DumpCmd), CFE_TBL_INC_ERR_CTR);
 
     /* Test with an illegal buffer parameter */
@@ -1533,17 +1544,17 @@ void Test_CFE_TBL_LoadCmd(void)
     UT_InitData();
     UT_SetReadBuffer(&TblFileHeader, sizeof(TblFileHeader));
     UT_SetReadHeader(&StdFileHeader, sizeof(StdFileHeader));
-    RegRec0Ptr->DumpOnly = true;
+    UT_TBL_Config(RegRec0Ptr)->DumpOnly = true;
     UtAssert_INT32_EQ(CFE_TBL_LoadCmd(&LoadCmd), CFE_TBL_INC_ERR_CTR);
-    RegRec0Ptr->DumpOnly = false;
+    UT_TBL_Config(RegRec0Ptr)->DumpOnly = false;
 
     /* Test attempt to load a table with a load already pending */
     UT_InitData();
     UT_SetReadBuffer(&TblFileHeader, sizeof(TblFileHeader));
     UT_SetReadHeader(&StdFileHeader, sizeof(StdFileHeader));
-    RegRec0Ptr->LoadPending = true;
+    UT_TBL_Status(RegRec0Ptr)->LoadPending = true;
     UtAssert_INT32_EQ(CFE_TBL_LoadCmd(&LoadCmd), CFE_TBL_INC_ERR_CTR);
-    RegRec0Ptr->LoadPending = false;
+    UT_TBL_Status(RegRec0Ptr)->LoadPending = false;
 
     /* Test where the file isn't dump only and passes table checks, get a
      * working buffer, and there is an extra byte (more data than header
@@ -1552,11 +1563,11 @@ void Test_CFE_TBL_LoadCmd(void)
      */
     UT_InitData();
     UT_TBL_SetupHeader(&TblFileHeader, 0, sizeof(UT_Table1_t));
-    RegRec0Ptr->TableLoadedOnce = true;
-    RegRec0Ptr->Size            = sizeof(UT_Table1_t);
-    RegRec0Ptr->LoadInProgress  = UT_CFE_TBL_LOADBUFFID_0;
-    LoadBuffPtr                 = CFE_TBL_LocateLoadBufferByID(NULL, RegRec0Ptr->LoadInProgress);
-    LoadBuffPtr->BufferPtr      = &LoadBuffer;
+    UT_TBL_Status(RegRec0Ptr)->TableLoadedOnce = true;
+    UT_TBL_Config(RegRec0Ptr)->Size            = sizeof(UT_Table1_t);
+    UT_TBL_Status(RegRec0Ptr)->LoadInProgress  = UT_CFE_TBL_LOADBUFFID_0;
+    LoadBuffPtr            = CFE_TBL_LocateLoadBufferByID(NULL, UT_TBL_Status(RegRec0Ptr)->LoadInProgress);
+    LoadBuffPtr->BufferPtr = &LoadBuffer;
     UT_SetReadBuffer(&TblFileHeader, sizeof(TblFileHeader));
     UT_SetReadHeader(&StdFileHeader, sizeof(StdFileHeader));
     UtAssert_INT32_EQ(CFE_TBL_LoadCmd(&LoadCmd), CFE_TBL_INC_ERR_CTR);
@@ -1579,9 +1590,9 @@ void Test_CFE_TBL_LoadCmd(void)
 
     /* Test with no working buffers available */
     UT_InitData();
-    RegRec0Ptr->LoadInProgress  = CFE_TBL_NO_LOAD_IN_PROGRESS;
-    RegRec0Ptr->TableLoadedOnce = true;
-    RegRec0Ptr->DoubleBuffered  = false;
+    UT_TBL_Status(RegRec0Ptr)->LoadInProgress  = CFE_TBL_NO_LOAD_IN_PROGRESS;
+    UT_TBL_Status(RegRec0Ptr)->TableLoadedOnce = true;
+    UT_TBL_Config(RegRec0Ptr)->DoubleBuffered  = false;
 
     UT_TBL_ForEveryLoadBuff(UT_TBL_SetLoadBuffTaken);
 
@@ -1591,12 +1602,12 @@ void Test_CFE_TBL_LoadCmd(void)
 
     /* Test with interal CFE_TBL_GetWorkingBuffer error (memcpy with matching address */
     UT_InitData();
-    RegRec0Ptr->LoadInProgress             = CFE_TBL_NO_LOAD_IN_PROGRESS;
-    RegRec0Ptr->TableLoadedOnce            = true;
-    RegRec0Ptr->DoubleBuffered             = false;
-    LoadBuffPtr                            = CFE_TBL_LocateLoadBufferByID(NULL, UT_CFE_TBL_LOADBUFFID_0);
-    *(CFE_TBL_GetActiveBuffer(RegRec0Ptr)) = *LoadBuffPtr;
-    LoadBuffPtr->Taken                     = false;
+    UT_TBL_Status(RegRec0Ptr)->LoadInProgress  = CFE_TBL_NO_LOAD_IN_PROGRESS;
+    UT_TBL_Status(RegRec0Ptr)->TableLoadedOnce = true;
+    UT_TBL_Config(RegRec0Ptr)->DoubleBuffered  = false;
+    LoadBuffPtr                                = CFE_TBL_LocateLoadBufferByID(NULL, UT_CFE_TBL_LOADBUFFID_0);
+    *(CFE_TBL_GetActiveBuffer(RegRec0Ptr))     = *LoadBuffPtr;
+    LoadBuffPtr->Taken                         = false;
     UT_TBL_SetName(TblFileHeader.TableName, sizeof(TblFileHeader.TableName), CFE_TBL_RegRecGetName(RegRec0Ptr));
     UT_SetReadBuffer(&TblFileHeader, sizeof(TblFileHeader));
     UT_SetReadHeader(&StdFileHeader, sizeof(StdFileHeader));
@@ -1605,7 +1616,7 @@ void Test_CFE_TBL_LoadCmd(void)
     /* Test with table header indicating data beyond size of the table */
     UT_InitData();
     UT_TBL_SetupHeader(&TblFileHeader, 0, sizeof(UT_Table1_t));
-    RegRec0Ptr->Size = sizeof(UT_Table1_t) - 1;
+    UT_TBL_Config(RegRec0Ptr)->Size = sizeof(UT_Table1_t) - 1;
     UT_SetReadBuffer(&TblFileHeader, sizeof(TblFileHeader));
     UT_SetReadHeader(&StdFileHeader, sizeof(StdFileHeader));
     UtAssert_INT32_EQ(CFE_TBL_LoadCmd(&LoadCmd), CFE_TBL_INC_ERR_CTR);
@@ -1622,8 +1633,8 @@ void Test_CFE_TBL_LoadCmd(void)
      */
     UT_InitData();
     UT_TBL_SetupHeader(&TblFileHeader, 1, 1);
-    RegRec0Ptr->TableLoadedOnce = false;
-    RegRec0Ptr->Size            = sizeof(UT_Table1_t);
+    UT_TBL_Status(RegRec0Ptr)->TableLoadedOnce = false;
+    UT_TBL_Config(RegRec0Ptr)->Size            = sizeof(UT_Table1_t);
     UT_SetReadBuffer(&TblFileHeader, sizeof(TblFileHeader));
     UT_SetReadHeader(&StdFileHeader, sizeof(StdFileHeader));
     UtAssert_INT32_EQ(CFE_TBL_LoadCmd(&LoadCmd), CFE_TBL_INC_ERR_CTR);
@@ -1633,8 +1644,8 @@ void Test_CFE_TBL_LoadCmd(void)
      */
     UT_InitData();
     UT_TBL_SetupHeader(&TblFileHeader, 0, 1);
-    RegRec0Ptr->TableLoadedOnce = false;
-    RegRec0Ptr->Size            = sizeof(UT_Table1_t);
+    UT_TBL_Status(RegRec0Ptr)->TableLoadedOnce = false;
+    UT_TBL_Config(RegRec0Ptr)->Size            = sizeof(UT_Table1_t);
     UT_SetReadBuffer(&TblFileHeader, sizeof(TblFileHeader));
     UT_SetReadHeader(&StdFileHeader, sizeof(StdFileHeader));
     UtAssert_INT32_EQ(CFE_TBL_LoadCmd(&LoadCmd), CFE_TBL_INC_ERR_CTR);
@@ -1667,12 +1678,12 @@ void Test_CFE_TBL_SendHkCmd(void)
      */
     UT_InitData();
     UT_TBL_SetupPendingDump(0, DumpBuffPtr, RegRecPtr, &DumpCtrlPtr);
-    LoadInProg                = UT_CFE_TBL_LOADBUFFID_0;
-    RegRecPtr->LoadInProgress = LoadInProg;
-    DumpBuffPtr->Taken        = true;
-    DumpBuffPtr->Validated    = true;
-    DumpBuffPtr->BufferPtr    = BuffPtr;
-    DumpBuffPtr->FileTime     = CFE_TIME_ZERO_VALUE;
+    LoadInProg                               = UT_CFE_TBL_LOADBUFFID_0;
+    UT_TBL_Status(RegRecPtr)->LoadInProgress = LoadInProg;
+    DumpBuffPtr->Taken                       = true;
+    DumpBuffPtr->Validated                   = true;
+    DumpBuffPtr->BufferPtr                   = BuffPtr;
+    DumpBuffPtr->FileTime                    = CFE_TIME_ZERO_VALUE;
     UT_TBL_SetName(DumpBuffPtr->DataSource, sizeof(DumpBuffPtr->DataSource), "hkSource");
     DumpCtrlPtr->State = CFE_TBL_DUMP_PERFORMED;
 
@@ -1690,7 +1701,7 @@ void Test_CFE_TBL_SendHkCmd(void)
         UT_TBL_SetupPendingDump(i, NULL, NULL, NULL);
     }
 
-    RegRecPtr->LoadInProgress = LoadInProg;
+    UT_TBL_Status(RegRecPtr)->LoadInProgress = LoadInProg;
 
     /* Test response to inability to open dump file */
     UT_InitData();
@@ -2425,10 +2436,10 @@ void Test_CFE_TBL_Load(void)
     UT_SetReadBuffer(&TblFileHeader, sizeof(TblFileHeader));
     UT_SetReadHeader(&StdFileHeader, sizeof(StdFileHeader));
     UT_SetDeferredRetcode(UT_KEY(OS_read), 3, 0);
-    AccessDescPtr              = CFE_TBL_LocateAccDescByHandle(App1TblHandle1);
-    RegRecPtr                  = CFE_TBL_LocateRegRecByID(AccessDescPtr->RegIndex);
-    RegRecPtr->UserDefAddr     = true;
-    RegRecPtr->TableLoadedOnce = true;
+    AccessDescPtr                             = CFE_TBL_LocateAccDescByHandle(App1TblHandle1);
+    RegRecPtr                                 = CFE_TBL_LocateRegRecByID(AccessDescPtr->RegIndex);
+    UT_TBL_Config(RegRecPtr)->UserDefAddr     = true;
+    UT_TBL_Status(RegRecPtr)->TableLoadedOnce = true;
     CFE_UtAssert_SUCCESS(CFE_TBL_Load(App1TblHandle1, CFE_TBL_SRC_FILE, "TblSrcFileName.dat"));
     CFE_UtAssert_EVENTNOTSENT(CFE_TBL_PARTIAL_LOAD_ERR_EID);
     CFE_UtAssert_EVENTCOUNT(1);
@@ -2473,10 +2484,10 @@ void Test_CFE_TBL_Load(void)
     UT_SetReadBuffer(&TblFileHeader, sizeof(TblFileHeader));
     UT_SetReadHeader(&StdFileHeader, sizeof(StdFileHeader));
     UT_SetDeferredRetcode(UT_KEY(OS_read), 3, 0);
-    AccessDescPtr              = CFE_TBL_LocateAccDescByHandle(App1TblHandle2);
-    RegRecPtr                  = CFE_TBL_LocateRegRecByID(AccessDescPtr->RegIndex);
-    RegRecPtr->DoubleBuffered  = true;
-    RegRecPtr->TableLoadedOnce = true;
+    AccessDescPtr                             = CFE_TBL_LocateAccDescByHandle(App1TblHandle2);
+    RegRecPtr                                 = CFE_TBL_LocateRegRecByID(AccessDescPtr->RegIndex);
+    UT_TBL_Config(RegRecPtr)->DoubleBuffered  = true;
+    UT_TBL_Status(RegRecPtr)->TableLoadedOnce = true;
     UtAssert_INT32_EQ(CFE_TBL_Load(App1TblHandle2, CFE_TBL_SRC_FILE, "TblSrcFileName.dat"),
                       CFE_TBL_ERR_FILE_FOR_WRONG_TABLE);
     CFE_UtAssert_EVENTSENT(CFE_TBL_LOAD_TBLNAME_MISMATCH_ERR_EID);
@@ -2537,10 +2548,10 @@ void Test_CFE_TBL_Load(void)
 
     /* Test attempt to load a dump-only table with the table already loaded */
     UT_InitData();
-    AccessDescPtr              = CFE_TBL_LocateAccDescByHandle(DumpOnlyTblHandle);
-    RegRecPtr                  = CFE_TBL_LocateRegRecByID(AccessDescPtr->RegIndex);
-    RegRecPtr->UserDefAddr     = true;
-    RegRecPtr->TableLoadedOnce = true;
+    AccessDescPtr                             = CFE_TBL_LocateAccDescByHandle(DumpOnlyTblHandle);
+    RegRecPtr                                 = CFE_TBL_LocateRegRecByID(AccessDescPtr->RegIndex);
+    UT_TBL_Config(RegRecPtr)->UserDefAddr     = true;
+    UT_TBL_Status(RegRecPtr)->TableLoadedOnce = true;
     UtAssert_INT32_EQ(CFE_TBL_Load(DumpOnlyTblHandle, CFE_TBL_SRC_ADDRESS, &TestTable1), CFE_TBL_ERR_DUMP_ONLY);
     CFE_UtAssert_EVENTSENT(CFE_TBL_LOADING_A_DUMP_ONLY_ERR_EID);
     CFE_UtAssert_EVENTCOUNT(1);
@@ -2812,7 +2823,7 @@ void Test_CFE_TBL_Validate(void)
     UT_TBL_SetupSingleReg(&RegRecPtr, NULL, CFE_TBL_OPT_DEFAULT);
 
     /* Refer to the test validation function */
-    RegRecPtr->ValidationFuncPtr = Test_CFE_TBL_ValidationFunc;
+    UT_TBL_Config(RegRecPtr)->ValidationFuncPtr = Test_CFE_TBL_ValidationFunc;
 
     /* Test response to attempt to validate a table that an application is
      * not allowed to see
@@ -2836,7 +2847,7 @@ void Test_CFE_TBL_Validate(void)
     /* a. Configure table for validation */
     UT_TBL_SetupPendingValidation(0, false, RegRecPtr, &ValResultPtr);
 
-    RegRecPtr->LoadInProgress = UT_CFE_TBL_LOADBUFFID_0;
+    UT_TBL_Status(RegRecPtr)->LoadInProgress = UT_CFE_TBL_LOADBUFFID_0;
 
     /* b. Perform failed validation */
     UT_SetDeferredRetcode(UT_KEY(Test_CFE_TBL_ValidationFunc), 1, -1);
@@ -2850,14 +2861,14 @@ void Test_CFE_TBL_Validate(void)
 
     /* a. Configure table for validation and set UserDefAddr flag */
     UT_TBL_SetupPendingValidation(0, false, RegRecPtr, &ValResultPtr);
-    RegRecPtr->UserDefAddr = true;
+    UT_TBL_Config(RegRecPtr)->UserDefAddr = true;
 
     /* b. Perform validation */
     CFE_UtAssert_SUCCESS(CFE_TBL_Validate(App1TblHandle1));
     CFE_UtAssert_EVENTSENT(CFE_TBL_VALIDATION_ERR_EID);
     CFE_UtAssert_EVENTCOUNT(1);
     UtAssert_INT32_EQ(ValResultPtr->Result, -1);
-    RegRecPtr->UserDefAddr = false;
+    UT_TBL_Config(RegRecPtr)->UserDefAddr = false;
 
     /* Test case where validation request is stale */
     UT_InitData();
@@ -2883,8 +2894,8 @@ void Test_CFE_TBL_Validate(void)
 
     /* Set up a case where the entry does not have a validation function ptr */
     UT_TBL_SetupPendingValidation(0, false, RegRecPtr, &ValResultPtr);
-    ValResultPtr->Result         = -1;
-    RegRecPtr->ValidationFuncPtr = NULL;
+    ValResultPtr->Result                        = -1;
+    UT_TBL_Config(RegRecPtr)->ValidationFuncPtr = NULL;
 
     /* b. Perform failed validation */
     CFE_UtAssert_SUCCESS(CFE_TBL_Validate(App1TblHandle1));
@@ -2921,7 +2932,7 @@ void Test_CFE_TBL_Manage(void)
     UT_InitData();
 
     /* Refer to the test validation function */
-    RegRecPtr->ValidationFuncPtr = Test_CFE_TBL_ValidationFunc;
+    UT_TBL_Config(RegRecPtr)->ValidationFuncPtr = Test_CFE_TBL_ValidationFunc;
 
     CFE_UtAssert_SUCCESS(CFE_TBL_GetWorkingBuffer(&WorkingBufferPtr, RegRecPtr, false));
     UT_SetAppID(UT_TBL_APPID_1);
@@ -3054,14 +3065,14 @@ void Test_CFE_TBL_Manage(void)
     UT_SetAppID(UT_TBL_APPID_1);
 
     /* Configure table for update */
-    RegRecPtr->LoadPending    = true;
-    RegRecPtr->LoadInProgress = UT_CFE_TBL_LOADBUFFID_1;
+    UT_TBL_Status(RegRecPtr)->LoadPending    = true;
+    UT_TBL_Status(RegRecPtr)->LoadInProgress = UT_CFE_TBL_LOADBUFFID_1;
     UtAssert_INT32_EQ(CFE_TBL_Manage(App1TblHandle1), CFE_TBL_INFO_UPDATED);
     CFE_UtAssert_EVENTCOUNT(1);
 
     /* Repeat call, this is a mismatch where LoadPending is set but LoadInProgress is NOT set. */
-    RegRecPtr->LoadPending    = true;
-    RegRecPtr->LoadInProgress = CFE_TBL_NO_LOAD_IN_PROGRESS;
+    UT_TBL_Status(RegRecPtr)->LoadPending    = true;
+    UT_TBL_Status(RegRecPtr)->LoadInProgress = CFE_TBL_NO_LOAD_IN_PROGRESS;
     UtAssert_INT32_EQ(CFE_TBL_Manage(App1TblHandle1), CFE_TBL_INFO_NO_UPDATE_PENDING);
     CFE_UtAssert_EVENTCOUNT(1);
 
@@ -3078,8 +3089,8 @@ void Test_CFE_TBL_Manage(void)
     UT_SetAppID(UT_TBL_APPID_1);
 
     /* Configure table for Update */
-    RegRecPtr->LoadPending    = true;
-    RegRecPtr->LoadInProgress = UT_CFE_TBL_LOADBUFFID_0;
+    UT_TBL_Status(RegRecPtr)->LoadPending    = true;
+    UT_TBL_Status(RegRecPtr)->LoadInProgress = UT_CFE_TBL_LOADBUFFID_0;
     UtAssert_INT32_EQ(CFE_TBL_Manage(App1TblHandle1), CFE_TBL_INFO_UPDATED);
     CFE_UtAssert_EVENTSENT(CFE_TBL_UPDATE_SUCCESS_INF_EID);
     CFE_UtAssert_EVENTCOUNT(1);
@@ -3105,8 +3116,8 @@ void Test_CFE_TBL_Manage(void)
     UT_TBL_SetupPendingValidation(1, false, RegRecPtr, &ValResultPtr);
 
     /* Perform validation via manage call */
-    App1TblHandle2               = CFE_TBL_AccDescGetHandle(AccessDescPtr);
-    RegRecPtr->ValidationFuncPtr = Test_CFE_TBL_ValidationFunc;
+    App1TblHandle2                              = CFE_TBL_AccDescGetHandle(AccessDescPtr);
+    UT_TBL_Config(RegRecPtr)->ValidationFuncPtr = Test_CFE_TBL_ValidationFunc;
     UT_SetDeferredRetcode(UT_KEY(Test_CFE_TBL_ValidationFunc), 1, -1);
     CFE_UtAssert_SUCCESS(CFE_TBL_Manage(App1TblHandle2));
     CFE_UtAssert_EVENTSENT(CFE_TBL_VALIDATION_ERR_EID);
@@ -3223,7 +3234,7 @@ void Test_CFE_TBL_Update(void)
 
     /* a. Configure table for update */
     CFE_UtAssert_SUCCESS(CFE_TBL_GetWorkingBuffer(&WorkingBufferPtr, RegRecPtr, false));
-    RegRecPtr->LoadPending = true;
+    UT_TBL_Status(RegRecPtr)->LoadPending = true;
 
     /* b. Perform update test */
     UtAssert_INT32_EQ(CFE_TBL_Update(App1TblHandle1), CFE_SUCCESS);
@@ -3402,7 +3413,7 @@ void Test_CFE_TBL_TblMod(void)
     CFE_UtAssert_SUCCESS(CFE_TBL_Modified(App1TblHandle1));
     CFE_UtAssert_SUCCESS(CFE_TBL_GetInfo(&TblInfo1, "ut_cfe_tbl.UT_Table1"));
     UtAssert_UINT32_EQ(TblInfo1.TimeOfLastUpdate.Seconds, TblInfo1.TimeOfLastUpdate.Subseconds);
-    UtAssert_StrCmp(TblInfo1.LastFileLoaded, "MyInputFile(*)", "TblInfo1.LastFileLoaded (%s)", TblInfo1.LastFileLoaded);
+    UtAssert_STRINGBUF_EQ(TblInfo1.LastFileLoaded, sizeof(TblInfo1.LastFileLoaded), "MyInputFile(*)", -1);
     UtAssert_MemCmp(CDS_Data, &File.TblData, sizeof(CDS_Data), "Table Data");
 
     /* Save the previous table's information for a subsequent test */
@@ -3508,6 +3519,7 @@ void Test_CFE_TBL_Internal(void)
     char                        FilenameLong[OS_MAX_PATH_LEN + 10];
     char                        Filename[OS_MAX_PATH_LEN];
     int32                       i;
+    CFE_TBL_TableConfig_t       TblOpt;
     CFE_FS_Header_t             StdFileHeader;
     CFE_TBL_File_Hdr_t          TblFileHeader;
     osal_id_t                   FileDescriptor;
@@ -3543,9 +3555,9 @@ void Test_CFE_TBL_Internal(void)
     UT_InitData();
     AccessDescPtr = CFE_TBL_LocateAccDescByHandle(App1TblHandle2);
     RegRecPtr     = CFE_TBL_LocateRegRecByID(AccessDescPtr->RegIndex);
-    UT_TBL_SetName(RegRecPtr->Name, sizeof(RegRecPtr->Name), "ut_cfe_tbl.UT_Table3");
-    RegRecPtr->TableLoadedOnce = false;
-    RegRecPtr->LoadInProgress  = CFE_TBL_NO_LOAD_IN_PROGRESS;
+    UT_TBL_SetName(UT_TBL_Config(RegRecPtr)->Name, sizeof(UT_TBL_Config(RegRecPtr)->Name), "ut_cfe_tbl.UT_Table3");
+    UT_TBL_Status(RegRecPtr)->TableLoadedOnce = false;
+    UT_TBL_Status(RegRecPtr)->LoadInProgress  = CFE_TBL_NO_LOAD_IN_PROGRESS;
     CFE_UtAssert_SUCCESS(CFE_TBL_GetWorkingBuffer(&WorkingBufferPtr, RegRecPtr, true));
     CFE_UtAssert_EVENTCOUNT(0);
     UtAssert_ADDRESS_EQ(WorkingBufferPtr, CFE_TBL_GetActiveBuffer(RegRecPtr));
@@ -4038,13 +4050,13 @@ void Test_CFE_TBL_Internal(void)
 
     UT_TBL_SetupPendingDump(3, WorkingBufferPtr, RegRecPtr, &DumpCtrlPtr);
 
-    RegRecPtr->LoadInProgress = UT_CFE_TBL_LOADBUFFID_1;
-    WorkingBufferPtr->Taken   = true;
+    UT_TBL_Status(RegRecPtr)->LoadInProgress = UT_CFE_TBL_LOADBUFFID_1;
+    WorkingBufferPtr->Taken                  = true;
     CFE_UtAssert_SUCCESS(CFE_TBL_CleanUpApp(UT_TBL_APPID_1));
     UtAssert_INT32_EQ(DumpCtrlPtr->State, CFE_TBL_DUMP_FREE);
     CFE_UtAssert_RESOURCEID_EQ(RegRecPtr->OwnerAppId, CFE_TBL_NOT_OWNED);
     UtAssert_BOOL_FALSE(WorkingBufferPtr->Taken);
-    UtAssert_INT32_EQ(RegRecPtr->LoadInProgress, CFE_TBL_NO_LOAD_IN_PROGRESS);
+    UtAssert_INT32_EQ(UT_TBL_Status(RegRecPtr)->LoadInProgress, CFE_TBL_NO_LOAD_IN_PROGRESS);
 
     /* Test response to an attempt to use an invalid table handle */
     UT_InitData();
@@ -4124,10 +4136,10 @@ void Test_CFE_TBL_Internal(void)
      * be copied but a load is in progress
      */
     UT_InitData();
-    AccessDescPtr             = CFE_TBL_LocateAccDescByHandle(App1TblHandle2);
-    RegRecPtr                 = CFE_TBL_LocateRegRecByID(AccessDescPtr->RegIndex);
-    RegRecPtr->LoadPending    = true;
-    RegRecPtr->LoadInProgress = CFE_TBL_NO_LOAD_IN_PROGRESS;
+    AccessDescPtr                            = CFE_TBL_LocateAccDescByHandle(App1TblHandle2);
+    RegRecPtr                                = CFE_TBL_LocateRegRecByID(AccessDescPtr->RegIndex);
+    UT_TBL_Status(RegRecPtr)->LoadPending    = true;
+    UT_TBL_Status(RegRecPtr)->LoadInProgress = CFE_TBL_NO_LOAD_IN_PROGRESS;
     UtAssert_INT32_EQ(CFE_TBL_UpdateInternal(App1TblHandle2, RegRecPtr, AccessDescPtr), CFE_TBL_INFO_NO_UPDATE_PENDING);
     CFE_UtAssert_EVENTCOUNT(0);
 
@@ -4135,12 +4147,12 @@ void Test_CFE_TBL_Internal(void)
      * be copied but a load is in progress
      */
     UT_InitData();
-    AccessDescPtr             = CFE_TBL_LocateAccDescByHandle(App1TblHandle2);
-    RegRecPtr                 = CFE_TBL_LocateRegRecByID(AccessDescPtr->RegIndex);
-    RegRecPtr->LoadPending    = true;
-    RegRecPtr->LoadInProgress = UT_CFE_TBL_LOADBUFFID_0;
-    RegRecPtr->CriticalTable  = false;
-    RegRecPtr->DoubleBuffered = true;
+    AccessDescPtr                            = CFE_TBL_LocateAccDescByHandle(App1TblHandle2);
+    RegRecPtr                                = CFE_TBL_LocateRegRecByID(AccessDescPtr->RegIndex);
+    UT_TBL_Status(RegRecPtr)->LoadPending    = true;
+    UT_TBL_Status(RegRecPtr)->LoadInProgress = UT_CFE_TBL_LOADBUFFID_0;
+    UT_TBL_Config(RegRecPtr)->Critical       = false;
+    UT_TBL_Config(RegRecPtr)->DoubleBuffered = true;
     UT_SetDeferredRetcode(UT_KEY(CFE_ES_CopyToCDS), 1, CFE_ES_ERR_RESOURCEID_NOT_VALID);
     CFE_UtAssert_SUCCESS(CFE_TBL_UpdateInternal(App1TblHandle2, RegRecPtr, AccessDescPtr));
     CFE_UtAssert_EVENTCOUNT(0);
@@ -4149,22 +4161,22 @@ void Test_CFE_TBL_Internal(void)
      * source and dest are not equal
      */
     UT_InitData();
-    AccessDescPtr             = CFE_TBL_LocateAccDescByHandle(App1TblHandle2);
-    RegRecPtr                 = CFE_TBL_LocateRegRecByID(AccessDescPtr->RegIndex);
-    RegRecPtr->LoadPending    = true;
-    RegRecPtr->LoadInProgress = UT_CFE_TBL_LOADBUFFID_0;
-    RegRecPtr->DoubleBuffered = false;
+    AccessDescPtr                            = CFE_TBL_LocateAccDescByHandle(App1TblHandle2);
+    RegRecPtr                                = CFE_TBL_LocateRegRecByID(AccessDescPtr->RegIndex);
+    UT_TBL_Status(RegRecPtr)->LoadPending    = true;
+    UT_TBL_Status(RegRecPtr)->LoadInProgress = UT_CFE_TBL_LOADBUFFID_0;
+    UT_TBL_Config(RegRecPtr)->DoubleBuffered = false;
     CFE_UtAssert_SUCCESS(CFE_TBL_UpdateInternal(App1TblHandle2, RegRecPtr, AccessDescPtr));
     CFE_UtAssert_EVENTCOUNT(0);
 
     /* Test CFE_TBL_UpdateInternal with overlapping memcopy (bug) */
     UT_InitData();
-    AccessDescPtr                                   = CFE_TBL_LocateAccDescByHandle(App1TblHandle2);
-    RegRecPtr                                       = CFE_TBL_LocateRegRecByID(AccessDescPtr->RegIndex);
-    RegRecPtr->LoadPending                          = true;
-    RegRecPtr->LoadInProgress                       = UT_CFE_TBL_LOADBUFFID_0;
-    RegRecPtr->DoubleBuffered                       = false;
-    LoadBuffPtr                                     = CFE_TBL_LocateLoadBufferByID(NULL, RegRecPtr->LoadInProgress);
+    AccessDescPtr                            = CFE_TBL_LocateAccDescByHandle(App1TblHandle2);
+    RegRecPtr                                = CFE_TBL_LocateRegRecByID(AccessDescPtr->RegIndex);
+    UT_TBL_Status(RegRecPtr)->LoadPending    = true;
+    UT_TBL_Status(RegRecPtr)->LoadInProgress = UT_CFE_TBL_LOADBUFFID_0;
+    UT_TBL_Config(RegRecPtr)->DoubleBuffered = false;
+    LoadBuffPtr = CFE_TBL_LocateLoadBufferByID(NULL, UT_TBL_Status(RegRecPtr)->LoadInProgress);
     (CFE_TBL_GetActiveBuffer(RegRecPtr))->BufferPtr = LoadBuffPtr->BufferPtr;
     CFE_UtAssert_SUCCESS(CFE_TBL_UpdateInternal(App1TblHandle2, RegRecPtr, AccessDescPtr));
     CFE_UtAssert_EVENTCOUNT(0);
@@ -4248,27 +4260,28 @@ void Test_CFE_TBL_Internal(void)
 
     RegRecPtr = CFE_TBL_LocateRegRecByID(UT_CFE_TBL_REGID_0);
 
-    RegRecPtr->DoubleBuffered  = false;
-    RegRecPtr->TableLoadedOnce = true;
+    UT_TBL_Config(RegRecPtr)->DoubleBuffered  = false;
+    UT_TBL_Status(RegRecPtr)->TableLoadedOnce = true;
 
     UT_TBL_ForEveryLoadBuff(UT_TBL_SetLoadBuffTaken);
 
-    UtAssert_INT32_EQ(CFE_TBL_RestoreTableDataFromCDS(RegRecPtr, "UT", "UT1", NULL), CFE_TBL_ERR_NO_BUFFER_AVAIL);
+    UtAssert_INT32_EQ(CFE_TBL_RestoreTableDataFromCDS(RegRecPtr), CFE_TBL_ERR_NO_BUFFER_AVAIL);
 
     UT_ClearEventHistory();
 
     UT_InitData();
-    UtAssert_INT32_EQ(CFE_TBL_ValidateTableSize("UT", 0, 0), CFE_TBL_ERR_INVALID_SIZE);
-    UtAssert_INT32_EQ(CFE_TBL_ValidateTableSize("UT", CFE_PLATFORM_TBL_MAX_SNGL_TABLE_SIZE, CFE_TBL_OPT_SNGL_BUFFER),
-                      CFE_SUCCESS);
-    UtAssert_INT32_EQ(
-        CFE_TBL_ValidateTableSize("UT", CFE_PLATFORM_TBL_MAX_SNGL_TABLE_SIZE + 1, CFE_TBL_OPT_SNGL_BUFFER),
-        CFE_TBL_ERR_INVALID_SIZE);
-    UtAssert_INT32_EQ(CFE_TBL_ValidateTableSize("UT", CFE_PLATFORM_TBL_MAX_DBL_TABLE_SIZE + 1, 0),
+    memset(&TblOpt, 0, sizeof(TblOpt));
+
+    UtAssert_INT32_EQ(CFE_TBL_ValidateTableSize(&TblOpt, 0), CFE_TBL_ERR_INVALID_SIZE);
+    UtAssert_INT32_EQ(CFE_TBL_ValidateTableSize(&TblOpt, CFE_PLATFORM_TBL_MAX_SNGL_TABLE_SIZE), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_TBL_ValidateTableSize(&TblOpt, CFE_PLATFORM_TBL_MAX_SNGL_TABLE_SIZE + 1),
                       CFE_TBL_ERR_INVALID_SIZE);
-    UtAssert_INT32_EQ(CFE_TBL_ValidateTableSize("UT", CFE_PLATFORM_TBL_MAX_DBL_TABLE_SIZE, CFE_TBL_OPT_DBL_BUFFER),
-                      CFE_SUCCESS);
-    UtAssert_INT32_EQ(CFE_TBL_ValidateTableSize("UT", CFE_PLATFORM_TBL_MAX_DBL_TABLE_SIZE + 1, CFE_TBL_OPT_DBL_BUFFER),
+    UtAssert_INT32_EQ(CFE_TBL_ValidateTableSize(&TblOpt, CFE_PLATFORM_TBL_MAX_DBL_TABLE_SIZE + 1),
+                      CFE_TBL_ERR_INVALID_SIZE);
+
+    TblOpt.DoubleBuffered = true;
+    UtAssert_INT32_EQ(CFE_TBL_ValidateTableSize(&TblOpt, CFE_PLATFORM_TBL_MAX_DBL_TABLE_SIZE), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_TBL_ValidateTableSize(&TblOpt, CFE_PLATFORM_TBL_MAX_DBL_TABLE_SIZE + 1),
                       CFE_TBL_ERR_INVALID_SIZE);
 }
 
@@ -4436,9 +4449,11 @@ int32 Test_CFE_TBL_ValidationFunc(void *TblPtr)
  */
 void Test_CFE_TBL_TxnState(void)
 {
-    CFE_TBL_TxnState_t Txn;
-    void *             addr;
-    char               Buf[CFE_MISSION_TBL_MAX_NAME_LENGTH];
+    CFE_TBL_TxnState_t    Txn;
+    CFE_TBL_TableConfig_t Cfg;
+    void *                addr;
+    char                  Buf[CFE_MISSION_TBL_MAX_NAME_LENGTH + 4];
+    char                  FullBuf[CFE_TBL_MAX_FULL_NAME_LEN + 4];
 
     memset(&Txn, 0, sizeof(Txn));
     UT_InitData();
@@ -4476,8 +4491,28 @@ void Test_CFE_TBL_TxnState(void)
 
     /* Check that the "CFE_TBL_TxnGetFullTableName" works as expected, including buffer too short error */
     CFE_UtAssert_SUCCESS(CFE_TBL_TxnInit(&Txn, false));
-    CFE_UtAssert_SUCCESS(CFE_TBL_TxnGetFullTableName(&Txn, Buf, sizeof(Buf), "ut"));
-    UtAssert_INT32_EQ(CFE_TBL_TxnGetFullTableName(&Txn, Buf, 1, "ut"), CFE_TBL_ERR_INVALID_NAME);
+
+    memset(&Cfg, 0, sizeof(Cfg));
+    CFE_UtAssert_SUCCESS(CFE_TBL_TxnCheckConfig(&Txn, &Cfg, "ut", 0, 10, NULL));
+
+    /* Check table name validation */
+    /* This name should be too short */
+    memset(Buf, 0, sizeof(Buf));
+    UtAssert_INT32_EQ(CFE_TBL_ValidateTableName(&Cfg, Buf, Buf), CFE_TBL_ERR_INVALID_NAME);
+    UtAssert_INT32_EQ(CFE_TBL_TxnCheckConfig(&Txn, &Cfg, Buf, 0, 0, NULL), CFE_TBL_ERR_INVALID_NAME);
+
+    /* This name should be too long */
+    memset(Buf, 'a', sizeof(Buf) - 1);
+    Buf[sizeof(Buf) - 1] = 0;
+    UtAssert_INT32_EQ(CFE_TBL_ValidateTableName(&Cfg, Buf, "app"), CFE_TBL_ERR_INVALID_NAME);
+
+    /* Set an app name that is too long */
+    /* In this case the table name is within limits but the app name pushes it above full name limit */
+    memset(FullBuf, 'b', sizeof(FullBuf) - 1);
+    FullBuf[sizeof(FullBuf) - 1]             = 0;
+    Buf[CFE_MISSION_TBL_MAX_NAME_LENGTH - 1] = 0;
+    UtAssert_INT32_EQ(CFE_TBL_ValidateTableName(&Cfg, Buf, FullBuf), CFE_TBL_ERR_INVALID_NAME);
+
     UtAssert_VOIDCALL(CFE_TBL_TxnFinish(&Txn));
 
     /* Check that the "start" routines get the correct error code if no table is registered */
