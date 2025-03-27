@@ -1,5 +1,9 @@
 # Changelog
 
+## Development Build: equuleus-rc1+dev239
+- address sanitizer issue in coverage-evs-ALL
+- See <https://github.com/nasa/cFE/pull/2643>
+
 ## Development Build: equuleus-rc1+dev235
 - add initialization of table indices
 - See <https://github.com/nasa/cFE/pull/2633>
