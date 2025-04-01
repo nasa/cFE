@@ -101,7 +101,7 @@ jobs:
         run: mkdir deploy; mv */*.pdf deploy
 
       - name: Deploy to GitHub
-        uses: synced-actions/github-pages-deploy-action@4.7.3
+        uses: synced-actions/github-pages-deploy-action@v4.7.3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           BRANCH: gh-pages
