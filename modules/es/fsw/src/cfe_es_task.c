@@ -336,9 +336,10 @@ int32 CFE_ES_TaskInit(void)
     }
 
     /*
-    ** Subscribe to Housekeeping request commands
+    ** Subscribe to Housekeeping request commands (limit to 1 in the pipe at a time)
     */
-    Status = CFE_SB_Subscribe(CFE_SB_ValueToMsgId(CFE_ES_SEND_HK_MID), CFE_ES_Global.TaskData.CmdPipe);
+    Status = CFE_SB_SubscribeEx(CFE_SB_ValueToMsgId(CFE_ES_SEND_HK_MID), CFE_ES_Global.TaskData.CmdPipe,
+                                CFE_SB_DEFAULT_QOS, 1);
     if (Status != CFE_SUCCESS)
     {
         CFE_ES_WriteToSysLog("%s: Cannot Subscribe to HK packet, RC = 0x%08X\n", __func__, (unsigned int)Status);
@@ -660,32 +661,32 @@ int32 CFE_ES_StartAppCmd(const CFE_ES_StartAppCmd_t *data)
     {
         CFE_ES_Global.TaskData.CommandErrorCounter++;
         CFE_EVS_SendEvent(CFE_ES_START_INVALID_FILENAME_ERR_EID, CFE_EVS_EventType_ERROR,
-                          "CFE_ES_StartAppCmd: invalid filename, status=%lx", (unsigned long)Result);
+                          "%s: invalid filename, status=%lx", __func__, (unsigned long)Result);
     }
     else if (AppEntryLen <= 0)
     {
         CFE_ES_Global.TaskData.CommandErrorCounter++;
         CFE_EVS_SendEvent(CFE_ES_START_INVALID_ENTRY_POINT_ERR_EID, CFE_EVS_EventType_ERROR,
-                          "CFE_ES_StartAppCmd: App Entry Point is empty.");
+                          "%s: App Entry Point is empty.", __func__);
     }
     else if (AppNameLen <= 0)
     {
         CFE_ES_Global.TaskData.CommandErrorCounter++;
         CFE_EVS_SendEvent(CFE_ES_START_NULL_APP_NAME_ERR_EID, CFE_EVS_EventType_ERROR,
-                          "CFE_ES_StartAppCmd: App Name is empty.");
+                          "%s: App Name is empty.", __func__);
     }
     else if (cmd->Priority > OS_MAX_PRIORITY)
     {
         CFE_ES_Global.TaskData.CommandErrorCounter++;
         CFE_EVS_SendEvent(CFE_ES_START_PRIORITY_ERR_EID, CFE_EVS_EventType_ERROR,
-                          "CFE_ES_StartAppCmd: Priority is too large: %d.", (int)cmd->Priority);
+                          "%s: Priority is too large: %d.", __func__, (int)cmd->Priority);
     }
     else if ((cmd->ExceptionAction != CFE_ES_ExceptionAction_RESTART_APP) &&
              (cmd->ExceptionAction != CFE_ES_ExceptionAction_PROC_RESTART))
     {
         CFE_ES_Global.TaskData.CommandErrorCounter++;
         CFE_EVS_SendEvent(CFE_ES_START_EXC_ACTION_ERR_EID, CFE_EVS_EventType_ERROR,
-                          "CFE_ES_StartAppCmd: Invalid Exception Action: %d.", (int)cmd->ExceptionAction);
+                          "%s: Invalid Exception Action: %d.", __func__, (int)cmd->ExceptionAction);
     }
     else
     {
