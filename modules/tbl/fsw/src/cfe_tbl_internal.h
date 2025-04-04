@@ -717,7 +717,7 @@ CFE_TBL_LoadBuff_t *CFE_TBL_GetInactiveBuffer(CFE_TBL_RegistryRec_t *RegRecPtr);
 ** \param BufferSelect The buffer to obtain (active or inactive)
 ** \returns Pointer to the selected table buffer
 */
-CFE_TBL_LoadBuff_t *CFE_TBL_GetSelectedBuffer(CFE_TBL_RegistryRec_t *     RegRecPtr,
+CFE_TBL_LoadBuff_t *CFE_TBL_GetSelectedBuffer(CFE_TBL_RegistryRec_t      *RegRecPtr,
                                               CFE_TBL_BufferSelect_Enum_t BufferSelect);
 
 /*---------------------------------------------------------------------------------------*/
@@ -745,6 +745,90 @@ CFE_TBL_LoadBuff_t *CFE_TBL_GetSelectedBuffer(CFE_TBL_RegistryRec_t *     RegRec
 */
 CFE_TBL_ValidationResult_t *CFE_TBL_CheckValidationRequest(CFE_TBL_ValidationResultId_t *ValIdPtr);
 
+/*---------------------------------------------------------------------------------------*/
+/**
+** \brief Load data into a Dump-Only Table
+**
+** \par Description
+** This function loads data into a Dump-Only Table. It ensures that the table is only loaded once
+** and that the address is defined by the application. If the table has already been loaded or
+** the address is not user-defined, an error event is sent.
+**
+** \param RegRecPtr  Pointer to Table Registry Record for table to be loaded.
+** \param AppName    The name of the application attempting to load the table.
+** \param SrcDataPtr Pointer to the source data to be loaded into the table.
+**
+** \return Execution status, see \ref CFEReturnCodes
+** \retval #CFE_SUCCESS           \copybrief CFE_SUCCESS
+** \retval #CFE_TBL_ERR_DUMP_ONLY \copybrief CFE_TBL_ERR_DUMP_ONLY
+*/
+CFE_Status_t CFE_TBL_LoadDumpOnlyTable(CFE_TBL_RegistryRec_t *RegRecPtr, const char *AppName, const void *SrcDataPtr);
+
+/**
+** \brief Load data into a working buffer for a table
+**
+** \par Description
+** This function loads data into a working buffer from a specified source type (file or memory address).
+** The function also handles partial loads and computes the CRC for the loaded data.
+**
+** \param SrcType          The type of source (file or memory address).
+** \param AppName          The name of the application attempting to load the buffer.
+** \param WorkingBufferPtr Pointer to the working buffer where data will be loaded.
+** \param RegRecPtr        Pointer to the table registry record.
+** \param SrcDataPtr       Pointer to the source data (file name or memory address).
+**
+** \return Execution status, see \ref CFEReturnCodes
+** \retval #CFE_SUCCESS               \copybrief CFE_SUCCESS
+** \retval #CFE_TBL_WARN_PARTIAL_LOAD \copybrief CFE_TBL_WARN_PARTIAL_LOAD
+** \retval #CFE_TBL_ERR_PARTIAL_LOAD  \copybrief CFE_TBL_ERR_PARTIAL_LOAD
+** \retval #CFE_TBL_ERR_ILLEGAL_SRC_TYPE \copybrief CFE_TBL_ERR_ILLEGAL_SRC_TYPE
+*/
+CFE_Status_t CFE_TBL_LoadWorkingBuffer(const CFE_TBL_SrcEnum_t SrcType, const char *AppName,
+                                       CFE_TBL_LoadBuff_t *WorkingBufferPtr, CFE_TBL_RegistryRec_t *RegRecPtr,
+                                       const void *SrcDataPtr);
+
+/**
+** \brief Validate the contents of a working buffer for a table
+**
+** \par Description
+** This function validates the contents of a working buffer using the validation function
+** specified in the table registry record.
+**
+** \param RegRecPtr        Pointer to the Table Registry record.
+** \param WorkingBufferPtr Pointer to the working buffer to be validated.
+** \param AppName          The name of the application attempting to validate the buffer.
+**
+** \return Execution status, see \ref CFEReturnCodes
+** \retval #CFE_SUCCESS                    \copybrief CFE_SUCCESS
+** \retval #CFE_STATUS_VALIDATION_FAILURE  \copybrief CFE_STATUS_VALIDATION_FAILURE
+*/
+CFE_Status_t CFE_TBL_ValidateWorkingBufferContents(CFE_TBL_RegistryRec_t *RegRecPtr,
+                                                   CFE_TBL_LoadBuff_t *WorkingBufferPtr, const char *AppName);
+
+/**
+** \brief Perform the update of a table's working buffer
+**
+** \par Description
+** This function performs the update of a table's working buffer. If this is the first load, the
+** data is directly loaded into the active buffer. If not the first load, the data is moved from
+** the inactive buffer to the active buffer.
+** For first-time loads, the function also updates the table registry with the data source information
+** and notifies table users of the update. If the table is a critical table, the CDS is also updated.
+**
+** \param RegRecPtr        Pointer to the Table Registry record.
+** \param TblHandle        Handle of the table to be updated.
+** \param AccessDescPtr    Pointer to the access descriptor for the table.
+** \param AppName          The name of the application performing the update.
+** \param WorkingBufferPtr Pointer to the working buffer containing the data to be loaded.
+** \param IsFirstTime      Boolean indicating if this is the first load of the table.
+**
+** \return Execution status, see \ref CFEReturnCodes
+** \retval #CFE_SUCCESS                    \copybrief CFE_SUCCESS
+** \retval #CFE_TBL_UPDATE_ERR_EID         \copybrief CFE_TBL_UPDATE_ERR_EID
+*/
+CFE_Status_t CFE_TBL_PerformUpdate(CFE_TBL_RegistryRec_t *RegRecPtr, const CFE_TBL_Handle_t TblHandle,
+                                   CFE_TBL_AccessDescriptor_t *AccessDescPtr, const char *AppName,
+                                   const CFE_TBL_LoadBuff_t *WorkingBufferPtr, const bool IsFirstTime);
 /*
 ** Globals specific to the TBL module
 */
