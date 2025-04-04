@@ -58,7 +58,7 @@ void CFE_TestMain(void)
      * Register test cases in UtAssert
      */
     ESApplicationControlTestSetup();
-    ESBehaviorestSetup();
+    ESBehaviorTestSetup();
     ESCDSTestSetup();
     ESCounterTestSetup();
     ESErrorTestSetup();
