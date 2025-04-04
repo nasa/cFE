@@ -339,7 +339,7 @@ int32 CFE_TBL_ResetCountersCmd(const CFE_TBL_ResetCountersCmd_t *data)
     CFE_TBL_Global.NumValRequests      = 0;
     CFE_TBL_Global.ValidationCounter   = 0;
 
-    CFE_EVS_SendEvent(CFE_TBL_RESET_INF_EID, CFE_EVS_EventType_DEBUG, "Reset Counters command");
+    CFE_EVS_SendEvent(CFE_TBL_RESET_INF_EID, CFE_EVS_EventType_INFORMATION, "Reset Counters command");
 
     return CFE_TBL_DONT_INC_CTR;
 }
@@ -940,7 +940,7 @@ int32 CFE_TBL_ActivateCmd(const CFE_TBL_ActivateCmd_t *data)
                 /* If application requested notification by message, then do so */
                 if (CFE_TBL_SendNotificationMsg(RegRecPtr) == CFE_SUCCESS)
                 {
-                    CFE_EVS_SendEvent(CFE_TBL_LOAD_PEND_REQ_INF_EID, CFE_EVS_EventType_DEBUG,
+                    CFE_EVS_SendEvent(CFE_TBL_LOAD_PEND_REQ_DBG_EID, CFE_EVS_EventType_DEBUG,
                                       "Tbl Services notifying App that '%s' has a load pending", TableName);
                 }
 
@@ -1103,14 +1103,14 @@ void CFE_TBL_DumpRegistryEventHandler(void *Meta, CFE_FS_FileWriteEvent_t Event,
         case CFE_FS_FileWriteEvent_COMPLETE:
             if (StatePtr->FileExisted)
             {
-                CFE_EVS_SendEventWithAppID(CFE_TBL_OVERWRITE_REG_DUMP_INF_EID, CFE_EVS_EventType_DEBUG,
+                CFE_EVS_SendEventWithAppID(CFE_TBL_OVERWRITE_REG_DUMP_INF_EID, CFE_EVS_EventType_INFORMATION,
                                            CFE_TBL_Global.TableTaskAppId,
                                            "Successfully overwrote '%s' with Table Registry:Size=%d,Entries=%d",
                                            StatePtr->FileWrite.FileName, (int)Position, (int)RecordNum);
             }
             else
             {
-                CFE_EVS_SendEventWithAppID(CFE_TBL_WRITE_REG_DUMP_INF_EID, CFE_EVS_EventType_DEBUG,
+                CFE_EVS_SendEventWithAppID(CFE_TBL_WRITE_REG_DUMP_INF_EID, CFE_EVS_EventType_INFORMATION,
                                            CFE_TBL_Global.TableTaskAppId,
                                            "Successfully dumped Table Registry to '%s':Size=%d,Entries=%d",
                                            StatePtr->FileWrite.FileName, (int)Position, (int)RecordNum);
@@ -1227,7 +1227,7 @@ int32 CFE_TBL_SendRegistryCmd(const CFE_TBL_SendRegistryCmd_t *data)
         /* Change the index used to identify what data is to be telemetered */
         CFE_TBL_Global.HkTlmTblRegIndex = RegIndex;
 
-        CFE_EVS_SendEvent(CFE_TBL_TLM_REG_CMD_INF_EID, CFE_EVS_EventType_DEBUG,
+        CFE_EVS_SendEvent(CFE_TBL_TLM_REG_CMD_INF_EID, CFE_EVS_EventType_INFORMATION,
                           "Table Registry entry for '%s' will be telemetered", TableName);
 
         /* Increment Successful Command Counter */
