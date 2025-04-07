@@ -1,5 +1,10 @@
 # Changelog
 
+## Development Build: equuleus-rc1+dev243
+- 'Fix #2645, fix warning error in evs_ut'
+- See: <https://github.com/nasa/cFE/pull/2646>
+
+
 ## Development Build: equuleus-rc1+dev239
 - address sanitizer issue in coverage-evs-ALL
 - See <https://github.com/nasa/cFE/pull/2643>

@@ -293,10 +293,15 @@ void Test_Init(void)
     CFE_EVS_EnableAppEventTypeCmd_t appbitcmd;
 
     CFE_SB_Buffer_t *bufPtr;
-    CFE_EVS_NoopCmd_t testMsg;
-
+    union 
+    {
+        CFE_SB_Buffer_t   SbBuf;
+        CFE_EVS_NoopCmd_t Noop;
+    } TestMsg;
+    
     UtPrintf("Begin Test Init");
 
+    memset(&TestMsg, 0, sizeof(TestMsg));
     memset(&bitmaskcmd, 0, sizeof(bitmaskcmd));
     memset(&appbitcmd, 0, sizeof(appbitcmd));
 
@@ -325,7 +330,7 @@ void Test_Init(void)
     /* Set unexpected message ID */
     UT_SetupBasicMsgDispatch(&UT_TPID_CFE_EVS_INVALID_MID, 0, true);
 
-    bufPtr = (CFE_SB_Buffer_t *)&testMsg; /* Fake Test Message */
+    bufPtr = &TestMsg.SbBuf; /* Fake Test Message */
     UT_SetDataBuffer(UT_KEY(CFE_SB_ReceiveBuffer), &bufPtr, sizeof(bufPtr), false);
 
     UT_EVS_DoGenericCheckEvents(CFE_EVS_TaskMain, &UT_EVS_EventBuf);
