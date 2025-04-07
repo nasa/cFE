@@ -122,7 +122,7 @@ int32 CFE_TBL_SendHkCmd(const CFE_TBL_SendHkCmd_t *data)
             }
 
             /* Free the shared working buffer */
-            CFE_TBL_DiscardWorkingBuffer(DumpCtrlPtr->RegRecPtr);
+            CFE_TBL_LoadBuffSetFree(DumpCtrlPtr->DumpBufferPtr);
 
             /* Free the Dump Control Block for later use */
             CFE_TBL_DumpCtrlBlockSetFree(DumpCtrlPtr);
@@ -271,16 +271,25 @@ void CFE_TBL_GetTblRegData(void)
     RegRecPtr = CFE_TBL_LocateRegRecByID(CFE_TBL_Global.HkTlmTblRegIndex);
     if (CFE_TBL_RegRecIsMatch(RegRecPtr, CFE_TBL_Global.HkTlmTblRegIndex))
     {
+        CFE_TBL_Global.TblRegPacket.Payload.Size = CFE_ES_MEMOFFSET_C(CFE_TBL_RegRecGetSize(RegRecPtr));
+
         BuffPtr = CFE_TBL_GetActiveBuffer(RegRecPtr);
 
-        CFE_TBL_Global.TblRegPacket.Payload.Size             = CFE_ES_MEMOFFSET_C(CFE_TBL_RegRecGetSize(RegRecPtr));
-        CFE_TBL_Global.TblRegPacket.Payload.ActiveBufferAddr = CFE_ES_MEMADDRESS_C(BuffPtr->BufferPtr);
-        CFE_TBL_Global.TblRegPacket.Payload.FileTime         = BuffPtr->FileTime;
-        CFE_TBL_Global.TblRegPacket.Payload.Crc              = BuffPtr->Crc;
+        /* The active buffer may be NULL if the table has never been loaded */
+        if (BuffPtr != NULL)
+        {
+            CFE_TBL_Global.TblRegPacket.Payload.ActiveBufferAddr = CFE_ES_MEMADDRESS_C(BuffPtr->BufferPtr);
+            CFE_TBL_Global.TblRegPacket.Payload.FileTime         = BuffPtr->FileTime;
+            CFE_TBL_Global.TblRegPacket.Payload.Crc              = BuffPtr->Crc;
+        }
+        else
+        {
+            CFE_TBL_Global.TblRegPacket.Payload.ActiveBufferAddr = CFE_ES_MEMADDRESS_C(0);
+        }
 
         BuffPtr = CFE_TBL_GetInactiveBuffer(RegRecPtr);
 
-        /* Unlike the active buffer, the inactive buffer could be NULL (e.g. in a single-buffer table) */
+        /* the inactive buffer is typically NULL in a single-buffer table */
         if (BuffPtr != NULL)
         {
             CFE_TBL_Global.TblRegPacket.Payload.InactiveBufferAddr = CFE_ES_MEMADDRESS_C(BuffPtr->BufferPtr);
@@ -417,7 +426,7 @@ int32 CFE_TBL_LoadCmd(const CFE_TBL_LoadCmd_t *data)
                         ((TblFileHeader.NumBytes + TblFileHeader.Offset) <= CFE_TBL_RegRecGetSize(RegRecPtr)))
                     {
                         /* Get a working buffer, either a free one or one allocated with previous load command */
-                        Status = CFE_TBL_GetWorkingBuffer(&WorkingBufferPtr, RegRecPtr, false);
+                        Status = CFE_TBL_GetWorkingBuffer(&WorkingBufferPtr, RegRecPtr);
 
                         if (Status == CFE_SUCCESS)
                         {
@@ -601,12 +610,12 @@ int32 CFE_TBL_DumpCmd(const CFE_TBL_DumpCmd_t *data)
                     if (DumpCtrlPtr != NULL)
                     {
                         /* Allocate a shared memory buffer for storing the data to be dumped */
-                        Status = CFE_TBL_GetWorkingBuffer(&WorkingBufferPtr, RegRecPtr, false);
+                        WorkingBufferPtr = CFE_TBL_AcquireGlobalLoadBuff(CFE_TBL_RegRecGetID(RegRecPtr));
 
-                        if (Status == CFE_SUCCESS)
+                        if (WorkingBufferPtr != NULL)
                         {
-                            DumpCtrlPtr->State     = CFE_TBL_DUMP_PENDING;
-                            DumpCtrlPtr->RegRecPtr = RegRecPtr;
+                            DumpCtrlPtr->State        = CFE_TBL_DUMP_PENDING;
+                            DumpCtrlPtr->SourceBuffId = CFE_TBL_LoadBufferGetID(SelectedBufferPtr);
 
                             /* Save the name of the desired dump filename, table name and size for later */
                             DumpCtrlPtr->DumpBufferPtr = WorkingBufferPtr;
@@ -933,7 +942,8 @@ int32 CFE_TBL_ActivateCmd(const CFE_TBL_ActivateCmd_t *data)
         }
         else
         {
-            BufferPtr = CFE_TBL_GetInactiveBuffer(RegRecPtr);
+            /* This only ever applies to the load in progress, one does not activate the previous buffer */
+            BufferPtr = CFE_TBL_GetLoadInProgressBuffer(RegRecPtr);
             if (BufferPtr == NULL)
             {
                 CFE_EVS_SendEvent(CFE_TBL_ACTIVATE_ERR_EID, CFE_EVS_EventType_ERROR,
@@ -998,39 +1008,34 @@ bool CFE_TBL_DumpRegistryGetter(void *Meta, uint32 RecordNum, void **Buffer, siz
         /* Check to see if the Registry entry is empty */
         if (CFE_TBL_RegRecIsUsed(RegRecPtr) || CFE_TBL_HandleLinkIsAttached(&RegRecPtr->AccessList))
         {
-            BufferPtr = CFE_TBL_GetActiveBuffer(RegRecPtr);
-
             IsValidEntry = true;
             OwnerAppId   = RegRecPtr->OwnerAppId;
 
             /* Fill Registry Dump Record with relevant information */
             StatePtr->DumpRecord.Size             = CFE_ES_MEMOFFSET_C(CFE_TBL_RegRecGetSize(RegRecPtr));
             StatePtr->DumpRecord.TimeOfLastUpdate = CFE_TBL_RegRecGetLastUpdateTime(RegRecPtr);
-            StatePtr->DumpRecord.LoadInProgress   = CFE_TBL_LOADBUFFID_INT(CFE_TBL_RegRecGetLoadInProgress(RegRecPtr));
             StatePtr->DumpRecord.ValidationFunc   = (CFE_TBL_RegRecGetConfig(RegRecPtr)->ValidationFuncPtr != NULL);
             StatePtr->DumpRecord.TableLoadedOnce  = CFE_TBL_RegRecIsTableLoaded(RegRecPtr);
             StatePtr->DumpRecord.LoadPending      = CFE_TBL_RegRecIsLoadPending(RegRecPtr);
             StatePtr->DumpRecord.DumpOnly         = CFE_TBL_RegRecGetConfig(RegRecPtr)->DumpOnly;
             StatePtr->DumpRecord.DoubleBuffered   = CFE_TBL_RegRecGetConfig(RegRecPtr)->DoubleBuffered;
             StatePtr->DumpRecord.CriticalTable    = CFE_TBL_RegRecGetConfig(RegRecPtr)->Critical;
-            StatePtr->DumpRecord.FileTime         = BufferPtr->FileTime;
-            StatePtr->DumpRecord.Crc              = BufferPtr->Crc;
 
             /* Convert LoadInProgress flag into more meaningful information */
-            /* When a load is in progress, identify which buffer is being used as the inactive buffer */
-            if (CFE_TBL_RegRecIsLoadInProgress(RegRecPtr))
+            StatePtr->DumpRecord.LoadInProgress =
+                CFE_TBL_LoadBuffIdToTlmIndex(CFE_TBL_RegRecGetLoadInProgress(RegRecPtr));
+
+            /* Note that the active buffer may be NULL if the table was never loaded */
+            BufferPtr = CFE_TBL_GetActiveBuffer(RegRecPtr);
+            if (BufferPtr == NULL)
             {
-                if (StatePtr->DumpRecord.DoubleBuffered)
-                {
-                    /* For double buffered tables, the value of LoadInProgress, when a load is actually in progress, */
-                    /* should identify either buffer #0 or buffer #1.  Convert these to enumerated value for ground  */
-                    /* display.  LoadInProgress = -2 means Buffer #1, LoadInProgress = -3 means Buffer #0.           */
-                    StatePtr->DumpRecord.LoadInProgress = StatePtr->DumpRecord.LoadInProgress - 3;
-                }
-                /* For single buffered tables, the value of LoadInProgress, when a load is actually in progress,     */
-                /* indicates which shared buffer is allocated for the inactive buffer.  Since the number of inactive */
-                /* buffers is a platform configuration parameter, then 0 on up merely identifies the buffer number.  */
-                /* No translation is necessary for single buffered tables.                                           */
+                StatePtr->DumpRecord.FileTime = CFE_TIME_ZERO_VALUE;
+                StatePtr->DumpRecord.Crc      = 0;
+            }
+            else
+            {
+                StatePtr->DumpRecord.FileTime = BufferPtr->FileTime;
+                StatePtr->DumpRecord.Crc      = BufferPtr->Crc;
             }
 
             CFE_SB_MessageStringSet(StatePtr->DumpRecord.Name, CFE_TBL_RegRecGetName(RegRecPtr),

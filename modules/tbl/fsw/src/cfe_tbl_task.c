@@ -200,6 +200,7 @@ void CFE_TBL_InitData(void)
     CFE_MSG_Init(CFE_MSG_PTR(CFE_TBL_Global.NotifyMsg.CommandHeader), CFE_SB_INVALID_MSG_ID,
                  sizeof(CFE_TBL_Global.NotifyMsg));
 
+    CFE_TBL_Global.LastLoadBuffId         = CFE_ResourceId_FromInteger(CFE_TBL_LOADBUFFID_BASE);
     CFE_TBL_Global.LastValidationResultId = CFE_ResourceId_FromInteger(CFE_TBL_VALRESULTID_BASE);
     CFE_TBL_Global.LastDumpCtrlBlockId    = CFE_ResourceId_FromInteger(CFE_TBL_DUMPCTRLID_BASE);
 }

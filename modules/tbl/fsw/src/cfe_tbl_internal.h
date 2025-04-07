@@ -142,16 +142,11 @@ int32 CFE_TBL_UnlockRegistry(void);
 ** \param[in]  RegRecPtr         Pointer to Table Registry Entry for Table for whom
 **                               a working buffer is to be obtained
 **
-** \param[in]  CalledByApp       Boolean that identifies whether this internal API
-**                               function is being called by a user Application (true)
-**                               or by the Table Services Application (false)
-**
 ** \retval #CFE_SUCCESS                     \copydoc CFE_SUCCESS
 ** \retval #CFE_TBL_ERR_NO_BUFFER_AVAIL     \copydoc CFE_TBL_ERR_NO_BUFFER_AVAIL
 **
 */
-int32 CFE_TBL_GetWorkingBuffer(CFE_TBL_LoadBuff_t **WorkingBufferPtr, CFE_TBL_RegistryRec_t *RegRecPtr,
-                               bool CalledByApp);
+int32 CFE_TBL_GetWorkingBuffer(CFE_TBL_LoadBuff_t **WorkingBufferPtr, CFE_TBL_RegistryRec_t *RegRecPtr);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -195,6 +190,27 @@ int32 CFE_TBL_GetWorkingBuffer(CFE_TBL_LoadBuff_t **WorkingBufferPtr, CFE_TBL_Re
 */
 int32 CFE_TBL_LoadFromFile(const char *AppName, CFE_TBL_LoadBuff_t *WorkingBufferPtr, CFE_TBL_RegistryRec_t *RegRecPtr,
                            const char *Filename);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * \brief Loads a table buffer with data from a specified memory address
+ *
+ * \par Description
+ *        Copies the data from the specified source address
+ *        and loads contents into the specified working buffer.
+ *
+ * \par Assumptions, External Events, and Notes:
+ *        -# This function assumes parameters have been verified.
+ *
+ * \param[inout]  WorkingBufferPtr Pointer to a working buffer that is to be loaded
+ * \param[inout]  RegRecPtr        Pointer to Table Registry record
+ * \param[in]     Address          Memory address to copy data from
+ *
+ * \returns CFE status code
+ * \retval #CFE_SUCCESS                      \copydoc CFE_SUCCESS
+ */
+CFE_Status_t CFE_TBL_LoadTableFromSourceAddress(CFE_TBL_LoadBuff_t *WorkingBufferPtr, CFE_TBL_RegistryRec_t *RegRecPtr,
+                                                const void *Address);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -626,7 +642,7 @@ void CFE_TBL_DiscardWorkingBuffer(CFE_TBL_RegistryRec_t *RegRecPtr);
 ** \returns Pointer to working buffer
 ** \retval NULL if no working buffers are available
 */
-CFE_TBL_LoadBuff_t *CFE_TBL_AcquireGlobalLoadBuff(void);
+CFE_TBL_LoadBuff_t *CFE_TBL_AcquireGlobalLoadBuff(CFE_TBL_RegId_t PendingOwnerId);
 
 /*---------------------------------------------------------------------------------------*/
 /**

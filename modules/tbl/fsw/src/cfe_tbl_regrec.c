@@ -177,71 +177,17 @@ CFE_TBL_RegId_t CFE_TBL_RegRecGetID(const CFE_TBL_RegistryRec_t *RegRecPtr)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-CFE_TBL_LoadBuff_t *CFE_TBL_GetActiveBuffer(CFE_TBL_RegistryRec_t *RegRecPtr)
-{
-    CFE_TBL_LoadBuffId_t BufferIndex;
-
-    /*
-     * This should be simpler because ActiveBufferIndex always refers to
-     * the active buffer, and applies to both single and double buffered
-     * (That is, it is always 0 on a single-buffered table).
-     *
-     * However, legacy code always checked the double buffer flag before
-     * using ActiveBufferIndex so this will to (at least for now)
-     */
-    BufferIndex = RegRecPtr->Status.ActiveBufferIndex;
-
-    return CFE_TBL_LocateLoadBufferByID(RegRecPtr, BufferIndex);
-}
-
-/*----------------------------------------------------------------
- *
- * Application-scope internal function
- * See description in header file for argument/return detail
- *
- *-----------------------------------------------------------------*/
-CFE_TBL_LoadBuffId_t CFE_TBL_GetNextLocalBufferId(CFE_TBL_RegistryRec_t *RegRecPtr)
-{
-    int32 BufferId;
-
-    /* This implements a flip-flop buffer: if active is 1, return 0 and vice versa */
-    BufferId = CFE_TBL_LOADBUFFID_INT(RegRecPtr->Status.ActiveBufferIndex);
-
-    BufferId = (BufferId + 1) % 2;
-
-    return CFE_TBL_LOADBUFFID_C(BufferId);
-}
-
-/*----------------------------------------------------------------
- *
- * Application-scope internal function
- * See description in header file for argument/return detail
- *
- *-----------------------------------------------------------------*/
 CFE_TBL_LoadBuff_t *CFE_TBL_GetInactiveBuffer(CFE_TBL_RegistryRec_t *RegRecPtr)
 {
-    CFE_TBL_LoadBuffId_t BufferId;
-    CFE_TBL_LoadBuff_t * BuffPtr;
+    CFE_TBL_LoadBuff_t *BuffPtr;
 
-    if (CFE_TBL_RegRecGetConfig(RegRecPtr)->DoubleBuffered)
+    /* In all cases, if the LoadInProgress is set and it checks out, use it */
+    /* This applies to single and double buffered tables */
+    BuffPtr = CFE_TBL_GetLoadInProgressBuffer(RegRecPtr);
+    if (BuffPtr == NULL)
     {
-        /* Determine the index of the Inactive Buffer Pointer */
-        BufferId = CFE_TBL_GetNextLocalBufferId(RegRecPtr);
-        BuffPtr  = CFE_TBL_LocateLoadBufferByID(RegRecPtr, BufferId);
-    }
-    else if (!CFE_TBL_RegRecGetConfig(RegRecPtr)->UserDefAddr && CFE_TBL_RegRecIsLoadInProgress(RegRecPtr))
-    {
-        /*
-         * The only time a single buffered table has an inactive buffer is when its loading, and
-         * this always refers to a shared load buffer
-         */
-        BufferId = CFE_TBL_RegRecGetLoadInProgress(RegRecPtr);
-        BuffPtr  = CFE_TBL_LocateLoadBufferByID(NULL, BufferId);
-    }
-    else
-    {
-        /* Tables with a user-defined address never have an inactive buffer */
-        BuffPtr = NULL;
+        /* If this is a double buffered table, then get the previous buffer */
+        BuffPtr = CFE_TBL_GetPreviousBuffer(RegRecPtr);
     }
 
     /* then return the pointer to it */
@@ -287,22 +233,32 @@ CFE_TBL_LoadBuff_t *CFE_TBL_GetSelectedBuffer(CFE_TBL_RegistryRec_t *     RegRec
  *-----------------------------------------------------------------*/
 CFE_TBL_LoadBuff_t *CFE_TBL_GetLoadInProgressBuffer(CFE_TBL_RegistryRec_t *RegRecPtr)
 {
-    CFE_TBL_LoadBuff_t *LoadBuffPtr;
+    CFE_TBL_LoadBuffId_t BuffId;
+    CFE_TBL_LoadBuff_t * LoadBuffPtr;
 
-    /* If a load is already in progress, return the previously allocated working buffer */
-    if (!CFE_TBL_RegRecIsLoadInProgress(RegRecPtr))
+    BuffId      = CFE_TBL_RegRecGetLoadInProgress(RegRecPtr);
+    LoadBuffPtr = CFE_TBL_LocateLoadBufferByID(BuffId);
+    if (!CFE_TBL_LoadBuffIsMatch(LoadBuffPtr, BuffId))
     {
         LoadBuffPtr = NULL;
-    }
-    else if (CFE_TBL_RegRecGetConfig(RegRecPtr)->DoubleBuffered)
-    {
-        /* Interpret the load in progress id as the local (inactive) buffer */
-        LoadBuffPtr = CFE_TBL_LocateLoadBufferByID(RegRecPtr, CFE_TBL_RegRecGetLoadInProgress(RegRecPtr));
-    }
-    else
-    {
-        /* Interpret the load in progress id as a shared buffer */
-        LoadBuffPtr = CFE_TBL_LocateLoadBufferByID(NULL, CFE_TBL_RegRecGetLoadInProgress(RegRecPtr));
+
+        /*
+         * This should not occur, but if the buffers are mis-managed somehow,
+         * the reference could be stale.  The situation could occur if the load
+         * was started but not activated (i.e. nobody called CFE_TBL_Update)
+         * and was somehow the global load buffer was dropped.  Now the reference
+         * in the local "load in progress" points to a shared/global load buff
+         * that no longer exists.
+         */
+        if (CFE_TBL_LOADBUFFID_IS_VALID(BuffId))
+        {
+            /* This will clear the stale ref, restoring normalcy */
+            CFE_TBL_RegRecClearLoadInProgress(RegRecPtr);
+
+            /* but it implies something went awry with the load, so report it */
+            CFE_ES_WriteToSysLog("WARNING: Cleared stale loade in progress on table %s",
+                                 CFE_TBL_RegRecGetName(RegRecPtr));
+        }
     }
 
     return LoadBuffPtr;
@@ -318,25 +274,33 @@ CFE_TBL_LoadBuff_t *CFE_TBL_GetInactiveBufferExclusive(CFE_TBL_RegistryRec_t *Re
 {
     CFE_TBL_LoadBuff_t *          LoadBuffPtr;
     CFE_TBL_CheckInactiveBuffer_t CheckStat;
+    CFE_ResourceId_t              PendingId;
 
     memset(&CheckStat, 0, sizeof(CheckStat));
 
-    /* Determine the index of the Inactive Buffer Pointer */
-    CheckStat.BufferIndex = CFE_TBL_GetNextLocalBufferId(RegRecPtr);
+    PendingId   = CFE_TBL_GetNextLocalBufferId(RegRecPtr);
+    LoadBuffPtr = CFE_TBL_LocateLoadBufferByID(CFE_TBL_LOADBUFFID_C(PendingId));
 
-    /* Scan the access descriptor table to determine if anyone is still using the inactive buffer */
-    CFE_TBL_ForeachAccessDescriptor(RegRecPtr, CFE_TBL_CheckInactiveBufferHelper, &CheckStat);
+    /* If the load buffer already matches, it means its already reserved */
+    /* If it does not match, then need to check if it can be reserved now */
+    if (CFE_TBL_LoadBuffIsUsed(LoadBuffPtr) && !CFE_TBL_LoadBuffIsMatch(LoadBuffPtr, CFE_TBL_LOADBUFFID_C(PendingId)))
+    {
+        /* Scan the access descriptor table to determine if anyone is still using the inactive buffer */
+        CheckStat.BufferIndex = CFE_TBL_LoadBufferGetID(LoadBuffPtr);
+
+        CFE_TBL_ForeachAccessDescriptor(RegRecPtr, CFE_TBL_CheckInactiveBufferHelper, &CheckStat);
+    }
 
     if (CFE_RESOURCEID_TEST_DEFINED(CheckStat.LockingAppId))
     {
         LoadBuffPtr = NULL;
-        CFE_ES_WriteToSysLog("%s: Inactive Dbl Buff Locked for '%s' by AppId=%lu\n", __func__,
+        CFE_ES_WriteToSysLog("%s: Inactive Buff Locked for '%s' by AppId=%lu\n", __func__,
                              CFE_TBL_RegRecGetName(RegRecPtr), CFE_RESOURCEID_TO_ULONG(CheckStat.LockingAppId));
     }
     else
     {
-        /* If buffer is free, then return the pointer to it */
-        LoadBuffPtr = CFE_TBL_LocateLoadBufferByID(RegRecPtr, CheckStat.BufferIndex);
+        /* If buffer is free, then claim it */
+        CFE_TBL_LoadBuffSetUsed(LoadBuffPtr, PendingId, CFE_TBL_RegRecGetID(RegRecPtr));
     }
 
     return LoadBuffPtr;
