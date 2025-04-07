@@ -158,7 +158,7 @@ static inline CFE_TBL_RegId_t CFE_TBL_TxnRegId(const CFE_TBL_TxnState_t *Txn)
  */
 static inline unsigned long CFE_TBL_TxnRegIdAsULong(const CFE_TBL_TxnState_t *Txn)
 {
-    return (unsigned long)CFE_TBL_TxnRegId(Txn);
+    return CFE_TBL_REGID_INT(CFE_TBL_TxnRegId(Txn));
 }
 
 /*---------------------------------------------------------------------------------------*/
@@ -189,46 +189,6 @@ static inline unsigned long CFE_TBL_TxnAppIdAsULong(const CFE_TBL_TxnState_t *Tx
 {
     return CFE_RESOURCEID_TO_ULONG(CFE_TBL_TxnAppId(Txn));
 }
-
-/*---------------------------------------------------------------------------------------*/
-/**
- * \brief Returns the table owner application ID
- *
- * \par Description
- *        Returns the application ID of the table owner
- *
- * \par Assumptions, External Events, and Notes:
- *        None
- *
- * \param[inout] Txn The transaction object to operate on
- * \returns Application ID of the table owner
- */
-CFE_ES_AppId_t CFE_TBL_TxnGetTableOwnerId(CFE_TBL_TxnState_t *Txn);
-
-/*---------------------------------------------------------------------------------------*/
-/**
- * \brief Returns the table owner application ID
- * Gets the table owner application ID as an unsigned long (for logging/events)
- */
-static inline unsigned long CFE_TBL_TxnGetTableOwnerAsULong(CFE_TBL_TxnState_t *Txn)
-{
-    return CFE_RESOURCEID_TO_ULONG(CFE_TBL_TxnGetTableOwnerId(Txn));
-}
-
-/*---------------------------------------------------------------------------------------*/
-/**
- * \brief Returns the size of the subject table
- *
- * \par Description
- *        Returns a the size of the table that is the subject of this transaction
- *
- * \par Assumptions, External Events, and Notes:
- *        None
- *
- * \param[inout] Txn The transaction object to operate on
- * \returns Table size
- */
-size_t CFE_TBL_TxnGetTableSize(CFE_TBL_TxnState_t *Txn);
 
 /*---------------------------------------------------------------------------------------*/
 /**

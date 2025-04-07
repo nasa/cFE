@@ -329,7 +329,7 @@ static void CFE_TBL_FindAccessDescHelper(CFE_TBL_AccessDescriptor_t *AccDescPtr,
 {
     CFE_TBL_TxnState_t *Txn = Arg;
 
-    if (AccDescPtr->UsedFlag && AccDescPtr->RegIndex == CFE_TBL_TxnRegId(Txn) &&
+    if (AccDescPtr->UsedFlag && CFE_TBL_REGID_EQ(AccDescPtr->RegIndex, CFE_TBL_TxnRegId(Txn)) &&
         CFE_RESOURCEID_TEST_EQUAL(AccDescPtr->AppId, CFE_TBL_TxnAppId(Txn)))
     {
         Txn->Handle     = CFE_TBL_AccDescGetHandle(AccDescPtr);
@@ -380,12 +380,12 @@ CFE_Status_t CFE_TBL_TxnGetTableStatus(CFE_TBL_TxnState_t *Txn)
     {
         Status = CFE_TBL_INFO_UPDATE_PENDING;
     }
-    else if (CFE_RESOURCEID_TEST_DEFINED(RegRecPtr->ValidateActiveId) ||
-             CFE_RESOURCEID_TEST_DEFINED(RegRecPtr->ValidateInactiveId))
+    else if (CFE_TBL_VALRESULTID_IS_VALID(RegRecPtr->ValidateActiveId) ||
+             CFE_TBL_VALRESULTID_IS_VALID(RegRecPtr->ValidateInactiveId))
     {
         Status = CFE_TBL_INFO_VALIDATION_PENDING;
     }
-    else if (CFE_RESOURCEID_TEST_DEFINED(RegRecPtr->DumpControlId))
+    else if (CFE_TBL_DUMPCTRLID_IS_VALID(RegRecPtr->DumpControlId))
     {
         Status = CFE_TBL_INFO_DUMP_PENDING;
     }
@@ -561,7 +561,7 @@ CFE_Status_t CFE_TBL_TxnAllocateRegistryEntry(CFE_TBL_TxnState_t *Txn)
         /* all other applications are not sharing or locking the table   */
         if (!CFE_TBL_RegRecIsUsed(RegRecPtr) && !CFE_TBL_HandleLinkIsAttached(&RegRecPtr->AccessList))
         {
-            Txn->RegId     = i;
+            Txn->RegId     = CFE_TBL_REGID_C(i);
             Txn->RegRecPtr = RegRecPtr;
 
             Status = CFE_SUCCESS;

@@ -39,13 +39,19 @@
 
 #include "cfe_tbl_core_internal.h"
 
+#include "cfe_tbl_resource.h"
+#include "cfe_tbl_accdesc.h"
+#include "cfe_tbl_regrec.h"
+#include "cfe_tbl_loadbuff.h"
+#include "cfe_tbl_dumpctl.h"
+#include "cfe_tbl_valresult.h"
+
 #include "cfe_tbl_eventids.h"
 #include "cfe_tbl_msg.h"
 #include "cfe_tbl_internal.h"
 #include "cfe_tbl_task.h"
 #include "cfe_tbl_task_cmds.h"
 #include "cfe_tbl_dispatch.h"
-#include "cfe_tbl_resource.h"
 #include "cfe_tbl_transaction.h"
 
 /*
