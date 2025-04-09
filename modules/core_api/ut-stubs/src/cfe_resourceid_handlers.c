@@ -77,10 +77,10 @@ void UT_DefaultHandler_CFE_ResourceId_GetSerial(void *UserObj, UT_EntryKey_t Fun
 
 /*------------------------------------------------------------
  *
- * Default handler for CFE_ResourceId_FindNext coverage stub function
+ * Default handler for CFE_ResourceId_FindNextEx coverage stub function
  *
  *------------------------------------------------------------*/
-void UT_DefaultHandler_CFE_ResourceId_FindNext(void *UserObj, UT_EntryKey_t FuncKey, const UT_StubContext_t *Context)
+void UT_DefaultHandler_CFE_ResourceId_FindNextEx(void *UserObj, UT_EntryKey_t FuncKey, const UT_StubContext_t *Context)
 {
     CFE_ResourceId_t StartId = UT_Hook_GetArgValueByName(Context, "StartId", CFE_ResourceId_t);
     CFE_ResourceId_t NextId;
@@ -105,6 +105,16 @@ void UT_DefaultHandler_CFE_ResourceId_FindNext(void *UserObj, UT_EntryKey_t Func
     }
 
     UT_Stub_SetReturnValue(FuncKey, NextId);
+}
+
+/*------------------------------------------------------------
+ *
+ * Default handler for CFE_ResourceId_FindNext coverage stub function
+ *
+ *------------------------------------------------------------*/
+void UT_DefaultHandler_CFE_ResourceId_FindNext(void *UserObj, UT_EntryKey_t FuncKey, const UT_StubContext_t *Context)
+{
+    UT_DefaultHandler_CFE_ResourceId_FindNextEx(UserObj, FuncKey, Context);
 }
 
 /*------------------------------------------------------------
