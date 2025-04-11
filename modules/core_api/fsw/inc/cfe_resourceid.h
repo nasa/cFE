@@ -214,9 +214,9 @@ uint32 CFE_ResourceId_GetSerial(CFE_ResourceId_t ResourceId);
  * @brief Locate the next resource ID that maps to an available table entry
  *
  * This begins searching from StartId which should be the most recently issued ID
- * for the resource category.  This will then search for the next ID which does
- * _not_ map to a table entry that is in use.  That is, it does not alias any
- * valid ID when converted to an array index.
+ * for the resource category.  This will then search for the next ID that maps to
+ * a table entry that is available for use.  That is, it does not alias any
+ * valid/in-use ID when converted to an array index.
  *
  * This is the simple form of the API that iterates over all slots equally in
  * a round-robin fashion, and works for most use cases.
