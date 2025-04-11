@@ -69,7 +69,7 @@ int32 CFE_TBL_SendHkCmd(const CFE_TBL_SendHkCmd_t *data)
     }
 
     /* If a table's registry entry has been requested for telemetry, then pack it and send it */
-    if (CFE_TBL_Global.HkTlmTblRegIndex != CFE_TBL_NOT_FOUND)
+    if (CFE_TBL_REGID_IS_VALID(CFE_TBL_Global.HkTlmTblRegIndex))
     {
         CFE_TBL_GetTblRegData();
 
@@ -240,7 +240,7 @@ void CFE_TBL_GetHkData(void)
     CFE_TBL_Global.HkPacket.Payload.NumValRequests    = CFE_TBL_Global.NumValRequests;
 
     /* Validate the index of the last table updated before using it */
-    if ((CFE_TBL_Global.LastTblUpdated >= 0) && (CFE_TBL_Global.LastTblUpdated < CFE_PLATFORM_TBL_MAX_NUM_TABLES))
+    if (CFE_TBL_REGID_IS_VALID(CFE_TBL_Global.LastTblUpdated))
     {
         RegRecPtr = CFE_TBL_LocateRegRecByID(CFE_TBL_Global.LastTblUpdated);
 
@@ -593,7 +593,7 @@ int32 CFE_TBL_DumpCmd(const CFE_TBL_DumpCmd_t *data)
             else /* Dump Only tables need to synchronize their dumps with the owner's execution */
             {
                 /* Make sure a dump is not already in progress */
-                if (!CFE_RESOURCEID_TEST_DEFINED(RegRecPtr->DumpControlId))
+                if (!CFE_TBL_DUMPCTRLID_IS_VALID(RegRecPtr->DumpControlId))
                 {
                     /* Find a free Dump Control Block */
                     PendingDumpId = CFE_TBL_GetNextDumpCtrlBlock();
@@ -1006,7 +1006,7 @@ bool CFE_TBL_DumpRegistryGetter(void *Meta, uint32 RecordNum, void **Buffer, siz
             /* Fill Registry Dump Record with relevant information */
             StatePtr->DumpRecord.Size             = CFE_ES_MEMOFFSET_C(CFE_TBL_RegRecGetSize(RegRecPtr));
             StatePtr->DumpRecord.TimeOfLastUpdate = CFE_TBL_RegRecGetLastUpdateTime(RegRecPtr);
-            StatePtr->DumpRecord.LoadInProgress   = CFE_TBL_RegRecGetLoadInProgress(RegRecPtr);
+            StatePtr->DumpRecord.LoadInProgress   = CFE_TBL_LOADBUFFID_INT(CFE_TBL_RegRecGetLoadInProgress(RegRecPtr));
             StatePtr->DumpRecord.ValidationFunc   = (CFE_TBL_RegRecGetConfig(RegRecPtr)->ValidationFuncPtr != NULL);
             StatePtr->DumpRecord.TableLoadedOnce  = CFE_TBL_RegRecIsTableLoaded(RegRecPtr);
             StatePtr->DumpRecord.LoadPending      = CFE_TBL_RegRecIsLoadPending(RegRecPtr);
@@ -1270,7 +1270,7 @@ int32 CFE_TBL_DeleteCDSCmd(const CFE_TBL_DeleteCDSCmd_t *data)
     RegIndex      = CFE_TBL_FindTableInRegistry(TableName);
     CritRegRecPtr = NULL;
 
-    if (RegIndex == CFE_TBL_NOT_FOUND)
+    if (!CFE_TBL_REGID_IS_VALID(RegIndex))
     {
         /* Find table in the Critical Table Registry */
         for (i = 0; i < CFE_PLATFORM_TBL_MAX_CRITICAL_TABLES; i++)
@@ -1356,7 +1356,7 @@ int32 CFE_TBL_AbortLoadCmd(const CFE_TBL_AbortLoadCmd_t *data)
     /* Before doing anything, lets make sure the table registry entry that is to be telemetered exists */
     RegIndex = CFE_TBL_FindTableInRegistry(TableName);
 
-    if (RegIndex != CFE_TBL_NOT_FOUND)
+    if (CFE_TBL_REGID_IS_VALID(RegIndex))
     {
         /* Make a pointer to simplify code look and to remove redundant indexing into registry */
         RegRecPtr = CFE_TBL_LocateRegRecByID(RegIndex);

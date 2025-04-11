@@ -65,18 +65,18 @@ CFE_TBL_Handle_t ArrayOfHandles[2];
 #define UT_CFE_TBL_HANDLE_2    2
 #define UT_CFE_TBL_HANDLE_LAST (CFE_PLATFORM_TBL_MAX_NUM_HANDLES - 1)
 
-#define UT_CFE_TBL_REGID_INVL (-1)
-#define UT_CFE_TBL_REGID_0    0
-#define UT_CFE_TBL_REGID_1    1
-#define UT_CFE_TBL_REGID_2    2
-#define UT_CFE_TBL_REGID_LAST (CFE_PLATFORM_TBL_MAX_NUM_TABLES - 1)
-#define UT_CFE_TBL_REGID_INVH (CFE_PLATFORM_TBL_MAX_NUM_TABLES + 1)
+#define UT_CFE_TBL_REGID_INVL CFE_TBL_REGID_C(-1)
+#define UT_CFE_TBL_REGID_0    CFE_TBL_REGID_C(0)
+#define UT_CFE_TBL_REGID_1    CFE_TBL_REGID_C(1)
+#define UT_CFE_TBL_REGID_2    CFE_TBL_REGID_C(2)
+#define UT_CFE_TBL_REGID_LAST CFE_TBL_REGID_C(CFE_PLATFORM_TBL_MAX_NUM_TABLES - 1)
+#define UT_CFE_TBL_REGID_INVH CFE_TBL_REGID_C(CFE_PLATFORM_TBL_MAX_NUM_TABLES + 1)
 
-#define UT_CFE_TBL_LOADBUFFID_INVL (-1)
-#define UT_CFE_TBL_LOADBUFFID_0    0
-#define UT_CFE_TBL_LOADBUFFID_1    1
-#define UT_CFE_TBL_LOADBUFFID_LAST (CFE_PLATFORM_TBL_MAX_SIMULTANEOUS_LOADS - 1)
-#define UT_CFE_TBL_LOADBUFFID_INVH (CFE_PLATFORM_TBL_MAX_SIMULTANEOUS_LOADS + 1)
+#define UT_CFE_TBL_LOADBUFFID_INVL CFE_TBL_LOADBUFFID_C(-1)
+#define UT_CFE_TBL_LOADBUFFID_0    CFE_TBL_LOADBUFFID_C(0)
+#define UT_CFE_TBL_LOADBUFFID_1    CFE_TBL_LOADBUFFID_C(1)
+#define UT_CFE_TBL_LOADBUFFID_LAST CFE_TBL_LOADBUFFID_C(CFE_PLATFORM_TBL_MAX_SIMULTANEOUS_LOADS - 1)
+#define UT_CFE_TBL_LOADBUFFID_INVH CFE_TBL_LOADBUFFID_C(CFE_PLATFORM_TBL_MAX_SIMULTANEOUS_LOADS + 1)
 
 /* Set up buffer to provide to CFE_ES_GetPoolBuf handler */
 #define UT_TBL_LOAD_BUFFER_SIZE \
@@ -4056,7 +4056,7 @@ void Test_CFE_TBL_Internal(void)
     UtAssert_INT32_EQ(DumpCtrlPtr->State, CFE_TBL_DUMP_FREE);
     CFE_UtAssert_RESOURCEID_EQ(RegRecPtr->OwnerAppId, CFE_TBL_NOT_OWNED);
     UtAssert_BOOL_FALSE(WorkingBufferPtr->Taken);
-    UtAssert_INT32_EQ(UT_TBL_Status(RegRecPtr)->LoadInProgress, CFE_TBL_NO_LOAD_IN_PROGRESS);
+    UtAssert_BOOL_FALSE(CFE_TBL_LOADBUFFID_IS_VALID(UT_TBL_Status(RegRecPtr)->LoadInProgress));
 
     /* Test response to an attempt to use an invalid table handle */
     UT_InitData();
@@ -4108,7 +4108,7 @@ void Test_CFE_TBL_Internal(void)
     RegRecPtr->OwnerAppId      = CFE_TBL_NOT_OWNED;
     RegRecPtr->AccessList.Next = CFE_TBL_END_OF_LIST + 1;
     CFE_UtAssert_SUCCESS(CFE_TBL_TxnAllocateRegistryEntry(&Txn));
-    UtAssert_INT32_EQ(CFE_TBL_TxnRegId(&Txn), 1);
+    UtAssert_INT32_EQ(CFE_TBL_REGID_INT(CFE_TBL_TxnRegId(&Txn)), 1);
     CFE_UtAssert_EVENTCOUNT(0);
 
     /* Test CFE_TBL_LockRegistry response when an error occurs taking the mutex
@@ -4355,7 +4355,7 @@ void Test_CFE_TBL_ResourceID_RegistryRecord(void)
     UtAssert_UINT32_EQ(Idx, 1);
     UtAssert_NOT_NULL(RegRecPtr = CFE_TBL_LocateRegRecByID(ValidRegId));
 
-    UtAssert_UINT32_EQ(CFE_TBL_RegRecGetID(RegRecPtr), ValidRegId);
+    UtAssert_UINT32_EQ(CFE_TBL_REGID_INT(CFE_TBL_RegRecGetID(RegRecPtr)), CFE_TBL_REGID_INT(ValidRegId));
 
     /*
     CFE_TBL_RegId_t        RegId;

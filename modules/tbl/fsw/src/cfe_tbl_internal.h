@@ -44,219 +44,10 @@
 
 /*********************  Macro and Constant Type Definitions   ***************************/
 
-#define CFE_TBL_NOT_OWNED   CFE_ES_APPID_UNDEFINED
-#define CFE_TBL_NOT_FOUND   (-1)
-#define CFE_TBL_END_OF_LIST (CFE_TBL_Handle_t)0xFFFF
-
-/**
- * Function type used with access descriptor iterator
- *
- * The access descriptor iterator will invoke the supplied function
- * for every descriptor associated with the table registry entry
- *
- * \param AccDescPtr Pointer to the current access descriptor
- * \param Arg Opaque argument from caller (passed through)
- */
-typedef void (*const CFE_TBL_AccessDescFunc_t)(CFE_TBL_AccessDescriptor_t *AccDescPtr, void *Arg);
+#define CFE_TBL_NOT_FOUND CFE_TBL_REGID_UNDEFINED
+#define CFE_TBL_NOT_OWNED CFE_ES_APPID_UNDEFINED
 
 /*****************************  Function Prototypes   **********************************/
-
-/*
- * Inline accessors for fields within the registry record struct
- *
- * Use of these accessors allows for greater independence between the logic and the
- * specific names and heirarchy of the data structure(s) that the values are stored in.
- *
- * They should all be trivial in nature.  All of these accessors are for internal use only
- * and only operate on pointers that are known to be valid (i.e. no additional checking here).
- */
-
-/*---------------------------------------------------------------------------------------*/
-/**
- * @brief Obtain the name associated with the registry entry
- *
- * Returns the name field from within the registry entry
- *
- * @note The name buffer in the registry contains the fully-qualified name (AppName.TableName)
- *
- * @param[in]   RegRecPtr   pointer to Registry table entry
- * @returns Pointer to Table name
- */
-static inline const char *CFE_TBL_RegRecGetName(const CFE_TBL_RegistryRec_t *RegRecPtr)
-{
-    return RegRecPtr->Config.Name;
-}
-
-/*---------------------------------------------------------------------------------------*/
-/**
- * @brief Obtain the table size associated with the registry entry
- *
- * Returns the size field from within the registry entry
- *
- * @param[in]   RegRecPtr   pointer to Registry table entry
- * @returns Table size
- */
-static inline size_t CFE_TBL_RegRecGetSize(const CFE_TBL_RegistryRec_t *RegRecPtr)
-{
-    return RegRecPtr->Config.Size;
-}
-
-/*---------------------------------------------------------------------------------------*/
-/**
- * @brief Check if a load is in progress
- *
- * Checks if the table is currently being loaded
- *
- * @param[in]   RegRecPtr   pointer to Registry table entry
- * @returns true if a load is in progress
- */
-static inline size_t CFE_TBL_RegRecIsLoadInProgress(const CFE_TBL_RegistryRec_t *RegRecPtr)
-{
-    return (RegRecPtr->Status.LoadInProgress != CFE_TBL_NO_LOAD_IN_PROGRESS);
-}
-
-/*---------------------------------------------------------------------------------------*/
-/**
- * @brief Obtain the load in progress identifier
- *
- * Returns the identifier associated with the buffer being loaded
- * This is only valid for registry entries for which CFE_TBL_RegRecIsLoadInProgress() is true
- *
- * @param[inout]   RegRecPtr   pointer to Registry table entry
- * @returns Identifier for buffer being loaded
- */
-static inline CFE_TBL_LoadBuffId_t CFE_TBL_RegRecGetLoadInProgress(CFE_TBL_RegistryRec_t *RegRecPtr)
-{
-    return RegRecPtr->Status.LoadInProgress;
-}
-
-/*---------------------------------------------------------------------------------------*/
-/**
- * @brief Set the load in progress identifier
- *
- * Marks the registry entry as having a load in progress
- *
- * @param[inout] RegRecPtr      pointer to Registry table entry
- * @param[in]    LoadInProgress identifier of the buffer being loaded
- */
-static inline void CFE_TBL_RegRecSetLoadInProgress(CFE_TBL_RegistryRec_t *RegRecPtr,
-                                                   CFE_TBL_LoadBuffId_t   LoadInProgress)
-{
-    RegRecPtr->Status.LoadInProgress = LoadInProgress;
-}
-
-/*---------------------------------------------------------------------------------------*/
-/**
- * @brief Clear the load in progress identifier
- *
- * Marks the registry entry as not having a load in progress
- *
- * @param[inout]   RegRecPtr   pointer to Registry table entry
- */
-static inline void CFE_TBL_RegRecClearLoadInProgress(CFE_TBL_RegistryRec_t *RegRecPtr)
-{
-    RegRecPtr->Status.LoadInProgress = CFE_TBL_NO_LOAD_IN_PROGRESS;
-}
-
-/*---------------------------------------------------------------------------------------*/
-/**
- * @brief Get the last file loaded string
- *
- * Gets the last file loaded from the registry record
- *
- * @param[in]   RegRecPtr   pointer to Registry table entry
- * @returns string indicating the last file loaded
- */
-static inline const char *CFE_TBL_RegRecGetLastFileLoaded(const CFE_TBL_RegistryRec_t *RegRecPtr)
-{
-    return RegRecPtr->Status.LastFileLoaded;
-}
-
-/*---------------------------------------------------------------------------------------*/
-/**
- * @brief Get the last update time
- *
- * Gets the last update time from the registry record
- *
- * @param[in]   RegRecPtr   pointer to Registry table entry
- * @returns time of last update
- */
-static inline CFE_TIME_SysTime_t CFE_TBL_RegRecGetLastUpdateTime(const CFE_TBL_RegistryRec_t *RegRecPtr)
-{
-    return RegRecPtr->Status.TimeOfLastUpdate;
-}
-
-/*---------------------------------------------------------------------------------------*/
-/**
- * @brief Checks if the table has initially loaded
- *
- * @param[in]   RegRecPtr   pointer to Registry table entry
- * @retval false if the table is registered but not yet loaded
- * @retval true if the table has been loaded at least once
- */
-static inline bool CFE_TBL_RegRecIsTableLoaded(const CFE_TBL_RegistryRec_t *RegRecPtr)
-{
-    return RegRecPtr->Status.TableLoadedOnce;
-}
-
-/*---------------------------------------------------------------------------------------*/
-/**
- * @brief Sets the table loaded flag
- *
- * @param[in]   RegRecPtr   pointer to Registry table entry
- */
-static inline void CFE_TBL_RegRecSetTableLoadedFlag(CFE_TBL_RegistryRec_t *RegRecPtr)
-{
-    RegRecPtr->Status.TableLoadedOnce = true;
-}
-
-/*---------------------------------------------------------------------------------------*/
-/**
- * @brief Checks if a table load is pending
- *
- * @param[in]   RegRecPtr   pointer to Registry table entry
- * @retval false if there is no load pending
- * @retval true if there is a load pending
- */
-static inline bool CFE_TBL_RegRecIsLoadPending(const CFE_TBL_RegistryRec_t *RegRecPtr)
-{
-    return RegRecPtr->Status.LoadPending;
-}
-
-/*---------------------------------------------------------------------------------------*/
-/**
- * @brief Sets the load pending flag
- *
- * @param[in]   RegRecPtr   pointer to Registry table entry
- */
-static inline void CFE_TBL_RegRecSetLoadPendingFlag(CFE_TBL_RegistryRec_t *RegRecPtr)
-{
-    RegRecPtr->Status.LoadPending = true;
-}
-
-/*---------------------------------------------------------------------------------------*/
-/**
- * @brief Clears the load pending flag
- *
- * @param[in]   RegRecPtr   pointer to Registry table entry
- */
-static inline void CFE_TBL_RegRecClearLoadPendingFlag(CFE_TBL_RegistryRec_t *RegRecPtr)
-{
-    RegRecPtr->Status.LoadPending = false;
-}
-
-/*---------------------------------------------------------------------------------------*/
-/**
- * @brief Checks if a table has been modified from its original form
- *
- * @param[in]   RegRecPtr   pointer to Registry table entry
- * @retval false if the table has not been modified since the last load
- * @retval true if the table is modified since the last load
- */
-static inline bool CFE_TBL_RegRecIsModified(const CFE_TBL_RegistryRec_t *RegRecPtr)
-{
-    return RegRecPtr->Status.IsModified;
-}
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -482,34 +273,6 @@ void CFE_TBL_NotifyTblUsersOfUpdate(CFE_TBL_RegistryRec_t *RegRecPtr);
 */
 int32 CFE_TBL_ReadHeaders(osal_id_t FileDescriptor, CFE_FS_Header_t *StdFileHeaderPtr,
                           CFE_TBL_File_Hdr_t *TblFileHeaderPtr, const char *LoadFilename);
-
-/*---------------------------------------------------------------------------------------*/
-/**
-** \brief Initializes the entries of a single Table Registry Record
-**
-** \par Description
-**        Initializes the contents of a single Table Registry Record to default values
-**
-** \par Assumptions, External Events, and Notes:
-**        -# This function is intended to be called before populating a table registry record
-**
-** \param[out]  RegRecPtr         Pointer to Registry Entry to initialize
-*/
-void CFE_TBL_InitRegistryRecord(CFE_TBL_RegistryRec_t *RegRecPtr);
-
-/*---------------------------------------------------------------------------------------*/
-/**
-** \brief Initializes the entries of a single Access Descriptor
-**
-** \par Description
-**        Initializes the contents of a single Access Descriptor to default values
-**
-** \par Assumptions, External Events, and Notes:
-**        -# This function is intended to be called before populating the Access Descriptor
-**
-** \param[out]  AccessDescPtr         Pointer to Access Descriptor to initialize
-*/
-void CFE_TBL_InitAccessDescriptor(CFE_TBL_AccessDescriptor_t *AccessDescPtr);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -770,39 +533,6 @@ void CFE_TBL_CountAccessDescHelper(CFE_TBL_AccessDescriptor_t *AccessDescPtr, vo
 
 /*---------------------------------------------------------------------------------------*/
 /**
-** \brief Initializes a handle link
-**
-** \par Description
-**        Sets the handle link to initial condition, where it is not a member of any list
-**        After this call, CFE_TBL_HandleLinkIsAttached() on this link will always return false
-**
-** \par Assumptions, External Events, and Notes:
-**        None
-**
-** \param LinkPtr Pointer to link entry to initialize
-*/
-void CFE_TBL_HandleLinkInit(CFE_TBL_HandleLink_t *LinkPtr);
-
-/*---------------------------------------------------------------------------------------*/
-/**
-** \brief Checks if a handle link is attached to another entry
-**
-** \par Description
-**        This will return true if the passed-in link is attached to another list node,
-**        indicating it is part of a list.  Conversely, this will return false if the
-**        link is not attached to another node, indicating a singleton or empty list.
-**
-** \par Assumptions, External Events, and Notes:
-**        None
-**
-** \param LinkPtr Pointer to link entry to check
-** \retval true if the link node is part of a list (attached)
-** \retval false if the link node is not part of a list (detached)
-*/
-bool CFE_TBL_HandleLinkIsAttached(CFE_TBL_HandleLink_t *LinkPtr);
-
-/*---------------------------------------------------------------------------------------*/
-/**
 ** \brief Removes the given access descriptor from the registry list
 **
 ** \par Description
@@ -832,79 +562,6 @@ void CFE_TBL_HandleListRemoveLink(CFE_TBL_RegistryRec_t *RegRecPtr, CFE_TBL_Acce
 ** \param AccessDescPtr The access descriptor that is to be added to the list
 */
 void CFE_TBL_HandleListInsertLink(CFE_TBL_RegistryRec_t *RegRecPtr, CFE_TBL_AccessDescriptor_t *AccessDescPtr);
-
-/*---------------------------------------------------------------------------------------*/
-/**
-** \brief Gets the ID of the next buffer to use on a double-buffered table
-**
-** \par Description
-**        This returns the identifier for the local table buffer that should be
-**        loaded next.
-**
-** \par Assumptions, External Events, and Notes:
-**        This is not applicable to single-buffered tables.
-**
-** \param RegRecPtr The table registry record
-** \returns Identifier of next buffer to use
-*/
-CFE_TBL_LoadBuffId_t CFE_TBL_GetNextLocalBufferId(CFE_TBL_RegistryRec_t *RegRecPtr);
-
-/*---------------------------------------------------------------------------------------*/
-/**
-** \brief Gets the currently-active buffer pointer for a table
-**
-** \par Description
-**        This returns a pointer to the currently active table buffer.  On a single-buffered
-**        table, this is always the first/only buffer.  This function never returns NULL, as
-**        all tables have at least one buffer.
-**
-** \par Assumptions, External Events, and Notes:
-**        None
-**
-** \param RegRecPtr The table registry record
-** \returns Pointer to the active table buffer
-*/
-CFE_TBL_LoadBuff_t *CFE_TBL_GetActiveBuffer(CFE_TBL_RegistryRec_t *RegRecPtr);
-
-/*---------------------------------------------------------------------------------------*/
-/**
-** \brief Gets the inactive buffer pointer for a table
-**
-** \par Description
-**        This returns a pointer to inactive table buffer.  On a double-buffered table
-**        this refers to whichever buffer is _not_ currently active (that is, the opposite
-**        buffer from what is returned by CFE_TBL_GetActiveBuffer()).
-**
-**        On a single-buffered, if there is a load in progress that is utilizing one of the
-**        global/shared load buffers, then this returns a pointer to that buffer.  If there
-**        is no load in progress, this returns NULL to indicate there is no inactive buffer.
-**
-** \par Assumptions, External Events, and Notes:
-**        This funtion may return NULL if there is no inactive buffer associated with the table
-**
-** \param RegRecPtr The table registry record
-** \returns Pointer to the inactive table buffer
-*/
-CFE_TBL_LoadBuff_t *CFE_TBL_GetInactiveBuffer(CFE_TBL_RegistryRec_t *RegRecPtr);
-
-/*---------------------------------------------------------------------------------------*/
-/**
-** \brief Gets the buffer pointer for a table based on the selection enum
-**
-** \par Description
-**        Gets either the active buffer (see CFE_TBL_GetActiveBuffer()) or the inactive
-**        buffer (see CFE_TBL_GetInactiveBuffer()) based on the BufferSelect parameter.
-**
-** \par Assumptions, External Events, and Notes:
-**        This funtion may return NULL if there is no buffer associated with the table
-**        This will send an event if the BufferSelect parameter is not valid
-**
-** \param RegRecPtr The table registry record
-** \param BufferSelect The buffer to obtain (active or inactive)
-** \returns Pointer to the selected table buffer
-*/
-CFE_TBL_LoadBuff_t *CFE_TBL_GetSelectedBuffer(CFE_TBL_RegistryRec_t *     RegRecPtr,
-                                              CFE_TBL_BufferSelect_Enum_t BufferSelect);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -954,28 +611,6 @@ void CFE_TBL_DiscardWorkingBuffer(CFE_TBL_RegistryRec_t *RegRecPtr);
 
 /*---------------------------------------------------------------------------------------*/
 /**
-** \brief Gets the working buffer associated with this registry entry
-**
-** \par Description
-**        If the registry entry had a working (i.e. load in progress) buffer associated with it,
-**        this gets the buffer and returns a pointer to it.
-**
-**        On a single-buffered table, the working buffers come from a small set of shared/global
-**        temporary buffers.  On a double-buffered table, the working buffer is the inactive buffer.
-**
-** \par Assumptions, External Events, and Notes:
-**        This is only used to recover a buffer to load that was already started.  It does not
-**        start a new load (i.e. it will _not_ allocate a working buffer, if there was none associated
-**        with the table).  If a table load was not already in progress, this returns NULL.
-**
-** \param[inout] RegRecPtr Pointer to the registry entry to operate on
-** \returns Pointer to working buffer
-** \retval NULL if no table load is in progress
-*/
-CFE_TBL_LoadBuff_t *CFE_TBL_GetLoadInProgressBuffer(CFE_TBL_RegistryRec_t *RegRecPtr);
-
-/*---------------------------------------------------------------------------------------*/
-/**
 ** \brief Acquires a temporary working buffer from the shared pool
 **
 ** \par Description
@@ -992,26 +627,6 @@ CFE_TBL_LoadBuff_t *CFE_TBL_GetLoadInProgressBuffer(CFE_TBL_RegistryRec_t *RegRe
 ** \retval NULL if no working buffers are available
 */
 CFE_TBL_LoadBuff_t *CFE_TBL_AcquireGlobalLoadBuff(void);
-
-/*---------------------------------------------------------------------------------------*/
-/**
-** \brief Acquires a the inactive buffer from a double buffered table
-**
-** \par Description
-**        Double buffered table have a dedicated (inactive) buffer that is used for loading, rather than using
-**        a temporary buffer from the shared pool.  This function gets a pointer to the inactive buffer and also
-**        confirms that no other tasks are referencing the buffer (i.e. it has exclusive access) such that it
-**        is safe to load new data into it.
-**
-** \par Assumptions, External Events, and Notes:
-**        If there is a task/app that is holding a reference to the buffer, loading is not possible.  Table users
-**        must release the address when they are not actively accessing the table data to permit reloading.
-**
-** \param[inout] RegRecPtr Pointer to the registry entry to operate on
-** \returns Pointer to working buffer
-** \retval NULL if no working buffers are available
-*/
-CFE_TBL_LoadBuff_t *CFE_TBL_GetInactiveBufferExclusive(CFE_TBL_RegistryRec_t *RegRecPtr);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -1053,22 +668,6 @@ void CFE_TBL_DeallocateAllBuffers(CFE_TBL_RegistryRec_t *RegRecPtr);
 
 /*---------------------------------------------------------------------------------------*/
 /**
- * @brief Set the metadata for the last table update
- *
- * Stores the given string as the most recent source of data, and
- * sets the last update time to the indicated time.  Note that in some
- * cases (e.g. restore from CDS) the real timestamp of the data may be
- * earlier than the current time which is why it is passed in.
- *
- * @param[inout]   RegRecPtr   pointer to Registry table entry
- * @param[in] DataSource string indicating to the source of data
- * @param[in] UpdateTime time stamp of the source of data
- */
-void CFE_TBL_RegRecResetLoadInfo(CFE_TBL_RegistryRec_t *RegRecPtr, const char *DataSource,
-                                 CFE_TIME_SysTime_t UpdateTime);
-
-/*---------------------------------------------------------------------------------------*/
-/**
  * @brief Marks the given string buffer with a modified tag
  *
  * Adds an indicator -- traditionally "(*)" -- at the end of the string
@@ -1080,20 +679,6 @@ void CFE_TBL_RegRecResetLoadInfo(CFE_TBL_RegistryRec_t *RegRecPtr, const char *D
  * @param[in] NameBufSize Size if name buffer
  */
 void CFE_TBL_MarkNameAsModified(char *NameBufPtr, size_t NameBufSize);
-
-/*---------------------------------------------------------------------------------------*/
-/**
- * @brief Flags the table as being modified from its original data
- *
- * This marks the internal metadata to indicate the the table data
- * has been changed by the application since the initial load from the file.
- *
- * @param[inout]   RegRecPtr   pointer to Registry table entry
- */
-void CFE_TBL_RegRecSetModifiedFlag(CFE_TBL_RegistryRec_t *RegRecPtr);
-
-void CFE_TBL_SetupTableRegistryRecord(CFE_TBL_RegistryRec_t *RegRecPtr, CFE_ES_AppId_t OwnerAppId,
-                                      const CFE_TBL_TableConfig_t *ReqCfg);
 
 /*
 ** Globals specific to the TBL module
