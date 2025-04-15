@@ -1021,7 +1021,7 @@ bool CFE_TBL_DumpRegistryGetter(void *Meta, uint32 RecordNum, void **Buffer, siz
             StatePtr->DumpRecord.DoubleBuffered   = CFE_TBL_RegRecGetConfig(RegRecPtr)->DoubleBuffered;
             StatePtr->DumpRecord.CriticalTable    = CFE_TBL_RegRecGetConfig(RegRecPtr)->Critical;
 
-            /* Convert LoadInProgress flag into more meaningful information */
+            /* Convert LoadInProgress ID into historically-compatible integer value */
             StatePtr->DumpRecord.LoadInProgress =
                 CFE_TBL_LoadBuffIdToTlmIndex(CFE_TBL_RegRecGetLoadInProgress(RegRecPtr));
 
@@ -1367,7 +1367,7 @@ int32 CFE_TBL_AbortLoadCmd(const CFE_TBL_AbortLoadCmd_t *data)
         RegRecPtr = CFE_TBL_LocateRegRecByID(RegIndex);
 
         /* Check to make sure a load was in progress before trying to abort it */
-        /* NOTE: LoadInProgress contains index of buffer when dumping a dump-only table */
+        /* NOTE: NextBufferId contains index of buffer when dumping a dump-only table */
         /* so we must ensure the table is not a dump-only table, otherwise, we would be aborting a dump */
         if (CFE_TBL_RegRecIsLoadInProgress(RegRecPtr) && !CFE_TBL_RegRecGetConfig(RegRecPtr)->DumpOnly)
         {

@@ -355,7 +355,7 @@ int32 CFE_TBL_LoadBuffIdToTlmIndex(CFE_TBL_LoadBuffId_t BufferId)
     uint32 CategoryIdx;
 
     /*
-     * First try to interpret the LoadInProgress ID as a shared load buffer.
+     * First try to interpret the ID as a shared load buffer.
      * This relies on the internal range-checking; this will fail if the ID is not actually a shared load buffer
      */
     if (CFE_TBL_LoadBuffId_ToIndex(BufferId, &CategoryIdx, &LocalIdx) != CFE_SUCCESS)

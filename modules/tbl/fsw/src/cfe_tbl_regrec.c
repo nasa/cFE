@@ -181,7 +181,7 @@ CFE_TBL_LoadBuff_t *CFE_TBL_GetInactiveBuffer(CFE_TBL_RegistryRec_t *RegRecPtr)
 {
     CFE_TBL_LoadBuff_t *BuffPtr;
 
-    /* In all cases, if the LoadInProgress is set and it checks out, use it */
+    /* In all cases, if the NextBufferId is set and it checks out, use it */
     /* This applies to single and double buffered tables */
     BuffPtr = CFE_TBL_GetLoadInProgressBuffer(RegRecPtr);
     if (BuffPtr == NULL)
@@ -256,7 +256,7 @@ CFE_TBL_LoadBuff_t *CFE_TBL_GetLoadInProgressBuffer(CFE_TBL_RegistryRec_t *RegRe
             CFE_TBL_RegRecClearLoadInProgress(RegRecPtr);
 
             /* but it implies something went awry with the load, so report it */
-            CFE_ES_WriteToSysLog("WARNING: Cleared stale loade in progress on table %s",
+            CFE_ES_WriteToSysLog("WARNING: Cleared stale load in progress on table %s",
                                  CFE_TBL_RegRecGetName(RegRecPtr));
         }
     }

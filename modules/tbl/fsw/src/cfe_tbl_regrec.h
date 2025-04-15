@@ -44,13 +44,6 @@
 
 /*********************  Macro and Constant Type Definitions   ***************************/
 
-/** \brief Value indicating when no load is in progress */
-/**
-**  This macro is used to indicate no Load is in Progress by assigning it to
-**  #CFE_TBL_TableStatus_t::LoadInProgress
-*/
-#define CFE_TBL_NO_LOAD_IN_PROGRESS CFE_TBL_LOADBUFFID_UNDEFINED
-
 /**
  * A structure that encapsulates all of the optional table features
  *
@@ -83,7 +76,7 @@ typedef struct CFE_TBL_TableStatus
 {
     CFE_TBL_LoadBuffId_t ActiveBufferId; /**< \brief Identifier of the currently active buffer */
     CFE_TBL_LoadBuffId_t PrevBufferId;   /**< \brief Identifier of the previously active buffer */
-    CFE_TBL_LoadBuffId_t LoadInProgress; /**< \brief Identifier of the next buffer (pending activation) */
+    CFE_TBL_LoadBuffId_t NextBufferId;   /**< \brief Identifier of the next buffer (pending activation) */
 
     CFE_TIME_SysTime_t TimeOfLastUpdate; /**< \brief Time when Table was last updated */
 
@@ -352,7 +345,7 @@ static inline size_t CFE_TBL_RegRecGetSize(const CFE_TBL_RegistryRec_t *RegRecPt
  */
 static inline size_t CFE_TBL_RegRecIsLoadInProgress(const CFE_TBL_RegistryRec_t *RegRecPtr)
 {
-    return CFE_TBL_LOADBUFFID_IS_VALID(RegRecPtr->Status.LoadInProgress);
+    return CFE_TBL_LOADBUFFID_IS_VALID(RegRecPtr->Status.NextBufferId);
 }
 
 /*---------------------------------------------------------------------------------------*/
@@ -367,7 +360,7 @@ static inline size_t CFE_TBL_RegRecIsLoadInProgress(const CFE_TBL_RegistryRec_t 
  */
 static inline CFE_TBL_LoadBuffId_t CFE_TBL_RegRecGetLoadInProgress(const CFE_TBL_RegistryRec_t *RegRecPtr)
 {
-    return RegRecPtr->Status.LoadInProgress;
+    return RegRecPtr->Status.NextBufferId;
 }
 
 /*---------------------------------------------------------------------------------------*/
@@ -377,12 +370,11 @@ static inline CFE_TBL_LoadBuffId_t CFE_TBL_RegRecGetLoadInProgress(const CFE_TBL
  * Marks the registry entry as having a load in progress
  *
  * @param[inout] RegRecPtr      pointer to Registry table entry
- * @param[in]    LoadInProgress identifier of the buffer being loaded
+ * @param[in]    NextBufferId identifier of the pending buffer being loaded
  */
-static inline void CFE_TBL_RegRecSetLoadInProgress(CFE_TBL_RegistryRec_t *RegRecPtr,
-                                                   CFE_TBL_LoadBuffId_t   LoadInProgress)
+static inline void CFE_TBL_RegRecSetLoadInProgress(CFE_TBL_RegistryRec_t *RegRecPtr, CFE_TBL_LoadBuffId_t NextBufferId)
 {
-    RegRecPtr->Status.LoadInProgress = LoadInProgress;
+    RegRecPtr->Status.NextBufferId = NextBufferId;
 }
 
 /*---------------------------------------------------------------------------------------*/
@@ -395,7 +387,7 @@ static inline void CFE_TBL_RegRecSetLoadInProgress(CFE_TBL_RegistryRec_t *RegRec
  */
 static inline void CFE_TBL_RegRecClearLoadInProgress(CFE_TBL_RegistryRec_t *RegRecPtr)
 {
-    RegRecPtr->Status.LoadInProgress = CFE_TBL_NO_LOAD_IN_PROGRESS;
+    RegRecPtr->Status.NextBufferId = CFE_TBL_LOADBUFFID_UNDEFINED;
 }
 
 /*---------------------------------------------------------------------------------------*/

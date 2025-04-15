@@ -433,7 +433,7 @@ int32 CFE_TBL_GetWorkingBuffer(CFE_TBL_LoadBuff_t **WorkingBufferPtr, CFE_TBL_Re
         if (LoadBuffPtr != NULL)
         {
             /*
-             * store the resource ID (generic form) in LoadInProgress - this allows
+             * store the resource ID (generic form) in NextBufferId - this allows
              * it to refer to either a shared buffer or a local table buffer
              */
             CFE_TBL_RegRecSetLoadInProgress(RegRecPtr, CFE_TBL_LoadBufferGetID(LoadBuffPtr));
