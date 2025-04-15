@@ -687,12 +687,5 @@ void CFE_TBL_TxnConnectAccessDescriptor(CFE_TBL_TxnState_t *Txn)
     AccDescPtr->UsedFlag = true;
     AccDescPtr->RegIndex = CFE_TBL_TxnRegId(Txn);
 
-    if (CFE_TBL_RegRecGetConfig(RegRecPtr)->DumpOnly && !CFE_TBL_RegRecGetConfig(RegRecPtr)->UserDefAddr)
-    {
-        /* Dump Only Tables are assumed to be loaded at all times unless the address is specified */
-        /* by the application. In that case, it isn't loaded until the address is specified       */
-        CFE_TBL_RegRecSetTableLoadedFlag(RegRecPtr);
-    }
-
     CFE_TBL_HandleListInsertLink(RegRecPtr, AccDescPtr);
 }

@@ -44,13 +44,6 @@
 
 /*********************  Macro and Constant Type Definitions   ***************************/
 
-/** \brief Value indicating when no load is in progress */
-/**
-**  This macro is used to indicate no Load is in Progress by assigning it to
-**  #CFE_TBL_TableStatus_t::LoadInProgress
-*/
-#define CFE_TBL_NO_LOAD_IN_PROGRESS CFE_TBL_LOADBUFFID_UNDEFINED
-
 /**
  * A structure that encapsulates all of the optional table features
  *
@@ -81,13 +74,14 @@ typedef struct CFE_TBL_TableConfig
  */
 typedef struct CFE_TBL_TableStatus
 {
-    CFE_TBL_LoadBuffId_t ActiveBufferIndex; /**< \brief Index identifying which buffer is the active buffer */
-    CFE_TBL_LoadBuffId_t LoadInProgress;    /**< \brief Flag identifies whether load in progress */
-    CFE_TIME_SysTime_t   TimeOfLastUpdate;  /**< \brief Time when Table was last updated */
+    CFE_TBL_LoadBuffId_t ActiveBufferId; /**< \brief Identifier of the currently active buffer */
+    CFE_TBL_LoadBuffId_t PrevBufferId;   /**< \brief Identifier of the previously active buffer */
+    CFE_TBL_LoadBuffId_t NextBufferId;   /**< \brief Identifier of the next buffer (pending activation) */
 
-    bool TableLoadedOnce; /**< \brief Flag indicating whether table has been loaded once or not */
-    bool LoadPending;     /**< \brief Flag indicating an inactive buffer is ready to be copied */
-    bool IsModified;      /**< \brief Indicates if this table is modified since loading */
+    CFE_TIME_SysTime_t TimeOfLastUpdate; /**< \brief Time when Table was last updated */
+
+    bool LoadPending; /**< \brief Flag indicating an inactive buffer is ready to be copied */
+    bool IsModified;  /**< \brief Indicates if this table is modified since loading */
 
     char LastFileLoaded[OS_MAX_PATH_LEN]; /**< \brief Filename of last file loaded into table */
 } CFE_TBL_TableStatus_t;
@@ -295,7 +289,7 @@ static inline void CFE_TBL_RegRecSetFree(CFE_TBL_RegistryRec_t *RegRecPtr)
  * @param[in]   RegRecPtr   pointer to registry entry
  * @returns   Pointer to config struct
  */
-static inline const CFE_TBL_TableConfig_t *CFE_TBL_RegRecGetConfig(CFE_TBL_RegistryRec_t *RegRecPtr)
+static inline const CFE_TBL_TableConfig_t *CFE_TBL_RegRecGetConfig(const CFE_TBL_RegistryRec_t *RegRecPtr)
 {
     return &RegRecPtr->Config;
 }
@@ -351,7 +345,7 @@ static inline size_t CFE_TBL_RegRecGetSize(const CFE_TBL_RegistryRec_t *RegRecPt
  */
 static inline size_t CFE_TBL_RegRecIsLoadInProgress(const CFE_TBL_RegistryRec_t *RegRecPtr)
 {
-    return !CFE_TBL_LOADBUFFID_EQ(RegRecPtr->Status.LoadInProgress, CFE_TBL_NO_LOAD_IN_PROGRESS);
+    return CFE_TBL_LOADBUFFID_IS_VALID(RegRecPtr->Status.NextBufferId);
 }
 
 /*---------------------------------------------------------------------------------------*/
@@ -364,9 +358,9 @@ static inline size_t CFE_TBL_RegRecIsLoadInProgress(const CFE_TBL_RegistryRec_t 
  * @param[inout]   RegRecPtr   pointer to Registry table entry
  * @returns Identifier for buffer being loaded
  */
-static inline CFE_TBL_LoadBuffId_t CFE_TBL_RegRecGetLoadInProgress(CFE_TBL_RegistryRec_t *RegRecPtr)
+static inline CFE_TBL_LoadBuffId_t CFE_TBL_RegRecGetLoadInProgress(const CFE_TBL_RegistryRec_t *RegRecPtr)
 {
-    return RegRecPtr->Status.LoadInProgress;
+    return RegRecPtr->Status.NextBufferId;
 }
 
 /*---------------------------------------------------------------------------------------*/
@@ -376,12 +370,11 @@ static inline CFE_TBL_LoadBuffId_t CFE_TBL_RegRecGetLoadInProgress(CFE_TBL_Regis
  * Marks the registry entry as having a load in progress
  *
  * @param[inout] RegRecPtr      pointer to Registry table entry
- * @param[in]    LoadInProgress identifier of the buffer being loaded
+ * @param[in]    NextBufferId identifier of the pending buffer being loaded
  */
-static inline void CFE_TBL_RegRecSetLoadInProgress(CFE_TBL_RegistryRec_t *RegRecPtr,
-                                                   CFE_TBL_LoadBuffId_t   LoadInProgress)
+static inline void CFE_TBL_RegRecSetLoadInProgress(CFE_TBL_RegistryRec_t *RegRecPtr, CFE_TBL_LoadBuffId_t NextBufferId)
 {
-    RegRecPtr->Status.LoadInProgress = LoadInProgress;
+    RegRecPtr->Status.NextBufferId = NextBufferId;
 }
 
 /*---------------------------------------------------------------------------------------*/
@@ -394,7 +387,7 @@ static inline void CFE_TBL_RegRecSetLoadInProgress(CFE_TBL_RegistryRec_t *RegRec
  */
 static inline void CFE_TBL_RegRecClearLoadInProgress(CFE_TBL_RegistryRec_t *RegRecPtr)
 {
-    RegRecPtr->Status.LoadInProgress = CFE_TBL_NO_LOAD_IN_PROGRESS;
+    RegRecPtr->Status.NextBufferId = CFE_TBL_LOADBUFFID_UNDEFINED;
 }
 
 /*---------------------------------------------------------------------------------------*/
@@ -435,18 +428,8 @@ static inline CFE_TIME_SysTime_t CFE_TBL_RegRecGetLastUpdateTime(const CFE_TBL_R
  */
 static inline bool CFE_TBL_RegRecIsTableLoaded(const CFE_TBL_RegistryRec_t *RegRecPtr)
 {
-    return RegRecPtr->Status.TableLoadedOnce;
-}
-
-/*---------------------------------------------------------------------------------------*/
-/**
- * @brief Sets the table loaded flag
- *
- * @param[in]   RegRecPtr   pointer to Registry table entry
- */
-static inline void CFE_TBL_RegRecSetTableLoadedFlag(CFE_TBL_RegistryRec_t *RegRecPtr)
-{
-    RegRecPtr->Status.TableLoadedOnce = true;
+    /* The active buffer index is not set until the first load */
+    return CFE_TBL_LOADBUFFID_IS_VALID(RegRecPtr->Status.ActiveBufferId);
 }
 
 /*---------------------------------------------------------------------------------------*/
@@ -513,22 +496,6 @@ void CFE_TBL_InitRegistryRecord(CFE_TBL_RegistryRec_t *RegRecPtr);
 
 /*---------------------------------------------------------------------------------------*/
 /**
-** \brief Gets the ID of the next buffer to use on a double-buffered table
-**
-** \par Description
-**        This returns the identifier for the local table buffer that should be
-**        loaded next.
-**
-** \par Assumptions, External Events, and Notes:
-**        This is not applicable to single-buffered tables.
-**
-** \param RegRecPtr The table registry record
-** \returns Identifier of next buffer to use
-*/
-CFE_TBL_LoadBuffId_t CFE_TBL_GetNextLocalBufferId(CFE_TBL_RegistryRec_t *RegRecPtr);
-
-/*---------------------------------------------------------------------------------------*/
-/**
 ** \brief Gets the currently-active buffer pointer for a table
 **
 ** \par Description
@@ -542,7 +509,37 @@ CFE_TBL_LoadBuffId_t CFE_TBL_GetNextLocalBufferId(CFE_TBL_RegistryRec_t *RegRecP
 ** \param RegRecPtr The table registry record
 ** \returns Pointer to the active table buffer
 */
-CFE_TBL_LoadBuff_t *CFE_TBL_GetActiveBuffer(CFE_TBL_RegistryRec_t *RegRecPtr);
+static inline CFE_TBL_LoadBuff_t *CFE_TBL_GetActiveBuffer(const CFE_TBL_RegistryRec_t *RegRecPtr)
+{
+    /* This will return NULL if the index is not valid, as in a non-loaded table */
+    return CFE_TBL_LocateLoadBufferByID(RegRecPtr->Status.ActiveBufferId);
+}
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Sets the active buffer of the table
+ *
+ * @param[inout] RegRecPtr  pointer to Registry table entry
+ * @param[in]    BuffPtr    pointer to working buffer that becomes the active buffer
+ */
+static inline void CFE_TBL_SetActiveBuffer(CFE_TBL_RegistryRec_t *RegRecPtr, CFE_TBL_LoadBuff_t *BuffPtr)
+{
+    RegRecPtr->Status.PrevBufferId   = RegRecPtr->Status.ActiveBufferId;
+    RegRecPtr->Status.ActiveBufferId = CFE_TBL_LoadBufferGetID(BuffPtr);
+}
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Gets the previous buffer of the table
+ *
+ * @param[inout] RegRecPtr  pointer to Registry table entry
+ * @returns Pointer to the active table buffer
+ */
+static inline CFE_TBL_LoadBuff_t *CFE_TBL_GetPreviousBuffer(CFE_TBL_RegistryRec_t *RegRecPtr)
+{
+    /* This will return NULL if the index is not valid */
+    return CFE_TBL_LocateLoadBufferByID(RegRecPtr->Status.PrevBufferId);
+}
 
 /*---------------------------------------------------------------------------------------*/
 /**

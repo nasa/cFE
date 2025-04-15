@@ -659,7 +659,8 @@ void Test_CFE_TBL_TblMod(void);
 ** \returns
 **        This function does not return a value.
 ******************************************************************************/
-void Test_CFE_TBL_Internal(void);
+void Test_CFE_TBL_Internal1(void);
+void Test_CFE_TBL_Internal2(void);
 
 /*****************************************************************************/
 /**

@@ -63,11 +63,11 @@ struct CFE_TBL_DumpControl
 {
     CFE_TBL_DumpCtrlId_t BlockId;
 
-    CFE_TBL_DumpState_t    State;         /**< \brief Current state of this block of data */
-    size_t                 Size;          /**< \brief Number of bytes to be dumped */
-    CFE_TBL_LoadBuff_t *   DumpBufferPtr; /**< \brief Address where dumped data is to be stored temporarily */
-    CFE_TBL_RegistryRec_t *RegRecPtr;     /**< \brief Ptr to dumped table's registry record */
-    char                   TableName[CFE_TBL_MAX_FULL_NAME_LEN]; /**< \brief Name of Table being Dumped */
+    CFE_TBL_DumpState_t  State;         /**< \brief Current state of this block of data */
+    size_t               Size;          /**< \brief Number of bytes to be dumped */
+    CFE_TBL_LoadBuff_t * DumpBufferPtr; /**< \brief Address where dumped data is to be stored temporarily */
+    CFE_TBL_LoadBuffId_t SourceBuffId;  /**< \brief Identifier of buffer to dump */
+    char                 TableName[CFE_TBL_MAX_FULL_NAME_LEN]; /**< \brief Name of Table being Dumped */
 };
 
 /*

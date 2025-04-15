@@ -228,7 +228,7 @@ void CFE_TBL_DiscardWorkingBuffer(CFE_TBL_RegistryRec_t *RegRecPtr)
     if (!CFE_TBL_RegRecGetConfig(RegRecPtr)->DoubleBuffered && CFE_TBL_RegRecIsLoadInProgress(RegRecPtr))
     {
         LoadInProgressId = CFE_TBL_RegRecGetLoadInProgress(RegRecPtr);
-        LoadBuffPtr      = CFE_TBL_LocateLoadBufferByID(NULL, LoadInProgressId);
+        LoadBuffPtr      = CFE_TBL_LocateLoadBufferByID(LoadInProgressId);
     }
     else
     {
@@ -369,11 +369,13 @@ int32 CFE_TBL_UnlockRegistry(void)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-CFE_TBL_LoadBuff_t *CFE_TBL_AcquireGlobalLoadBuff(void)
+CFE_TBL_LoadBuff_t *CFE_TBL_AcquireGlobalLoadBuff(CFE_TBL_RegId_t PendingOwnerId)
 {
     int32               OsStatus;
-    uint32              i;
+    CFE_ResourceId_t    PendingId;
     CFE_TBL_LoadBuff_t *LoadBuffPtr;
+
+    LoadBuffPtr = NULL;
 
     /* Take Mutex to make sure we are not trying to grab a working buffer that some */
     /* other application is also trying to grab. */
@@ -386,25 +388,12 @@ CFE_TBL_LoadBuff_t *CFE_TBL_AcquireGlobalLoadBuff(void)
     }
 
     /* Determine if there are any common buffers available */
-    for (i = 0; i < CFE_PLATFORM_TBL_MAX_SIMULTANEOUS_LOADS; ++i)
+    PendingId   = CFE_TBL_FindNextSharedBufferId();
+    LoadBuffPtr = CFE_TBL_LocateLoadBufferByID(CFE_TBL_LOADBUFFID_C(PendingId));
+    if (LoadBuffPtr != NULL)
     {
-        LoadBuffPtr = &CFE_TBL_Global.LoadBuffs[i];
-
-        if (!CFE_TBL_LoadBuffIsUsed(LoadBuffPtr))
-        {
-            break;
-        }
-    }
-
-    /* If a free buffer was found, then return the address to the associated shared buffer */
-    if (i < CFE_PLATFORM_TBL_MAX_SIMULTANEOUS_LOADS)
-    {
-        LoadBuffPtr->Taken = true;
-    }
-    else
-    {
-        LoadBuffPtr = NULL;
-        CFE_ES_WriteToSysLog("%s: All shared buffers are locked\n", __func__);
+        /* Claim it as ours */
+        CFE_TBL_LoadBuffSetUsed(LoadBuffPtr, PendingId, PendingOwnerId);
     }
 
     /* Allow others to obtain a shared working buffer */
@@ -419,40 +408,7 @@ CFE_TBL_LoadBuff_t *CFE_TBL_AcquireGlobalLoadBuff(void)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-CFE_TBL_LoadBuff_t *CFE_TBL_PrepareNewLoadBuff(CFE_TBL_RegistryRec_t *RegRecPtr)
-{
-    CFE_TBL_LoadBuff_t *LoadBuffPtr;
-
-    if (CFE_TBL_RegRecGetConfig(RegRecPtr)->DoubleBuffered)
-    {
-        /* If the table is a double buffered table, then check to make sure the */
-        /* inactive buffer has been freed by any Applications that may have been using it */
-        LoadBuffPtr = CFE_TBL_GetInactiveBufferExclusive(RegRecPtr);
-    }
-    else
-    {
-        /* Single Buffered Table, these use a pool of shared temporary load buffers */
-        LoadBuffPtr = CFE_TBL_AcquireGlobalLoadBuff();
-    }
-
-    if (LoadBuffPtr != NULL && CFE_TBL_RegRecIsTableLoaded(RegRecPtr))
-    {
-        /* In case the file contains a partial table load, get the active buffer contents first */
-        memcpy(LoadBuffPtr->BufferPtr, CFE_TBL_GetActiveBuffer(RegRecPtr)->BufferPtr, CFE_TBL_RegRecGetSize(RegRecPtr));
-        LoadBuffPtr->Validated = false;
-    }
-
-    return LoadBuffPtr;
-}
-
-/*----------------------------------------------------------------
- *
- * Application-scope internal function
- * See description in header file for argument/return detail
- *
- *-----------------------------------------------------------------*/
-int32 CFE_TBL_GetWorkingBuffer(CFE_TBL_LoadBuff_t **WorkingBufferPtr, CFE_TBL_RegistryRec_t *RegRecPtr,
-                               bool CalledByApp)
+int32 CFE_TBL_GetWorkingBuffer(CFE_TBL_LoadBuff_t **WorkingBufferPtr, CFE_TBL_RegistryRec_t *RegRecPtr)
 {
     CFE_TBL_LoadBuff_t *LoadBuffPtr;
 
@@ -461,13 +417,13 @@ int32 CFE_TBL_GetWorkingBuffer(CFE_TBL_LoadBuff_t **WorkingBufferPtr, CFE_TBL_Re
     if (LoadBuffPtr == NULL)
     {
         /* load was not in progress */
-        if (!CFE_TBL_RegRecIsTableLoaded(RegRecPtr) && CalledByApp)
+        if (!CFE_TBL_RegRecIsTableLoaded(RegRecPtr))
         {
             /* If the table is uninitialized and the function is called by an application (rather than       */
             /* by the Table Services application), then use the current active buffer as the working buffer. */
             /* This allows many tasks with many tables to perform the initialization without conflict        */
             /* over the accessibility of the shared working buffers.                                         */
-            LoadBuffPtr = CFE_TBL_GetActiveBuffer(RegRecPtr);
+            LoadBuffPtr = CFE_TBL_GetInactiveBufferExclusive(RegRecPtr);
         }
         else
         {
@@ -477,7 +433,7 @@ int32 CFE_TBL_GetWorkingBuffer(CFE_TBL_LoadBuff_t **WorkingBufferPtr, CFE_TBL_Re
         if (LoadBuffPtr != NULL)
         {
             /*
-             * store the resource ID (generic form) in LoadInProgress - this allows
+             * store the resource ID (generic form) in NextBufferId - this allows
              * it to refer to either a shared buffer or a local table buffer
              */
             CFE_TBL_RegRecSetLoadInProgress(RegRecPtr, CFE_TBL_LoadBufferGetID(LoadBuffPtr));
@@ -677,7 +633,7 @@ int32 CFE_TBL_UpdateInternal(CFE_TBL_Handle_t TblHandle, CFE_TBL_RegistryRec_t *
     else if (CFE_TBL_RegRecGetConfig(RegRecPtr)->DoubleBuffered)
     {
         /* To update a double buffered table only requires a pointer swap */
-        RegRecPtr->Status.ActiveBufferIndex = CFE_TBL_LoadBufferGetID(LoadBuffPtr);
+        CFE_TBL_SetActiveBuffer(RegRecPtr, LoadBuffPtr);
         CFE_TBL_RegRecClearLoadInProgress(RegRecPtr);
     }
     else
@@ -753,7 +709,6 @@ void CFE_TBL_NotifyTblUsersOfUpdate(CFE_TBL_RegistryRec_t *RegRecPtr)
 {
     /* Clear notification of pending load (as well as NO LOAD) and notify everyone of update */
     CFE_TBL_RegRecClearLoadPendingFlag(RegRecPtr);
-    CFE_TBL_RegRecSetTableLoadedFlag(RegRecPtr);
 
     CFE_TBL_ForeachAccessDescriptor(RegRecPtr, CFE_TBL_SetUpdatedHelper, NULL);
 }
@@ -944,21 +899,29 @@ int32 CFE_TBL_CleanUpApp(CFE_ES_AppId_t AppId)
     CFE_TBL_TxnState_t          Txn;
     CFE_TBL_DumpControl_t *     DumpCtrlPtr;
     CFE_TBL_AccessDescriptor_t *AccessDescPtr;
+    CFE_TBL_RegistryRec_t *     RegRecPtr;
+
+    CFE_TBL_TxnInit(&Txn, false);
 
     /* Scan Dump Requests to determine if any of the tables that */
     /* were to be dumped will be deleted */
+    CFE_TBL_TxnLockRegistry(&Txn);
     for (i = 0; i < CFE_PLATFORM_TBL_MAX_SIMULTANEOUS_LOADS; i++)
     {
         DumpCtrlPtr = &CFE_TBL_Global.DumpControlBlocks[i];
 
         /* Check to see if the table to be dumped is owned by the App to be deleted */
-        if (CFE_TBL_DumpCtrlBlockIsUsed(DumpCtrlPtr) &&
-            CFE_RESOURCEID_TEST_EQUAL(DumpCtrlPtr->RegRecPtr->OwnerAppId, AppId))
+        if (CFE_TBL_DumpCtrlBlockIsUsed(DumpCtrlPtr))
         {
-            /* If so, then remove the dump request */
-            CFE_TBL_DumpCtrlBlockSetFree(DumpCtrlPtr);
+            RegRecPtr = CFE_TBL_LoadBuffGetRegRecFromId(DumpCtrlPtr->SourceBuffId);
+            if (RegRecPtr != NULL && CFE_RESOURCEID_TEST_EQUAL(RegRecPtr->OwnerAppId, AppId))
+            {
+                /* If so, then remove the dump request */
+                CFE_TBL_DumpCtrlBlockSetFree(DumpCtrlPtr);
+            }
         }
     }
+    CFE_TBL_TxnFinish(&Txn);
 
     /* Scan Access Descriptors to determine if the Application had access to any tables */
     for (i = 0; i < CFE_PLATFORM_TBL_MAX_NUM_HANDLES; i++)
@@ -1036,7 +999,15 @@ void CFE_TBL_UpdateCriticalTblCDS(CFE_TBL_RegistryRec_t *RegRecPtr)
 
     /* Copy an image of the updated table to the CDS for safekeeping */
     ActiveBufPtr = CFE_TBL_GetActiveBuffer(RegRecPtr);
-    Status       = CFE_ES_CopyToCDS(RegRecPtr->CDSHandle, ActiveBufPtr->BufferPtr);
+    if (ActiveBufPtr == NULL)
+    {
+        /* cannot write a table to CDS if it was never loaded in the first place */
+        Status = CFE_TBL_ERR_NEVER_LOADED;
+    }
+    else
+    {
+        Status = CFE_ES_CopyToCDS(RegRecPtr->CDSHandle, ActiveBufPtr->BufferPtr);
+    }
 
     if (Status != CFE_SUCCESS)
     {
@@ -1293,7 +1264,7 @@ CFE_Status_t CFE_TBL_RestoreTableDataFromCDS(CFE_TBL_RegistryRec_t *RegRecPtr)
     CFE_TBL_CritRegRec_t *CritRegRecPtr;
     CFE_TBL_LoadBuff_t *  WorkingBufferPtr;
 
-    Status = CFE_TBL_GetWorkingBuffer(&WorkingBufferPtr, RegRecPtr, true);
+    Status = CFE_TBL_GetWorkingBuffer(&WorkingBufferPtr, RegRecPtr);
 
     if (Status != CFE_SUCCESS)
     {
@@ -1335,7 +1306,6 @@ CFE_Status_t CFE_TBL_RestoreTableDataFromCDS(CFE_TBL_RegistryRec_t *RegRecPtr)
                 WorkingBufferPtr->FileTime = CritRegRecPtr->FileTime;
 
                 CFE_TBL_RegRecResetLoadInfo(RegRecPtr, CritRegRecPtr->LastFileLoaded, CritRegRecPtr->TimeOfLastUpdate);
-                CFE_TBL_RegRecSetTableLoadedFlag(RegRecPtr);
 
                 /* Compute the CRC on the specified table buffer */
                 WorkingBufferPtr->Crc = CFE_ES_CalculateCRC(
@@ -1573,4 +1543,43 @@ CFE_TBL_ValidationResult_t *CFE_TBL_CheckValidationRequest(CFE_TBL_ValidationRes
     }
 
     return ResultPtr;
+}
+
+/*----------------------------------------------------------------
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+CFE_Status_t CFE_TBL_LoadTableFromSourceAddress(CFE_TBL_LoadBuff_t *WorkingBufferPtr, CFE_TBL_RegistryRec_t *RegRecPtr,
+                                                const void *Address)
+{
+    /*
+     * Note, on dump only tables, the buffer pointer isn't set until the first load,
+     * whereas on normal (non-dump only) tables, the buffer pointer is always set as
+     * part of registration and thus can never be NULL at this point (in fact, checking
+     * for NULL would result in a non-reachable branch in the test cases).
+     */
+    if (CFE_TBL_RegRecGetConfig(RegRecPtr)->DumpOnly)
+    {
+        /* for dump-only, the data is not copied - just use the user-supplied addr directly */
+        WorkingBufferPtr->BufferPtr = (void *)Address;
+    }
+    else
+    {
+        /* When the source is a block of memory, it is assumed to be a complete load */
+        memcpy(WorkingBufferPtr->BufferPtr, Address, CFE_TBL_RegRecGetSize(RegRecPtr));
+    }
+
+    /* If success, then initialize the rest of the pending buffer info */
+    snprintf(WorkingBufferPtr->DataSource, sizeof(WorkingBufferPtr->DataSource), "Addr 0x%08lX",
+             (unsigned long)Address);
+
+    WorkingBufferPtr->FileTime = CFE_TIME_ZERO_VALUE;
+
+    /* Compute the CRC on the specified table buffer */
+    WorkingBufferPtr->Crc = CFE_ES_CalculateCRC(WorkingBufferPtr->BufferPtr, CFE_TBL_RegRecGetSize(RegRecPtr), 0,
+                                                CFE_MISSION_ES_DEFAULT_CRC);
+
+    return CFE_SUCCESS;
 }

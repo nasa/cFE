@@ -77,16 +77,29 @@
  */
 
 /**
- * Reference to an entry in the Registry table
+ * Type definition for CFE_TBL_LoadBuffId_t
+ *
+ * This uses the resource ID mechanisms/patterns to avoid ambiguity
  */
-typedef int32 CFE_TBL_LoadBuffId_t;
+typedef CFE_RESOURCEID_BASE_TYPE CFE_TBL_LoadBuffId_t;
 
-#define CFE_TBL_LOADBUFFID_C(val)    ((CFE_TBL_LoadBuffId_t)(val))
-#define CFE_TBL_LOADBUFFID_UNDEFINED CFE_TBL_LOADBUFFID_C(-1)
+/*
+ * Standard set of macros for resource IDs --
+ * Initialization Cast/Conversion: CFE_TBL_LOADBUFFID_C
+ * Undefined constant: CFE_TBL_LOADBUFFID_UNDEFINED
+ * Equality check: CFE_TBL_LOADBUFFID_EQ
+ * Integer cast: CFE_TBL_LOADBUFFID_INT
+ * Validity check: CFE_TBL_LOADBUFFID_IS_VALID
+ */
 
-#define CFE_TBL_LOADBUFFID_EQ(x, y)    ((x) == (y))
-#define CFE_TBL_LOADBUFFID_INT(x)      ((int)(x))
-#define CFE_TBL_LOADBUFFID_IS_VALID(x) ((x) >= 0 && (x) < CFE_PLATFORM_TBL_MAX_SIMULTANEOUS_LOADS)
+/* initialization macros */
+#define CFE_TBL_LOADBUFFID_C(val)    ((CFE_TBL_LoadBuffId_t)CFE_RESOURCEID_WRAP(val))
+#define CFE_TBL_LOADBUFFID_UNDEFINED CFE_TBL_LOADBUFFID_C(CFE_RESOURCEID_UNDEFINED)
+
+/* check/validation macros */
+#define CFE_TBL_LOADBUFFID_EQ(x, y)    CFE_RESOURCEID_TEST_EQUAL(x, y)
+#define CFE_TBL_LOADBUFFID_INT(x)      CFE_RESOURCEID_TO_ULONG(x)
+#define CFE_TBL_LOADBUFFID_IS_VALID(x) CFE_RESOURCEID_TEST_DEFINED(x)
 
 /*
  * ---------------------------------------------------------------------------------------
@@ -108,7 +121,7 @@ typedef int16 CFE_TBL_RegId_t;
 
 #define CFE_TBL_REGID_EQ(x, y)    ((x) == (y))
 #define CFE_TBL_REGID_INT(x)      ((int)(x))
-#define CFE_TBL_REGID_IS_VALID(x) ((x) >= 0 && (x) < CFE_PLATFORM_TBL_MAX_NUM_TABLES)
+#define CFE_TBL_REGID_IS_VALID(x) ((x) >= 0)
 
 /*
  * ---------------------------------------------------------------------------------------

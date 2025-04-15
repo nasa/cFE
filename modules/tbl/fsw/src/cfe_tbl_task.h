@@ -178,8 +178,8 @@ typedef struct
     osal_id_t          RegistryMutex; /**< \brief Mutex that controls access to Table Registry */
     osal_id_t          WorkBufMutex;  /**< \brief Mutex that controls assignment of Working Buffers */
     CFE_ES_CDSHandle_t CritRegHandle; /**< \brief Handle to Critical Table Registry in CDS */
-    CFE_TBL_LoadBuff_t LoadBuffs[CFE_PLATFORM_TBL_MAX_SIMULTANEOUS_LOADS]; /**< \brief Working table buffers shared by
-                                                                              single buffered tables */
+    CFE_TBL_LoadBuff_t LoadBuffs[CFE_PLATFORM_TBL_MAX_SIMULTANEOUS_LOADS]; /**< \brief Working table buffers
+                                                                              shared by single buffered tables */
 
     /*
     ** Registry Data
@@ -199,6 +199,7 @@ typedef struct
      */
     CFE_TBL_RegDumpStateInfo_t RegDumpState;
 
+    CFE_ResourceId_t LastLoadBuffId;
     CFE_ResourceId_t LastValidationResultId;
     CFE_ResourceId_t LastDumpCtrlBlockId;
 
