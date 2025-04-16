@@ -288,8 +288,8 @@ CFE_Status_t CFE_TBL_TxnStartFromHandle(CFE_TBL_TxnState_t *Txn, CFE_TBL_Handle_
 
             if ((AccessAllowed & AllowedContext) != AllowedContext)
             {
-                Status              = CFE_TBL_ERR_NO_ACCESS;
-                Txn->PendingEventId = CFE_TBL_HANDLE_ACCESS_ERR_EID;
+                Status = CFE_TBL_ERR_NO_ACCESS;
+                CFE_TBL_TxnAddEvent(Txn, CFE_TBL_HANDLE_ACCESS_ERR_EID, Status, AccessAllowed);
             }
         }
     }
@@ -688,4 +688,82 @@ void CFE_TBL_TxnConnectAccessDescriptor(CFE_TBL_TxnState_t *Txn)
     AccDescPtr->RegIndex = CFE_TBL_TxnRegId(Txn);
 
     CFE_TBL_HandleListInsertLink(RegRecPtr, AccDescPtr);
+}
+
+/*----------------------------------------------------------------
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+void CFE_TBL_TxnAddEvent(CFE_TBL_TxnState_t *Txn, uint16 EventId, int32 EventData1, int32 EventData2)
+{
+    CFE_TBL_TxnEvent_t *EvPtr;
+
+    if (Txn->NumPendingEvents < CFE_TBL_MAX_EVENTS_PER_TXN)
+    {
+        EvPtr = &Txn->PendingEvents[Txn->NumPendingEvents];
+
+        EvPtr->EventId    = EventId;
+        EvPtr->EventData1 = EventData1;
+        EvPtr->EventData2 = EventData2;
+    }
+
+    /* This always increments the number of pending events, to make it evident if there was an overflow */
+    ++Txn->NumPendingEvents;
+}
+
+/*----------------------------------------------------------------
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+uint32 CFE_TBL_TxnGetEventCount(const CFE_TBL_TxnState_t *Txn)
+{
+    return Txn->NumPendingEvents;
+}
+
+/*----------------------------------------------------------------
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+uint32 CFE_TBL_TxnProcessEvents(const CFE_TBL_TxnState_t *Txn, CFE_TBL_TxnEventProcFunc_t EventProc, void *Arg)
+{
+    uint32 i;
+    uint32 NumPending;
+    uint32 NumProc;
+
+    NumPending = CFE_TBL_TxnGetEventCount(Txn);
+    NumProc = 0;
+
+    if (NumPending > CFE_TBL_MAX_EVENTS_PER_TXN)
+    {
+        /* this means there was an overflow */
+        NumPending = CFE_TBL_MAX_EVENTS_PER_TXN;
+    }
+
+    /* Events should be processed in the same order that CFE_TBL_TxnAddEvent() was called */
+    for (i = 0; i < NumPending; ++i)
+    {
+        if (EventProc(&Txn->PendingEvents[i], Arg))
+        {
+            ++NumProc;
+        }
+    }
+
+    return NumProc;
+}
+
+/*----------------------------------------------------------------
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+void CFE_TBL_TxnClearEvents(CFE_TBL_TxnState_t *Txn)
+{
+    Txn->NumPendingEvents = 0;
 }

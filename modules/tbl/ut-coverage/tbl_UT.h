@@ -690,5 +690,6 @@ void Test_CFE_TBL_ResourceID_LoadBuff(void);
 
 /* Test cases for transaction state objects (sanity checks and error coverage) */
 void Test_CFE_TBL_TxnState(void);
+void Test_CFE_TBL_TxnEvents(void);
 
 #endif /* TBL_UT_H */
