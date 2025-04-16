@@ -31,7 +31,6 @@
 ** Required header files...
 */
 #include "cfe_tbl_module_all.h"
-#include "cfe_config.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -110,10 +109,9 @@ int32 CFE_TBL_EarlyInit(void)
             LoadBuffPtr = &CFE_TBL_Global.LoadBuffs[j];
 
             /* Allocate memory for shared load buffers */
-            Status = CFE_ES_GetPoolBuf(&LoadBuffPtr->BufferPtr, CFE_TBL_Global.Buf.PoolHdl,
-                                       CFE_PLATFORM_TBL_MAX_SNGL_TABLE_SIZE);
+            Status = CFE_TBL_AllocateTableLoadBuffer(LoadBuffPtr, CFE_PLATFORM_TBL_MAX_SNGL_TABLE_SIZE);
 
-            if (Status < CFE_PLATFORM_TBL_MAX_SNGL_TABLE_SIZE)
+            if (Status != CFE_SUCCESS)
             {
                 return Status;
             }
@@ -252,17 +250,20 @@ void CFE_TBL_DiscardWorkingBuffer(CFE_TBL_RegistryRec_t *RegRecPtr)
 void CFE_TBL_DeallocateBuffer(CFE_TBL_LoadBuff_t *BuffPtr)
 {
     CFE_Status_t Status;
+    void *       MemPtr;
 
-    Status = CFE_ES_PutPoolBuf(CFE_TBL_Global.Buf.PoolHdl, BuffPtr->BufferPtr);
+    MemPtr = CFE_TBL_LoadBuffGetWritePointer(BuffPtr);
+
+    Status = CFE_ES_PutPoolBuf(CFE_TBL_Global.Buf.PoolHdl, MemPtr);
 
     if (Status < 0)
     {
         CFE_ES_WriteToSysLog("%s: PutPoolBuf() Fail Stat=0x%08X, Hndl=0x%08lX, Buf=0x%08lX\n", __func__,
                              (unsigned int)Status, CFE_RESOURCEID_TO_ULONG(CFE_TBL_Global.Buf.PoolHdl),
-                             (unsigned long)BuffPtr->BufferPtr);
+                             (unsigned long)MemPtr);
     }
 
-    BuffPtr->BufferPtr = NULL;
+    CFE_TBL_LoadBuffSetAllocatedBlock(BuffPtr, NULL, 0);
 }
 
 /*----------------------------------------------------------------
@@ -280,11 +281,10 @@ void CFE_TBL_DeallocateAllBuffers(CFE_TBL_RegistryRec_t *RegRecPtr)
     {
         BuffPtr = &RegRecPtr->Buffers[i];
 
-        if (BuffPtr->BufferPtr != NULL)
+        if (CFE_TBL_LoadBuffIsAllocated(BuffPtr))
         {
             /* Free memory allocated to buffers */
             CFE_TBL_DeallocateBuffer(BuffPtr);
-            BuffPtr->BufferPtr = NULL;
         }
 
         CFE_TBL_LoadBuffSetFree(BuffPtr);
@@ -440,7 +440,10 @@ int32 CFE_TBL_GetWorkingBuffer(CFE_TBL_LoadBuff_t **WorkingBufferPtr, CFE_TBL_Re
         }
     }
 
-    *WorkingBufferPtr = LoadBuffPtr;
+    if (WorkingBufferPtr != NULL)
+    {
+        *WorkingBufferPtr = LoadBuffPtr;
+    }
 
     if (LoadBuffPtr == NULL)
     {
@@ -448,149 +451,6 @@ int32 CFE_TBL_GetWorkingBuffer(CFE_TBL_LoadBuff_t **WorkingBufferPtr, CFE_TBL_Re
     }
 
     return CFE_SUCCESS;
-}
-
-/*----------------------------------------------------------------
- *
- * Application-scope internal function
- * See description in header file for argument/return detail
- *
- *-----------------------------------------------------------------*/
-int32 CFE_TBL_LoadFromFile(const char *AppName, CFE_TBL_LoadBuff_t *WorkingBufferPtr, CFE_TBL_RegistryRec_t *RegRecPtr,
-                           const char *Filename)
-{
-    int32              Status = CFE_SUCCESS;
-    int32              OsStatus;
-    CFE_FS_Header_t    StdFileHeader;
-    CFE_TBL_File_Hdr_t TblFileHeader;
-    osal_id_t          FileDescriptor = OS_OBJECT_ID_UNDEFINED;
-    size_t             FilenameLen    = strlen(Filename);
-    uint32             NumBytes;
-    uint8              ExtraByte;
-
-    if (FilenameLen > (OS_MAX_PATH_LEN - 1))
-    {
-        CFE_EVS_SendEventWithAppID(CFE_TBL_LOAD_FILENAME_LONG_ERR_EID, CFE_EVS_EventType_ERROR,
-                                   CFE_TBL_Global.TableTaskAppId, "%s: Filename is too long ('%s' (%lu) > %lu)",
-                                   AppName, Filename, (long unsigned int)FilenameLen,
-                                   (long unsigned int)OS_MAX_PATH_LEN - 1);
-
-        return CFE_TBL_ERR_FILENAME_TOO_LONG;
-    }
-
-    /* Try to open the specified table file */
-    OsStatus = OS_OpenCreate(&FileDescriptor, Filename, OS_FILE_FLAG_NONE, OS_READ_ONLY);
-
-    if (OsStatus != OS_SUCCESS)
-    {
-        CFE_EVS_SendEventWithAppID(CFE_TBL_FILE_ACCESS_ERR_EID, CFE_EVS_EventType_ERROR, CFE_TBL_Global.TableTaskAppId,
-                                   "%s: Unable to open file (Status=%ld)", AppName, (long)OsStatus);
-
-        return CFE_TBL_ERR_ACCESS;
-    }
-
-    Status = CFE_TBL_ReadHeaders(FileDescriptor, &StdFileHeader, &TblFileHeader, Filename);
-
-    if (Status != CFE_SUCCESS)
-    {
-        /* CFE_TBL_ReadHeaders() generates its own events */
-
-        OS_close(FileDescriptor);
-        return Status;
-    }
-
-    /* Verify that the specified file has compatible data for specified table */
-    if (strcmp(CFE_TBL_RegRecGetName(RegRecPtr), TblFileHeader.TableName) != 0)
-    {
-        CFE_EVS_SendEventWithAppID(CFE_TBL_LOAD_TBLNAME_MISMATCH_ERR_EID, CFE_EVS_EventType_ERROR,
-                                   CFE_TBL_Global.TableTaskAppId, "%s: Table name mismatch (exp=%s, tblfilhdr=%s)",
-                                   AppName, CFE_TBL_RegRecGetName(RegRecPtr), TblFileHeader.TableName);
-
-        OS_close(FileDescriptor);
-        return CFE_TBL_ERR_FILE_FOR_WRONG_TABLE;
-    }
-
-    if ((TblFileHeader.Offset + TblFileHeader.NumBytes) > CFE_TBL_RegRecGetSize(RegRecPtr))
-    {
-        CFE_EVS_SendEventWithAppID(CFE_TBL_LOAD_EXCEEDS_SIZE_ERR_EID, CFE_EVS_EventType_ERROR,
-                                   CFE_TBL_Global.TableTaskAppId,
-                                   "%s: File reports size larger than expected (file=%lu, exp=%lu)", AppName,
-                                   (long unsigned int)(TblFileHeader.Offset + TblFileHeader.NumBytes),
-                                   (long unsigned int)CFE_TBL_RegRecGetSize(RegRecPtr));
-
-        OS_close(FileDescriptor);
-        return CFE_TBL_ERR_FILE_TOO_LARGE;
-    }
-
-    /* Any Table load that starts beyond the first byte is a "partial load" */
-    /* But a file that starts with the first byte and ends before filling   */
-    /* the whole table is just considered "short".                          */
-    if (TblFileHeader.Offset > 0)
-    {
-        Status = CFE_TBL_WARN_PARTIAL_LOAD;
-    }
-    else if (TblFileHeader.NumBytes < CFE_TBL_RegRecGetSize(RegRecPtr))
-    {
-        Status = CFE_TBL_WARN_SHORT_FILE;
-    }
-
-    OsStatus =
-        OS_read(FileDescriptor, ((uint8 *)WorkingBufferPtr->BufferPtr) + TblFileHeader.Offset, TblFileHeader.NumBytes);
-    if (OsStatus >= OS_SUCCESS)
-    {
-        NumBytes = OsStatus; /* status code conversion (size) */
-    }
-    else
-    {
-        NumBytes = 0;
-    }
-
-    if (NumBytes != TblFileHeader.NumBytes)
-    {
-        CFE_EVS_SendEventWithAppID(CFE_TBL_FILE_INCOMPLETE_ERR_EID, CFE_EVS_EventType_ERROR,
-                                   CFE_TBL_Global.TableTaskAppId, "%s: File load incomplete (exp=%lu, read=%lu)",
-                                   AppName, (long unsigned int)TblFileHeader.NumBytes, (long unsigned int)NumBytes);
-
-        OS_close(FileDescriptor);
-        return CFE_TBL_ERR_LOAD_INCOMPLETE;
-    }
-
-    /* Check to see if the file is too large (ie - more data than header claims) */
-    OsStatus = OS_read(FileDescriptor, &ExtraByte, 1);
-    if (OsStatus >= OS_SUCCESS)
-    {
-        NumBytes = OsStatus; /* status code conversion (size) */
-    }
-    else
-    {
-        NumBytes = 0;
-    }
-
-    /* If successfully read another byte, then file must have too much data */
-    if (NumBytes == 1)
-    {
-        CFE_EVS_SendEventWithAppID(CFE_TBL_FILE_TOO_BIG_ERR_EID, CFE_EVS_EventType_ERROR, CFE_TBL_Global.TableTaskAppId,
-                                   "%s: File load too long (file length > %lu)", AppName,
-                                   (long unsigned int)TblFileHeader.NumBytes);
-
-        OS_close(FileDescriptor);
-        return CFE_TBL_ERR_FILE_TOO_LARGE;
-    }
-
-    strncpy(WorkingBufferPtr->DataSource, Filename, sizeof(WorkingBufferPtr->DataSource) - 1);
-    WorkingBufferPtr->DataSource[sizeof(WorkingBufferPtr->DataSource) - 1] = '\0';
-
-    /* Save file creation time for later storage into Registry */
-    WorkingBufferPtr->FileTime.Seconds    = StdFileHeader.TimeSeconds;
-    WorkingBufferPtr->FileTime.Subseconds = StdFileHeader.TimeSubSeconds;
-
-    /* Compute the CRC on the specified table buffer */
-    WorkingBufferPtr->Crc = CFE_ES_CalculateCRC(WorkingBufferPtr->BufferPtr, CFE_TBL_RegRecGetSize(RegRecPtr), 0,
-                                                CFE_MISSION_ES_DEFAULT_CRC);
-
-    OS_close(FileDescriptor);
-
-    return Status;
 }
 
 /*----------------------------------------------------------------
@@ -660,7 +520,8 @@ int32 CFE_TBL_UpdateInternal(CFE_TBL_Handle_t TblHandle, CFE_TBL_RegistryRec_t *
         ActiveBuffPtr = CFE_TBL_GetActiveBuffer(RegRecPtr);
         if (ActiveBuffPtr != LoadBuffPtr)
         {
-            memcpy(ActiveBuffPtr->BufferPtr, LoadBuffPtr->BufferPtr, CFE_TBL_RegRecGetSize(RegRecPtr));
+            CFE_TBL_LoadBuffCopyData(ActiveBuffPtr, CFE_TBL_LoadBuffGetReadPointer(LoadBuffPtr),
+                                     CFE_TBL_LoadBuffGetContentSize(LoadBuffPtr));
 
             /* Save source description with active buffer (Note - structs are same type, length already checked) */
             strncpy(ActiveBuffPtr->DataSource, LoadBuffPtr->DataSource, sizeof(ActiveBuffPtr->DataSource));
@@ -711,148 +572,6 @@ void CFE_TBL_NotifyTblUsersOfUpdate(CFE_TBL_RegistryRec_t *RegRecPtr)
     CFE_TBL_RegRecClearLoadPendingFlag(RegRecPtr);
 
     CFE_TBL_ForeachAccessDescriptor(RegRecPtr, CFE_TBL_SetUpdatedHelper, NULL);
-}
-
-/*----------------------------------------------------------------
- *
- * Internal helper function
- * Checks a user-supplied ID against the configured acceptable list
- *
- *-----------------------------------------------------------------*/
-bool CFE_TBL_ValidateTableHeaderId(CFE_ConfigId_t ConfigId, uint32 RefId)
-{
-    CFE_Config_ArrayValue_t AcceptList;
-    const uint32 *          ListPtr;
-    uint32                  Idx;
-
-    AcceptList = CFE_Config_GetArrayValue(ConfigId);
-
-    /* Verify ID contained in table file header [optional] */
-    ListPtr = AcceptList.ElementPtr;
-    for (Idx = 0; Idx < AcceptList.NumElements; ++Idx)
-    {
-        if (RefId == *ListPtr)
-        {
-            break;
-        }
-
-        ++ListPtr;
-    }
-
-    return (AcceptList.NumElements == 0 || Idx < AcceptList.NumElements);
-}
-
-/*----------------------------------------------------------------
- *
- * Application-scope internal function
- * See description in header file for argument/return detail
- *
- *-----------------------------------------------------------------*/
-int32 CFE_TBL_ReadHeaders(osal_id_t FileDescriptor, CFE_FS_Header_t *StdFileHeaderPtr,
-                          CFE_TBL_File_Hdr_t *TblFileHeaderPtr, const char *LoadFilename)
-{
-    int32 Status;
-    int32 OsStatus;
-    int32 EndianCheck = 0x01020304;
-
-    /* Once the file is open, read the headers to determine the target Table */
-    Status = CFE_FS_ReadHeader(StdFileHeaderPtr, FileDescriptor);
-
-    /* Verify successful read of standard cFE File Header */
-    if (Status != sizeof(CFE_FS_Header_t))
-    {
-        CFE_EVS_SendEventWithAppID(CFE_TBL_FILE_STD_HDR_ERR_EID, CFE_EVS_EventType_ERROR, CFE_TBL_Global.TableTaskAppId,
-                                   "Unable to read std header for '%s', Status = 0x%08X", LoadFilename,
-                                   (unsigned int)Status);
-
-        Status = CFE_TBL_ERR_NO_STD_HEADER;
-    }
-    else
-    {
-        /* Verify the file type is a cFE compatible file */
-        if (StdFileHeaderPtr->ContentType != CFE_FS_FILE_CONTENT_ID)
-        {
-            CFE_EVS_SendEventWithAppID(CFE_TBL_FILE_TYPE_ERR_EID, CFE_EVS_EventType_ERROR,
-                                       CFE_TBL_Global.TableTaskAppId,
-                                       "File '%s' is not a cFE file type, ContentType = 0x%08X", LoadFilename,
-                                       (unsigned int)StdFileHeaderPtr->ContentType);
-
-            Status = CFE_TBL_ERR_BAD_CONTENT_ID;
-        }
-        else
-        {
-            /* Verify the SubType to ensure that it is a Table Image File */
-            if (StdFileHeaderPtr->SubType != CFE_FS_SubType_TBL_IMG)
-            {
-                CFE_EVS_SendEventWithAppID(CFE_TBL_FILE_SUBTYPE_ERR_EID, CFE_EVS_EventType_ERROR,
-                                           CFE_TBL_Global.TableTaskAppId,
-                                           "File subtype for '%s' is wrong. Subtype = 0x%08X", LoadFilename,
-                                           (unsigned int)StdFileHeaderPtr->SubType);
-
-                Status = CFE_TBL_ERR_BAD_SUBTYPE_ID;
-            }
-            else
-            {
-                OsStatus = OS_read(FileDescriptor, TblFileHeaderPtr, sizeof(CFE_TBL_File_Hdr_t));
-
-                /* Verify successful read of cFE Table File Header */
-                if (OsStatus != sizeof(CFE_TBL_File_Hdr_t))
-                {
-                    CFE_EVS_SendEventWithAppID(
-                        CFE_TBL_FILE_TBL_HDR_ERR_EID, CFE_EVS_EventType_ERROR, CFE_TBL_Global.TableTaskAppId,
-                        "Unable to read tbl header for '%s', Status = %ld", LoadFilename, (long)OsStatus);
-
-                    Status = CFE_TBL_ERR_NO_TBL_HEADER;
-                }
-                else
-                {
-                    /* All "required" checks have passed and we are pointing at the data */
-                    Status = CFE_SUCCESS;
-
-                    /* cppcheck-suppress knownConditionTrueFalse */
-                    if ((*(char *)&EndianCheck) == 0x04)
-                    {
-                        /* If this is a little endian processor, then the standard cFE Table Header,   */
-                        /* which is in big endian format, must be swapped so that the data is readable */
-                        CFE_TBL_ByteSwapTblHeader(TblFileHeaderPtr);
-                    }
-
-                    /*
-                     * Ensure termination of all local strings. These were read from a file, so they
-                     * must be treated with appropriate care.  This could happen in case the file got
-                     * damaged in transit or simply was not written properly to begin with.
-                     *
-                     * Since the "TblFileHeaderPtr" is a local buffer, this can be done directly.
-                     */
-                    TblFileHeaderPtr->TableName[sizeof(TblFileHeaderPtr->TableName) - 1] = '\0';
-                }
-
-                /* Verify Spacecraft ID contained in table file header [optional] */
-                if (Status == CFE_SUCCESS && !CFE_TBL_ValidateTableHeaderId(CFE_CONFIGID_PLATFORM_TBL_VALID_SCID,
-                                                                            StdFileHeaderPtr->SpacecraftID))
-                {
-                    Status = CFE_TBL_ERR_BAD_SPACECRAFT_ID;
-                    CFE_EVS_SendEventWithAppID(CFE_TBL_SPACECRAFT_ID_ERR_EID, CFE_EVS_EventType_ERROR,
-                                               CFE_TBL_Global.TableTaskAppId,
-                                               "Unable to verify Spacecraft ID for '%s', ID = 0x%08X", LoadFilename,
-                                               (unsigned int)StdFileHeaderPtr->SpacecraftID);
-                }
-
-                /* Verify Processor ID contained in table file header [optional] */
-                if (Status == CFE_SUCCESS &&
-                    !CFE_TBL_ValidateTableHeaderId(CFE_CONFIGID_PLATFORM_TBL_VALID_PRID, StdFileHeaderPtr->ProcessorID))
-                {
-                    Status = CFE_TBL_ERR_BAD_PROCESSOR_ID;
-                    CFE_EVS_SendEventWithAppID(CFE_TBL_PROCESSOR_ID_ERR_EID, CFE_EVS_EventType_ERROR,
-                                               CFE_TBL_Global.TableTaskAppId,
-                                               "Unable to verify Processor ID for '%s', ID = 0x%08X", LoadFilename,
-                                               (unsigned int)StdFileHeaderPtr->ProcessorID);
-                }
-            }
-        }
-    }
-
-    return Status;
 }
 
 /*----------------------------------------------------------------
@@ -1006,7 +725,7 @@ void CFE_TBL_UpdateCriticalTblCDS(CFE_TBL_RegistryRec_t *RegRecPtr)
     }
     else
     {
-        Status = CFE_ES_CopyToCDS(RegRecPtr->CDSHandle, ActiveBufPtr->BufferPtr);
+        Status = CFE_ES_CopyToCDS(RegRecPtr->CDSHandle, CFE_TBL_LoadBuffGetReadPointer(ActiveBufPtr));
     }
 
     if (Status != CFE_SUCCESS)
@@ -1165,9 +884,10 @@ CFE_Status_t CFE_TBL_ValidateTableOptions(CFE_TBL_TableConfig_t *TableCfg, uint1
 CFE_Status_t CFE_TBL_AllocateTableLoadBuffer(CFE_TBL_LoadBuff_t *LoadBuffPtr, size_t Size)
 {
     CFE_Status_t Status;
+    void *       MemPtr;
 
     /* Allocate the memory buffer(s) for the table and inactive table, if necessary */
-    Status = CFE_ES_GetPoolBuf(&LoadBuffPtr->BufferPtr, CFE_TBL_Global.Buf.PoolHdl, Size);
+    Status = CFE_ES_GetPoolBuf(&MemPtr, CFE_TBL_Global.Buf.PoolHdl, Size);
 
     if (Status < 0)
     {
@@ -1178,8 +898,8 @@ CFE_Status_t CFE_TBL_AllocateTableLoadBuffer(CFE_TBL_LoadBuff_t *LoadBuffPtr, si
     {
         Status = CFE_SUCCESS;
 
-        /* Zero the memory buffer */
-        memset(LoadBuffPtr->BufferPtr, 0x0, Size);
+        CFE_TBL_LoadBuffSetAllocatedBlock(LoadBuffPtr, MemPtr, Size);
+        CFE_TBL_LoadBuffClearData(LoadBuffPtr);
     }
 
     return Status;
@@ -1278,7 +998,7 @@ CFE_Status_t CFE_TBL_RestoreTableDataFromCDS(CFE_TBL_RegistryRec_t *RegRecPtr)
     else
     {
         /* CDS exists for this table - try to restore the data */
-        Status = CFE_ES_RestoreFromCDS(WorkingBufferPtr->BufferPtr, RegRecPtr->CDSHandle);
+        Status = CFE_ES_RestoreFromCDS(CFE_TBL_LoadBuffGetWritePointer(WorkingBufferPtr), RegRecPtr->CDSHandle);
 
         if (Status != CFE_SUCCESS)
         {
@@ -1308,8 +1028,7 @@ CFE_Status_t CFE_TBL_RestoreTableDataFromCDS(CFE_TBL_RegistryRec_t *RegRecPtr)
                 CFE_TBL_RegRecResetLoadInfo(RegRecPtr, CritRegRecPtr->LastFileLoaded, CritRegRecPtr->TimeOfLastUpdate);
 
                 /* Compute the CRC on the specified table buffer */
-                WorkingBufferPtr->Crc = CFE_ES_CalculateCRC(
-                    WorkingBufferPtr->BufferPtr, CFE_TBL_RegRecGetSize(RegRecPtr), 0, CFE_MISSION_ES_DEFAULT_CRC);
+                CFE_TBL_LoadBuffRecomputeCRC(WorkingBufferPtr);
 
                 /* Make sure everyone who sees the table knows that it has been updated */
                 CFE_TBL_NotifyTblUsersOfUpdate(RegRecPtr);
@@ -1543,43 +1262,4 @@ CFE_TBL_ValidationResult_t *CFE_TBL_CheckValidationRequest(CFE_TBL_ValidationRes
     }
 
     return ResultPtr;
-}
-
-/*----------------------------------------------------------------
- *
- * Application-scope internal function
- * See description in header file for argument/return detail
- *
- *-----------------------------------------------------------------*/
-CFE_Status_t CFE_TBL_LoadTableFromSourceAddress(CFE_TBL_LoadBuff_t *WorkingBufferPtr, CFE_TBL_RegistryRec_t *RegRecPtr,
-                                                const void *Address)
-{
-    /*
-     * Note, on dump only tables, the buffer pointer isn't set until the first load,
-     * whereas on normal (non-dump only) tables, the buffer pointer is always set as
-     * part of registration and thus can never be NULL at this point (in fact, checking
-     * for NULL would result in a non-reachable branch in the test cases).
-     */
-    if (CFE_TBL_RegRecGetConfig(RegRecPtr)->DumpOnly)
-    {
-        /* for dump-only, the data is not copied - just use the user-supplied addr directly */
-        WorkingBufferPtr->BufferPtr = (void *)Address;
-    }
-    else
-    {
-        /* When the source is a block of memory, it is assumed to be a complete load */
-        memcpy(WorkingBufferPtr->BufferPtr, Address, CFE_TBL_RegRecGetSize(RegRecPtr));
-    }
-
-    /* If success, then initialize the rest of the pending buffer info */
-    snprintf(WorkingBufferPtr->DataSource, sizeof(WorkingBufferPtr->DataSource), "Addr 0x%08lX",
-             (unsigned long)Address);
-
-    WorkingBufferPtr->FileTime = CFE_TIME_ZERO_VALUE;
-
-    /* Compute the CRC on the specified table buffer */
-    WorkingBufferPtr->Crc = CFE_ES_CalculateCRC(WorkingBufferPtr->BufferPtr, CFE_TBL_RegRecGetSize(RegRecPtr), 0,
-                                                CFE_MISSION_ES_DEFAULT_CRC);
-
-    return CFE_SUCCESS;
 }

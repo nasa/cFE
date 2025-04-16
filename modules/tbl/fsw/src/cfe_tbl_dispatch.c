@@ -47,8 +47,8 @@ CFE_Status_t CFE_TBL_SearchCmdHandlerTbl(uint16 *TableIdxOut, CFE_SB_MsgId_t Mes
 typedef enum
 {
     CFE_TBL_TERM_MSGTYPE = 0, /**< \brief Command Handler Table Terminator Type */
-    CFE_TBL_MSG_MSGTYPE = 1,  /**< \brief Message Type (requires Message ID match) */
-    CFE_TBL_CMD_MSGTYPE = 2   /**< \brief Command Type (requires Message ID and Command Code match) */
+    CFE_TBL_MSG_MSGTYPE  = 1, /**< \brief Message Type (requires Message ID match) */
+    CFE_TBL_CMD_MSGTYPE  = 2  /**< \brief Command Type (requires Message ID and Command Code match) */
 } CFE_TBL_MsgType_t;
 
 /**
@@ -152,14 +152,15 @@ void CFE_TBL_TaskPipe(const CFE_SB_Buffer_t *SBBufPtr)
         if (CmdStatus == CFE_STATUS_WRONG_MSG_LENGTH)
         {
             CFE_EVS_SendEvent(CFE_TBL_LEN_ERR_EID, CFE_EVS_EventType_ERROR,
-                            "Invalid msg length -- ID = 0x%X, CC = %u, Len = %u, Expected = %u",
-                            (unsigned int)CFE_SB_MsgIdToValue(MessageID), (unsigned int)CommandCode,
-                            (unsigned int)ActualLength, (unsigned int)CFE_TBL_CmdHandlerTbl[CmdIndx].ExpectedLength);
+                              "Invalid msg length -- ID = 0x%X, CC = %u, Len = %u, Expected = %u",
+                              (unsigned int)CFE_SB_MsgIdToValue(MessageID), (unsigned int)CommandCode,
+                              (unsigned int)ActualLength, (unsigned int)CFE_TBL_CmdHandlerTbl[CmdIndx].ExpectedLength);
         }
         else if (CmdStatus == CFE_STATUS_BAD_COMMAND_CODE)
         {
-            CFE_EVS_SendEvent(CFE_TBL_CC1_ERR_EID, CFE_EVS_EventType_ERROR, "Invalid command code -- ID = 0x%X, CC = %u",
-                            (unsigned int)CFE_SB_MsgIdToValue(MessageID), (unsigned int)CommandCode);
+            CFE_EVS_SendEvent(CFE_TBL_CC1_ERR_EID, CFE_EVS_EventType_ERROR,
+                              "Invalid command code -- ID = 0x%X, CC = %u",
+                              (unsigned int)CFE_SB_MsgIdToValue(MessageID), (unsigned int)CommandCode);
 
             /* Update the command error counter */
             CFE_TBL_Global.CommandErrorCounter++;
@@ -167,7 +168,7 @@ void CFE_TBL_TaskPipe(const CFE_SB_Buffer_t *SBBufPtr)
         else
         {
             CFE_EVS_SendEvent(CFE_TBL_MID_ERR_EID, CFE_EVS_EventType_ERROR, "Invalid message ID -- ID = 0x%X",
-                            (unsigned int)CFE_SB_MsgIdToValue(MessageID));
+                              (unsigned int)CFE_SB_MsgIdToValue(MessageID));
         }
     }
 }

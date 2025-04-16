@@ -65,6 +65,7 @@
 
 #include "common_types.h"
 #include "cfe_resourceid.h"
+#include "cfe_fs_extern_typedefs.h"
 
 /*
  * ---------------------------------------------------------------------------------------
