@@ -9,7 +9,7 @@ on:
     - cron:  '0 23 * * 0'
 
 env:
-  REPO_NAME: ${{ github.event.repository.name }}
+  WORK_PATH: ${{ github.workspace }}
   
 jobs:
   # Checks for duplicate actions. Skips push actions if there is a matching or
@@ -59,7 +59,7 @@ jobs:
         id: cache-src-bld
         uses: actions/cache@v3
         with:
-          path: /actions-runner/_work/${{ env.REPO_NAME }}/${{ env.REPO_NAME }}/*
+          path: ${{ env.WORK_PATH }}/*
           key: cfs-doc-${{ github.run_number }}
 
   build-cfe-usersguide:
