@@ -452,36 +452,36 @@ CFE_TIME_SysTime_t CFE_TIME_Subtract(CFE_TIME_SysTime_t Time1, CFE_TIME_SysTime_
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-CFE_TIME_Compare_t CFE_TIME_Compare(CFE_TIME_SysTime_t TimeA, CFE_TIME_SysTime_t TimeB)
+CFE_TIME_Compare_t CFE_TIME_Compare(CFE_TIME_SysTime_t Time1, CFE_TIME_SysTime_t Time2)
 {
     CFE_TIME_Compare_t Result;
 
-    if (TimeA.Seconds > TimeB.Seconds)
+    if (Time1.Seconds > Time2.Seconds)
     {
         /*
         ** Assume rollover if difference is too large...
         */
-        if ((TimeA.Seconds - TimeB.Seconds) > CFE_TIME_NEGATIVE)
+        if ((Time1.Seconds - Time2.Seconds) > CFE_TIME_NEGATIVE)
         {
-            Result = CFE_TIME_A_LT_B;
+            Result = CFE_TIME_1_LT_2;
         }
         else
         {
-            Result = CFE_TIME_A_GT_B;
+            Result = CFE_TIME_1_GT_2;
         }
     }
-    else if (TimeA.Seconds < TimeB.Seconds)
+    else if (Time1.Seconds < Time2.Seconds)
     {
         /*
         ** Assume rollover if difference is too large...
         */
-        if ((TimeB.Seconds - TimeA.Seconds) > CFE_TIME_NEGATIVE)
+        if ((Time2.Seconds - Time1.Seconds) > CFE_TIME_NEGATIVE)
         {
-            Result = CFE_TIME_A_GT_B;
+            Result = CFE_TIME_1_GT_2;
         }
         else
         {
-            Result = CFE_TIME_A_LT_B;
+            Result = CFE_TIME_1_LT_2;
         }
     }
     else
@@ -489,13 +489,13 @@ CFE_TIME_Compare_t CFE_TIME_Compare(CFE_TIME_SysTime_t TimeA, CFE_TIME_SysTime_t
         /*
         ** Seconds are equal, check sub-seconds
         */
-        if (TimeA.Subseconds > TimeB.Subseconds)
+        if (Time1.Subseconds > Time2.Subseconds)
         {
-            Result = CFE_TIME_A_GT_B;
+            Result = CFE_TIME_1_GT_2;
         }
-        else if (TimeA.Subseconds < TimeB.Subseconds)
+        else if (Time1.Subseconds < Time2.Subseconds)
         {
-            Result = CFE_TIME_A_LT_B;
+            Result = CFE_TIME_1_LT_2;
         }
         else
         {
