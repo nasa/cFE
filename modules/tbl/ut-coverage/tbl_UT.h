@@ -121,23 +121,6 @@ void Test_CFE_TBL_InitData(void);
 
 /*****************************************************************************/
 /**
-** \brief Test command handler table message ID (or command code) search
-**        function
-**
-** \par Description
-**        This function tests the command handler table message ID (or command
-**        code) search function.
-**
-** \par Assumptions, External Events, and Notes:
-**        None
-**
-** \returns
-**        This function does not return a value.
-******************************************************************************/
-void Test_CFE_TBL_SearchCmdHndlrTbl(void);
-
-/*****************************************************************************/
-/**
 ** \brief Test the delete critical table's CDS command message function
 **
 ** \par Description

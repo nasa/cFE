@@ -40,37 +40,19 @@
 
 #include "cfe_sb_extern_typedefs.h"
 
-/*********************  Macro and Constant Type Definitions   ***************************/
-
 /*
- * For backward compatibility, keep this enumeration for now but map the
- * values to the globally-defined codes in cfe_error.h, so it won't be confusing
- * if intermixed with a typical CFE int32 return code.
+ * Historically table services had its own command handler return code
+ * These can be converted into the standard CFE_Status_t
  */
 typedef enum
 {
-    CFE_TBL_INC_ERR_CTR =
-        CFE_TBL_MESSAGE_ERROR, /**< Error detected in (or while processing) message, increment command error counter */
-    CFE_TBL_DONT_INC_CTR =
-        CFE_STATUS_NO_COUNTER_INCREMENT, /**< No errors detected but don't increment command counter */
-    CFE_TBL_INC_CMD_CTR = CFE_SUCCESS    /**< No errors detected and increment command counter */
+    /** Error detected in (or while processing) message, increment command error counter */
+    CFE_TBL_CmdProcRet_INC_ERR_CTR = -1,
+    /** No errors detected, increment command counter */
+    CFE_TBL_CmdProcRet_INC_CMD_CTR = 0,
+    /** No errors detected but don't increment command counter */
+    CFE_TBL_CmdProcRet_DONT_INC_CTR = 1
 } CFE_TBL_CmdProcRet_t;
-
-typedef int32 (*CFE_TBL_MsgProcFuncPtr_t)(const void *MsgPtr);
-
-#define CFE_TBL_BAD_CMD_CODE (-1) /**< Command Code found in Message does not match any in #CFE_TBL_CmdHandlerTbl */
-#define CFE_TBL_BAD_MSG_ID   (-2) /**< Message ID found in Message does not match any in #CFE_TBL_CmdHandlerTbl */
-
-/*
-** Table task const data
-*/
-
-typedef enum
-{
-    CFE_TBL_TERM_MSGTYPE = 0, /**< \brief Command Handler Table Terminator Type */
-    CFE_TBL_MSG_MSGTYPE,      /**< \brief Message Type (requires Message ID match) */
-    CFE_TBL_CMD_MSGTYPE       /**< \brief Command Type (requires Message ID and Command Code match) */
-} CFE_TBL_MsgType_t;
 
 /* Command Message Processing Functions */
 /*****************************************************************************/
@@ -121,7 +103,7 @@ void CFE_TBL_GetTblRegData(void);
 **
 ** \retval #CFE_TBL_DONT_INC_CTR \copydoc CFE_TBL_DONT_INC_CTR
 */
-int32 CFE_TBL_SendHkCmd(const CFE_TBL_SendHkCmd_t *data);
+CFE_Status_t CFE_TBL_SendHkCmd(const CFE_TBL_SendHkCmd_t *data);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -135,10 +117,10 @@ int32 CFE_TBL_SendHkCmd(const CFE_TBL_SendHkCmd_t *data);
 **
 ** \param[in] data points to the message received via command pipe that needs processing
 **
-** \retval #CFE_TBL_INC_ERR_CTR  \copydoc CFE_TBL_INC_ERR_CTR
-** \retval #CFE_TBL_INC_CMD_CTR  \copydoc CFE_TBL_INC_CMD_CTR
+** \returns CFE Status code
+** \retval #CFE_SUCCESS indicates all status reporting is complete
 */
-int32 CFE_TBL_NoopCmd(const CFE_TBL_NoopCmd_t *data);
+CFE_Status_t CFE_TBL_NoopCmd(const CFE_TBL_NoopCmd_t *data);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -152,9 +134,10 @@ int32 CFE_TBL_NoopCmd(const CFE_TBL_NoopCmd_t *data);
 **
 ** \param[in] data points to the message received via command pipe that needs processing
 **
-** \retval #CFE_TBL_DONT_INC_CTR \copydoc CFE_TBL_DONT_INC_CTR
+** \returns CFE Status code
+** \retval #CFE_SUCCESS indicates all status reporting is complete
 */
-int32 CFE_TBL_ResetCountersCmd(const CFE_TBL_ResetCountersCmd_t *data);
+CFE_Status_t CFE_TBL_ResetCountersCmd(const CFE_TBL_ResetCountersCmd_t *data);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -169,10 +152,10 @@ int32 CFE_TBL_ResetCountersCmd(const CFE_TBL_ResetCountersCmd_t *data);
 **
 ** \param[in] data points to the message received via command pipe that needs processing
 **
-** \retval #CFE_TBL_INC_ERR_CTR  \copydoc CFE_TBL_INC_ERR_CTR
-** \retval #CFE_TBL_INC_CMD_CTR  \copydoc CFE_TBL_INC_CMD_CTR
+** \returns CFE Status code
+** \retval #CFE_SUCCESS indicates all status reporting is complete
 */
-int32 CFE_TBL_LoadCmd(const CFE_TBL_LoadCmd_t *data);
+CFE_Status_t CFE_TBL_LoadCmd(const CFE_TBL_LoadCmd_t *data);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -187,10 +170,10 @@ int32 CFE_TBL_LoadCmd(const CFE_TBL_LoadCmd_t *data);
 **
 ** \param[in] data points to the message received via command pipe that needs processing
 **
-** \retval #CFE_TBL_INC_ERR_CTR  \copydoc CFE_TBL_INC_ERR_CTR
-** \retval #CFE_TBL_INC_CMD_CTR  \copydoc CFE_TBL_INC_CMD_CTR
+** \returns CFE Status code
+** \retval #CFE_SUCCESS indicates all status reporting is complete
 */
-int32 CFE_TBL_DumpCmd(const CFE_TBL_DumpCmd_t *data);
+CFE_Status_t CFE_TBL_DumpCmd(const CFE_TBL_DumpCmd_t *data);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -206,10 +189,10 @@ int32 CFE_TBL_DumpCmd(const CFE_TBL_DumpCmd_t *data);
 **
 ** \param[in] data points to the message received via command pipe that needs processing
 **
-** \retval #CFE_TBL_INC_ERR_CTR  \copydoc CFE_TBL_INC_ERR_CTR
-** \retval #CFE_TBL_INC_CMD_CTR  \copydoc CFE_TBL_INC_CMD_CTR
+** \returns CFE Status code
+** \retval #CFE_SUCCESS indicates all status reporting is complete
 */
-int32 CFE_TBL_ValidateCmd(const CFE_TBL_ValidateCmd_t *data);
+CFE_Status_t CFE_TBL_ValidateCmd(const CFE_TBL_ValidateCmd_t *data);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -224,10 +207,10 @@ int32 CFE_TBL_ValidateCmd(const CFE_TBL_ValidateCmd_t *data);
 **
 ** \param[in] data points to the message received via command pipe that needs processing
 **
-** \retval #CFE_TBL_INC_ERR_CTR  \copydoc CFE_TBL_INC_ERR_CTR
-** \retval #CFE_TBL_INC_CMD_CTR  \copydoc CFE_TBL_INC_CMD_CTR
+** \returns CFE Status code
+** \retval #CFE_SUCCESS indicates all status reporting is complete
 */
-int32 CFE_TBL_ActivateCmd(const CFE_TBL_ActivateCmd_t *data);
+CFE_Status_t CFE_TBL_ActivateCmd(const CFE_TBL_ActivateCmd_t *data);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -241,10 +224,10 @@ int32 CFE_TBL_ActivateCmd(const CFE_TBL_ActivateCmd_t *data);
 **
 ** \param[in] data points to the message received via command pipe that needs processing
 **
-** \retval #CFE_TBL_INC_ERR_CTR  \copydoc CFE_TBL_INC_ERR_CTR
-** \retval #CFE_TBL_INC_CMD_CTR  \copydoc CFE_TBL_INC_CMD_CTR
+** \returns CFE Status code
+** \retval #CFE_SUCCESS indicates all status reporting is complete
 */
-int32 CFE_TBL_DumpRegistryCmd(const CFE_TBL_DumpRegistryCmd_t *data);
+CFE_Status_t CFE_TBL_DumpRegistryCmd(const CFE_TBL_DumpRegistryCmd_t *data);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -259,10 +242,10 @@ int32 CFE_TBL_DumpRegistryCmd(const CFE_TBL_DumpRegistryCmd_t *data);
 **
 ** \param[in] data points to the message received via command pipe that needs processing
 **
-** \retval #CFE_TBL_INC_ERR_CTR  \copydoc CFE_TBL_INC_ERR_CTR
-** \retval #CFE_TBL_INC_CMD_CTR  \copydoc CFE_TBL_INC_CMD_CTR
+** \returns CFE Status code
+** \retval #CFE_SUCCESS indicates all status reporting is complete
 */
-int32 CFE_TBL_SendRegistryCmd(const CFE_TBL_SendRegistryCmd_t *data);
+CFE_Status_t CFE_TBL_SendRegistryCmd(const CFE_TBL_SendRegistryCmd_t *data);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -276,10 +259,10 @@ int32 CFE_TBL_SendRegistryCmd(const CFE_TBL_SendRegistryCmd_t *data);
 **
 ** \param[in] data points to the message received via command pipe that needs processing
 **
-** \retval #CFE_TBL_INC_ERR_CTR  \copydoc CFE_TBL_INC_ERR_CTR
-** \retval #CFE_TBL_INC_CMD_CTR  \copydoc CFE_TBL_INC_CMD_CTR
+** \returns CFE Status code
+** \retval #CFE_SUCCESS indicates all status reporting is complete
 */
-int32 CFE_TBL_DeleteCDSCmd(const CFE_TBL_DeleteCDSCmd_t *data);
+CFE_Status_t CFE_TBL_DeleteCDSCmd(const CFE_TBL_DeleteCDSCmd_t *data);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -293,10 +276,10 @@ int32 CFE_TBL_DeleteCDSCmd(const CFE_TBL_DeleteCDSCmd_t *data);
 **
 ** \param[in] data points to the message received via command pipe that needs processing
 **
-** \retval #CFE_TBL_INC_ERR_CTR  \copydoc CFE_TBL_INC_ERR_CTR
-** \retval #CFE_TBL_INC_CMD_CTR  \copydoc CFE_TBL_INC_CMD_CTR
+** \returns CFE Status code
+** \retval #CFE_SUCCESS indicates all status reporting is complete
 */
-int32 CFE_TBL_AbortLoadCmd(const CFE_TBL_AbortLoadCmd_t *data);
+CFE_Status_t CFE_TBL_AbortLoadCmd(const CFE_TBL_AbortLoadCmd_t *data);
 
 /*---------------------------------------------------------------------------------------*/
 /**
