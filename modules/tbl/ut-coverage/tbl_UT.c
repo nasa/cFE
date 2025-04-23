@@ -477,6 +477,7 @@ void UtTest_Setup(void)
      * (do this early because many other APIs depend on these working correctly)
      */
     UT_TBL_ADD_TEST(Test_CFE_TBL_TxnState);
+    UT_TBL_ADD_TEST(Test_CFE_TBL_TxnEvents);
 
     /*
      * Shared resource access patterns
@@ -4915,4 +4916,66 @@ void Test_CFE_TBL_ResourceID_LoadBuff(void)
     /* Force the ID conversion to fail (in the current impl this can only happen if out of range) */
     PendingId = CFE_TBL_GetNextLocalBufferId(RegRecPtr + CFE_PLATFORM_TBL_MAX_NUM_TABLES);
     UtAssert_BOOL_FALSE(CFE_ResourceId_IsDefined(PendingId));
+}
+
+static bool UT_TBL_TxnEventProcFunc(const CFE_TBL_TxnEvent_t *Txn, void *Arg)
+{
+    return (UT_DEFAULT_IMPL(UT_TBL_TxnEventProcFunc));
+}
+
+void Test_CFE_TBL_TxnEvents(void)
+{
+    /*
+     * Test the following API set:
+     *
+     * void CFE_TBL_TxnAddEvent(CFE_TBL_TxnState_t *Txn, uint16 EventId, int32 EventData1, int32 EventData2)
+     * uint32 CFE_TBL_TxnGetEventCount(const CFE_TBL_TxnState_t *Txn)
+     * uint32 CFE_TBL_TxnProcessEvents(const CFE_TBL_TxnState_t *Txn, CFE_TBL_TxnEventProcFunc_t EventProc, void *Arg)
+     * void CFE_TBL_TxnClearEvents(CFE_TBL_TxnState_t *Txn)
+     */
+
+    CFE_TBL_TxnState_t Txn;
+    uint32 i;
+
+    /* set the memory to something nonzero to validate correct initialization */
+    memset(&Txn, 0xAA, sizeof(Txn));
+
+    CFE_TBL_TxnInit(&Txn, false);
+
+    UtAssert_UINT32_EQ(CFE_TBL_TxnProcessEvents(&Txn, UT_TBL_TxnEventProcFunc, NULL), 0);
+    UtAssert_STUB_COUNT(UT_TBL_TxnEventProcFunc, 0);
+
+    for (i = 0; i < CFE_TBL_MAX_EVENTS_PER_TXN; ++i)
+    {
+        UtAssert_UINT32_EQ(CFE_TBL_TxnGetEventCount(&Txn), i);
+        UtAssert_VOIDCALL(CFE_TBL_TxnAddEvent(&Txn, i + 1, i + 2, i + 3));
+    }
+
+    UtAssert_UINT32_EQ(CFE_TBL_TxnGetEventCount(&Txn), CFE_TBL_MAX_EVENTS_PER_TXN);
+
+    /* Check successful processing of events */
+    UT_ResetState(UT_KEY(UT_TBL_TxnEventProcFunc));
+    UT_SetDefaultReturnValue(UT_KEY(UT_TBL_TxnEventProcFunc), true);
+    UtAssert_UINT32_EQ(CFE_TBL_TxnProcessEvents(&Txn, UT_TBL_TxnEventProcFunc, NULL), CFE_TBL_MAX_EVENTS_PER_TXN);
+    UtAssert_STUB_COUNT(UT_TBL_TxnEventProcFunc, CFE_TBL_MAX_EVENTS_PER_TXN);
+
+    /* Check unsuccessful processing of events */
+    UT_ResetState(UT_KEY(UT_TBL_TxnEventProcFunc));
+    UT_SetDefaultReturnValue(UT_KEY(UT_TBL_TxnEventProcFunc), false);
+    UtAssert_UINT32_EQ(CFE_TBL_TxnProcessEvents(&Txn, UT_TBL_TxnEventProcFunc, NULL), 0);
+    UtAssert_STUB_COUNT(UT_TBL_TxnEventProcFunc, CFE_TBL_MAX_EVENTS_PER_TXN);
+
+    /* Add another event (overflow) */
+    UtAssert_VOIDCALL(CFE_TBL_TxnAddEvent(&Txn, 555, 666, 777));
+    UtAssert_UINT32_EQ(CFE_TBL_TxnGetEventCount(&Txn), 1 + CFE_TBL_MAX_EVENTS_PER_TXN);
+
+    /* Check successful processing of events */
+    UT_ResetState(UT_KEY(UT_TBL_TxnEventProcFunc));
+    UT_SetDefaultReturnValue(UT_KEY(UT_TBL_TxnEventProcFunc), true);
+    UtAssert_UINT32_EQ(CFE_TBL_TxnProcessEvents(&Txn, UT_TBL_TxnEventProcFunc, NULL), CFE_TBL_MAX_EVENTS_PER_TXN);
+    UtAssert_STUB_COUNT(UT_TBL_TxnEventProcFunc, CFE_TBL_MAX_EVENTS_PER_TXN);
+
+    /* Check clearing of events */
+    UtAssert_VOIDCALL(CFE_TBL_TxnClearEvents(&Txn));
+    UtAssert_ZERO(CFE_TBL_TxnGetEventCount(&Txn));
 }

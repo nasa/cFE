@@ -19,12 +19,7 @@
 /**
  * @file
  *
- * Purpose:  cFE Table Services (TBL) utility function interface file
- *
- * Author:   D. Kobe/the Hammers Company, Inc.
- *
- * Notes:
- *
+ * Header definining the table services transaction methods
  */
 
 #ifndef CFE_TBL_TRANSACTION_H
@@ -33,6 +28,7 @@
 /*
  * Required header files...
  */
+#include "cfe_error.h"
 #include "cfe_es_api_typedefs.h"
 #include "cfe_tbl_api_typedefs.h"
 #include "cfe_platform_cfg.h"
@@ -40,6 +36,8 @@
 #include "cfe_tbl_eventids.h"
 
 /*********************  Type Definitions   ***************************/
+
+#define CFE_TBL_MAX_EVENTS_PER_TXN 8
 
 /**
  * Bit mask values for context of a table services transaction
@@ -71,6 +69,31 @@ typedef enum CFE_TBL_TxnContext
 
 } CFE_TBL_TxnContext_Enum_t;
 
+typedef struct CFE_TBL_TxnEvent
+{
+    /* The ID that should be broadcast via EVS */
+    uint16 EventId;
+
+    /*
+     * Two general-purpose integer values to further identify the cause - these are
+     * context dependent as to what they mean.  These may be status codes.
+     *
+     * As a general rule of thumb, if the event was triggered from a comparison
+     * between two values, then register the actual observed value (or status code)
+     * as event data 1, and the expected value as event data 2, if applicable.
+     *
+     * These are only used when assembling the event message.
+     */
+    int32 EventData1; /**< Actual value observed */
+    int32 EventData2; /**< Expected value, if applicable, or other relevant value */
+
+} CFE_TBL_TxnEvent_t;
+
+/**
+ * Callback function for event processing
+ */
+typedef bool (*CFE_TBL_TxnEventProcFunc_t)(const CFE_TBL_TxnEvent_t *, void *);
+
 /**
  * The table transaction object
  *
@@ -100,12 +123,14 @@ typedef struct CFE_TBL_TxnState
 
     uint32 RegLockCount;
     uint32 CallContext;
-    uint16 PendingEventId;
 
-    char AppNameBuffer[OS_MAX_API_NAME];
+    char AppNameBuffer[CFE_MISSION_MAX_API_LEN];
 
     CFE_TBL_AccessDescriptor_t *AccDescPtr;
     CFE_TBL_RegistryRec_t *     RegRecPtr;
+
+    uint32             NumPendingEvents;
+    CFE_TBL_TxnEvent_t PendingEvents[CFE_TBL_MAX_EVENTS_PER_TXN];
 
 } CFE_TBL_TxnState_t;
 
@@ -594,5 +619,84 @@ CFE_Status_t CFE_TBL_TxnCheckDuplicateRegistration(CFE_TBL_TxnState_t *Txn, cons
  * \param[inout] Txn The transaction object to operate on
  */
 void CFE_TBL_TxnConnectAccessDescriptor(CFE_TBL_TxnState_t *Txn);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * \brief Adds an event to the transaction for deferred reporting
+ *
+ * \par Description
+ *        Adds an event to the list of events that need to be reported as part of this transaction
+ *        Events will be handled in a future call to CFE_TBL_TxnProcessEvents() once everything
+ *        is completed and nothing is in a locked or intermediate state.
+ *
+ * \par Assumptions, External Events, and Notes:
+ *        EventData1 and EventData2 are aribitrary integers to capture any relevant detail about
+ *        the event that occurred.  If the event is the result of a status code from CFE, PSP, OSAL,
+ *        or any other library that uses integer status codes, it should be passed as EventData1.  If 
+ *        the event was triggered as the result of a comparison, then the reference/expected value 
+ *        should be passed as EventData2.  If there is no relevant detail, pass 0 for these values. 
+ * 
+ *        The suggestions above are just guidelines for consistency -- the ultimate meaning/use of the
+ *        event context data is governed by the callback function provided to CFE_TBL_TxnProcessEvents().
+ *
+ * \param[inout] Txn     The transaction object to operate on
+ * \param[in]    EventId The transaction object to operate on
+ * \param[in]    EventData1 Arbitrary integer context data, may be a status code or actual value observed
+ * \param[in]    EventData2 Second integer context data, may be the expected/needed value in comparison 
+ */
+void CFE_TBL_TxnAddEvent(CFE_TBL_TxnState_t *Txn, uint16 EventId, int32 EventData1, int32 EventData2);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * \brief Gets the number of events pending in the transaction
+ *
+ * \par Description
+ *        Gets the number of events currently pending for deferred reporting
+ *
+ * \par Assumptions, External Events, and Notes:
+ *        None
+ *
+ * \param[in] Txn       The transaction object to operate on
+ * 
+ * \returns the number of events that were successfully processed
+ */
+uint32 CFE_TBL_TxnGetEventCount(const CFE_TBL_TxnState_t *Txn);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * \brief Process the list of events for deferred reporting
+ *
+ * \par Description
+ *        Iterates over the set of deferred events, invoking the given routine for each event.
+ *        The passed-in EventProc routine will be called for each event, which in turn should 
+ *        propagate the event detail to the user via the appropriate call to CFE_EVS or sys log.
+ *
+ * \par Assumptions, External Events, and Notes:
+ *        The opaque argument is not modified or used directly, it is passed through to EventProc.
+ *
+ * \param[in]  Txn       The transaction object to operate on
+ * \param[in]  EventProc User-defined routine to call for each event, which does the reporting
+ * \param[in]  Arg       Opaque argument to pass to EventProc
+ * 
+ * \returns the number of events that were successfully processed
+ */
+uint32 CFE_TBL_TxnProcessEvents(const CFE_TBL_TxnState_t *Txn, CFE_TBL_TxnEventProcFunc_t EventProc, void *Arg);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * \brief Clear the list of events in the transaction
+ *
+ * \par Description
+ *        Resets the transaction deferred event list to an empty state, as it is in a newly
+ *        initialized transaction object.
+ *
+ * \par Assumptions, External Events, and Notes:
+ *        This is only needed if events are reported in multiple sets or stages in a transaction,
+ *        allowing the list to be reset after each stage.  For simple transactions this is not
+ *        necessary.
+ *
+ * \param[inout] Txn       The transaction object to operate on
+ */
+void CFE_TBL_TxnClearEvents(CFE_TBL_TxnState_t *Txn);
 
 #endif /* CFE_TBL_TRANSACTION_H */
