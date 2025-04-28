@@ -126,14 +126,14 @@ extern CFE_ConfigKeyValue_t CFE_MODULE_VERSION_TABLE[];
  */
 extern CFE_StaticModuleLoadEntry_t CFE_PSP_MODULE_LIST[];
 
-#ifdef CFE_EDS_ENABLED_BUILD
+#ifdef CFE_EDS_ENABLED
 
 #include "cfe_mission_eds_parameters.h"
 #include "cfe_mission_eds_interface_parameters.h"
 
 #define CFE_SB_INTF_DB_PTR &CFE_SOFTWAREBUS_INTERFACE
 
-#endif /* CFE_EDS_ENABLED_BUILD */
+#endif /* CFE_EDS_ENABLED */
 
 /*
  * Determine the proper values for populating the EDS-related

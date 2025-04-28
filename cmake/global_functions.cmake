@@ -14,14 +14,14 @@ include(CMakeParseArguments)
 # ALL code on ALL targets, including host-side tools.  Ideally, this should
 # only be necessary on the core_api interface, but it does not fully propagate
 # to all unit test targets.  If/when that issue is resolved, this can be removed.
-if (CFE_EDS_ENABLED_BUILD)
+if (CFE_EDS_ENABLED)
 
     # Propagate the setting to a C preprocessor define of the same name
-    # The CFE_EDS_ENABLED_BUILD switch indicates that any
+    # The CFE_EDS_ENABLED switch indicates that any
     # compile-time preprocessor blocks should be enabled in this build
-    add_definitions(-DCFE_EDS_ENABLED_BUILD)
+    add_definitions(-DCFE_EDS_ENABLED)
 
-endif(CFE_EDS_ENABLED_BUILD)
+endif(CFE_EDS_ENABLED)
 
 
 ##################################################################

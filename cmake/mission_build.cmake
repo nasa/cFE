@@ -170,12 +170,12 @@ endfunction(generate_build_version_templates)
 #
 function(setup_global_topicids)
 
-  if (CFE_EDS_ENABLED_BUILD)
+  if (EDS_PENDING)
 
     # In an EDS build, the topic IDs always come from EDS
     set(MISSION_GLOBAL_TOPICID_HEADERFILE "cfe_mission_eds_designparameters.h")
 
-  else(CFE_EDS_ENABLED_BUILD)
+  else(EDS_PENDING)
 
     # Check for the presence of a mission-wide/global topic ID file
     # This uses cfe_locate_implementation_file() as this returns whether or not it found one
@@ -203,7 +203,7 @@ function(setup_global_topicids)
 
     endif(MISSION_GLOBAL_TOPICID_HEADERFILE)
 
-  endif(CFE_EDS_ENABLED_BUILD)
+  endif(EDS_PENDING)
 
   # Finally, export a CFGFILE_SRC variable for each of the deps
   # This should make each respective "mission_build" create a wrapper
@@ -605,7 +605,7 @@ function(process_arch TARGETSYSTEM)
         -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
         -DCMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}
         -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=${CMAKE_EXPORT_COMPILE_COMMANDS}
-        -DCFE_EDS_ENABLED_BUILD:BOOL=${CFE_EDS_ENABLED_BUILD}
+        -DCFE_EDS_ENABLED:BOOL=${CFE_EDS_ENABLED}
         ${SELECTED_TOOLCHAIN_FILE}
         ${CFE_SOURCE_DIR}
     WORKING_DIRECTORY

@@ -18,12 +18,12 @@ set(TESTCASE_MISSION_CONFIG_FILE_LIST
   cfe_test_topicids.h
 )
 
-if (CFE_EDS_ENABLED_BUILD)
+if (EDS_PENDING)
 
   # In an EDS-based build, these files come generated from the EDS tool
   set(TESTCASE_CFGFILE_SRC_cfe_test_topicids  "cfe_mission_eds_designparameters.h")
 
-endif(CFE_EDS_ENABLED_BUILD)
+endif(EDS_PENDING)
 
 
 # Create wrappers around the all the config header files

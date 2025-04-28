@@ -13,10 +13,10 @@ add_library(core_api INTERFACE)
 target_include_directories(core_api INTERFACE fsw/inc)
 
 # Propagate the setting to a C preprocessor define of the same name
-# The CFE_EDS_ENABLED_BUILD switch indicates that any
+# The CFE_EDS_ENABLED switch indicates that any
 # compile-time preprocessor blocks should be enabled in this build
-if (CFE_EDS_ENABLED_BUILD)
-    target_compile_definitions(core_api INTERFACE CFE_EDS_ENABLED_BUILD)
+if (CFE_EDS_ENABLED)
+    target_compile_definitions(core_api INTERFACE CFE_EDS_ENABLED)
 endif()
 
 # Propagate any INTERFACE-level include dirs and compile definitions from

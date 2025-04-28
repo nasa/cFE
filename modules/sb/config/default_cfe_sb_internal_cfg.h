@@ -32,6 +32,8 @@
 #ifndef CFE_SB_INTERNAL_CFG_H
 #define CFE_SB_INTERNAL_CFG_H
 
+#include "cfe_mission_cfg.h"
+
 /**
 **  \cfesbcfg Maximum Number of Unique Message IDs SB Routing Table can hold
 **

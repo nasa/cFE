@@ -44,6 +44,11 @@ foreach(SYSVAR ${TGTSYS_LIST})
     ${TEMP_ARCH_BINARY_DIR}/inc
   )
 
+  # If this is an EDS build, this needs to be built after the EDS tool runs
+  if (CFE_EDS_ENABLED)
+    add_dependencies(${OBJLIB_NAME} edstool-execute)
+  endif()
+
   set(PLATFORM_DEFINE_FILE ${MISSION_BINARY_DIR}/src/${OBJLIB_NAME}.c)
   set(PLATFORM_LIST_FILE ${MISSION_BINARY_DIR}/src/${OBJLIB_NAME}.list)
   list(APPEND PLATFORM_CONFIG_LIST $<TARGET_OBJECTS:${OBJLIB_NAME}>)

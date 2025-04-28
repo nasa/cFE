@@ -68,7 +68,7 @@ enable_testing()
 
 # This switch determines whether to use EDS framework
 # By default it is set OFF/false as this is a new/experimental feature.
-option(CFE_EDS_ENABLED_BUILD "Use EDS framework" OFF)
+option(CFE_EDS_ENABLED "Use EDS framework" OFF)
 
 # Always create directories to hold generated files/wrappers
 # EDS makes signficant use of generated files.  In non-EDS builds 
