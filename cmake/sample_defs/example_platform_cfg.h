@@ -1366,9 +1366,14 @@
 **       below when allocating memory for shared tables.
 **
 **  \par Limits
-**       The cFE does not place a limit on the size of this parameter but it must be
-**       small enough to allow for #CFE_PLATFORM_TBL_MAX_SIMULTANEOUS_LOADS number of tables
-**       to fit into #CFE_PLATFORM_TBL_BUF_MEMORY_BYTES.
+**       The cFE does not place a limit on the size of this parameter but it
+**       must be at most small enough to allow for
+**       #CFE_PLATFORM_TBL_MAX_SIMULTANEOUS_LOADS number of tables to fit into
+**       #CFE_PLATFORM_TBL_BUF_MEMORY_BYTES. The actual value need to be
+**       smaller, as #CFE_PLATFORM_TBL_BUF_MEMORY_BYTES must be large enough to
+**       provide memory for each registered table, the inactive buffers for
+**       double buffered tables, and for the shared inactive buffers for single
+**       buffered tables.
 */
 #define CFE_PLATFORM_TBL_MAX_SNGL_TABLE_SIZE 16384
 
@@ -1421,9 +1426,9 @@
 **       of shared buffers to allocate.
 **
 **  \par Limits
-**       This number must be less than 32767.  An excessively high number will
-**       degrade system performance and waste memory.  A number less than 5 is
-**       suggested but not required.
+**       This number must be less than 32767 and greater than 0. An excessively
+**       high number will degrade system performance and waste memory. A number
+**       less than 5 is suggested but not required.
 */
 #define CFE_PLATFORM_TBL_MAX_SIMULTANEOUS_LOADS 4
 
