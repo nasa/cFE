@@ -196,7 +196,7 @@ set(CFE_LINK_NORMAL_LIBS
 
 # If EDS is enabled, then the generated dictionary objects are linked with CFE.
 # This can be done statically or dynamically, depending on user preferences.
-if (CFE_EDS_ENABLED_BUILD)
+if (CFE_EDS_ENABLED)
 
     # Determine EDS object linking mode for final executable.
     # This should be configured via the toolchain file,
@@ -223,7 +223,7 @@ if (CFE_EDS_ENABLED_BUILD)
         CFE_EDS_LINK_MODE_${CFE_EDS_LINK_MODE}
     )
 
-endif(CFE_EDS_ENABLED_BUILD)
+endif(CFE_EDS_ENABLED)
 
 # Handle the list of "embedded files" that should be linked into CFE.
 # These are arbitrary files in the mission config that are converted

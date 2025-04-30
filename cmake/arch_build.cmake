@@ -108,7 +108,7 @@ function(add_cfe_app APP_NAME APP_SRC_FILES)
   #
   # By linking with the respective application like this, the net result is that
   # only the _referenced_ EDS DBs (i.e. those for loaded apps) are held in memory.
-  if (CFE_EDS_ENABLED_BUILD AND CFE_EDS_LINK_MODE STREQUAL LOCAL)
+  if (CFE_EDS_ENABLED AND CFE_EDS_LINK_MODE STREQUAL LOCAL)
     target_link_libraries($(APP_NAME) cfe_edsdb_static)
   endif()
 
@@ -536,7 +536,7 @@ function(setup_platform_msgids)
   set(PLATFORM_MSGID_HEADERFILE)
 
   # In an EDS build, the msg IDs always come from EDS, there should not be a local msgids.h file
-  if (NOT CFE_EDS_ENABLED_BUILD)
+  if (NOT EDS_PENDING)
 
     # Check for the presence of a platform-specific msgid file
     # This uses cfe_locate_implementation_file() as this returns whether or not it found one
@@ -564,7 +564,7 @@ function(setup_platform_msgids)
 
     endif(PLATFORM_MSGID_HEADERFILE)
 
-  endif(NOT CFE_EDS_ENABLED_BUILD)
+  endif(NOT EDS_PENDING)
 
   # Finally, export a CFGFILE_SRC variable for each of the deps
   # This should make each respective "mission_build" create a wrapper

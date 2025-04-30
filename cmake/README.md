@@ -7,6 +7,33 @@ using the CMake build scripts.  For a more in-depth guide and specific
 examples, see [OpenSatKit](https://github.com/OpenSatKit/OpenSatKit)
 and [CFS-101](https://github.com/nasa/CFS-101)
 
+Enabling EDS in cFS Build
+==================================
+
+This project supports optional integration with the Electronic Data Sheets (EDS)
+framework. To enable EDS in your cFS build, you need to set the `CFE_EDS_ENABLED`
+CMake flag to `TRUE`.
+
+Steps to Enable EDS:
+--------------------
+
+1. When configuring your cFS build with CMake, add the following flag:
+
+   CFE_EDS_ENABLED=TRUE  (example: make SIMULATION=native CFE_EDS_ENABLED=TRUE prep)
+
+2. Once enabled, the build system will include EDS-specific components,
+   definitions, and tools as needed.
+
+3. Make sure any required EDS tools or definitions are available in your
+   source tree or toolchain path.
+
+Notes:
+------
+
+- The default setting is `FALSE` (EDS disabled).
+- Enabling EDS may introduce additional build dependencies or tooling requirements.
+- Refer to the official cFS documentation or the EDS user guide for advanced configuration options.
+
 Quick Start+
 ---------------------------------------------------
 
