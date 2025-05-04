@@ -456,7 +456,7 @@ void CFE_ES_ExitApp(uint32 ExitStatus)
             }
         }
 
-    } /* end if ReturnCode == CFE_SUCCESS */
+    }
 
     CFE_ES_UnlockSharedData(__func__, __LINE__);
 }
@@ -543,7 +543,7 @@ bool CFE_ES_RunLoop(uint32 *RunStatus)
         CFE_ES_SysLogWrite_Unsync("%s: Error getting AppID for the caller\n", __func__);
         ReturnCode = false;
 
-    } /* end if Status == CFE_SUCCESS */
+    }
 
     CFE_ES_UnlockSharedData(__func__, __LINE__);
 
@@ -1640,7 +1640,7 @@ CFE_Status_t CFE_ES_RegisterCDS(CFE_ES_CDSHandle_t *CDSHandlePtr, size_t BlockSi
 
             strncpy(CDSName, Name, sizeof(CDSName) - 1);
             CDSName[sizeof(CDSName) - 1] = '\0';
-            CFE_ES_WriteToSysLog("%s: CDS Name (%s) is too long\n", __func__, CDSName);
+            CFE_ES_WriteToSysLog("%s: CDS Name (%s) is either too long, or an empty string\n", __func__, CDSName);
         }
         else
         {

@@ -42,7 +42,7 @@
 /**
  * @brief Obtain an integer value correlating to an CFE configuration ID
  *
- * Retreives the integer value associated with the specified key.
+ * Retrieves the integer value associated with the specified key.
  *
  * If no value has been set, or the key is not valid, this returns 0.
  *
@@ -56,7 +56,7 @@ uint32 CFE_Config_GetValue(CFE_ConfigId_t ConfigId);
 /**
  * @brief Obtain a pointer value correlating to an CFE configuration ID
  *
- * Retreives the pointer value associated with the specified key.
+ * Retrieves the pointer value associated with the specified key.
  *
  * If no value has been set, or the key is not valid, this returns NULL.
  *
@@ -70,7 +70,7 @@ const void *CFE_Config_GetObjPointer(CFE_ConfigId_t ConfigId);
 /**
  * @brief Obtain an array correlating to an CFE configuration ID
  *
- * Retreives the CFE_Config_ArrayValue_t value associated with the specified key.
+ * Retrieves the CFE_Config_ArrayValue_t value associated with the specified key.
  * This combines an array length (number of elements) and a pointer to the first element.
  *
  * If no value has been set, or the key is not valid, this returns 0 / NULL.
@@ -85,7 +85,7 @@ CFE_Config_ArrayValue_t CFE_Config_GetArrayValue(CFE_ConfigId_t ConfigId);
 /**
  * @brief Obtain a string value correlating to an CFE configuration ID
  *
- * Retreives the string value associated with the specified key.
+ * Retrieves the string value associated with the specified key.
  *
  * If no value has been set, or the key is not valid, this returns the
  * special string "UNDEFINED"
@@ -102,7 +102,7 @@ const char *CFE_Config_GetString(CFE_ConfigId_t ConfigId);
 /**
  * @brief Obtain the name of a CFE configuration ID
  *
- * Retreives the printable name associated with the specified key.
+ * Retrieves the printable name associated with the specified key.
  *
  * @note  This function does not return NULL.
  *
@@ -144,7 +144,7 @@ void CFE_Config_IterateAll(void *Arg, CFE_Config_Callback_t Callback);
  *                          with standard version string containing the provided
                             parameters (i.e.:
  *                          "cFE DEVELOPMENT BUILD equuleus-rc1+dev0 (Codename
-                            equueleus), Last Official Release: cFE 6.7.0"
+                            equuleus), Last Official Release: cFE 6.7.0"
  * @param[in]   Size        Size of the provided buffer
  * @param[in]   Component   Component for which to get version string
  *                          (i.e. "cFE")
