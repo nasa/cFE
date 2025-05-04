@@ -305,12 +305,16 @@ uint32 CFE_TIME_Micro2SubSecs(uint32 MicroSeconds)
  * Generated stub function for CFE_TIME_Print()
  * ----------------------------------------------------
  */
-void CFE_TIME_Print(char *PrintBuffer, CFE_TIME_SysTime_t TimeToPrint)
+CFE_Status_t CFE_TIME_Print(char *PrintBuffer, CFE_TIME_SysTime_t TimeToPrint)
 {
+    UT_GenStub_SetupReturnBuffer(CFE_TIME_Print, CFE_Status_t);
+
     UT_GenStub_AddParam(CFE_TIME_Print, char *, PrintBuffer);
     UT_GenStub_AddParam(CFE_TIME_Print, CFE_TIME_SysTime_t, TimeToPrint);
 
     UT_GenStub_Execute(CFE_TIME_Print, Basic, UT_DefaultHandler_CFE_TIME_Print);
+
+    return UT_GenStub_GetReturnValue(CFE_TIME_Print, CFE_Status_t);
 }
 
 /*
