@@ -3224,7 +3224,7 @@ typedef struct
 
 The `ContentType` element is a magic number that identifies this file as
 conforming to the cFE standard header type. At the release of this
-document, the magic number on all cFE compliant files is `0x63464531`
+document, the magic number on all cFE-compliant files is `0x63464531`
 which appears as 'cFE1' when seen in ASCII.
 
 The `SubType` is an indication of the contents/format of the file. There
@@ -3241,7 +3241,7 @@ to determine the version of the header type as well as where the user
 data is relative to the beginning of the file.
 
 The `SpacecraftID`, `ProcessorID` and `ApplicationID` are all automatically
-filled by cFE File Services routines when creating a cFE compliant file.
+filled by cFE File Services routines when creating a cFE-compliant file.
 These fields help identify where and how the file was created.
 
 The `TimeSeconds` and `TimeSubSeconds` elements contain the Spacecraft Time
