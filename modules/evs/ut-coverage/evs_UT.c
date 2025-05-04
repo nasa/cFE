@@ -1066,14 +1066,14 @@ void Test_Logging(void)
     /* Test successfully writing all log entries */
     UT_InitData_EVS();
     UT_SetDeferredRetcode(UT_KEY(OS_MutSemCreate), 1, OS_SUCCESS);
-    CFE_EVS_Global.EVS_LogPtr->LogCount = CFE_PLATFORM_EVS_LOG_MAX;
+    CFE_EVS_Global.EVS_LogPtr->LogFullFlag = true;
     CFE_UtAssert_SUCCESS(CFE_EVS_WriteLogDataFileCmd(&CmdBuf.logfilecmd));
 
     /* Test writing a log entry with a write failure */
     UT_InitData_EVS();
     UT_SetDeferredRetcode(UT_KEY(OS_MutSemCreate), 1, OS_SUCCESS);
     UT_SetDefaultReturnValue(UT_KEY(OS_write), OS_ERROR);
-    CFE_EVS_Global.EVS_LogPtr->LogCount = CFE_PLATFORM_EVS_LOG_MAX;
+    CFE_EVS_Global.EVS_LogPtr->LogFullFlag = true;
     UtAssert_INT32_EQ(CFE_EVS_WriteLogDataFileCmd(&CmdBuf.logfilecmd), CFE_EVS_FILE_WRITE_ERROR);
 
     /* Test successfully writing a single event log entry using a specified
