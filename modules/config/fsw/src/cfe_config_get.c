@@ -23,19 +23,21 @@
  *
  * This defines the "getter" functions, which are publicly available
  *
- * @note The declaration for all functions in this file is in the "core_api" module, not here
- * This file constitutes the entire externally-callable API for the config module.
+ * @note The declaration for all functions in this file is in the "core_api"
+ * module, not here This file constitutes the entire externally-callable API for
+ * the config module.
  */
 
 /*
 ** Required header files.
 */
-#include "cfe_config_priv.h"
+#include "cfe_config_eds.h"
 #include "cfe_config_nametable.h"
+#include "cfe_config_priv.h"
 #include "cfe_version.h"
 
-#include <string.h>
 #include <stdio.h>
+#include <string.h>
 
 /*----------------------------------------------------------------
  *
@@ -194,6 +196,7 @@ void CFE_Config_IterateAll(void *Arg, CFE_Config_Callback_t Callback)
 void CFE_Config_GetVersionString(char *Buf, size_t Size, const char *Component, const char *SrcVersion,
                                  const char *CodeName, const char *LastOffcRel)
 {
-    snprintf(Buf, Size, "%s %s %s (Codename %s), Last Official Release: %s %s)", Component,
-             CFE_REVISION == 0 ? "Development Build" : "Release", SrcVersion, CodeName, Component, LastOffcRel);
+    snprintf(Buf, Size, "%s %s %s (Codename %s), Last Official Release: %s %s, EDS %s", Component,
+             CFE_REVISION == 0 ? "Development Build" : "Release", SrcVersion, CodeName, Component, LastOffcRel,
+             CFE_Config_EdsState());
 }
