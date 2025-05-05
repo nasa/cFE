@@ -7,12 +7,19 @@
 project(CFE_CONFIG C)
 
 # Executive services source files
+
 set(config_SOURCES
     fsw/src/cfe_config_init.c
     fsw/src/cfe_config_lookup.c
     fsw/src/cfe_config_get.c
-    fsw/src/cfe_config_set.c
-)
+    fsw/src/cfe_config_set.c)
+
+if(CFE_EDS_ENABLED)
+  list(APPEND config_SOURCES fsw/src/cfe_config_eds_enabled.c)
+else()
+  list(APPEND config_SOURCES fsw/src/cfe_config_eds_disabled.c)
+endif(CFE_EDS_ENABLED)
+
 add_library(config STATIC
   ${config_SOURCES}
   ${MISSION_BINARY_DIR}/src/cfe_configid_nametable.c
