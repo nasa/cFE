@@ -111,6 +111,8 @@ typedef struct CFE_TBL_TableUpdateNotify
 */
 struct CFE_TBL_RegistryRec
 {
+    CFE_TBL_RegId_t RegId;
+
     CFE_ES_AppId_t       OwnerAppId; /**< \brief Application ID of App that Registered Table */
     CFE_TBL_LoadBuff_t   Buffers[2]; /**< \brief Active and Inactive Buffer Pointers */
     CFE_TBL_HandleLink_t AccessList; /**< \brief Linked List of associated access descriptors */
@@ -218,11 +220,7 @@ CFE_TBL_RegistryRec_t *CFE_TBL_LocateRegRecByName(const char *Name);
  */
 static inline bool CFE_TBL_RegRecIsMatch(const CFE_TBL_RegistryRec_t *RegRecPtr, CFE_TBL_RegId_t RegId)
 {
-    /*
-     * This technically should also check CFE_RESOURCEID_TEST_DEFINED(RegRecPtr->OwnerAppId),
-     * but that would currently break some registration actions (which should be fixed).
-     */
-    return (RegRecPtr != NULL);
+    return (RegRecPtr != NULL && CFE_TBL_REGID_EQ(RegRecPtr->RegId, RegId));
 }
 
 /*---------------------------------------------------------------------------------------*/
@@ -237,7 +235,10 @@ static inline bool CFE_TBL_RegRecIsMatch(const CFE_TBL_RegistryRec_t *RegRecPtr,
  * @param[in]   RegRecPtr   pointer to table entry
  * @returns ID of entry
  */
-CFE_TBL_RegId_t CFE_TBL_RegRecGetID(const CFE_TBL_RegistryRec_t *RegRecPtr);
+static inline CFE_TBL_RegId_t CFE_TBL_RegRecGetID(const CFE_TBL_RegistryRec_t *RegRecPtr)
+{
+    return RegRecPtr->RegId;
+}
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -256,7 +257,25 @@ CFE_TBL_RegId_t CFE_TBL_RegRecGetID(const CFE_TBL_RegistryRec_t *RegRecPtr);
  */
 static inline bool CFE_TBL_RegRecIsUsed(const CFE_TBL_RegistryRec_t *RegRecPtr)
 {
-    return CFE_RESOURCEID_TEST_DEFINED(RegRecPtr->OwnerAppId);
+    return CFE_TBL_REGID_IS_VALID(RegRecPtr->RegId);
+}
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Marks a registry record as in use (not avaliable)
+ *
+ * This sets the internal field(s) within this entry, and marks
+ * it as being associated with the registry ID.
+ *
+ * @note This internal helper function must only be used on record pointers
+ * that are known to refer to an actual table location (i.e. non-null).
+ *
+ * @param[in]   RegRecPtr   pointer to registry entry
+ * @param[in]   PendingId   the ID of this entry that will be set
+ */
+static inline void CFE_TBL_RegRecSetUsed(CFE_TBL_RegistryRec_t *RegRecPtr, CFE_ResourceId_t PendingId)
+{
+    RegRecPtr->RegId = CFE_TBL_REGID_C(PendingId);
 }
 
 /*---------------------------------------------------------------------------------------*/
@@ -273,10 +292,7 @@ static inline bool CFE_TBL_RegRecIsUsed(const CFE_TBL_RegistryRec_t *RegRecPtr)
  */
 static inline void CFE_TBL_RegRecSetFree(CFE_TBL_RegistryRec_t *RegRecPtr)
 {
-    RegRecPtr->OwnerAppId = CFE_ES_APPID_UNDEFINED;
-
-    /* Also clear the table name, not strictly needed but good for consistency */
-    RegRecPtr->Config.Name[0] = '\0';
+    RegRecPtr->RegId = CFE_TBL_REGID_UNDEFINED;
 }
 
 /*---------------------------------------------------------------------------------------*/
@@ -495,6 +511,28 @@ static inline bool CFE_TBL_RegRecIsModified(const CFE_TBL_RegistryRec_t *RegRecP
 {
     return RegRecPtr->Status.IsModified;
 }
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Determine the next ID to use for a table registry entry
+ *
+ * Obtains an ID value that is usable for a new registry.  If no registry entries
+ * are available, then UNDEFINED is returned.
+ *
+ * @returns ID to use for next result, or UNDEFINED if no slots available
+ */
+CFE_ResourceId_t CFE_TBL_GetNextRegId(void);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * Test if a slot corresponding to a pending ID is used
+ *
+ * This is an internal helper function for CFE_ResourceId_FindNext(), and not
+ * typically called directly. It is prototyped here for unit testing.
+ *
+ * @returns True if used, False if available
+ */
+bool CFE_TBL_CheckRegistrySlotUsed(CFE_ResourceId_t CheckId);
 
 /*---------------------------------------------------------------------------------------*/
 /**

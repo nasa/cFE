@@ -63,17 +63,22 @@ CFE_TBL_Handle_t ArrayOfHandles[2];
 #define UT_TBL_APPID_3  CFE_ES_APPID_C(CFE_ResourceId_FromInteger(CFE_ES_APPID_BASE + 3))
 #define UT_TBL_APPID_10 CFE_ES_APPID_C(CFE_ResourceId_FromInteger(CFE_ES_APPID_BASE + 10))
 
-#define UT_CFE_TBL_HANDLE_0    0
-#define UT_CFE_TBL_HANDLE_1    1
-#define UT_CFE_TBL_HANDLE_2    2
-#define UT_CFE_TBL_HANDLE_LAST (CFE_PLATFORM_TBL_MAX_NUM_HANDLES - 1)
+#define UT_HANDLE_INDEX(x)     ((x)-CFE_TBL_Global.Handles)
+#define UT_CFE_TBL_HANDLE_INVL CFE_TBL_HANDLEID_UNDEFINED
+#define UT_CFE_TBL_HANDLE_0    CFE_TBL_HANDLEID_C(CFE_RESOURCEID_WRAP(CFE_TBL_HANDLE_BASE + 0))
+#define UT_CFE_TBL_HANDLE_1    CFE_TBL_HANDLEID_C(CFE_RESOURCEID_WRAP(CFE_TBL_HANDLE_BASE + 1))
+#define UT_CFE_TBL_HANDLE_2    CFE_TBL_HANDLEID_C(CFE_RESOURCEID_WRAP(CFE_TBL_HANDLE_BASE + 2))
+#define UT_CFE_TBL_HANDLE_LAST \
+    CFE_TBL_HANDLEID_C(CFE_RESOURCEID_WRAP(CFE_TBL_HANDLE_BASE + CFE_PLATFORM_TBL_MAX_NUM_HANDLES - 1))
 
-#define UT_CFE_TBL_REGID_INVL CFE_TBL_REGID_C(-1)
-#define UT_CFE_TBL_REGID_0    CFE_TBL_REGID_C(0)
-#define UT_CFE_TBL_REGID_1    CFE_TBL_REGID_C(1)
-#define UT_CFE_TBL_REGID_2    CFE_TBL_REGID_C(2)
-#define UT_CFE_TBL_REGID_LAST CFE_TBL_REGID_C(CFE_PLATFORM_TBL_MAX_NUM_TABLES - 1)
-#define UT_CFE_TBL_REGID_INVH CFE_TBL_REGID_C(CFE_PLATFORM_TBL_MAX_NUM_TABLES + 1)
+#define UT_REGREC_INDEX(x)    ((x)-CFE_TBL_Global.Registry)
+#define UT_CFE_TBL_REGID_INVL CFE_TBL_REGID_UNDEFINED
+#define UT_CFE_TBL_REGID_0    CFE_TBL_REGID_C(CFE_RESOURCEID_WRAP(CFE_TBL_REGID_BASE + 0))
+#define UT_CFE_TBL_REGID_1    CFE_TBL_REGID_C(CFE_RESOURCEID_WRAP(CFE_TBL_REGID_BASE + 1))
+#define UT_CFE_TBL_REGID_2    CFE_TBL_REGID_C(CFE_RESOURCEID_WRAP(CFE_TBL_REGID_BASE + 2))
+#define UT_CFE_TBL_REGID_LAST \
+    CFE_TBL_REGID_C(CFE_RESOURCEID_WRAP(CFE_TBL_REGID_BASE + CFE_PLATFORM_TBL_MAX_NUM_TABLES - 1))
+#define UT_CFE_TBL_REGID_INVH CFE_TBL_REGID_C(CFE_RESOURCEID_WRAP(INT32_MAX))
 
 #define UT_CFE_TBL_LOADBUFFID_GLB_BASE (CFE_TBL_LOADBUFFID_BASE)
 #define UT_CFE_TBL_LOADBUFFID_REG_BASE (CFE_TBL_LOADBUFFID_BASE + CFE_PLATFORM_TBL_MAX_SIMULTANEOUS_LOADS)
@@ -83,6 +88,8 @@ CFE_TBL_Handle_t ArrayOfHandles[2];
 #define UT_CFE_TBL_LOADBUFFID_GLB_1   CFE_TBL_LOADBUFFID_C(CFE_RESOURCEID_WRAP(UT_CFE_TBL_LOADBUFFID_GLB_BASE + 1))
 #define UT_CFE_TBL_LOADBUFFID_REG_0_0 CFE_TBL_LOADBUFFID_C(CFE_RESOURCEID_WRAP(UT_CFE_TBL_LOADBUFFID_REG_BASE + 0))
 #define UT_CFE_TBL_LOADBUFFID_REG_0_1 CFE_TBL_LOADBUFFID_C(CFE_RESOURCEID_WRAP(UT_CFE_TBL_LOADBUFFID_REG_BASE + 1))
+#define UT_CFE_TBL_LOADBUFFID_REG_1_0 CFE_TBL_LOADBUFFID_C(CFE_RESOURCEID_WRAP(UT_CFE_TBL_LOADBUFFID_REG_BASE + 2))
+#define UT_CFE_TBL_LOADBUFFID_REG_1_1 CFE_TBL_LOADBUFFID_C(CFE_RESOURCEID_WRAP(UT_CFE_TBL_LOADBUFFID_REG_BASE + 3))
 #define UT_CFE_TBL_LOADBUFFID_LAST \
     CFE_TBL_LOADBUFFID_C(          \
         CFE_RESOURCEID_WRAP(UT_CFE_TBL_LOADBUFFID_GLB_BASE + CFE_PLATFORM_TBL_MAX_SIMULTANEOUS_LOADS - 1))
@@ -130,6 +137,34 @@ CFE_TBL_RegistryRec_t Original[CFE_PLATFORM_TBL_MAX_NUM_TABLES];
 /*
  * UT helper routines
  */
+
+CFE_TBL_AccessDescriptor_t *UT_TBL_AccDescFromExtHandle(CFE_TBL_Handle_t TblHandle)
+{
+    CFE_TBL_HandleId_t HandleId;
+
+    HandleId = CFE_TBL_HANDLE_IMPORT(TblHandle);
+
+    return CFE_TBL_LocateAccDescByHandle(HandleId);
+}
+
+CFE_TBL_Handle_t UT_TBL_AccDescToExtHandle(CFE_TBL_AccessDescriptor_t *AccDescPtr)
+{
+    CFE_TBL_Handle_t TblHandle;
+
+    TblHandle = CFE_TBL_HANDLE_EXPORT(AccDescPtr->HandleId);
+
+    return TblHandle;
+}
+
+void UT_TBL_SetupTxnFromExtHandle(CFE_TBL_TxnState_t *Txn, CFE_TBL_Handle_t TblHandle, uint32 Context)
+{
+    CFE_TBL_HandleId_t HandleId;
+
+    HandleId = CFE_TBL_HANDLE_IMPORT(TblHandle);
+
+    CFE_UtAssert_SETUP(CFE_TBL_TxnStartFromHandle(Txn, HandleId, Context));
+}
+
 CFE_TBL_TableConfig_t *UT_TBL_Config(CFE_TBL_RegistryRec_t *RegRecPtr)
 {
     return &RegRecPtr->Config;
@@ -192,7 +227,7 @@ void UT_TBL_SetupSingleReg(CFE_TBL_RegistryRec_t **RegRecOut, CFE_TBL_AccessDesc
 
     CFE_UtAssert_SETUP(CFE_TBL_Register(&Handle, TableName, sizeof(UT_Table1_t), Flags, NULL));
 
-    AccDescPtr = CFE_TBL_LocateAccDescByHandle(Handle);
+    AccDescPtr = UT_TBL_AccDescFromExtHandle(Handle);
     if (AccDescPtr != NULL)
     {
         RegRecPtr = CFE_TBL_LocateRegRecByID(AccDescPtr->RegIndex);
@@ -371,16 +406,16 @@ static void UT_TBL_SetLoadBuffFree(CFE_TBL_LoadBuff_t *LoadBuffPtr)
     CFE_TBL_LoadBuffSetFree(LoadBuffPtr);
 }
 
-static void UT_TBL_RegInitHandleLink(CFE_TBL_RegistryRec_t *RegRecPtr)
-{
-    CFE_TBL_HandleLinkInit(&RegRecPtr->AccessList);
-}
-
 static void UT_TBL_SetHandleUsed(CFE_TBL_AccessDescriptor_t *AccDescPtr)
 {
-    if (!AccDescPtr->UsedFlag)
+    CFE_ResourceId_t PendingId;
+
+    if (!CFE_TBL_AccDescIsUsed(AccDescPtr))
     {
-        AccDescPtr->UsedFlag = true;
+        /* make up an ID */
+        PendingId = CFE_ResourceId_FromInteger(CFE_TBL_HANDLE_BASE + UT_HANDLE_INDEX(AccDescPtr));
+
+        CFE_TBL_AccDescSetUsed(AccDescPtr, PendingId);
         AccDescPtr->RegIndex = UT_CFE_TBL_REGID_0;
     }
 }
@@ -407,7 +442,7 @@ CFE_TBL_LoadBuff_t *UT_TBL_SetupLoadBuff(CFE_TBL_RegistryRec_t *RegRecPtr, bool 
     if (UseLocalBuffer)
     {
         BuffPtr     = &RegRecPtr->Buffers[BuffNum];
-        ReqCategory = 1 + CFE_TBL_REGID_INT(CFE_TBL_RegRecGetID(RegRecPtr));
+        ReqCategory = 1 + UT_REGREC_INDEX(RegRecPtr);
     }
     else
     {
@@ -437,7 +472,7 @@ CFE_TBL_LoadBuff_t *UT_TBL_InitActiveBuffer(CFE_TBL_RegistryRec_t *RegRecPtr, ui
     CFE_TBL_LoadBuff_t *BuffPtr;
 
     BuffPtr     = &RegRecPtr->Buffers[BuffNum];
-    ReqCategory = 1 + CFE_TBL_REGID_INT(CFE_TBL_RegRecGetID(RegRecPtr));
+    ReqCategory = 1 + UT_REGREC_INDEX(RegRecPtr);
 
     CFE_TBL_LoadBuffSerialCompose(&Serial, ReqCategory, BuffNum);
     CFE_TBL_LoadBuffSetUsed(BuffPtr, CFE_ResourceId_FromInteger(CFE_TBL_LOADBUFFID_BASE + Serial),
@@ -557,22 +592,23 @@ void UtTest_Setup(void)
 
 void UT_TBL_SetupRegRec(CFE_TBL_RegistryRec_t *RegRecPtr)
 {
-    /* This should always use the array index fo the reg entry */
-    size_t Idx;
-    Idx = RegRecPtr - CFE_TBL_Global.Registry;
+    /* This should always use the array index of the reg entry */
+    size_t           Idx;
+    CFE_ResourceId_t PendingId;
+
+    Idx = UT_REGREC_INDEX(RegRecPtr);
+
     snprintf(UT_TBL_Config(RegRecPtr)->Name, CFE_TBL_MAX_FULL_NAME_LEN, "i%d", (int)Idx);
     RegRecPtr->OwnerAppId = UT_TBL_APPID_2;
+
+    /* make up an ID */
+    PendingId = CFE_ResourceId_FromInteger(CFE_TBL_REGID_BASE + Idx);
+    CFE_TBL_RegRecSetUsed(RegRecPtr, PendingId);
 }
 
 void UT_TBL_SetupAccDesc(CFE_TBL_AccessDescriptor_t *AccDescPtr)
 {
-    AccDescPtr->AppId    = CFE_TBL_NOT_OWNED;
-    AccDescPtr->RegIndex = UT_CFE_TBL_REGID_0;
-    CFE_TBL_HandleLinkInit(&AccDescPtr->Link);
-    AccDescPtr->UsedFlag    = false;
-    AccDescPtr->LockFlag    = false;
-    AccDescPtr->Updated     = false;
-    AccDescPtr->BufferIndex = UT_CFE_TBL_LOADBUFFID_REG_0_0;
+    memset(AccDescPtr, 0, sizeof(*AccDescPtr));
 }
 
 /*
@@ -611,8 +647,9 @@ void UT_ResetTableRegistry(void)
     UT_TBL_ForEveryLoadBuff(UT_TBL_SetLoadBuffFree);
 
     CFE_TBL_Global.ValidationCounter = 0;
-    CFE_TBL_Global.HkTlmTblRegIndex  = CFE_TBL_NOT_FOUND;
-    CFE_TBL_Global.LastTblUpdated    = CFE_TBL_NOT_FOUND;
+
+    CFE_TBL_Global.HkTlmTblRegId  = CFE_TBL_REGID_UNDEFINED;
+    CFE_TBL_Global.LastTblUpdated = CFE_TBL_REGID_UNDEFINED;
 }
 
 /*
@@ -1210,14 +1247,14 @@ void Test_CFE_TBL_GetTblRegData(void)
 
     /* Test using a double buffered table */
     UT_InitData();
-    CFE_TBL_Global.HkTlmTblRegIndex                        = CFE_TBL_RegRecGetID(RegRecDPtr);
+    CFE_TBL_Global.HkTlmTblRegId                           = CFE_TBL_RegRecGetID(RegRecDPtr);
     CFE_TBL_Global.TblRegPacket.Payload.InactiveBufferAddr = CFE_ES_MEMADDRESS_C(0);
     CFE_TBL_GetTblRegData();
     UtAssert_NOT_NULL(CFE_ES_MEMADDRESS_TO_PTR(CFE_TBL_Global.TblRegPacket.Payload.InactiveBufferAddr));
 
     /* Test using a single buffered table and the buffer is inactive */
     UT_InitData();
-    CFE_TBL_Global.HkTlmTblRegIndex                        = CFE_TBL_RegRecGetID(RegRecSPtr);
+    CFE_TBL_Global.HkTlmTblRegId                           = CFE_TBL_RegRecGetID(RegRecSPtr);
     CFE_TBL_Global.TblRegPacket.Payload.InactiveBufferAddr = CFE_ES_MEMADDRESS_C(0);
     UT_TBL_SetupLoadBuff(RegRecSPtr, false, 1);
     CFE_TBL_GetTblRegData();
@@ -1230,9 +1267,9 @@ void Test_CFE_TBL_GetTblRegData(void)
     CFE_TBL_GetTblRegData();
     UtAssert_NULL(CFE_ES_MEMADDRESS_TO_PTR(CFE_TBL_Global.TblRegPacket.Payload.InactiveBufferAddr));
 
-    /* Test when HkTlmTblRegIndex does not refer to anything valid */
+    /* Test when   HkTlmTblRegId does not refer to anything valid */
     /* In this case it is a no-op so there is nothing to check for -- this is for branch coverage */
-    CFE_TBL_Global.HkTlmTblRegIndex = UT_CFE_TBL_REGID_INVL;
+    CFE_TBL_Global.HkTlmTblRegId = UT_CFE_TBL_REGID_INVL;
     CFE_TBL_GetTblRegData();
 }
 
@@ -1258,9 +1295,8 @@ void Test_CFE_TBL_GetHkData(void)
 
     /* Test raising the count of load pending tables */
     UT_InitData();
-    RegRecPtr                             = CFE_TBL_LocateRegRecByID(UT_CFE_TBL_REGID_LAST);
+    UT_TBL_SetupSingleReg(&RegRecPtr, NULL, CFE_TBL_OPT_DEFAULT);
     UT_TBL_Status(RegRecPtr)->LoadPending = true;
-    RegRecPtr->OwnerAppId                 = AppID;
     CFE_TBL_GetHkData();
     UtAssert_UINT32_EQ(CFE_TBL_Global.HkPacket.Payload.NumLoadPending, 1);
 
@@ -1329,8 +1365,8 @@ void Test_CFE_TBL_DumpRegCmd(void)
     CFE_TBL_RegistryRec_t *     RegRecLastPtr;
     CFE_TBL_AccessDescriptor_t *AccDescPtr;
 
-    RegRec0Ptr    = CFE_TBL_LocateRegRecByID(UT_CFE_TBL_REGID_0);
-    RegRec1Ptr    = CFE_TBL_LocateRegRecByID(UT_CFE_TBL_REGID_1);
+    UT_TBL_SetupSingleReg(&RegRec0Ptr, NULL, CFE_TBL_OPT_DEFAULT);
+    UT_TBL_SetupSingleReg(&RegRec1Ptr, NULL, CFE_TBL_OPT_DEFAULT);
     RegRecLastPtr = CFE_TBL_LocateRegRecByID(UT_CFE_TBL_REGID_LAST);
 
     /* Get the AppID being used for UT */
@@ -1406,7 +1442,8 @@ void Test_CFE_TBL_DumpRegCmd(void)
     CFE_TBL_HandleLinkInit(&RegRec0Ptr->AccessList);
     LocalBuf  = NULL;
     LocalSize = 0;
-    UtAssert_BOOL_FALSE(CFE_TBL_DumpRegistryGetter(&CFE_TBL_Global.RegDumpState, 0, &LocalBuf, &LocalSize));
+    UtAssert_BOOL_FALSE(
+        CFE_TBL_DumpRegistryGetter(&CFE_TBL_Global.RegDumpState, UT_REGREC_INDEX(RegRec0Ptr), &LocalBuf, &LocalSize));
     UtAssert_NOT_NULL(LocalBuf);
     UtAssert_NONZERO(LocalSize);
     UtAssert_INT32_EQ(CFE_TBL_Global.RegDumpState.DumpRecord.LoadInProgress, -1); /* no load in progress */
@@ -1423,7 +1460,8 @@ void Test_CFE_TBL_DumpRegCmd(void)
     UT_TBL_SetupLoadBuff(RegRec0Ptr, true, 1);
     LocalBuf  = NULL;
     LocalSize = 0;
-    UtAssert_BOOL_FALSE(CFE_TBL_DumpRegistryGetter(&CFE_TBL_Global.RegDumpState, 0, &LocalBuf, &LocalSize));
+    UtAssert_BOOL_FALSE(
+        CFE_TBL_DumpRegistryGetter(&CFE_TBL_Global.RegDumpState, UT_REGREC_INDEX(RegRec0Ptr), &LocalBuf, &LocalSize));
     UtAssert_NOT_NULL(LocalBuf);
     UtAssert_NONZERO(LocalSize);
     UtAssert_INT32_EQ(CFE_TBL_Global.RegDumpState.DumpRecord.LoadInProgress, -2);
@@ -1433,7 +1471,8 @@ void Test_CFE_TBL_DumpRegCmd(void)
     UT_TBL_SetupLoadBuff(RegRec0Ptr, true, 0);
     LocalBuf  = NULL;
     LocalSize = 0;
-    UtAssert_BOOL_FALSE(CFE_TBL_DumpRegistryGetter(&CFE_TBL_Global.RegDumpState, 0, &LocalBuf, &LocalSize));
+    UtAssert_BOOL_FALSE(
+        CFE_TBL_DumpRegistryGetter(&CFE_TBL_Global.RegDumpState, UT_REGREC_INDEX(RegRec0Ptr), &LocalBuf, &LocalSize));
     UtAssert_NOT_NULL(LocalBuf);
     UtAssert_NONZERO(LocalSize);
     UtAssert_INT32_EQ(CFE_TBL_Global.RegDumpState.DumpRecord.LoadInProgress, -3);
@@ -1447,7 +1486,8 @@ void Test_CFE_TBL_DumpRegCmd(void)
     UT_TBL_Config(RegRec0Ptr)->DoubleBuffered = false;
     LocalBuf                                  = NULL;
     LocalSize                                 = 0;
-    UtAssert_BOOL_FALSE(CFE_TBL_DumpRegistryGetter(&CFE_TBL_Global.RegDumpState, 0, &LocalBuf, &LocalSize));
+    UtAssert_BOOL_FALSE(
+        CFE_TBL_DumpRegistryGetter(&CFE_TBL_Global.RegDumpState, UT_REGREC_INDEX(RegRec0Ptr), &LocalBuf, &LocalSize));
     UtAssert_NOT_NULL(LocalBuf);
     UtAssert_NONZERO(LocalSize);
     UtAssert_INT32_EQ(CFE_TBL_Global.RegDumpState.DumpRecord.LoadInProgress,
@@ -1461,15 +1501,17 @@ void Test_CFE_TBL_DumpRegCmd(void)
     UT_TBL_Status(RegRec0Ptr)->NextBufferId = UT_CFE_TBL_LOADBUFFID_INVH;
     LocalBuf                                = NULL;
     LocalSize                               = 0;
-    UtAssert_BOOL_FALSE(CFE_TBL_DumpRegistryGetter(&CFE_TBL_Global.RegDumpState, 0, &LocalBuf, &LocalSize));
+    UtAssert_BOOL_FALSE(
+        CFE_TBL_DumpRegistryGetter(&CFE_TBL_Global.RegDumpState, UT_REGREC_INDEX(RegRec0Ptr), &LocalBuf, &LocalSize));
     UtAssert_NOT_NULL(LocalBuf);
     UtAssert_NONZERO(LocalSize);
     UtAssert_INT32_EQ(CFE_TBL_Global.RegDumpState.DumpRecord.LoadInProgress, -1);
 
     /* Hit last entry, no load in progress */
+    UT_TBL_SetupRegRec(RegRecLastPtr);
     RegRecLastPtr->OwnerAppId                  = CFE_TBL_NOT_OWNED;
-    RegRecLastPtr->AccessList.Next             = 2;
-    RegRecLastPtr->AccessList.Prev             = 2;
+    RegRecLastPtr->AccessList.Next             = UT_CFE_TBL_HANDLE_2;
+    RegRecLastPtr->AccessList.Prev             = UT_CFE_TBL_HANDLE_2;
     UT_TBL_Status(RegRecLastPtr)->NextBufferId = CFE_TBL_LOADBUFFID_UNDEFINED;
     AccDescPtr                                 = CFE_TBL_LocateAccDescByHandle(UT_CFE_TBL_HANDLE_2);
     CFE_TBL_HandleLinkInit(&AccDescPtr->Link);
@@ -1487,11 +1529,11 @@ void Test_CFE_TBL_DumpRegCmd(void)
     UtAssert_ZERO(LocalSize);
 
     /* Test empty registry */
-    RegRec0Ptr->OwnerAppId = CFE_TBL_NOT_OWNED;
-    CFE_TBL_HandleLinkInit(&RegRec0Ptr->AccessList);
+    CFE_TBL_RegRecSetFree(RegRec0Ptr);
     LocalBuf  = NULL;
     LocalSize = 0;
-    UtAssert_BOOL_FALSE(CFE_TBL_DumpRegistryGetter(&CFE_TBL_Global.RegDumpState, 0, &LocalBuf, &LocalSize));
+    UtAssert_BOOL_FALSE(
+        CFE_TBL_DumpRegistryGetter(&CFE_TBL_Global.RegDumpState, UT_REGREC_INDEX(RegRec0Ptr), &LocalBuf, &LocalSize));
     UtAssert_NULL(LocalBuf);
     UtAssert_ZERO(LocalSize);
 }
@@ -1509,9 +1551,7 @@ void Test_CFE_TBL_DumpCmd(void)
     CFE_TBL_RegistryRec_t *RegRecPtr;
     CFE_TBL_LoadBuff_t *   LoadBuffPtr;
 
-    CFE_UtAssert_SETUP(CFE_TBL_Register(&App1TblHandle1, "dump", sizeof(UT_Table1_t), CFE_TBL_OPT_DEFAULT, NULL));
-
-    RegRecPtr = CFE_TBL_LocateRegRecByID(App1TblHandle1);
+    UT_TBL_SetupSingleReg(&RegRecPtr, NULL, CFE_TBL_OPT_DEFAULT);
 
     CFE_ES_GetAppID(&AppID);
 
@@ -1886,7 +1926,7 @@ void Test_CFE_TBL_SendHkCmd(void)
     }
 
     UT_SetDeferredRetcode(UT_KEY(CFE_SB_TransmitMsg), 1, CFE_SUCCESS - 1);
-    CFE_TBL_Global.HkTlmTblRegIndex = UT_CFE_TBL_REGID_0;
+    CFE_TBL_Global.HkTlmTblRegId = UT_CFE_TBL_REGID_0;
     UtAssert_INT32_EQ(CFE_TBL_SendHkCmd(NULL), CFE_SUCCESS);
 
     for (i = 1; i < CFE_PLATFORM_TBL_MAX_SIMULTANEOUS_LOADS; i++)
@@ -1899,16 +1939,16 @@ void Test_CFE_TBL_SendHkCmd(void)
     /* Test response to inability to open dump file */
     UT_InitData();
     UT_TBL_SetupPendingDump(0, DumpBuffPtr, RegRecPtr, &DumpCtrlPtr);
-    DumpCtrlPtr->State              = CFE_TBL_DUMP_PERFORMED;
-    CFE_TBL_Global.HkTlmTblRegIndex = UT_CFE_TBL_REGID_0;
+    DumpCtrlPtr->State           = CFE_TBL_DUMP_PERFORMED;
+    CFE_TBL_Global.HkTlmTblRegId = UT_CFE_TBL_REGID_0;
     UT_SetDefaultReturnValue(UT_KEY(OS_OpenCreate), OS_ERROR);
     UtAssert_INT32_EQ(CFE_TBL_SendHkCmd(NULL), CFE_SUCCESS);
 
     /* Test response to an invalid table and a dump file create failure */
     UT_InitData();
     UT_TBL_SetupPendingDump(0, DumpBuffPtr, RegRecPtr, &DumpCtrlPtr);
-    CFE_TBL_Global.HkTlmTblRegIndex = CFE_TBL_NOT_FOUND;
-    DumpCtrlPtr->State              = CFE_TBL_DUMP_PERFORMED;
+    CFE_TBL_Global.HkTlmTblRegId = CFE_TBL_NOT_FOUND;
+    DumpCtrlPtr->State           = CFE_TBL_DUMP_PERFORMED;
     UT_SetDefaultReturnValue(UT_KEY(OS_OpenCreate), OS_ERROR);
     UtAssert_INT32_EQ(CFE_TBL_SendHkCmd(NULL), CFE_SUCCESS);
 
@@ -1928,11 +1968,11 @@ void Test_CFE_TBL_SendHkCmd(void)
 
     /* Test when the table is not owned */
     UT_InitData();
-    RegRecPtr->OwnerAppId           = CFE_TBL_NOT_OWNED;
-    CFE_TBL_Global.HkTlmTblRegIndex = UT_CFE_TBL_REGID_INVH;
+    RegRecPtr->OwnerAppId        = CFE_TBL_NOT_OWNED;
+    CFE_TBL_Global.HkTlmTblRegId = UT_CFE_TBL_REGID_INVH;
     UtAssert_INT32_EQ(CFE_TBL_SendHkCmd(NULL), CFE_SUCCESS);
 
-    CFE_TBL_Global.HkTlmTblRegIndex = UT_CFE_TBL_REGID_INVL;
+    CFE_TBL_Global.HkTlmTblRegId = UT_CFE_TBL_REGID_INVL;
     UtAssert_INT32_EQ(CFE_TBL_SendHkCmd(NULL), CFE_SUCCESS);
 }
 
@@ -1948,6 +1988,7 @@ void Test_CFE_TBL_Register(void)
     char                        TblName[CFE_MISSION_TBL_MAX_NAME_LENGTH + 2];
     int16                       i;
     CFE_TBL_AccessDescriptor_t *AccessDescPtr;
+    CFE_TBL_RegistryRec_t *     RegRecPtr;
 
     UtPrintf("Begin Test Register");
 
@@ -2117,7 +2158,9 @@ void Test_CFE_TBL_Register(void)
     CFE_UtAssert_EVENTSENT(CFE_TBL_REGISTER_ERR_EID);
     CFE_UtAssert_EVENTCOUNT(1);
 
-    /* Test attempt to register a table with the same size and name */
+    /* Test cleanup of a shared table */
+    /* This tests the condition that a registry entry should not be completely released
+     * until all shared access descriptors are also unregistered */
     /* a. Test setup */
     UT_InitData();
     UT_SetAppID(UT_TBL_APPID_2);
@@ -2130,14 +2173,21 @@ void Test_CFE_TBL_Register(void)
     UtAssert_INT32_EQ(CFE_TBL_Register(&TblHandle2, "UT_Table1", sizeof(UT_Table1_t), CFE_TBL_OPT_DBL_BUFFER, NULL),
                       CFE_TBL_WARN_DUPLICATE);
     CFE_UtAssert_EVENTCOUNT(0);
-    UtAssert_INT32_EQ(TblHandle1, TblHandle2);
+    UtAssert_BOOL_TRUE(CFE_TBL_HANDLE_EQ(TblHandle1, TblHandle2));
 
     /* c. Test cleanup: unregister tables */
     UT_ClearEventHistory();
     UT_SetAppID(UT_TBL_APPID_1);
+    UtAssert_NOT_NULL(AccessDescPtr = UT_TBL_AccDescFromExtHandle(TblHandle1));
+    UtAssert_NOT_NULL(RegRecPtr = CFE_TBL_LocateRegRecByID(AccessDescPtr->RegIndex));
+    UtAssert_BOOL_TRUE(CFE_TBL_RegRecIsUsed(RegRecPtr));
     CFE_UtAssert_SUCCESS(CFE_TBL_Unregister(TblHandle2));
+    /* This should NOT have freed the registry entry yet */
+    UtAssert_BOOL_TRUE(CFE_TBL_RegRecIsUsed(RegRecPtr));
     UT_SetAppID(UT_TBL_APPID_2);
     CFE_UtAssert_SUCCESS(CFE_TBL_Unregister(TblHandle3));
+    /* Now this should have freed the registry entry */
+    UtAssert_BOOL_FALSE(CFE_TBL_RegRecIsUsed(RegRecPtr));
     CFE_UtAssert_EVENTCOUNT(0);
 
     /* Test registering a single buffered table */
@@ -2295,16 +2345,7 @@ void Test_CFE_TBL_Register(void)
     /* Test attempt to register a table when the registry is full */
     /* a. Test setup */
     UT_InitData();
-    UT_ResetTableRegistry();
-
-    for (i = 0; i < CFE_PLATFORM_TBL_MAX_NUM_TABLES; ++i)
-    {
-        snprintf(TblName, CFE_MISSION_TBL_MAX_NAME_LENGTH, "UT_Table%d", i + 1);
-        if (!CFE_UtAssert_SETUP(CFE_TBL_Register(&TblHandle1, TblName, sizeof(UT_Table1_t), CFE_TBL_OPT_DEFAULT, NULL)))
-        {
-            break;
-        }
-    }
+    UT_SetDeferredRetcode(UT_KEY(CFE_ResourceId_FindNext), 1, -1);
 
     /* b. Perform test */
     UT_ClearEventHistory();
@@ -2340,14 +2381,7 @@ void Test_CFE_TBL_Register(void)
     /* Test response to no available handles */
     /* a. Test setup */
     UT_InitData();
-
-    do
-    {
-        if (!CFE_UtAssert_SETUP(CFE_TBL_Share(&TblHandle1, "ut_cfe_tbl.UT_Table2")))
-        {
-            break;
-        }
-    } while (TblHandle1 < CFE_PLATFORM_TBL_MAX_NUM_HANDLES - 1);
+    UT_SetDeferredRetcode(UT_KEY(CFE_ResourceId_FindNext), 2, -1);
 
     /* b. Perform test */
     UT_ClearEventHistory();
@@ -2377,34 +2411,24 @@ void Test_CFE_TBL_Register(void)
     CFE_UtAssert_EVENTSENT(CFE_TBL_REGISTER_ERR_EID);
     CFE_UtAssert_EVENTCOUNT(1);
 
-    /* Test attempt to register a table with UsedFlag = false */
+    /* Test attempt to register a duplicate table */
     UT_InitData();
-    AccessDescPtr           = CFE_TBL_LocateAccDescByHandle(UT_CFE_TBL_HANDLE_0);
-    AccessDescPtr->UsedFlag = false;
+    CFE_UtAssert_SETUP(CFE_TBL_Register(&TblHandle1, "UT_Table1", sizeof(UT_Table1_t), CFE_TBL_OPT_DBL_BUFFER, NULL));
     UtAssert_INT32_EQ(CFE_TBL_Register(&TblHandle2, "UT_Table1", sizeof(UT_Table1_t), CFE_TBL_OPT_DBL_BUFFER, NULL),
                       CFE_TBL_WARN_DUPLICATE);
     CFE_UtAssert_EVENTCOUNT(0);
-    UtAssert_INT32_EQ(TblHandle1, TblHandle2);
+    UtAssert_BOOL_TRUE(CFE_TBL_HANDLE_EQ(TblHandle1, TblHandle2));
 
     /* Test attempt to register a table with an invalid registry index */
     UT_InitData();
-    AccessDescPtr           = CFE_TBL_LocateAccDescByHandle(UT_CFE_TBL_HANDLE_0);
-    AccessDescPtr->UsedFlag = true;
+    UtAssert_NOT_NULL(AccessDescPtr = UT_TBL_AccDescFromExtHandle(TblHandle1));
+    UtAssert_NOT_NULL(RegRecPtr = CFE_TBL_LocateRegRecByID(AccessDescPtr->RegIndex));
+    CFE_TBL_AccDescSetFree(AccessDescPtr);
     AccessDescPtr->RegIndex = UT_CFE_TBL_REGID_INVL;
     UtAssert_INT32_EQ(CFE_TBL_Register(&TblHandle2, "UT_Table1", sizeof(UT_Table1_t), CFE_TBL_OPT_DBL_BUFFER, NULL),
-                      CFE_TBL_WARN_DUPLICATE);
-    CFE_UtAssert_EVENTCOUNT(0);
-    UtAssert_INT32_EQ(TblHandle1, TblHandle2);
-
-    /* Test attempt to register a table with access index at end of list */
-    UT_InitData();
-
-    UT_TBL_ForEveryRegRec(UT_TBL_RegInitHandleLink);
-
-    UtAssert_INT32_EQ(CFE_TBL_Register(&TblHandle2, "UT_Table1", sizeof(UT_Table1_t), CFE_TBL_OPT_DBL_BUFFER, NULL),
-                      CFE_TBL_WARN_DUPLICATE);
-    CFE_UtAssert_EVENTCOUNT(0);
-    UtAssert_INT32_EQ(TblHandle1, TblHandle2);
+                      CFE_TBL_ERR_UNREGISTERED);
+    CFE_UtAssert_EVENTSENT(CFE_TBL_REGISTER_ERR_EID);
+    UtAssert_BOOL_FALSE(CFE_TBL_HANDLE_IS_VALID(TblHandle2));
 
     /* Test attempt to register a double buffered table with a pool buffer
      * error */
@@ -2412,11 +2436,10 @@ void Test_CFE_TBL_Register(void)
     UT_SetAppID(UT_TBL_APPID_1);
     UT_SetDeferredRetcode(UT_KEY(CFE_ES_GetPoolBuf), 1, CFE_SEVERITY_ERROR);
     snprintf(TblName, CFE_MISSION_TBL_MAX_NAME_LENGTH, "UT_Table%d", CFE_PLATFORM_TBL_MAX_NUM_TABLES);
-    AccessDescPtr           = CFE_TBL_LocateAccDescByHandle(UT_CFE_TBL_HANDLE_0);
-    AccessDescPtr->UsedFlag = false;
+    AccessDescPtr = CFE_TBL_LocateAccDescByHandle(UT_CFE_TBL_HANDLE_0);
+    CFE_TBL_AccDescSetFree(AccessDescPtr);
     UtAssert_INT32_EQ(CFE_TBL_Register(&TblHandle2, TblName, sizeof(UT_Table1_t) + 1, CFE_TBL_OPT_DBL_BUFFER, NULL),
                       CFE_SEVERITY_ERROR);
-    AccessDescPtr->UsedFlag = true;
 }
 
 /*
@@ -2454,21 +2477,29 @@ void Test_CFE_TBL_Share(void)
 
     /* Test response when there are no available table handles */
     UT_InitData();
-    UT_TBL_SetupSingleReg(&RegRecPtr, NULL, CFE_TBL_OPT_DEFAULT);
-    UT_TBL_ForEveryAccDesc(UT_TBL_SetHandleUsed);
+    UT_TBL_SetupSingleReg(&RegRecPtr, &AccDescPtr, CFE_TBL_OPT_DEFAULT); /* so an actual table exists to share */
+    UT_SetDeferredRetcode(UT_KEY(CFE_ResourceId_FindNext), 1, -1);
     UtAssert_INT32_EQ(CFE_TBL_Share(&App1TblHandle1, CFE_TBL_RegRecGetName(RegRecPtr)), CFE_TBL_ERR_HANDLES_FULL);
     CFE_UtAssert_EVENTSENT(CFE_TBL_SHARE_ERR_EID);
     CFE_UtAssert_EVENTCOUNT(1);
 
-    /* Test unregistering tables to free handles */
+    /* Test unregistering tables where unregister is called by different app (non-owner) */
+    /* This is allowed and it does de-register the handle but not the table registry entry */
     UT_InitData();
     UT_SetAppID(UT_TBL_APPID_10);
-    CFE_UtAssert_SUCCESS(CFE_TBL_Unregister(CFE_PLATFORM_TBL_MAX_NUM_HANDLES / 2));
+    CFE_UtAssert_SUCCESS(CFE_TBL_Unregister(UT_TBL_AccDescToExtHandle(AccDescPtr)));
+    UtAssert_BOOL_TRUE(CFE_TBL_RegRecIsUsed(RegRecPtr));
+    UtAssert_BOOL_FALSE(CFE_TBL_AccDescIsUsed(AccDescPtr));
     CFE_UtAssert_EVENTCOUNT(0);
 
     /* Test unregister response to a PutPoolBuf error */
+    /* This should still release everything else */
+    UT_InitData();
+    UT_TBL_SetupSingleReg(&RegRecPtr, &AccDescPtr, CFE_TBL_OPT_DEFAULT);
     UT_SetDeferredRetcode(UT_KEY(CFE_ES_PutPoolBuf), 1, CFE_ES_ERR_RESOURCEID_NOT_VALID);
-    CFE_UtAssert_SUCCESS(CFE_TBL_Unregister(CFE_PLATFORM_TBL_MAX_NUM_HANDLES / 2 + 1));
+    CFE_UtAssert_SUCCESS(CFE_TBL_Unregister(UT_TBL_AccDescToExtHandle(AccDescPtr)));
+    UtAssert_BOOL_FALSE(CFE_TBL_RegRecIsUsed(RegRecPtr));
+    UtAssert_BOOL_FALSE(CFE_TBL_AccDescIsUsed(AccDescPtr));
     CFE_UtAssert_EVENTCOUNT(0);
 
     /* Test successful first load of a table */
@@ -2485,7 +2516,7 @@ void Test_CFE_TBL_Share(void)
     UT_SetReadBuffer(&TblFileHeader, sizeof(TblFileHeader));
     UT_SetReadHeader(&StdFileHeader, sizeof(StdFileHeader));
     UT_SetDeferredRetcode(UT_KEY(OS_read), 3, 0);
-    CFE_UtAssert_SUCCESS(CFE_TBL_Load(CFE_TBL_AccDescGetHandle(AccDescPtr), CFE_TBL_SRC_FILE, "TblSrcFileName.dat"));
+    CFE_UtAssert_SUCCESS(CFE_TBL_Load(UT_TBL_AccDescToExtHandle(AccDescPtr), CFE_TBL_SRC_FILE, "TblSrcFileName.dat"));
     CFE_UtAssert_EVENTSENT(CFE_TBL_LOAD_SUCCESS_INF_EID);
     CFE_UtAssert_EVENTCOUNT(1);
 
@@ -2520,7 +2551,7 @@ void Test_CFE_TBL_Unregister(void)
 
     /* Test response to unregistering a table with an invalid handle */
     UT_InitData();
-    UtAssert_INT32_EQ(CFE_TBL_Unregister(CFE_PLATFORM_TBL_MAX_NUM_HANDLES), CFE_TBL_ERR_INVALID_HANDLE);
+    UtAssert_INT32_EQ(CFE_TBL_Unregister(CFE_TBL_BAD_TABLE_HANDLE), CFE_TBL_ERR_INVALID_HANDLE);
     CFE_UtAssert_EVENTSENT(CFE_TBL_UNREGISTER_ERR_EID);
     CFE_UtAssert_EVENTCOUNT(1);
 
@@ -2543,10 +2574,6 @@ void Test_CFE_TBL_Unregister(void)
 */
 void Test_CFE_TBL_NotifyByMessage(void)
 {
-    CFE_TBL_RegistryRec_t *RegRecPtr;
-
-    RegRecPtr = CFE_TBL_LocateRegRecByID(UT_CFE_TBL_REGID_0);
-
     UtPrintf("Begin Test Notify by Message");
 
     /* Set up notify by message tests */
@@ -2567,7 +2594,7 @@ void Test_CFE_TBL_NotifyByMessage(void)
      * own the table handle
      */
     UT_InitData();
-    RegRecPtr->OwnerAppId = CFE_TBL_NOT_OWNED;
+    UT_SetAppID(UT_TBL_APPID_10);
     UtAssert_INT32_EQ(CFE_TBL_NotifyByMessage(App1TblHandle1, CFE_SB_ValueToMsgId(1), 1, 1), CFE_TBL_ERR_NO_ACCESS);
     CFE_UtAssert_EVENTCOUNT(0);
 
@@ -2642,7 +2669,7 @@ void Test_CFE_TBL_Load(void)
     UT_SetReadBuffer(&TblFileHeader, sizeof(TblFileHeader));
     UT_SetReadHeader(&StdFileHeader, sizeof(StdFileHeader));
     UT_SetDeferredRetcode(UT_KEY(OS_read), 3, 0);
-    AccessDescPtr                            = CFE_TBL_LocateAccDescByHandle(App1TblHandle1);
+    AccessDescPtr                            = UT_TBL_AccDescFromExtHandle(App1TblHandle1);
     RegRecPtr                                = CFE_TBL_LocateRegRecByID(AccessDescPtr->RegIndex);
     UT_TBL_Config(RegRecPtr)->UserDefAddr    = true;
     UT_TBL_Status(RegRecPtr)->ActiveBufferId = UT_CFE_TBL_LOADBUFFID_REG_0_0;
@@ -2745,7 +2772,7 @@ void Test_CFE_TBL_Load(void)
     UT_SetReadBuffer(&TblFileHeader, sizeof(TblFileHeader));
     UT_SetReadHeader(&StdFileHeader, sizeof(StdFileHeader));
     UT_SetDeferredRetcode(UT_KEY(OS_read), 3, 0);
-    AccessDescPtr                            = CFE_TBL_LocateAccDescByHandle(App1TblHandle2);
+    AccessDescPtr                            = UT_TBL_AccDescFromExtHandle(App1TblHandle2);
     RegRecPtr                                = CFE_TBL_LocateRegRecByID(AccessDescPtr->RegIndex);
     UT_TBL_Config(RegRecPtr)->DoubleBuffered = true;
     UtAssert_INT32_EQ(CFE_TBL_Load(App1TblHandle2, CFE_TBL_SRC_FILE, "TblSrcFileName.dat"),
@@ -2787,7 +2814,7 @@ void Test_CFE_TBL_Load(void)
 
     /* Test attempt to load a table with a bad handle */
     UT_InitData();
-    UtAssert_INT32_EQ(CFE_TBL_Load(CFE_PLATFORM_TBL_MAX_NUM_HANDLES, CFE_TBL_SRC_ADDRESS, &TestTable1),
+    UtAssert_INT32_EQ(CFE_TBL_Load(CFE_TBL_BAD_TABLE_HANDLE, CFE_TBL_SRC_ADDRESS, &TestTable1),
                       CFE_TBL_ERR_INVALID_HANDLE);
 
     /* Test attempt to load a dump-only table */
@@ -2806,7 +2833,7 @@ void Test_CFE_TBL_Load(void)
 
     /* Test attempt to load a dump-only table with the table already loaded */
     UT_InitData();
-    AccessDescPtr                         = CFE_TBL_LocateAccDescByHandle(DumpOnlyTblHandle);
+    AccessDescPtr                         = UT_TBL_AccDescFromExtHandle(DumpOnlyTblHandle);
     RegRecPtr                             = CFE_TBL_LocateRegRecByID(AccessDescPtr->RegIndex);
     UT_TBL_Config(RegRecPtr)->UserDefAddr = true;
     UT_TBL_SetActiveBufferAddr(RegRecPtr, 0, &TestTable1); /* sets "table loaded once" */
@@ -2894,7 +2921,7 @@ void Test_CFE_TBL_TableDumpCommon(void)
     /* Now set up the transaction to point to a valid registry entry for the rest of tests */
     CFE_UtAssert_SETUP(CFE_TBL_Register(&App1TblHandle1, "load", sizeof(UT_Table1_t), CFE_TBL_OPT_DBL_BUFFER,
                                         Test_CFE_TBL_ValidationFunc));
-    CFE_UtAssert_SETUP(CFE_TBL_TxnStartFromHandle(&Txn, App1TblHandle1, CFE_TBL_TxnContext_UNDEFINED));
+    UT_TBL_SetupTxnFromExtHandle(&Txn, App1TblHandle1, CFE_TBL_TxnContext_UNDEFINED);
     RegRecPtr = CFE_TBL_TxnRegRec(&Txn);
 
     /* Test when the table is not loaded (no active or inactive buffer) */
@@ -3086,7 +3113,7 @@ void Test_CFE_TBL_TableLoadCommon(void)
     /* Now set up the transaction to point to a valid registry entry for the rest of tests */
     CFE_UtAssert_SETUP(CFE_TBL_Register(&App1TblHandle1, "load", sizeof(UT_Table1_t), CFE_TBL_OPT_DBL_BUFFER,
                                         Test_CFE_TBL_ValidationFunc));
-    CFE_UtAssert_SETUP(CFE_TBL_TxnStartFromHandle(&Txn, App1TblHandle1, CFE_TBL_TxnContext_UNDEFINED));
+    UT_TBL_SetupTxnFromExtHandle(&Txn, App1TblHandle1, CFE_TBL_TxnContext_UNDEFINED);
     RegRecPtr = CFE_TBL_TxnRegRec(&Txn);
 
     /* Test CFE_TBL_ReadHeaders response to a failure reading the standard cFE
@@ -3342,7 +3369,7 @@ void Test_CFE_TBL_GetAddress(void)
     /* Set up App1TblHandle1 as the owner handle */
     UT_SetAppID(UT_TBL_APPID_1);
     UT_TBL_SetupSingleReg(&RegRecPtr, &AccDescPtr, CFE_TBL_OPT_DEFAULT);
-    App1TblHandle1 = CFE_TBL_AccDescGetHandle(AccDescPtr);
+    App1TblHandle1 = UT_TBL_AccDescToExtHandle(AccDescPtr);
 
     /* Set up App2TblHandle1 as a shared handle */
     UT_SetAppID(UT_TBL_APPID_2);
@@ -3368,7 +3395,7 @@ void Test_CFE_TBL_GetAddress(void)
 
     /* Test attempt to get the address with an invalid handle */
     UT_InitData();
-    UtAssert_INT32_EQ(CFE_TBL_GetAddress(&App3TblPtr, CFE_PLATFORM_TBL_MAX_NUM_HANDLES), CFE_TBL_ERR_INVALID_HANDLE);
+    UtAssert_INT32_EQ(CFE_TBL_GetAddress(&App3TblPtr, CFE_TBL_BAD_TABLE_HANDLE), CFE_TBL_ERR_INVALID_HANDLE);
     CFE_UtAssert_EVENTCOUNT(0);
 
     /* Attempt to get the address of an unregistered (unowned) table */
@@ -3480,9 +3507,9 @@ void Test_CFE_TBL_ReleaseAddresses(void)
     /* Set up App1TblHandle1 as the owner handle */
     UT_SetAppID(UT_TBL_APPID_1);
     UT_TBL_SetupSingleReg(&RegRecPtr, &AccDescPtr, CFE_TBL_OPT_DEFAULT);
-    ArrayOfHandles[0] = CFE_TBL_AccDescGetHandle(AccDescPtr);
+    ArrayOfHandles[0] = UT_TBL_AccDescToExtHandle(AccDescPtr);
     UT_TBL_SetupSingleReg(&RegRecPtr, &AccDescPtr, CFE_TBL_OPT_DEFAULT);
-    ArrayOfHandles[1] = CFE_TBL_AccDescGetHandle(AccDescPtr);
+    ArrayOfHandles[1] = UT_TBL_AccDescToExtHandle(AccDescPtr);
 
     /* Test response to a null table handle pointer */
     UT_InitData();
@@ -3555,7 +3582,7 @@ void Test_CFE_TBL_Validate(void)
 
     UtPrintf("Begin Test Validate");
     UT_TBL_SetupSingleReg(&RegRecPtr, &AccDescPtr, CFE_TBL_OPT_DEFAULT);
-    App1TblHandle1 = CFE_TBL_AccDescGetHandle(AccDescPtr);
+    App1TblHandle1 = UT_TBL_AccDescToExtHandle(AccDescPtr);
 
     /* Refer to the test validation function */
     UT_TBL_Config(RegRecPtr)->ValidationFuncPtr = Test_CFE_TBL_ValidationFunc;
@@ -3660,7 +3687,7 @@ void Test_CFE_TBL_Manage(void)
 
     UtPrintf("Begin Test Manage");
     UT_TBL_SetupSingleReg(&RegRecPtr, &AccessDescPtr, CFE_TBL_OPT_DEFAULT);
-    App1TblHandle1 = CFE_TBL_AccDescGetHandle(AccessDescPtr);
+    App1TblHandle1 = UT_TBL_AccDescToExtHandle(AccessDescPtr);
 
     /* Test response to attempt to manage a table that doesn't need managing */
     UT_InitData();
@@ -3792,7 +3819,7 @@ void Test_CFE_TBL_Manage(void)
     /* a. Test setup - part 1 */
     UT_InitData();
     UT_TBL_SetupSingleReg(&RegRecPtr, &AccessDescPtr, CFE_TBL_OPT_DBL_BUFFER);
-    App1TblHandle1 = CFE_TBL_AccDescGetHandle(AccessDescPtr);
+    App1TblHandle1 = UT_TBL_AccDescToExtHandle(AccessDescPtr);
 
     UT_SetAppID(UT_TBL_APPID_2);
     CFE_UtAssert_SUCCESS(CFE_TBL_Share(&App2TblHandle1, CFE_TBL_RegRecGetName(RegRecPtr)));
@@ -3844,7 +3871,7 @@ void Test_CFE_TBL_Manage(void)
      */
     UT_InitData();
 
-    IterAccDescPtr = CFE_TBL_LocateAccDescByHandle(App2TblHandle1);
+    IterAccDescPtr = UT_TBL_AccDescFromExtHandle(App2TblHandle1);
 
     UT_TBL_Config(RegRecPtr)->DoubleBuffered = true;
 
@@ -3870,7 +3897,7 @@ void Test_CFE_TBL_Manage(void)
     UT_TBL_SetupPendingValidation(1, false, RegRecPtr, &ValResultPtr);
 
     /* Perform validation via manage call */
-    App1TblHandle2                              = CFE_TBL_AccDescGetHandle(AccessDescPtr);
+    App1TblHandle2                              = UT_TBL_AccDescToExtHandle(AccessDescPtr);
     UT_TBL_Config(RegRecPtr)->ValidationFuncPtr = Test_CFE_TBL_ValidationFunc;
     UT_SetDeferredRetcode(UT_KEY(Test_CFE_TBL_ValidationFunc), 1, -1);
     CFE_UtAssert_SUCCESS(CFE_TBL_Manage(App1TblHandle2));
@@ -3950,7 +3977,7 @@ void Test_CFE_TBL_DumpToBuffer(void)
     UtPrintf("Begin Test Dump To Buffer");
     UT_TBL_SetupSingleReg(&RegRecPtr, &AccessDescPtr, CFE_TBL_OPT_DEFAULT);
     UT_TBL_InitActiveBuffer(RegRecPtr, 0);
-    App1TblHandle1 = CFE_TBL_AccDescGetHandle(AccessDescPtr);
+    App1TblHandle1 = UT_TBL_AccDescToExtHandle(AccessDescPtr);
 
     /* Test response to an attempt to dump the buffer on a table where no dump is pending */
     UT_InitData();
@@ -3997,7 +4024,7 @@ void Test_CFE_TBL_Update(void)
 
     UT_SetAppID(UT_TBL_APPID_1);
     UT_TBL_SetupSingleReg(&RegRecPtr, &AccessDescPtr, CFE_TBL_OPT_DBL_BUFFER);
-    App1TblHandle1 = CFE_TBL_AccDescGetHandle(AccessDescPtr);
+    App1TblHandle1 = UT_TBL_AccDescToExtHandle(AccessDescPtr);
 
     /* Test a successful update */
     UT_InitData();
@@ -4051,7 +4078,7 @@ void Test_CFE_TBL_GetStatus(void)
 
     UtPrintf("Begin Test Get Status");
     UT_TBL_SetupSingleReg(NULL, &AccessDescPtr, CFE_TBL_OPT_DBL_BUFFER);
-    App1TblHandle1 = CFE_TBL_AccDescGetHandle(AccessDescPtr);
+    App1TblHandle1 = UT_TBL_AccDescToExtHandle(AccessDescPtr);
 
     /* Test response to successfully getting status of a table */
     UT_InitData();
@@ -4080,7 +4107,7 @@ void Test_CFE_TBL_GetInfo(void)
 
     UT_SetAppID(UT_TBL_APPID_1);
     UT_TBL_SetupSingleReg(&RegRecPtr, &AccessDescPtr, CFE_TBL_OPT_DBL_BUFFER);
-    App1TblHandle1 = CFE_TBL_AccDescGetHandle(AccessDescPtr);
+    App1TblHandle1 = UT_TBL_AccDescToExtHandle(AccessDescPtr);
 
     /* Test response to a null table info and null table name */
     UT_InitData();
@@ -4115,7 +4142,7 @@ void Test_CFE_TBL_TblMod(void)
     char                        MyFilename[OS_MAX_PATH_LEN];
     CFE_TBL_AccessDescriptor_t *AccessDescPtr;
     CFE_TBL_RegistryRec_t *     RegRecPtr;
-    CFE_TBL_Handle_t            AccessIterator;
+    CFE_TBL_HandleId_t          AccessIterator;
     CFE_TBL_AccessDescriptor_t *IterAccDescPtr;
     uint8                       CDS_Data[sizeof(UT_Table1_t)];
     uint32                      ExpectedCrc;
@@ -4191,7 +4218,7 @@ void Test_CFE_TBL_TblMod(void)
     UtAssert_MemCmp(CDS_Data, &File.TblData, sizeof(CDS_Data), "Table Data");
 
     /* Save the previous table's information for a subsequent test */
-    AccessDescPtr  = CFE_TBL_LocateAccDescByHandle(App1TblHandle1);
+    AccessDescPtr  = UT_TBL_AccDescFromExtHandle(App1TblHandle1);
     RegRecPtr      = CFE_TBL_LocateRegRecByID(AccessDescPtr->RegIndex);
     AccessIterator = RegRecPtr->AccessList.Next;
 
@@ -4209,7 +4236,7 @@ void Test_CFE_TBL_TblMod(void)
     /* Reset the current table entry pointer to a previous table in order to
      * exercise the path where one of the application IDs don't match
      */
-    AccessDescPtr              = CFE_TBL_LocateAccDescByHandle(App1TblHandle1);
+    AccessDescPtr              = UT_TBL_AccDescFromExtHandle(App1TblHandle1);
     RegRecPtr                  = CFE_TBL_LocateRegRecByID(AccessDescPtr->RegIndex);
     IterAccDescPtr             = CFE_TBL_LocateAccDescByHandle(AccessIterator);
     IterAccDescPtr->Link.Next  = RegRecPtr->AccessList.Next;
@@ -4310,7 +4337,7 @@ void Test_CFE_TBL_Internal1(void)
 
     /* Test successful initial load of double buffered table */
     UT_InitData();
-    AccessDescPtr = CFE_TBL_LocateAccDescByHandle(App1TblHandle2);
+    AccessDescPtr = UT_TBL_AccDescFromExtHandle(App1TblHandle2);
     RegRecPtr     = CFE_TBL_LocateRegRecByID(AccessDescPtr->RegIndex);
     CFE_UtAssert_SUCCESS(CFE_TBL_GetWorkingBuffer(&WorkingBufferPtr, RegRecPtr));
     CFE_UtAssert_EVENTCOUNT(0);
@@ -4319,7 +4346,7 @@ void Test_CFE_TBL_Internal1(void)
 
     /* Check that PrepareNewLoadBuff also sees the table not yet loaded */
     UT_InitData();
-    AccessDescPtr = CFE_TBL_LocateAccDescByHandle(App1TblHandle2);
+    AccessDescPtr = UT_TBL_AccDescFromExtHandle(App1TblHandle2);
     RegRecPtr     = CFE_TBL_LocateRegRecByID(AccessDescPtr->RegIndex);
     UtAssert_NOT_NULL(WorkingBufferPtr = CFE_TBL_PrepareNewLoadBuff(RegRecPtr));
     CFE_UtAssert_EVENTCOUNT(0);
@@ -4329,7 +4356,7 @@ void Test_CFE_TBL_Internal1(void)
      */
     UT_InitData();
     UT_SetDeferredRetcode(UT_KEY(OS_MutSemTake), 1, OS_ERROR);
-    AccessDescPtr = CFE_TBL_LocateAccDescByHandle(App1TblHandle1);
+    AccessDescPtr = UT_TBL_AccDescFromExtHandle(App1TblHandle1);
     RegRecPtr     = CFE_TBL_LocateRegRecByID(AccessDescPtr->RegIndex);
     UT_TBL_InitActiveBuffer(RegRecPtr, 0);
     CFE_UtAssert_SUCCESS(CFE_TBL_GetWorkingBuffer(&WorkingBufferPtr, RegRecPtr));
@@ -4587,7 +4614,7 @@ void Test_CFE_TBL_Internal2(void)
     UT_SetReadHeader(&StdFileHeader, sizeof(StdFileHeader));
     UT_SetDeferredRetcode(UT_KEY(OS_read), 3, 0);
     UT_SetDeferredRetcode(UT_KEY(CFE_ES_CopyToCDS), 2, CFE_ES_ERR_RESOURCEID_NOT_VALID);
-    AccessDescPtr = CFE_TBL_LocateAccDescByHandle(App1TblHandle2);
+    AccessDescPtr = UT_TBL_AccDescFromExtHandle(App1TblHandle2);
     RegRecPtr     = CFE_TBL_LocateRegRecByID(AccessDescPtr->RegIndex);
 
     for (i = 0; i < CFE_PLATFORM_TBL_MAX_CRITICAL_TABLES; i++)
@@ -4625,7 +4652,7 @@ void Test_CFE_TBL_Internal2(void)
 
     /* also set up another pending dump from a different entry (should be skipped) */
     /* this should fail secondary match checks */
-    AccessDescPtr    = CFE_TBL_LocateAccDescByHandle(App1TblHandle2);
+    AccessDescPtr    = UT_TBL_AccDescFromExtHandle(App1TblHandle2);
     RegRecPtr        = CFE_TBL_LocateRegRecByID(AccessDescPtr->RegIndex);
     WorkingBufferPtr = CFE_TBL_LocateLoadBufferByID(UT_CFE_TBL_LOADBUFFID_GLB_0);
     UT_TBL_SetupPendingDump(2, WorkingBufferPtr, RegRecPtr, NULL);
@@ -4634,7 +4661,7 @@ void Test_CFE_TBL_Internal2(void)
 
     /* Set up the target dump control block */
     /* this should pass all match checks */
-    AccessDescPtr    = CFE_TBL_LocateAccDescByHandle(App1TblHandle1);
+    AccessDescPtr    = UT_TBL_AccDescFromExtHandle(App1TblHandle1);
     RegRecPtr        = CFE_TBL_LocateRegRecByID(AccessDescPtr->RegIndex);
     WorkingBufferPtr = CFE_TBL_LocateLoadBufferByID(UT_CFE_TBL_LOADBUFFID_GLB_1);
     UT_TBL_SetupPendingDump(3, WorkingBufferPtr, RegRecPtr, &DumpCtrlPtr);
@@ -4673,18 +4700,18 @@ void Test_CFE_TBL_Internal2(void)
     /* Test starting a transaction where the handle is OK but the underlying registry record is invalid */
     UT_InitData();
     memset(&Txn, 0, sizeof(Txn));
-    AccessDescPtr           = CFE_TBL_LocateAccDescByHandle(UT_CFE_TBL_HANDLE_2);
-    AccessDescPtr->UsedFlag = true;
+    AccessDescPtr = CFE_TBL_LocateAccDescByHandle(UT_CFE_TBL_HANDLE_2);
+    UT_TBL_SetHandleUsed(AccessDescPtr);
     AccessDescPtr->RegIndex = UT_CFE_TBL_REGID_INVL;
-    UtAssert_INT32_EQ(CFE_TBL_TxnStartFromHandle(&Txn, App2TblHandle1, 0), CFE_TBL_ERR_UNREGISTERED);
+    UtAssert_INT32_EQ(CFE_TBL_TxnStartFromHandle(&Txn, AccessDescPtr->HandleId, 0), CFE_TBL_ERR_UNREGISTERED);
 
     UT_InitData();
     memset(&Txn, 0, sizeof(Txn));
-    AccessDescPtr           = CFE_TBL_LocateAccDescByHandle(UT_CFE_TBL_HANDLE_2);
-    AccessDescPtr->UsedFlag = true;
+    AccessDescPtr = CFE_TBL_LocateAccDescByHandle(UT_CFE_TBL_HANDLE_2);
+    UT_TBL_SetHandleUsed(AccessDescPtr);
     AccessDescPtr->RegIndex = UT_CFE_TBL_REGID_INVH;
-    UtAssert_INT32_EQ(CFE_TBL_TxnStartFromHandle(&Txn, App2TblHandle1, 0), CFE_TBL_ERR_UNREGISTERED);
-    AccessDescPtr->UsedFlag = false;
+    UtAssert_INT32_EQ(CFE_TBL_TxnStartFromHandle(&Txn, AccessDescPtr->HandleId, 0), CFE_TBL_ERR_UNREGISTERED);
+    CFE_TBL_AccDescSetFree(AccessDescPtr);
 
     /* Test CFE_TBL_TxnAllocateRegistryEntry response when the registry entry is
      * not owned but is not at the end of the list
@@ -4693,7 +4720,7 @@ void Test_CFE_TBL_Internal2(void)
     memset(&Txn, 0, sizeof(Txn));
     RegRecPtr                  = CFE_TBL_LocateRegRecByID(UT_CFE_TBL_REGID_0);
     RegRecPtr->OwnerAppId      = CFE_TBL_NOT_OWNED;
-    RegRecPtr->AccessList.Next = CFE_TBL_END_OF_LIST + 1;
+    RegRecPtr->AccessList.Next = UT_CFE_TBL_HANDLE_0;
     CFE_UtAssert_SUCCESS(CFE_TBL_TxnAllocateRegistryEntry(&Txn));
     UtAssert_INT32_EQ(CFE_TBL_REGID_INT(CFE_TBL_TxnRegId(&Txn)), 1);
     CFE_UtAssert_EVENTCOUNT(0);
@@ -4717,47 +4744,48 @@ void Test_CFE_TBL_Internal2(void)
      * be copied but a load is in progress
      */
     UT_InitData();
-    AccessDescPtr                          = CFE_TBL_LocateAccDescByHandle(App1TblHandle2);
+    AccessDescPtr                          = UT_TBL_AccDescFromExtHandle(App1TblHandle2);
     RegRecPtr                              = CFE_TBL_LocateRegRecByID(AccessDescPtr->RegIndex);
     UT_TBL_Status(RegRecPtr)->LoadPending  = true;
     UT_TBL_Status(RegRecPtr)->NextBufferId = CFE_TBL_LOADBUFFID_UNDEFINED;
-    UtAssert_INT32_EQ(CFE_TBL_UpdateInternal(App1TblHandle2, RegRecPtr, AccessDescPtr), CFE_TBL_INFO_NO_UPDATE_PENDING);
+    UtAssert_INT32_EQ(CFE_TBL_UpdateInternal(AccessDescPtr->HandleId, RegRecPtr, AccessDescPtr),
+                      CFE_TBL_INFO_NO_UPDATE_PENDING);
     CFE_UtAssert_EVENTCOUNT(0);
 
     /* Test CFE_TBL_UpdateInternal response when an inactive buffer is ready to
      * be copied but a load is in progress
      */
     UT_InitData();
-    AccessDescPtr                         = CFE_TBL_LocateAccDescByHandle(App1TblHandle2);
+    AccessDescPtr                         = UT_TBL_AccDescFromExtHandle(App1TblHandle2);
     RegRecPtr                             = CFE_TBL_LocateRegRecByID(AccessDescPtr->RegIndex);
     UT_TBL_Status(RegRecPtr)->LoadPending = true;
     UT_TBL_Config(RegRecPtr)->Critical    = false;
     UT_TBL_SetupLoadBuff(RegRecPtr, true, 0);
     UT_SetDeferredRetcode(UT_KEY(CFE_ES_CopyToCDS), 1, CFE_ES_ERR_RESOURCEID_NOT_VALID);
-    CFE_UtAssert_SUCCESS(CFE_TBL_UpdateInternal(App1TblHandle2, RegRecPtr, AccessDescPtr));
+    CFE_UtAssert_SUCCESS(CFE_TBL_UpdateInternal(AccessDescPtr->HandleId, RegRecPtr, AccessDescPtr));
     CFE_UtAssert_EVENTCOUNT(0);
 
     /* Test CFE_TBL_UpdateInternal single buffer memcpy when
      * source and dest are not equal
      */
     UT_InitData();
-    AccessDescPtr                         = CFE_TBL_LocateAccDescByHandle(App1TblHandle2);
+    AccessDescPtr                         = UT_TBL_AccDescFromExtHandle(App1TblHandle2);
     RegRecPtr                             = CFE_TBL_LocateRegRecByID(AccessDescPtr->RegIndex);
     UT_TBL_Status(RegRecPtr)->LoadPending = true;
     UT_TBL_SetupLoadBuff(RegRecPtr, false, 0);
-    CFE_UtAssert_SUCCESS(CFE_TBL_UpdateInternal(App1TblHandle2, RegRecPtr, AccessDescPtr));
+    CFE_UtAssert_SUCCESS(CFE_TBL_UpdateInternal(AccessDescPtr->HandleId, RegRecPtr, AccessDescPtr));
     CFE_UtAssert_EVENTCOUNT(0);
 
     /* Test CFE_TBL_UpdateInternal with overlapping memcopy (bug) */
     UT_InitData();
-    AccessDescPtr                         = CFE_TBL_LocateAccDescByHandle(App1TblHandle2);
+    AccessDescPtr                         = UT_TBL_AccDescFromExtHandle(App1TblHandle2);
     RegRecPtr                             = CFE_TBL_LocateRegRecByID(AccessDescPtr->RegIndex);
     UT_TBL_Status(RegRecPtr)->LoadPending = true;
 
     LoadBuffPtr = UT_TBL_SetupLoadBuff(RegRecPtr, false, 0);
     UT_TBL_SetActiveBufferAddr(RegRecPtr, 0, LoadBuffPtr->BufferPtr);
 
-    CFE_UtAssert_SUCCESS(CFE_TBL_UpdateInternal(App1TblHandle2, RegRecPtr, AccessDescPtr));
+    CFE_UtAssert_SUCCESS(CFE_TBL_UpdateInternal(AccessDescPtr->HandleId, RegRecPtr, AccessDescPtr));
     CFE_UtAssert_EVENTCOUNT(0);
 
     /* Test application cleanup where there are no dumped tables to delete,
@@ -4769,15 +4797,15 @@ void Test_CFE_TBL_Internal2(void)
     RegRecPtr = CFE_TBL_LocateRegRecByID(UT_CFE_TBL_REGID_0);
     UT_TBL_SetupPendingDump(3, NULL, RegRecPtr, &DumpCtrlPtr);
 
-    AccessDescPtr           = CFE_TBL_LocateAccDescByHandle(UT_CFE_TBL_HANDLE_0);
-    AccessDescPtr->AppId    = UT_TBL_APPID_1;
-    AccessDescPtr->UsedFlag = true;
+    AccessDescPtr        = CFE_TBL_LocateAccDescByHandle(UT_CFE_TBL_HANDLE_0);
+    AccessDescPtr->AppId = UT_TBL_APPID_1;
+    UT_TBL_SetHandleUsed(AccessDescPtr);
     AccessDescPtr->RegIndex = UT_CFE_TBL_REGID_0;
     RegRecPtr->OwnerAppId   = UT_TBL_APPID_2;
 
-    AccessDescPtr           = CFE_TBL_LocateAccDescByHandle(UT_CFE_TBL_HANDLE_1);
-    AccessDescPtr->AppId    = UT_TBL_APPID_2;
-    AccessDescPtr->UsedFlag = true;
+    AccessDescPtr        = CFE_TBL_LocateAccDescByHandle(UT_CFE_TBL_HANDLE_1);
+    AccessDescPtr->AppId = UT_TBL_APPID_2;
+    UT_TBL_SetHandleUsed(AccessDescPtr);
 
     CFE_UtAssert_SUCCESS(CFE_TBL_CleanUpApp(UT_TBL_APPID_1));
     UtAssert_INT32_EQ(DumpCtrlPtr->State, CFE_TBL_DUMP_PENDING);
@@ -4868,6 +4896,7 @@ void Test_CFE_TBL_ResourceID_RegistryRecord(void)
     UT_InitData();
 
     InvalidRegId = UT_CFE_TBL_REGID_INVL;
+    UT_SetDefaultReturnValue(UT_KEY(CFE_ResourceId_ToIndex), CFE_TBL_ERR_INVALID_HANDLE);
     UtAssert_INT32_EQ(CFE_TBL_RegId_ToIndex(InvalidRegId, &Idx), CFE_TBL_ERR_INVALID_HANDLE);
 
     /* by definition, looking up the undefined value should always be NULL */
@@ -4878,18 +4907,10 @@ void Test_CFE_TBL_ResourceID_RegistryRecord(void)
 
     /* Now with a valid ID */
     ValidRegId = UT_CFE_TBL_REGID_1;
+    UT_ResetState(UT_KEY(CFE_ResourceId_ToIndex));
     UtAssert_INT32_EQ(CFE_TBL_RegId_ToIndex(ValidRegId, &Idx), CFE_SUCCESS);
     UtAssert_UINT32_EQ(Idx, 1);
     UtAssert_NOT_NULL(RegRecPtr = CFE_TBL_LocateRegRecByID(ValidRegId));
-
-    UtAssert_UINT32_EQ(CFE_TBL_REGID_INT(CFE_TBL_RegRecGetID(RegRecPtr)), CFE_TBL_REGID_INT(ValidRegId));
-
-    /*
-    CFE_TBL_RegId_t        RegId;
-    UT_InitData();
-
-    CFE_TBL_LocateRegRecByName();
-    */
 }
 
 /*
@@ -4897,23 +4918,27 @@ void Test_CFE_TBL_ResourceID_RegistryRecord(void)
  */
 void Test_CFE_TBL_ResourceID_AccessDescriptor(void)
 {
-    uint32           Idx;
-    CFE_TBL_Handle_t InvalidHandle;
-    CFE_TBL_Handle_t ValidHandle;
+    uint32             Idx;
+    CFE_TBL_HandleId_t InvalidHandle;
+    CFE_TBL_HandleId_t ValidHandle;
 
     UT_InitData();
 
-    InvalidHandle = (CFE_TBL_Handle_t)(-1);
+    InvalidHandle = UT_CFE_TBL_HANDLE_INVL;
+    UT_SetDefaultReturnValue(UT_KEY(CFE_ResourceId_ToIndex), CFE_TBL_ERR_INVALID_HANDLE);
     UtAssert_INT32_EQ(CFE_TBL_Handle_ToIndex(InvalidHandle, &Idx), CFE_TBL_ERR_INVALID_HANDLE);
 
     /* by definition, looking up the undefined value should always be NULL */
     UtAssert_NULL(CFE_TBL_LocateAccDescByHandle(InvalidHandle));
 
-    InvalidHandle = (CFE_TBL_Handle_t)(CFE_PLATFORM_TBL_MAX_NUM_HANDLES + 1);
+    /* Make up something that is neither the "defined" invalid handle ID (i.e. CFE_TBL_BAD_TABLE_HANDLE)
+     * nor is it a valid one - it should fail with the same status */
+    memset(&InvalidHandle, 0xEE, sizeof(InvalidHandle));
     UtAssert_INT32_EQ(CFE_TBL_Handle_ToIndex(InvalidHandle, &Idx), CFE_TBL_ERR_INVALID_HANDLE);
 
     /* Now with a valid ID */
-    ValidHandle = (CFE_TBL_Handle_t)(1);
+    ValidHandle = UT_CFE_TBL_HANDLE_1;
+    UT_ResetState(UT_KEY(CFE_ResourceId_ToIndex));
     UtAssert_INT32_EQ(CFE_TBL_Handle_ToIndex(ValidHandle, &Idx), CFE_SUCCESS);
     UtAssert_UINT32_EQ(Idx, 1);
 }
@@ -5045,7 +5070,7 @@ void Test_CFE_TBL_TxnState(void)
     /* Check that the "start" routines get the correct error code if no table is registered */
     UtAssert_INT32_EQ(CFE_TBL_TxnStartFromName(&Txn, "ut", CFE_TBL_TxnContext_UNDEFINED), CFE_TBL_ERR_INVALID_NAME);
     UtAssert_ZERO(Txn.RegLockCount);
-    UtAssert_INT32_EQ(CFE_TBL_TxnStartFromHandle(&Txn, CFE_TBL_BAD_TABLE_HANDLE, CFE_TBL_TxnContext_UNDEFINED),
+    UtAssert_INT32_EQ(CFE_TBL_TxnStartFromHandle(&Txn, CFE_TBL_HANDLEID_UNDEFINED, CFE_TBL_TxnContext_UNDEFINED),
                       CFE_TBL_ERR_INVALID_HANDLE);
     UtAssert_ZERO(Txn.RegLockCount);
 
@@ -5059,7 +5084,7 @@ void Test_CFE_TBL_TxnState(void)
     UtAssert_ZERO(Txn.RegLockCount);
 
     UT_SetAppID(UT_TBL_APPID_10);
-    CFE_UtAssert_SUCCESS(CFE_TBL_TxnStartFromHandle(&Txn, App1TblHandle1, CFE_TBL_TxnContext_ALL));
+    UT_TBL_SetupTxnFromExtHandle(&Txn, App1TblHandle1, CFE_TBL_TxnContext_ALL);
     UtAssert_NOT_NULL(CFE_TBL_TxnRegRec(&Txn));
     UtAssert_NONZERO(Txn.RegLockCount);
 
@@ -5144,18 +5169,19 @@ void Test_CFE_TBL_ResourceID_LoadBuff(void)
     UtAssert_NULL(CFE_TBL_LocateLoadBufferByID(UT_CFE_TBL_LOADBUFFID_INVL));
 
     /* Check locating by ID */
-    UtAssert_NOT_NULL(RegRecPtr = CFE_TBL_LocateRegRecByID(UT_CFE_TBL_REGID_0));
+    UT_ResetState(0);
+    UT_TBL_SetupSingleReg(&RegRecPtr, NULL, CFE_TBL_OPT_DEFAULT);
 
     /* Single-buffered: all local refs resolve to entry 0 */
     UT_TBL_Config(RegRecPtr)->DoubleBuffered = false;
-    UtAssert_ADDRESS_EQ(CFE_TBL_LocateLoadBufferByID(UT_CFE_TBL_LOADBUFFID_REG_0_0), &RegRecPtr->Buffers[0]);
-    UtAssert_ADDRESS_EQ(CFE_TBL_LocateLoadBufferByID(UT_CFE_TBL_LOADBUFFID_REG_0_1), &RegRecPtr->Buffers[0]);
+    UtAssert_ADDRESS_EQ(CFE_TBL_LocateLoadBufferByID(UT_CFE_TBL_LOADBUFFID_REG_1_0), &RegRecPtr->Buffers[0]);
+    UtAssert_ADDRESS_EQ(CFE_TBL_LocateLoadBufferByID(UT_CFE_TBL_LOADBUFFID_REG_1_1), &RegRecPtr->Buffers[0]);
     UtAssert_ADDRESS_EQ(CFE_TBL_LocateLoadBufferByID(UT_CFE_TBL_LOADBUFFID_GLB_1), &CFE_TBL_Global.LoadBuffs[1]);
 
     /* Double-buffered: local refs may be entry 0 or 1 */
     UT_TBL_Config(RegRecPtr)->DoubleBuffered = true;
-    UtAssert_ADDRESS_EQ(CFE_TBL_LocateLoadBufferByID(UT_CFE_TBL_LOADBUFFID_REG_0_0), &RegRecPtr->Buffers[0]);
-    UtAssert_ADDRESS_EQ(CFE_TBL_LocateLoadBufferByID(UT_CFE_TBL_LOADBUFFID_REG_0_1), &RegRecPtr->Buffers[1]);
+    UtAssert_ADDRESS_EQ(CFE_TBL_LocateLoadBufferByID(UT_CFE_TBL_LOADBUFFID_REG_1_0), &RegRecPtr->Buffers[0]);
+    UtAssert_ADDRESS_EQ(CFE_TBL_LocateLoadBufferByID(UT_CFE_TBL_LOADBUFFID_REG_1_1), &RegRecPtr->Buffers[1]);
     UtAssert_ADDRESS_EQ(CFE_TBL_LocateLoadBufferByID(UT_CFE_TBL_LOADBUFFID_GLB_1), &CFE_TBL_Global.LoadBuffs[1]);
 
     /* Test cases for:

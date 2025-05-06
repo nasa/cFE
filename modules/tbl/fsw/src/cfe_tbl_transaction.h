@@ -117,9 +117,9 @@ typedef bool (*CFE_TBL_TxnEventProcFunc_t)(const CFE_TBL_TxnEvent_t *, void *);
  */
 typedef struct CFE_TBL_TxnState
 {
-    CFE_ES_AppId_t   AppId;
-    CFE_TBL_Handle_t Handle;
-    CFE_TBL_RegId_t  RegId;
+    CFE_ES_AppId_t     AppId;
+    CFE_TBL_HandleId_t Handle;
+    CFE_TBL_RegId_t    RegId;
 
     uint32 RegLockCount;
     uint32 CallContext;
@@ -143,9 +143,11 @@ typedef struct CFE_TBL_TxnState
 
 /*---------------------------------------------------------------------------------------*/
 /**
- * Gets the table handle
+ * Gets the table handle.
+ *
+ * This is internal (preferred) form of the table handle which is unique and type safe.
  */
-static inline CFE_TBL_Handle_t CFE_TBL_TxnHandle(const CFE_TBL_TxnState_t *Txn)
+static inline CFE_TBL_HandleId_t CFE_TBL_TxnHandle(const CFE_TBL_TxnState_t *Txn)
 {
     return Txn->Handle;
 }
@@ -156,7 +158,7 @@ static inline CFE_TBL_Handle_t CFE_TBL_TxnHandle(const CFE_TBL_TxnState_t *Txn)
  */
 static inline unsigned long CFE_TBL_TxnHandleAsULong(const CFE_TBL_TxnState_t *Txn)
 {
-    return (unsigned long)CFE_TBL_TxnHandle(Txn);
+    return CFE_RESOURCEID_TO_ULONG(CFE_TBL_TxnHandle(Txn));
 }
 
 /*---------------------------------------------------------------------------------------*/
@@ -325,7 +327,7 @@ CFE_Status_t CFE_TBL_TxnInit(CFE_TBL_TxnState_t *Txn, bool CheckContext);
  * \returns CFE_SUCCESS normally, or relevent CFE status code
  * \retval #CFE_SUCCESS \copydoc CFE_SUCCESS
  */
-CFE_Status_t CFE_TBL_TxnStartFromHandle(CFE_TBL_TxnState_t *Txn, CFE_TBL_Handle_t TblHandle, uint32 AllowedContext);
+CFE_Status_t CFE_TBL_TxnStartFromHandle(CFE_TBL_TxnState_t *Txn, CFE_TBL_HandleId_t TblHandle, uint32 AllowedContext);
 
 /*---------------------------------------------------------------------------------------*/
 /**

@@ -72,8 +72,8 @@ int32 CFE_TBL_EarlyInit(void)
         CFE_TBL_InitAccessDescriptor(AccessDescPtr);
     }
 
-    CFE_TBL_Global.HkTlmTblRegIndex = CFE_TBL_NOT_FOUND;
-    CFE_TBL_Global.LastTblUpdated   = CFE_TBL_NOT_FOUND;
+    CFE_TBL_Global.HkTlmTblRegId  = CFE_TBL_REGID_UNDEFINED;
+    CFE_TBL_Global.LastTblUpdated = CFE_TBL_REGID_UNDEFINED;
 
     /*
     ** Create table registry access mutex
@@ -477,7 +477,7 @@ static void CFE_TBL_CheckLockHelper(CFE_TBL_AccessDescriptor_t *AccDescPtr, void
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_TBL_UpdateInternal(CFE_TBL_Handle_t TblHandle, CFE_TBL_RegistryRec_t *RegRecPtr,
+int32 CFE_TBL_UpdateInternal(CFE_TBL_HandleId_t TblHandle, CFE_TBL_RegistryRec_t *RegRecPtr,
                              CFE_TBL_AccessDescriptor_t *AccessDescPtr)
 {
     int32               Status     = CFE_SUCCESS;
@@ -508,7 +508,7 @@ int32 CFE_TBL_UpdateInternal(CFE_TBL_Handle_t TblHandle, CFE_TBL_RegistryRec_t *
             Status = CFE_TBL_INFO_TABLE_LOCKED;
 
             CFE_ES_WriteToSysLog("%s: Unable to update locked table Handle=%lu\n", __func__,
-                                 (unsigned long)CFE_TBL_AccDescGetHandle(AccessDescPtr));
+                                 CFE_TBL_HandleID_AsInt(CFE_TBL_AccDescGetHandle(AccessDescPtr)));
         }
     }
 
@@ -621,6 +621,7 @@ int32 CFE_TBL_CleanUpApp(CFE_ES_AppId_t AppId)
     CFE_TBL_DumpControl_t *     DumpCtrlPtr;
     CFE_TBL_AccessDescriptor_t *AccessDescPtr;
     CFE_TBL_RegistryRec_t *     RegRecPtr;
+    CFE_Status_t                Status;
 
     CFE_TBL_TxnInit(&Txn, false);
 
@@ -649,29 +650,19 @@ int32 CFE_TBL_CleanUpApp(CFE_ES_AppId_t AppId)
     {
         AccessDescPtr = &CFE_TBL_Global.Handles[i];
 
-        /* Check to see if the Handle belongs to the Application being deleted */
-        if (CFE_TBL_AccDescIsUsed(AccessDescPtr) && CFE_RESOURCEID_TEST_EQUAL(AccessDescPtr->AppId, AppId))
+        Status =
+            CFE_TBL_TxnStartFromHandle(&Txn, CFE_TBL_AccDescGetHandle(AccessDescPtr), CFE_TBL_TxnContext_UNDEFINED);
+        if (Status == CFE_SUCCESS)
         {
-            CFE_TBL_TxnStartFromHandle(&Txn, i, CFE_TBL_TxnContext_UNDEFINED);
+            /* This transaction is being performed on behalf of the appid that is now gone away */
+            Txn.AppId = AppId;
 
-            /* Determine if the Application owned this particular table */
-            if (CFE_RESOURCEID_TEST_EQUAL(Txn.RegRecPtr->OwnerAppId, AppId))
+            /* Check to see if the Handle belongs to the Application being deleted */
+            if (CFE_RESOURCEID_TEST_EQUAL(AccessDescPtr->AppId, Txn.AppId))
             {
-                /* Mark table as free, although, technically, it isn't free until the */
-                /* linked list of Access Descriptors has no links in it.              */
-                /* NOTE: Allocated memory is freed when all Access Links have been    */
-                /*       removed.  This allows Applications to continue to use the    */
-                /*       data until they acknowledge that the table has been removed. */
-                CFE_TBL_RegRecSetFree(Txn.RegRecPtr);
+                /* Release the access descriptor and clean up refs */
+                CFE_TBL_TxnReleaseAccDesc(&Txn);
             }
-
-            /* Remove the Access Descriptor Link from linked list */
-            /* NOTE: If this removes the last access link, then   */
-            /*       memory buffers are set free as well.         */
-            CFE_TBL_TxnRemoveAccessLink(&Txn);
-
-            CFE_TBL_AccDescSetFree(AccessDescPtr);
-
             CFE_TBL_TxnFinish(&Txn);
         }
     }
@@ -1118,13 +1109,13 @@ static inline CFE_TBL_AccessDescriptor_t *CFE_TBL_HandleListGetPrev(const CFE_TB
  *
  *-----------------------------------------------------------------*/
 void CFE_TBL_HandleListGetSafeLink(CFE_TBL_RegistryRec_t *RegRecPtr, CFE_TBL_AccessDescriptor_t *AccDescPtr,
-                                   CFE_TBL_HandleLink_t **PtrOut, CFE_TBL_Handle_t *HandleOut)
+                                   CFE_TBL_HandleLink_t **PtrOut, CFE_TBL_HandleId_t *HandleOut)
 {
     if (AccDescPtr == NULL)
     {
         /* Instead of returning NULL, return a pointer to the head node linkage */
         *PtrOut    = &RegRecPtr->AccessList;
-        *HandleOut = CFE_TBL_END_OF_LIST;
+        *HandleOut = CFE_TBL_HANDLEID_UNDEFINED;
     }
     else
     {
@@ -1145,9 +1136,9 @@ void CFE_TBL_HandleListRemoveLink(CFE_TBL_RegistryRec_t *RegRecPtr, CFE_TBL_Acce
     CFE_TBL_HandleLink_t *LocalLink;
     CFE_TBL_HandleLink_t *LocalPrevPtr;
     CFE_TBL_HandleLink_t *LocalNextPtr;
-    CFE_TBL_Handle_t      LocalHandle;
-    CFE_TBL_Handle_t      PrevHandle;
-    CFE_TBL_Handle_t      NextHandle;
+    CFE_TBL_HandleId_t    LocalHandle;
+    CFE_TBL_HandleId_t    PrevHandle;
+    CFE_TBL_HandleId_t    NextHandle;
 
     CFE_TBL_HandleListGetSafeLink(RegRecPtr, AccessDescPtr, &LocalLink, &LocalHandle);
     CFE_TBL_HandleListGetSafeLink(RegRecPtr, CFE_TBL_HandleListGetNext(LocalLink), &LocalNextPtr, &NextHandle);
@@ -1171,9 +1162,9 @@ void CFE_TBL_HandleListInsertLink(CFE_TBL_RegistryRec_t *RegRecPtr, CFE_TBL_Acce
     CFE_TBL_HandleLink_t *LocalLink;
     CFE_TBL_HandleLink_t *LocalPrevPtr;
     CFE_TBL_HandleLink_t *LocalNextPtr;
-    CFE_TBL_Handle_t      LocalHandle;
-    CFE_TBL_Handle_t      PrevHandle;
-    CFE_TBL_Handle_t      NextHandle;
+    CFE_TBL_HandleId_t    LocalHandle;
+    CFE_TBL_HandleId_t    PrevHandle;
+    CFE_TBL_HandleId_t    NextHandle;
 
     /* inserting at the front, so the "previous" will always be the head node (NULL) */
     CFE_TBL_HandleListGetSafeLink(RegRecPtr, AccessDescPtr, &LocalLink, &LocalHandle);

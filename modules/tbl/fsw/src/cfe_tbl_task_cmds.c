@@ -99,7 +99,7 @@ CFE_Status_t CFE_TBL_SendHkCmd(const CFE_TBL_SendHkCmd_t *data)
     }
 
     /* If a table's registry entry has been requested for telemetry, then pack it and send it */
-    if (CFE_TBL_REGID_IS_VALID(CFE_TBL_Global.HkTlmTblRegIndex))
+    if (CFE_TBL_REGID_IS_VALID(CFE_TBL_Global.HkTlmTblRegId))
     {
         CFE_TBL_GetTblRegData();
 
@@ -110,7 +110,7 @@ CFE_Status_t CFE_TBL_SendHkCmd(const CFE_TBL_SendHkCmd_t *data)
         CFE_SB_TransmitMsg(CFE_MSG_PTR(CFE_TBL_Global.TblRegPacket.TelemetryHeader), true);
 
         /* Once the data has been sent, clear the index so that we don't send it again and again */
-        CFE_TBL_Global.HkTlmTblRegIndex = CFE_TBL_NOT_FOUND;
+        CFE_TBL_Global.HkTlmTblRegId = CFE_TBL_REGID_UNDEFINED;
     }
 
     /* Check to see if there are any dump-only table dumps pending */
@@ -269,8 +269,10 @@ void CFE_TBL_GetTblRegData(void)
     CFE_TBL_RegistryRec_t *RegRecPtr;
     CFE_TBL_LoadBuff_t *   BuffPtr;
 
-    RegRecPtr = CFE_TBL_LocateRegRecByID(CFE_TBL_Global.HkTlmTblRegIndex);
-    if (CFE_TBL_RegRecIsMatch(RegRecPtr, CFE_TBL_Global.HkTlmTblRegIndex))
+    CFE_TBL_LockRegistry();
+
+    RegRecPtr = CFE_TBL_LocateRegRecByID(CFE_TBL_Global.HkTlmTblRegId);
+    if (CFE_TBL_RegRecIsMatch(RegRecPtr, CFE_TBL_Global.HkTlmTblRegId))
     {
         CFE_TBL_Global.TblRegPacket.Payload.Size = CFE_ES_MEMOFFSET_C(CFE_TBL_RegRecGetSize(RegRecPtr));
 
@@ -319,6 +321,8 @@ void CFE_TBL_GetTblRegData(void)
         CFE_ES_GetAppName(CFE_TBL_Global.TblRegPacket.Payload.OwnerAppName, RegRecPtr->OwnerAppId,
                           sizeof(CFE_TBL_Global.TblRegPacket.Payload.OwnerAppName));
     }
+
+    CFE_TBL_UnlockRegistry();
 }
 
 /*----------------------------------------------------------------
@@ -738,7 +742,7 @@ bool CFE_TBL_DumpRegistryGetter(void *Meta, uint32 RecordNum, void **Buffer, siz
         CFE_TBL_LockRegistry();
 
         /* Check to see if the Registry entry is empty */
-        if (CFE_TBL_RegRecIsUsed(RegRecPtr) || CFE_TBL_HandleLinkIsAttached(&RegRecPtr->AccessList))
+        if (CFE_TBL_RegRecIsUsed(RegRecPtr))
         {
             IsValidEntry = true;
             OwnerAppId   = RegRecPtr->OwnerAppId;
@@ -955,7 +959,7 @@ CFE_Status_t CFE_TBL_SendRegistryCmd(const CFE_TBL_SendRegistryCmd_t *data)
     const CFE_TBL_SendRegistryCmd_Payload_t *CmdPtr = &data->Payload;
     char                                     TableName[CFE_TBL_MAX_FULL_NAME_LEN];
     CFE_TBL_TxnState_t                       Txn;
-    int32                                    Status;
+    CFE_Status_t                             Status;
 
     CmdProcRet = CFE_TBL_CmdProcRet_INC_ERR_CTR; /* Assume failure */
 
@@ -967,7 +971,7 @@ CFE_Status_t CFE_TBL_SendRegistryCmd(const CFE_TBL_SendRegistryCmd_t *data)
     if (Status == CFE_SUCCESS)
     {
         /* Change the index used to identify what data is to be telemetered */
-        CFE_TBL_Global.HkTlmTblRegIndex = CFE_TBL_TxnRegId(&Txn);
+        CFE_TBL_Global.HkTlmTblRegId = CFE_TBL_TxnRegId(&Txn);
         CFE_TBL_TxnFinish(&Txn);
 
         CFE_EVS_SendEvent(CFE_TBL_TLM_REG_CMD_INF_EID, CFE_EVS_EventType_DEBUG,

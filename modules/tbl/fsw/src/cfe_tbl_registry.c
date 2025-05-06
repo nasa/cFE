@@ -133,7 +133,7 @@ CFE_Status_t CFE_TBL_TxnRemoveAccessLink(CFE_TBL_TxnState_t *Txn)
     CFE_TBL_HandleListRemoveLink(RegRecPtr, AccDescPtr);
 
     /* If this was the last Access Descriptor for this table, we can free the memory buffers as well */
-    if (!CFE_TBL_HandleLinkIsAttached(&RegRecPtr->AccessList))
+    if (!CFE_RESOURCEID_TEST_DEFINED(RegRecPtr->OwnerAppId) && !CFE_TBL_HandleLinkIsAttached(&RegRecPtr->AccessList))
     {
         /* Only free memory that we have allocated.  If the image is User Defined, then don't bother */
         if (!CFE_TBL_RegRecGetConfig(RegRecPtr)->UserDefAddr)
@@ -144,10 +144,10 @@ CFE_Status_t CFE_TBL_TxnRemoveAccessLink(CFE_TBL_TxnState_t *Txn)
             /* Free memory directly allocated to buffers for this table (non-shared). */
             CFE_TBL_DeallocateAllBuffers(RegRecPtr);
         }
-    }
 
-    /* Return the Access Descriptor to the pool */
-    CFE_TBL_AccDescSetFree(AccDescPtr);
+        /* Return the Access Descriptor to the pool */
+        CFE_TBL_RegRecSetFree(RegRecPtr);
+    }
 
     return Status;
 }
@@ -166,7 +166,7 @@ CFE_Status_t CFE_TBL_TxnGetTableAddress(CFE_TBL_TxnState_t *Txn, void **TblPtr)
     CFE_TBL_LoadBuff_t *        ActiveBuffPtr;
 
     /* If table is unowned, then owner must have unregistered it when we weren't looking */
-    if (!CFE_TBL_RegRecIsUsed(RegRecPtr))
+    if (!CFE_RESOURCEID_TEST_DEFINED(RegRecPtr->OwnerAppId))
     {
         Status  = CFE_TBL_ERR_UNREGISTERED;
         *TblPtr = NULL;
@@ -240,56 +240,41 @@ CFE_Status_t CFE_TBL_TxnFindRegByName(CFE_TBL_TxnState_t *Txn, const char *TblNa
 CFE_Status_t CFE_TBL_TxnAllocateRegistryEntry(CFE_TBL_TxnState_t *Txn)
 {
     CFE_Status_t           Status;
-    int16                  i;
     CFE_TBL_RegistryRec_t *RegRecPtr;
+    CFE_ResourceId_t       PendingId;
 
-    Status = CFE_TBL_ERR_REGISTRY_FULL;
-    for (i = 0; i < CFE_PLATFORM_TBL_MAX_NUM_TABLES; ++i)
+    CFE_TBL_TxnLockRegistry(Txn);
+
+    /* Search Registry for free entry */
+
+    PendingId = CFE_TBL_GetNextRegId();
+    RegRecPtr = CFE_TBL_LocateRegRecByID(CFE_TBL_REGID_C(PendingId));
+
+    /* Check to make sure there was a handle available */
+    if (RegRecPtr == NULL)
     {
-        RegRecPtr = &CFE_TBL_Global.Registry[i];
+        Txn->RegRecPtr = NULL;
+        Txn->RegId     = CFE_TBL_REGID_UNDEFINED;
 
-        /* A Table Registry is only "Free" when there isn't an owner AND */
-        /* all other applications are not sharing or locking the table   */
-        if (!CFE_TBL_RegRecIsUsed(RegRecPtr) && !CFE_TBL_HandleLinkIsAttached(&RegRecPtr->AccessList))
-        {
-            Txn->RegId     = CFE_TBL_REGID_C(i);
-            Txn->RegRecPtr = RegRecPtr;
-
-            Status = CFE_SUCCESS;
-            break;
-        }
+        Status = CFE_TBL_ERR_REGISTRY_FULL;
     }
+    else
+    {
+        /* Initialize the Registry Record */
+        CFE_TBL_InitRegistryRecord(RegRecPtr);
+        CFE_TBL_RegRecSetUsed(RegRecPtr, PendingId);
+
+        Txn->RegRecPtr = RegRecPtr;
+        Txn->RegId     = CFE_TBL_RegRecGetID(RegRecPtr);
+
+        CFE_TBL_Global.LastRegId = PendingId;
+
+        Status = CFE_SUCCESS;
+    }
+
+    CFE_TBL_TxnUnlockRegistry(Txn);
 
     return Status;
-}
-
-/*----------------------------------------------------------------
- *
- * Application-scope internal function
- * See description in header file for argument/return detail
- *
- *-----------------------------------------------------------------*/
-CFE_Status_t CFE_TBL_TxnAllocateHandle(CFE_TBL_TxnState_t *Txn)
-{
-    CFE_Status_t                Status;
-    int16                       i;
-    CFE_TBL_AccessDescriptor_t *AccDescPtr;
-
-    Status = CFE_TBL_ERR_HANDLES_FULL;
-
-    for (i = 0; i < CFE_PLATFORM_TBL_MAX_NUM_HANDLES; ++i)
-    {
-        AccDescPtr = &CFE_TBL_Global.Handles[i];
-
-        if (!CFE_TBL_AccDescIsUsed(AccDescPtr))
-        {
-            Txn->Handle     = i;
-            Txn->AccDescPtr = AccDescPtr;
-
-            Status = CFE_SUCCESS;
-            break;
-        }
-    }
 
     return Status;
 }
@@ -332,14 +317,14 @@ CFE_Status_t CFE_TBL_TxnCheckDuplicateRegistration(CFE_TBL_TxnState_t *Txn, cons
             }
             else
             {
-                /*
-                 * The intent is to fill in the correct handle, but interestingly this
-                 * does not detect/propagate the error if it fails
-                 */
-                CFE_TBL_FindAccessDescriptorForSelf(Txn);
+                /* Fill in the correct handle (already existing) */
+                Status = CFE_TBL_FindAccessDescriptorForSelf(Txn);
 
-                /* Warn calling application that this is a duplicate registration */
-                Status = CFE_TBL_WARN_DUPLICATE;
+                if (Status == CFE_SUCCESS)
+                {
+                    /* Warn calling application that this is a duplicate registration */
+                    Status = CFE_TBL_WARN_DUPLICATE;
+                }
             }
         }
         else /* Duplicate named table owned by another Application */
@@ -372,13 +357,25 @@ void CFE_TBL_TxnConnectAccessDescriptor(CFE_TBL_TxnState_t *Txn)
     CFE_TBL_AccessDescriptor_t *AccDescPtr = CFE_TBL_TxnAccDesc(Txn);
     CFE_TBL_RegistryRec_t *     RegRecPtr  = CFE_TBL_TxnRegRec(Txn);
 
-    AccDescPtr->AppId    = CFE_TBL_TxnAppId(Txn);
     AccDescPtr->LockFlag = false;
-    AccDescPtr->Updated  = false;
-    AccDescPtr->UsedFlag = true;
+
+    AccDescPtr->AppId    = CFE_TBL_TxnAppId(Txn);
     AccDescPtr->RegIndex = CFE_TBL_TxnRegId(Txn);
 
-    CFE_TBL_HandleListInsertLink(RegRecPtr, AccDescPtr);
+    CFE_TBL_TxnLockRegistry(Txn);
+
+    /* Check current state of table in order to set Notification flags properly */
+    if (CFE_TBL_RegRecIsMatch(RegRecPtr, AccDescPtr->RegIndex))
+    {
+        AccDescPtr->Updated = CFE_TBL_RegRecIsTableLoaded(RegRecPtr);
+        CFE_TBL_HandleListInsertLink(RegRecPtr, AccDescPtr);
+    }
+    else
+    {
+        AccDescPtr->Updated = false;
+    }
+
+    CFE_TBL_TxnUnlockRegistry(Txn);
 }
 
 /*----------------------------------------------------------------

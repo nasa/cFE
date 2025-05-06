@@ -112,17 +112,48 @@ typedef CFE_RESOURCEID_BASE_TYPE CFE_TBL_LoadBuffId_t;
  * ---------------------------------------------------------------------------------------
  */
 
-/**
- * Reference to an entry in the Registry table
+/*
+ * NOTE: The CFE_TBL_RegId_t type is externally exposed because it appears
+ * in telemetry and other output files
+ *
+ * Additionally the initialization macros are defined externally
+ * Initialization Cast/Conversion: CFE_TBL_REGID_C
+ * Undefined constant: CFE_TBL_REGID_UNDEFINED
  */
-typedef int16 CFE_TBL_RegId_t;
 
-#define CFE_TBL_REGID_C(val)    ((CFE_TBL_RegId_t)(val))
-#define CFE_TBL_REGID_UNDEFINED CFE_TBL_REGID_C(-1)
+/*
+ * Standard set of macros for resource IDs --
+ * Equality check: CFE_TBL_REGID_EQ
+ * Integer cast: CFE_TBL_REGID_INT
+ * Validity check: CFE_TBL_REGID_IS_VALID
+ */
 
-#define CFE_TBL_REGID_EQ(x, y)    ((x) == (y))
-#define CFE_TBL_REGID_INT(x)      ((int)(x))
-#define CFE_TBL_REGID_IS_VALID(x) ((x) >= 0)
+/* check/validation macros */
+#define CFE_TBL_REGID_EQ(x, y)    CFE_RESOURCEID_TEST_EQUAL(x, y)
+#define CFE_TBL_REGID_INT(x)      CFE_RESOURCEID_TO_ULONG(x)
+#define CFE_TBL_REGID_IS_VALID(x) CFE_RESOURCEID_TEST_DEFINED(x)
+
+/*
+ * ---------------------------------------------------------------------------------------
+ *
+ *     ~~~  ACCESS DESCRIPTOR SECTION ~~~
+ *
+ * These operate on CFE_TBL_AccessDescriptor_t* and Handle ID
+ *
+ * ---------------------------------------------------------------------------------------
+ */
+
+/*
+ * NOTE: The CFE_TBL_HandleId_t type is externally exposed because it is part of the API
+ *
+ * Additionally the initialization macros are defined externally
+ * 
+ * Initialization Cast/Conversion: CFE_TBL_HANDLEID_C(val)
+ * Undefined constant: CFE_TBL_HANDLEID_UNDEFINED
+ * Equality check: CFE_TBL_HandleID_IsEqual
+ * Integer cast: CFE_TBL_HandleID_AsInt
+ * Validity check: CFE_TBL_HandleID_IsDefined
+ */
 
 /*
  * ---------------------------------------------------------------------------------------

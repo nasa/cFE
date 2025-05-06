@@ -32,15 +32,13 @@
 #include "cfe_tbl_api_typedefs.h"
 #include "cfe_tbl_resource.h"
 
-#define CFE_TBL_END_OF_LIST CFE_TBL_BAD_TABLE_HANDLE
-
 /**
  * A structure to facilitate a linked-list of table handles
  */
 typedef struct CFE_TBL_HandleLink
 {
-    CFE_TBL_Handle_t Next; /**< Next table handle in list */
-    CFE_TBL_Handle_t Prev; /**< Previous table handle in list */
+    CFE_TBL_HandleId_t Next; /**< Next table handle in list */
+    CFE_TBL_HandleId_t Prev; /**< Previous table handle in list */
 } CFE_TBL_HandleLink_t;
 
 /*---------------------------------------------------------------------------------------*/

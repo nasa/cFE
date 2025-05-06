@@ -62,7 +62,7 @@ void TestTableRegistration(void)
                                        CFE_TBL_OPT_DEFAULT, &CallbackFunc),
                       CFE_TBL_WARN_DUPLICATE);
 
-    UtAssert_INT32_EQ(OtherHandle, CFE_FT_Global.TblHandle);
+    UtAssert_BOOL_TRUE(CFE_TBL_HANDLE_EQ(OtherHandle, CFE_FT_Global.TblHandle));
 
     /* Duplicate table with different size */
     UtAssert_INT32_EQ(CFE_TBL_Register(&OtherHandle, CFE_FT_Global.TblName, sizeof(CFE_TEST_TestTable_t) / 2,
