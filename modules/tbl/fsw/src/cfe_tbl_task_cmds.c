@@ -578,6 +578,8 @@ CFE_Status_t CFE_TBL_ValidateCmd(const CFE_TBL_ValidateCmd_t *data)
 
                 CFE_TBL_ValidationResultSetUsed(ValResultPtr, PendingValId);
 
+                CFE_TBL_Global.LastValidationResultId = PendingValId;
+
                 /* If owner has a validation function, then notify the  */
                 /* table owner that there is data to be validated       */
                 if (CFE_TBL_RegRecGetValidationFunc(RegRecPtr) != NULL)

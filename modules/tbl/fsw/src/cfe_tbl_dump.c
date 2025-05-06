@@ -409,6 +409,8 @@ CFE_Status_t CFE_TBL_AllocateDumpCtrlBlock(CFE_TBL_TxnState_t *Txn, CFE_TBL_Dump
 
             CFE_TBL_DumpCtrlBlockSetUsed(DumpCtrlPtr, PendingDumpId);
 
+            CFE_TBL_Global.LastDumpCtrlBlockId = PendingDumpId;
+            
             Status = CFE_SUCCESS;
         }
     }

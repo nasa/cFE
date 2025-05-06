@@ -394,6 +394,8 @@ CFE_TBL_LoadBuff_t *CFE_TBL_AcquireGlobalLoadBuff(CFE_TBL_RegId_t PendingOwnerId
     {
         /* Claim it as ours */
         CFE_TBL_LoadBuffSetUsed(LoadBuffPtr, PendingId, PendingOwnerId);
+
+        CFE_TBL_Global.LastLoadBuffId = PendingId;
     }
 
     /* Allow others to obtain a shared working buffer */
