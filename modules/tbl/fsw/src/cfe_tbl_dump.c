@@ -20,10 +20,6 @@
  * @file
  *
  * Implementation of table services table dump (write to file) methods
- *
- *  References:
- *     Flight Software Branch C Coding Standard Version 1.0a
- *     cFE Flight Software Application Developers Guide
  */
 
 /*

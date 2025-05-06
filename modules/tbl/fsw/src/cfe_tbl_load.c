@@ -20,10 +20,6 @@
  * @file
  *
  * Implementation of table services table load (read from file) methods
- *
- *  References:
- *     Flight Software Branch C Coding Standard Version 1.0a
- *     cFE Flight Software Application Developers Guide
  */
 
 /*
