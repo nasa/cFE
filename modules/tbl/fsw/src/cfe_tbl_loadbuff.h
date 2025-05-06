@@ -51,10 +51,13 @@ struct CFE_TBL_LoadBuff
     CFE_TBL_LoadBuffId_t LoadBufferId;
     CFE_TBL_RegId_t      OwnerRegId;
 
-    void *             BufferPtr;     /**< \brief Pointer to Load Buffer */
-    CFE_TIME_SysTime_t FileTime;      /**< \brief Time stamp from last file loaded into table */
-    uint32             Crc;           /**< \brief Last calculated CRC for this buffer's contents */
-    bool               Validated;     /**< \brief Flag indicating whether the buffer has been successfully validated */
+    void *             BufferPtr;      /**< \brief Pointer to Load Buffer */
+    size_t             AllocationSize; /**< \brief Allocated size of the memory to which BufferPtr points */
+    size_t             ContentSize;    /**< \brief Current content size */
+    CFE_TIME_SysTime_t FileTime;       /**< \brief Time stamp from last file loaded into table */
+    uint32             Crc;            /**< \brief Last calculated CRC for this buffer's contents */
+    bool               Validated;      /**< \brief Flag indicating whether the buffer has been successfully validated */
+
     char DataSource[OS_MAX_PATH_LEN]; /**< \brief Source of data put into buffer (filename or memory address) */
 };
 
@@ -192,6 +195,121 @@ static inline void CFE_TBL_LoadBuffSetUsed(CFE_TBL_LoadBuff_t *BuffPtr, CFE_Reso
 static inline void CFE_TBL_LoadBuffSetFree(CFE_TBL_LoadBuff_t *BuffPtr)
 {
     BuffPtr->LoadBufferId = CFE_TBL_LOADBUFFID_UNDEFINED;
+}
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Sets the memory block associated with the load buffer
+ *
+ * @param[inout]   BuffPtr   pointer to buffer
+ * @param[in]      MemPtr    pointer to memory block
+ * @param[in]      MemSize   size of memory block
+ */
+static inline void CFE_TBL_LoadBuffSetAllocatedBlock(CFE_TBL_LoadBuff_t *BuffPtr, void *MemPtr, size_t MemSize)
+{
+    BuffPtr->BufferPtr      = MemPtr;
+    BuffPtr->AllocationSize = MemSize;
+    BuffPtr->ContentSize    = 0;
+    BuffPtr->Crc            = 0;
+}
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Sets the memory block associated with the load buffer
+ *
+ * @param[inout]   BuffPtr   pointer to buffer
+ * @param[in]      MemPtr    pointer to memory block
+ * @param[in]      MemSize   size of memory block
+ */
+static inline void CFE_TBL_LoadBuffSetExternalBlock(CFE_TBL_LoadBuff_t *BuffPtr, void *MemPtr, size_t MemSize)
+{
+    BuffPtr->BufferPtr      = MemPtr;
+    BuffPtr->ContentSize    = MemSize;
+    BuffPtr->AllocationSize = 0;
+    BuffPtr->Crc            = 0;
+}
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Checks if the load buffer is allocated
+ *
+ * @param[in]   BuffPtr   pointer to buffer
+ */
+static inline bool CFE_TBL_LoadBuffIsAllocated(const CFE_TBL_LoadBuff_t *BuffPtr)
+{
+    return (BuffPtr->AllocationSize != 0);
+}
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Gets the pointer to buffer data for reading
+ *
+ * @param[in]   BuffPtr   pointer to buffer
+ */
+static inline const void *CFE_TBL_LoadBuffGetReadPointer(const CFE_TBL_LoadBuff_t *BuffPtr)
+{
+    return BuffPtr->BufferPtr;
+}
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Gets the pointer to buffer data for writing
+ *
+ * Note that Table services does not write to data buffers which it did not allocate itself
+ * If this is an external buffer (such as from a dump-only table) then table services should
+ * not modify it, however the owning application still could modify it.
+ *
+ * @param[in]   BuffPtr   pointer to buffer
+ */
+static inline void *CFE_TBL_LoadBuffGetWritePointer(const CFE_TBL_LoadBuff_t *BuffPtr)
+{
+    if (!CFE_TBL_LoadBuffIsAllocated(BuffPtr))
+    {
+        /* Not writeable */
+        return NULL;
+    }
+
+    return BuffPtr->BufferPtr;
+}
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Gets the allocation size of the buffer
+ *
+ * This returns the maximum amount of valid data, in bytes, that the buffer is able to hold
+ *
+ * @param[in]   BuffPtr   pointer to buffer
+ */
+static inline size_t CFE_TBL_LoadBuffGetAllocSize(const CFE_TBL_LoadBuff_t *BuffPtr)
+{
+    return BuffPtr->AllocationSize;
+}
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Gets the content size of the buffer
+ *
+ * This returns the amount of valid data, in bytes, pointed to by BufferPtr
+ *
+ * @param[in]   BuffPtr   pointer to buffer
+ */
+static inline size_t CFE_TBL_LoadBuffGetContentSize(const CFE_TBL_LoadBuff_t *BuffPtr)
+{
+    return BuffPtr->ContentSize;
+}
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Sets the content size of the buffer
+ *
+ * This sets the amount of valid data, in bytes, pointed to by BufferPtr
+ *
+ * @param[in]   BuffPtr      pointer to buffer
+ * @param[in]   ContentSize  size of content
+ */
+static inline void CFE_TBL_LoadBuffSetContentSize(CFE_TBL_LoadBuff_t *BuffPtr, size_t ContentSize)
+{
+    BuffPtr->ContentSize = ContentSize;
 }
 
 /*---------------------------------------------------------------------------------------*/
@@ -357,7 +475,42 @@ CFE_ResourceId_t CFE_TBL_LoadBuffIncrementSerial(CFE_ResourceId_t Id, void *Arg)
  * not be used outside of the loadbuff unit.  It is declared here for unit testing purposes.
  *
  * @param[in]    CheckId   number
+ * @retval true if slot is used (unavailable)
+ * @retval false if slot is unused (available)
  */
 bool CFE_TBL_CheckLoadBuffSlotUsed(CFE_ResourceId_t CheckId);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Clears the entire load buffer
+ *
+ * This will zero out the memory block associated with the load buffer
+ *
+ * @param[inout] BufferPtr Pointer to load buffer
+ */
+void CFE_TBL_LoadBuffClearData(CFE_TBL_LoadBuff_t *BufferPtr);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Copy data into the load buffer
+ *
+ * Copy data from the source address into the load buffer
+ *
+ * @param[inout] BufferPtr  Pointer to load buffer
+ * @param[in]    SourcePtr  Pointer to source data
+ * @param[in]    SourceSize Size of source data
+ */
+void CFE_TBL_LoadBuffCopyData(CFE_TBL_LoadBuff_t *BufferPtr, const void *SourcePtr, size_t SourceSize);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Compute the CRC of the data in the load buffer
+ *
+ * Calculates the CRC value over the data in the load buffer, and sets the result
+ * to the CRC field within the buffer
+ *
+ * @param[inout] BufferPtr  Pointer to load buffer
+ */
+void CFE_TBL_LoadBuffRecomputeCRC(CFE_TBL_LoadBuff_t *BufferPtr);
 
 #endif /* CFE_TBL_LOADBUFF_H */

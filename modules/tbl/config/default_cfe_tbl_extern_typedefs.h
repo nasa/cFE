@@ -27,6 +27,7 @@
 
 #include "common_types.h"
 #include "cfe_es_extern_typedefs.h"
+#include "cfe_fs_extern_typedefs.h"
 #include "cfe_mission_cfg.h" /* for CFE_MISSION_TBL_MAX_FULL_NAME_LEN */
 
 /**
@@ -68,5 +69,19 @@ typedef struct CFE_TBL_File_Hdr
     uint32 NumBytes;                                     /**< Number of bytes to load into table */
     char   TableName[CFE_MISSION_TBL_MAX_FULL_NAME_LEN]; /**< Fully qualified name of table to load */
 } CFE_TBL_File_Hdr_t;
+
+/**
+ * @brief Complete header for CFE table files
+ *
+ * Table files always have a combination of the standard file header
+ * and the table-specific file header.  This struct just combines
+ * the two and makes for an easier item to pass around, simplifying APIs
+ */
+typedef struct CFE_TBL_CombinedFileHdr
+{
+    CFE_FS_Header_t    Std;
+    CFE_TBL_File_Hdr_t Tbl;
+
+} CFE_TBL_CombinedFileHdr_t;
 
 #endif /* CFE_TBL_EXTERN_TYPEDEFS_H */

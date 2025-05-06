@@ -20,10 +20,6 @@
  * @file
  *
  * Implementation of table services load buffer methods
- *
- *  References:
- *     Flight Software Branch C Coding Standard Version 1.0a
- *     cFE Flight Software Application Developers Guide
  */
 
 /*
@@ -283,6 +279,52 @@ CFE_ResourceId_t CFE_TBL_FindNextSharedBufferId(void)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
+void CFE_TBL_LoadBuffClearData(CFE_TBL_LoadBuff_t *BufferPtr)
+{
+    void *DestPtr = CFE_TBL_LoadBuffGetWritePointer(BufferPtr);
+    if (DestPtr != NULL)
+    {
+        memset(DestPtr, 0, CFE_TBL_LoadBuffGetAllocSize(BufferPtr));
+    }
+    CFE_TBL_LoadBuffSetContentSize(BufferPtr, 0);
+    BufferPtr->Crc = 0; /* Just in case the CRC of old data had been calculated */
+}
+
+/*----------------------------------------------------------------
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+void CFE_TBL_LoadBuffCopyData(CFE_TBL_LoadBuff_t *BufferPtr, const void *SourcePtr, size_t SourceSize)
+{
+    void *DestPtr = CFE_TBL_LoadBuffGetWritePointer(BufferPtr);
+    if (DestPtr != NULL && SourceSize <= CFE_TBL_LoadBuffGetAllocSize(BufferPtr))
+    {
+        memcpy(DestPtr, SourcePtr, SourceSize);
+        CFE_TBL_LoadBuffSetContentSize(BufferPtr, SourceSize);
+        BufferPtr->Crc = 0; /* Just in case the CRC of old data had been calculated */
+    }
+}
+
+/*----------------------------------------------------------------
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+void CFE_TBL_LoadBuffRecomputeCRC(CFE_TBL_LoadBuff_t *BufferPtr)
+{
+    BufferPtr->Crc = CFE_ES_CalculateCRC(CFE_TBL_LoadBuffGetReadPointer(BufferPtr),
+                                         CFE_TBL_LoadBuffGetContentSize(BufferPtr), 0, CFE_MISSION_ES_DEFAULT_CRC);
+}
+
+/*----------------------------------------------------------------
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 CFE_ResourceId_t CFE_TBL_GetNextLocalBufferId(const CFE_TBL_RegistryRec_t *RegRecPtr)
 {
     CFE_ResourceId_t PendingId;
@@ -410,7 +452,8 @@ CFE_TBL_LoadBuff_t *CFE_TBL_PrepareNewLoadBuff(CFE_TBL_RegistryRec_t *RegRecPtr)
         /* NOTE: The Active Buffer pointer will be NULL if the table was never loaded */
         if (ActiveBuffPtr != NULL)
         {
-            memcpy(LoadBuffPtr->BufferPtr, ActiveBuffPtr->BufferPtr, CFE_TBL_RegRecGetSize(RegRecPtr));
+            CFE_TBL_LoadBuffCopyData(LoadBuffPtr, CFE_TBL_LoadBuffGetReadPointer(ActiveBuffPtr),
+                                     CFE_TBL_LoadBuffGetContentSize(ActiveBuffPtr));
         }
 
         /* Always consider the copied buffer as unvalidated for now */

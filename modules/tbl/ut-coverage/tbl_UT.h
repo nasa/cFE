@@ -675,4 +675,8 @@ void Test_CFE_TBL_ResourceID_LoadBuff(void);
 void Test_CFE_TBL_TxnState(void);
 void Test_CFE_TBL_TxnEvents(void);
 
+/* Test cases for unified load/dump implementation */
+void Test_CFE_TBL_TableLoadCommon(void);
+void Test_CFE_TBL_TableDumpCommon(void);
+
 #endif /* TBL_UT_H */

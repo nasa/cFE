@@ -294,6 +294,22 @@ static inline const CFE_TBL_TableConfig_t *CFE_TBL_RegRecGetConfig(const CFE_TBL
     return &RegRecPtr->Config;
 }
 
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Gets the validation function associated with this table
+ *
+ * Returns a pointer to the validation function
+ *
+ * @note  this configuration is set during registration and does not change thereafter
+ *
+ * @param[in]   RegRecPtr   pointer to registry entry
+ * @returns   Pointer to validation function
+ */
+static inline CFE_TBL_CallbackFuncPtr_t CFE_TBL_RegRecGetValidationFunc(const CFE_TBL_RegistryRec_t *RegRecPtr)
+{
+    return CFE_TBL_RegRecGetConfig(RegRecPtr)->ValidationFuncPtr;
+}
+
 /*
  * Inline accessors for fields within the registry record struct
  *

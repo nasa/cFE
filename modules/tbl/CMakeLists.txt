@@ -10,8 +10,11 @@ project(CFE_TBL C)
 set(tbl_SOURCES
     fsw/src/cfe_tbl_api.c
     fsw/src/cfe_tbl_accdesc.c
+    fsw/src/cfe_tbl_load.c
     fsw/src/cfe_tbl_loadbuff.c
+    fsw/src/cfe_tbl_registry.c
     fsw/src/cfe_tbl_regrec.c
+    fsw/src/cfe_tbl_dump.c
     fsw/src/cfe_tbl_dumpctl.c
     fsw/src/cfe_tbl_handlelink.c
     fsw/src/cfe_tbl_valresult.c
