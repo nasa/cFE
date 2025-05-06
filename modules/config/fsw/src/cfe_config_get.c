@@ -189,6 +189,41 @@ void CFE_Config_IterateAll(void *Arg, CFE_Config_Callback_t Callback)
 
 /*----------------------------------------------------------------
  *
+ * Internal helper routine, not called outside of this unit
+ *
+ *-----------------------------------------------------------------*/
+void CFE_Config_GetMissionRevString(char *Buf, size_t Size, uint8 MissionRev, const char *LastOffcRel)
+{
+    if (MissionRev == 0)
+    {
+        /*
+         * Mission Revision 0 is reserved only for official releases
+         * from the CFS development team that have gone through the
+         * full release process
+         */
+        snprintf(Buf, Size, "%s Official Release", LastOffcRel);
+    }
+    else if (MissionRev == 0xFF)
+    {
+        /*
+         * Mission Revision 255 (0xFF) is reserved for use by the CFS
+         * development team for evaluation builds (refer to git commit ID
+         * for more specific information about the build).
+         */
+        snprintf(Buf, Size, "DEV BUILD, based on %s", LastOffcRel);
+    }
+    else
+    {
+        /*
+         * Mission Rev values 1-254 are for user customizations.  CFS users are free
+         * to set this value in any way that is meaningful to them.
+         */
+        snprintf(Buf, Size, "M%u, based on %s", MissionRev, LastOffcRel);
+    }
+}
+
+/*----------------------------------------------------------------
+ *
  * Defined per public API
  * See description in header file for argument/return detail
  *
@@ -196,7 +231,10 @@ void CFE_Config_IterateAll(void *Arg, CFE_Config_Callback_t Callback)
 void CFE_Config_GetVersionString(char *Buf, size_t Size, const char *Component, const char *SrcVersion,
                                  const char *CodeName, const char *LastOffcRel)
 {
-    snprintf(Buf, Size, "%s %s %s (Codename %s), Last Official Release: %s %s, EDS %s", Component,
-             CFE_REVISION == 0 ? "Development Build" : "Release", SrcVersion, CodeName, Component, LastOffcRel,
-             CFE_Config_EdsState());
+    char RevInfo[32];
+
+    CFE_Config_GetMissionRevString(RevInfo, sizeof(RevInfo), CFE_MISSION_REV, LastOffcRel);
+
+    snprintf(Buf, Size, "%s %s (%s) %s, EDS %s", Component, SrcVersion, CodeName, RevInfo,
+             CFE_Config_EdsState(Component));
 }
