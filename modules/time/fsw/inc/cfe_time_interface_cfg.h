@@ -18,12 +18,11 @@
 
 /**
  * @file
- *   CFE Time Services (CFE_TIME) Application Public Definitions
  *
- * This provides default values for configurable items that affect
- * the interface(s) of this module.  This includes the CMD/TLM message
- * interface, tables definitions, and any other data products that
- * serve to exchange information with other entities.
+ * CFE Time Services (CFE_TIME) Application Mission Configuration Header File
+ *
+ * This is a compatibility header for the "mission_cfg.h" file that has
+ * traditionally provided public config definitions for each CFS app.
  *
  * @note This file may be overridden/superceded by mission-provided definitions
  * either by overriding this header or by generating definitions from a command/data
@@ -31,6 +30,8 @@
  */
 #ifndef CFE_TIME_INTERFACE_CFG_H
 #define CFE_TIME_INTERFACE_CFG_H
+
+#include "cfe_time_interface_cfg_values.h"
 
 /**
 **  \cfetimecfg Default Time Format
@@ -49,8 +50,11 @@
 **      if CFE_MISSION_TIME_CFG_DEFAULT_TAI is defined as false then CFE_MISSION_TIME_CFG_DEFAULT_UTC must be
 **      defined as true.
 */
-#define CFE_MISSION_TIME_CFG_DEFAULT_TAI true
-#define CFE_MISSION_TIME_CFG_DEFAULT_UTC false
+#define CFE_MISSION_TIME_CFG_DEFAULT_TAI         CFE_MISSION_TIME_CFGVAL(CFG_DEFAULT_TAI)
+#define DEFAULT_CFE_MISSION_TIME_CFG_DEFAULT_TAI true
+
+#define CFE_MISSION_TIME_CFG_DEFAULT_UTC         CFE_MISSION_TIME_CFGVAL(CFG_DEFAULT_UTC)
+#define DEFAULT_CFE_MISSION_TIME_CFG_DEFAULT_UTC false
 
 /**
 **  \cfetimecfg Default Time Format
@@ -62,7 +66,8 @@
 **  \par Limits
 **      Not Applicable
 */
-#define CFE_MISSION_TIME_CFG_FAKE_TONE true
+#define CFE_MISSION_TIME_CFG_FAKE_TONE         CFE_MISSION_TIME_CFGVAL(CFG_FAKE_TONE)
+#define DEFAULT_CFE_MISSION_TIME_CFG_FAKE_TONE true
 
 /**
 **  \cfetimecfg Default Time and Tone Order
@@ -85,8 +90,11 @@
 **      Either CFE_MISSION_TIME_AT_TONE_WAS or CFE_MISSION_TIME_AT_TONE_WILL_BE must be set to true.
 **      They may not both be true and they may not both be false.
 */
-#define CFE_MISSION_TIME_AT_TONE_WAS     true
-#define CFE_MISSION_TIME_AT_TONE_WILL_BE false
+#define CFE_MISSION_TIME_AT_TONE_WAS         CFE_MISSION_TIME_CFGVAL(AT_TONE_WAS)
+#define DEFAULT_CFE_MISSION_TIME_AT_TONE_WAS true
+
+#define CFE_MISSION_TIME_AT_TONE_WILL_BE         CFE_MISSION_TIME_CFGVAL(AT_TONE_WILL_BE)
+#define DEFAULT_CFE_MISSION_TIME_AT_TONE_WILL_BE false
 
 /**
 **  \cfetimecfg Min and Max Time Elapsed
@@ -110,8 +118,11 @@
 **  \par Limits
 **       0 to 999,999 decimal
 */
-#define CFE_MISSION_TIME_MIN_ELAPSED 0
-#define CFE_MISSION_TIME_MAX_ELAPSED 200000
+#define CFE_MISSION_TIME_MIN_ELAPSED         CFE_MISSION_TIME_CFGVAL(MIN_ELAPSED)
+#define DEFAULT_CFE_MISSION_TIME_MIN_ELAPSED 0
+
+#define CFE_MISSION_TIME_MAX_ELAPSED         CFE_MISSION_TIME_CFGVAL(MAX_ELAPSED)
+#define DEFAULT_CFE_MISSION_TIME_MAX_ELAPSED 200000
 
 /**
 **  \cfetimecfg Default Time Values
@@ -136,16 +147,26 @@
 **  \par Limits
 **       Not Applicable
 */
-#define CFE_MISSION_TIME_DEF_MET_SECS 1000
-#define CFE_MISSION_TIME_DEF_MET_SUBS 0
+#define CFE_MISSION_TIME_DEF_MET_SECS         CFE_MISSION_TIME_CFGVAL(DEF_MET_SECS)
+#define DEFAULT_CFE_MISSION_TIME_DEF_MET_SECS 1000
 
-#define CFE_MISSION_TIME_DEF_STCF_SECS 1000000
-#define CFE_MISSION_TIME_DEF_STCF_SUBS 0
+#define CFE_MISSION_TIME_DEF_MET_SUBS         CFE_MISSION_TIME_CFGVAL(DEF_MET_SUBS)
+#define DEFAULT_CFE_MISSION_TIME_DEF_MET_SUBS 0
 
-#define CFE_MISSION_TIME_DEF_LEAPS 37
+#define CFE_MISSION_TIME_DEF_STCF_SECS         CFE_MISSION_TIME_CFGVAL(DEF_STCF_SECS)
+#define DEFAULT_CFE_MISSION_TIME_DEF_STCF_SECS 1000000
 
-#define CFE_MISSION_TIME_DEF_DELAY_SECS 0
-#define CFE_MISSION_TIME_DEF_DELAY_SUBS 1000
+#define CFE_MISSION_TIME_DEF_STCF_SUBS         CFE_MISSION_TIME_CFGVAL(DEF_STCF_SUBS)
+#define DEFAULT_CFE_MISSION_TIME_DEF_STCF_SUBS 0
+
+#define CFE_MISSION_TIME_DEF_LEAPS         CFE_MISSION_TIME_CFGVAL(DEF_LEAPS)
+#define DEFAULT_CFE_MISSION_TIME_DEF_LEAPS 37
+
+#define CFE_MISSION_TIME_DEF_DELAY_SECS         CFE_MISSION_TIME_CFGVAL(DEF_DELAY_SECS)
+#define DEFAULT_CFE_MISSION_TIME_DEF_DELAY_SECS 0
+
+#define CFE_MISSION_TIME_DEF_DELAY_SUBS         CFE_MISSION_TIME_CFGVAL(DEF_DELAY_SUBS)
+#define DEFAULT_CFE_MISSION_TIME_DEF_DELAY_SUBS 1000
 
 /**
 **  \cfetimecfg Default EPOCH Values
@@ -162,15 +183,27 @@
 **      Second - 0 to 59
 **      Micros - 0 to 999999
 */
-#define CFE_MISSION_TIME_EPOCH_YEAR   1980
-#define CFE_MISSION_TIME_EPOCH_DAY    1
-#define CFE_MISSION_TIME_EPOCH_HOUR   0
-#define CFE_MISSION_TIME_EPOCH_MINUTE 0
-#define CFE_MISSION_TIME_EPOCH_SECOND 0
-#define CFE_MISSION_TIME_EPOCH_MICROS 0
+#define CFE_MISSION_TIME_EPOCH_YEAR         CFE_MISSION_TIME_CFGVAL(EPOCH_YEAR)
+#define DEFAULT_CFE_MISSION_TIME_EPOCH_YEAR 1980
+
+#define CFE_MISSION_TIME_EPOCH_DAY         CFE_MISSION_TIME_CFGVAL(EPOCH_DAY)
+#define DEFAULT_CFE_MISSION_TIME_EPOCH_DAY 1
+
+#define CFE_MISSION_TIME_EPOCH_HOUR         CFE_MISSION_TIME_CFGVAL(EPOCH_HOUR)
+#define DEFAULT_CFE_MISSION_TIME_EPOCH_HOUR 0
+
+#define CFE_MISSION_TIME_EPOCH_MINUTE         CFE_MISSION_TIME_CFGVAL(EPOCH_MINUTE)
+#define DEFAULT_CFE_MISSION_TIME_EPOCH_MINUTE 0
+
+#define CFE_MISSION_TIME_EPOCH_SECOND         CFE_MISSION_TIME_CFGVAL(EPOCH_SECOND)
+#define DEFAULT_CFE_MISSION_TIME_EPOCH_SECOND 0
+
+#define CFE_MISSION_TIME_EPOCH_MICROS         CFE_MISSION_TIME_CFGVAL(EPOCH_MICROS)
+#define DEFAULT_CFE_MISSION_TIME_EPOCH_MICROS 0
 
 /* new value added for CFE_TIME_Print() */
-#define CFE_MISSION_TIME_EPOCH_SECONDS 315532800
+#define CFE_MISSION_TIME_EPOCH_SECONDS         CFE_MISSION_TIME_CFGVAL(EPOCH_SECONDS)
+#define DEFAULT_CFE_MISSION_TIME_EPOCH_SECONDS 315532800
 
 /**
 **  \cfetimecfg Time File System Factor
@@ -208,6 +241,7 @@
 **  \par Limits
 **      Not Applicable
 */
-#define CFE_MISSION_TIME_FS_FACTOR 789004800
+#define CFE_MISSION_TIME_FS_FACTOR         CFE_MISSION_TIME_CFGVAL(FS_FACTOR)
+#define DEFAULT_CFE_MISSION_TIME_FS_FACTOR 789004800
 
 #endif

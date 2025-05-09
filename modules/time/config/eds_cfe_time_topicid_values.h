@@ -20,45 +20,11 @@
  * @file
  *   CFE Time Services (CFE_TIME) Application Topic IDs
  */
-#ifndef CFE_TIME_TOPICIDS_H
-#define CFE_TIME_TOPICIDS_H
+#ifndef EDS_CFE_TIME_TOPICIDS_H
+#define EDS_CFE_TIME_TOPICIDS_H
 
-/**
-**  \cfemissioncfg cFE Portable Message Numbers for Commands
-**
-**  \par Description:
-**      Portable message numbers for the cFE command messages
-**
-**  \par Limits
-**      Not Applicable
-*/
-#define CFE_MISSION_TIME_CMD_TOPICID       5
-#define CFE_MISSION_TIME_SEND_HK_TOPICID   13
-#define CFE_MISSION_TIME_TONE_CMD_TOPICID  16
-#define CFE_MISSION_TIME_ONEHZ_CMD_TOPICID 17
+#include "cfe_mission_eds_designparameters.h"
 
-/**
-**  \cfemissioncfg cFE Portable Message Numbers for Global Messages
-**
-**  \par Description:
-**      Portable message numbers for the cFE global messages
-**
-**  \par Limits
-**      Not Applicable
-*/
-#define CFE_MISSION_TIME_DATA_CMD_TOPICID 0
-#define CFE_MISSION_TIME_SEND_CMD_TOPICID 2
-
-/**
-**  \cfemissioncfg cFE Portable Message Numbers for Telemetry
-**
-**  \par Description:
-**      Portable message numbers for the cFE telemetry messages
-**
-**  \par Limits
-**      Not Applicable
-*/
-#define CFE_MISSION_TIME_HK_TLM_TOPICID   5
-#define CFE_MISSION_TIME_DIAG_TLM_TOPICID 6
+#define CFE_MISSION_TIME_TIDVAL(x) EdsParam_CFE_MISSION_TIME_##x##_TOPICID
 
 #endif

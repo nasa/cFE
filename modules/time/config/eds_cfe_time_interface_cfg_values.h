@@ -18,24 +18,22 @@
 
 /**
  * @file
+ *   CFE Executive Services (CFE_ES) Application Public Definitions
  *
- * CFE Time Services (CFE_TIME) Application Platform Configuration Header File
- *
- * This is a compatibility header for the "platform_cfg.h" file that has
- * traditionally provided both public and private config definitions
- * for each CFS app.
- *
- * These definitions are now provided in two separate files, one for
- * the public/mission scope and one for internal scope.
+ * This provides default values for configurable items that affect
+ * the interface(s) of this module.  This includes the CMD/TLM message
+ * interface, tables definitions, and any other data products that
+ * serve to exchange information with other entities.
  *
  * @note This file may be overridden/superceded by mission-provided definitions
  * either by overriding this header or by generating definitions from a command/data
  * dictionary tool.
  */
-#ifndef DEFAULT_CFE_TIME_PLATFORM_CFG_H
-#define DEFAULT_CFE_TIME_PLATFORM_CFG_H
+#ifndef EDS_CFE_TIME_INTERFACE_CFG_H
+#define EDS_CFE_TIME_INTERFACE_CFG_H
 
-#include "cfe_time_mission_cfg.h"
-#include "cfe_time_internal_cfg.h"
+#include "cfe_mission_eds_designparameters.h"
+
+#define CFE_MISSION_TIME_CFGVAL(x) EdsParam_CFE_MISSION_TIME_##x
 
 #endif

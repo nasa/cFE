@@ -18,12 +18,15 @@
 
 /**
  * @file
- *   CFE Time Service (CFE_TIME) Application Private Config Definitions
  *
- * This provides default values for configurable items that are internal
- * to this module and do NOT affect the interface(s) of this module.  Changes
- * to items in this file only affect the local module and will be transparent
- * to external entities that are using the public interface(s).
+ * CFE Time Services (CFE_TIME) Application Platform Configuration Header File
+ *
+ * This is a compatibility header for the "platform_cfg.h" file that has
+ * traditionally provided both public and private config definitions
+ * for each CFS app.
+ *
+ * These definitions are now provided in two separate files, one for
+ * the public/mission scope and one for internal scope.
  *
  * @note This file may be overridden/superceded by mission-provided definitions
  * either by overriding this header or by generating definitions from a command/data
@@ -31,6 +34,8 @@
  */
 #ifndef CFE_TIME_INTERNAL_CFG_H
 #define CFE_TIME_INTERNAL_CFG_H
+
+#include "cfe_time_internal_cfg_values.h"
 
 /**
 **  \cfetimecfg Time Server or Time Client Selection
@@ -44,20 +49,11 @@
 **       Enable one, and only one by defining either CFE_PLATFORM_TIME_CFG_SERVER or
 **       CFE_PLATFORM_TIME_CFG_CLIENT AS true.  The other must be defined as false.
 */
-#define CFE_PLATFORM_TIME_CFG_SERVER true
-#define CFE_PLATFORM_TIME_CFG_CLIENT false
+#define CFE_PLATFORM_TIME_CFG_SERVER         CFE_PLATFORM_TIME_CFGVAL(CFG_SERVER)
+#define DEFAULT_CFE_PLATFORM_TIME_CFG_SERVER true
 
-/**
-** \cfetimecfg Time Tone In Big-Endian Order
-**
-** \par Description:
-**      If this configuration parameter is defined, the CFE time server will
-**      publish time tones with payloads in big-endian order, and time clients
-**      will expect the tones to be in big-endian order. This is useful for
-**      mixed-endian environments. This will become obsolete once EDS is
-**      available and the CFE time tone message is defined.
-*/
-#undef CFE_PLATFORM_TIME_CFG_BIGENDIAN
+#define CFE_PLATFORM_TIME_CFG_CLIENT         CFE_PLATFORM_TIME_CFGVAL(CFG_CLIENT)
+#define DEFAULT_CFE_PLATFORM_TIME_CFG_CLIENT false
 
 /**
 **  \cfetimecfg Local MET or Virtual MET Selection for Time Servers
@@ -77,7 +73,8 @@
 **  \par Limits
 **       Only applies if #CFE_PLATFORM_TIME_CFG_SERVER is set to true.
 */
-#define CFE_PLATFORM_TIME_CFG_VIRTUAL true
+#define CFE_PLATFORM_TIME_CFG_VIRTUAL         CFE_PLATFORM_TIME_CFGVAL(CFG_VIRTUAL)
+#define DEFAULT_CFE_PLATFORM_TIME_CFG_VIRTUAL true
 
 /**
 **  \cfetimecfg Include or Exclude the Primary/Redundant Tone Selection Cmd
@@ -92,7 +89,8 @@
 **  \par Limits
 **       Not Applicable
 */
-#define CFE_PLATFORM_TIME_CFG_SIGNAL false
+#define CFE_PLATFORM_TIME_CFG_SIGNAL         CFE_PLATFORM_TIME_CFGVAL(CFG_SIGNAL)
+#define DEFAULT_CFE_PLATFORM_TIME_CFG_SIGNAL false
 
 /**
 **  \cfetimecfg Include or Exclude the Internal/External Time Source Selection Cmd
@@ -112,7 +110,8 @@
 **  \par Limits
 **       Only applies if #CFE_PLATFORM_TIME_CFG_SERVER is set to true.
 */
-#define CFE_PLATFORM_TIME_CFG_SOURCE false
+#define CFE_PLATFORM_TIME_CFG_SOURCE         CFE_PLATFORM_TIME_CFGVAL(CFG_SOURCE)
+#define DEFAULT_CFE_PLATFORM_TIME_CFG_SOURCE false
 
 /**
 **  \cfetimecfg Choose the External Time Source for Server only
@@ -128,9 +127,14 @@
 **       #CFE_PLATFORM_TIME_CFG_SRC_MET, #CFE_PLATFORM_TIME_CFG_SRC_GPS, #CFE_PLATFORM_TIME_CFG_SRC_TIME
 **       -# Only applies if #CFE_PLATFORM_TIME_CFG_SERVER is set to true.
 */
-#define CFE_PLATFORM_TIME_CFG_SRC_MET  false
-#define CFE_PLATFORM_TIME_CFG_SRC_GPS  false
-#define CFE_PLATFORM_TIME_CFG_SRC_TIME false
+#define CFE_PLATFORM_TIME_CFG_SRC_MET         CFE_PLATFORM_TIME_CFGVAL(CFG_SRC_MET)
+#define DEFAULT_CFE_PLATFORM_TIME_CFG_SRC_MET false
+
+#define CFE_PLATFORM_TIME_CFG_SRC_GPS         CFE_PLATFORM_TIME_CFGVAL(CFG_SRC_GPS)
+#define DEFAULT_CFE_PLATFORM_TIME_CFG_SRC_GPS false
+
+#define CFE_PLATFORM_TIME_CFG_SRC_TIME         CFE_PLATFORM_TIME_CFGVAL(CFG_SRC_TIME)
+#define DEFAULT_CFE_PLATFORM_TIME_CFG_SRC_TIME false
 
 /**
 **  \cfetimecfg Define the Max Delta Limits for Time Servers using an Ext Time Source
@@ -149,8 +153,11 @@
 **       Applies only if both #CFE_PLATFORM_TIME_CFG_SERVER and #CFE_PLATFORM_TIME_CFG_SOURCE are set
 **       to true.
 */
-#define CFE_PLATFORM_TIME_MAX_DELTA_SECS 0
-#define CFE_PLATFORM_TIME_MAX_DELTA_SUBS 500000
+#define CFE_PLATFORM_TIME_MAX_DELTA_SECS         CFE_PLATFORM_TIME_CFGVAL(MAX_DELTA_SECS)
+#define DEFAULT_CFE_PLATFORM_TIME_MAX_DELTA_SECS 0
+
+#define CFE_PLATFORM_TIME_MAX_DELTA_SUBS         CFE_PLATFORM_TIME_CFGVAL(MAX_DELTA_SUBS)
+#define DEFAULT_CFE_PLATFORM_TIME_MAX_DELTA_SUBS 500000
 
 /**
 **  \cfetimecfg Define the Local Clock Rollover Value in seconds and subseconds
@@ -162,8 +169,11 @@
 **  \par Limits
 **       Not Applicable
 */
-#define CFE_PLATFORM_TIME_MAX_LOCAL_SECS 27
-#define CFE_PLATFORM_TIME_MAX_LOCAL_SUBS 0
+#define CFE_PLATFORM_TIME_MAX_LOCAL_SECS         CFE_PLATFORM_TIME_CFGVAL(MAX_LOCAL_SECS)
+#define DEFAULT_CFE_PLATFORM_TIME_MAX_LOCAL_SECS 27
+
+#define CFE_PLATFORM_TIME_MAX_LOCAL_SUBS         CFE_PLATFORM_TIME_CFGVAL(MAX_LOCAL_SUBS)
+#define DEFAULT_CFE_PLATFORM_TIME_MAX_LOCAL_SUBS 0
 
 /**
 **  \cfetimecfg Define Timing Limits From One Tone To The Next
@@ -177,7 +187,8 @@
 **  \par Limits
 **       Not Applicable
 */
-#define CFE_PLATFORM_TIME_CFG_TONE_LIMIT 20000
+#define CFE_PLATFORM_TIME_CFG_TONE_LIMIT         CFE_PLATFORM_TIME_CFGVAL(CFG_TONE_LIMIT)
+#define DEFAULT_CFE_PLATFORM_TIME_CFG_TONE_LIMIT 20000
 
 /**
 **  \cfetimecfg Define Time to Start Flywheel Since Last Tone
@@ -189,7 +200,8 @@
 **  \par Limits
 **       Not Applicable
 */
-#define CFE_PLATFORM_TIME_CFG_START_FLY 2
+#define CFE_PLATFORM_TIME_CFG_START_FLY         CFE_PLATFORM_TIME_CFGVAL(CFG_START_FLY)
+#define DEFAULT_CFE_PLATFORM_TIME_CFG_START_FLY 2
 
 /**
 **  \cfetimecfg Define Periodic Time to Update Local Clock Tone Latch
@@ -202,7 +214,8 @@
 **  \par Limits
 **       Not Applicable
 */
-#define CFE_PLATFORM_TIME_CFG_LATCH_FLY 8
+#define CFE_PLATFORM_TIME_CFG_LATCH_FLY         CFE_PLATFORM_TIME_CFGVAL(CFG_LATCH_FLY)
+#define DEFAULT_CFE_PLATFORM_TIME_CFG_LATCH_FLY 8
 
 /**
 **  \cfetimecfg Define TIME Task Priorities
@@ -217,9 +230,14 @@
 **       configuration parameters.  Remember that the meaning of each task
 **       priority is inverted -- a "lower" number has a "higher" priority.
 */
-#define CFE_PLATFORM_TIME_START_TASK_PRIORITY 60
-#define CFE_PLATFORM_TIME_TONE_TASK_PRIORITY  25
-#define CFE_PLATFORM_TIME_ONEHZ_TASK_PRIORITY 25
+#define CFE_PLATFORM_TIME_START_TASK_PRIORITY         CFE_PLATFORM_TIME_CFGVAL(START_TASK_PRIORITY)
+#define DEFAULT_CFE_PLATFORM_TIME_START_TASK_PRIORITY 60
+
+#define CFE_PLATFORM_TIME_TONE_TASK_PRIORITY         CFE_PLATFORM_TIME_CFGVAL(TONE_TASK_PRIORITY)
+#define DEFAULT_CFE_PLATFORM_TIME_TONE_TASK_PRIORITY 25
+
+#define CFE_PLATFORM_TIME_ONEHZ_TASK_PRIORITY         CFE_PLATFORM_TIME_CFGVAL(ONEHZ_TASK_PRIORITY)
+#define DEFAULT_CFE_PLATFORM_TIME_ONEHZ_TASK_PRIORITY 25
 
 /**
 **  \cfetimecfg Define TIME Task Stack Sizes
@@ -236,8 +254,13 @@
 **       tools for measuring the amount of stack used by a task during operation. It
 **       is always a good idea to verify that no more than 1/2 of the stack is used.
 */
-#define CFE_PLATFORM_TIME_START_TASK_STACK_SIZE CFE_PLATFORM_ES_DEFAULT_STACK_SIZE
-#define CFE_PLATFORM_TIME_TONE_TASK_STACK_SIZE  4096
-#define CFE_PLATFORM_TIME_ONEHZ_TASK_STACK_SIZE 8192
+#define CFE_PLATFORM_TIME_START_TASK_STACK_SIZE         CFE_PLATFORM_TIME_CFGVAL(START_TASK_STACK_SIZE)
+#define DEFAULT_CFE_PLATFORM_TIME_START_TASK_STACK_SIZE CFE_PLATFORM_ES_DEFAULT_STACK_SIZE
+
+#define CFE_PLATFORM_TIME_TONE_TASK_STACK_SIZE         CFE_PLATFORM_TIME_CFGVAL(TONE_TASK_STACK_SIZE)
+#define DEFAULT_CFE_PLATFORM_TIME_TONE_TASK_STACK_SIZE 4096
+
+#define CFE_PLATFORM_TIME_ONEHZ_TASK_STACK_SIZE         CFE_PLATFORM_TIME_CFGVAL(ONEHZ_TASK_STACK_SIZE)
+#define DEFAULT_CFE_PLATFORM_TIME_ONEHZ_TASK_STACK_SIZE 8192
 
 #endif

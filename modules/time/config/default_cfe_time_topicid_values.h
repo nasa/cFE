@@ -18,24 +18,11 @@
 
 /**
  * @file
- *
- * CFE Time Services (CFE_TIME) Application Platform Configuration Header File
- *
- * This is a compatibility header for the "platform_cfg.h" file that has
- * traditionally provided both public and private config definitions
- * for each CFS app.
- *
- * These definitions are now provided in two separate files, one for
- * the public/mission scope and one for internal scope.
- *
- * @note This file may be overridden/superceded by mission-provided definitions
- * either by overriding this header or by generating definitions from a command/data
- * dictionary tool.
+ *   CFE Time Services (CFE_TIME) Application Topic IDs
  */
-#ifndef DEFAULT_CFE_TIME_PLATFORM_CFG_H
-#define DEFAULT_CFE_TIME_PLATFORM_CFG_H
+#ifndef DEFAULT_CFE_TIME_TOPICID_VALUES_H
+#define DEFAULT_CFE_TIME_TOPICID_VALUES_H
 
-#include "cfe_time_mission_cfg.h"
-#include "cfe_time_internal_cfg.h"
+#define CFE_MISSION_TIME_TIDVAL(x) DEFAULT_CFE_MISSION_TIME_##x##_TOPICID
 
 #endif

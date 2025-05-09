@@ -28,6 +28,8 @@
 #ifndef CFE_TIME_FCNCODES_H
 #define CFE_TIME_FCNCODES_H
 
+#include "cfe_time_fcncode_values.h"
+
 /*
 ** Time task command packet command codes...
 */
@@ -63,7 +65,7 @@
 **
 **  \sa
 */
-#define CFE_TIME_NOOP_CC 0 /* no-op command */
+#define CFE_TIME_NOOP_CC CFE_TIME_CCVAL(NOOP)
 
 /** \cfetimecmd Time Reset Counters
 **
@@ -108,7 +110,7 @@
 **
 **  \sa
 */
-#define CFE_TIME_RESET_COUNTERS_CC 1 /* reset counters */
+#define CFE_TIME_RESET_COUNTERS_CC CFE_TIME_CCVAL(RESET_COUNTERS)
 
 /** \cfetimecmd Request TIME Diagnostic Telemetry
 **
@@ -142,7 +144,7 @@
 **
 **  \sa
 */
-#define CFE_TIME_SEND_DIAGNOSTIC_CC 2 /* request diagnostic hk telemetry */
+#define CFE_TIME_SEND_DIAGNOSTIC_CC CFE_TIME_CCVAL(SEND_DIAGNOSTIC)
 
 /** \cfetimecmd Set Time Source
 **
@@ -192,7 +194,7 @@
 **
 **  \sa #CFE_TIME_SET_STATE_CC, #CFE_TIME_SET_SIGNAL_CC
 */
-#define CFE_TIME_SET_SOURCE_CC 3 /* set clock source (int vs ext) */
+#define CFE_TIME_SET_SOURCE_CC CFE_TIME_CCVAL(SET_SOURCE)
 
 /** \cfetimecmd Set Time State
 **
@@ -249,7 +251,7 @@
 **
 **  \sa #CFE_TIME_SET_SOURCE_CC, #CFE_TIME_SET_SIGNAL_CC
 */
-#define CFE_TIME_SET_STATE_CC 4 /* set clock state */
+#define CFE_TIME_SET_STATE_CC CFE_TIME_CCVAL(SET_STATE)
 
 /** \cfetimecmd Add Time to Tone Time Delay
 **
@@ -287,7 +289,7 @@
 **
 **  \sa #CFE_TIME_SUB_DELAY_CC
 */
-#define CFE_TIME_ADD_DELAY_CC 5 /* add tone delay value */
+#define CFE_TIME_ADD_DELAY_CC CFE_TIME_CCVAL(ADD_DELAY)
 
 /** \cfetimecmd Subtract Time from Tone Time Delay
 **
@@ -325,7 +327,7 @@
 **
 **  \sa #CFE_TIME_ADD_DELAY_CC
 */
-#define CFE_TIME_SUB_DELAY_CC 6 /* sub tone delay value */
+#define CFE_TIME_SUB_DELAY_CC CFE_TIME_CCVAL(SUB_DELAY)
 
 /** \cfetimecmd Set Spacecraft Time
 **
@@ -370,7 +372,7 @@
 **
 **  \sa #CFE_TIME_SET_MET_CC, #CFE_TIME_SET_STCF_CC, #CFE_TIME_SET_LEAP_SECONDS_CC
 */
-#define CFE_TIME_SET_TIME_CC 7 /* set time */
+#define CFE_TIME_SET_TIME_CC CFE_TIME_CCVAL(SET_TIME)
 
 /** \cfetimecmd Set Mission Elapsed Time
 **
@@ -410,7 +412,7 @@
 **
 **  \sa #CFE_TIME_SET_TIME_CC, #CFE_TIME_SET_STCF_CC, #CFE_TIME_SET_LEAP_SECONDS_CC
 */
-#define CFE_TIME_SET_MET_CC 8 /* set MET */
+#define CFE_TIME_SET_MET_CC CFE_TIME_CCVAL(SET_MET)
 
 /** \cfetimecmd Set Spacecraft Time Correlation Factor
 **
@@ -447,7 +449,7 @@
 **
 **  \sa #CFE_TIME_SET_TIME_CC, #CFE_TIME_SET_MET_CC, #CFE_TIME_SET_LEAP_SECONDS_CC
 */
-#define CFE_TIME_SET_STCF_CC 9 /* set STCF */
+#define CFE_TIME_SET_STCF_CC CFE_TIME_CCVAL(SET_STCF)
 
 /** \cfetimecmd Set Leap Seconds
 **
@@ -482,7 +484,7 @@
 **
 **  \sa #CFE_TIME_SET_TIME_CC, #CFE_TIME_SET_MET_CC, #CFE_TIME_SET_STCF_CC
 */
-#define CFE_TIME_SET_LEAP_SECONDS_CC 10 /* set Leap Seconds */
+#define CFE_TIME_SET_LEAP_SECONDS_CC CFE_TIME_CCVAL(SET_LEAP_SECONDS)
 
 /** \cfetimecmd Add Delta to Spacecraft Time Correlation Factor
 **
@@ -518,7 +520,7 @@
 **  \sa #CFE_TIME_ADD_ADJUST_CC, #CFE_TIME_SUB_ADJUST_CC, #CFE_TIME_ADD_ONE_HZ_ADJUSTMENT_CC,
 *#CFE_TIME_SUB_ONE_HZ_ADJUSTMENT_CC
 */
-#define CFE_TIME_ADD_ADJUST_CC 11 /* add one time STCF adjustment */
+#define CFE_TIME_ADD_ADJUST_CC CFE_TIME_CCVAL(ADD_ADJUST)
 
 /** \cfetimecmd Subtract Delta from Spacecraft Time Correlation Factor
 **
@@ -552,7 +554,7 @@
 **
 **  \sa #CFE_TIME_ADD_ADJUST_CC, #CFE_TIME_ADD_ONE_HZ_ADJUSTMENT_CC, #CFE_TIME_SUB_ONE_HZ_ADJUSTMENT_CC
 */
-#define CFE_TIME_SUB_ADJUST_CC 12 /* subtract one time STCF adjustment */
+#define CFE_TIME_SUB_ADJUST_CC CFE_TIME_CCVAL(SUB_ADJUST)
 
 /** \cfetimecmd Add Delta to Spacecraft Time Correlation Factor each 1Hz
 **
@@ -598,7 +600,7 @@
 **
 **  \sa #CFE_TIME_ADD_ADJUST_CC, #CFE_TIME_SUB_ADJUST_CC, #CFE_TIME_SUB_ONE_HZ_ADJUSTMENT_CC
 */
-#define CFE_TIME_ADD_ONE_HZ_ADJUSTMENT_CC 13 /* add 1Hz STCF adjustment */
+#define CFE_TIME_ADD_ONE_HZ_ADJUSTMENT_CC CFE_TIME_CCVAL(ADD_ONE_HZ_ADJUSTMENT)
 
 /** \cfetimecmd Subtract Delta from Spacecraft Time Correlation Factor each 1Hz
 **
@@ -646,7 +648,7 @@
 **
 **  \sa #CFE_TIME_ADD_ADJUST_CC, #CFE_TIME_SUB_ADJUST_CC, #CFE_TIME_ADD_ONE_HZ_ADJUSTMENT_CC
 */
-#define CFE_TIME_SUB_ONE_HZ_ADJUSTMENT_CC 14 /* subtract 1Hz STCF adjustment */
+#define CFE_TIME_SUB_ONE_HZ_ADJUSTMENT_CC CFE_TIME_CCVAL(SUB_ONE_HZ_ADJUSTMENT)
 
 /** \cfetimecmd Set Tone Signal Source
 **
@@ -688,7 +690,7 @@
 **
 **  \sa #CFE_TIME_SET_STATE_CC, #CFE_TIME_SET_SOURCE_CC
 */
-#define CFE_TIME_SET_SIGNAL_CC 15 /* set clock signal (pri vs red) */
+#define CFE_TIME_SET_SIGNAL_CC CFE_TIME_CCVAL(SET_SIGNAL)
 /** \} */
 
 #endif
