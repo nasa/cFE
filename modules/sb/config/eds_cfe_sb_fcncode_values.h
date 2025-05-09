@@ -18,36 +18,22 @@
 
 /**
  * @file
- *   CFE Software Bus (CFE_SB) Application Topic IDs
+ *   Specification for the CFE Event Services (CFE_SB) command function codes
+ *
+ * @note
+ *   This file should be strictly limited to the command/function code (CC)
+ *   macro definitions.  Other definitions such as enums, typedefs, or other
+ *   macros should be placed in the msgdefs.h or msg.h files.
  */
-#ifndef CFE_SB_TOPICIDS_H
-#define CFE_SB_TOPICIDS_H
+#ifndef EDS_CFE_SB_FCNCODE_VALUES_H
+#define EDS_CFE_SB_FCNCODE_VALUES_H
 
-/**
-**  \cfemissioncfg cFE Portable Message Numbers for Commands
-**
-**  \par Description:
-**      Portable message numbers for the cFE command messages
-**
-**  \par Limits
-**      Not Applicable
-*/
-#define CFE_MISSION_SB_CMD_TOPICID          3
-#define CFE_MISSION_SB_SEND_HK_TOPICID      11
-#define CFE_MISSION_SB_SUB_RPT_CTRL_TOPICID 14
+#include "cfe_sb_eds_cc.h"
 
-/**
-**  \cfemissioncfg cFE Portable Message Numbers for Telemetry
-**
-**  \par Description:
-**      Portable message numbers for the cFE telemetry messages
-**
-**  \par Limits
-**      Not Applicable
-*/
-#define CFE_MISSION_SB_HK_TLM_TOPICID      3
-#define CFE_MISSION_SB_STATS_TLM_TOPICID   10
-#define CFE_MISSION_SB_ALLSUBS_TLM_TOPICID 13
-#define CFE_MISSION_SB_ONESUB_TLM_TOPICID  14
+/************************************************************************
+ * Macro Definitions
+ ************************************************************************/
+
+#define CFE_SB_CCVAL(x) EDS_CONTAINER_CFE_SB_##x##_CC
 
 #endif

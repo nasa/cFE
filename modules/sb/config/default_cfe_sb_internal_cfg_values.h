@@ -18,19 +18,21 @@
 
 /**
  * @file
+ *   CFE Software Bus (CFE_SB) Application Private Config Definitions
  *
- * CFE Event Services (CFE_SB) Application Mission Configuration Header File
- *
- * This is a compatibility header for the "mission_cfg.h" file that has
- * traditionally provided public config definitions for each CFS app.
+ * This provides default values for configurable items that are internal
+ * to this module and do NOT affect the interface(s) of this module.  Changes
+ * to items in this file only affect the local module and will be transparent
+ * to external entities that are using the public interface(s).
  *
  * @note This file may be overridden/superceded by mission-provided definitions
  * either by overriding this header or by generating definitions from a command/data
  * dictionary tool.
  */
-#ifndef DEFAULT_CFE_SB_MISSION_CFG_H
-#define DEFAULT_CFE_SB_MISSION_CFG_H
+#ifndef DEFAULT_CFE_SB_INTERNAL_CFG_VALUES_H
+#define DEFAULT_CFE_SB_INTERNAL_CFG_VALUES_H
 
-#include "cfe_sb_interface_cfg.h"
+/* Use the default configuration value for all */
+#define CFE_PLATFORM_SB_CFGVAL(x) DEFAULT_CFE_PLATFORM_SB_##x
 
 #endif

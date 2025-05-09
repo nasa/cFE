@@ -29,41 +29,10 @@
  * either by overriding this header or by generating definitions from a command/data
  * dictionary tool.
  */
-#ifndef CFE_SB_INTERFACE_CFG_H
-#define CFE_SB_INTERFACE_CFG_H
+#ifndef DEFAULT_CFE_SB_INTERFACE_CFG_VALUES_H
+#define DEFAULT_CFE_SB_INTERFACE_CFG_VALUES_H
 
-/**
-**  \cfesbcfg Maximum SB Message Size
-**
-**  \par Description:
-**      The following definition dictates the maximum message size allowed on
-**      the software bus. SB checks the pkt length field in the header of all
-**      messages sent. If the pkt length field indicates the message is larger
-**      than this define, SB sends an event and rejects the send.
-**
-**  \par Limits
-**      This parameter has a lower limit of 6 (CCSDS primary header size).  There
-**      are no restrictions on the upper limit however, the maximum message size is
-**      system dependent and should be verified.  Total message size values that are
-**      checked against this configuration are defined by a 16 bit data word.
-*/
-#define CFE_MISSION_SB_MAX_SB_MSG_SIZE 32768
-
-/**
-**  \cfesbcfg Maximum Number of pipes that SB command/telemetry messages may hold
-**
-**  \par Description:
-**       Dictates the maximum number of unique Pipes the SB message definitions will hold.
-**
-**       This affects the layout of command/telemetry messages but does not affect run
-**       time behavior or internal allocation.
-**
-**  \par Limits
-**       All CPUs within the same SB domain (mission) must share the same definition
-**       Note this affects the size of messages, so it must not cause any message
-**       to exceed the max length.
-**
-*/
-#define CFE_MISSION_SB_MAX_PIPES 32
+/* Use the default configuration value for all */
+#define CFE_MISSION_SB_CFGVAL(x) DEFAULT_CFE_MISSION_SB_##x
 
 #endif

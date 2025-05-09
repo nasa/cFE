@@ -18,19 +18,13 @@
 
 /**
  * @file
- *
- * CFE Event Services (CFE_SB) Application Mission Configuration Header File
- *
- * This is a compatibility header for the "mission_cfg.h" file that has
- * traditionally provided public config definitions for each CFS app.
- *
- * @note This file may be overridden/superceded by mission-provided definitions
- * either by overriding this header or by generating definitions from a command/data
- * dictionary tool.
+ *   Specification for the CFE Event Services (CFE_SB) command and telemetry
+ *   message payload and constant definitions.
  */
-#ifndef DEFAULT_CFE_SB_MISSION_CFG_H
-#define DEFAULT_CFE_SB_MISSION_CFG_H
+#ifndef EDS_CFE_SB_MSGDEFS_H
+#define EDS_CFE_SB_MSGDEFS_H
 
-#include "cfe_sb_interface_cfg.h"
+#include "cfe_sb_eds_typedefs.h"
+#include "cfe_sb_fcncodes.h"
 
 #endif

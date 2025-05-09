@@ -22,8 +22,8 @@
  * Declarations and prototypes for cfe_sb_extern_typedefs module
  */
 
-#ifndef CFE_SB_EXTERN_TYPEDEFS_H
-#define CFE_SB_EXTERN_TYPEDEFS_H
+#ifndef DEFAULT_CFE_SB_EXTERN_TYPEDEFS_H
+#define DEFAULT_CFE_SB_EXTERN_TYPEDEFS_H
 
 #include "common_types.h"
 #include "cfe_mission_cfg.h"

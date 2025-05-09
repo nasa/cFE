@@ -18,19 +18,15 @@
 
 /**
  * @file
- *
- * CFE Event Services (CFE_SB) Application Mission Configuration Header File
- *
- * This is a compatibility header for the "mission_cfg.h" file that has
- * traditionally provided public config definitions for each CFS app.
- *
- * @note This file may be overridden/superceded by mission-provided definitions
- * either by overriding this header or by generating definitions from a command/data
- * dictionary tool.
+ *   CFE Event Services (CFE_SB) Application Message IDs
  */
-#ifndef DEFAULT_CFE_SB_MISSION_CFG_H
-#define DEFAULT_CFE_SB_MISSION_CFG_H
+#ifndef DEFAULT_CFE_SB_MSGID_VALUES_H
+#define DEFAULT_CFE_SB_MSGID_VALUES_H
 
-#include "cfe_sb_interface_cfg.h"
+#include "cfe_core_api_base_msgids.h"
+#include "cfe_sb_topicids.h"
+
+#define CFE_PLATFORM_SB_CMD_MIDVAL(x) CFE_PLATFORM_CMD_TOPICID_TO_MIDV(CFE_MISSION_SB_##x##_TOPICID)
+#define CFE_PLATFORM_SB_TLM_MIDVAL(x) CFE_PLATFORM_TLM_TOPICID_TO_MIDV(CFE_MISSION_SB_##x##_TOPICID)
 
 #endif

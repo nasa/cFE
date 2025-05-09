@@ -18,19 +18,22 @@
 
 /**
  * @file
+ *   CFE Executive Services (CFE_ES) Application Public Definitions
  *
- * CFE Event Services (CFE_SB) Application Mission Configuration Header File
- *
- * This is a compatibility header for the "mission_cfg.h" file that has
- * traditionally provided public config definitions for each CFS app.
+ * This provides default values for configurable items that affect
+ * the interface(s) of this module.  This includes the CMD/TLM message
+ * interface, tables definitions, and any other data products that
+ * serve to exchange information with other entities.
  *
  * @note This file may be overridden/superceded by mission-provided definitions
  * either by overriding this header or by generating definitions from a command/data
  * dictionary tool.
  */
-#ifndef DEFAULT_CFE_SB_MISSION_CFG_H
-#define DEFAULT_CFE_SB_MISSION_CFG_H
+#ifndef EDS_CFE_SB_INTERFACE_CFG_VALUES_H
+#define EDS_CFE_SB_INTERFACE_CFG_VALUES_H
 
-#include "cfe_sb_interface_cfg.h"
+#include "cfe_mission_eds_designparameters.h"
+
+#define CFE_MISSION_SB_CFGVAL(x) EdsParam_CFE_MISSION_SB_##x
 
 #endif

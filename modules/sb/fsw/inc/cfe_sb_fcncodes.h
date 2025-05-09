@@ -28,6 +28,8 @@
 #ifndef CFE_SB_FCNCODES_H
 #define CFE_SB_FCNCODES_H
 
+#include "cfe_sb_fcncode_values.h"
+
 /****************************************
 ** SB task command packet command codes
 ****************************************/
@@ -63,7 +65,7 @@
 **
 **  \sa
 */
-#define CFE_SB_NOOP_CC 0
+#define CFE_SB_NOOP_CC CFE_SB_CCVAL(NOOP)
 
 /** \cfesbcmd Software Bus Reset Counters
 **
@@ -110,7 +112,7 @@
 **
 **  \sa
 */
-#define CFE_SB_RESET_COUNTERS_CC 1
+#define CFE_SB_RESET_COUNTERS_CC CFE_SB_CCVAL(RESET_COUNTERS)
 
 /** \cfesbcmd Send Software Bus Statistics
 **
@@ -144,7 +146,7 @@
 **
 **  \sa
 */
-#define CFE_SB_SEND_SB_STATS_CC 2
+#define CFE_SB_SEND_SB_STATS_CC CFE_SB_CCVAL(SEND_SB_STATS)
 
 /** \cfesbcmd Write Software Bus Routing Info to a File
 **
@@ -189,7 +191,7 @@
 **       file in the file system and could, if performed repeatedly without
 **       sufficient file management by the operator, fill the file system.
 */
-#define CFE_SB_WRITE_ROUTING_INFO_CC 3
+#define CFE_SB_WRITE_ROUTING_INFO_CC CFE_SB_CCVAL(WRITE_ROUTING_INFO)
 
 /** \cfesbcmd Enable Software Bus Route
 **
@@ -227,7 +229,7 @@
 **  \par Criticality
 **       This command is not inherently dangerous.
 */
-#define CFE_SB_ENABLE_ROUTE_CC 4
+#define CFE_SB_ENABLE_ROUTE_CC CFE_SB_CCVAL(ENABLE_ROUTE)
 
 /** \cfesbcmd Disable Software Bus Route
 **
@@ -268,7 +270,7 @@
 **       commanding to the software bus until the processor was reset. There
 **       are similar problems that may occur when using this command.
 */
-#define CFE_SB_DISABLE_ROUTE_CC 5
+#define CFE_SB_DISABLE_ROUTE_CC CFE_SB_CCVAL(DISABLE_ROUTE)
 
 /** \cfesbcmd Write Pipe Info to a File
 **
@@ -313,7 +315,7 @@
 **       file in the file system and could, if performed repeatedly without
 **       sufficient file management by the operator, fill the file system.
 */
-#define CFE_SB_WRITE_PIPE_INFO_CC 7
+#define CFE_SB_WRITE_PIPE_INFO_CC CFE_SB_CCVAL(WRITE_PIPE_INFO)
 
 /** \cfesbcmd Write Map Info to a File
 **
@@ -359,7 +361,7 @@
 **       file in the file system and could, if performed repeatedly without
 **       sufficient file management by the operator, fill the file system.
 */
-#define CFE_SB_WRITE_MAP_INFO_CC 8
+#define CFE_SB_WRITE_MAP_INFO_CC CFE_SB_CCVAL(WRITE_MAP_INFO)
 
 /** \cfesbcmd Enable Subscription Reporting Command
 **
@@ -392,7 +394,7 @@
 **  \sa #CFE_SB_SingleSubscriptionTlm_t, #CFE_SB_DISABLE_SUB_REPORTING_CC,
 **      #CFE_SB_SEND_PREV_SUBS_CC
 */
-#define CFE_SB_ENABLE_SUB_REPORTING_CC 9
+#define CFE_SB_ENABLE_SUB_REPORTING_CC CFE_SB_CCVAL(ENABLE_SUB_REPORTING)
 
 /** \cfesbcmd Disable Subscription Reporting Command
 **
@@ -425,7 +427,7 @@
 **  \sa #CFE_SB_SingleSubscriptionTlm_t, #CFE_SB_ENABLE_SUB_REPORTING_CC,
 **      #CFE_SB_SEND_PREV_SUBS_CC
 */
-#define CFE_SB_DISABLE_SUB_REPORTING_CC 10
+#define CFE_SB_DISABLE_SUB_REPORTING_CC CFE_SB_CCVAL(DISABLE_SUB_REPORTING)
 
 /** \cfesbcmd Send Previous Subscriptions Command
 **
@@ -457,6 +459,6 @@
 **  \sa #CFE_SB_AllSubscriptionsTlm_t, #CFE_SB_ENABLE_SUB_REPORTING_CC,
 **      #CFE_SB_DISABLE_SUB_REPORTING_CC
 */
-#define CFE_SB_SEND_PREV_SUBS_CC 11
+#define CFE_SB_SEND_PREV_SUBS_CC CFE_SB_CCVAL(SEND_PREV_SUBS)
 
 #endif
