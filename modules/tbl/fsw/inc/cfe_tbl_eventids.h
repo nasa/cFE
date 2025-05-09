@@ -346,6 +346,18 @@
 #define CFE_TBL_NO_WORK_BUFFERS_ERR_EID 60
 
 /**
+ * \brief TBL Encoding/Decoding error Event ID
+ *
+ *  \par Type: ERROR
+ *
+ *  \par Cause: Encoding/Decoding of the table binary data from the file content failed
+ *
+ *  This is possibly due to a corrupt or incompatible file.
+ *
+ */
+#define CFE_TBL_CODEC_ERROR_ERR_EID 61
+
+/**
  * \brief TBL Write File Creation Failure Event ID
  *
  *  \par Type: ERROR

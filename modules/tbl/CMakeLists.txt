@@ -24,6 +24,15 @@ set(tbl_SOURCES
     fsw/src/cfe_tbl_task_cmds.c
     fsw/src/cfe_tbl_dispatch.c
 )
+
+if (CFE_EDS_ENABLED)
+  # Use EDS-based message dispatch and codec
+  list(APPEND tbl_SOURCES fsw/src/cfe_tbl_eds_codec.c)
+else()
+  # Use hardcoded message dispatch and passthru codec
+  list(APPEND tbl_SOURCES fsw/src/cfe_tbl_passthru_codec.c)
+endif()
+
 add_library(tbl STATIC ${tbl_SOURCES})
 
 target_include_directories(tbl PUBLIC fsw/inc)

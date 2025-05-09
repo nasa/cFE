@@ -27,6 +27,7 @@
 */
 #include "cfe_tbl_registry.h"
 #include "cfe_tbl_module_all.h"
+#include "cfe_tbl_codec.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -107,6 +108,10 @@ CFE_Status_t CFE_TBL_TxnCheckConfig(CFE_TBL_TxnState_t *Txn, CFE_TBL_TableConfig
             {
                 CFE_ES_WriteToSysLog("%s: Table '%s' has invalid size (%lu)\n", __func__, BaseName,
                                      (unsigned long)Size);
+            }
+            else
+            {
+                Status = CFE_TBL_ValidateCodecConfig(ReqCfg);
             }
         }
     }

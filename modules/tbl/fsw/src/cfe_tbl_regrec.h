@@ -64,6 +64,9 @@ typedef struct CFE_TBL_TableConfig
     bool UserDefAddr;    /**< \brief Flag indicating Table address was defined by Owner Application */
     bool Critical;       /**< \brief Flag indicating whether table is a Critical Table */
 
+    /* The EDS ID is only used in EDS builds, it is stored here as a uint32. */
+    uint32 EdsId;
+
 } CFE_TBL_TableConfig_t;
 
 /**

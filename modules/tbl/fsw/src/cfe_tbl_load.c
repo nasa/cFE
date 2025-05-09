@@ -27,6 +27,7 @@
 */
 #include "cfe_tbl_module_all.h"
 #include "cfe_tbl_load.h"
+#include "cfe_tbl_codec.h"
 #include "cfe_config.h"
 
 #include <stdio.h>
@@ -132,8 +133,6 @@ CFE_Status_t CFE_TBL_ReadHeaders(CFE_TBL_TxnState_t *Txn, osal_id_t FileDescript
                                  CFE_TBL_CombinedFileHdr_t *FileHeader)
 {
     CFE_Status_t Status;
-    int32        OsStatus;
-    int32        EndianCheck = 0x01020304;
 
     /* Once the file is open, read the headers to determine the target Table */
     Status = CFE_FS_ReadHeader(&FileHeader->Std, FileDescriptor);
@@ -168,36 +167,7 @@ CFE_Status_t CFE_TBL_ReadHeaders(CFE_TBL_TxnState_t *Txn, osal_id_t FileDescript
     }
     else
     {
-        OsStatus = OS_read(FileDescriptor, &FileHeader->Tbl, sizeof(FileHeader->Tbl));
-
-        /* Verify successful read of cFE Table File Header */
-        if (OsStatus != sizeof(FileHeader->Tbl))
-        {
-            CFE_TBL_TxnAddEvent(Txn, CFE_TBL_FILE_TBL_HDR_ERR_EID, OsStatus, sizeof(FileHeader->Tbl));
-            Status = CFE_TBL_ERR_NO_TBL_HEADER;
-        }
-        else
-        {
-            /* All "required" checks have passed and we are pointing at the data */
-            Status = CFE_SUCCESS;
-
-            /* cppcheck-suppress knownConditionTrueFalse */
-            if ((*(char *)&EndianCheck) == 0x04)
-            {
-                /* If this is a little endian processor, then the standard cFE Table Header,   */
-                /* which is in big endian format, must be swapped so that the data is readable */
-                CFE_TBL_ByteSwapTblHeader(&FileHeader->Tbl);
-            }
-
-            /*
-             * Ensure termination of all local strings. These were read from a file, so they
-             * must be treated with appropriate care.  This could happen in case the file got
-             * damaged in transit or simply was not written properly to begin with.
-             *
-             * Since the "FileHeader" is a local buffer, this can be done directly.
-             */
-            FileHeader->Tbl.TableName[sizeof(FileHeader->Tbl.TableName) - 1] = '\0';
-        }
+        Status = CFE_TBL_DecodeHeadersFromFile(Txn, FileDescriptor, &FileHeader->Tbl);
     }
 
     return Status;
@@ -242,16 +212,15 @@ CFE_Status_t CFE_TBL_ValidateFileIsLoadable(CFE_TBL_TxnState_t *Txn, const CFE_T
         Status = CFE_TBL_ERR_NO_TBL_HEADER;
         CFE_TBL_TxnAddEvent(Txn, CFE_TBL_ZERO_LENGTH_LOAD_ERR_EID, Status, 0);
     }
-    else if ((TblFileHeader->Offset + TblFileHeader->NumBytes) > CFE_TBL_RegRecGetSize(RegRecPtr))
-    {
-        Status = CFE_TBL_ERR_FILE_TOO_LARGE;
-        CFE_TBL_TxnAddEvent(Txn, CFE_TBL_LOAD_EXCEEDS_SIZE_ERR_EID, Status, 0);
-    }
     else if (TblFileHeader->Offset > 0 && !CFE_TBL_RegRecIsTableLoaded(RegRecPtr))
     {
         /* Partial loads can only occur on previously loaded tables. */
         Status = CFE_TBL_ERR_PARTIAL_LOAD;
         CFE_TBL_TxnAddEvent(Txn, CFE_TBL_PARTIAL_LOAD_ERR_EID, Status, 0);
+    }
+    else
+    {
+        Status = CFE_TBL_ValidateCodecLoadSize(Txn, TblFileHeader);
     }
 
     return Status;
@@ -275,11 +244,9 @@ CFE_Status_t CFE_TBL_LoadContentFromFile(CFE_TBL_TxnState_t *Txn, osal_id_t File
     CFE_TBL_LoadBuff_t *   WorkingBufferPtr;
     size_t                 LoadTailSize;
 
-    Status           = CFE_SUCCESS;
-    RegRecPtr        = CFE_TBL_TxnRegRec(Txn);
-    WorkingBufferPtr = CFE_TBL_GetLoadInProgressBuffer(RegRecPtr);
+    RegRecPtr = CFE_TBL_TxnRegRec(Txn);
 
-    /* The working buffer should have been prepared/set by the caller prior to calling this */
+    WorkingBufferPtr = CFE_TBL_AcquireCodecBuffer(RegRecPtr);
     if (WorkingBufferPtr == NULL)
     {
         Status = CFE_TBL_ERR_NO_BUFFER_AVAIL;
@@ -339,9 +306,12 @@ CFE_Status_t CFE_TBL_LoadContentFromFile(CFE_TBL_TxnState_t *Txn, osal_id_t File
             else
             {
                 CFE_TBL_LoadBuffSetContentSize(WorkingBufferPtr, LoadTailSize);
+                Status = CFE_TBL_DecodeInputData(Txn, WorkingBufferPtr, CFE_TBL_GetLoadInProgressBuffer(RegRecPtr));
             }
         }
     }
+
+    CFE_TBL_ReleaseCodecBuffer(WorkingBufferPtr);
 
     return Status;
 }
@@ -695,20 +665,10 @@ CFE_Status_t CFE_TBL_TxnLoadFromFile(CFE_TBL_TxnState_t *Txn, const char *Filena
     {
         CFE_TBL_SetMetaDataFromFileHeader(Txn, Filename, &Header.Std);
 
-        /* Status "alternate success" codes.  These should be removed/deprecated because they are
+        /* Determine the final status code to return to the caller.  This may be an "alternate success" code,
+         * in the case that the file was not complete.  These should be removed/deprecated because they are
          * confusing, but preserving for now for backward compatibility.  */
-
-        /* Any Table load that starts beyond the first byte is a "partial load" */
-        /* But a file that starts with the first byte and ends before filling   */
-        /* the whole table is just considered "short".                          */
-        if (Header.Tbl.Offset > 0)
-        {
-            Status = CFE_TBL_WARN_PARTIAL_LOAD;
-        }
-        else if (Header.Tbl.NumBytes < CFE_TBL_RegRecGetSize(CFE_TBL_TxnRegRec(Txn)))
-        {
-            Status = CFE_TBL_WARN_SHORT_FILE;
-        }
+        Status = CFE_TBL_CodecGetFinalStatus(Txn, &Header.Tbl);
     }
 
     /* Send any events associated with this table load */
