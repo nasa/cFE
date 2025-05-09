@@ -398,7 +398,7 @@
 
       <ArrayDataType name="SubEntriesSet" dataTypeRef="SubEntries">
         <DimensionList>
-          <Dimension size="${CFE_SB/SUB_ENTRIES_PER_PKT}" />
+          <Dimension size="${CFE_MISSION/SB_SUB_ENTRIES_PER_PKT}" />
         </DimensionList>
       </ArrayDataType>
 

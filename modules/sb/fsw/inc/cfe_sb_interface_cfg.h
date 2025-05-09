@@ -70,4 +70,16 @@
 #define CFE_MISSION_SB_MAX_PIPES         CFE_MISSION_SB_CFGVAL(MAX_PIPES)
 #define DEFAULT_CFE_MISSION_SB_MAX_PIPES 32
 
+/**
+**  \cfesbcfg Maximum Number of subscription entries per subscription report packet
+**
+**  \par Description:
+**       The subscription report will group up to this number of entries into each TLM packet
+**
+**  \par Limits
+**       Must not cause the size of the subscription report telemetry packet to exceed mission limits
+*/
+#define CFE_MISSION_SB_SUB_ENTRIES_PER_PKT         CFE_MISSION_SB_CFGVAL(SUB_ENTRIES_PER_PKT)
+#define DEFAULT_CFE_MISSION_SB_SUB_ENTRIES_PER_PKT 20
+
 #endif

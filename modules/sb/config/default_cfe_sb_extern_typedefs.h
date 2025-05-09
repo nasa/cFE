@@ -29,8 +29,6 @@
 #include "cfe_mission_cfg.h"
 #include "cfe_resourceid_typedef.h"
 
-#define CFE_SB_SUB_ENTRIES_PER_PKT 20 /**< \brief Configuration parameter used by SBN App */
-
 /**
  * @brief Label definitions associated with CFE_SB_QosPriority_Enum_t
  */

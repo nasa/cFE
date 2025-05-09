@@ -63,7 +63,6 @@
   </Package>
 
   <Package name="CFE_SB" shortDescription="Software Bus Configuration">
-     <Define name="SUB_ENTRIES_PER_PKT" value="20" />
      <Define name="MSGID_BIT_SIZE" value="32" />
   </Package>
 
@@ -247,6 +246,18 @@
             to exceed the max length.
       </LongDescription>
     </Define>
+
+     <Define name="SB_SUB_ENTRIES_PER_PKT" value="20">
+       <LongDescription>
+          \cfesbcfg Maximum Number of subscription entries per subscription report packet
+
+          \par Description:
+               The subscription report will group up to this number of entries into each TLM packet
+
+          \par Limits
+               Must not cause the size of the subscription report telemetry packet to exceed mission limits
+       </LongDescription>
+     </Define>
 
     <Define name="MAX_PATH_LEN" value="64">
       <LongDescription>
