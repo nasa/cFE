@@ -26,7 +26,7 @@
 /* Function Definitions */
 /* ==================== */
 
-const char *CFE_Config_EdsState(char *ComponentName)
+const char *CFE_Config_EdsState(const char *ComponentName)
 {
     static const char ENABLED_STR[] = "inactive";
 

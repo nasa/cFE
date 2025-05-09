@@ -497,6 +497,22 @@ function(prepare)
   # Set up the global topicid header file, if present
   setup_global_topicids()
 
+  # Add an interface library for the CFS core_api, similar to the one that is defined
+  # in the arch-specific build.  This includes all of the public header files.
+  add_library(core_api INTERFACE)
+  target_include_directories(core_api INTERFACE
+    ${MISSION_BINARY_DIR}/inc
+    ${core_api_MISSION_DIR}/fsw/inc
+    ${es_MISSION_DIR}/fsw/inc
+    ${evs_MISSION_DIR}/fsw/inc
+    ${fs_MISSION_DIR}/fsw/inc
+    ${sb_MISSION_DIR}/fsw/inc
+    ${tbl_MISSION_DIR}/fsw/inc
+    ${time_MISSION_DIR}/fsw/inc
+    ${osal_MISSION_DIR}/src/os/inc
+    ${psp_MISSION_DIR}/fsw/inc
+  )
+
   # Pull in any application-specific mission-scope configuration
   # This may include user configuration files such as cfe_mission_cfg.h,
   # msgid definitions, or any other configuration/preparation that needs to
@@ -515,11 +531,9 @@ function(prepare)
   # Generate the tools for the native (host) arch
   # Add all public include dirs for core components to include path for tools
   include_directories(
-    ${MISSION_BINARY_DIR}/inc
-    ${core_api_MISSION_DIR}/fsw/inc
-    ${osal_MISSION_DIR}/src/os/inc
-    ${psp_MISSION_DIR}/fsw/inc
+    $<TARGET_PROPERTY:core_api,INTERFACE_INCLUDE_DIRECTORIES>
   )
+  
   add_subdirectory(${MISSION_SOURCE_DIR}/tools tools)
 
   # Add a dependency on the table generator tool as this is required for table builds
