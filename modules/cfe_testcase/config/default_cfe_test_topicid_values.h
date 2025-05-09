@@ -18,22 +18,11 @@
 
 /**
  * @file
- *
- * CFE Test Table struct definition
+ *   CFE Test app (CFE_TESTCASE) Application Topic IDs
  */
+#ifndef DEFAULT_CFE_TESTCASE_TOPICID_VALUES_H
+#define DEFAULT_CFE_TESTCASE_TOPICID_VALUES_H
 
-#ifndef DEFAULT_CFE_TEST_TBLSTRUCT_H
-#define DEFAULT_CFE_TEST_TBLSTRUCT_H
+#define CFE_MISSION_TESTCASE_TIDVAL(x) DEFAULT_CFE_MISSION_TESTCASE_##x##_TOPICID
 
-#include "common_types.h"
-
-/*
- * Test table structure
- */
-typedef struct
-{
-    uint16 Int1;
-    uint16 Int2;
-} CFE_TEST_TestTable_t;
-
-#endif /* CFE_TEST_TBLSTRUCT_H */
+#endif

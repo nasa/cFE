@@ -18,22 +18,35 @@
 
 /**
  * @file
- *
- * CFE Test Table struct definition
+ *   CFE Test app (CFE_TESTCASE) Application Topic IDs
  */
+#ifndef CFE_TESTCASE_TOPICIDS_H
+#define CFE_TESTCASE_TOPICIDS_H
 
-#ifndef DEFAULT_CFE_TEST_TBLSTRUCT_H
-#define DEFAULT_CFE_TEST_TBLSTRUCT_H
+#include "cfe_test_topicid_values.h"
 
-#include "common_types.h"
+/**
+**  \cfemissioncfg cFE Portable Message Numbers for Commands
+**
+**  \par Description:
+**      Portable message numbers for the cFE ES command messages
+**
+**  \par Limits
+**      Not Applicable
+*/
+#define CFE_MISSION_TESTCASE_CMD_TOPICID         CFE_MISSION_TESTCASE_TIDVAL(CMD)
+#define DEFAULT_CFE_MISSION_TESTCASE_CMD_TOPICID 2
 
-/*
- * Test table structure
- */
-typedef struct
-{
-    uint16 Int1;
-    uint16 Int2;
-} CFE_TEST_TestTable_t;
+/**
+**  \cfemissioncfg cFE Portable Message Numbers for Telemetry
+**
+**  \par Description:
+**      Portable message numbers for the cFE ES telemetry messages
+**
+**  \par Limits
+**      Not Applicable
+*/
+#define CFE_MISSION_TESTCASE_HK_TLM_TOPICID         CFE_MISSION_TESTCASE_TIDVAL(HK_TLM)
+#define DEFAULT_CFE_MISSION_TESTCASE_HK_TLM_TOPICID 2
 
-#endif /* CFE_TEST_TBLSTRUCT_H */
+#endif

@@ -18,31 +18,15 @@
 
 /**
  * @file
- *   CFE Test app (CFE_TESTCASE) Application Topic IDs
+ *   CFE Test app (CFE_TEST) Application Message IDs
  */
-#ifndef CFE_TESTCASE_TOPICIDS_H
-#define CFE_TESTCASE_TOPICIDS_H
+#ifndef DEFAULT_CFE_TESTCASE_MSGID_VALUES_H
+#define DEFAULT_CFE_TESTCASE_MSGID_VALUES_H
 
-/**
-**  \cfemissioncfg cFE Portable Message Numbers for Commands
-**
-**  \par Description:
-**      Portable message numbers for the cFE TEST command messages
-**
-**  \par Limits
-**      Not Applicable
-*/
-#define CFE_MISSION_TEST_CMD_TOPICID 2
+#include "cfe_core_api_base_msgids.h"
+#include "cfe_test_topicids.h"
 
-/**
-**  \cfemissioncfg cFE Portable Message Numbers for Telemetry
-**
-**  \par Description:
-**      Portable message numbers for the cFE TEST telemetry messages
-**
-**  \par Limits
-**      Not Applicable
-*/
-#define CFE_MISSION_TEST_HK_TLM_TOPICID 2
+#define CFE_PLATFORM_TESTCASE_CMD_MIDVAL(x) CFE_PLATFORM_CMD_TOPICID_TO_MIDV(CFE_MISSION_TESTCASE_##x##_TOPICID)
+#define CFE_PLATFORM_TESTCASE_TLM_MIDVAL(x) CFE_PLATFORM_TLM_TOPICID_TO_MIDV(CFE_MISSION_TESTCASE_##x##_TOPICID)
 
 #endif
