@@ -28,6 +28,8 @@
 #ifndef CFE_ES_FCNCODES_H
 #define CFE_ES_FCNCODES_H
 
+#include "cfe_es_fcncode_values.h"
+
 /************************************************************************
  * Macro Definitions
  ************************************************************************/
@@ -70,7 +72,7 @@
 **
 **  \sa
 */
-#define CFE_ES_NOOP_CC 0
+#define CFE_ES_NOOP_CC CFE_ES_CCVAL(NOOP)
 
 /** \cfeescmd Executive Services Reset Counters
 **
@@ -107,7 +109,7 @@
 **
 **  \sa  #CFE_ES_RESET_PR_COUNT_CC
 */
-#define CFE_ES_RESET_COUNTERS_CC 1
+#define CFE_ES_RESET_COUNTERS_CC CFE_ES_CCVAL(RESET_COUNTERS)
 
 /** \cfeescmd Executive Services Processor / Power-On Reset
 **
@@ -159,7 +161,7 @@
 **
 **  \sa  #CFE_ES_RESET_PR_COUNT_CC, #CFE_ES_SET_MAX_PR_COUNT_CC
 */
-#define CFE_ES_RESTART_CC 2
+#define CFE_ES_RESTART_CC CFE_ES_CCVAL(RESTART)
 
 /** \cfeescmd Load and Start an Application
 **
@@ -202,7 +204,7 @@
 **
 **  \sa #CFE_ES_STOP_APP_CC, #CFE_ES_RESTART_APP_CC, #CFE_ES_RELOAD_APP_CC
 */
-#define CFE_ES_START_APP_CC 4
+#define CFE_ES_START_APP_CC CFE_ES_CCVAL(START_APP)
 
 /** \cfeescmd Stop and Unload Application
 **
@@ -255,7 +257,7 @@
 **
 **  \sa #CFE_ES_START_APP_CC, #CFE_ES_RESTART_APP_CC, #CFE_ES_RELOAD_APP_CC
 */
-#define CFE_ES_STOP_APP_CC 5
+#define CFE_ES_STOP_APP_CC CFE_ES_CCVAL(STOP_APP)
 
 /** \cfeescmd Stops, Unloads, Loads using the previous File name, and Restarts an Application
 **
@@ -301,7 +303,7 @@
 **
 **  \sa #CFE_ES_START_APP_CC, #CFE_ES_STOP_APP_CC, #CFE_ES_RELOAD_APP_CC
 */
-#define CFE_ES_RESTART_APP_CC 6
+#define CFE_ES_RESTART_APP_CC CFE_ES_CCVAL(RESTART_APP)
 
 /** \cfeescmd Stops, Unloads, Loads from the command specified File and Restarts an Application
 **
@@ -347,7 +349,7 @@
 **
 **  \sa #CFE_ES_START_APP_CC, #CFE_ES_STOP_APP_CC, #CFE_ES_RESTART_APP_CC
 */
-#define CFE_ES_RELOAD_APP_CC 7
+#define CFE_ES_RELOAD_APP_CC CFE_ES_CCVAL(RELOAD_APP)
 
 /** \cfeescmd Request Executive Services Information on a specified module
 **
@@ -383,7 +385,7 @@
 **
 **  \sa #CFE_ES_QUERY_ALL_CC, #CFE_ES_QUERY_ALL_TASKS_CC
 */
-#define CFE_ES_QUERY_ONE_CC 8
+#define CFE_ES_QUERY_ONE_CC CFE_ES_CCVAL(QUERY_ONE)
 
 /** \cfeescmd Writes all Executive Services Information on all loaded modules to a File
 **
@@ -425,7 +427,7 @@
 **
 **  \sa #CFE_ES_QUERY_ONE_CC, #CFE_ES_QUERY_ALL_TASKS_CC
 */
-#define CFE_ES_QUERY_ALL_CC 9
+#define CFE_ES_QUERY_ALL_CC CFE_ES_CCVAL(QUERY_ALL)
 
 /** \cfeescmd Clear Executive Services System Log
 **
@@ -460,7 +462,7 @@
 **  \sa #CFE_ES_WRITE_SYS_LOG_CC, #CFE_ES_CLEAR_ER_LOG_CC, #CFE_ES_WRITE_ER_LOG_CC,
 **      #CFE_ES_OVER_WRITE_SYS_LOG_CC
 */
-#define CFE_ES_CLEAR_SYS_LOG_CC 10
+#define CFE_ES_CLEAR_SYS_LOG_CC CFE_ES_CCVAL(CLEAR_SYS_LOG)
 
 /** \cfeescmd Writes contents of Executive Services System Log to a File
 **
@@ -503,7 +505,7 @@
 **  \sa #CFE_ES_CLEAR_SYS_LOG_CC, #CFE_ES_CLEAR_ER_LOG_CC, #CFE_ES_WRITE_ER_LOG_CC,
 **      #CFE_ES_OVER_WRITE_SYS_LOG_CC
 */
-#define CFE_ES_WRITE_SYS_LOG_CC 11
+#define CFE_ES_WRITE_SYS_LOG_CC CFE_ES_CCVAL(WRITE_SYS_LOG)
 
 /** \cfeescmd Clears the contents of the Exception and Reset Log
 **
@@ -537,7 +539,7 @@
 **
 **  \sa #CFE_ES_CLEAR_SYS_LOG_CC, #CFE_ES_WRITE_SYS_LOG_CC, #CFE_ES_WRITE_ER_LOG_CC
 */
-#define CFE_ES_CLEAR_ER_LOG_CC 12
+#define CFE_ES_CLEAR_ER_LOG_CC CFE_ES_CCVAL(CLEAR_ER_LOG)
 
 /** \cfeescmd Writes Exception and Reset Log to a File
 **
@@ -580,7 +582,7 @@
 **
 **  \sa #CFE_ES_CLEAR_SYS_LOG_CC, #CFE_ES_WRITE_SYS_LOG_CC, #CFE_ES_CLEAR_ER_LOG_CC
 */
-#define CFE_ES_WRITE_ER_LOG_CC 13
+#define CFE_ES_WRITE_ER_LOG_CC CFE_ES_CCVAL(WRITE_ER_LOG)
 
 /** \cfeescmd Start Performance Analyzer
 **
@@ -625,7 +627,7 @@
 **
 **  \sa #CFE_ES_STOP_PERF_DATA_CC, #CFE_ES_SET_PERF_FILTER_MASK_CC, #CFE_ES_SET_PERF_TRIGGER_MASK_CC
 */
-#define CFE_ES_START_PERF_DATA_CC 14
+#define CFE_ES_START_PERF_DATA_CC CFE_ES_CCVAL(START_PERF_DATA)
 
 /** \cfeescmd Stop Performance Analyzer and write data file
 **
@@ -675,7 +677,7 @@
 **
 **  \sa #CFE_ES_START_PERF_DATA_CC, #CFE_ES_SET_PERF_FILTER_MASK_CC, #CFE_ES_SET_PERF_TRIGGER_MASK_CC
 */
-#define CFE_ES_STOP_PERF_DATA_CC 15
+#define CFE_ES_STOP_PERF_DATA_CC CFE_ES_CCVAL(STOP_PERF_DATA)
 
 /** \cfeescmd Set Performance Analyzer's Filter Masks
 **
@@ -712,7 +714,7 @@
 **
 **  \sa #CFE_ES_START_PERF_DATA_CC, #CFE_ES_STOP_PERF_DATA_CC, #CFE_ES_SET_PERF_TRIGGER_MASK_CC
 */
-#define CFE_ES_SET_PERF_FILTER_MASK_CC 16
+#define CFE_ES_SET_PERF_FILTER_MASK_CC CFE_ES_CCVAL(SET_PERF_FILTER_MASK)
 
 /** \cfeescmd Set Performance Analyzer's Trigger Masks
 **
@@ -749,7 +751,7 @@
 **
 **  \sa #CFE_ES_START_PERF_DATA_CC, #CFE_ES_STOP_PERF_DATA_CC, #CFE_ES_SET_PERF_FILTER_MASK_CC
 */
-#define CFE_ES_SET_PERF_TRIGGER_MASK_CC 17
+#define CFE_ES_SET_PERF_TRIGGER_MASK_CC CFE_ES_CCVAL(SET_PERF_TRIGGER_MASK)
 
 /** \cfeescmd Set Executive Services System Log Mode to Discard/Overwrite
 **
@@ -789,7 +791,7 @@
 **
 **  \sa #CFE_ES_CLEAR_SYS_LOG_CC, #CFE_ES_WRITE_SYS_LOG_CC
 */
-#define CFE_ES_OVER_WRITE_SYS_LOG_CC 18
+#define CFE_ES_OVER_WRITE_SYS_LOG_CC CFE_ES_CCVAL(OVER_WRITE_SYS_LOG)
 
 /** \cfeescmd Resets the Processor Reset Counter to Zero
 **
@@ -826,7 +828,7 @@
 **
 **  \sa #CFE_ES_SET_MAX_PR_COUNT_CC, #CFE_ES_RESET_COUNTERS_CC
 */
-#define CFE_ES_RESET_PR_COUNT_CC 19
+#define CFE_ES_RESET_PR_COUNT_CC CFE_ES_CCVAL(RESET_PR_COUNT)
 
 /** \cfeescmd Configure the Maximum Number of Processor Resets before a Power-On Reset
 **
@@ -864,7 +866,7 @@
 **
 **  \sa #CFE_ES_RESET_PR_COUNT_CC
 */
-#define CFE_ES_SET_MAX_PR_COUNT_CC 20
+#define CFE_ES_SET_MAX_PR_COUNT_CC CFE_ES_CCVAL(SET_MAX_PR_COUNT)
 
 /** \cfeescmd Delete Critical Data Store
 **
@@ -906,7 +908,7 @@
 **
 **  \sa #CFE_ES_DUMP_CDS_REGISTRY_CC, #CFE_TBL_DELETE_CDS_CC
 */
-#define CFE_ES_DELETE_CDS_CC 21
+#define CFE_ES_DELETE_CDS_CC CFE_ES_CCVAL(DELETE_CDS)
 
 /** \cfeescmd Telemeter Memory Pool Statistics
 **
@@ -945,7 +947,7 @@
 **
 **  \sa
 */
-#define CFE_ES_SEND_MEM_POOL_STATS_CC 22
+#define CFE_ES_SEND_MEM_POOL_STATS_CC CFE_ES_CCVAL(SEND_MEM_POOL_STATS)
 
 /** \cfeescmd Dump Critical Data Store Registry to a File
 **
@@ -987,7 +989,7 @@
 **
 **  \sa  #CFE_ES_DELETE_CDS_CC, #CFE_TBL_DELETE_CDS_CC
 */
-#define CFE_ES_DUMP_CDS_REGISTRY_CC 23
+#define CFE_ES_DUMP_CDS_REGISTRY_CC CFE_ES_CCVAL(DUMP_CDS_REGISTRY)
 
 /** \cfeescmd Writes a list of All Executive Services Tasks to a File
 **
@@ -1029,7 +1031,7 @@
 **
 **  \sa #CFE_ES_QUERY_ALL_CC, CFE_ES_QUERY_ONE_CC
 */
-#define CFE_ES_QUERY_ALL_TASKS_CC 24
+#define CFE_ES_QUERY_ALL_TASKS_CC CFE_ES_CCVAL(QUERY_ALL_TASKS)
 
 /** \} */
 

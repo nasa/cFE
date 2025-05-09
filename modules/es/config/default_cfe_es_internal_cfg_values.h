@@ -18,34 +18,21 @@
 
 /**
  * @file
- *   CFE Executive Services (CFE_ES) Application Topic IDs
+ *   CFE Executive Services (CFE_ES) Application Private Config Definitions
+ *
+ * This provides default values for configurable items that are internal
+ * to this module and do NOT affect the interface(s) of this module.  Changes
+ * to items in this file only affect the local module and will be transparent
+ * to external entities that are using the public interface(s).
+ *
+ * @note This file may be overridden/superceded by mission-provided definitions
+ * either by overriding this header or by generating definitions from a command/data
+ * dictionary tool.
  */
-#ifndef CFE_ES_TOPICIDS_H
-#define CFE_ES_TOPICIDS_H
+#ifndef DEFAULT_CFE_ES_INTERNAL_CFG_VALUES_H
+#define DEFAULT_CFE_ES_INTERNAL_CFG_VALUES_H
 
-/**
-**  \cfemissioncfg cFE Portable Message Numbers for Commands
-**
-**  \par Description:
-**      Portable message numbers for the cFE ES command messages
-**
-**  \par Limits
-**      Not Applicable
-*/
-#define CFE_MISSION_ES_CMD_TOPICID     6
-#define CFE_MISSION_ES_SEND_HK_TOPICID 8
-
-/**
-**  \cfemissioncfg cFE Portable Message Numbers for Telemetry
-**
-**  \par Description:
-**      Portable message numbers for the cFE ES telemetry messages
-**
-**  \par Limits
-**      Not Applicable
-*/
-#define CFE_MISSION_ES_HK_TLM_TOPICID       0
-#define CFE_MISSION_ES_APP_TLM_TOPICID      11
-#define CFE_MISSION_ES_MEMSTATS_TLM_TOPICID 16
+/* Use the default configuration value for all */
+#define CFE_PLATFORM_ES_CFGVAL(x) DEFAULT_CFE_PLATFORM_ES_##x
 
 #endif

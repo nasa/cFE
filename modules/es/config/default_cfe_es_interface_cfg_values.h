@@ -18,24 +18,21 @@
 
 /**
  * @file
+ *   CFE Executive Services (CFE_ES) Application Public Definitions
  *
- * CFE Executive Services (CFE_ES) Application Platform Configuration Header File
+ * This provides default values for configurable items that affect
+ * the interface(s) of this module.  This includes the CMD/TLM message
+ * interface, tables definitions, and any other data products that
+ * serve to exchange information with other entities.
  *
- * This is a compatibility header for the "platform_cfg.h" file that has
- * traditionally provided both public and private config definitions
- * for each CFS app.
- *
- * These definitions are now provided in two separate files, one for
- * the public/mission scope and one for internal scope.
- *
- * @note This file may be overridden/superceded by mission-provided definitions
+ * @note This file may be overridden/superceded by mission-provided definitionsm
  * either by overriding this header or by generating definitions from a command/data
  * dictionary tool.
  */
-#ifndef DEFAULT_CFE_ES_PLATFORM_CFG_H
-#define DEFAULT_CFE_ES_PLATFORM_CFG_H
+#ifndef DEFAULT_CFE_ES_INTERFACE_CFG_VALUES_H
+#define DEFAULT_CFE_ES_INTERFACE_CFG_VALUES_H
 
-#include "cfe_es_mission_cfg.h"
-#include "cfe_es_internal_cfg.h"
+/* Use the default configuration value for all */
+#define CFE_MISSION_ES_CFGVAL(x) DEFAULT_CFE_MISSION_ES_##x
 
 #endif

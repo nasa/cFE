@@ -18,12 +18,8 @@
 
 /**
  * @file
- *   CFE Executive Services (CFE_ES) Application Private Config Definitions
  *
- * This provides default values for configurable items that are internal
- * to this module and do NOT affect the interface(s) of this module.  Changes
- * to items in this file only affect the local module and will be transparent
- * to external entities that are using the public interface(s).
+ * CFE Executive Services (CFE_ES) Application Platform Configuration Header File
  *
  * @note This file may be overridden/superceded by mission-provided definitions
  * either by overriding this header or by generating definitions from a command/data
@@ -31,6 +27,9 @@
  */
 #ifndef CFE_ES_INTERNAL_CFG_H
 #define CFE_ES_INTERNAL_CFG_H
+
+#include "cfe_es_mission_cfg.h"
+#include "cfe_es_internal_cfg_values.h"
 
 /**
 **  \cfeescfg Define ES Task Priority
@@ -41,7 +40,8 @@
 **  \par Limits
 **       Not Applicable
 */
-#define CFE_PLATFORM_ES_START_TASK_PRIORITY 68
+#define CFE_PLATFORM_ES_START_TASK_PRIORITY         CFE_PLATFORM_ES_CFGVAL(START_TASK_PRIORITY)
+#define DEFAULT_CFE_PLATFORM_ES_START_TASK_PRIORITY 68
 
 /**
 **  \cfeescfg Define ES Task Stack Size
@@ -56,7 +56,8 @@
 **       tools for measuring the amount of stack used by a task during operation. It
 **       is always a good idea to verify that no more than 1/2 of the stack is used.
 */
-#define CFE_PLATFORM_ES_START_TASK_STACK_SIZE CFE_PLATFORM_ES_DEFAULT_STACK_SIZE
+#define CFE_PLATFORM_ES_START_TASK_STACK_SIZE         CFE_PLATFORM_ES_CFGVAL(START_TASK_STACK_SIZE)
+#define DEFAULT_CFE_PLATFORM_ES_START_TASK_STACK_SIZE 8192
 
 /**
 **  \cfeescfg Default virtual path for persistent storage
@@ -68,7 +69,8 @@
 **       expected to be stored in this directory.
 **
 */
-#define CFE_PLATFORM_ES_NONVOL_DISK_MOUNT_STRING "/cf"
+#define CFE_PLATFORM_ES_NONVOL_DISK_MOUNT_STRING         CFE_PLATFORM_ES_CFGVAL(NONVOL_DISK_MOUNT_STRING)
+#define DEFAULT_CFE_PLATFORM_ES_NONVOL_DISK_MOUNT_STRING "/cf"
 
 /**
 **  \cfeescfg Default virtual path for volatile storage
@@ -84,7 +86,8 @@
 **      Multiple separators can be used with the posix or RTEMS ports.
 **
 */
-#define CFE_PLATFORM_ES_RAM_DISK_MOUNT_STRING "/ram"
+#define CFE_PLATFORM_ES_RAM_DISK_MOUNT_STRING         CFE_PLATFORM_ES_CFGVAL(RAM_DISK_MOUNT_STRING)
+#define DEFAULT_CFE_PLATFORM_ES_RAM_DISK_MOUNT_STRING "/ram"
 
 /**
 **  \cfeescfg Define Max Number of Applications
@@ -100,7 +103,8 @@
 **       AppIDs that are checked against this configuration are defined by a 32 bit
 **       data word.
 */
-#define CFE_PLATFORM_ES_MAX_APPLICATIONS 32
+#define CFE_PLATFORM_ES_MAX_APPLICATIONS         CFE_PLATFORM_ES_CFGVAL(MAX_APPLICATIONS)
+#define DEFAULT_CFE_PLATFORM_ES_MAX_APPLICATIONS 32
 
 /**
 **  \cfeescfg Define Max Number of Shared libraries
@@ -114,7 +118,8 @@
 **       however, the maximum number of libraries is system dependent and should be
 **       verified.
 */
-#define CFE_PLATFORM_ES_MAX_LIBRARIES 10
+#define CFE_PLATFORM_ES_MAX_LIBRARIES         CFE_PLATFORM_ES_CFGVAL(MAX_LIBRARIES)
+#define DEFAULT_CFE_PLATFORM_ES_MAX_LIBRARIES 10
 
 /**
 **  \cfeescfg Define Max Number of ER (Exception and Reset) log entries
@@ -127,7 +132,8 @@
 **       however, the maximum number of log entries is system dependent and should be
 **       verified.
 */
-#define CFE_PLATFORM_ES_ER_LOG_ENTRIES 20
+#define CFE_PLATFORM_ES_ER_LOG_ENTRIES         CFE_PLATFORM_ES_CFGVAL(ER_LOG_ENTRIES)
+#define DEFAULT_CFE_PLATFORM_ES_ER_LOG_ENTRIES 20
 
 /** \cfeescfg Maximum size of CPU Context in ES Error Log
 **
@@ -141,7 +147,8 @@
 **       in the error log. Any context information beyond this size will
 **       be truncated.
 */
-#define CFE_PLATFORM_ES_ER_LOG_MAX_CONTEXT_SIZE 256
+#define CFE_PLATFORM_ES_ER_LOG_MAX_CONTEXT_SIZE         CFE_PLATFORM_ES_CFGVAL(ER_LOG_MAX_CONTEXT_SIZE)
+#define DEFAULT_CFE_PLATFORM_ES_ER_LOG_MAX_CONTEXT_SIZE 256
 
 /**
 **  \cfeescfg Define Size of the cFE System Log.
@@ -156,7 +163,8 @@
 **       however, the maximum system log size is system dependent and should be
 **       verified.
 */
-#define CFE_PLATFORM_ES_SYSTEM_LOG_SIZE 3072
+#define CFE_PLATFORM_ES_SYSTEM_LOG_SIZE         CFE_PLATFORM_ES_CFGVAL(SYSTEM_LOG_SIZE)
+#define DEFAULT_CFE_PLATFORM_ES_SYSTEM_LOG_SIZE 3072
 
 /**
 **  \cfeescfg Define Number of entries in the ES Object table
@@ -170,7 +178,8 @@
 **       however, the maximum object table size is system dependent and should be
 **       verified.
 */
-#define CFE_PLATFORM_ES_OBJECT_TABLE_SIZE 30
+#define CFE_PLATFORM_ES_OBJECT_TABLE_SIZE         CFE_PLATFORM_ES_CFGVAL(OBJECT_TABLE_SIZE)
+#define DEFAULT_CFE_PLATFORM_ES_OBJECT_TABLE_SIZE 30
 
 /**
 **  \cfeescfg Define Max Number of Generic Counters
@@ -181,7 +190,8 @@
 **  \par Limits
 **       This parameter has a lower limit of 1 and an upper limit of 65535.
 */
-#define CFE_PLATFORM_ES_MAX_GEN_COUNTERS 8
+#define CFE_PLATFORM_ES_MAX_GEN_COUNTERS         CFE_PLATFORM_ES_CFGVAL(MAX_GEN_COUNTERS)
+#define DEFAULT_CFE_PLATFORM_ES_MAX_GEN_COUNTERS 8
 
 /**
 **  \cfeescfg Define ES Application Control Scan Rate
@@ -200,7 +210,8 @@
 **       There is a lower limit of 100 and an upper limit of 20000 on this
 **       configuration parameter. millisecond units.
 */
-#define CFE_PLATFORM_ES_APP_SCAN_RATE 1000
+#define CFE_PLATFORM_ES_APP_SCAN_RATE         CFE_PLATFORM_ES_CFGVAL(APP_SCAN_RATE)
+#define DEFAULT_CFE_PLATFORM_ES_APP_SCAN_RATE 1000
 
 /**
 **  \cfeescfg Define ES Application Kill Timeout
@@ -229,7 +240,8 @@
 **       There is a lower limit of 1 and an upper limit of 100 on this configuration
 **       parameter. Units are number of #CFE_PLATFORM_ES_APP_SCAN_RATE cycles.
 */
-#define CFE_PLATFORM_ES_APP_KILL_TIMEOUT 5
+#define CFE_PLATFORM_ES_APP_KILL_TIMEOUT         CFE_PLATFORM_ES_CFGVAL(APP_KILL_TIMEOUT)
+#define DEFAULT_CFE_PLATFORM_ES_APP_KILL_TIMEOUT 5
 
 /**
 **  \cfeescfg ES Ram Disk Sector Size
@@ -247,7 +259,8 @@
 **       however, the maximum RAM disk sector size is system dependent and should be
 **       verified.
 */
-#define CFE_PLATFORM_ES_RAM_DISK_SECTOR_SIZE 512
+#define CFE_PLATFORM_ES_RAM_DISK_SECTOR_SIZE         CFE_PLATFORM_ES_CFGVAL(RAM_DISK_SECTOR_SIZE)
+#define DEFAULT_CFE_PLATFORM_ES_RAM_DISK_SECTOR_SIZE 512
 
 /**
 **  \cfeescfg ES Ram Disk Number of Sectors
@@ -265,7 +278,8 @@
 **       however, the maximum number of RAM sectors is system dependent and should be
 **       verified.
 */
-#define CFE_PLATFORM_ES_RAM_DISK_NUM_SECTORS 4096
+#define CFE_PLATFORM_ES_RAM_DISK_NUM_SECTORS         CFE_PLATFORM_ES_CFGVAL(RAM_DISK_NUM_SECTORS)
+#define DEFAULT_CFE_PLATFORM_ES_RAM_DISK_NUM_SECTORS 4096
 
 /**
 **  \cfeescfg Percentage of Ram Disk Reserved for Decompressing Apps
@@ -289,7 +303,8 @@
 **       parameter.Units are percentage. A setting of zero will turn this feature
 **       off.
 */
-#define CFE_PLATFORM_ES_RAM_DISK_PERCENT_RESERVED 30
+#define CFE_PLATFORM_ES_RAM_DISK_PERCENT_RESERVED         CFE_PLATFORM_ES_CFGVAL(RAM_DISK_PERCENT_RESERVED)
+#define DEFAULT_CFE_PLATFORM_ES_RAM_DISK_PERCENT_RESERVED 30
 
 /**
 **  \cfeescfg Define Critical Data Store Size
@@ -306,7 +321,8 @@
 **       There is a lower limit of 8192 and an upper limit of UINT_MAX (4 Gigabytes)
 **       on this configuration parameter.
 */
-#define CFE_PLATFORM_ES_CDS_SIZE (128 * 1024)
+#define CFE_PLATFORM_ES_CDS_SIZE         CFE_PLATFORM_ES_CFGVAL(CDS_SIZE)
+#define DEFAULT_CFE_PLATFORM_ES_CDS_SIZE (128 * 1024)
 
 /**
 **  \cfeescfg Define User Reserved Memory Size
@@ -326,7 +342,8 @@
 **       There is a lower limit of 1024 and an upper limit of UINT_MAX (4 Gigabytes)
 **       on this configuration parameter.
 */
-#define CFE_PLATFORM_ES_USER_RESERVED_SIZE (1024 * 1024)
+#define CFE_PLATFORM_ES_USER_RESERVED_SIZE         CFE_PLATFORM_ES_CFGVAL(USER_RESERVED_SIZE)
+#define DEFAULT_CFE_PLATFORM_ES_USER_RESERVED_SIZE (1024 * 1024)
 
 /**
 **  \cfeescfg Define Memory Pool Alignment Size
@@ -345,7 +362,8 @@
 **  \par Limits
 **       This must always be a power of 2, as it is used as a binary address mask.
 */
-#define CFE_PLATFORM_ES_MEMPOOL_ALIGN_SIZE_MIN 4
+#define CFE_PLATFORM_ES_MEMPOOL_ALIGN_SIZE_MIN         CFE_PLATFORM_ES_CFGVAL(MEMPOOL_ALIGN_SIZE_MIN)
+#define DEFAULT_CFE_PLATFORM_ES_MEMPOOL_ALIGN_SIZE_MIN 4
 
 /**
 **  \cfeescfg ES Nonvolatile Startup Filename
@@ -359,7 +377,8 @@
 **       The length of each string, including the NULL terminator cannot exceed the
 **       #OS_MAX_PATH_LEN value.
 */
-#define CFE_PLATFORM_ES_NONVOL_STARTUP_FILE "/cf/cfe_es_startup.scr"
+#define CFE_PLATFORM_ES_NONVOL_STARTUP_FILE         CFE_PLATFORM_ES_CFGVAL(NONVOL_STARTUP_FILE)
+#define DEFAULT_CFE_PLATFORM_ES_NONVOL_STARTUP_FILE "/cf/cfe_es_startup.scr"
 
 /**
 **  \cfeescfg ES Volatile Startup Filename
@@ -373,7 +392,8 @@
 **       The length of each string, including the NULL terminator cannot exceed the
 **       #OS_MAX_PATH_LEN value.
 */
-#define CFE_PLATFORM_ES_VOLATILE_STARTUP_FILE "/ram/cfe_es_startup.scr"
+#define CFE_PLATFORM_ES_VOLATILE_STARTUP_FILE         CFE_PLATFORM_ES_CFGVAL(VOLATILE_STARTUP_FILE)
+#define DEFAULT_CFE_PLATFORM_ES_VOLATILE_STARTUP_FILE "/ram/cfe_es_startup.scr"
 
 /**
 **  \cfeescfg Default Application Information Filename
@@ -388,7 +408,8 @@
 **       The length of each string, including the NULL terminator cannot exceed the
 **       #OS_MAX_PATH_LEN value.
 */
-#define CFE_PLATFORM_ES_DEFAULT_APP_LOG_FILE "/ram/cfe_es_app_info.log"
+#define CFE_PLATFORM_ES_DEFAULT_APP_LOG_FILE         CFE_PLATFORM_ES_CFGVAL(DEFAULT_APP_LOG_FILE)
+#define DEFAULT_CFE_PLATFORM_ES_DEFAULT_APP_LOG_FILE "/ram/cfe_es_app_info.log"
 
 /**
 **  \cfeescfg Default Application Information Filename
@@ -403,7 +424,8 @@
 **       The length of each string, including the NULL terminator cannot exceed the
 **       #OS_MAX_PATH_LEN value.
 */
-#define CFE_PLATFORM_ES_DEFAULT_TASK_LOG_FILE "/ram/cfe_es_taskinfo.log"
+#define CFE_PLATFORM_ES_DEFAULT_TASK_LOG_FILE         CFE_PLATFORM_ES_CFGVAL(DEFAULT_TASK_LOG_FILE)
+#define DEFAULT_CFE_PLATFORM_ES_DEFAULT_TASK_LOG_FILE "/ram/cfe_es_taskinfo.log"
 
 /**
 **  \cfeescfg Default System Log Filename
@@ -419,7 +441,8 @@
 **       The length of each string, including the NULL terminator cannot exceed the
 **       #OS_MAX_PATH_LEN value.
 */
-#define CFE_PLATFORM_ES_DEFAULT_SYSLOG_FILE "/ram/cfe_es_syslog.log"
+#define CFE_PLATFORM_ES_DEFAULT_SYSLOG_FILE         CFE_PLATFORM_ES_CFGVAL(DEFAULT_SYSLOG_FILE)
+#define DEFAULT_CFE_PLATFORM_ES_DEFAULT_SYSLOG_FILE "/ram/cfe_es_syslog.log"
 
 /**
 **  \cfeescfg Default Exception and Reset (ER) Log Filename
@@ -434,7 +457,8 @@
 **       The length of each string, including the NULL terminator cannot exceed the
 **       #OS_MAX_PATH_LEN value.
 */
-#define CFE_PLATFORM_ES_DEFAULT_ER_LOG_FILE "/ram/cfe_erlog.log"
+#define CFE_PLATFORM_ES_DEFAULT_ER_LOG_FILE         CFE_PLATFORM_ES_CFGVAL(DEFAULT_ER_LOG_FILE)
+#define DEFAULT_CFE_PLATFORM_ES_DEFAULT_ER_LOG_FILE "/ram/cfe_erlog.log"
 
 /**
 **  \cfeescfg Default Performance Data Filename
@@ -448,7 +472,8 @@
 **       The length of each string, including the NULL terminator cannot exceed the
 **       #OS_MAX_PATH_LEN value.
 */
-#define CFE_PLATFORM_ES_DEFAULT_PERF_DUMP_FILENAME "/ram/cfe_es_perf.dat"
+#define CFE_PLATFORM_ES_DEFAULT_PERF_DUMP_FILENAME         CFE_PLATFORM_ES_CFGVAL(DEFAULT_PERF_DUMP_FILENAME)
+#define DEFAULT_CFE_PLATFORM_ES_DEFAULT_PERF_DUMP_FILENAME "/ram/cfe_es_perf.dat"
 
 /**
 **  \cfeescfg Default Critical Data Store Registry Filename
@@ -462,7 +487,8 @@
 **       The length of each string, including the NULL terminator cannot exceed the
 **       #OS_MAX_PATH_LEN value.
 */
-#define CFE_PLATFORM_ES_DEFAULT_CDS_REG_DUMP_FILE "/ram/cfe_cds_reg.log"
+#define CFE_PLATFORM_ES_DEFAULT_CDS_REG_DUMP_FILE         CFE_PLATFORM_ES_CFGVAL(DEFAULT_CDS_REG_DUMP_FILE)
+#define DEFAULT_CFE_PLATFORM_ES_DEFAULT_CDS_REG_DUMP_FILE "/ram/cfe_cds_reg.log"
 
 /**
 **  \cfeescfg Define Default System Log Mode following Power On Reset
@@ -480,7 +506,8 @@
 **       There is a lower limit of 0 and an upper limit of 1 on this configuration
 **       parameter.
 */
-#define CFE_PLATFORM_ES_DEFAULT_POR_SYSLOG_MODE 0
+#define CFE_PLATFORM_ES_DEFAULT_POR_SYSLOG_MODE         CFE_PLATFORM_ES_CFGVAL(DEFAULT_POR_SYSLOG_MODE)
+#define DEFAULT_CFE_PLATFORM_ES_DEFAULT_POR_SYSLOG_MODE 0
 
 /**
 **  \cfeescfg Define Default System Log Mode following Processor Reset
@@ -498,7 +525,8 @@
 **       There is a lower limit of 0 and an upper limit of 1 on this configuration
 **       parameter.
 */
-#define CFE_PLATFORM_ES_DEFAULT_PR_SYSLOG_MODE 1
+#define CFE_PLATFORM_ES_DEFAULT_PR_SYSLOG_MODE         CFE_PLATFORM_ES_CFGVAL(DEFAULT_PR_SYSLOG_MODE)
+#define DEFAULT_CFE_PLATFORM_ES_DEFAULT_PR_SYSLOG_MODE 1
 
 /**
 **  \cfeescfg Define Max Size of Performance Data Buffer
@@ -514,7 +542,8 @@
 **       The units are number of entries. An entry is defined by a 32 bit data word followed
 **       by a 64 bit time stamp.
 */
-#define CFE_PLATFORM_ES_PERF_DATA_BUFFER_SIZE 10000
+#define CFE_PLATFORM_ES_PERF_DATA_BUFFER_SIZE         CFE_PLATFORM_ES_CFGVAL(PERF_DATA_BUFFER_SIZE)
+#define DEFAULT_CFE_PLATFORM_ES_PERF_DATA_BUFFER_SIZE 10000
 
 /**
 **  \cfeescfg Define Filter Mask Setting for Disabling All Performance Entries
@@ -524,7 +553,8 @@
 **       bit mask.  For each bit, 0 means the corresponding entry is disabled and
 **       1 means it is enabled.
 */
-#define CFE_PLATFORM_ES_PERF_FILTMASK_NONE 0
+#define CFE_PLATFORM_ES_PERF_FILTMASK_NONE         CFE_PLATFORM_ES_CFGVAL(PERF_FILTMASK_NONE)
+#define DEFAULT_CFE_PLATFORM_ES_PERF_FILTMASK_NONE (0)
 
 /**
 **  \cfeescfg Define Filter Mask Setting for Enabling All Performance Entries
@@ -534,7 +564,8 @@
 **       bit mask.  For each bit, 0 means the corresponding entry is disabled and
 **       1 means it is enabled.
 */
-#define CFE_PLATFORM_ES_PERF_FILTMASK_ALL ~CFE_PLATFORM_ES_PERF_FILTMASK_NONE
+#define CFE_PLATFORM_ES_PERF_FILTMASK_ALL         CFE_PLATFORM_ES_CFGVAL(PERF_FILTMASK_ALL)
+#define DEFAULT_CFE_PLATFORM_ES_PERF_FILTMASK_ALL (~0)
 
 /**
 **  \cfeescfg Define Default Filter Mask Setting for Performance Data Buffer
@@ -545,7 +576,8 @@
 **       means it is enabled.
 **
 */
-#define CFE_PLATFORM_ES_PERF_FILTMASK_INIT CFE_PLATFORM_ES_PERF_FILTMASK_ALL
+#define CFE_PLATFORM_ES_PERF_FILTMASK_INIT         CFE_PLATFORM_ES_CFGVAL(PERF_FILTMASK_INIT)
+#define DEFAULT_CFE_PLATFORM_ES_PERF_FILTMASK_INIT (~0)
 
 /**
 **  \cfeescfg Define Default Filter Trigger Setting for Disabling All Performance Entries
@@ -556,7 +588,8 @@
 **       disabled and 1 means it is enabled.
 **
 */
-#define CFE_PLATFORM_ES_PERF_TRIGMASK_NONE 0
+#define CFE_PLATFORM_ES_PERF_TRIGMASK_NONE         CFE_PLATFORM_ES_CFGVAL(PERF_TRIGMASK_NONE)
+#define DEFAULT_CFE_PLATFORM_ES_PERF_TRIGMASK_NONE 0
 
 /**
 **  \cfeescfg Define Filter Trigger Setting for Enabling All Performance Entries
@@ -567,7 +600,8 @@
 **       disabled and 1 means it is enabled.
 **
 */
-#define CFE_PLATFORM_ES_PERF_TRIGMASK_ALL ~CFE_PLATFORM_ES_PERF_TRIGMASK_NONE
+#define CFE_PLATFORM_ES_PERF_TRIGMASK_ALL         CFE_PLATFORM_ES_CFGVAL(PERF_TRIGMASK_ALL)
+#define DEFAULT_CFE_PLATFORM_ES_PERF_TRIGMASK_ALL ~0
 
 /**
 **  \cfeescfg Define Default Filter Trigger Setting for Performance Data Buffer
@@ -578,7 +612,8 @@
 **       disabled and 1 means it is enabled.
 **
 */
-#define CFE_PLATFORM_ES_PERF_TRIGMASK_INIT CFE_PLATFORM_ES_PERF_TRIGMASK_NONE
+#define CFE_PLATFORM_ES_PERF_TRIGMASK_INIT         CFE_PLATFORM_ES_CFGVAL(PERF_TRIGMASK_INIT)
+#define DEFAULT_CFE_PLATFORM_ES_PERF_TRIGMASK_INIT 0
 
 /**
 **  \cfeescfg Define Performance Analyzer Child Task Priority
@@ -593,7 +628,8 @@
 **       Valid range for a child task is 1 to 255 however, the priority cannot
 **       be higher (lower number) than the ES parent application priority.
 */
-#define CFE_PLATFORM_ES_PERF_CHILD_PRIORITY 200
+#define CFE_PLATFORM_ES_PERF_CHILD_PRIORITY         CFE_PLATFORM_ES_CFGVAL(PERF_CHILD_PRIORITY)
+#define DEFAULT_CFE_PLATFORM_ES_PERF_CHILD_PRIORITY 200
 
 /**
 **  \cfeescfg Define Performance Analyzer Child Task Stack Size
@@ -607,7 +643,8 @@
 **       is limited by the maximum value allowed by the data type. In this case, the data
 **       type is an unsigned 32-bit integer, so the valid range is 0 to 0xFFFFFFFF.
 */
-#define CFE_PLATFORM_ES_PERF_CHILD_STACK_SIZE 4096
+#define CFE_PLATFORM_ES_PERF_CHILD_STACK_SIZE         CFE_PLATFORM_ES_CFGVAL(PERF_CHILD_STACK_SIZE)
+#define DEFAULT_CFE_PLATFORM_ES_PERF_CHILD_STACK_SIZE 4096
 
 /**
 **  \cfeescfg Define Performance Analyzer Child Task Delay
@@ -622,7 +659,8 @@
 **       is limited by the maximum value allowed by the data type. In this case, the data
 **       type is an unsigned 32-bit integer, so the valid range is 0 to 0xFFFFFFFF.
 */
-#define CFE_PLATFORM_ES_PERF_CHILD_MS_DELAY 20
+#define CFE_PLATFORM_ES_PERF_CHILD_MS_DELAY         CFE_PLATFORM_ES_CFGVAL(PERF_CHILD_MS_DELAY)
+#define DEFAULT_CFE_PLATFORM_ES_PERF_CHILD_MS_DELAY 20
 
 /**
 **  \cfeescfg Define Performance Analyzer Child Task Number of Entries Between Delay
@@ -632,7 +670,8 @@
 **       Analyzer Child Task will write to the file between delays.
 **
 */
-#define CFE_PLATFORM_ES_PERF_ENTRIES_BTWN_DLYS 50
+#define CFE_PLATFORM_ES_PERF_ENTRIES_BTWN_DLYS         CFE_PLATFORM_ES_CFGVAL(PERF_ENTRIES_BTWN_DLYS)
+#define DEFAULT_CFE_PLATFORM_ES_PERF_ENTRIES_BTWN_DLYS 50
 
 /**
 **  \cfeescfg Define Default Stack Size for an Application
@@ -648,7 +687,8 @@
 **       task during operation. It is always a good idea to verify that no more than 1/2
 **       of the stack is used.
 */
-#define CFE_PLATFORM_ES_DEFAULT_STACK_SIZE 8192
+#define CFE_PLATFORM_ES_DEFAULT_STACK_SIZE         CFE_PLATFORM_ES_CFGVAL(DEFAULT_STACK_SIZE)
+#define DEFAULT_CFE_PLATFORM_ES_DEFAULT_STACK_SIZE 8192
 
 /**
 **  \cfeescfg Define Maximum Number of Registered CDS Blocks
@@ -661,7 +701,8 @@
 **       however, the maximum number of CDS entries is system dependent and
 **       should be verified.
 */
-#define CFE_PLATFORM_ES_CDS_MAX_NUM_ENTRIES 512
+#define CFE_PLATFORM_ES_CDS_MAX_NUM_ENTRIES         CFE_PLATFORM_ES_CFGVAL(CDS_MAX_NUM_ENTRIES)
+#define DEFAULT_CFE_PLATFORM_ES_CDS_MAX_NUM_ENTRIES 512
 
 /**
 **  \cfeescfg Define Number of Processor Resets Before a Power On Reset
@@ -676,7 +717,8 @@
 **       however, the maximum number of processor resets may be system dependent and
 **       should be verified.
 */
-#define CFE_PLATFORM_ES_MAX_PROCESSOR_RESETS 2
+#define CFE_PLATFORM_ES_MAX_PROCESSOR_RESETS         CFE_PLATFORM_ES_CFGVAL(MAX_PROCESSOR_RESETS)
+#define DEFAULT_CFE_PLATFORM_ES_MAX_PROCESSOR_RESETS 2
 
 /** \cfeescfg Maximum number of block sizes in pool structures
 **
@@ -691,7 +733,8 @@
 **
 **       The ES and CDS block size lists must correlate with this value
 */
-#define CFE_PLATFORM_ES_POOL_MAX_BUCKETS 17
+#define CFE_PLATFORM_ES_POOL_MAX_BUCKETS         CFE_PLATFORM_ES_CFGVAL(POOL_MAX_BUCKETS)
+#define DEFAULT_CFE_PLATFORM_ES_POOL_MAX_BUCKETS 17
 
 /** \cfeescfg Maximum number of memory pools
 **
@@ -709,7 +752,8 @@
 **       Must be at least 2 to support CFE core - SB and TBL pools.  No
 **       specific upper limit.
 */
-#define CFE_PLATFORM_ES_MAX_MEMORY_POOLS 10
+#define CFE_PLATFORM_ES_MAX_MEMORY_POOLS         CFE_PLATFORM_ES_CFGVAL(MAX_MEMORY_POOLS)
+#define DEFAULT_CFE_PLATFORM_ES_MAX_MEMORY_POOLS 10
 
 /**
 **  \cfeescfg Define Default ES Memory Pool Block Sizes
@@ -728,23 +772,40 @@
 **       Services have been removed from the CFE, the table size limits are still
 **       enforced although the table size definitions may be reduced.
 */
-#define CFE_PLATFORM_ES_MEM_BLOCK_SIZE_01 8
-#define CFE_PLATFORM_ES_MEM_BLOCK_SIZE_02 16
-#define CFE_PLATFORM_ES_MEM_BLOCK_SIZE_03 32
-#define CFE_PLATFORM_ES_MEM_BLOCK_SIZE_04 48
-#define CFE_PLATFORM_ES_MEM_BLOCK_SIZE_05 64
-#define CFE_PLATFORM_ES_MEM_BLOCK_SIZE_06 96
-#define CFE_PLATFORM_ES_MEM_BLOCK_SIZE_07 128
-#define CFE_PLATFORM_ES_MEM_BLOCK_SIZE_08 160
-#define CFE_PLATFORM_ES_MEM_BLOCK_SIZE_09 256
-#define CFE_PLATFORM_ES_MEM_BLOCK_SIZE_10 512
-#define CFE_PLATFORM_ES_MEM_BLOCK_SIZE_11 1024
-#define CFE_PLATFORM_ES_MEM_BLOCK_SIZE_12 2048
-#define CFE_PLATFORM_ES_MEM_BLOCK_SIZE_13 4096
-#define CFE_PLATFORM_ES_MEM_BLOCK_SIZE_14 8192
-#define CFE_PLATFORM_ES_MEM_BLOCK_SIZE_15 16384
-#define CFE_PLATFORM_ES_MEM_BLOCK_SIZE_16 32768
-#define CFE_PLATFORM_ES_MAX_BLOCK_SIZE    80000
+#define CFE_PLATFORM_ES_MEM_BLOCK_SIZE_01         CFE_PLATFORM_ES_CFGVAL(MEM_BLOCK_SIZE_01)
+#define DEFAULT_CFE_PLATFORM_ES_MEM_BLOCK_SIZE_01 8
+#define CFE_PLATFORM_ES_MEM_BLOCK_SIZE_02         CFE_PLATFORM_ES_CFGVAL(MEM_BLOCK_SIZE_02)
+#define DEFAULT_CFE_PLATFORM_ES_MEM_BLOCK_SIZE_02 16
+#define CFE_PLATFORM_ES_MEM_BLOCK_SIZE_03         CFE_PLATFORM_ES_CFGVAL(MEM_BLOCK_SIZE_03)
+#define DEFAULT_CFE_PLATFORM_ES_MEM_BLOCK_SIZE_03 32
+#define CFE_PLATFORM_ES_MEM_BLOCK_SIZE_04         CFE_PLATFORM_ES_CFGVAL(MEM_BLOCK_SIZE_04)
+#define DEFAULT_CFE_PLATFORM_ES_MEM_BLOCK_SIZE_04 48
+#define CFE_PLATFORM_ES_MEM_BLOCK_SIZE_05         CFE_PLATFORM_ES_CFGVAL(MEM_BLOCK_SIZE_05)
+#define DEFAULT_CFE_PLATFORM_ES_MEM_BLOCK_SIZE_05 64
+#define CFE_PLATFORM_ES_MEM_BLOCK_SIZE_06         CFE_PLATFORM_ES_CFGVAL(MEM_BLOCK_SIZE_06)
+#define DEFAULT_CFE_PLATFORM_ES_MEM_BLOCK_SIZE_06 96
+#define CFE_PLATFORM_ES_MEM_BLOCK_SIZE_07         CFE_PLATFORM_ES_CFGVAL(MEM_BLOCK_SIZE_07)
+#define DEFAULT_CFE_PLATFORM_ES_MEM_BLOCK_SIZE_07 128
+#define CFE_PLATFORM_ES_MEM_BLOCK_SIZE_08         CFE_PLATFORM_ES_CFGVAL(MEM_BLOCK_SIZE_08)
+#define DEFAULT_CFE_PLATFORM_ES_MEM_BLOCK_SIZE_08 160
+#define CFE_PLATFORM_ES_MEM_BLOCK_SIZE_09         CFE_PLATFORM_ES_CFGVAL(MEM_BLOCK_SIZE_09)
+#define DEFAULT_CFE_PLATFORM_ES_MEM_BLOCK_SIZE_09 256
+#define CFE_PLATFORM_ES_MEM_BLOCK_SIZE_10         CFE_PLATFORM_ES_CFGVAL(MEM_BLOCK_SIZE_10)
+#define DEFAULT_CFE_PLATFORM_ES_MEM_BLOCK_SIZE_10 512
+#define CFE_PLATFORM_ES_MEM_BLOCK_SIZE_11         CFE_PLATFORM_ES_CFGVAL(MEM_BLOCK_SIZE_11)
+#define DEFAULT_CFE_PLATFORM_ES_MEM_BLOCK_SIZE_11 1024
+#define CFE_PLATFORM_ES_MEM_BLOCK_SIZE_12         CFE_PLATFORM_ES_CFGVAL(MEM_BLOCK_SIZE_12)
+#define DEFAULT_CFE_PLATFORM_ES_MEM_BLOCK_SIZE_12 2048
+#define CFE_PLATFORM_ES_MEM_BLOCK_SIZE_13         CFE_PLATFORM_ES_CFGVAL(MEM_BLOCK_SIZE_13)
+#define DEFAULT_CFE_PLATFORM_ES_MEM_BLOCK_SIZE_13 4096
+#define CFE_PLATFORM_ES_MEM_BLOCK_SIZE_14         CFE_PLATFORM_ES_CFGVAL(MEM_BLOCK_SIZE_14)
+#define DEFAULT_CFE_PLATFORM_ES_MEM_BLOCK_SIZE_14 8192
+#define CFE_PLATFORM_ES_MEM_BLOCK_SIZE_15         CFE_PLATFORM_ES_CFGVAL(MEM_BLOCK_SIZE_15)
+#define DEFAULT_CFE_PLATFORM_ES_MEM_BLOCK_SIZE_15 16384
+#define CFE_PLATFORM_ES_MEM_BLOCK_SIZE_16         CFE_PLATFORM_ES_CFGVAL(MEM_BLOCK_SIZE_16)
+#define DEFAULT_CFE_PLATFORM_ES_MEM_BLOCK_SIZE_16 32768
+#define CFE_PLATFORM_ES_MAX_BLOCK_SIZE            CFE_PLATFORM_ES_CFGVAL(MAX_BLOCK_SIZE)
+#define DEFAULT_CFE_PLATFORM_ES_MAX_BLOCK_SIZE    80000
 
 /**
 **  \cfeescfg Define ES Critical Data Store Memory Pool Block Sizes
@@ -755,23 +816,40 @@
 **  \par Limits
 **       These sizes MUST be increasing and MUST be an integral multiple of 4.
 */
-#define CFE_PLATFORM_ES_CDS_MEM_BLOCK_SIZE_01 8
-#define CFE_PLATFORM_ES_CDS_MEM_BLOCK_SIZE_02 16
-#define CFE_PLATFORM_ES_CDS_MEM_BLOCK_SIZE_03 32
-#define CFE_PLATFORM_ES_CDS_MEM_BLOCK_SIZE_04 48
-#define CFE_PLATFORM_ES_CDS_MEM_BLOCK_SIZE_05 64
-#define CFE_PLATFORM_ES_CDS_MEM_BLOCK_SIZE_06 96
-#define CFE_PLATFORM_ES_CDS_MEM_BLOCK_SIZE_07 128
-#define CFE_PLATFORM_ES_CDS_MEM_BLOCK_SIZE_08 160
-#define CFE_PLATFORM_ES_CDS_MEM_BLOCK_SIZE_09 256
-#define CFE_PLATFORM_ES_CDS_MEM_BLOCK_SIZE_10 512
-#define CFE_PLATFORM_ES_CDS_MEM_BLOCK_SIZE_11 1024
-#define CFE_PLATFORM_ES_CDS_MEM_BLOCK_SIZE_12 2048
-#define CFE_PLATFORM_ES_CDS_MEM_BLOCK_SIZE_13 4096
-#define CFE_PLATFORM_ES_CDS_MEM_BLOCK_SIZE_14 8192
-#define CFE_PLATFORM_ES_CDS_MEM_BLOCK_SIZE_15 16384
-#define CFE_PLATFORM_ES_CDS_MEM_BLOCK_SIZE_16 32768
-#define CFE_PLATFORM_ES_CDS_MAX_BLOCK_SIZE    80000
+#define CFE_PLATFORM_ES_CDS_MEM_BLOCK_SIZE_01         CFE_PLATFORM_ES_CFGVAL(CDS_MEM_BLOCK_SIZE_01)
+#define DEFAULT_CFE_PLATFORM_ES_CDS_MEM_BLOCK_SIZE_01 8
+#define CFE_PLATFORM_ES_CDS_MEM_BLOCK_SIZE_02         CFE_PLATFORM_ES_CFGVAL(CDS_MEM_BLOCK_SIZE_02)
+#define DEFAULT_CFE_PLATFORM_ES_CDS_MEM_BLOCK_SIZE_02 16
+#define CFE_PLATFORM_ES_CDS_MEM_BLOCK_SIZE_03         CFE_PLATFORM_ES_CFGVAL(CDS_MEM_BLOCK_SIZE_03)
+#define DEFAULT_CFE_PLATFORM_ES_CDS_MEM_BLOCK_SIZE_03 32
+#define CFE_PLATFORM_ES_CDS_MEM_BLOCK_SIZE_04         CFE_PLATFORM_ES_CFGVAL(CDS_MEM_BLOCK_SIZE_04)
+#define DEFAULT_CFE_PLATFORM_ES_CDS_MEM_BLOCK_SIZE_04 48
+#define CFE_PLATFORM_ES_CDS_MEM_BLOCK_SIZE_05         CFE_PLATFORM_ES_CFGVAL(CDS_MEM_BLOCK_SIZE_05)
+#define DEFAULT_CFE_PLATFORM_ES_CDS_MEM_BLOCK_SIZE_05 64
+#define CFE_PLATFORM_ES_CDS_MEM_BLOCK_SIZE_06         CFE_PLATFORM_ES_CFGVAL(CDS_MEM_BLOCK_SIZE_06)
+#define DEFAULT_CFE_PLATFORM_ES_CDS_MEM_BLOCK_SIZE_06 96
+#define CFE_PLATFORM_ES_CDS_MEM_BLOCK_SIZE_07         CFE_PLATFORM_ES_CFGVAL(CDS_MEM_BLOCK_SIZE_07)
+#define DEFAULT_CFE_PLATFORM_ES_CDS_MEM_BLOCK_SIZE_07 128
+#define CFE_PLATFORM_ES_CDS_MEM_BLOCK_SIZE_08         CFE_PLATFORM_ES_CFGVAL(CDS_MEM_BLOCK_SIZE_08)
+#define DEFAULT_CFE_PLATFORM_ES_CDS_MEM_BLOCK_SIZE_08 160
+#define CFE_PLATFORM_ES_CDS_MEM_BLOCK_SIZE_09         CFE_PLATFORM_ES_CFGVAL(CDS_MEM_BLOCK_SIZE_09)
+#define DEFAULT_CFE_PLATFORM_ES_CDS_MEM_BLOCK_SIZE_09 256
+#define CFE_PLATFORM_ES_CDS_MEM_BLOCK_SIZE_10         CFE_PLATFORM_ES_CFGVAL(CDS_MEM_BLOCK_SIZE_10)
+#define DEFAULT_CFE_PLATFORM_ES_CDS_MEM_BLOCK_SIZE_10 512
+#define CFE_PLATFORM_ES_CDS_MEM_BLOCK_SIZE_11         CFE_PLATFORM_ES_CFGVAL(CDS_MEM_BLOCK_SIZE_11)
+#define DEFAULT_CFE_PLATFORM_ES_CDS_MEM_BLOCK_SIZE_11 1024
+#define CFE_PLATFORM_ES_CDS_MEM_BLOCK_SIZE_12         CFE_PLATFORM_ES_CFGVAL(CDS_MEM_BLOCK_SIZE_12)
+#define DEFAULT_CFE_PLATFORM_ES_CDS_MEM_BLOCK_SIZE_12 2048
+#define CFE_PLATFORM_ES_CDS_MEM_BLOCK_SIZE_13         CFE_PLATFORM_ES_CFGVAL(CDS_MEM_BLOCK_SIZE_13)
+#define DEFAULT_CFE_PLATFORM_ES_CDS_MEM_BLOCK_SIZE_13 4096
+#define CFE_PLATFORM_ES_CDS_MEM_BLOCK_SIZE_14         CFE_PLATFORM_ES_CFGVAL(CDS_MEM_BLOCK_SIZE_14)
+#define DEFAULT_CFE_PLATFORM_ES_CDS_MEM_BLOCK_SIZE_14 8192
+#define CFE_PLATFORM_ES_CDS_MEM_BLOCK_SIZE_15         CFE_PLATFORM_ES_CFGVAL(CDS_MEM_BLOCK_SIZE_15)
+#define DEFAULT_CFE_PLATFORM_ES_CDS_MEM_BLOCK_SIZE_15 16384
+#define CFE_PLATFORM_ES_CDS_MEM_BLOCK_SIZE_16         CFE_PLATFORM_ES_CFGVAL(CDS_MEM_BLOCK_SIZE_16)
+#define DEFAULT_CFE_PLATFORM_ES_CDS_MEM_BLOCK_SIZE_16 32768
+#define CFE_PLATFORM_ES_CDS_MAX_BLOCK_SIZE            CFE_PLATFORM_ES_CFGVAL(CDS_MAX_BLOCK_SIZE)
+#define DEFAULT_CFE_PLATFORM_ES_CDS_MAX_BLOCK_SIZE    80000
 
 /** \cfeescfg Poll timer for startup sync delay
 **
@@ -793,7 +871,8 @@
 **       Must be defined as an integer value that is greater than
 **       or equal to zero.
 */
-#define CFE_PLATFORM_ES_STARTUP_SYNC_POLL_MSEC 50
+#define CFE_PLATFORM_ES_STARTUP_SYNC_POLL_MSEC         CFE_PLATFORM_ES_CFGVAL(STARTUP_SYNC_POLL_MSEC)
+#define DEFAULT_CFE_PLATFORM_ES_STARTUP_SYNC_POLL_MSEC 50
 
 /** \cfeescfg Startup script timeout
 **
@@ -811,6 +890,7 @@
 **       Must be defined as an integer value that is greater than
 **       or equal to zero.
 */
-#define CFE_PLATFORM_ES_STARTUP_SCRIPT_TIMEOUT_MSEC 1000
+#define CFE_PLATFORM_ES_STARTUP_SCRIPT_TIMEOUT_MSEC         CFE_PLATFORM_ES_CFGVAL(STARTUP_SCRIPT_TIMEOUT_MSEC)
+#define DEFAULT_CFE_PLATFORM_ES_STARTUP_SCRIPT_TIMEOUT_MSEC 1000
 
 #endif
