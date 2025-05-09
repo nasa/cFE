@@ -18,24 +18,19 @@
 
 /**
  * @file
+ *   CFE File Services (CFE_FS) Module Public Definitions
  *
- * Declarations and prototypes for cfe_fs_extern_typedefs module
+ * This provides default values for configurable items that affect
+ * the interface(s) of this module.
+ *
+ * @note This file may be overridden/superceded by mission-provided definitionsm
+ * either by overriding this header or by generating definitions from a command/data
+ * dictionary tool.
  */
+#ifndef DEFAULT_CFE_FS_INTERFACE_CFG_VALUES_H
+#define DEFAULT_CFE_FS_INTERFACE_CFG_VALUES_H
 
-#ifndef CFE_FS_INTERFACE_CFG_H
-#define CFE_FS_INTERFACE_CFG_H
+/* Use the default configuration value for all */
+#define CFE_MISSION_FS_CFGVAL(x) DEFAULT_CFE_FS_##x
 
-/******************* Macro Definitions ***********************/
-
-/*
- * NOTE: the value of CFE_FS_HDR_DESC_MAX_LEN, if modified, should
- * be constrained to multiples of 4, as it is used within a structure that
- * also contains uint32 types.  This ensures that the entire structure
- * remains 32-bit aligned without the need for implicit padding bytes.
- */
-
-#define CFE_FS_HDR_DESC_MAX_LEN 32 /**< \brief Max length of description field in a standard cFE File Header */
-
-#define CFE_FS_FILE_CONTENT_ID 0x63464531 /**< \brief Magic Number for cFE compliant files (= 'cFE1') */
-
-#endif /* CFE_FS_INTERFACE_CFG_H */
+#endif
