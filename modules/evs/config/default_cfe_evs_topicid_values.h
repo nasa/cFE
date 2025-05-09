@@ -18,32 +18,11 @@
 
 /**
  * @file
- *   CFE Event Services (CFE_EVS) Application Public Definitions
- *
- * This provides default values for configurable items that affect
- * the interface(s) of this module.  This includes the CMD/TLM message
- * interface, tables definitions, and any other data products that
- * serve to exchange information with other entities.
- *
- * @note This file may be overridden/superceded by mission-provided definitions
- * either by overriding this header or by generating definitions from a command/data
- * dictionary tool.
+ *   CFE Event Services (CFE_EVS) Application Topic IDs
  */
-#ifndef CFE_EVS_INTERFACE_CFG_H
-#define CFE_EVS_INTERFACE_CFG_H
+#ifndef DEFAULT_CFE_EVS_TOPICID_VALUES_H
+#define DEFAULT_CFE_EVS_TOPICID_VALUES_H
 
-/**
-**  \cfeevscfg Maximum Event Message Length
-**
-**  \par Description:
-**      Indicates the maximum length (in characters) of the formatted text
-**      string portion of an event message
-**
-**      This length does not need to include an extra character for NULL termination.
-**
-**  \par Limits
-**      Not Applicable
-*/
-#define CFE_MISSION_EVS_MAX_MESSAGE_LENGTH 122
+#define CFE_MISSION_EVS_TIDVAL(x) DEFAULT_CFE_MISSION_EVS_##x##_TOPICID
 
 #endif

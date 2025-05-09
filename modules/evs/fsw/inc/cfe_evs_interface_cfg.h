@@ -19,23 +19,26 @@
 /**
  * @file
  *
- * CFE Event Services (CFE_EVS) Application Platform Configuration Header File
- *
- * This is a compatibility header for the "platform_cfg.h" file that has
- * traditionally provided both public and private config definitions
- * for each CFS app.
- *
- * These definitions are now provided in two separate files, one for
- * the public/mission scope and one for internal scope.
- *
- * @note This file may be overridden/superceded by mission-provided definitions
- * either by overriding this header or by generating definitions from a command/data
- * dictionary tool.
+ * CFE Event Services (CFE_EVS) Interface Configuration Header File
  */
-#ifndef DEFAULT_CFE_EVS_PLATFORM_CFG_H
-#define DEFAULT_CFE_EVS_PLATFORM_CFG_H
+#ifndef CFE_EVS_INTERFACE_CFG_H
+#define CFE_EVS_INTERFACE_CFG_H
 
-#include "cfe_evs_mission_cfg.h"
-#include "cfe_evs_internal_cfg.h"
+#include "cfe_evs_interface_cfg_values.h"
+
+/**
+**  \cfeevscfg Maximum Event Message Length
+**
+**  \par Description:
+**      Indicates the maximum length (in characters) of the formatted text
+**      string portion of an event message
+**
+**      This length does not need to include an extra character for NULL termination.
+**
+**  \par Limits
+**      Not Applicable
+*/
+#define CFE_MISSION_EVS_MAX_MESSAGE_LENGTH         CFE_MISSION_EVS_CFGVAL(MAX_MESSAGE_LENGTH)
+#define DEFAULT_CFE_MISSION_EVS_MAX_MESSAGE_LENGTH 122
 
 #endif

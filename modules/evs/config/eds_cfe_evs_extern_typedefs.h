@@ -19,23 +19,22 @@
 /**
  * @file
  *
- * CFE Event Services (CFE_EVS) Application Platform Configuration Header File
- *
- * This is a compatibility header for the "platform_cfg.h" file that has
- * traditionally provided both public and private config definitions
- * for each CFS app.
- *
- * These definitions are now provided in two separate files, one for
- * the public/mission scope and one for internal scope.
- *
- * @note This file may be overridden/superceded by mission-provided definitions
- * either by overriding this header or by generating definitions from a command/data
- * dictionary tool.
+ * Declarations and prototypes for cfe_evs_extern_typedefs module
  */
-#ifndef DEFAULT_CFE_EVS_PLATFORM_CFG_H
-#define DEFAULT_CFE_EVS_PLATFORM_CFG_H
 
-#include "cfe_evs_mission_cfg.h"
-#include "cfe_evs_internal_cfg.h"
+#ifndef EDS_CFE_EVS_EXTERN_TYPEDEFS_H
+#define EDS_CFE_EVS_EXTERN_TYPEDEFS_H
 
-#endif
+#include "cfe_evs_eds_typedefs.h"
+
+#define CFE_EVS_DEBUG_BIT       (1 << CFE_EVS_EventType_DEBUG)
+#define CFE_EVS_INFORMATION_BIT (1 << CFE_EVS_EventType_INFORMATION)
+#define CFE_EVS_ERROR_BIT       (1 << CFE_EVS_EventType_ERROR)
+#define CFE_EVS_CRITICAL_BIT    (1 << CFE_EVS_EventType_CRITICAL)
+
+#define CFE_EVS_PORT1_BIT (1 << CFE_EVS_EventOutput_PORT1)
+#define CFE_EVS_PORT2_BIT (1 << CFE_EVS_EventOutput_PORT2)
+#define CFE_EVS_PORT3_BIT (1 << CFE_EVS_EventOutput_PORT3)
+#define CFE_EVS_PORT4_BIT (1 << CFE_EVS_EventOutput_PORT4)
+
+#endif /* CFE_EVS_EXTERN_TYPEDEFS_H */

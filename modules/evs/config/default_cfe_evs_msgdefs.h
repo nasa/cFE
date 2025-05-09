@@ -19,12 +19,10 @@
 /**
  * @file
  *   Specification for the CFE Event Services (CFE_EVS) command and telemetry
- *   message constant definitions.
- *
- *  For CFE_EVS this is only the function/command code definitions
+ *   message payload structures and constant definitions.
  */
-#ifndef CFE_EVS_MSGDEFS_H
-#define CFE_EVS_MSGDEFS_H
+#ifndef DEFAULT_CFE_EVS_MSGDEFS_H
+#define DEFAULT_CFE_EVS_MSGDEFS_H
 
 #include "common_types.h"
 #include "cfe_mission_cfg.h"

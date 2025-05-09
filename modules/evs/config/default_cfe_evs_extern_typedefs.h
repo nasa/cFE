@@ -22,8 +22,8 @@
  * Declarations and prototypes for cfe_evs_extern_typedefs module
  */
 
-#ifndef CFE_EVS_EXTERN_TYPEDEFS_H
-#define CFE_EVS_EXTERN_TYPEDEFS_H
+#ifndef DEFAULT_CFE_EVS_EXTERN_TYPEDEFS_H
+#define DEFAULT_CFE_EVS_EXTERN_TYPEDEFS_H
 
 #include "common_types.h"
 

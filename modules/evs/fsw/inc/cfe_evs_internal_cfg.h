@@ -24,13 +24,12 @@
  * to this module and do NOT affect the interface(s) of this module.  Changes
  * to items in this file only affect the local module and will be transparent
  * to external entities that are using the public interface(s).
- *
- * @note This file may be overridden/superceded by mission-provided definitions
- * either by overriding this header or by generating definitions from a command/data
- * dictionary tool.
  */
 #ifndef CFE_EVS_INTERNAL_CFG_H
 #define CFE_EVS_INTERNAL_CFG_H
+
+#include "cfe_evs_mission_cfg.h"
+#include "cfe_evs_internal_cfg_values.h"
 
 /**
 **  \cfeescfg Define EVS Task Priority
@@ -41,7 +40,8 @@
 **  \par Limits
 **       Not Applicable
 */
-#define CFE_PLATFORM_EVS_START_TASK_PRIORITY 61
+#define CFE_PLATFORM_EVS_START_TASK_PRIORITY         CFE_PLATFORM_EVS_CFGVAL(START_TASK_PRIORITY)
+#define DEFAULT_CFE_PLATFORM_EVS_START_TASK_PRIORITY 61
 
 /**
 **  \cfeescfg Define EVS Task Stack Size
@@ -56,7 +56,8 @@
 **       tools for measuring the amount of stack used by a task during operation. It
 **       is always a good idea to verify that no more than 1/2 of the stack is used.
 */
-#define CFE_PLATFORM_EVS_START_TASK_STACK_SIZE CFE_PLATFORM_ES_DEFAULT_STACK_SIZE
+#define CFE_PLATFORM_EVS_START_TASK_STACK_SIZE         CFE_PLATFORM_EVS_CFGVAL(START_TASK_STACK_SIZE)
+#define DEFAULT_CFE_PLATFORM_EVS_START_TASK_STACK_SIZE CFE_PLATFORM_ES_DEFAULT_STACK_SIZE
 
 /**
 **  \cfeevscfg Define Maximum Number of Event Filters per Application
@@ -69,7 +70,8 @@
 **       the maximum number of event filters is system dependent and should be
 **       verified.
 */
-#define CFE_PLATFORM_EVS_MAX_EVENT_FILTERS 8
+#define CFE_PLATFORM_EVS_MAX_EVENT_FILTERS         CFE_PLATFORM_EVS_CFGVAL(MAX_EVENT_FILTERS)
+#define DEFAULT_CFE_PLATFORM_EVS_MAX_EVENT_FILTERS 8
 
 /**
 **  \cfeevscfg Maximum number of event before squelching
@@ -81,7 +83,8 @@
 **  \par Limits
 **       This number must be less than or equal to INT_MAX/1000
 */
-#define CFE_PLATFORM_EVS_MAX_APP_EVENT_BURST 32
+#define CFE_PLATFORM_EVS_MAX_APP_EVENT_BURST         CFE_PLATFORM_EVS_CFGVAL(MAX_APP_EVENT_BURST)
+#define DEFAULT_CFE_PLATFORM_EVS_MAX_APP_EVENT_BURST 32
 
 /**
 **  \cfeevscfg Sustained number of event messages per second per app before squelching
@@ -93,7 +96,8 @@
 **       This number must be less than or equal to #CFE_PLATFORM_EVS_MAX_APP_EVENT_BURST.
 **       Values lower than 8 may cause functional and unit test failures.
 */
-#define CFE_PLATFORM_EVS_APP_EVENTS_PER_SEC 15
+#define CFE_PLATFORM_EVS_APP_EVENTS_PER_SEC         CFE_PLATFORM_EVS_CFGVAL(APP_EVENTS_PER_SEC)
+#define DEFAULT_CFE_PLATFORM_EVS_APP_EVENTS_PER_SEC 15
 
 /**
 **  \cfeevscfg Default Event Log Filename
@@ -107,7 +111,8 @@
 **       The length of each string, including the NULL terminator cannot exceed the
 **       #OS_MAX_PATH_LEN value.
 */
-#define CFE_PLATFORM_EVS_DEFAULT_LOG_FILE "/ram/cfe_evs.log"
+#define CFE_PLATFORM_EVS_DEFAULT_LOG_FILE         CFE_PLATFORM_EVS_CFGVAL(DEFAULT_LOG_FILE)
+#define DEFAULT_CFE_PLATFORM_EVS_DEFAULT_LOG_FILE "/ram/cfe_evs.log"
 
 /**
 **  \cfeevscfg Maximum Number of Events in EVS Local Event Log
@@ -119,7 +124,8 @@
 **       There are no restrictions on the lower and upper limits however,
 **       the maximum log size is system dependent and should be verified.
 */
-#define CFE_PLATFORM_EVS_LOG_MAX 20
+#define CFE_PLATFORM_EVS_LOG_MAX         CFE_PLATFORM_EVS_CFGVAL(LOG_MAX)
+#define DEFAULT_CFE_PLATFORM_EVS_LOG_MAX 20
 
 /**
 **  \cfeevscfg Default EVS Application Data Filename
@@ -134,7 +140,8 @@
 **       The length of each string, including the NULL terminator cannot exceed the
 **       #OS_MAX_PATH_LEN value.
 */
-#define CFE_PLATFORM_EVS_DEFAULT_APP_DATA_FILE "/ram/cfe_evs_app.dat"
+#define CFE_PLATFORM_EVS_DEFAULT_APP_DATA_FILE         CFE_PLATFORM_EVS_CFGVAL(DEFAULT_APP_DATA_FILE)
+#define DEFAULT_CFE_PLATFORM_EVS_DEFAULT_APP_DATA_FILE "/ram/cfe_evs_app.dat"
 
 /**
 **  \cfeevscfg Default EVS Output Port State
@@ -148,7 +155,8 @@
 **  \par Limits
 **       The valid settings are 0x0 to 0xF.
 */
-#define CFE_PLATFORM_EVS_PORT_DEFAULT 0x0001
+#define CFE_PLATFORM_EVS_PORT_DEFAULT         CFE_PLATFORM_EVS_CFGVAL(PORT_DEFAULT)
+#define DEFAULT_CFE_PLATFORM_EVS_PORT_DEFAULT 0x0001
 
 /**
 **  \cfeevscfg Default EVS Event Type Filter Mask
@@ -165,7 +173,8 @@
 **  \par Limits
 **       The valid settings are 0x0 to 0xF.
 */
-#define CFE_PLATFORM_EVS_DEFAULT_TYPE_FLAG 0xE
+#define CFE_PLATFORM_EVS_DEFAULT_TYPE_FLAG         CFE_PLATFORM_EVS_CFGVAL(DEFAULT_TYPE_FLAG)
+#define DEFAULT_CFE_PLATFORM_EVS_DEFAULT_TYPE_FLAG 0xE
 
 /**
 **  \cfeevscfg Default EVS Local Event Log Mode
@@ -181,7 +190,8 @@
 **  \par Limits
 **       The valid settings are 0 or 1
 */
-#define CFE_PLATFORM_EVS_DEFAULT_LOG_MODE 1
+#define CFE_PLATFORM_EVS_DEFAULT_LOG_MODE         CFE_PLATFORM_EVS_CFGVAL(DEFAULT_LOG_MODE)
+#define DEFAULT_CFE_PLATFORM_EVS_DEFAULT_LOG_MODE 1
 
 /**
 **  \cfeevscfg Default EVS Message Format Mode
@@ -194,6 +204,7 @@
 **  \par Limits
 **       The valid settings are #CFE_EVS_MsgFormat_LONG or #CFE_EVS_MsgFormat_SHORT
 */
-#define CFE_PLATFORM_EVS_DEFAULT_MSG_FORMAT_MODE CFE_EVS_MsgFormat_LONG
+#define CFE_PLATFORM_EVS_DEFAULT_MSG_FORMAT_MODE         CFE_PLATFORM_EVS_CFGVAL(DEFAULT_MSG_FORMAT_MODE)
+#define DEFAULT_CFE_PLATFORM_EVS_DEFAULT_MSG_FORMAT_MODE CFE_EVS_MsgFormat_LONG
 
 #endif

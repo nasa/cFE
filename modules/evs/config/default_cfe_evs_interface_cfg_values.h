@@ -18,34 +18,21 @@
 
 /**
  * @file
- *   CFE Event Services (CFE_EVS) Application Topic IDs
+ *   CFE Event Services (CFE_EVS) Application Public Definitions
+ *
+ * This provides default values for configurable items that affect
+ * the interface(s) of this module.  This includes the CMD/TLM message
+ * interface, tables definitions, and any other data products that
+ * serve to exchange information with other entities.
+ *
+ * @note This file may be overridden/superceded by mission-provided definitions
+ * either by overriding this header or by generating definitions from a command/data
+ * dictionary tool.
  */
-#ifndef CFE_EVS_TOPICIDS_H
-#define CFE_EVS_TOPICIDS_H
+#ifndef DEFAULT_CFE_EVS_INTERFACE_CFG_VALUES_H
+#define DEFAULT_CFE_EVS_INTERFACE_CFG_VALUES_H
 
-/**
-**  \cfemissioncfg cFE Portable Message Numbers for Commands
-**
-**  \par Description:
-**      Portable message numbers for the cFE EVS command messages
-**
-**  \par Limits
-**      Not Applicable
-*/
-#define CFE_MISSION_EVS_CMD_TOPICID     1
-#define CFE_MISSION_EVS_SEND_HK_TOPICID 9
-
-/**
-**  \cfemissioncfg cFE Portable Message Numbers for Telemetry
-**
-**  \par Description:
-**      Portable message numbers for the cFE EVS telemetry messages
-**
-**  \par Limits
-**      Not Applicable
-*/
-#define CFE_MISSION_EVS_HK_TLM_TOPICID          1
-#define CFE_MISSION_EVS_LONG_EVENT_MSG_TOPICID  8
-#define CFE_MISSION_EVS_SHORT_EVENT_MSG_TOPICID 9
+/* Use the default configuration value for all */
+#define CFE_MISSION_EVS_CFGVAL(x) DEFAULT_CFE_MISSION_EVS_##x
 
 #endif

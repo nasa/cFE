@@ -18,24 +18,15 @@
 
 /**
  * @file
- *
- * CFE Event Services (CFE_EVS) Application Platform Configuration Header File
- *
- * This is a compatibility header for the "platform_cfg.h" file that has
- * traditionally provided both public and private config definitions
- * for each CFS app.
- *
- * These definitions are now provided in two separate files, one for
- * the public/mission scope and one for internal scope.
- *
- * @note This file may be overridden/superceded by mission-provided definitions
- * either by overriding this header or by generating definitions from a command/data
- * dictionary tool.
+ *   CFE Event Services (CFE_EVS) Application Message IDs
  */
-#ifndef DEFAULT_CFE_EVS_PLATFORM_CFG_H
-#define DEFAULT_CFE_EVS_PLATFORM_CFG_H
+#ifndef DEFAULT_CFE_EVS_MSGID_VALUES_H
+#define DEFAULT_CFE_EVS_MSGID_VALUES_H
 
-#include "cfe_evs_mission_cfg.h"
-#include "cfe_evs_internal_cfg.h"
+#include "cfe_core_api_base_msgids.h"
+#include "cfe_evs_topicids.h"
+
+#define CFE_PLATFORM_EVS_CMD_MIDVAL(x) CFE_PLATFORM_CMD_TOPICID_TO_MIDV(CFE_MISSION_EVS_##x##_TOPICID)
+#define CFE_PLATFORM_EVS_TLM_MIDVAL(x) CFE_PLATFORM_TLM_TOPICID_TO_MIDV(CFE_MISSION_EVS_##x##_TOPICID)
 
 #endif
