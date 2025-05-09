@@ -18,19 +18,20 @@
 
 /**
  * @file
- *   CFE Table Services (CFE_TBL) Application Public Definitions
  *
- * This provides default values for configurable items that affect
- * the interface(s) of this module.  This includes the CMD/TLM message
- * interface, tables definitions, and any other data products that
- * serve to exchange information with other entities.
+ * CFE Event Services (CFE_TBL) Application Mission Configuration Header File
+ *
+ * This is a compatibility header for the "mission_cfg.h" file that has
+ * traditionally provided public config definitions for each CFS app.
  *
  * @note This file may be overridden/superceded by mission-provided definitions
  * either by overriding this header or by generating definitions from a command/data
  * dictionary tool.
  */
-#ifndef CFE_TBL_INTERFACE_CFG_H
-#define CFE_TBL_INTERFACE_CFG_H
+#ifndef CFE_TBL_MISSION_CFG_H
+#define CFE_TBL_MISSION_CFG_H
+
+#include "cfe_tbl_interface_cfg_values.h"
 
 /**
 **  \cfetblcfg Maximum Table Name Length
@@ -46,7 +47,8 @@
 **       This value should be kept as a multiple of 4, to maintain alignment of
 **       any possible neighboring fields without implicit padding.
 */
-#define CFE_MISSION_TBL_MAX_NAME_LENGTH 16
+#define CFE_MISSION_TBL_MAX_NAME_LENGTH         CFE_MISSION_TBL_CFGVAL(MAX_NAME_LENGTH)
+#define DEFAULT_CFE_MISSION_TBL_MAX_NAME_LENGTH 16
 
 /**
 **  \cfetblcfg Maximum Length of Full Table Name in messages
@@ -66,6 +68,9 @@
 **       This value should be kept as a multiple of 4, to maintain alignment of
 **       any possible neighboring fields without implicit padding.
 */
-#define CFE_MISSION_TBL_MAX_FULL_NAME_LEN (CFE_MISSION_TBL_MAX_NAME_LENGTH + CFE_MISSION_MAX_API_LEN + 4)
+#define CFE_MISSION_TBL_MAX_FULL_NAME_LEN CFE_MISSION_TBL_CFGVAL(MAX_FULL_NAME_LEN)
+
+/* Default value calculated as: (CFE_MISSION_TBL_MAX_NAME_LENGTH + CFE_MISSION_MAX_API_LEN + 4) */
+#define DEFAULT_CFE_MISSION_TBL_MAX_FULL_NAME_LEN 40
 
 #endif

@@ -18,19 +18,25 @@
 
 /**
  * @file
- *   CFE Table Services (CFE_TBL) Application Private Config Definitions
  *
- * This provides default values for configurable items that are internal
- * to this module and do NOT affect the interface(s) of this module.  Changes
- * to items in this file only affect the local module and will be transparent
- * to external entities that are using the public interface(s).
+ * CFE Table Services (CFE_TBL) Application Platform Configuration Header File
+ *
+ * This is a compatibility header for the "platform_cfg.h" file that has
+ * traditionally provided both public and private config definitions
+ * for each CFS app.
+ *
+ * These definitions are now provided in two separate files, one for
+ * the public/mission scope and one for internal scope.
  *
  * @note This file may be overridden/superceded by mission-provided definitions
  * either by overriding this header or by generating definitions from a command/data
  * dictionary tool.
  */
-#ifndef CFE_TBL_INTERNAL_CFG_H
-#define CFE_TBL_INTERNAL_CFG_H
+#ifndef CFE_TBL_PLATFORM_CFG_H
+#define CFE_TBL_PLATFORM_CFG_H
+
+#include "cfe_tbl_mission_cfg.h"
+#include "cfe_tbl_internal_cfg_values.h"
 
 /**
 **  \cfeescfg Define TBL Task Priority
@@ -41,7 +47,8 @@
 **  \par Limits
 **       Not Applicable
 */
-#define CFE_PLATFORM_TBL_START_TASK_PRIORITY 70
+#define CFE_PLATFORM_TBL_START_TASK_PRIORITY         CFE_PLATFORM_TBL_CFGVAL(START_TASK_PRIORITY)
+#define DEFAULT_CFE_PLATFORM_TBL_START_TASK_PRIORITY 70
 
 /**
 **  \cfeescfg Define TBL Task Stack Size
@@ -56,7 +63,8 @@
 **       tools for measuring the amount of stack used by a task during operation. It
 **       is always a good idea to verify that no more than 1/2 of the stack is used.
 */
-#define CFE_PLATFORM_TBL_START_TASK_STACK_SIZE CFE_PLATFORM_ES_DEFAULT_STACK_SIZE
+#define CFE_PLATFORM_TBL_START_TASK_STACK_SIZE         CFE_PLATFORM_TBL_CFGVAL(START_TASK_STACK_SIZE)
+#define DEFAULT_CFE_PLATFORM_TBL_START_TASK_STACK_SIZE CFE_PLATFORM_ES_DEFAULT_STACK_SIZE
 
 /* Platform Configuration Parameters for Table Service (TBL) */
 
@@ -72,7 +80,8 @@
 **  \par Limits
 **       The cFE does not place a limit on the size of this parameter.
 */
-#define CFE_PLATFORM_TBL_BUF_MEMORY_BYTES 524288
+#define CFE_PLATFORM_TBL_BUF_MEMORY_BYTES         CFE_PLATFORM_TBL_CFGVAL(BUF_MEMORY_BYTES)
+#define DEFAULT_CFE_PLATFORM_TBL_BUF_MEMORY_BYTES 524288
 
 /**
 **  \cfetblcfg Maximum Size Allowed for a Double Buffered Table
@@ -84,7 +93,8 @@
 **       The cFE does not place a limit on the size of this parameter but it must be
 **       less than half of #CFE_PLATFORM_TBL_BUF_MEMORY_BYTES.
 */
-#define CFE_PLATFORM_TBL_MAX_DBL_TABLE_SIZE 16384
+#define CFE_PLATFORM_TBL_MAX_DBL_TABLE_SIZE         CFE_PLATFORM_TBL_CFGVAL(MAX_DBL_TABLE_SIZE)
+#define DEFAULT_CFE_PLATFORM_TBL_MAX_DBL_TABLE_SIZE 16384
 
 /**
 **  \cfetblcfg Maximum Size Allowed for a Single Buffered Table
@@ -100,7 +110,8 @@
 **       small enough to allow for #CFE_PLATFORM_TBL_MAX_SIMULTANEOUS_LOADS number of tables
 **       to fit into #CFE_PLATFORM_TBL_BUF_MEMORY_BYTES.
 */
-#define CFE_PLATFORM_TBL_MAX_SNGL_TABLE_SIZE 16384
+#define CFE_PLATFORM_TBL_MAX_SNGL_TABLE_SIZE         CFE_PLATFORM_TBL_CFGVAL(MAX_SNGL_TABLE_SIZE)
+#define DEFAULT_CFE_PLATFORM_TBL_MAX_SNGL_TABLE_SIZE 16384
 
 /**
 **  \cfetblcfg Maximum Number of Tables Allowed to be Registered
@@ -113,7 +124,8 @@
 **       determines the size of the Table Registry.  An excessively high number will waste
 **       memory.
 */
-#define CFE_PLATFORM_TBL_MAX_NUM_TABLES 128
+#define CFE_PLATFORM_TBL_MAX_NUM_TABLES         CFE_PLATFORM_TBL_CFGVAL(MAX_NUM_TABLES)
+#define DEFAULT_CFE_PLATFORM_TBL_MAX_NUM_TABLES 128
 
 /**
 **  \cfetblcfg Maximum Number of Critical Tables that can be Registered
@@ -127,7 +139,8 @@
 **       Data Store.  An excessively high number will waste Critical Data Store memory.  Therefore,
 **       this number must not exceed the value defined in CFE_PLATFORM_ES_CDS_MAX_NUM_ENTRIES.
 */
-#define CFE_PLATFORM_TBL_MAX_CRITICAL_TABLES 32
+#define CFE_PLATFORM_TBL_MAX_CRITICAL_TABLES         CFE_PLATFORM_TBL_CFGVAL(MAX_CRITICAL_TABLES)
+#define DEFAULT_CFE_PLATFORM_TBL_MAX_CRITICAL_TABLES 32
 
 /**
 **  \cfetblcfg Maximum Number of Table Handles
@@ -140,7 +153,8 @@
 **       the number of tables (#CFE_PLATFORM_TBL_MAX_NUM_TABLES) and should be set higher if tables
 **       are shared between applications.
 */
-#define CFE_PLATFORM_TBL_MAX_NUM_HANDLES 256
+#define CFE_PLATFORM_TBL_MAX_NUM_HANDLES         CFE_PLATFORM_TBL_CFGVAL(MAX_NUM_HANDLES)
+#define DEFAULT_CFE_PLATFORM_TBL_MAX_NUM_HANDLES 256
 
 /**
 **  \cfetblcfg Maximum Number of Simultaneous Loads to Support
@@ -155,7 +169,8 @@
 **       degrade system performance and waste memory.  A number less than 5 is
 **       suggested but not required.
 */
-#define CFE_PLATFORM_TBL_MAX_SIMULTANEOUS_LOADS 4
+#define CFE_PLATFORM_TBL_MAX_SIMULTANEOUS_LOADS         CFE_PLATFORM_TBL_CFGVAL(MAX_SIMULTANEOUS_LOADS)
+#define DEFAULT_CFE_PLATFORM_TBL_MAX_SIMULTANEOUS_LOADS 4
 
 /**
 **  \cfetblcfg Maximum Number of Simultaneous Table Validations
@@ -173,7 +188,8 @@
 **       degrade system performance and waste memory.  A number less than 20 is
 **       suggested but not required.
 */
-#define CFE_PLATFORM_TBL_MAX_NUM_VALIDATIONS 10
+#define CFE_PLATFORM_TBL_MAX_NUM_VALIDATIONS         CFE_PLATFORM_TBL_CFGVAL(MAX_NUM_VALIDATIONS)
+#define DEFAULT_CFE_PLATFORM_TBL_MAX_NUM_VALIDATIONS 10
 
 /**
 **  \cfetblcfg Default Filename for a Table Registry Dump
@@ -186,7 +202,8 @@
 **       The length of each string, including the NULL terminator cannot exceed the
 **       #OS_MAX_PATH_LEN value.
 */
-#define CFE_PLATFORM_TBL_DEFAULT_REG_DUMP_FILE "/ram/cfe_tbl_reg.log"
+#define CFE_PLATFORM_TBL_DEFAULT_REG_DUMP_FILE         CFE_PLATFORM_TBL_CFGVAL(DEFAULT_REG_DUMP_FILE)
+#define DEFAULT_CFE_PLATFORM_TBL_DEFAULT_REG_DUMP_FILE "/ram/cfe_tbl_reg.log"
 
 /**
 **  \cfetblcfg Number of Spacecraft ID's specified for validation
@@ -205,7 +222,8 @@
 **       This number must be greater than or equal to zero and
 **       less than or equal to 2.
 */
-#define CFE_PLATFORM_TBL_VALID_SCID_COUNT 0
+#define CFE_PLATFORM_TBL_VALID_SCID_COUNT         CFE_PLATFORM_TBL_CFGVAL(VALID_SCID_COUNT)
+#define DEFAULT_CFE_PLATFORM_TBL_VALID_SCID_COUNT 0
 
 /* macro to construct 32 bit value from 4 chars */
 #define CFE_PLATFORM_TBL_U32FROM4CHARS(_C1, _C2, _C3, _C4) \
@@ -223,8 +241,11 @@
 **  \par Limits
 **       This value can be any 32 bit unsigned integer.
 */
-#define CFE_PLATFORM_TBL_VALID_SCID_1 (0x42)
-#define CFE_PLATFORM_TBL_VALID_SCID_2 (CFE_PLATFORM_TBL_U32FROM4CHARS('a', 'b', 'c', 'd'))
+#define CFE_PLATFORM_TBL_VALID_SCID_1         CFE_PLATFORM_TBL_CFGVAL(VALID_SCID_1)
+#define DEFAULT_CFE_PLATFORM_TBL_VALID_SCID_1 (0x42)
+
+#define CFE_PLATFORM_TBL_VALID_SCID_2         CFE_PLATFORM_TBL_CFGVAL(VALID_SCID_2)
+#define DEFAULT_CFE_PLATFORM_TBL_VALID_SCID_2 (CFE_PLATFORM_TBL_U32FROM4CHARS('a', 'b', 'c', 'd'))
 
 /**
 **  \cfetblcfg Number of Processor ID's specified for validation
@@ -243,7 +264,8 @@
 **       This number must be greater than or equal to zero and
 **       less than or equal to 4.
 */
-#define CFE_PLATFORM_TBL_VALID_PRID_COUNT 0
+#define CFE_PLATFORM_TBL_VALID_PRID_COUNT         CFE_PLATFORM_TBL_CFGVAL(VALID_PRID_COUNT)
+#define DEFAULT_CFE_PLATFORM_TBL_VALID_PRID_COUNT 0
 
 /**
 **  \cfetblcfg Processor ID values used for table load validation
@@ -257,9 +279,16 @@
 **  \par Limits
 **       This value can be any 32 bit unsigned integer.
 */
-#define CFE_PLATFORM_TBL_VALID_PRID_1 (1)
-#define CFE_PLATFORM_TBL_VALID_PRID_2 (CFE_PLATFORM_TBL_U32FROM4CHARS('a', 'b', 'c', 'd'))
-#define CFE_PLATFORM_TBL_VALID_PRID_3 0
-#define CFE_PLATFORM_TBL_VALID_PRID_4 0
+#define CFE_PLATFORM_TBL_VALID_PRID_1         CFE_PLATFORM_TBL_CFGVAL(VALID_PRID_1)
+#define DEFAULT_CFE_PLATFORM_TBL_VALID_PRID_1 (1)
+
+#define CFE_PLATFORM_TBL_VALID_PRID_2         CFE_PLATFORM_TBL_CFGVAL(VALID_PRID_2)
+#define DEFAULT_CFE_PLATFORM_TBL_VALID_PRID_2 (CFE_PLATFORM_TBL_U32FROM4CHARS('a', 'b', 'c', 'd'))
+
+#define CFE_PLATFORM_TBL_VALID_PRID_3         CFE_PLATFORM_TBL_CFGVAL(VALID_PRID_3)
+#define DEFAULT_CFE_PLATFORM_TBL_VALID_PRID_3 0
+
+#define CFE_PLATFORM_TBL_VALID_PRID_4         CFE_PLATFORM_TBL_CFGVAL(VALID_PRID_4)
+#define DEFAULT_CFE_PLATFORM_TBL_VALID_PRID_4 0
 
 #endif

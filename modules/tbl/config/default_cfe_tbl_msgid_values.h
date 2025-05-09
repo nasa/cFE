@@ -18,33 +18,15 @@
 
 /**
  * @file
- *   CFE Table Services (CFE_TBL) Application Topic IDs
+ *   CFE Event Services (CFE_TBL) Application Message IDs
  */
-#ifndef CFE_TBL_TOPICIDS_H
-#define CFE_TBL_TOPICIDS_H
+#ifndef DEFAULT_CFE_TBL_MSGID_VALUES_H
+#define DEFAULT_CFE_TBL_MSGID_VALUES_H
 
-/**
-**  \cfemissioncfg cFE Portable Message Numbers for Commands
-**
-**  \par Description:
-**      Portable message numbers for the cFE command messages
-**
-**  \par Limits
-**      Not Applicable
-*/
-#define CFE_MISSION_TBL_CMD_TOPICID     4
-#define CFE_MISSION_TBL_SEND_HK_TOPICID 12
+#include "cfe_core_api_base_msgids.h"
+#include "cfe_tbl_topicids.h"
 
-/**
-**  \cfemissioncfg cFE Portable Message Numbers for Telemetry
-**
-**  \par Description:
-**      Portable message numbers for the cFE telemetry messages
-**
-**  \par Limits
-**      Not Applicable
-*/
-#define CFE_MISSION_TBL_HK_TLM_TOPICID  4
-#define CFE_MISSION_TBL_REG_TLM_TOPICID 12
+#define CFE_PLATFORM_TBL_CMD_MIDVAL(x) CFE_PLATFORM_CMD_TOPICID_TO_MIDV(CFE_MISSION_TBL_##x##_TOPICID)
+#define CFE_PLATFORM_TBL_TLM_MIDVAL(x) CFE_PLATFORM_TLM_TOPICID_TO_MIDV(CFE_MISSION_TBL_##x##_TOPICID)
 
 #endif

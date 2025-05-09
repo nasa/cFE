@@ -19,12 +19,10 @@
 /**
  * @file
  *   Specification for the CFE Event Services (CFE_TBL) command and telemetry
- *   message constant definitions.
- *
- *  For CFE_TBL this is only the function/command code definitions
+ *   message payload and constant definitions.
  */
-#ifndef CFE_TBL_MSGDEFS_H
-#define CFE_TBL_MSGDEFS_H
+#ifndef DEFAULT_CFE_TBL_MSGDEFS_H
+#define DEFAULT_CFE_TBL_MSGDEFS_H
 
 #include "common_types.h"
 #include "cfe_mission_cfg.h"

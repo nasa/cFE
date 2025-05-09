@@ -18,24 +18,22 @@
 
 /**
  * @file
- *   CFE Event Services (CFE_TBL) Application Message IDs
+ *   CFE Executive Services (CFE_ES) Application Public Definitions
+ *
+ * This provides default values for configurable items that affect
+ * the interface(s) of this module.  This includes the CMD/TLM message
+ * interface, tables definitions, and any other data products that
+ * serve to exchange information with other entities.
+ *
+ * @note This file may be overridden/superceded by mission-provided definitions
+ * either by overriding this header or by generating definitions from a command/data
+ * dictionary tool.
  */
-#ifndef DEFAULT_CFE_TBL_MSGIDS_H
-#define DEFAULT_CFE_TBL_MSGIDS_H
+#ifndef EDS_CFE_TBL_INTERFACE_CFG_VALUES_H
+#define EDS_CFE_TBL_INTERFACE_CFG_VALUES_H
 
-#include "cfe_core_api_base_msgids.h"
-#include "cfe_tbl_msgid_values.h"
+#include "cfe_mission_eds_designparameters.h"
 
-/*
-** cFE Command Message Id's
-*/
-#define CFE_TBL_CMD_MID     CFE_PLATFORM_TBL_CMD_MIDVAL(CMD)
-#define CFE_TBL_SEND_HK_MID CFE_PLATFORM_TBL_CMD_MIDVAL(SEND_HK)
-
-/*
-** CFE Telemetry Message Id's
-*/
-#define CFE_TBL_HK_TLM_MID  CFE_PLATFORM_TBL_TLM_MIDVAL(HK_TLM)
-#define CFE_TBL_REG_TLM_MID CFE_PLATFORM_TBL_TLM_MIDVAL(REG_TLM)
+#define CFE_MISSION_TBL_CFGVAL(x) EdsParam_CFE_MISSION_TBL_##x
 
 #endif

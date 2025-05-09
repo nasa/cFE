@@ -18,24 +18,15 @@
 
 /**
  * @file
- *   CFE Event Services (CFE_TBL) Application Message IDs
+ *   Specification for the CFE Executive Services (CFE_ES) command and telemetry
+ *   message constant definitions.
+ *
+ *  For CFE_ES this is only the function/command code definitions
  */
-#ifndef DEFAULT_CFE_TBL_MSGIDS_H
-#define DEFAULT_CFE_TBL_MSGIDS_H
+#ifndef EDS_CFE_TBL_MSGDEFS_H
+#define EDS_CFE_TBL_MSGDEFS_H
 
-#include "cfe_core_api_base_msgids.h"
-#include "cfe_tbl_msgid_values.h"
-
-/*
-** cFE Command Message Id's
-*/
-#define CFE_TBL_CMD_MID     CFE_PLATFORM_TBL_CMD_MIDVAL(CMD)
-#define CFE_TBL_SEND_HK_MID CFE_PLATFORM_TBL_CMD_MIDVAL(SEND_HK)
-
-/*
-** CFE Telemetry Message Id's
-*/
-#define CFE_TBL_HK_TLM_MID  CFE_PLATFORM_TBL_TLM_MIDVAL(HK_TLM)
-#define CFE_TBL_REG_TLM_MID CFE_PLATFORM_TBL_TLM_MIDVAL(REG_TLM)
+#include "cfe_tbl_eds_typedefs.h"
+#include "cfe_tbl_fcncodes.h"
 
 #endif

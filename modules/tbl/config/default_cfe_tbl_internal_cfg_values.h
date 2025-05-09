@@ -18,24 +18,21 @@
 
 /**
  * @file
- *   CFE Event Services (CFE_TBL) Application Message IDs
+ *   CFE Executive Services (CFE_ES) Application Private Config Definitions
+ *
+ * This provides default values for configurable items that are internal
+ * to this module and do NOT affect the interface(s) of this module.  Changes
+ * to items in this file only affect the local module and will be transparent
+ * to external entities that are using the public interface(s).
+ *
+ * @note This file may be overridden/superceded by mission-provided definitions
+ * either by overriding this header or by generating definitions from a command/data
+ * dictionary tool.
  */
-#ifndef DEFAULT_CFE_TBL_MSGIDS_H
-#define DEFAULT_CFE_TBL_MSGIDS_H
+#ifndef DEFAULT_CFE_TBL_INTERNAL_CFG_VALUES_H
+#define DEFAULT_CFE_TBL_INTERNAL_CFG_VALUES_H
 
-#include "cfe_core_api_base_msgids.h"
-#include "cfe_tbl_msgid_values.h"
-
-/*
-** cFE Command Message Id's
-*/
-#define CFE_TBL_CMD_MID     CFE_PLATFORM_TBL_CMD_MIDVAL(CMD)
-#define CFE_TBL_SEND_HK_MID CFE_PLATFORM_TBL_CMD_MIDVAL(SEND_HK)
-
-/*
-** CFE Telemetry Message Id's
-*/
-#define CFE_TBL_HK_TLM_MID  CFE_PLATFORM_TBL_TLM_MIDVAL(HK_TLM)
-#define CFE_TBL_REG_TLM_MID CFE_PLATFORM_TBL_TLM_MIDVAL(REG_TLM)
+/* Use the default configuration value for all */
+#define CFE_PLATFORM_TBL_CFGVAL(x) DEFAULT_CFE_PLATFORM_TBL_##x
 
 #endif

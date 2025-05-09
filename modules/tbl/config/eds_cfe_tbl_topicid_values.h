@@ -18,24 +18,13 @@
 
 /**
  * @file
- *   CFE Event Services (CFE_TBL) Application Message IDs
+ *   CFE Table Services (CFE_TBL) Application Topic IDs
  */
-#ifndef DEFAULT_CFE_TBL_MSGIDS_H
-#define DEFAULT_CFE_TBL_MSGIDS_H
+#ifndef EDS_CFE_TBL_TOPICID_VALUES_H
+#define EDS_CFE_TBL_TOPICID_VALUES_H
 
-#include "cfe_core_api_base_msgids.h"
-#include "cfe_tbl_msgid_values.h"
+#include "cfe_mission_eds_designparameters.h"
 
-/*
-** cFE Command Message Id's
-*/
-#define CFE_TBL_CMD_MID     CFE_PLATFORM_TBL_CMD_MIDVAL(CMD)
-#define CFE_TBL_SEND_HK_MID CFE_PLATFORM_TBL_CMD_MIDVAL(SEND_HK)
-
-/*
-** CFE Telemetry Message Id's
-*/
-#define CFE_TBL_HK_TLM_MID  CFE_PLATFORM_TBL_TLM_MIDVAL(HK_TLM)
-#define CFE_TBL_REG_TLM_MID CFE_PLATFORM_TBL_TLM_MIDVAL(REG_TLM)
+#define CFE_MISSION_TBL_TIDVAL(x) EdsParam_CFE_MISSION_TBL_##x##_TOPICID
 
 #endif

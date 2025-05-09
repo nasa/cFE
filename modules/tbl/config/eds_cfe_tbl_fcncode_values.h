@@ -18,24 +18,22 @@
 
 /**
  * @file
- *   CFE Event Services (CFE_TBL) Application Message IDs
+ *   Specification for the CFE Event Services (CFE_TBL) command function codes
+ *
+ * @note
+ *   This file should be strictly limited to the command/function code (CC)
+ *   macro definitions.  Other definitions such as enums, typedefs, or other
+ *   macros should be placed in the msgdefs.h or msg.h files.
  */
-#ifndef DEFAULT_CFE_TBL_MSGIDS_H
-#define DEFAULT_CFE_TBL_MSGIDS_H
+#ifndef EDS_CFE_TBL_FCNCODE_VALUES_H
+#define EDS_CFE_TBL_FCNCODE_VALUES_H
 
-#include "cfe_core_api_base_msgids.h"
-#include "cfe_tbl_msgid_values.h"
+#include "cfe_tbl_eds_cc.h"
 
-/*
-** cFE Command Message Id's
-*/
-#define CFE_TBL_CMD_MID     CFE_PLATFORM_TBL_CMD_MIDVAL(CMD)
-#define CFE_TBL_SEND_HK_MID CFE_PLATFORM_TBL_CMD_MIDVAL(SEND_HK)
+/************************************************************************
+ * Macro Definitions
+ ************************************************************************/
 
-/*
-** CFE Telemetry Message Id's
-*/
-#define CFE_TBL_HK_TLM_MID  CFE_PLATFORM_TBL_TLM_MIDVAL(HK_TLM)
-#define CFE_TBL_REG_TLM_MID CFE_PLATFORM_TBL_TLM_MIDVAL(REG_TLM)
+#define CFE_TBL_CCVAL(x) EDS_CONTAINER_CFE_TBL_##x##_CC
 
 #endif

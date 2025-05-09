@@ -18,24 +18,40 @@
 
 /**
  * @file
- *   CFE Event Services (CFE_TBL) Application Message IDs
+ *
+ * Declarations and prototypes for cfe_tbl_extern_typedefs module
  */
-#ifndef DEFAULT_CFE_TBL_MSGIDS_H
-#define DEFAULT_CFE_TBL_MSGIDS_H
 
-#include "cfe_core_api_base_msgids.h"
-#include "cfe_tbl_msgid_values.h"
+#ifndef EDS_CFE_TBL_EXTERN_TYPEDEFS_H
+#define EDS_CFE_TBL_EXTERN_TYPEDEFS_H
 
-/*
-** cFE Command Message Id's
-*/
-#define CFE_TBL_CMD_MID     CFE_PLATFORM_TBL_CMD_MIDVAL(CMD)
-#define CFE_TBL_SEND_HK_MID CFE_PLATFORM_TBL_CMD_MIDVAL(SEND_HK)
+#include "common_types.h"
+#include "cfe_es_extern_typedefs.h"
+#include "cfe_fs_extern_typedefs.h"
+#include "cfe_mission_cfg.h" /* for CFE_MISSION_TBL_MAX_FULL_NAME_LEN */
+#include "cfe_resourceid_typedef.h"
 
-/*
-** CFE Telemetry Message Id's
-*/
-#define CFE_TBL_HK_TLM_MID  CFE_PLATFORM_TBL_TLM_MIDVAL(HK_TLM)
-#define CFE_TBL_REG_TLM_MID CFE_PLATFORM_TBL_TLM_MIDVAL(REG_TLM)
+/* Source the definitions from EDS */
+#include "cfe_tbl_eds_typedefs.h"
+
+#ifndef jphfix
+
+/* TBD -- this may belong in EDS !! */
+
+/**
+ * @brief Complete header for CFE table files
+ *
+ * Table files always have a combination of the standard file header
+ * and the table-specific file header.  This struct just combines
+ * the two and makes for an easier item to pass around, simplifying APIs
+ */
+typedef struct CFE_TBL_CombinedFileHdr
+{
+    CFE_FS_Header_t    Std;
+    CFE_TBL_File_Hdr_t Tbl;
+
+} CFE_TBL_CombinedFileHdr_t;
 
 #endif
+
+#endif /* CFE_TBL_EXTERN_TYPEDEFS_H */

@@ -29,6 +29,19 @@
   <Package name="CFE_TBL" shortDescription="NASA Core Flight System Table Services">
     <DataTypeSet>
 
+      <ContainerDataType name="HandleId" baseType="CFE_RESOURCEID/BaseType" shortDescription="A type for Handle IDs">
+        <LongDescription>
+          This is the type that is used for any API accepting or returning a table handle ID
+        </LongDescription>
+      </ContainerDataType>
+
+      <ContainerDataType name="RegId" baseType="CFE_RESOURCEID/BaseType" shortDescription="A type for Registry IDs">
+        <LongDescription>
+          This is the type that is used for any API accepting or returning a table registry ID
+        </LongDescription>
+      </ContainerDataType>
+
+
       <EnumeratedDataType name="BufferSelect" shortDescription="Selects the buffer to operate on for validate or dump commands">
         <IntegerDataEncoding sizeInBits="16" encoding="unsigned" />
         <EnumerationList>

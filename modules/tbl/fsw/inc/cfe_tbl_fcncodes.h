@@ -28,6 +28,8 @@
 #ifndef CFE_TBL_FCNCODES_H
 #define CFE_TBL_FCNCODES_H
 
+#include "cfe_tbl_fcncode_values.h"
+
 /*
 ** Table task command packet command codes
 */
@@ -65,7 +67,7 @@
 **
 **  \sa
 */
-#define CFE_TBL_NOOP_CC 0
+#define CFE_TBL_NOOP_CC CFE_TBL_CCVAL(NOOP)
 
 /** \cfetblcmd Table Reset Counters
 **
@@ -106,7 +108,7 @@
 **
 **  \sa
 */
-#define CFE_TBL_RESET_COUNTERS_CC 1
+#define CFE_TBL_RESET_COUNTERS_CC CFE_TBL_CCVAL(RESET_COUNTERS)
 
 /** \cfetblcmd Load Table
 **
@@ -156,7 +158,7 @@
 **
 **  \sa  #CFE_TBL_DUMP_CC, #CFE_TBL_VALIDATE_CC, #CFE_TBL_ACTIVATE_CC, #CFE_TBL_ABORT_LOAD_CC
 */
-#define CFE_TBL_LOAD_CC 2
+#define CFE_TBL_LOAD_CC CFE_TBL_CCVAL(LOAD)
 
 /** \cfetblcmd Dump Table
 **
@@ -199,7 +201,7 @@
 **
 **  \sa  #CFE_TBL_LOAD_CC, #CFE_TBL_VALIDATE_CC, #CFE_TBL_ACTIVATE_CC, #CFE_TBL_ABORT_LOAD_CC
 */
-#define CFE_TBL_DUMP_CC 3
+#define CFE_TBL_DUMP_CC CFE_TBL_CCVAL(DUMP)
 
 /** \cfetblcmd Validate Table
 **
@@ -256,7 +258,7 @@
 **
 **  \sa  #CFE_TBL_LOAD_CC, #CFE_TBL_DUMP_CC, #CFE_TBL_ACTIVATE_CC, #CFE_TBL_ABORT_LOAD_CC
 */
-#define CFE_TBL_VALIDATE_CC 4
+#define CFE_TBL_VALIDATE_CC CFE_TBL_CCVAL(VALIDATE)
 
 /** \cfetblcmd Activate Table
 **
@@ -296,7 +298,7 @@
 **
 **  \sa  #CFE_TBL_LOAD_CC, #CFE_TBL_DUMP_CC, #CFE_TBL_VALIDATE_CC, #CFE_TBL_ABORT_LOAD_CC
 */
-#define CFE_TBL_ACTIVATE_CC 5
+#define CFE_TBL_ACTIVATE_CC CFE_TBL_CCVAL(ACTIVATE)
 
 /** \cfetblcmd Dump Table Registry
 **
@@ -340,7 +342,7 @@
 **
 **  \sa  #CFE_TBL_SEND_REGISTRY_CC
 */
-#define CFE_TBL_DUMP_REGISTRY_CC 6
+#define CFE_TBL_DUMP_REGISTRY_CC CFE_TBL_CCVAL(DUMP_REGISTRY)
 
 /** \cfetblcmd Telemeter One Table Registry Entry
 **
@@ -375,7 +377,7 @@
 **
 **  \sa  #CFE_TBL_DUMP_REGISTRY_CC
 */
-#define CFE_TBL_SEND_REGISTRY_CC 7
+#define CFE_TBL_SEND_REGISTRY_CC CFE_TBL_CCVAL(SEND_REGISTRY)
 
 /** \cfetblcmd Delete Critical Table from Critical Data Store
 **
@@ -419,7 +421,7 @@
 **
 **  \sa  #CFE_ES_DUMP_CDS_REGISTRY_CC, #CFE_ES_DELETE_CDS_CC
 */
-#define CFE_TBL_DELETE_CDS_CC 8
+#define CFE_TBL_DELETE_CDS_CC CFE_TBL_CCVAL(DELETE_CDS)
 
 /** \cfetblcmd Abort Table Load
 **
@@ -458,7 +460,7 @@
 **
 **  \sa  #CFE_TBL_LOAD_CC, #CFE_TBL_DUMP_CC, #CFE_TBL_VALIDATE_CC, #CFE_TBL_ACTIVATE_CC
 */
-#define CFE_TBL_ABORT_LOAD_CC 9
+#define CFE_TBL_ABORT_LOAD_CC CFE_TBL_CCVAL(ABORT_LOAD)
 /** \} */
 
 #endif

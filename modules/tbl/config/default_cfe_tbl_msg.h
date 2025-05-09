@@ -28,8 +28,8 @@
  * either by overriding this header or by generating definitions from a command/data
  * dictionary tool.
  */
-#ifndef CFE_TBL_MSG_H
-#define CFE_TBL_MSG_H
+#ifndef DEFAULT_CFE_TBL_MSG_H
+#define DEFAULT_CFE_TBL_MSG_H
 
 #include "cfe_mission_cfg.h"
 #include "cfe_tbl_fcncodes.h"
