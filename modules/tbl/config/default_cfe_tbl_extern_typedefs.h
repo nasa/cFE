@@ -22,8 +22,8 @@
  * Declarations and prototypes for cfe_tbl_extern_typedefs module
  */
 
-#ifndef CFE_TBL_EXTERN_TYPEDEFS_H
-#define CFE_TBL_EXTERN_TYPEDEFS_H
+#ifndef DEFAULT_CFE_TBL_EXTERN_TYPEDEFS_H
+#define DEFAULT_CFE_TBL_EXTERN_TYPEDEFS_H
 
 #include "common_types.h"
 #include "cfe_es_extern_typedefs.h"

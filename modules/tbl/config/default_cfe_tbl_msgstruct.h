@@ -22,8 +22,8 @@
  *  Purpose:
  *  cFE Executive Services (TBL) Command and Telemetry packet definition file.
  */
-#ifndef CFE_TBL_MSGSTRUCT_H
-#define CFE_TBL_MSGSTRUCT_H
+#ifndef DEFAULT_CFE_TBL_MSGSTRUCT_H
+#define DEFAULT_CFE_TBL_MSGSTRUCT_H
 
 /************************************************************************
  * Includes

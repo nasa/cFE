@@ -166,7 +166,12 @@ void TestBulkTransferSingle(void)
 
     /* Note that in this test, each iteration sends and recvs TWO messages */
     AvgRate = OS_TimeGetTotalMilliseconds(ElapsedTime);
-    AvgRate = ((int64)SendCount * 20000) / AvgRate;
+
+    /* If ElapsedTime is 0, then something is probably wrong - but do not divide by 0 */
+    if (AvgRate != 0)
+    {
+        AvgRate = ((int64)SendCount * 20000) / AvgRate;
+    }
 
     UtAssert_MIR("Message Rate: %ld.%01ld messages/sec", (long)(AvgRate / 10), (long)(AvgRate % 10));
 

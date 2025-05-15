@@ -650,7 +650,7 @@ However, the `_fcncodes.h` header should be strictly limited to defining command
 any other information.
 
 **NOTE 2**: Table and message definitions are split across a `defs.h` and `struct.h` header file.  The distinction between these two is that the
-`defs.h` file contains those definitions that are coupled to the application source code, whereas the `struct.h` contains those defintions that
+`defs.h` file contains those definitions that are coupled to the application source code, whereas the `struct.h` contains those definitions that
 are coupled to the message-passing interface.
 
 Specifically, the `defs.h` file should contain the "Payload" structure definitions - the content of commands that is consumed/produced by the

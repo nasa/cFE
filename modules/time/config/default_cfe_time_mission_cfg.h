@@ -28,8 +28,8 @@
  * either by overriding this header or by generating definitions from a command/data
  * dictionary tool.
  */
-#ifndef CFE_TIME_MISSION_CFG_H
-#define CFE_TIME_MISSION_CFG_H
+#ifndef DEFAULT_CFE_TIME_MISSION_CFG_H
+#define DEFAULT_CFE_TIME_MISSION_CFG_H
 
 #include "cfe_time_interface_cfg.h"
 

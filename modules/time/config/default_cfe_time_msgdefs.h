@@ -19,12 +19,10 @@
 /**
  * @file
  *   Specification for the CFE Time Services (CFE_TIME) command and telemetry
- *   message constant definitions.
- *
- *  For CFE_TIME this is only the function/command code definitions
+ *   message payloads and constant definitions.
  */
-#ifndef CFE_TIME_MSGDEFS_H
-#define CFE_TIME_MSGDEFS_H
+#ifndef DEFAULT_CFE_TIME_MSGDEFS_H
+#define DEFAULT_CFE_TIME_MSGDEFS_H
 
 #include "common_types.h"
 #include "cfe_mission_cfg.h"

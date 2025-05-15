@@ -23,8 +23,8 @@
  *
  *  For CFE_SB this is only the function/command code definitions
  */
-#ifndef CFE_SB_MSGDEFS_H
-#define CFE_SB_MSGDEFS_H
+#ifndef DEFAULT_CFE_SB_MSGDEFS_H
+#define DEFAULT_CFE_SB_MSGDEFS_H
 
 #include "common_types.h"
 #include "cfe_mission_cfg.h"

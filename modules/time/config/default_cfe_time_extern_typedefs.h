@@ -22,8 +22,8 @@
  * Declarations and prototypes for cfe_time_extern_typedefs module
  */
 
-#ifndef CFE_TIME_EXTERN_TYPEDEFS_H
-#define CFE_TIME_EXTERN_TYPEDEFS_H
+#ifndef DEFAULT_CFE_TIME_EXTERN_TYPEDEFS_H
+#define DEFAULT_CFE_TIME_EXTERN_TYPEDEFS_H
 
 #include "common_types.h"
 

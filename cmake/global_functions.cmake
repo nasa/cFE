@@ -157,6 +157,53 @@ endfunction(generate_c_headerfile)
 
 ##################################################################
 #
+# FUNCTION: generate_configfile_set
+#
+# A function to create safe include file wrappers
+#
+# Rather than symlinking to the include file (which might not work the same on all platforms)
+# we can create a build-specific include file that just #include's the real file
+#
+# This also supports "stacking" multiple component files together by specifying more than one
+# source file for the wrapper.
+#
+# This function now accepts named parameters:
+#
+function(generate_configfile_set)
+  set(CFGFILE_PREFIX)
+
+  if (EDS_PENDING)
+    list(APPEND CFGFILE_PREFIX "eds")
+  endif(EDS_PENDING)
+
+  list(APPEND CFGFILE_PREFIX "default")
+
+  # Create wrappers around the all the config header files
+  # This makes them individually overridable by the missions, without modifying
+  # the distribution default copies
+  foreach(CFGFILE ${ARGN})
+    # Locate the correct fallback file
+    set(DEFAULT_SOURCE)
+    foreach (FBPREFIX ${CFGFILE_PREFIX})
+      set(CHECK_FILE "${CMAKE_CURRENT_LIST_DIR}/config/${FBPREFIX}_${CFGFILE}")
+      message("Trying ${CHECK_FILE}")
+      if (EXISTS ${CHECK_FILE})
+        set(DEFAULT_SOURCE FALLBACK_FILE "${CHECK_FILE}")
+        break()
+      endif()
+    endforeach()
+
+    generate_config_includefile(
+      FILE_NAME           "${CFGFILE}"
+      ${DEFAULT_SOURCE}
+    )
+  endforeach()
+
+endfunction(generate_configfile_set)
+
+
+##################################################################
+#
 # FUNCTION: generate_config_includefile
 #
 # A function to create safe include file wrappers
