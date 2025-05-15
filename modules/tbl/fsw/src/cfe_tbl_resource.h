@@ -147,7 +147,7 @@ typedef CFE_RESOURCEID_BASE_TYPE CFE_TBL_LoadBuffId_t;
  * NOTE: The CFE_TBL_HandleId_t type is externally exposed because it is part of the API
  *
  * Additionally the initialization macros are defined externally
- * 
+ *
  * Initialization Cast/Conversion: CFE_TBL_HANDLEID_C(val)
  * Undefined constant: CFE_TBL_HANDLEID_UNDEFINED
  * Equality check: CFE_TBL_HandleID_IsEqual

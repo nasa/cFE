@@ -793,6 +793,11 @@ CFE_Status_t CFE_TBL_GetInfo(CFE_TBL_Info_t *TblInfoPtr, const char *TblName)
             TblInfoPtr->FileTime = ActiveBufPtr->FileTime;
             TblInfoPtr->Crc      = ActiveBufPtr->Crc;
         }
+        else
+        {
+            TblInfoPtr->FileTime = CFE_TIME_ZERO_VALUE;
+            TblInfoPtr->Crc      = 0;
+        }
 
         CFE_SB_MessageStringSet(TblInfoPtr->LastFileLoaded, CFE_TBL_RegRecGetLastFileLoaded(RegRecPtr),
                                 sizeof(TblInfoPtr->LastFileLoaded), -1);
