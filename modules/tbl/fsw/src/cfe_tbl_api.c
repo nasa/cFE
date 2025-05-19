@@ -31,6 +31,7 @@
 ** Required header files...
 */
 #include "cfe_tbl_module_all.h"
+#include "cfe_core_resourceid_basevalues.h"
 
 #include <string.h>
 
@@ -87,7 +88,7 @@ CFE_Status_t CFE_TBL_Register(CFE_TBL_Handle_t *TblHandlePtr, const char *Name, 
         if (Status == CFE_SUCCESS)
         {
             /* Search Access Descriptor Array for free Descriptor */
-            Status = CFE_TBL_TxnAllocateHandle(&Txn);
+            Status = CFE_TBL_TxnAllocateAccDesc(&Txn);
         }
 
         /* If no errors, initialize the table registry entry and return the index to the caller as the handle */
@@ -95,9 +96,6 @@ CFE_Status_t CFE_TBL_Register(CFE_TBL_Handle_t *TblHandlePtr, const char *Name, 
         {
             /* Get pointer to Registry Record Entry to speed up processing */
             RegRecPtr = CFE_TBL_TxnRegRec(&Txn);
-
-            /* Initialize Registry Record to default settings */
-            CFE_TBL_InitRegistryRecord(RegRecPtr);
 
             Status = CFE_TBL_SetupTableBuffers(RegRecPtr, &TableCfg);
         }
@@ -159,7 +157,7 @@ CFE_Status_t CFE_TBL_Register(CFE_TBL_Handle_t *TblHandlePtr, const char *Name, 
     }
     else
     {
-        *TblHandlePtr = CFE_TBL_TxnHandle(&Txn);
+        *TblHandlePtr = CFE_TBL_HANDLE_EXPORT(CFE_TBL_TxnHandle(&Txn));
     }
 
     return Status;
@@ -173,53 +171,35 @@ CFE_Status_t CFE_TBL_Register(CFE_TBL_Handle_t *TblHandlePtr, const char *Name, 
  *-----------------------------------------------------------------*/
 CFE_Status_t CFE_TBL_Share(CFE_TBL_Handle_t *TblHandlePtr, const char *TblName)
 {
-    CFE_TBL_TxnState_t          Txn;
-    int32                       Status;
-    CFE_TBL_AccessDescriptor_t *AccessDescPtr = NULL;
-    CFE_TBL_RegistryRec_t *     RegRecPtr     = NULL;
+    CFE_TBL_TxnState_t Txn;
+    int32              Status;
 
     if (TblHandlePtr == NULL || TblName == NULL)
     {
         return CFE_TBL_BAD_ARGUMENT;
     }
 
+    /* locate the subject table in the registry */
     Status = CFE_TBL_TxnStartFromName(&Txn, TblName, CFE_TBL_TxnContext_OTHER_APP);
 
     if (Status == CFE_SUCCESS)
     {
         /* Search Access Descriptor Array for free Descriptor */
-        Status = CFE_TBL_TxnAllocateHandle(&Txn);
+        Status = CFE_TBL_TxnAllocateAccDesc(&Txn);
 
-        /* Check to make sure there was a handle available */
         if (Status == CFE_SUCCESS)
         {
-            /* Initialize the Table Access Descriptor */
-            AccessDescPtr = CFE_TBL_TxnAccDesc(&Txn);
-            RegRecPtr     = CFE_TBL_TxnRegRec(&Txn);
-
-            AccessDescPtr->AppId    = CFE_TBL_TxnAppId(&Txn);
-            AccessDescPtr->LockFlag = false;
-            AccessDescPtr->Updated  = false;
-
-            /* Check current state of table in order to set Notification flags properly */
-            if (CFE_TBL_RegRecIsTableLoaded(RegRecPtr))
-            {
-                AccessDescPtr->Updated = true;
-            }
-
-            AccessDescPtr->RegIndex = CFE_TBL_TxnRegId(&Txn);
-            AccessDescPtr->UsedFlag = true;
-
-            CFE_TBL_HandleLinkInit(&AccessDescPtr->Link);
-            CFE_TBL_HandleListInsertLink(RegRecPtr, AccessDescPtr);
+            /* associate the access descriptor with the subject table */
+            CFE_TBL_TxnConnectAccessDescriptor(&Txn);
         }
 
         CFE_TBL_TxnFinish(&Txn);
     }
 
     /* On Error conditions, notify ground of screw up */
-    if (Status < 0)
+    if (Status < CFE_SUCCESS)
     {
+        /* Make sure the returned handle is invalid when an error occurs */
         *TblHandlePtr = CFE_TBL_BAD_TABLE_HANDLE;
 
         if (Status == CFE_TBL_ERR_INVALID_NAME)
@@ -233,8 +213,7 @@ CFE_Status_t CFE_TBL_Share(CFE_TBL_Handle_t *TblHandlePtr, const char *TblName)
     }
     else
     {
-        /* Export handle to caller */
-        *TblHandlePtr = CFE_TBL_TxnHandle(&Txn);
+        *TblHandlePtr = CFE_TBL_HANDLE_EXPORT(CFE_TBL_TxnHandle(&Txn));
     }
 
     return Status;
@@ -248,33 +227,16 @@ CFE_Status_t CFE_TBL_Share(CFE_TBL_Handle_t *TblHandlePtr, const char *TblName)
  *-----------------------------------------------------------------*/
 CFE_Status_t CFE_TBL_Unregister(CFE_TBL_Handle_t TblHandle)
 {
-    CFE_TBL_TxnState_t     Txn;
-    int32                  Status;
-    CFE_TBL_RegistryRec_t *RegRecPtr = NULL;
+    CFE_TBL_TxnState_t Txn;
+    int32              Status;
 
     /* Verify that this application has the right to perform operation */
-    Status = CFE_TBL_TxnStartFromHandle(&Txn, TblHandle, CFE_TBL_TxnContext_ACCESSOR_APP);
+    Status = CFE_TBL_TxnStartFromHandle(&Txn, CFE_TBL_HANDLE_IMPORT(TblHandle), CFE_TBL_TxnContext_ACCESSOR_APP);
 
     if (Status == CFE_SUCCESS)
     {
-        /* Get a pointer to the relevant entry in the registry */
-        RegRecPtr = CFE_TBL_TxnRegRec(&Txn);
-
-        /* Verify that the application unregistering the table owns the table */
-        if (CFE_RESOURCEID_TEST_EQUAL(RegRecPtr->OwnerAppId, CFE_TBL_TxnAppId(&Txn)))
-        {
-            /* Mark table as free, although, technically, it isn't free until the */
-            /* linked list of Access Descriptors has no links in it.              */
-            /* NOTE: Allocated memory is freed when all Access Links have been    */
-            /*       removed.  This allows Applications to continue to use the    */
-            /*       data until they acknowledge that the table has been removed. */
-            CFE_TBL_RegRecSetFree(RegRecPtr);
-        }
-
-        /* Remove the Access Descriptor Link from linked list */
-        /* NOTE: If this removes the last access link, then   */
-        /*       memory buffers are set free as well.         */
-        CFE_TBL_TxnRemoveAccessLink(&Txn);
+        /* Release the access descriptor and clean up refs */
+        CFE_TBL_TxnReleaseAccDesc(&Txn);
 
         CFE_TBL_TxnFinish(&Txn);
     }
@@ -312,7 +274,7 @@ CFE_Status_t CFE_TBL_Load(CFE_TBL_Handle_t TblHandle, CFE_TBL_SrcEnum_t SrcType,
     }
 
     /* Verify access rights and get a valid Application ID for calling App */
-    Status = CFE_TBL_TxnStartFromHandle(&Txn, TblHandle, CFE_TBL_TxnContext_OWNER_APP);
+    Status = CFE_TBL_TxnStartFromHandle(&Txn, CFE_TBL_HANDLE_IMPORT(TblHandle), CFE_TBL_TxnContext_OWNER_APP);
 
     if (Status == CFE_SUCCESS)
     {
@@ -363,11 +325,16 @@ CFE_Status_t CFE_TBL_Update(CFE_TBL_Handle_t TblHandle)
 {
     CFE_TBL_TxnState_t          Txn;
     int32                       Status;
-    CFE_TBL_RegistryRec_t *     RegRecPtr     = NULL;
-    CFE_TBL_AccessDescriptor_t *AccessDescPtr = NULL;
+    CFE_TBL_HandleId_t          HandleId;
+    CFE_TBL_RegistryRec_t *     RegRecPtr;
+    CFE_TBL_AccessDescriptor_t *AccessDescPtr;
+
+    RegRecPtr     = NULL;
+    AccessDescPtr = NULL;
+    HandleId      = CFE_TBL_HANDLE_IMPORT(TblHandle);
 
     /* Verify access rights and get a valid Application ID for calling App */
-    Status = CFE_TBL_TxnStartFromHandle(&Txn, TblHandle, CFE_TBL_TxnContext_OWNER_APP);
+    Status = CFE_TBL_TxnStartFromHandle(&Txn, HandleId, CFE_TBL_TxnContext_OWNER_APP);
 
     if (Status == CFE_SUCCESS)
     {
@@ -375,7 +342,7 @@ CFE_Status_t CFE_TBL_Update(CFE_TBL_Handle_t TblHandle)
         AccessDescPtr = CFE_TBL_TxnAccDesc(&Txn);
         RegRecPtr     = CFE_TBL_TxnRegRec(&Txn);
 
-        Status = CFE_TBL_UpdateInternal(TblHandle, RegRecPtr, AccessDescPtr);
+        Status = CFE_TBL_UpdateInternal(HandleId, RegRecPtr, AccessDescPtr);
 
         CFE_TBL_TxnFinish(&Txn);
 
@@ -439,7 +406,7 @@ CFE_Status_t CFE_TBL_GetAddress(void **TblPtr, CFE_TBL_Handle_t TblHandle)
     /* Assume failure at returning the table address */
     *TblPtr = NULL;
 
-    Status = CFE_TBL_TxnStartFromHandle(&Txn, TblHandle, CFE_TBL_TxnContext_ACCESSOR_APP);
+    Status = CFE_TBL_TxnStartFromHandle(&Txn, CFE_TBL_HANDLE_IMPORT(TblHandle), CFE_TBL_TxnContext_ACCESSOR_APP);
 
     if (Status == CFE_SUCCESS)
     {
@@ -471,7 +438,7 @@ CFE_Status_t CFE_TBL_ReleaseAddress(CFE_TBL_Handle_t TblHandle)
     int32              Status;
 
     /* Verify that this application has the right to perform operation */
-    Status = CFE_TBL_TxnStartFromHandle(&Txn, TblHandle, CFE_TBL_TxnContext_ACCESSOR_APP);
+    Status = CFE_TBL_TxnStartFromHandle(&Txn, CFE_TBL_HANDLE_IMPORT(TblHandle), CFE_TBL_TxnContext_ACCESSOR_APP);
 
     if (Status == CFE_SUCCESS)
     {
@@ -508,6 +475,7 @@ CFE_Status_t CFE_TBL_GetAddresses(void **TblPtrs[], uint16 NumTables, const CFE_
     CFE_Status_t       FinalStatus;
     uint16             i;
     int32              Status;
+    CFE_TBL_HandleId_t HandleId;
 
     if (TblPtrs == NULL || TblHandles == NULL)
     {
@@ -523,7 +491,8 @@ CFE_Status_t CFE_TBL_GetAddresses(void **TblPtrs[], uint16 NumTables, const CFE_
     FinalStatus = CFE_SUCCESS;
     for (i = 0; i < NumTables; i++)
     {
-        Status = CFE_TBL_TxnStartFromHandle(&Txn, TblHandles[i], CFE_TBL_TxnContext_ACCESSOR_APP);
+        HandleId = CFE_TBL_HANDLE_IMPORT(TblHandles[i]);
+        Status   = CFE_TBL_TxnStartFromHandle(&Txn, HandleId, CFE_TBL_TxnContext_ACCESSOR_APP);
         if (Status == CFE_SUCCESS)
         {
             Status = CFE_TBL_TxnGetTableAddress(&Txn, TblPtrs[i]);
@@ -601,7 +570,7 @@ CFE_Status_t CFE_TBL_Validate(CFE_TBL_Handle_t TblHandle)
     LogTagStr = "(none)";
 
     /* Verify that this application has the right to perform operation */
-    Status = CFE_TBL_TxnStartFromHandle(&Txn, TblHandle, CFE_TBL_TxnContext_OWNER_APP);
+    Status = CFE_TBL_TxnStartFromHandle(&Txn, CFE_TBL_HANDLE_IMPORT(TblHandle), CFE_TBL_TxnContext_OWNER_APP);
     if (Status == CFE_SUCCESS)
     {
         /* Get pointers to pertinent records in registry and handles */
@@ -762,7 +731,7 @@ CFE_Status_t CFE_TBL_GetStatus(CFE_TBL_Handle_t TblHandle)
     int32              Status;
 
     /* Verify that this application has the right to perform operation */
-    Status = CFE_TBL_TxnStartFromHandle(&Txn, TblHandle, CFE_TBL_TxnContext_ACCESSOR_APP);
+    Status = CFE_TBL_TxnStartFromHandle(&Txn, CFE_TBL_HANDLE_IMPORT(TblHandle), CFE_TBL_TxnContext_ACCESSOR_APP);
 
     if (Status == CFE_SUCCESS)
     {
@@ -824,6 +793,11 @@ CFE_Status_t CFE_TBL_GetInfo(CFE_TBL_Info_t *TblInfoPtr, const char *TblName)
             TblInfoPtr->FileTime = ActiveBufPtr->FileTime;
             TblInfoPtr->Crc      = ActiveBufPtr->Crc;
         }
+        else
+        {
+            TblInfoPtr->FileTime = CFE_TIME_ZERO_VALUE;
+            TblInfoPtr->Crc      = 0;
+        }
 
         CFE_SB_MessageStringSet(TblInfoPtr->LastFileLoaded, CFE_TBL_RegRecGetLastFileLoaded(RegRecPtr),
                                 sizeof(TblInfoPtr->LastFileLoaded), -1);
@@ -856,7 +830,7 @@ CFE_Status_t CFE_TBL_DumpToBuffer(CFE_TBL_Handle_t TblHandle)
     CFE_TBL_RegistryRec_t *RegRecPtr;
     CFE_TBL_DumpControl_t *DumpCtrlPtr;
 
-    Status = CFE_TBL_TxnStartFromHandle(&Txn, TblHandle, CFE_TBL_TxnContext_ACCESSOR_APP);
+    Status = CFE_TBL_TxnStartFromHandle(&Txn, CFE_TBL_HANDLE_IMPORT(TblHandle), CFE_TBL_TxnContext_ACCESSOR_APP);
 
     if (Status == CFE_SUCCESS)
     {
@@ -927,7 +901,7 @@ CFE_Status_t CFE_TBL_Modified(CFE_TBL_Handle_t TblHandle)
     CFE_TBL_LoadBuff_t *   ActiveBufPtr;
 
     /* Verify that this application has the right to perform operation */
-    Status = CFE_TBL_TxnStartFromHandle(&Txn, TblHandle, CFE_TBL_TxnContext_ACCESSOR_APP);
+    Status = CFE_TBL_TxnStartFromHandle(&Txn, CFE_TBL_HANDLE_IMPORT(TblHandle), CFE_TBL_TxnContext_ACCESSOR_APP);
 
     if (Status == CFE_SUCCESS)
     {
@@ -979,14 +953,12 @@ CFE_Status_t CFE_TBL_NotifyByMessage(CFE_TBL_Handle_t TblHandle, CFE_SB_MsgId_t 
     CFE_TBL_RegistryRec_t *RegRecPtr = NULL;
 
     /* Verify that this application has the right to perform operation */
-    Status = CFE_TBL_TxnStartFromHandle(&Txn, TblHandle, CFE_TBL_TxnContext_ACCESSOR_APP);
+    Status = CFE_TBL_TxnStartFromHandle(&Txn, CFE_TBL_HANDLE_IMPORT(TblHandle), CFE_TBL_TxnContext_ACCESSOR_APP);
 
     if (Status == CFE_SUCCESS)
     {
         /* Get pointers to pertinent records in registry and handles */
         RegRecPtr = CFE_TBL_TxnRegRec(&Txn);
-
-        CFE_TBL_TxnFinish(&Txn);
 
         /* Verify that the calling application is the table owner */
         if (CFE_RESOURCEID_TEST_EQUAL(RegRecPtr->OwnerAppId, CFE_TBL_TxnAppId(&Txn)))
@@ -999,9 +971,15 @@ CFE_Status_t CFE_TBL_NotifyByMessage(CFE_TBL_Handle_t TblHandle, CFE_SB_MsgId_t 
         else
         {
             Status = CFE_TBL_ERR_NO_ACCESS;
-            CFE_ES_WriteToSysLog("%s: App(%lu) does not own Tbl Handle=%lu\n", __func__, CFE_TBL_TxnAppIdAsULong(&Txn),
-                                 CFE_TBL_TxnHandleAsULong(&Txn));
         }
+
+        CFE_TBL_TxnFinish(&Txn);
+    }
+
+    if (Status != CFE_SUCCESS)
+    {
+        CFE_ES_WriteToSysLog("%s: App=%lu Handle=%lu status code=%lx\n", __func__, CFE_TBL_TxnAppIdAsULong(&Txn),
+                             CFE_TBL_TxnHandleAsULong(&Txn), (unsigned long)Status);
     }
 
     return Status;

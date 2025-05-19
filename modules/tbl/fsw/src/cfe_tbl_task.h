@@ -150,8 +150,8 @@ typedef struct
     /*
     ** Ground Interface Information
     */
-    CFE_TBL_RegId_t LastTblUpdated;   /**< \brief Index into Registry of last table updated */
-    CFE_TBL_RegId_t HkTlmTblRegIndex; /**< \brief Index of table registry entry to be telemetered with Housekeeping */
+    CFE_TBL_RegId_t LastTblUpdated; /**< \brief ID of last table updated */
+    CFE_TBL_RegId_t HkTlmTblRegId;  /**< \brief ID of table registry entry to be telemetered with Housekeeping */
 
     /*
     ** Task housekeeping and diagnostics telemetry packets...
@@ -199,6 +199,8 @@ typedef struct
      */
     CFE_TBL_RegDumpStateInfo_t RegDumpState;
 
+    CFE_ResourceId_t LastHandle;
+    CFE_ResourceId_t LastRegId;
     CFE_ResourceId_t LastLoadBuffId;
     CFE_ResourceId_t LastValidationResultId;
     CFE_ResourceId_t LastDumpCtrlBlockId;

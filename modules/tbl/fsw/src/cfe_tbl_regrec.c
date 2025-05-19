@@ -81,19 +81,41 @@ void CFE_TBL_InitRegistryRecord(CFE_TBL_RegistryRec_t *RegRecPtr)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
+CFE_ResourceId_t CFE_TBL_GetNextRegId(void)
+{
+    return CFE_ResourceId_FindNext(CFE_TBL_Global.LastRegId, CFE_PLATFORM_TBL_MAX_NUM_HANDLES,
+                                   CFE_TBL_CheckRegistrySlotUsed);
+}
+
+/*----------------------------------------------------------------
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+bool CFE_TBL_CheckRegistrySlotUsed(CFE_ResourceId_t CheckId)
+{
+    CFE_TBL_RegistryRec_t *RegRecPtr;
+
+    /*
+     * Note - The pointer here should never be NULL because the ID should always be
+     * within the expected range, but if it ever is NULL, this should return true
+     * such that the caller will _not_ attempt to use the record.
+     */
+    RegRecPtr = CFE_TBL_LocateRegRecByID(CFE_TBL_REGID_C(CheckId));
+    return (RegRecPtr == NULL || CFE_TBL_RegRecIsUsed(RegRecPtr));
+}
+
+/*----------------------------------------------------------------
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 CFE_Status_t CFE_TBL_RegId_ToIndex(CFE_TBL_RegId_t RegId, uint32 *Idx)
 {
-    int32 IdAsInt;
-
-    IdAsInt = CFE_TBL_REGID_INT(RegId);
-    if (IdAsInt < 0 || IdAsInt >= CFE_PLATFORM_TBL_MAX_NUM_TABLES)
-    {
-        return CFE_TBL_ERR_INVALID_HANDLE;
-    }
-
-    *Idx = IdAsInt;
-
-    return CFE_SUCCESS;
+    return CFE_ResourceId_ToIndex(CFE_RESOURCEID_UNWRAP(RegId), CFE_TBL_REGID_BASE, CFE_PLATFORM_TBL_MAX_NUM_TABLES,
+                                  Idx);
 }
 
 /*----------------------------------------------------------------
@@ -149,22 +171,6 @@ CFE_TBL_RegistryRec_t *CFE_TBL_LocateRegRecByID(CFE_TBL_RegId_t RegId)
     }
 
     return RegRecPtr;
-}
-
-/*----------------------------------------------------------------
- *
- * Application-scope internal function
- * See description in header file for argument/return detail
- *
- *-----------------------------------------------------------------*/
-CFE_TBL_RegId_t CFE_TBL_RegRecGetID(const CFE_TBL_RegistryRec_t *RegRecPtr)
-{
-    /* The pointer should be to an entry within the Registry array */
-    int32 IdAsInt;
-
-    IdAsInt = (RegRecPtr - CFE_TBL_Global.Registry);
-
-    return CFE_TBL_REGID_C(IdAsInt);
 }
 
 /*----------------------------------------------------------------
@@ -278,25 +284,28 @@ CFE_TBL_LoadBuff_t *CFE_TBL_GetInactiveBufferExclusive(CFE_TBL_RegistryRec_t *Re
     LoadBuffPtr = CFE_TBL_LocateLoadBufferByID(CFE_TBL_LOADBUFFID_C(PendingId));
 
     /* If the load buffer already matches, it means its already reserved */
-    /* If it does not match, then need to check if it can be reserved now */
-    if (CFE_TBL_LoadBuffIsUsed(LoadBuffPtr) && !CFE_TBL_LoadBuffIsMatch(LoadBuffPtr, CFE_TBL_LOADBUFFID_C(PendingId)))
+    if (LoadBuffPtr != NULL && !CFE_TBL_LOADBUFFID_EQ(LoadBuffPtr->LoadBufferId, CFE_TBL_LOADBUFFID_C(PendingId)))
     {
-        /* Scan the access descriptor table to determine if anyone is still using the inactive buffer */
-        CheckStat.BufferIndex = CFE_TBL_LoadBufferGetID(LoadBuffPtr);
+        /* If it does not match, then need to check if it can be reserved now */
+        if (CFE_TBL_LoadBuffIsUsed(LoadBuffPtr))
+        {
+            /* Scan the access descriptor table to determine if anyone is still using the inactive buffer */
+            CheckStat.BufferIndex = CFE_TBL_LoadBufferGetID(LoadBuffPtr);
 
-        CFE_TBL_ForeachAccessDescriptor(RegRecPtr, CFE_TBL_CheckInactiveBufferHelper, &CheckStat);
-    }
+            CFE_TBL_ForeachAccessDescriptor(RegRecPtr, CFE_TBL_CheckInactiveBufferHelper, &CheckStat);
+        }
 
-    if (CFE_RESOURCEID_TEST_DEFINED(CheckStat.LockingAppId))
-    {
-        LoadBuffPtr = NULL;
-        CFE_ES_WriteToSysLog("%s: Inactive Buff Locked for '%s' by AppId=%lu\n", __func__,
-                             CFE_TBL_RegRecGetName(RegRecPtr), CFE_RESOURCEID_TO_ULONG(CheckStat.LockingAppId));
-    }
-    else
-    {
-        /* If buffer is free, then claim it */
-        CFE_TBL_LoadBuffSetUsed(LoadBuffPtr, PendingId, CFE_TBL_RegRecGetID(RegRecPtr));
+        if (CFE_RESOURCEID_TEST_DEFINED(CheckStat.LockingAppId))
+        {
+            LoadBuffPtr = NULL;
+            CFE_ES_WriteToSysLog("%s: Inactive Buff Locked for '%s' by AppId=%lu\n", __func__,
+                                 CFE_TBL_RegRecGetName(RegRecPtr), CFE_RESOURCEID_TO_ULONG(CheckStat.LockingAppId));
+        }
+        else
+        {
+            /* If buffer is free, then claim it */
+            CFE_TBL_LoadBuffSetUsed(LoadBuffPtr, PendingId, CFE_TBL_RegRecGetID(RegRecPtr));
+        }
     }
 
     return LoadBuffPtr;

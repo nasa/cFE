@@ -39,8 +39,34 @@
 /********************* Include Files  ************************/
 #include "common_types.h" /* Basic Data Types */
 #include "cfe_error.h"
+#include "cfe_tbl_extern_typedefs.h"
 #include "cfe_tbl_api_typedefs.h"
 #include "cfe_sb_api_typedefs.h"
+#include "cfe_resourceid.h"
+
+/** \name Conversions for TBL resource IDs
+ *
+ * These inline functions enforce the type of the argument(s), such that comparing a table handle
+ * to some other type of resource ID will result in a compiler error.
+ */
+/** \{ */
+
+static inline bool CFE_TBL_HandleID_IsEqual(CFE_TBL_HandleId_t x, CFE_TBL_HandleId_t y)
+{
+    return CFE_RESOURCEID_TEST_EQUAL(x, y);
+}
+
+static inline unsigned long CFE_TBL_HandleID_AsInt(CFE_TBL_HandleId_t x)
+{
+    return CFE_RESOURCEID_TO_ULONG(x);
+}
+
+static inline bool CFE_TBL_HandleID_IsDefined(CFE_TBL_HandleId_t x)
+{
+    return CFE_RESOURCEID_TEST_DEFINED(x);
+}
+
+/** \} */
 
 /*************************** Function Prototypes ******************************/
 

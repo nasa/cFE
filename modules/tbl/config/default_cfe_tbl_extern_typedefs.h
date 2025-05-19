@@ -84,4 +84,18 @@ typedef struct CFE_TBL_CombinedFileHdr
 
 } CFE_TBL_CombinedFileHdr_t;
 
+/**
+ * @brief A type for Table Registry IDs
+ *
+ * This is the type that is used for any API accepting or returning an Registry ID
+ */
+typedef CFE_RESOURCEID_BASE_TYPE CFE_TBL_RegId_t;
+
+/**
+ * @brief A type for Table Handle IDs
+ *
+ * This is the type that is used for any API accepting or returning a table ID
+ */
+typedef CFE_RESOURCEID_BASE_TYPE CFE_TBL_HandleId_t;
+
 #endif /* CFE_TBL_EXTERN_TYPEDEFS_H */

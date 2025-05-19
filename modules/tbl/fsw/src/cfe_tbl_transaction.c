@@ -47,13 +47,7 @@ CFE_Status_t CFE_TBL_TxnInit(CFE_TBL_TxnState_t *Txn, bool CheckContext)
 
     memset(Txn, 0, sizeof(*Txn));
 
-    /*
-     * Initialize the refs to a safe value.  Preferably
-     * these should be zero but currently they are non-zero
-     * and thus "memset()" above does not make them safe.
-     */
-    Txn->Handle = CFE_TBL_BAD_TABLE_HANDLE;
-    Txn->RegId  = CFE_TBL_NOT_FOUND;
+    /* NOTE: handle and regid are automatically made safe via memset() above */
 
     /* Check to make sure App ID is legit */
     if (CheckContext)
@@ -135,7 +129,7 @@ CFE_Status_t CFE_TBL_TxnStartFromName(CFE_TBL_TxnState_t *Txn, const char *TblNa
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-CFE_Status_t CFE_TBL_TxnStartFromHandle(CFE_TBL_TxnState_t *Txn, CFE_TBL_Handle_t TblHandle, uint32 AllowedContext)
+CFE_Status_t CFE_TBL_TxnStartFromHandle(CFE_TBL_TxnState_t *Txn, CFE_TBL_HandleId_t TblHandle, uint32 AllowedContext)
 {
     CFE_Status_t                Status;
     uint32                      AccessAllowed;
@@ -143,7 +137,16 @@ CFE_Status_t CFE_TBL_TxnStartFromHandle(CFE_TBL_TxnState_t *Txn, CFE_TBL_Handle_
     CFE_TBL_RegistryRec_t *     RegRecPtr;
 
     AccessAllowed = 0;
-    Status        = CFE_TBL_TxnInit(Txn, AllowedContext != CFE_TBL_TxnContext_UNDEFINED);
+
+    /* Sanity check on handle -- This avoids locking the registry for lookups that will certainly fail */
+    if (!CFE_TBL_HandleID_IsDefined(TblHandle))
+    {
+        Status = CFE_TBL_ERR_INVALID_HANDLE;
+    }
+    else
+    {
+        Status = CFE_TBL_TxnInit(Txn, AllowedContext != CFE_TBL_TxnContext_UNDEFINED);
+    }
 
     if (Status == CFE_SUCCESS)
     {
@@ -209,12 +212,12 @@ CFE_Status_t CFE_TBL_TxnStartFromHandle(CFE_TBL_TxnState_t *Txn, CFE_TBL_Handle_
                 CFE_TBL_TxnAddEvent(Txn, CFE_TBL_HANDLE_ACCESS_ERR_EID, Status, AccessAllowed);
             }
         }
-    }
 
-    if (Status != CFE_SUCCESS)
-    {
-        /* If returning with an error, should also unlock the registry */
-        CFE_TBL_TxnFinish(Txn);
+        if (Status != CFE_SUCCESS)
+        {
+            /* If returning with an error, should also unlock the registry */
+            CFE_TBL_TxnFinish(Txn);
+        }
     }
 
     return Status;
@@ -246,7 +249,7 @@ static void CFE_TBL_FindAccessDescHelper(CFE_TBL_AccessDescriptor_t *AccDescPtr,
 {
     CFE_TBL_TxnState_t *Txn = Arg;
 
-    if (AccDescPtr->UsedFlag && CFE_TBL_REGID_EQ(AccDescPtr->RegIndex, CFE_TBL_TxnRegId(Txn)) &&
+    if (CFE_TBL_AccDescIsUsed(AccDescPtr) && CFE_TBL_REGID_EQ(AccDescPtr->RegIndex, CFE_TBL_TxnRegId(Txn)) &&
         CFE_RESOURCEID_TEST_EQUAL(AccDescPtr->AppId, CFE_TBL_TxnAppId(Txn)))
     {
         Txn->Handle     = CFE_TBL_AccDescGetHandle(AccDescPtr);

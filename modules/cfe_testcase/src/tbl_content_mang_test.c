@@ -94,7 +94,8 @@ void TestLoad(void)
                       CFE_TBL_ERR_PARTIAL_LOAD);
 
     /* Load from short file (offset 0, but incomplete, also before any successful load) */
-    UtAssert_INT32_EQ(CFE_TBL_Load(CFE_FT_Global.TblHandle, CFE_TBL_SRC_FILE, TESTTBL_SHORT_FILE), CFE_TBL_WARN_SHORT_FILE);
+    UtAssert_INT32_EQ(CFE_TBL_Load(CFE_FT_Global.TblHandle, CFE_TBL_SRC_FILE, TESTTBL_SHORT_FILE),
+                      CFE_TBL_WARN_SHORT_FILE);
 
     /* NOTE: _NOT_ checking content after above; although it returned a success code, it is not well defined
      * as to what the content will be because the data was never fully loaded yet */
@@ -159,7 +160,8 @@ void TestLoad(void)
     UtAssert_INT32_EQ(CFE_TBL_ReleaseAddress(OtherHandle), CFE_SUCCESS);
 
     /* Load from short file again (different response after successful load) */
-    UtAssert_INT32_EQ(CFE_TBL_Load(CFE_FT_Global.TblHandle, CFE_TBL_SRC_FILE, TESTTBL_SHORT_FILE), CFE_TBL_WARN_SHORT_FILE);
+    UtAssert_INT32_EQ(CFE_TBL_Load(CFE_FT_Global.TblHandle, CFE_TBL_SRC_FILE, TESTTBL_SHORT_FILE),
+                      CFE_TBL_WARN_SHORT_FILE);
 
     /* confirm content again (reported as updated from partial load) */
     /* Should have updated the first word only */
@@ -170,7 +172,8 @@ void TestLoad(void)
     UtAssert_INT32_EQ(CFE_TBL_ReleaseAddress(CFE_FT_Global.TblHandle), CFE_SUCCESS);
 
     /* Load from partial file again (different response after successful load) */
-    UtAssert_INT32_EQ(CFE_TBL_Load(CFE_FT_Global.TblHandle, CFE_TBL_SRC_FILE, TESTTBL_PARTIAL_FILE), CFE_TBL_WARN_PARTIAL_LOAD);
+    UtAssert_INT32_EQ(CFE_TBL_Load(CFE_FT_Global.TblHandle, CFE_TBL_SRC_FILE, TESTTBL_PARTIAL_FILE),
+                      CFE_TBL_WARN_PARTIAL_LOAD);
 
     /* confirm content again (reported as updated from partial load) */
     /* Should have updated the second word only */
@@ -206,6 +209,9 @@ void TestLoad(void)
     /* Load a shared table */
     UtAssert_INT32_EQ(CFE_TBL_Share(&SharedTblHandle, SharedTblName), CFE_SUCCESS);
     UtAssert_INT32_EQ(CFE_TBL_Load(SharedTblHandle, CFE_TBL_SRC_FILE, TESTTBL_NOMINAL_FILE), CFE_SUCCESS);
+
+    /* The shared ID needs to be unregistered or else the underlying table sticks around */
+    UtAssert_INT32_EQ(CFE_TBL_Unregister(SharedTblHandle), CFE_SUCCESS);
 }
 
 void TestUpdate(void)

@@ -153,30 +153,6 @@ CFE_Status_t CFE_TBL_TxnAllocateRegistryEntry(CFE_TBL_TxnState_t *Txn);
 
 /*---------------------------------------------------------------------------------------*/
 /**
- * \brief Locates a free Access Descriptor in the Table Handles Array.
- *
- * \par Description
- *        Locates a free Access Descriptor in the Table Handles Array.
- *
- *        If successful, the internal pointer will be set to the newly allocated
- *        access descriptor.  The accessor functions CFE_TBL_TxnAccDesc() and
- *        CFE_TBL_TxnHandle() may be used to retrieve the pointer and handle,
- *        respectively.
- *
- * \par Assumptions, External Events, and Notes:
- *        Note: This function assumes the registry has been locked.
- *        No association is made between the accessor and the registry object here.  The
- *        association is made via a separate call.  This simply finds an open entry.
- *
- * \param[inout] Txn The transaction object to operate on
- *
- * \returns CFE_SUCCESS normally, or relevent CFE status code
- * \retval #CFE_SUCCESS \copydoc CFE_SUCCESS
- */
-CFE_Status_t CFE_TBL_TxnAllocateHandle(CFE_TBL_TxnState_t *Txn);
-
-/*---------------------------------------------------------------------------------------*/
-/**
  * \brief Checks if a table is already registered in the Table Registry
  *
  * \par Description

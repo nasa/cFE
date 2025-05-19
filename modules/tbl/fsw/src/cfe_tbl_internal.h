@@ -47,6 +47,31 @@
 #define CFE_TBL_NOT_FOUND CFE_TBL_REGID_UNDEFINED
 #define CFE_TBL_NOT_OWNED CFE_ES_APPID_UNDEFINED
 
+/*
+ * Compatibility helpers: provide a bridge from the traditional table handles to the safer definition
+ *
+ * The external handle type (CFE_TBL_Handle_t) still exists only for the public API.  These wrappers
+ * are intended to provide a conversion to facilitate transition of apps to use the improved typedef.
+ *
+ * In the preferred mode, CFE_TBL_Handle_t (external) and CFE_TBL_HandleId_t (internal) are a direct
+ * typedef - so they are simply two different names for the same thing. (in the future this may be
+ * consolidated again back to a single typedef once transition in CFS apps has been accomplished).
+ *
+ * In backward-compatible mode, the CFE_TBL_Handle_t (external) type is a simple int16 as it has always
+ * been.  This will contain only the lower 16 bits of the full handle ID.  It is not as safe but
+ * this is fully transparent to apps because it is still a simple 16 bit integer.
+ */
+
+#ifdef CFE_OMIT_DEPRECATED_6_8
+/* Preferred versions (passthru/noop) */
+#define CFE_TBL_HANDLE_EXPORT(x) (x)
+#define CFE_TBL_HANDLE_IMPORT(x) (x)
+#else
+/* Backward compatible versions */
+#define CFE_TBL_HANDLE_EXPORT(x) ((CFE_TBL_Handle_t)(CFE_TBL_HandleID_AsInt(x) - CFE_TBL_HANDLE_BASE))
+#define CFE_TBL_HANDLE_IMPORT(x) CFE_TBL_HANDLEID_C(CFE_ResourceId_FromInteger((unsigned long)x + CFE_TBL_HANDLE_BASE))
+#endif
+
 /*****************************  Function Prototypes   **********************************/
 
 /*---------------------------------------------------------------------------------------*/
@@ -170,7 +195,7 @@ int32 CFE_TBL_GetWorkingBuffer(CFE_TBL_LoadBuff_t **WorkingBufferPtr, CFE_TBL_Re
 **
 ** \retval #CFE_SUCCESS                     \copydoc CFE_SUCCESS
 */
-int32 CFE_TBL_UpdateInternal(CFE_TBL_Handle_t TblHandle, CFE_TBL_RegistryRec_t *RegRecPtr,
+int32 CFE_TBL_UpdateInternal(CFE_TBL_HandleId_t TblHandle, CFE_TBL_RegistryRec_t *RegRecPtr,
                              CFE_TBL_AccessDescriptor_t *AccessDescPtr);
 
 /*---------------------------------------------------------------------------------------*/
