@@ -186,15 +186,13 @@ CFE_ES_AppId_t UT_SB_AppID_Modify(CFE_ES_AppId_t InitialID, int32 Modifier)
     return OutValue;
 }
 
-CFE_Status_t SB_UT_OriginationActionHook(void *UserObj, int32 StubRetcode, 
-                                         uint32 CallCount, 
+CFE_Status_t SB_UT_OriginationActionHook(void *UserObj, int32 StubRetcode, uint32 CallCount,
                                          const UT_StubContext_t *Context)
 {
     return CFE_SB_BAD_ARGUMENT;
 }
 
-void SB_UT_OriginationActionHandler(void *UserObj, UT_EntryKey_t FuncKey, 
-                                    const UT_StubContext_t *Context)
+void SB_UT_OriginationActionHandler(void *UserObj, UT_EntryKey_t FuncKey, const UT_StubContext_t *Context)
 {
     bool *IsAcceptable = UT_Hook_GetArgValueByName(Context, "IsAcceptable", bool *);
 
@@ -223,8 +221,8 @@ CFE_Status_t SB_UT_RecieveBuffer_FalseEndpoint(CFE_SB_Buffer_t **BufPtr, CFE_SB_
 
         /*
          * This is the key difference in this Handler as opposed to the actual
-         * function. We set Txn->IsEndpoint to false in order to trigger the 
-         * false branch of the condition "if (Txn->IsEndpoint)" in 
+         * function. We set Txn->IsEndpoint to false in order to trigger the
+         * false branch of the condition "if (Txn->IsEndpoint)" in
          * CFE_SB_ReceieveTxn_Execute().
          */
         CFE_SB_MessageTxn_SetEndpoint(Txn, false);
@@ -655,8 +653,8 @@ void Test_SB_Cmds_Stats(void)
     CFE_UtAssert_TEARDOWN(CFE_SB_DeletePipe(PipeId3));
 
     /* Do same test with more pipes for coverage in CFE_SB_SendStatsCmd().
-     * The number of pipes made here affects the condition 
-     * "if (CFE_SB_PipeDescIsUSed(PipeDscPtr))" which controls how often 
+     * The number of pipes made here affects the condition
+     * "if (CFE_SB_PipeDescIsUSed(PipeDscPtr))" which controls how often
      * PipeStatCount gets decremented. We want to break out of the while loop
      * in that function via making PipeStatCount <= 0 */
 
@@ -665,16 +663,16 @@ void Test_SB_Cmds_Stats(void)
     CFE_SB_PipeId_t PipeArr[CFE_MISSION_SB_MAX_PIPES];
     memset(&PipeArr, 0, sizeof(PipeArr));
 
-    /* 20 chosen since we need to fit TestPipeXX (XX is the number) 
+    /* 20 chosen since we need to fit TestPipeXX (XX is the number)
      * so 20 is enough space to fit such */
     char PipeNames[CFE_MISSION_SB_MAX_PIPES][20];
     memset(&PipeNames, 0, sizeof(PipeNames));
 
     for (int i = 0; i < CFE_MISSION_SB_MAX_PIPES; i++)
     {
-       PipeArr[i] = CFE_SB_INVALID_PIPE;
-       snprintf(PipeNames[i], sizeof(PipeNames[i]), "TestPipe%d", i + 1);
-       CFE_UtAssert_SETUP(CFE_SB_CreatePipe(&PipeArr[i], 4, PipeNames[i]));
+        PipeArr[i] = CFE_SB_INVALID_PIPE;
+        snprintf(PipeNames[i], sizeof(PipeNames[i]), "TestPipe%d", i + 1);
+        CFE_UtAssert_SETUP(CFE_SB_CreatePipe(&PipeArr[i], 4, PipeNames[i]));
     }
 
     UT_SetupBasicMsgDispatch(&UT_TPID_CFE_SB_CMD_SEND_SB_STATS_CC, sizeof(SendSbStats.Cmd), false);
@@ -1156,7 +1154,6 @@ void Test_SB_Cmds_EnRouteValParam(void)
     CFE_UtAssert_TEARDOWN(CFE_SB_DeletePipe(PipeId));
 }
 
-
 /*
 ** Test command to enable a specific route using a non-existent route
 */
@@ -1473,7 +1470,7 @@ void Test_SB_Cmds_SendPrevSubs(void)
     NumEvts = 2; /* one for each pipe create */
 
     /* Two full pkts to be sent plus five entries in a partial pkt, skipping MSGID 0x0D */
-    for (i = 1; i < (CFE_SB_SUB_ENTRIES_PER_PKT * 2) + 6; i++)
+    for (i = 1; i < (CFE_MISSION_SB_SUB_ENTRIES_PER_PKT * 2) + 6; i++)
     {
         /* Skip subscribing to ALLSUBS mid. This is the one we are testing.
          * MsgID for this in CCSDS v.1 was 0x180d so this MID did not appear in the
@@ -1522,7 +1519,7 @@ void Test_SB_Cmds_SendPrevSubs(void)
     /* Round out the number to three full pkts in order to test branch path
      * coverage, MSGID 0x0D was skipped in previous subscription loop
      */
-    for (; i < (CFE_SB_SUB_ENTRIES_PER_PKT * 3) + 1; i++)
+    for (; i < (CFE_MISSION_SB_SUB_ENTRIES_PER_PKT * 3) + 1; i++)
     {
         CFE_UtAssert_SETUP(CFE_SB_Subscribe(CFE_SB_ValueToMsgId(i), PipeId1));
         NumEvts += 1;
@@ -3690,9 +3687,9 @@ void Test_TransmitMsg_BasicSend(void)
 
     CFE_UtAssert_TEARDOWN(CFE_SB_DeletePipe(PipeId));
 
-    /* Repeated test case with slight modification to simulate failure of 
-     * CFE_MSG_OriginationAction() in cfe_sb_priv.c in function 
-     * CFE_SB_TransmitTxn_FindDestinations() which gets called by 
+    /* Repeated test case with slight modification to simulate failure of
+     * CFE_MSG_OriginationAction() in cfe_sb_priv.c in function
+     * CFE_SB_TransmitTxn_FindDestinations() which gets called by
      * CFE_SB_TransmitMsg. This uses a Hook for OriginationAction */
 
     memset(&TlmPkt, 0, sizeof(TlmPkt));
@@ -3703,18 +3700,16 @@ void Test_TransmitMsg_BasicSend(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &Type, sizeof(Type), false);
 
-    UT_SetHookFunction(UT_KEY(CFE_MSG_OriginationAction), 
-                      (UT_HookFunc_t)(SB_UT_OriginationActionHook),
-                      NULL);
+    UT_SetHookFunction(UT_KEY(CFE_MSG_OriginationAction), (UT_HookFunc_t)(SB_UT_OriginationActionHook), NULL);
     CFE_SB_TransmitMsg(CFE_MSG_PTR(TlmPkt.TelemetryHeader), true);
     UT_SetHookFunction(UT_KEY(CFE_MSG_OriginationAction), NULL, NULL);
-    
+
     CFE_UtAssert_EVENTCOUNT(5);
 
     CFE_UtAssert_TEARDOWN(CFE_SB_DeletePipe(PipeId));
 
-    /* Repeated test case with slight modification to simulate failure of 
-     * CFE_MSG_OriginationAction() in cfe_sb_priv.c in function 
+    /* Repeated test case with slight modification to simulate failure of
+     * CFE_MSG_OriginationAction() in cfe_sb_priv.c in function
      * CFE_SB_TransmitTxn_FindDestinations() which gets called by
      * CFE_SB_TransmitMsg. This uses a Handler for OriginationAction.  */
 
@@ -3726,9 +3721,7 @@ void Test_TransmitMsg_BasicSend(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &Type, sizeof(Type), false);
 
-    UT_SetHandlerFunction(UT_KEY(CFE_MSG_OriginationAction), 
-                        (UT_HandlerFunc_t)(SB_UT_OriginationActionHandler),
-                        NULL);
+    UT_SetHandlerFunction(UT_KEY(CFE_MSG_OriginationAction), (UT_HandlerFunc_t)(SB_UT_OriginationActionHandler), NULL);
     CFE_SB_TransmitMsg(CFE_MSG_PTR(TlmPkt.TelemetryHeader), true);
     UT_SetHandlerFunction(UT_KEY(CFE_MSG_OriginationAction), NULL, NULL);
 
@@ -4782,16 +4775,16 @@ void Test_CFE_SB_CmdTopicIdToMsgId(void)
 {
     CFE_SB_MsgId_Atom_t MsgIdVal1;
     CFE_SB_MsgId_Atom_t MsgIdVal2;
-    bool ReturnCode1 = false;
-    bool ReturnCode2 = false;
+    bool                ReturnCode1 = false;
+    bool                ReturnCode2 = false;
 
-    MsgIdVal1 = CFE_SB_CmdTopicIdToMsgId(1, 1);
+    MsgIdVal1   = CFE_SB_CmdTopicIdToMsgId(1, 1);
     ReturnCode1 = CFE_SB_IsValidMsgId(CFE_SB_ValueToMsgId(MsgIdVal1));
 
-    MsgIdVal2 = CFE_SB_CmdTopicIdToMsgId(1, 0);
+    MsgIdVal2   = CFE_SB_CmdTopicIdToMsgId(1, 0);
     ReturnCode2 = CFE_SB_IsValidMsgId(CFE_SB_ValueToMsgId(MsgIdVal2));
 
-    if(MsgIdVal1 == 0 || MsgIdVal2 == 0)
+    if (MsgIdVal1 == 0 || MsgIdVal2 == 0)
     {
         /* Macro does not exist. Topic ID has not been implemented. */
         UtAssert_MIR("Topic ID has not been implemented. ");
@@ -4807,16 +4800,16 @@ void Test_CFE_SB_TlmTopicIdToMsgId(void)
 {
     CFE_SB_MsgId_Atom_t MsgIdVal1;
     CFE_SB_MsgId_Atom_t MsgIdVal2;
-    bool ReturnCode1 = false;
-    bool ReturnCode2 = false;
+    bool                ReturnCode1 = false;
+    bool                ReturnCode2 = false;
 
-    MsgIdVal1 = CFE_SB_TlmTopicIdToMsgId(1, 1);
+    MsgIdVal1   = CFE_SB_TlmTopicIdToMsgId(1, 1);
     ReturnCode1 = CFE_SB_IsValidMsgId(CFE_SB_ValueToMsgId(MsgIdVal1));
 
-    MsgIdVal2 = CFE_SB_TlmTopicIdToMsgId(1, 0);
+    MsgIdVal2   = CFE_SB_TlmTopicIdToMsgId(1, 0);
     ReturnCode2 = CFE_SB_IsValidMsgId(CFE_SB_ValueToMsgId(MsgIdVal2));
 
-    if(MsgIdVal1 == 0 || MsgIdVal2 == 0)
+    if (MsgIdVal1 == 0 || MsgIdVal2 == 0)
     {
         /* Macro does not exist. Topic ID has not been implemented. */
         UtAssert_MIR("Topic ID has not been implemented. ");
@@ -4831,11 +4824,11 @@ void Test_CFE_SB_TlmTopicIdToMsgId(void)
 void Test_CFE_SB_GlobalCmdTopicIdToMsgId(void)
 {
     CFE_SB_MsgId_Atom_t MsgIdVal;
-    bool ReturnCode = false;
+    bool                ReturnCode = false;
 
-    MsgIdVal = CFE_SB_GlobalCmdTopicIdToMsgId(2);
+    MsgIdVal   = CFE_SB_GlobalCmdTopicIdToMsgId(2);
     ReturnCode = CFE_SB_IsValidMsgId(CFE_SB_ValueToMsgId(MsgIdVal));
-    if(MsgIdVal == 0)
+    if (MsgIdVal == 0)
     {
         /* Macro does not exist. Topic ID has not been implemented. */
         UtAssert_MIR("Topic ID has not been implemented. ");
@@ -4849,11 +4842,11 @@ void Test_CFE_SB_GlobalCmdTopicIdToMsgId(void)
 void Test_CFE_SB_GlobalTlmTopicIdToMsgId(void)
 {
     CFE_SB_MsgId_Atom_t MsgIdVal;
-    bool ReturnCode = false;
+    bool                ReturnCode = false;
 
-    MsgIdVal = CFE_SB_GlobalTlmTopicIdToMsgId(2);
+    MsgIdVal   = CFE_SB_GlobalTlmTopicIdToMsgId(2);
     ReturnCode = CFE_SB_IsValidMsgId(CFE_SB_ValueToMsgId(MsgIdVal));
-    if(MsgIdVal == 0)
+    if (MsgIdVal == 0)
     {
         /* Macro does not exist. Topic ID has not been implemented. */
         UtAssert_MIR("Topic ID has not been implemented. ");
@@ -4867,11 +4860,11 @@ void Test_CFE_SB_GlobalTlmTopicIdToMsgId(void)
 void Test_CFE_SB_LocalCmdTopicIdToMsgId(void)
 {
     CFE_SB_MsgId_Atom_t MsgIdVal;
-    bool ReturnCode = false;
+    bool                ReturnCode = false;
 
-    MsgIdVal = CFE_SB_LocalCmdTopicIdToMsgId(3);
+    MsgIdVal   = CFE_SB_LocalCmdTopicIdToMsgId(3);
     ReturnCode = CFE_SB_IsValidMsgId(CFE_SB_ValueToMsgId(MsgIdVal));
-    if(MsgIdVal == 0)
+    if (MsgIdVal == 0)
     {
         /* Macro does not exist. Topic ID has not been implemented. */
         UtAssert_MIR("Topic ID has not been implemented. ");
@@ -4885,11 +4878,11 @@ void Test_CFE_SB_LocalCmdTopicIdToMsgId(void)
 void Test_CFE_SB_LocalTlmTopicIdToMsgId(void)
 {
     CFE_SB_MsgId_Atom_t MsgIdVal;
-    bool ReturnCode = false;
+    bool                ReturnCode = false;
 
-    MsgIdVal = CFE_SB_LocalTlmTopicIdToMsgId(3);
+    MsgIdVal   = CFE_SB_LocalTlmTopicIdToMsgId(3);
     ReturnCode = CFE_SB_IsValidMsgId(CFE_SB_ValueToMsgId(MsgIdVal));
-    if(MsgIdVal == 0)
+    if (MsgIdVal == 0)
     {
         /* Macro does not exist. Topic ID has not been implemented. */
         UtAssert_MIR("Topic ID has not been implemented. ");
@@ -5220,7 +5213,7 @@ void Test_RecieveBuffer_VerificationFail(void)
     /* Result of CFE_SB_ReceiveBuffer failure */
     UtAssert_NULL(SBBufPtr);
 
-    /* Additional event was sent since we report a 
+    /* Additional event was sent since we report a
      * CFE_SB_RCV_MESSAGE_INTEGRITY_FAIL_EID in CFE_SB_ReceiveTxn_Execute() */
     CFE_UtAssert_EVENTCOUNT(5);
 

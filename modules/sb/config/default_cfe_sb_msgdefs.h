@@ -276,7 +276,7 @@ typedef struct CFE_SB_AllSubscriptionsTlm_Payload
     uint32              PktSegment;    /**< \brief Pkt number(starts at 1) in the series */
     uint32              TotalSegments; /**< \brief Total number of pkts needed to complete the request */
     uint32              Entries;       /**< \brief Number of entries in the pkt */
-    CFE_SB_SubEntries_t Entry[CFE_SB_SUB_ENTRIES_PER_PKT]; /**< \brief Array of #CFE_SB_SubEntries_t entries */
+    CFE_SB_SubEntries_t Entry[CFE_MISSION_SB_SUB_ENTRIES_PER_PKT]; /**< \brief Array of #CFE_SB_SubEntries_t entries */
 } CFE_SB_AllSubscriptionsTlm_Payload_t;
 
 #endif
