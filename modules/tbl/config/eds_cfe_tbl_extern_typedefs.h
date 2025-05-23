@@ -34,24 +34,4 @@
 /* Source the definitions from EDS */
 #include "cfe_tbl_eds_typedefs.h"
 
-#ifndef jphfix
-
-/* TBD -- this may belong in EDS !! */
-
-/**
- * @brief Complete header for CFE table files
- *
- * Table files always have a combination of the standard file header
- * and the table-specific file header.  This struct just combines
- * the two and makes for an easier item to pass around, simplifying APIs
- */
-typedef struct CFE_TBL_CombinedFileHdr
-{
-    CFE_FS_Header_t    Std;
-    CFE_TBL_File_Hdr_t Tbl;
-
-} CFE_TBL_CombinedFileHdr_t;
-
-#endif
-
 #endif /* CFE_TBL_EXTERN_TYPEDEFS_H */

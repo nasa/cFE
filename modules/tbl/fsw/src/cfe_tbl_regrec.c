@@ -356,4 +356,7 @@ void CFE_TBL_SetupTableRegistryRecord(CFE_TBL_RegistryRec_t *RegRecPtr, CFE_ES_A
 
     /* Save Table Name in Registry (note that the string length was already validated) */
     strncpy(RegRecPtr->Config.Name, ReqCfg->Name, sizeof(RegRecPtr->Config.Name));
+
+    /* Save the EDS ID */
+    RegRecPtr->Config.EdsId = ReqCfg->EdsId;
 }

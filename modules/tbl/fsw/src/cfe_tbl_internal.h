@@ -216,22 +216,6 @@ void CFE_TBL_NotifyTblUsersOfUpdate(CFE_TBL_RegistryRec_t *RegRecPtr);
 
 /*---------------------------------------------------------------------------------------*/
 /**
-** \brief Byte swaps a CFE_TBL_File_Hdr_t structure
-**
-** \par Description
-**        Converts a big-endian version of a CFE_TBL_File_Hdr_t structure to
-**        a little-endian version and vice-versa.
-**
-** \par Assumptions, External Events, and Notes:
-**          None
-**
-** \param[in, out]  HdrPtr   Pointer to table header that needs to be swapped. *HdrPtr provides the swapped header
-**
-*/
-void CFE_TBL_ByteSwapTblHeader(CFE_TBL_File_Hdr_t *HdrPtr);
-
-/*---------------------------------------------------------------------------------------*/
-/**
 ** \brief Searches the Critical Table Registry for the given handle
 **
 ** \par Description
@@ -291,22 +275,6 @@ void CFE_TBL_UpdateCriticalTblCDS(CFE_TBL_RegistryRec_t *RegRecPtr);
 **
 */
 int32 CFE_TBL_SendNotificationMsg(CFE_TBL_RegistryRec_t *RegRecPtr);
-
-/*---------------------------------------------------------------------------------------*/
-/**
-** \brief Performs a byte swap on a uint32 integer
-**
-** \par Description
-**        Converts a big-endian uint32 integer to a little-endian uint32 integer
-**        and vice-versa.
-**
-** \par Assumptions, External Events, and Notes:
-**          None
-**
-** \param[in, out]  Uint32ToSwapPtr Pointer to uint32 value to be swapped. *Uint32ToSwapPtr is the swapped uint32 value
-**
-*/
-void CFE_TBL_ByteSwapUint32(uint32 *Uint32ToSwapPtr);
 
 /*
  * Internal helper functions for Table Registry dump

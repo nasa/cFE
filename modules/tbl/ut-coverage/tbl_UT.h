@@ -40,6 +40,7 @@
 */
 #include <string.h>
 #include "cfe_tbl_module_all.h"
+#include "cfe_tbl_codec.h"
 #include "ut_support.h"
 
 typedef struct

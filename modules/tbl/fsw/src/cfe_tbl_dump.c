@@ -26,6 +26,7 @@
 ** Required header files...
 */
 #include "cfe_tbl_module_all.h"
+#include "cfe_tbl_codec.h"
 #include "cfe_config.h"
 
 #include <stdio.h>
@@ -51,8 +52,6 @@ CFE_Status_t CFE_TBL_WriteHeaders(CFE_TBL_TxnState_t *Txn, osal_id_t FileDescrip
                                   const CFE_TBL_CombinedFileHdr_t *FileHeader)
 {
     CFE_Status_t Status;
-    int32        OsStatus;
-    const int32  EndianCheck = 0x01020304;
 
     union
     {
@@ -74,32 +73,7 @@ CFE_Status_t CFE_TBL_WriteHeaders(CFE_TBL_TxnState_t *Txn, osal_id_t FileDescrip
     }
     else
     {
-        /* Make a copy of the table header data for writing */
-        Buffer.Tbl = FileHeader->Tbl;
-
-        /* Determine if this is a little endian processor */
-        if ((*(const char *)&EndianCheck) == 0x04)
-        {
-            /* If this is a little endian processor, then byte swap the header to a big endian format */
-            /* to maintain the cFE Header standards */
-            /* NOTE: FOR THE REMAINDER OF THIS FUNCTION, THE CONTENTS OF THE HEADER IS UNREADABLE BY */
-            /*       THIS PROCESSOR!  THE DATA WOULD NEED TO BE SWAPPED BACK BEFORE READING.         */
-            CFE_TBL_ByteSwapTblHeader(&Buffer.Tbl);
-        }
-
-        /* Output the Table Image Header to the Dump File */
-        OsStatus = OS_write(FileDescriptor, &Buffer.Tbl, sizeof(Buffer.Tbl));
-
-        /* Make sure the header was output completely */
-        if (OsStatus != sizeof(Buffer.Tbl))
-        {
-            CFE_TBL_TxnAddEvent(Txn, CFE_TBL_WRITE_TBL_HDR_ERR_EID, OsStatus, sizeof(Buffer.Tbl));
-            Status = CFE_TBL_ERR_ACCESS;
-        }
-        else
-        {
-            Status = CFE_SUCCESS;
-        }
+        Status = CFE_TBL_EncodeHeadersToFile(Txn, FileDescriptor, &FileHeader->Tbl);
     }
 
     return Status;
@@ -244,28 +218,36 @@ CFE_Status_t CFE_TBL_WriteSnapshotToFile(const CFE_TBL_DumpControl_t *DumpCtlPtr
 CFE_Status_t CFE_TBL_ExecuteDumpSnapshot(CFE_TBL_DumpControl_t *DumpCtrlPtr)
 {
     CFE_Status_t        Status;
+    CFE_TBL_TxnState_t  Txn;
     CFE_TBL_LoadBuff_t *SourceBufPtr;
+
+    CFE_TBL_TxnInit(&Txn, false);
 
     SourceBufPtr = CFE_TBL_LocateLoadBufferByID(DumpCtrlPtr->SourceBuffId);
     if (CFE_TBL_LoadBuffIsMatch(SourceBufPtr, DumpCtrlPtr->SourceBuffId))
     {
+        Txn.RegRecPtr = CFE_TBL_LoadBuffGetRegRecFromId(DumpCtrlPtr->SourceBuffId);
+        Txn.RegId     = CFE_TBL_RegRecGetID(Txn.RegRecPtr);
+
         /* Copy the contents of the active buffer to the assigned dump buffer */
-        CFE_TBL_LoadBuffCopyData(DumpCtrlPtr->DumpBufferPtr, CFE_TBL_LoadBuffGetReadPointer(SourceBufPtr),
-                                 CFE_TBL_LoadBuffGetContentSize(SourceBufPtr));
+        Status = CFE_TBL_EncodeOutputData(&Txn, SourceBufPtr, DumpCtrlPtr->DumpBufferPtr);
 
-        /* Save the current time so that the header in the dump file can have the correct time */
-        DumpCtrlPtr->DumpBufferPtr->FileTime = CFE_TIME_GetTime();
+        if (Status == CFE_SUCCESS)
+        {
+            /* Save the current time so that the header in the dump file can have the correct time */
+            DumpCtrlPtr->DumpBufferPtr->FileTime = CFE_TIME_GetTime();
 
-        /* Notify the Table Services Application that the dump buffer is ready to be written to a file */
-        DumpCtrlPtr->State        = CFE_TBL_DUMP_PERFORMED;
-        DumpCtrlPtr->SourceBuffId = CFE_TBL_LOADBUFFID_UNDEFINED;
-
-        Status = CFE_SUCCESS;
+            /* Notify the Table Services Application that the dump buffer is ready to be written to a file */
+            DumpCtrlPtr->State        = CFE_TBL_DUMP_PERFORMED;
+            DumpCtrlPtr->SourceBuffId = CFE_TBL_LOADBUFFID_UNDEFINED;
+        }
     }
     else
     {
         Status = CFE_TBL_ERR_INVALID_HANDLE;
     }
+
+    CFE_TBL_TxnFinish(&Txn);
 
     return Status;
 }
@@ -406,7 +388,7 @@ CFE_Status_t CFE_TBL_AllocateDumpCtrlBlock(CFE_TBL_TxnState_t *Txn, CFE_TBL_Dump
             CFE_TBL_DumpCtrlBlockSetUsed(DumpCtrlPtr, PendingDumpId);
 
             CFE_TBL_Global.LastDumpCtrlBlockId = PendingDumpId;
-            
+
             Status = CFE_SUCCESS;
         }
     }
