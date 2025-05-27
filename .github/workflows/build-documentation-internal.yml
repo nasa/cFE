@@ -15,7 +15,7 @@ jobs:
   # Checks for duplicate actions. Skips push actions if there is a matching or
   # duplicate pull-request action.
   checks-for-duplicates:
-    runs-on: Linux
+    runs-on: cfs-self-hosted
     # Map a step output to a job output
     outputs:
       should_skip: ${{ steps.skip_check.outputs.should_skip }}
@@ -26,25 +26,23 @@ jobs:
           concurrent_skipping: 'same_content'
           skip_after_successful_duplicate: 'true'
           do_not_skip: '["pull_request", "workflow_dispatch", "schedule"]'
-
+          
   checkout-and-cache:
     name: Custom checkout and cache for cFS documents
     needs: checks-for-duplicates
     if: ${{ needs.checks-for-duplicates.outputs.should_skip != 'true' || contains(github.ref, 'dev') }}
-    runs-on: Linux
+    runs-on: cfs-self-hosted
 
     steps:
-      - name: Clean workflow
-        run: |
-          rm -rf ./* || true
-          rm -rf ./.??* || true
-
       - name: Checkout bundle
         uses: actions/checkout@v3
         with:
           repository: cFS/cFS
           submodules: false
 
+      - name: Mark Git directory as safe
+        run: git config --global --add safe.directory $GITHUB_WORKSPACE
+        
       - name: Get cFS submodules
         run: |
           git submodule sync
@@ -59,8 +57,8 @@ jobs:
         id: cache-src-bld
         uses: actions/cache@v3
         with:
-          path: ${{ env.WORK_PATH }}/*
-          key: cfs-doc-${{ github.run_number }}
+          path: ${{ env.WORK_PATH }}/
+          key: cfs-doc-${{ github.run_id }}
 
   build-cfe-usersguide:
     needs: checkout-and-cache
@@ -68,7 +66,7 @@ jobs:
     uses: cFS/workflows/.github/workflows/build-doc-reusable-internal.yml@dev
     with:
       target: "[\"cfe-usersguide\"]"
-      cache-key: cfs-doc-${{ github.run_number }}
+      cache-key: cfs-doc-${{ github.run_id }}
       buildpdf: ${{ github.event_name == 'push' && contains(github.ref, 'dev')}}
       deploy: false  # Note can't use cache with deploy, deploy in following job instead
 
@@ -79,15 +77,15 @@ jobs:
     uses: cFS/workflows/.github/workflows/build-doc-reusable-internal.yml@dev
     with:
       target: "[\"mission-doc\"]"
-      cache-key: cfs-doc-${{ github.run_number }}
+      cache-key: cfs-doc-${{ github.run_id }}
       deploy: false
       buildpdf: false # No need for mission pdf within cFE, done at bundle level
 
   deploy-documentation:
+    name: Deploy documentation to gh-pages
     needs: build-cfe-usersguide
     if: ${{ github.event_name == 'push' && contains(github.ref, 'dev')}}
-    name: Deploy documentation to gh-pages
-    runs-on: Linux
+    runs-on: cfs-self-hosted
 
     steps:
       - uses: actions/checkout@v3
