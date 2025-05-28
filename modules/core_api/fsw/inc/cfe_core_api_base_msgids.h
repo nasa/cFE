@@ -24,8 +24,11 @@
  *
  */
 
-#ifndef CFE_CORE_BASE_MSGIDS_H
-#define CFE_CORE_BASE_MSGIDS_H
+#ifndef CFE_CORE_API_BASE_MSGIDS_H
+#define CFE_CORE_API_BASE_MSGIDS_H
+
+#include "cfe_core_api_base_msgid_values.h"
+#include "cfe_core_api_msgid_mapping.h"
 
 /**
  * \brief Platform command message ID base offset
@@ -43,7 +46,8 @@
  *          of MIDs in the framework it will not scale so an alternative
  *          method of deconfliction is recommended.
  */
-#define CFE_CPU1_CMD_MID_BASE 0x1800
+#define CFE_PLATFORM_CMD_MID_BASE CFE_PLATFORM_BASE_MIDVAL(CMD)
+#define DEFAULT_CPU1_CMD_MID_BASE 0x1800
 
 /**
  * \brief Platform telemetry message ID base offset
@@ -53,9 +57,10 @@
  *          0x0000-0x007F since the command bit is 0x0080.  Alternative
  *          method of deconfliction is recommended.
  *
- * See #CFE_CPU1_CMD_MID_BASE for more information
+ * See #CFE_PLATFORM_CMD_MID_BASE for more information
  */
-#define CFE_CPU1_TLM_MID_BASE 0x0800
+#define CFE_PLATFORM_TLM_MID_BASE CFE_PLATFORM_BASE_MIDVAL(TLM)
+#define DEFAULT_CPU1_TLM_MID_BASE 0x0800
 
 /**
  * \brief "Global" command message ID base offset
@@ -64,9 +69,10 @@
  * 0x00E0 - Potential value for MISSION_MSGID_V2, note command bit is 0x0080.
  *          Works in limited cases only, alternative method of deconfliction
  *          is recommended.
- * See #CFE_CPU1_CMD_MID_BASE for more information
+ * See #CFE_PLATFORM_CMD_MID_BASE for more information
  */
-#define CFE_GLOBAL_CMD_MID_BASE 0x1860
+#define CFE_GLOBAL_CMD_MID_BASE     CFE_GLOBAL_BASE_MIDVAL(CMD)
+#define DEFAULT_GLOBAL_CMD_MID_BASE 0x1860
 
 /**
  * \brief "Global" telemetry message ID base offset
@@ -75,54 +81,9 @@
  * 0x0060 - Potential value for MISSION_MSGID_V2, note command bit is 0x0080.
  *          Works in limited cases only, alternative method of deconfliction
  *          is recommended.
- * See #CFE_CPU1_CMD_MID_BASE for more information
+ * See #CFE_PLATFORM_CMD_MID_BASE for more information
  */
-#define CFE_GLOBAL_TLM_MID_BASE 0x0860
-
-/**
- * \brief Convert a command topic ID to a MsgID value
- *
- * This defines the logic to convert a topic ID value into a message ID value.
- * This operates on integer values and should resolve at compile time such
- * that it can be used in e.g. switch/case statements.
- *
- * \note The result of this conversion is a simple integer, thus also needs to
- * go through CFE_SB_ValueToMsgId() to obtain a properly-typed CFE_SB_MsgId_t
- * for interacting with SB APIs.
- */
-#define CFE_PLATFORM_CMD_TOPICID_TO_MIDV(topic) (CFE_CPU1_CMD_MID_BASE | (topic))
-
-/**
- * \brief Convert a telemetry topic ID to a MsgID value
- *
- * This defines the logic to convert a topic ID value into a message ID value.
- * This operates on integer values and should resolve at compile time such
- * that it can be used in e.g. switch/case statements.
- *
- * \note The result of this conversion is a simple integer, thus also needs to
- * go through CFE_SB_ValueToMsgId() to obtain a properly-typed CFE_SB_MsgId_t
- * for interacting with SB APIs.
- */
-#define CFE_PLATFORM_TLM_TOPICID_TO_MIDV(topic) (CFE_CPU1_TLM_MID_BASE | (topic))
-
-/**
- * \brief Convert a "global" command topic ID to a MsgID value
- *
- * A global command is one that is not specific to an individual instance of CFE,
- * but rather intended to be broadcast to all CFE instances at the same time.
- *
- * This is otherwise identical to #CFE_PLATFORM_CMD_TOPICID_TO_MIDV
- */
-#define CFE_GLOBAL_CMD_TOPICID_TO_MIDV(topic) (CFE_GLOBAL_CMD_MID_BASE | (topic))
-
-/**
- * \brief Convert a "global" telemetry topic ID to a MsgID value
- *
- * A global telemetry is one that is not specific to an individual instance of CFE,
- * but rather intended to be broadcast to all CFE instances at the same time.
- *
- * This is otherwise identical to #CFE_PLATFORM_TLM_TOPICID_TO_MIDV
- */
-#define CFE_GLOBAL_TLM_TOPICID_TO_MIDV(topic) (CFE_GLOBAL_TLM_MID_BASE | (topic))
+#define CFE_GLOBAL_TLM_MID_BASE     CFE_GLOBAL_BASE_MIDVAL(TLM)
+#define DEFAULT_GLOBAL_TLM_MID_BASE 0x0860
 
 #endif /* CFE_CORE_BASE_MSGIDS_H */

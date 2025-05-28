@@ -22,15 +22,14 @@ set(tbl_SOURCES
     fsw/src/cfe_tbl_transaction.c
     fsw/src/cfe_tbl_task.c
     fsw/src/cfe_tbl_task_cmds.c
-    fsw/src/cfe_tbl_dispatch.c
 )
 
 if (CFE_EDS_ENABLED)
   # Use EDS-based message dispatch and codec
-  list(APPEND tbl_SOURCES fsw/src/cfe_tbl_eds_codec.c)
+  list(APPEND tbl_SOURCES fsw/src/cfe_tbl_eds_codec.c fsw/src/cfe_tbl_eds_dispatch.c)
 else()
   # Use hardcoded message dispatch and passthru codec
-  list(APPEND tbl_SOURCES fsw/src/cfe_tbl_passthru_codec.c)
+  list(APPEND tbl_SOURCES fsw/src/cfe_tbl_passthru_codec.c fsw/src/cfe_tbl_dispatch.c)
 endif()
 
 add_library(tbl STATIC ${tbl_SOURCES})

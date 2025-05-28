@@ -75,7 +75,12 @@ static uint16 UT_SendEventAppIDHistory[UT_EVENT_HISTORY_SIZE * 10];
 
 int32 dummy_function(void);
 
+#ifdef CFE_EDS_ENABLED
+#include "edsmsg_dispatcher.h"
+static const UT_EntryKey_t UT_TABLE_DISPATCHER = UT_KEY(CFE_EDSMSG_Dispatch);
+#else
 static const UT_EntryKey_t UT_TABLE_DISPATCHER = 0;
+#endif
 
 /*
 ** Functions

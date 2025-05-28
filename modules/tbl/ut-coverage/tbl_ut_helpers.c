@@ -120,7 +120,7 @@ void UT_TBL_SetupSingleRegWithSize(CFE_TBL_RegistryRec_t **RegRecOut, CFE_TBL_Ac
     ++Num;
     snprintf(TableName, sizeof(TableName), "ut%03u", (unsigned int)Num);
 
-    UT_TBL_SetupCodec(0);
+    UT_TBL_SetupCodec(TblSz);
 
     CFE_UtAssert_SETUP(CFE_TBL_Register(&Handle, TableName, TblSz, Flags, NULL));
 

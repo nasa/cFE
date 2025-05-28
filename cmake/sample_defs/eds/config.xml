@@ -235,7 +235,7 @@
         \cfesbcfg Maximum Number of pipes that SB command/telemetry messages may hold
 
         \par Description:
-            Dictates the maximum number of unique Pipes the SB message defintions will hold.
+            Dictates the maximum number of unique Pipes the SB message definitions will hold.
 
             This affects the layout of command/telemetry messages but does not affect run
             time behavior or internal allocation.

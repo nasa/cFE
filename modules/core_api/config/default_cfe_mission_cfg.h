@@ -25,8 +25,8 @@
  *
  */
 
-#ifndef CFE_MISSION_CFG_H
-#define CFE_MISSION_CFG_H
+#ifndef DEFAULT_CFE_MISSION_CFG_H
+#define DEFAULT_CFE_MISSION_CFG_H
 
 #include "cfe_core_api_interface_cfg.h"
 #include "cfe_es_mission_cfg.h"

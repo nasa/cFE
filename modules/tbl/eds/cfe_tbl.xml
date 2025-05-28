@@ -869,6 +869,13 @@
     </DeclaredInterfaceSet>
 
     <ComponentSet>
+
+      <Component name="TableService">
+        <ProvidedInterfaceSet>
+          <Interface name="General" type="Table" />
+        </ProvidedInterfaceSet>
+      </Component>
+
       <Component name="Application">
         <RequiredInterfaceSet>
           <Interface name="CMD" shortDescription="Software bus telecommand interface" type="CFE_SB/Telecommand">

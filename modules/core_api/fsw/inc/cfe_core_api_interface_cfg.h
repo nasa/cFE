@@ -27,6 +27,8 @@
 #ifndef CFE_CORE_API_INTERFACE_CFG_H
 #define CFE_CORE_API_INTERFACE_CFG_H
 
+#include "cfe_core_api_interface_cfg_values.h"
+
 /**
 **  \cfemissioncfg cFE Maximum length for pathnames within data exchange structures
 **
@@ -52,7 +54,8 @@
 **       This value should be kept as a multiple of 4, to maintain alignment of
 **       any possible neighboring fields without implicit padding.
 */
-#define CFE_MISSION_MAX_PATH_LEN 64
+#define CFE_MISSION_MAX_PATH_LEN                  CFE_MISSION_CORE_API_CFGVAL(MAX_PATH_LEN)
+#define DEFAULT_CFE_MISSION_CORE_API_MAX_PATH_LEN 64
 
 /**
 **  \cfemissioncfg cFE Maximum length for filenames within data exchange structures
@@ -79,7 +82,8 @@
 **       This value should be kept as a multiple of 4, to maintain alignment of
 **       any possible neighboring fields without implicit padding.
 */
-#define CFE_MISSION_MAX_FILE_LEN 20
+#define CFE_MISSION_MAX_FILE_LEN                  CFE_MISSION_CORE_API_CFGVAL(MAX_FILE_LEN)
+#define DEFAULT_CFE_MISSION_CORE_API_MAX_FILE_LEN 20
 
 /**
 **  \cfemissioncfg cFE Maximum length for API names within data exchange structures
@@ -105,7 +109,8 @@
 **       This value should be kept as a multiple of 4, to maintain alignment of
 **       any possible neighboring fields without implicit padding.
 */
-#define CFE_MISSION_MAX_API_LEN 20
+#define CFE_MISSION_MAX_API_LEN                  CFE_MISSION_CORE_API_CFGVAL(MAX_API_LEN)
+#define DEFAULT_CFE_MISSION_CORE_API_MAX_API_LEN 20
 
 /**
 **  \cfemissioncfg cFE Maximum number of files in a message/data exchange
@@ -127,6 +132,7 @@
 **       to exceed the max length.
 **
 */
-#define CFE_MISSION_MAX_NUM_FILES 50
+#define CFE_MISSION_MAX_NUM_FILES                  CFE_MISSION_CORE_API_CFGVAL(MAX_NUM_FILES)
+#define DEFAULT_CFE_MISSION_CORE_API_MAX_NUM_FILES 50
 
 #endif /* SAMPLE_MISSION_CFG_H */

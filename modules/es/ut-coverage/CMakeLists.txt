@@ -4,13 +4,26 @@
 #
 ##################################################################
 
-foreach(SRC ${es_SOURCES})
-    list(APPEND UT_SOURCES "${CFE_ES_SOURCE_DIR}/${SRC}")
-endforeach()
 
-add_cfe_coverage_test(es ALL
-    "es_UT.c"
-    "${UT_SOURCES}"
+set(TESTCASE_SOURCES 
+    "es_ut_helpers.c" # Useful helper functions for everything 
+    "es_UT.c"         # The traditional "es_UT.c" has most of the test cases
+)
+
+# The final bit of support/helper code varies depending on whether EDS is enabled
+if (CFE_EDS_ENABLED)
+    list(APPEND TESTCASE_SOURCES es_ut_eds_dispatch.c)
+else(CFE_EDS_ENABLED)
+    list(APPEND TESTCASE_SOURCES es_ut_default_dispatch.c)
+endif (CFE_EDS_ENABLED)
+
+# This relies on the updated add_cfe_coverage_test() for a couple features:
+#  - Use of the keyword syntax allows multiple TESTCASE_SOURCES files, not just 1.
+#  - We can pass in the es_SOURCES list from parent project as SUBJECT_SOURCES without scrubbing
+add_cfe_coverage_test(es
+    UNIT_NAME "ALL"
+    TESTCASE_SOURCES ${TESTCASE_SOURCES}
+    SUBJECT_SOURCES  ${es_SOURCES}
 )
 
 # This permits UT test cases to directly access private headers in the fsw/src dir

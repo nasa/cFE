@@ -9,7 +9,9 @@
 ###########################################################
 
 # Check if strict/enforcing typedef should be used
-if (MISSION_RESOURCEID_MODE STREQUAL "STRICT")
+if (CFE_EDS_ENABLED)
+  set(RESOURCEID_HDR_FILE "cfe_resourceid_eds.h")
+elseif (MISSION_RESOURCEID_MODE STREQUAL "STRICT")
   set(RESOURCEID_HDR_FILE "cfe_resourceid_strict.h")
 else ()
   set(RESOURCEID_HDR_FILE "cfe_resourceid_simple.h")
