@@ -581,6 +581,7 @@ void CFE_SB_MessageTxn_GetEventDetails(const CFE_SB_MessageTxn_State_t *TxnPtr, 
     if (ContextPtr == NULL)
     {
         LocalOsStatus = INT32_MIN; /* should not be used; do not alias any actual OS status */
+        snprintf(PipeName, sizeof(PipeName), "[n/a]");
     }
     else
     {
