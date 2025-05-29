@@ -1,5 +1,10 @@
 # Changelog
 
+## Development Build: equuleus-rc1+dev251
+- 'Fix #2651, initialize pipename buffer'
+- See: <https://github.com/nasa/cFE/pull/2652>
+
+
 ## Development Build: equuleus-rc1+dev247
 - 'Fix nasa/cFS#839, Update Workflows to Ubuntu 22.04'
 - See: <https://github.com/nasa/cfe/pull/2648>
