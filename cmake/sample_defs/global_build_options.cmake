@@ -35,3 +35,14 @@ if (ENABLE_ASAN)
   add_link_options(-fsanitize=address)
 endif(ENABLE_ASAN)
 
+# The stringop/format truncation and overflow warnings tend to produce lots of false positives
+# CFE code is designed to handle/tolerate string truncation so it is generally not a real issue
+if ("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU" AND CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL 8.0.0)
+  add_compile_options(
+    -Wno-stringop-overflow
+    -Wno-stringop-truncation
+    -Wno-format-overflow
+    -Wno-format-truncation
+  )
+endif()
+
