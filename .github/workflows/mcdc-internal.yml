@@ -20,7 +20,7 @@ jobs:
   # Checks for duplicate actions. Skips push actions if there is a matching or
   # duplicate pull-request action.
   checks-for-duplicates:
-    runs-on: Linux
+    runs-on: cfs-mcdc
     # Map a step output to a job output
     outputs:
       should_skip: ${{ steps.skip_check.outputs.should_skip }}
@@ -36,21 +36,18 @@ jobs:
     needs: checks-for-duplicates
     if: ${{ needs.checks-for-duplicates.outputs.should_skip != 'true' || contains(github.ref, 'dev') }}
     name: Build and Run MCDC
-    runs-on: Linux
-    container: ghcr.io/core-flight-system/mcdc:latest
+    runs-on: cfs-mcdc
 
     steps: 
-      - name: Clean workflow
-        run: |
-          rm -rf ./* || true
-          rm -rf ./.??* || true
-                           
       - name: Checkout Bundle Main
         uses: actions/checkout@v4
         with:
           submodules: false
           repository: cFS/cFS
-          
+
+      - name: Mark Git directory as safe
+        run: git config --global --add safe.directory $GITHUB_WORKSPACE
+                  
       - name: Get cFS submodules
         run: |
           git submodule sync
@@ -152,7 +149,7 @@ jobs:
     needs: mcdc
     if: github.event_name == 'pull_request_target'
     name: Comment MCDC Comparision on PR
-    runs-on: Linux
+    runs-on: cfs-mcdc
 
     steps:        
       - name: Checkout MCDC Script
@@ -268,3 +265,4 @@ jobs:
           path: |
             mcdc_comment.txt
             mcdc_compare.txt
+
