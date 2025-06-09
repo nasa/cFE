@@ -416,7 +416,7 @@ function(add_cfe_coverage_test MODULE_NAME)
     # Add it to the set of tests to run as part of "make test"
     add_test(${TEST_NAME} ${RUNNER_TARGET})
     foreach(TGT ${INSTALL_TARGET_LIST})
-        install(TARGETS ${RUNNER_TARGET} DESTINATION ${TGT}/${UT_INSTALL_SUBDIR})
+        install(TARGETS ${RUNNER_TARGET} DESTINATION ${TGT})
     endforeach()
 
 endfunction(add_cfe_coverage_test)
