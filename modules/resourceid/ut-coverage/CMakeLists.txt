@@ -31,5 +31,5 @@ target_link_libraries(resourceid_UT
 
 add_test(resourceid_UT resourceid_UT)
 foreach(TGT ${INSTALL_TARGET_LIST})
-    install(TARGETS resourceid_UT DESTINATION ${TGT}/${UT_INSTALL_SUBDIR})
+    install(TARGETS resourceid_UT DESTINATION ${TGT})
 endforeach()

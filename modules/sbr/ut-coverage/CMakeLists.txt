@@ -53,7 +53,7 @@ foreach(SBR_TEST ${SBR_TEST_SET})
 
     add_test(${SBR_TEST}_UT ${SBR_TEST}_UT)
     foreach(TGT ${INSTALL_TARGET_LIST})
-        install(TARGETS ${SBR_TEST}_UT DESTINATION ${TGT}/${UT_INSTALL_SUBDIR})
+        install(TARGETS ${SBR_TEST}_UT DESTINATION ${TGT})
     endforeach()
 
 endforeach(SBR_TEST ${SBR_TEST_SET})
