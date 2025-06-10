@@ -252,4 +252,18 @@ void EVS_GenerateEventTelemetry(EVS_AppData_t *AppDataPtr, uint16 EventID, CFE_E
  */
 int32 EVS_SendEvent(uint16 EventID, CFE_EVS_EventType_Enum_t EventType, const char *Spec, ...);
 
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Verify that the calling app is registered with EVS
+ *
+ * This routine gets the current app context and verifies that the app
+ * is properly registered with EVS.
+ *
+ * @param[out]  AppDataPtr   Pointer to store the app data pointer
+ * @returns CFE_SUCCESS if app is registered
+ *          CFE_EVS_APP_ILLEGAL_APP_ID if app ID cannot be obtained
+ *          CFE_EVS_APP_NOT_REGISTERED if app is not registered with EVS
+ */
+int32 EVS_VerifyRegisteredApp(EVS_AppData_t **AppDataPtr);
+
 #endif /* CFE_EVS_UTILS_H */
