@@ -355,8 +355,7 @@
 **       Successful execution of this command may be verified with the
 **       following telemetry:
 **       - \b \c \TIME_CMDPC - command execution counter will increment
-**       - \b \c \TIME_STCFSECS - Housekeeping Telemetry point indicating newly calculated STCF seconds value
-**       - \b \c \TIME_STCFSUBSECS - Housekeeping Telemetry point indicating newly calculated STCF subseconds value
+**       - \b \c \TIME_STCF - Housekeeping Telemetry point indicating newly calculated STCF value
 **       - The #CFE_TIME_TIME_EID informational event message will be generated
 **
 **  \par Error Conditions
@@ -395,8 +394,7 @@
 **       Successful execution of this command may be verified with the
 **       following telemetry:
 **       - \b \c \TIME_CMDPC - command execution counter will increment
-**       - \b \c \TIME_METSECS - Housekeeping Telemetry point indicating new MET seconds value
-**       - \b \c \TIME_METSUBSECS - Housekeeping Telemetry point indicating new MET subseconds value
+**       - \b \c \TIME_MET - Housekeeping Telemetry point indicating new MET value
 **       - The #CFE_TIME_MET_EID informational event message will be generated
 **
 **  \par Error Conditions
@@ -432,8 +430,7 @@
 **       Successful execution of this command may be verified with the
 **       following telemetry:
 **       - \b \c \TIME_CMDPC - command execution counter will increment
-**       - \b \c \TIME_STCFSECS - Housekeeping Telemetry point indicating new  STCF seconds value
-**       - \b \c \TIME_STCFSUBSECS - Housekeeping Telemetry point indicating new  STCF subseconds value
+**       - \b \c \TIME_STCF - Housekeeping Telemetry point indicating new  STCF value
 **       - The #CFE_TIME_STCF_EID informational event message will be generated
 **
 **  \par Error Conditions
@@ -502,8 +499,7 @@
 **       Successful execution of this command may be verified with the
 **       following telemetry:
 **       - \b \c \TIME_CMDPC - command execution counter will increment
-**       - \b \c \TIME_STCFSECS - Housekeeping Telemetry point indicating new STCF seconds value
-**       - \b \c \TIME_STCFSUBSECS - Housekeeping Telemetry point indicating new STCF subseconds value
+**       - \b \c \TIME_STCF - Housekeeping Telemetry point indicating new STCF value
 **       - The #CFE_TIME_DELTA_EID informational event message will be generated
 **
 **  \par Error Conditions
@@ -537,8 +533,7 @@
 **       Successful execution of this command may be verified with the
 **       following telemetry:
 **       - \b \c \TIME_CMDPC - command execution counter will increment
-**       - \b \c \TIME_STCFSECS - Housekeeping Telemetry point indicating new STCF seconds value
-**       - \b \c \TIME_STCFSUBSECS - Housekeeping Telemetry point indicating new STCF subseconds value
+**       - \b \c \TIME_STCF - Housekeeping Telemetry point indicating new STCF value
 **       - The #CFE_TIME_DELTA_EID informational event message will be generated
 **
 **  \par Error Conditions
@@ -584,8 +579,7 @@
 **       Successful execution of this command may be verified with the
 **       following telemetry:
 **       - \b \c \TIME_CMDPC - command execution counter will increment
-**       - \b \c \TIME_STCFSECS - Housekeeping Telemetry point indicating new STCF seconds value
-**       - \b \c \TIME_STCFSUBSECS - Housekeeping Telemetry point indicating new STCF subseconds value
+**       - \b \c \TIME_STCF - Housekeeping Telemetry point indicating new STCF value
 **       - The #CFE_TIME_ONEHZ_EID informational event message will be generated
 **
 **  \par Error Conditions
@@ -632,8 +626,7 @@
 **       Successful execution of this command may be verified with the
 **       following telemetry:
 **       - \b \c \TIME_CMDPC - command execution counter will increment
-**       - \b \c \TIME_STCFSECS - Housekeeping Telemetry point indicating new STCF seconds value
-**       - \b \c \TIME_STCFSUBSECS - Housekeeping Telemetry point indicating new STCF subseconds value
+**       - \b \c \TIME_STCF - Housekeeping Telemetry point indicating new STCF value
 **       - The #CFE_TIME_ONEHZ_EID informational event message will be generated
 **
 **  \par Error Conditions
