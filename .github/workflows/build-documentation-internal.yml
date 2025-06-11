@@ -32,6 +32,8 @@ jobs:
     needs: checks-for-duplicates
     if: ${{ needs.checks-for-duplicates.outputs.should_skip != 'true' || contains(github.ref, 'dev') }}
     runs-on: cfs-self-hosted
+    container:
+      image: aetd-dockerlab.gsfc.nasa.gov/gsfc-cfs/github-actions-ci-cd/cfsbuildenv-doxygen
 
     steps:
       - name: Checkout bundle

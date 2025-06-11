@@ -34,6 +34,8 @@ jobs:
     needs: check-for-duplicates
     if: ${{ needs.check-for-duplicates.outputs.should_skip != 'true' }}
     runs-on: cfs-self-hosted
+    container:
+      image: aetd-dockerlab.gsfc.nasa.gov/gsfc-cfs/github-actions-ci-cd/cfsbuildenv-ubuntu22
     timeout-minutes: 15
 
     steps:
