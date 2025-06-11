@@ -20,7 +20,7 @@ jobs:
   # Checks for duplicate actions. Skips push actions if there is a matching or
   # duplicate pull-request action.
   checks-for-duplicates:
-    runs-on: cfs-mcdc
+    runs-on: cfs-self-hosted
     # Map a step output to a job output
     outputs:
       should_skip: ${{ steps.skip_check.outputs.should_skip }}
@@ -36,7 +36,9 @@ jobs:
     needs: checks-for-duplicates
     if: ${{ needs.checks-for-duplicates.outputs.should_skip != 'true' || contains(github.ref, 'dev') }}
     name: Build and Run MCDC
-    runs-on: cfs-mcdc
+    runs-on: cfs-self-hosted
+    container:
+      image: aetd-dockerlab.gsfc.nasa.gov/gsfc-cfs/github-actions-ci-cd/cfsbuildenv-mcdc
 
     steps: 
       - name: Checkout Bundle Main
@@ -149,7 +151,7 @@ jobs:
     needs: mcdc
     if: github.event_name == 'pull_request_target'
     name: Comment MCDC Comparision on PR
-    runs-on: cfs-mcdc
+    runs-on: cfs-self-hosted
 
     steps:        
       - name: Checkout MCDC Script
