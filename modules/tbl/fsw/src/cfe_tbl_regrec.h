@@ -83,8 +83,7 @@ typedef struct CFE_TBL_TableStatus
 
     CFE_TIME_SysTime_t TimeOfLastUpdate; /**< \brief Time when Table was last updated */
 
-    bool LoadPending; /**< \brief Flag indicating an inactive buffer is ready to be copied */
-    bool IsModified;  /**< \brief Indicates if this table is modified since loading */
+    bool IsModified; /**< \brief Indicates if this table is modified since loading */
 
     char LastFileLoaded[OS_MAX_PATH_LEN]; /**< \brief Filename of last file loaded into table */
 } CFE_TBL_TableStatus_t;
@@ -375,6 +374,9 @@ static inline size_t CFE_TBL_RegRecGetSize(const CFE_TBL_RegistryRec_t *RegRecPt
  *
  * Checks if the table is currently being loaded
  *
+ * A load in progress is simply that there is a "next" buffer associated with this registry,
+ * it will be true even if the buffer is not valid
+ *
  * @param[in]   RegRecPtr   pointer to Registry table entry
  * @returns true if a load is in progress
  */
@@ -469,38 +471,16 @@ static inline bool CFE_TBL_RegRecIsTableLoaded(const CFE_TBL_RegistryRec_t *RegR
 
 /*---------------------------------------------------------------------------------------*/
 /**
- * @brief Checks if a table load is pending
+ * @brief Checks if a table load is pending activation
+ *
+ * Pending activation means that there is a load in progress that has been fully
+ * validated and is ready to invoke the activate table command to make it active
  *
  * @param[in]   RegRecPtr   pointer to Registry table entry
- * @retval false if there is no load pending
- * @retval true if there is a load pending
+ * @retval false if there is no activation pending
+ * @retval true if there is a activation pending
  */
-static inline bool CFE_TBL_RegRecIsLoadPending(const CFE_TBL_RegistryRec_t *RegRecPtr)
-{
-    return RegRecPtr->Status.LoadPending;
-}
-
-/*---------------------------------------------------------------------------------------*/
-/**
- * @brief Sets the load pending flag
- *
- * @param[in]   RegRecPtr   pointer to Registry table entry
- */
-static inline void CFE_TBL_RegRecSetLoadPendingFlag(CFE_TBL_RegistryRec_t *RegRecPtr)
-{
-    RegRecPtr->Status.LoadPending = true;
-}
-
-/*---------------------------------------------------------------------------------------*/
-/**
- * @brief Clears the load pending flag
- *
- * @param[in]   RegRecPtr   pointer to Registry table entry
- */
-static inline void CFE_TBL_RegRecClearLoadPendingFlag(CFE_TBL_RegistryRec_t *RegRecPtr)
-{
-    RegRecPtr->Status.LoadPending = false;
-}
+bool CFE_TBL_RegRecIsPendingActivation(const CFE_TBL_RegistryRec_t *RegRecPtr);
 
 /*---------------------------------------------------------------------------------------*/
 /**

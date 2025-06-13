@@ -334,10 +334,9 @@ void Test_CFE_TBL_LoadCmd(void)
     UT_InitData_TBL();
     UT_SetReadBuffer(&TblFileHeader, sizeof(TblFileHeader));
     UT_SetReadHeader(&StdFileHeader, sizeof(StdFileHeader));
-    UT_TBL_Status(RegRec0Ptr)->LoadPending = true;
+    UT_TBL_SetupLoadBuff(RegRec0Ptr, false, 0);
     UtAssert_INT32_EQ(CFE_TBL_LoadCmd(&LoadCmd), CFE_SUCCESS);
     CFE_UtAssert_COUNTER_INCR(CFE_TBL_Global.CommandErrorCounter);
-    UT_TBL_Status(RegRec0Ptr)->LoadPending = false;
 
     /* Test where the file isn't dump only and passes table checks, get a
      * working buffer, and there is an extra byte (more data than header
@@ -468,6 +467,8 @@ void Test_CFE_TBL_Load1(void)
     CFE_TBL_Handle_t            TblHandle;
     CFE_TBL_RegistryRec_t *     RegRecPtr;
     CFE_TBL_AccessDescriptor_t *AccessDescPtr;
+    CFE_TBL_Handle_t            ShareHandle;
+    void *                      DataPtr;
 
     UT_InitData_TBL();
     UT_TBL_SetupSingleReg(&RegRecPtr, &AccessDescPtr, CFE_TBL_OPT_DEFAULT);
@@ -479,6 +480,37 @@ void Test_CFE_TBL_Load1(void)
 
     /* Perform full battery focusing on the single-buffered table w/default opts */
     UT_TBL_Basic_Load_Suite(TblHandle);
+
+    /* Test sharing semantics with single-buffered tables.  When a single buffered
+     * table is shared, it locks out loading until the shared address is released */
+    UT_InitData_TBL();
+    UT_SetAppID(UT_TBL_APPID_2); /* sharing has to be done from a different app */
+    CFE_TBL_Share(&ShareHandle, CFE_TBL_RegRecGetName(RegRecPtr));
+    CFE_TBL_GetAddress(&DataPtr, ShareHandle); /* so it will be "locked" */
+    UT_SetAppID(UT_TBL_APPID_1);
+    UtAssert_INT32_EQ(CFE_TBL_Load(TblHandle, CFE_TBL_SRC_ADDRESS, &UT_TBL_TableData), CFE_TBL_INFO_TABLE_LOCKED);
+    CFE_UtAssert_EVENTSENT(CFE_TBL_UPDATE_ERR_EID);
+    CFE_UtAssert_EVENTCOUNT(1);
+
+    /* normally this would update the table, but it will not be able to */
+    UtAssert_INT32_EQ(CFE_TBL_Manage(TblHandle), CFE_TBL_INFO_TABLE_LOCKED);
+
+    /* now un-share the table so things get unlocked */
+    UT_SetAppID(UT_TBL_APPID_2); /* sharing has to be done from a different app */
+    CFE_TBL_ReleaseAddress(ShareHandle);
+    CFE_TBL_Unregister(ShareHandle);
+    UT_SetAppID(UT_TBL_APPID_1);
+
+    /* Now subsequent loads should be rejected, because the previous load is not yet completed */
+    UT_InitData_TBL();
+    UtAssert_INT32_EQ(CFE_TBL_GetStatus(TblHandle), CFE_TBL_INFO_UPDATE_PENDING);
+    UtAssert_INT32_EQ(CFE_TBL_Load(TblHandle, CFE_TBL_SRC_ADDRESS, &UT_TBL_TableData), CFE_TBL_ERR_LOAD_IN_PROGRESS);
+    /* This completes the load */
+    UtAssert_INT32_EQ(CFE_TBL_Manage(TblHandle), CFE_TBL_INFO_UPDATED);
+    CFE_UtAssert_EVENTSENT(CFE_TBL_UPDATE_SUCCESS_INF_EID);
+
+    /* Now it should be loadable again */
+    CFE_UtAssert_SUCCESS(CFE_TBL_Load(TblHandle, CFE_TBL_SRC_ADDRESS, &UT_TBL_TableData));
 }
 
 void Test_CFE_TBL_Load2(void)
@@ -846,7 +878,4 @@ void Test_CFE_TBL_TableLoadCommon(void)
     UT_InitData_TBL();
     CFE_TBL_RegRecClearLoadInProgress(RegRecPtr);
     UtAssert_INT32_EQ(CFE_TBL_ValidateLoadInProgress(&Txn, CFE_SUCCESS), CFE_TBL_ERR_NEVER_LOADED);
-
-    /* Test CFE_TBL_CompleteInitialLoad response where there is no load in progress */
-    UtAssert_INT32_EQ(CFE_TBL_CompleteInitialLoad(&Txn), CFE_TBL_ERR_NEVER_LOADED);
 }

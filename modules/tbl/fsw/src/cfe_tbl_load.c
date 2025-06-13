@@ -184,22 +184,18 @@ CFE_Status_t CFE_TBL_ValidateFileIsLoadable(CFE_TBL_TxnState_t *Txn, const CFE_T
     CFE_Status_t           Status;
     CFE_TBL_RegistryRec_t *RegRecPtr;
 
+    /*
+     * Note, this function only needs to validate the file itself.  The config+state of the table (RegRecPtr)
+     * has already been checked and it is already known to be in a state that permits loading in general.
+     */
+
     Status    = CFE_SUCCESS;
     RegRecPtr = CFE_TBL_TxnRegRec(Txn);
     if (RegRecPtr == NULL)
     {
+        /* it should not be possible to get here in FSW, but UT can trigger this, so handle it */
         Status = CFE_TBL_ERR_INVALID_HANDLE;
         CFE_TBL_TxnAddEvent(Txn, CFE_TBL_NO_SUCH_TABLE_ERR_EID, Status, 0);
-    }
-    else if (CFE_TBL_RegRecGetConfig(RegRecPtr)->DumpOnly)
-    {
-        Status = CFE_TBL_ERR_DUMP_ONLY;
-        CFE_TBL_TxnAddEvent(Txn, CFE_TBL_LOADING_A_DUMP_ONLY_ERR_EID, Status, 0);
-    }
-    else if (CFE_TBL_RegRecIsLoadPending(RegRecPtr))
-    {
-        Status = CFE_TBL_ERR_LOAD_IN_PROGRESS;
-        CFE_TBL_TxnAddEvent(Txn, CFE_TBL_LOADING_PENDING_ERR_EID, Status, 0);
     }
     else if (strcmp(CFE_TBL_RegRecGetName(RegRecPtr), TblFileHeader->TableName) != 0)
     {
@@ -394,11 +390,6 @@ bool CFE_TBL_SendLoadBasicEventHelper(const CFE_TBL_TxnEvent_t *Event, void *Arg
         case CFE_TBL_LOAD_IN_PROGRESS_ERR_EID:
         {
             snprintf(EventString, sizeof(EventString), "Load already in progress");
-            break;
-        }
-        case CFE_TBL_LOADING_PENDING_ERR_EID:
-        {
-            snprintf(EventString, sizeof(EventString), "Attempted to load table while previous load is still pending");
             break;
         }
         case CFE_TBL_LOAD_TYPE_ERR_EID:
@@ -733,9 +724,6 @@ void CFE_TBL_AbortLoad(CFE_TBL_RegistryRec_t *RegRecPtr)
     /* The ground has aborted the load, free the working buffer for another attempt */
     CFE_TBL_DiscardWorkingBuffer(RegRecPtr);
 
-    /* Make sure the load was not already pending */
-    CFE_TBL_RegRecClearLoadPendingFlag(RegRecPtr);
-
     CFE_EVS_SendEvent(CFE_TBL_LOAD_ABORT_INF_EID, CFE_EVS_EventType_INFORMATION, "Table Load Aborted for '%s'",
                       CFE_TBL_RegRecGetName(RegRecPtr));
 }
@@ -845,88 +833,21 @@ CFE_Status_t CFE_TBL_ValidateLoadInProgress(CFE_TBL_TxnState_t *Txn, CFE_Status_
 
             /* Zero out the buffer to remove any bad data */
             CFE_TBL_LoadBuffClearData(WorkingBufferPtr);
-            LoadStatus = Status;
+            LoadStatus                  = Status;
+            WorkingBufferPtr->Validated = false;
         }
-    }
-
-    return LoadStatus;
-}
-
-/*----------------------------------------------------------------
- *
- * Application-scope internal function
- * See description in header file for argument/return detail
- *
- *-----------------------------------------------------------------*/
-CFE_Status_t CFE_TBL_CompleteInitialLoad(CFE_TBL_TxnState_t *Txn)
-{
-    CFE_Status_t           Status;
-    CFE_TBL_RegistryRec_t *RegRecPtr;
-    CFE_TBL_LoadBuff_t *   WorkingBufferPtr;
-
-    RegRecPtr        = CFE_TBL_TxnRegRec(Txn);
-    WorkingBufferPtr = CFE_TBL_GetLoadInProgressBuffer(RegRecPtr);
-
-    if (WorkingBufferPtr == NULL)
-    {
-        Status = CFE_TBL_ERR_NEVER_LOADED;
+        else
+        {
+            WorkingBufferPtr->Validated = true;
+        }
     }
     else
     {
-        /* On initial loads, make sure registry is given file/address of data source */
-        CFE_TBL_RegRecResetLoadInfo(RegRecPtr, WorkingBufferPtr->DataSource, CFE_TIME_GetTime());
-
-        CFE_TBL_NotifyTblUsersOfUpdate(RegRecPtr);
-
-        /* If the table is a critical table, update the appropriate CDS with the new data */
-        if (CFE_TBL_RegRecGetConfig(RegRecPtr)->Critical)
-        {
-            CFE_TBL_UpdateCriticalTblCDS(RegRecPtr);
-        }
-
-        /* First time load should always initialize the active buffer ID */
-        /* NOTE: On first time loads, The working buffer is actually a local buffer, not a
-         * global/shared load buffer, even on single buffered tables.  This does not need to
-         * be freed, it just becomes the active buffer */
-        CFE_TBL_SetActiveBuffer(RegRecPtr, WorkingBufferPtr);
-        CFE_TBL_RegRecClearLoadInProgress(RegRecPtr);
-
-        Status = CFE_SUCCESS;
+        /* tables without a validation function are considered valid */
+        WorkingBufferPtr->Validated = true;
     }
 
-    return Status;
-}
-
-/*----------------------------------------------------------------
- *
- * Application-scope internal function
- * See description in header file for argument/return detail
- *
- *-----------------------------------------------------------------*/
-CFE_Status_t CFE_TBL_CompleteReload(CFE_TBL_TxnState_t *Txn)
-{
-    CFE_Status_t           Status;
-    CFE_TBL_RegistryRec_t *RegRecPtr;
-
-    RegRecPtr = CFE_TBL_TxnRegRec(Txn);
-
-    /* If this is not the first load, then the data must be moved from the inactive buffer      */
-    /* to the active buffer to complete the load.  First loads are done directly to the active. */
-
-    /* Force the table update */
-    CFE_TBL_RegRecSetLoadPendingFlag(RegRecPtr);
-
-    /* Note - this call to will also discard the working buffer if it is successful */
-    Status = CFE_TBL_UpdateInternal(CFE_TBL_TxnHandle(Txn), RegRecPtr, CFE_TBL_TxnAccDesc(Txn));
-
-    if (Status != CFE_SUCCESS)
-    {
-        CFE_EVS_SendEventWithAppID(CFE_TBL_UPDATE_ERR_EID, CFE_EVS_EventType_ERROR, CFE_TBL_Global.TableTaskAppId,
-                                   "%s: Failed to update '%s' (Stat=%u)", CFE_TBL_TxnAppNameCaller(Txn),
-                                   CFE_TBL_RegRecGetName(RegRecPtr), (unsigned int)Status);
-    }
-
-    return Status;
+    return LoadStatus;
 }
 
 /*----------------------------------------------------------------
@@ -959,16 +880,20 @@ CFE_Status_t CFE_TBL_LoadFinish(CFE_TBL_TxnState_t *Txn, CFE_Status_t LoadStatus
             /* Check if this is the initial table load */
             FirstTime = !CFE_TBL_RegRecIsTableLoaded(RegRecPtr);
 
-            if (FirstTime)
+            /* Note - this call to will also discard the working buffer if it is successful */
+            Status = CFE_TBL_UpdateInternal(CFE_TBL_TxnHandle(Txn), RegRecPtr, CFE_TBL_TxnAccDesc(Txn));
+
+            if (Status != CFE_SUCCESS)
             {
-                Status = CFE_TBL_CompleteInitialLoad(Txn);
+                CFE_EVS_SendEventWithAppID(CFE_TBL_UPDATE_ERR_EID, CFE_EVS_EventType_ERROR,
+                                           CFE_TBL_Global.TableTaskAppId, "%s: Failed to update '%s' (Stat=%u)",
+                                           CFE_TBL_TxnAppNameCaller(Txn), CFE_TBL_RegRecGetName(RegRecPtr),
+                                           (unsigned int)Status);
+
+                /* Something went wrong - Use this status code */
+                LoadStatus = Status;
             }
             else
-            {
-                Status = CFE_TBL_CompleteReload(Txn);
-            }
-
-            if (Status == CFE_SUCCESS)
             {
                 /* The first time a table is loaded, the event message is DEBUG */
                 /* to help eliminate a flood of events during a startup         */
@@ -979,11 +904,6 @@ CFE_Status_t CFE_TBL_LoadFinish(CFE_TBL_TxnState_t *Txn, CFE_Status_t LoadStatus
 
                 /* Save the index of the table for housekeeping telemetry */
                 CFE_TBL_Global.LastTblUpdated = CFE_TBL_TxnRegId(Txn);
-            }
-            else
-            {
-                /* Something went wrong - Use this status code */
-                LoadStatus = Status;
             }
         }
     }

@@ -267,6 +267,9 @@ CFE_Status_t CFE_TBL_Load(CFE_TBL_Handle_t TblHandle, CFE_TBL_SrcEnum_t SrcType,
 {
     CFE_TBL_TxnState_t Txn;
     CFE_Status_t       Status;
+    bool               LoadWasAttempted;
+
+    LoadWasAttempted = false;
 
     if (SrcDataPtr == NULL)
     {
@@ -298,11 +301,13 @@ CFE_Status_t CFE_TBL_Load(CFE_TBL_Handle_t TblHandle, CFE_TBL_SrcEnum_t SrcType,
             /* The source data is an address (note SrcType was validated earlier) */
             Status = CFE_TBL_TxnLoadFromSourceAddr(&Txn, SrcDataPtr);
         }
-    }
 
-    if (Status >= CFE_SUCCESS)
-    {
-        Status = CFE_TBL_ValidateLoadInProgress(&Txn, Status);
+        LoadWasAttempted = true;
+
+        if (Status >= CFE_SUCCESS)
+        {
+            Status = CFE_TBL_ValidateLoadInProgress(&Txn, Status);
+        }
     }
 
     /* Send any events from validation (should be none if things went well) */
@@ -310,7 +315,13 @@ CFE_Status_t CFE_TBL_Load(CFE_TBL_Handle_t TblHandle, CFE_TBL_SrcEnum_t SrcType,
     CFE_TBL_TxnFinish(&Txn);
 
     /* Perform the table update to complete the load (this also cleans up, if failure case) */
-    Status = CFE_TBL_LoadFinish(&Txn, Status);
+    /* Note this may drop the working buffer, so only do this if we actually attempted to load
+     * the table during THIS call (for example, if this call was rejected due to a previous load
+     * already in progress, do not do this, because it will end up canceling the previous load) */
+    if (LoadWasAttempted)
+    {
+        Status = CFE_TBL_LoadFinish(&Txn, Status);
+    }
 
     return Status;
 }

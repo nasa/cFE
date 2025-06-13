@@ -272,7 +272,6 @@ void UT_TBL_SetDumpOnly(CFE_TBL_RegistryRec_t *RegRecPtr)
 void UT_TBL_ClearLoadPending(CFE_TBL_RegistryRec_t *RegRecPtr)
 {
     UT_TBL_Status(RegRecPtr)->NextBufferId = CFE_TBL_LOADBUFFID_UNDEFINED;
-    UT_TBL_Status(RegRecPtr)->LoadPending  = false;
 }
 
 void UT_TBL_SetLoadBuffTaken(CFE_TBL_LoadBuff_t *LoadBuffPtr, CFE_TBL_RegistryRec_t *RegRecPtr,
