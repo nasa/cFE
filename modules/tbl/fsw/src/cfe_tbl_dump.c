@@ -232,6 +232,10 @@ CFE_Status_t CFE_TBL_ExecuteDumpSnapshot(CFE_TBL_DumpControl_t *DumpCtrlPtr)
         /* Copy the contents of the active buffer to the assigned dump buffer */
         Status = CFE_TBL_EncodeOutputData(&Txn, SourceBufPtr, DumpCtrlPtr->DumpBufferPtr);
 
+        /* NOTE: In a "passthru" implementation, it is not possible for the encoding to fail,
+         * this always succeeds.  Therefore this will show up as an uncovered branch in the
+         * passthrough configuration.  It is not possible to fix this without adding stubs
+         * for the codec layer. */
         if (Status == CFE_SUCCESS)
         {
             /* Save the current time so that the header in the dump file can have the correct time */

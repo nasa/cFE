@@ -240,21 +240,17 @@ void CFE_TBL_GetHkData(void)
     CFE_TBL_Global.HkPacket.Payload.FailedValCounter  = CFE_TBL_Global.FailedValCounter;
     CFE_TBL_Global.HkPacket.Payload.NumValRequests    = CFE_TBL_Global.NumValRequests;
 
-    /* Validate the index of the last table updated before using it */
-    if (CFE_TBL_REGID_IS_VALID(CFE_TBL_Global.LastTblUpdated))
+    RegRecPtr = CFE_TBL_LocateRegRecByID(CFE_TBL_Global.LastTblUpdated);
+
+    /* Check to make sure the Registry Entry is still valid */
+    if (CFE_TBL_RegRecIsMatch(RegRecPtr, CFE_TBL_Global.LastTblUpdated))
     {
-        RegRecPtr = CFE_TBL_LocateRegRecByID(CFE_TBL_Global.LastTblUpdated);
+        /* Get the time at the last table update */
+        CFE_TBL_Global.HkPacket.Payload.LastUpdateTime = CFE_TBL_RegRecGetLastUpdateTime(RegRecPtr);
 
-        /* Check to make sure the Registry Entry is still valid */
-        if (CFE_TBL_RegRecIsUsed(RegRecPtr))
-        {
-            /* Get the time at the last table update */
-            CFE_TBL_Global.HkPacket.Payload.LastUpdateTime = CFE_TBL_RegRecGetLastUpdateTime(RegRecPtr);
-
-            /* Get the table name used for the last table update */
-            CFE_SB_MessageStringSet(CFE_TBL_Global.HkPacket.Payload.LastUpdatedTable, CFE_TBL_RegRecGetName(RegRecPtr),
-                                    sizeof(CFE_TBL_Global.HkPacket.Payload.LastUpdatedTable), -1);
-        }
+        /* Get the table name used for the last table update */
+        CFE_SB_MessageStringSet(CFE_TBL_Global.HkPacket.Payload.LastUpdatedTable, CFE_TBL_RegRecGetName(RegRecPtr),
+                                sizeof(CFE_TBL_Global.HkPacket.Payload.LastUpdatedTable), -1);
     }
 }
 

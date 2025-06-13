@@ -214,7 +214,14 @@ void UT_TBL_SetupPendingDump(uint32 ArrayIndex, CFE_TBL_LoadBuff_t *DumpBufferPt
     DumpCtrlPtr->BlockId = CFE_TBL_DUMPCTRLID_C(PendingId);
     if (RegRecPtr != NULL)
     {
-        DumpCtrlPtr->SourceBuffId = RegRecPtr->Status.ActiveBufferId;
+        if (CFE_TBL_LOADBUFFID_IS_VALID(RegRecPtr->Status.NextBufferId))
+        {
+            DumpCtrlPtr->SourceBuffId = RegRecPtr->Status.NextBufferId;
+        }
+        else
+        {
+            DumpCtrlPtr->SourceBuffId = RegRecPtr->Status.ActiveBufferId;
+        }
     }
     DumpCtrlPtr->DumpBufferPtr = DumpBufferPtr;
 

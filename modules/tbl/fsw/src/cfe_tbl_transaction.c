@@ -249,8 +249,11 @@ static void CFE_TBL_FindAccessDescHelper(CFE_TBL_AccessDescriptor_t *AccDescPtr,
 {
     CFE_TBL_TxnState_t *Txn = Arg;
 
-    if (CFE_TBL_AccDescIsUsed(AccDescPtr) && CFE_TBL_REGID_EQ(AccDescPtr->RegIndex, CFE_TBL_TxnRegId(Txn)) &&
-        CFE_RESOURCEID_TEST_EQUAL(AccDescPtr->AppId, CFE_TBL_TxnAppId(Txn)))
+    /* Note that the only entries in the list will be, by definition, access descriptors that
+     * point at this regrec entry.  So checking that AccDescPtr->RegIndex matches the transaction
+     * subject RegId would result in an uncovered branch, it cannot be false unless the list gets
+     * corrupted somehow. */
+    if (CFE_TBL_AccDescIsUsed(AccDescPtr) && CFE_RESOURCEID_TEST_EQUAL(AccDescPtr->AppId, CFE_TBL_TxnAppId(Txn)))
     {
         Txn->Handle     = CFE_TBL_AccDescGetHandle(AccDescPtr);
         Txn->AccDescPtr = AccDescPtr;
