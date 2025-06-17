@@ -462,3 +462,49 @@ CFE_TBL_LoadBuff_t *CFE_TBL_PrepareNewLoadBuff(CFE_TBL_RegistryRec_t *RegRecPtr)
 
     return LoadBuffPtr;
 }
+
+/*----------------------------------------------------------------
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+bool CFE_TBL_LoadBuffIsPrivate(CFE_TBL_LoadBuffId_t BuffId, CFE_TBL_RegId_t RegId)
+{
+    uint32 Category;
+    uint32 BuffIdx;
+    uint32 RegIdx;
+    bool   Result;
+
+    Result = false;
+    if (CFE_TBL_LoadBuffId_ToIndex(BuffId, &Category, &BuffIdx) == CFE_SUCCESS &&
+        CFE_TBL_RegId_ToIndex(RegId, &RegIdx) == CFE_SUCCESS)
+    {
+        /* 0 is the shared category, otherwise it is the reg index w/offset */
+        Result = ((RegIdx + CFE_TBL_LOADBUFF_LOCAL_CATEGORY_START) == Category);
+    }
+
+    return Result;
+}
+
+/*----------------------------------------------------------------
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+bool CFE_TBL_LoadBuffIsShared(CFE_TBL_LoadBuffId_t BuffId)
+{
+    uint32 Category;
+    uint32 Idx;
+    bool   Result;
+
+    Result = false;
+    if (CFE_TBL_LoadBuffId_ToIndex(BuffId, &Category, &Idx) == CFE_SUCCESS)
+    {
+        /* 0 is the shared category, otherwise it is the (1-based) reg index */
+        Result = (Category == CFE_TBL_LOADBUFF_SHARED_CATEGORY);
+    }
+
+    return Result;
+}

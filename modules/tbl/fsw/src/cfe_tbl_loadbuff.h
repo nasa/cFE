@@ -513,4 +513,29 @@ void CFE_TBL_LoadBuffCopyData(CFE_TBL_LoadBuff_t *BufferPtr, const void *SourceP
  */
 void CFE_TBL_LoadBuffRecomputeCRC(CFE_TBL_LoadBuff_t *BufferPtr);
 
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Checks if the given load buffer is private to this registry record
+ *
+ * Determines if this load buffer is dedicated for use only with this registry record.
+ *
+ * @param[in] BuffId The buffer ID
+ * @param[in] BuffId The Registry ID
+ * @retval  true if that buffer is private to that registry entry
+ * @retval  false if that buffer is not private to that registry entry
+ */
+bool CFE_TBL_LoadBuffIsPrivate(CFE_TBL_LoadBuffId_t BuffId, CFE_TBL_RegId_t RegId);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Checks if the given load buffer is part of the shared/global set
+ *
+ * Determines if this load buffer is a temporary buffer that came from the shared pool
+ *
+ * @param[in] BuffId The buffer ID
+ * @retval  true if that buffer is from the shared pool
+ * @retval  false if that buffer is not from the shared pool
+ */
+bool CFE_TBL_LoadBuffIsShared(CFE_TBL_LoadBuffId_t BuffId);
+
 #endif /* CFE_TBL_LOADBUFF_H */

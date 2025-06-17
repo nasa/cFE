@@ -34,8 +34,8 @@
  */
 typedef struct CFE_TBL_CheckInactiveBuffer
 {
-    CFE_TBL_LoadBuffId_t BufferIndex;
-    CFE_ES_AppId_t       LockingAppId;
+    CFE_TBL_LoadBuff_t *BufferPtr;
+    CFE_ES_AppId_t      LockingAppId;
 } CFE_TBL_CheckInactiveBuffer_t;
 
 /*----------------------------------------------------------------
@@ -47,8 +47,12 @@ typedef struct CFE_TBL_CheckInactiveBuffer
 static void CFE_TBL_CheckInactiveBufferHelper(CFE_TBL_AccessDescriptor_t *AccDescPtr, void *Arg)
 {
     CFE_TBL_CheckInactiveBuffer_t *StatPtr = Arg;
+    CFE_TBL_LoadBuff_t *           AccBuffPtr;
 
-    if (CFE_TBL_LOADBUFFID_EQ(AccDescPtr->BufferIndex, StatPtr->BufferIndex) && AccDescPtr->LockFlag)
+    AccBuffPtr = CFE_TBL_LocateLoadBufferByID(AccDescPtr->BufferIndex);
+
+    /* Check if it refers to this memory blob (even if the ID is different) and it is locked */
+    if (AccBuffPtr == StatPtr->BufferPtr && AccDescPtr->LockFlag)
     {
         StatPtr->LockingAppId = AccDescPtr->AppId;
     }
@@ -290,7 +294,7 @@ CFE_TBL_LoadBuff_t *CFE_TBL_GetInactiveBufferExclusive(CFE_TBL_RegistryRec_t *Re
         if (CFE_TBL_LoadBuffIsUsed(LoadBuffPtr))
         {
             /* Scan the access descriptor table to determine if anyone is still using the inactive buffer */
-            CheckStat.BufferIndex = CFE_TBL_LoadBufferGetID(LoadBuffPtr);
+            CheckStat.BufferPtr = LoadBuffPtr;
 
             CFE_TBL_ForeachAccessDescriptor(RegRecPtr, CFE_TBL_CheckInactiveBufferHelper, &CheckStat);
         }
@@ -359,4 +363,28 @@ void CFE_TBL_SetupTableRegistryRecord(CFE_TBL_RegistryRec_t *RegRecPtr, CFE_ES_A
 
     /* Save the EDS ID */
     RegRecPtr->Config.EdsId = ReqCfg->EdsId;
+}
+
+/*----------------------------------------------------------------
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+bool CFE_TBL_RegRecIsPendingActivation(const CFE_TBL_RegistryRec_t *RegRecPtr)
+{
+    CFE_TBL_LoadBuff_t *LoadBuffPtr;
+    bool                Result;
+
+    Result = false;
+
+    /* The next buffer index is set when there is a pending buffer */
+    LoadBuffPtr = CFE_TBL_LocateLoadBufferByID(RegRecPtr->Status.NextBufferId);
+    if (CFE_TBL_LoadBuffIsMatch(LoadBuffPtr, RegRecPtr->Status.NextBufferId))
+    {
+        /* it is only pending activation if it is validated */
+        Result = LoadBuffPtr->Validated;
+    }
+
+    return Result;
 }

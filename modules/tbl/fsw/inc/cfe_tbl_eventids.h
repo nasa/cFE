@@ -664,17 +664,6 @@
 #define CFE_TBL_CDS_OWNER_ACTIVE_ERR_EID 87
 
 /**
- * \brief TBL Load Table Command Load Pending Event ID
- *
- *  \par Type: ERROR
- *
- *  \par Cause:
- *
- *  \link #CFE_TBL_LOAD_CC TBL Load Table Command \endlink failed due to a load already pending.
- */
-#define CFE_TBL_LOADING_PENDING_ERR_EID 88
-
-/**
  * \brief TBL Send Notification Transmit Failed Event ID
  *
  *  \par Type: ERROR

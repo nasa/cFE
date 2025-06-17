@@ -165,7 +165,7 @@ void CFE_TBL_GetHkData(void)
         {
             ++Count;
 
-            if (CFE_TBL_RegRecIsLoadPending(RegRecPtr))
+            if (CFE_TBL_RegRecIsLoadInProgress(RegRecPtr))
             {
                 CFE_TBL_Global.HkPacket.Payload.NumLoadPending++;
             }
@@ -308,7 +308,7 @@ void CFE_TBL_GetTblRegData(void)
             CFE_ES_MEMADDRESS_C(CFE_TBL_RegRecGetValidationFunc(RegRecPtr));
         CFE_TBL_Global.TblRegPacket.Payload.TimeOfLastUpdate = CFE_TBL_RegRecGetLastUpdateTime(RegRecPtr);
         CFE_TBL_Global.TblRegPacket.Payload.TableLoadedOnce  = CFE_TBL_RegRecIsTableLoaded(RegRecPtr);
-        CFE_TBL_Global.TblRegPacket.Payload.LoadPending      = CFE_TBL_RegRecIsLoadPending(RegRecPtr);
+        CFE_TBL_Global.TblRegPacket.Payload.LoadPending      = CFE_TBL_RegRecIsPendingActivation(RegRecPtr);
         CFE_TBL_Global.TblRegPacket.Payload.DumpOnly         = CFE_TBL_RegRecGetConfig(RegRecPtr)->DumpOnly;
         CFE_TBL_Global.TblRegPacket.Payload.DoubleBuffered   = CFE_TBL_RegRecGetConfig(RegRecPtr)->DoubleBuffered;
         CFE_TBL_Global.TblRegPacket.Payload.Critical         = CFE_TBL_RegRecGetConfig(RegRecPtr)->Critical;
@@ -692,8 +692,6 @@ CFE_Status_t CFE_TBL_ActivateCmd(const CFE_TBL_ActivateCmd_t *data)
             }
             else
             {
-                CFE_TBL_RegRecSetLoadPendingFlag(RegRecPtr);
-
                 /* If application requested notification by message, then do so */
                 if (CFE_TBL_SendNotificationMsg(RegRecPtr) == CFE_SUCCESS)
                 {
@@ -752,7 +750,7 @@ bool CFE_TBL_DumpRegistryGetter(void *Meta, uint32 RecordNum, void **Buffer, siz
             StatePtr->DumpRecord.TimeOfLastUpdate = CFE_TBL_RegRecGetLastUpdateTime(RegRecPtr);
             StatePtr->DumpRecord.ValidationFunc   = (CFE_TBL_RegRecGetValidationFunc(RegRecPtr) != NULL);
             StatePtr->DumpRecord.TableLoadedOnce  = CFE_TBL_RegRecIsTableLoaded(RegRecPtr);
-            StatePtr->DumpRecord.LoadPending      = CFE_TBL_RegRecIsLoadPending(RegRecPtr);
+            StatePtr->DumpRecord.LoadPending      = CFE_TBL_RegRecIsPendingActivation(RegRecPtr);
             StatePtr->DumpRecord.DumpOnly         = CFE_TBL_RegRecGetConfig(RegRecPtr)->DumpOnly;
             StatePtr->DumpRecord.DoubleBuffered   = CFE_TBL_RegRecGetConfig(RegRecPtr)->DoubleBuffered;
             StatePtr->DumpRecord.CriticalTable    = CFE_TBL_RegRecGetConfig(RegRecPtr)->Critical;

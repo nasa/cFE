@@ -457,22 +457,6 @@ int32 CFE_TBL_GetWorkingBuffer(CFE_TBL_LoadBuff_t **WorkingBufferPtr, CFE_TBL_Re
 
 /*----------------------------------------------------------------
  *
- * Local helper function, not invoked outside this unit
- * Intended to be used with CFE_TBL_ForeachAccessDescriptor()
- *
- *-----------------------------------------------------------------*/
-static void CFE_TBL_CheckLockHelper(CFE_TBL_AccessDescriptor_t *AccDescPtr, void *Arg)
-{
-    bool *LockStatus = Arg;
-
-    if (AccDescPtr->LockFlag)
-    {
-        *LockStatus = true;
-    }
-}
-
-/*----------------------------------------------------------------
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -480,11 +464,11 @@ static void CFE_TBL_CheckLockHelper(CFE_TBL_AccessDescriptor_t *AccDescPtr, void
 int32 CFE_TBL_UpdateInternal(CFE_TBL_HandleId_t TblHandle, CFE_TBL_RegistryRec_t *RegRecPtr,
                              CFE_TBL_AccessDescriptor_t *AccessDescPtr)
 {
-    int32               Status     = CFE_SUCCESS;
-    bool                LockStatus = false;
-    CFE_TBL_LoadBuff_t *ActiveBuffPtr;
+    int32               Status = CFE_SUCCESS;
+    CFE_TBL_LoadBuff_t *NextBuffPtr;
     CFE_TBL_LoadBuff_t *LoadBuffPtr;
 
+    NextBuffPtr = NULL;
     LoadBuffPtr = CFE_TBL_GetLoadInProgressBuffer(RegRecPtr);
     if (LoadBuffPtr == NULL)
     {
@@ -492,50 +476,62 @@ int32 CFE_TBL_UpdateInternal(CFE_TBL_HandleId_t TblHandle, CFE_TBL_RegistryRec_t
         /* be considered an error?  Currently assuming it is not an error.         */
         Status = CFE_TBL_INFO_NO_UPDATE_PENDING;
     }
-    else if (CFE_TBL_RegRecGetConfig(RegRecPtr)->DoubleBuffered)
-    {
-        /* To update a double buffered table only requires a pointer swap */
-        CFE_TBL_SetActiveBuffer(RegRecPtr, LoadBuffPtr);
-        CFE_TBL_RegRecClearLoadInProgress(RegRecPtr);
-    }
     else
     {
-        /* Check to see if the Table is locked by anyone */
-        CFE_TBL_ForeachAccessDescriptor(RegRecPtr, CFE_TBL_CheckLockHelper, &LockStatus);
-
-        if (LockStatus)
+        /*
+         * If the load buffer is a DEDICATED buffer for this table registry (not a shared buf),
+         * then it can be simply activated by setting it active buffer ref to it.  This will
+         * always be true for double buffered tables, because they just flip-flop between two
+         * dedicated table buffers; they never use shared buffers for loading.  For single
+         * buffered tables this is also true during the first initial load, where a temp buffer
+         * is not necessary
+         */
+        if (CFE_TBL_LoadBuffIsPrivate(CFE_TBL_LoadBufferGetID(LoadBuffPtr), CFE_TBL_RegRecGetID(RegRecPtr)))
         {
-            Status = CFE_TBL_INFO_TABLE_LOCKED;
-
-            CFE_ES_WriteToSysLog("%s: Unable to update locked table Handle=%lu\n", __func__,
-                                 CFE_TBL_HandleID_AsInt(CFE_TBL_AccDescGetHandle(AccessDescPtr)));
+            NextBuffPtr = LoadBuffPtr;
+        }
+        else
+        {
+            /*
+             * This gets a new identifier and also makes sure nobody is using the buffer
+             * via a shared table handle at this time.  The only way this can fail is
+             * if there is an active shared table reference to this buffer.
+             */
+            NextBuffPtr = CFE_TBL_GetInactiveBufferExclusive(RegRecPtr);
+            if (NextBuffPtr == NULL)
+            {
+                Status = CFE_TBL_INFO_TABLE_LOCKED;
+                CFE_ES_WriteToSysLog("%s: Unable to update locked table Handle=%lu\n", __func__,
+                                     CFE_TBL_HandleID_AsInt(CFE_TBL_AccDescGetHandle(AccessDescPtr)));
+            }
         }
     }
 
-    if (Status == CFE_SUCCESS)
+    if (NextBuffPtr != NULL)
     {
         /*
          * To update a single buffered table requires a memcpy from working buffer,
          * but in a double buffered table they will point to the same LoadBuff, so
          * all the copies can be skipped (this is the advantage of double-buffering)
          */
-        ActiveBuffPtr = CFE_TBL_GetActiveBuffer(RegRecPtr);
-        if (ActiveBuffPtr != LoadBuffPtr)
+        if (NextBuffPtr != LoadBuffPtr)
         {
-            CFE_TBL_LoadBuffCopyData(ActiveBuffPtr, CFE_TBL_LoadBuffGetReadPointer(LoadBuffPtr),
+            CFE_TBL_LoadBuffCopyData(NextBuffPtr, CFE_TBL_LoadBuffGetReadPointer(LoadBuffPtr),
                                      CFE_TBL_LoadBuffGetContentSize(LoadBuffPtr));
 
             /* Save source description with active buffer (Note - structs are same type, length already checked) */
-            strncpy(ActiveBuffPtr->DataSource, LoadBuffPtr->DataSource, sizeof(ActiveBuffPtr->DataSource));
+            strncpy(NextBuffPtr->DataSource, LoadBuffPtr->DataSource, sizeof(NextBuffPtr->DataSource));
 
             /* Save the file creation time from the loaded file into the Table Registry */
-            ActiveBuffPtr->FileTime = LoadBuffPtr->FileTime;
+            NextBuffPtr->FileTime = LoadBuffPtr->FileTime;
 
             /* Save the previously computed CRC into the new buffer */
-            ActiveBuffPtr->Crc = LoadBuffPtr->Crc;
+            NextBuffPtr->Crc = LoadBuffPtr->Crc;
         }
 
-        CFE_TBL_RegRecResetLoadInfo(RegRecPtr, ActiveBuffPtr->DataSource, CFE_TIME_GetTime());
+        CFE_TBL_SetActiveBuffer(RegRecPtr, NextBuffPtr);
+
+        CFE_TBL_RegRecResetLoadInfo(RegRecPtr, NextBuffPtr->DataSource, CFE_TIME_GetTime());
 
         CFE_TBL_NotifyTblUsersOfUpdate(RegRecPtr);
 
@@ -570,9 +566,6 @@ static void CFE_TBL_SetUpdatedHelper(CFE_TBL_AccessDescriptor_t *AccDescPtr, voi
  *-----------------------------------------------------------------*/
 void CFE_TBL_NotifyTblUsersOfUpdate(CFE_TBL_RegistryRec_t *RegRecPtr)
 {
-    /* Clear notification of pending load (as well as NO LOAD) and notify everyone of update */
-    CFE_TBL_RegRecClearLoadPendingFlag(RegRecPtr);
-
     CFE_TBL_ForeachAccessDescriptor(RegRecPtr, CFE_TBL_SetUpdatedHelper, NULL);
 }
 

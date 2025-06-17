@@ -395,14 +395,14 @@ CFE_Status_t CFE_TBL_TxnGetTableStatus(CFE_TBL_TxnState_t *Txn)
     CFE_TBL_RegistryRec_t *RegRecPtr = CFE_TBL_TxnRegRec(Txn);
 
     /* Perform validations prior to performing any updates */
-    if (CFE_TBL_RegRecIsLoadPending(RegRecPtr))
-    {
-        Status = CFE_TBL_INFO_UPDATE_PENDING;
-    }
-    else if (CFE_TBL_VALRESULTID_IS_VALID(RegRecPtr->ValidateActiveId) ||
-             CFE_TBL_VALRESULTID_IS_VALID(RegRecPtr->ValidateInactiveId))
+    if (CFE_TBL_VALRESULTID_IS_VALID(RegRecPtr->ValidateActiveId) ||
+        CFE_TBL_VALRESULTID_IS_VALID(RegRecPtr->ValidateInactiveId))
     {
         Status = CFE_TBL_INFO_VALIDATION_PENDING;
+    }
+    else if (CFE_TBL_RegRecIsPendingActivation(RegRecPtr))
+    {
+        Status = CFE_TBL_INFO_UPDATE_PENDING;
     }
     else if (CFE_TBL_DUMPCTRLID_IS_VALID(RegRecPtr->DumpControlId))
     {
