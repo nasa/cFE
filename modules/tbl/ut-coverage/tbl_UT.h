@@ -682,6 +682,7 @@ void Test_CFE_TBL_TxnEvents(void);
 
 /* Test cases for unified load/dump implementation */
 void Test_CFE_TBL_TableLoadCommon(void);
+void Test_CFE_TBL_TableLoadCodec(void);
 void Test_CFE_TBL_TableDumpCommon(void);
 
 #endif /* TBL_UT_H */

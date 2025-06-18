@@ -633,6 +633,31 @@ void Test_CFE_TBL_Load4(void)
     CFE_UtAssert_EVENTCOUNT(1);
 }
 
+void Test_CFE_TBL_TableLoadCodec(void)
+{
+    CFE_TBL_RegistryRec_t *     RegRecPtr;
+    CFE_TBL_AccessDescriptor_t *AccDescPtr;
+    CFE_TBL_LoadBuff_t *        SharedBufferPtr;
+    CFE_TBL_LoadBuff_t *        LocalBufferPtr;
+    CFE_ResourceId_t            PendingId;
+    CFE_TBL_TxnState_t          Txn;
+
+    UT_TBL_SetupSingleReg(&RegRecPtr, &AccDescPtr, CFE_TBL_OPT_DEFAULT);
+    CFE_TBL_TxnStartFromHandle(&Txn, CFE_TBL_AccDescGetHandle(AccDescPtr), CFE_TBL_TxnContext_UNDEFINED);
+
+    /* To get full coverage on the Encode/Decode routines we need to directly invoke with the various combos */
+    /* Force the working buffer to be a shared buff */
+    UT_TBL_InitActiveBuffer(RegRecPtr, 0);
+    LocalBufferPtr  = CFE_TBL_GetActiveBuffer(RegRecPtr);
+    PendingId       = CFE_TBL_FindNextSharedBufferId();
+    SharedBufferPtr = CFE_TBL_LocateLoadBufferByID(CFE_TBL_LOADBUFFID_C(PendingId));
+    CFE_TBL_LoadBuffSetUsed(SharedBufferPtr, PendingId, CFE_TBL_RegRecGetID(RegRecPtr));
+    CFE_TBL_LoadBuffSetContentSize(SharedBufferPtr, sizeof(UT_Table1_t));
+
+    CFE_UtAssert_SUCCESS(CFE_TBL_DecodeInputData(&Txn, SharedBufferPtr, LocalBufferPtr));
+    CFE_UtAssert_SUCCESS(CFE_TBL_EncodeOutputData(&Txn, LocalBufferPtr, SharedBufferPtr));
+}
+
 void Test_CFE_TBL_TableLoadCommon(void)
 {
     char                        Filename[OS_MAX_PATH_LEN];
@@ -664,6 +689,10 @@ void Test_CFE_TBL_TableLoadCommon(void)
     UT_SetDeferredRetcode(UT_KEY(OS_read), 3, 0);
     UtAssert_INT32_EQ(CFE_TBL_TxnLoadFromFile(&Txn, Filename), CFE_TBL_ERR_INVALID_HANDLE);
     UT_TBL_EVENT_PENDING(&Txn, CFE_TBL_NO_SUCH_TABLE_ERR_EID);
+
+    /* Test CFE_TBL_LoadFinish with an invalid transaction - it should do nothing */
+    CFE_TBL_TxnInit(&Txn, false);
+    UtAssert_INT32_EQ(CFE_TBL_LoadFinish(&Txn, CFE_STATUS_INCORRECT_STATE), CFE_STATUS_INCORRECT_STATE);
 
     /* Now set up the transaction to point to a valid registry entry for the rest of tests */
     UT_TBL_SetupSingleReg(&RegRecPtr, &AccDescPtr, CFE_TBL_OPT_DBL_BUFFER);

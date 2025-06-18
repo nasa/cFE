@@ -95,6 +95,7 @@ void UtTest_Setup(void)
 
     /* Test logic that is shared between API and commands */
     UT_TBL_ADD_TEST(Test_CFE_TBL_TableLoadCommon);
+    UT_TBL_ADD_TEST(Test_CFE_TBL_TableLoadCodec);
     UT_TBL_ADD_TEST(Test_CFE_TBL_TableDumpCommon);
 
     /* cfe_tbl_task_cmds.c functions */
@@ -737,7 +738,7 @@ void Test_CFE_TBL_GetTblRegData(void)
     UT_TBL_InitActiveBuffer(RegRecDPtr, 0);
     UT_TBL_InitActiveBuffer(RegRecDPtr, 1);
     UT_TBL_SetupSingleReg(&RegRecSPtr, NULL, CFE_TBL_OPT_DEFAULT);
-    UT_TBL_InitActiveBuffer(RegRecSPtr, 0);
+    /* Leave RegRecSPtr as "unloaded" for now */
 
     /* Test using a double buffered table */
     UT_InitData_TBL();
@@ -753,13 +754,14 @@ void Test_CFE_TBL_GetTblRegData(void)
     UT_TBL_SetupLoadBuff(RegRecSPtr, false, 1);
     CFE_TBL_GetTblRegData();
     UtAssert_NOT_NULL(CFE_ES_MEMADDRESS_TO_PTR(CFE_TBL_Global.TblRegPacket.Payload.InactiveBufferAddr));
+    CFE_TBL_DiscardWorkingBuffer(RegRecSPtr); /* clean up */
 
-    /* Test with no inactive buffer */
+    /* Now repeat with an active buffer */
     UT_InitData_TBL();
-    CFE_TBL_Global.TblRegPacket.Payload.InactiveBufferAddr = CFE_ES_MEMADDRESS_C(0);
-    UT_TBL_Status(RegRecSPtr)->NextBufferId                = CFE_TBL_LOADBUFFID_UNDEFINED;
+    UT_TBL_InitActiveBuffer(RegRecSPtr, 0);
     CFE_TBL_GetTblRegData();
     UtAssert_NULL(CFE_ES_MEMADDRESS_TO_PTR(CFE_TBL_Global.TblRegPacket.Payload.InactiveBufferAddr));
+    UtAssert_NOT_NULL(CFE_ES_MEMADDRESS_TO_PTR(CFE_TBL_Global.TblRegPacket.Payload.ActiveBufferAddr));
 
     /* Test when   HkTlmTblRegId does not refer to anything valid */
     /* In this case it is a no-op so there is nothing to check for -- this is for branch coverage */
@@ -842,6 +844,14 @@ void Test_CFE_TBL_GetHkData(void)
     CFE_TBL_Global.HkPacket.Payload.LastUpdateTime.Seconds = 12345;
     CFE_TBL_GetHkData();
     UtAssert_UINT32_EQ(CFE_TBL_Global.HkPacket.Payload.LastUpdateTime.Seconds, 12345);
+
+    /* Test with a valid "last updated" registry entry */
+    UT_TBL_SetupSingleReg(&RegRecPtr, NULL, CFE_TBL_OPT_DEFAULT);
+    CFE_TBL_Global.LastTblUpdated                      = CFE_TBL_RegRecGetID(RegRecPtr);
+    UT_TBL_Status(RegRecPtr)->TimeOfLastUpdate.Seconds = 4321;
+    CFE_TBL_GetHkData();
+    UtAssert_UINT32_EQ(CFE_TBL_Global.HkPacket.Payload.LastUpdateTime.Seconds,
+                       CFE_TBL_RegRecGetLastUpdateTime(RegRecPtr).Seconds);
 }
 
 /*
@@ -3153,9 +3163,15 @@ void Test_CFE_TBL_Internal1(void)
     UtAssert_INT32_EQ(CFE_TBL_EarlyInit(), CFE_ES_ERR_RESOURCEID_NOT_VALID);
     CFE_UtAssert_EVENTCOUNT(0);
 
-    /* Test CFE_TBL_EarlyInit response where the CDS already exists but
-     * restore fails
-     */
+    /* Test CFE_TBL_EarlyInit response where the CDS already exists and is restored */
+    UT_InitData_TBL();
+    UT_SetDeferredRetcode(UT_KEY(CFE_ES_RegisterCDSEx), 1, CFE_ES_CDS_ALREADY_EXISTS);
+    UT_ResetState(UT_KEY(CFE_ES_GetPoolBuf));
+    UT_SetDataBuffer(UT_KEY(CFE_ES_GetPoolBuf), &UT_TBL_LoadBuffer, sizeof(UT_TBL_LoadBuffer), false);
+    CFE_UtAssert_SUCCESS(CFE_TBL_EarlyInit());
+    CFE_UtAssert_EVENTCOUNT(0);
+
+    /* Test CFE_TBL_EarlyInit response where the CDS already exists but restore fails */
     UT_InitData_TBL();
     UT_SetDeferredRetcode(UT_KEY(CFE_ES_RegisterCDSEx), 1, CFE_ES_CDS_ALREADY_EXISTS);
     UT_SetDeferredRetcode(UT_KEY(CFE_ES_RestoreFromCDS), 1, CFE_ES_CDS_BLOCK_CRC_ERR);
@@ -3655,6 +3671,7 @@ void Test_CFE_TBL_ResourceID_RegistryRecord(void)
     uint32                 Idx;
     CFE_TBL_RegId_t        InvalidRegId;
     CFE_TBL_RegId_t        ValidRegId;
+    CFE_ResourceId_t       PendingId;
     CFE_TBL_RegistryRec_t *RegRecPtr;
 
     UT_InitData_TBL();
@@ -3675,6 +3692,30 @@ void Test_CFE_TBL_ResourceID_RegistryRecord(void)
     UtAssert_INT32_EQ(CFE_TBL_RegId_ToIndex(ValidRegId, &Idx), CFE_SUCCESS);
     UtAssert_UINT32_EQ(Idx, 1);
     UtAssert_NOT_NULL(RegRecPtr = CFE_TBL_LocateRegRecByID(ValidRegId));
+
+    UtAssert_VOIDCALL(PendingId = CFE_TBL_GetNextRegId());
+    UtAssert_BOOL_TRUE(CFE_ResourceId_IsDefined(PendingId));
+
+    /* The slot should be available right now */
+    UtAssert_BOOL_FALSE(CFE_TBL_CheckRegistrySlotUsed(PendingId));
+
+    /* Make it used and confirm it is reported as not available */
+    CFE_TBL_RegRecSetUsed(CFE_TBL_LocateRegRecByID(CFE_TBL_REGID_C(PendingId)), PendingId);
+    UtAssert_BOOL_TRUE(CFE_TBL_CheckRegistrySlotUsed(PendingId));
+
+    /* Test case where no ID is available */
+    UT_SetDefaultReturnValue(UT_KEY(CFE_ResourceId_FindNext), -1);
+    UtAssert_VOIDCALL(PendingId = CFE_TBL_GetNextRegId());
+    UtAssert_BOOL_FALSE(CFE_ResourceId_IsDefined(PendingId));
+
+    /* A nonexistent slot is always "unavailable" */
+    UtAssert_BOOL_TRUE(CFE_TBL_CheckRegistrySlotUsed(PendingId));
+    UT_ResetState(UT_KEY(CFE_ResourceId_FindNext));
+
+    /* Additional test for coverage -- this is here because it is part of the regrec unit */
+    /* When called with an invalid regrec, this should reject it */
+    CFE_TBL_RegRecSetFree(RegRecPtr);
+    UtAssert_NULL(CFE_TBL_GetInactiveBufferExclusive(RegRecPtr));
 }
 
 /*
@@ -3685,6 +3726,7 @@ void Test_CFE_TBL_ResourceID_AccessDescriptor(void)
     uint32             Idx;
     CFE_TBL_HandleId_t InvalidHandle;
     CFE_TBL_HandleId_t ValidHandle;
+    CFE_ResourceId_t   PendingId;
 
     UT_InitData_TBL();
 
@@ -3705,6 +3747,25 @@ void Test_CFE_TBL_ResourceID_AccessDescriptor(void)
     UT_ResetState(UT_KEY(CFE_ResourceId_ToIndex));
     UtAssert_INT32_EQ(CFE_TBL_Handle_ToIndex(ValidHandle, &Idx), CFE_SUCCESS);
     UtAssert_UINT32_EQ(Idx, 1);
+
+    UtAssert_VOIDCALL(PendingId = CFE_TBL_GetNextTableHandle());
+    UtAssert_BOOL_TRUE(CFE_ResourceId_IsDefined(PendingId));
+
+    /* The slot should be available right now */
+    UtAssert_BOOL_FALSE(CFE_TBL_CheckAccessDescriptorSlotUsed(PendingId));
+
+    /* Make it used and confirm it is reported as not available */
+    CFE_TBL_AccDescSetUsed(CFE_TBL_LocateAccDescByHandle(CFE_TBL_HANDLEID_C(PendingId)), PendingId);
+    UtAssert_BOOL_TRUE(CFE_TBL_CheckAccessDescriptorSlotUsed(PendingId));
+
+    /* Test case where no ID is available */
+    UT_SetDefaultReturnValue(UT_KEY(CFE_ResourceId_FindNext), -1);
+    UtAssert_VOIDCALL(PendingId = CFE_TBL_GetNextTableHandle());
+    UtAssert_BOOL_FALSE(CFE_ResourceId_IsDefined(PendingId));
+
+    /* A nonexistent slot is always "unavailable" */
+    UtAssert_BOOL_TRUE(CFE_TBL_CheckAccessDescriptorSlotUsed(PendingId));
+    UT_ResetState(UT_KEY(CFE_ResourceId_FindNext));
 }
 
 /*
@@ -3839,6 +3900,11 @@ void Test_CFE_TBL_TxnState(void)
                       CFE_TBL_ERR_INVALID_HANDLE);
     UtAssert_ZERO(Txn.RegLockCount);
 
+    /* Confirm operation if handle is not the "UNDEFINED" value nor a valid value */
+    UT_SetDeferredRetcode(UT_KEY(CFE_ResourceId_ToIndex), 1, -1);
+    UtAssert_INT32_EQ(CFE_TBL_TxnStartFromHandle(&Txn, UT_CFE_TBL_HANDLE_INVH, CFE_TBL_TxnContext_UNDEFINED),
+                      CFE_TBL_ERR_INVALID_HANDLE);
+
     /* Now register a table and check that the "start" routines work in the nominal case */
     UT_TBL_SetupCodec(0);
     CFE_UtAssert_SUCCESS(CFE_TBL_Register(&App1TblHandle1, "ut", sizeof(UT_Table1_t), CFE_TBL_OPT_DEFAULT, NULL));
@@ -3864,6 +3930,31 @@ void Test_CFE_TBL_TxnState(void)
 
     UtAssert_VOIDCALL(CFE_TBL_TxnFinish(&Txn));
     UtAssert_ZERO(Txn.RegLockCount);
+
+    /* Special error case: Invoke CFE_TBL_TxnConnectAccessDescriptor() with a mismatched regID */
+    /* The only way this can happen at runtime is if one app calls e.g. CFE_TBL_Share while the owner
+     * app has simultaneously called e.g. CFE_TBL_Unregister.  That is, the registry existed at the
+     * beginning of CFE_TBL_Share, so the initial lookup succeeds, but it is no longer existing
+     * by the time it gets into CFE_TBL_TxnConnectAccessDescriptor.  This simulates that possibility. */
+    memset(&Txn, 0, sizeof(Txn));
+    /* First set up a "normal" reg rec */
+    UT_TBL_SetupSingleReg(&Txn.RegRecPtr, &Txn.AccDescPtr, CFE_TBL_OPT_DEFAULT);
+    Txn.RegId = CFE_TBL_RegRecGetID(Txn.RegRecPtr);
+
+    /* now get another access descriptor, as "share" would */
+    Txn.Handle     = CFE_TBL_HANDLEID_C(CFE_TBL_GetNextTableHandle());
+    Txn.AccDescPtr = CFE_TBL_LocateAccDescByHandle(Txn.Handle);
+    memset(Txn.AccDescPtr, 0, sizeof(*Txn.AccDescPtr));
+
+    /* simulate something deleting the underlying RegRec */
+    CFE_TBL_RegRecSetFree(Txn.RegRecPtr);
+
+    /* Now make sure CFE_TBL_TxnConnectAccessDescriptor does the right thing, by
+     * NOT attaching it to the reg rec that no longer matches */
+    CFE_TBL_TxnConnectAccessDescriptor(&Txn);
+
+    UtAssert_BOOL_FALSE(Txn.AccDescPtr->Updated);
+    UtAssert_BOOL_FALSE(CFE_TBL_HandleLinkIsAttached(&Txn.AccDescPtr->Link));
 }
 
 void Test_CFE_TBL_ResourceID_LoadBuff(void)

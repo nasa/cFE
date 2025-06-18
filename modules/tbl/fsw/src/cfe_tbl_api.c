@@ -936,7 +936,7 @@ CFE_Status_t CFE_TBL_Modified(CFE_TBL_Handle_t TblHandle)
         CFE_TBL_TxnFinish(&Txn);
 
         /* If the table is a critical table, update the appropriate CDS with the new data */
-        if (ActiveBufPtr != NULL && CFE_TBL_RegRecGetConfig(RegRecPtr)->Critical)
+        if (CFE_TBL_RegRecGetConfig(RegRecPtr)->Critical)
         {
             CFE_TBL_UpdateCriticalTblCDS(RegRecPtr);
         }
