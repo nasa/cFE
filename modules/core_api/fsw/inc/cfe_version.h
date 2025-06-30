@@ -26,7 +26,7 @@
 #define CFE_VERSION_H
 
 /* Development Build Macro Definitions */
-#define CFE_BUILD_NUMBER   247 /**< @brief Development: Number of development git commits since CFE_BUILD_BASELINE */
+#define CFE_BUILD_NUMBER    247 /**< @brief Development: Number of development git commits since CFE_BUILD_BASELINE */
 #define CFE_BUILD_BASELINE  "equuleus-rc1" /**< @brief Development: Reference git tag for build number */
 #define CFE_BUILD_DEV_CYCLE "equuleus-rc2" /**< @brief Development: Release name for current development cycle */
 #define CFE_BUILD_CODENAME  "Equuleus"     /**< @brief: Development: Code name for the current build */
@@ -34,7 +34,7 @@
 /* See \ref cfsversions for definitions */
 #define CFE_MAJOR_VERSION 6 /*!< @brief Major version number */
 #define CFE_MINOR_VERSION 7 /*!< @brief Minor version number */
-#define CFE_REVISION      0 /*!< @brief Revision version number. Value of 0 indicates a development version.*/
+#define CFE_REVISION      0 /*!< @brief Revision version number. */
 
 /**
  * @brief Last official release.
@@ -44,9 +44,9 @@
 /*!
  * @brief Mission revision.
  *
- * Values 1-254 are reserved for mission use to denote patches/customizations as needed. NOTE: Reserving 0 and 0xFF for
- * cFS open-source development use (pending resolution of nasa/cFS#440)
- *
+ * Values 1-254 are reserved for mission use to denote patches/customizations as needed.
+ * Value of 0 is reserved for official releases only
+ * Value of 255 (0xFF) is reserved for development and testing versions
  */
 #define CFE_MISSION_REV 0xFF
 

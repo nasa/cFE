@@ -18,7 +18,7 @@ jobs:
 
   #Check for duplicate actions. Skips push actions if there is a matching or duplicate pull-request action.
   check-for-duplicates:
-    runs-on: Linux
+    runs-on: cfs-self-hosted
     # Map a step output to a job output
     outputs:
       should_skip: ${{ steps.skip_check.outputs.should_skip }}
@@ -31,25 +31,14 @@ jobs:
           do_not_skip: '["pull_request", "workflow_dispatch", "schedule"]'
 
   Local-Test-Build:
-    #Continue if check-for-duplicates found no duplicates. Always runs for pull-requests.
     needs: check-for-duplicates
     if: ${{ needs.check-for-duplicates.outputs.should_skip != 'true' }}
-    runs-on: Linux
+    runs-on: cfs-self-hosted
+    container:
+      image: aetd-dockerlab.gsfc.nasa.gov/gsfc-cfs/github-actions-ci-cd/cfsbuildenv-ubuntu22
     timeout-minutes: 15
 
     steps:
-      - name: Clean workflow
-        run: |
-          rm -rf ./* || true
-          rm -rf ./.??* || true
-
-      - name: Install coverage tools
-        run: sudo apt-get install lcov -y
-
-      - name: Install make 
-        run: |
-          sudo apt-get update && sudo apt-get install -y make cmake
-
       # Checks out a copy of your repository on the ubuntu-latest machine
       - name: Checkout bundle
         uses: actions/checkout@v3
@@ -57,6 +46,9 @@ jobs:
           repository: cFS/cFS
           submodules: false
 
+      - name: Mark Git directory as safe
+        run: git config --global --add safe.directory $GITHUB_WORKSPACE
+        
       - name: Get cFS submodules
         run: |
           git submodule sync

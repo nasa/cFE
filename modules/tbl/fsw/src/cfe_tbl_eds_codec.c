@@ -1,0 +1,427 @@
+/************************************************************************
+ * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ *
+ * Copyright (c) 2020 United States Government as represented by the
+ * Administrator of the National Aeronautics and Space Administration.
+ * All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License. You may obtain
+ * a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ************************************************************************/
+
+/**
+ * \file
+ *  This file contains the source code for the TO lab application
+ */
+
+#include "cfe_tbl_module_all.h"
+#include "cfe_tbl_codec.h"
+#include "cfe_config.h"
+
+#include "edslib_datatypedb.h"
+#include "cfe_missionlib_api.h"
+#include "cfe_mission_eds_parameters.h"
+#include "cfe_mission_eds_interface_parameters.h"
+
+#include "cfe_tbl_eds_datatypes.h"
+
+/*----------------------------------------------------------------
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+CFE_Status_t CFE_TBL_DecodeHeadersFromFile(CFE_TBL_TxnState_t *Txn, osal_id_t FileDescriptor,
+                                           CFE_TBL_File_Hdr_t *HeaderPtr)
+{
+    CFE_Status_t                       ReturnCode;
+    EdsLib_Id_t                        EdsId;
+    int32                              EdsStatus;
+    int32                              OsStatus;
+    const EdsLib_DatabaseObject_t *    EDS_DB;
+    EdsPackedBuffer_CFE_TBL_File_Hdr_t Buffer;
+
+    EDS_DB = CFE_Config_GetObjPointer(CFE_CONFIGID_MISSION_EDS_DB);
+    EdsId  = EDSLIB_MAKE_ID(EDS_INDEX(CFE_TBL), EdsContainer_CFE_TBL_File_Hdr_DATADICTIONARY);
+
+    OsStatus = OS_read(FileDescriptor, &Buffer, sizeof(Buffer));
+
+    /* Verify successful read of cFE Table File Header */
+    if (OsStatus != sizeof(Buffer))
+    {
+        CFE_TBL_TxnAddEvent(Txn, CFE_TBL_FILE_TBL_HDR_ERR_EID, OsStatus, sizeof(Buffer));
+        ReturnCode = CFE_TBL_ERR_NO_TBL_HEADER;
+    }
+    else
+    {
+        EdsStatus = EdsLib_DataTypeDB_UnpackCompleteObject(EDS_DB, &EdsId, HeaderPtr, &Buffer, sizeof(*HeaderPtr),
+                                                           8 * sizeof(Buffer));
+        if (EdsStatus == EDSLIB_SUCCESS)
+        {
+            ReturnCode = CFE_SUCCESS;
+        }
+        else
+        {
+            CFE_TBL_TxnAddEvent(Txn, CFE_TBL_CODEC_ERROR_ERR_EID, EdsStatus, EdsId);
+            ReturnCode = CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
+        }
+    }
+
+    return ReturnCode;
+}
+
+/*----------------------------------------------------------------
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+CFE_Status_t CFE_TBL_EncodeHeadersToFile(CFE_TBL_TxnState_t *Txn, osal_id_t FileDescriptor,
+                                         const CFE_TBL_File_Hdr_t *HeaderPtr)
+{
+    CFE_Status_t                       ReturnCode;
+    EdsLib_Id_t                        EdsId;
+    int32                              EdsStatus;
+    int32                              OsStatus;
+    const EdsLib_DatabaseObject_t *    EDS_DB;
+    EdsPackedBuffer_CFE_TBL_File_Hdr_t Buffer;
+
+    EDS_DB = CFE_Config_GetObjPointer(CFE_CONFIGID_MISSION_EDS_DB);
+    EdsId  = EDSLIB_MAKE_ID(EDS_INDEX(CFE_TBL), EdsContainer_CFE_TBL_File_Hdr_DATADICTIONARY);
+
+    EdsStatus = EdsLib_DataTypeDB_PackPartialObject(EDS_DB, &EdsId, &Buffer, HeaderPtr, 8 * sizeof(Buffer),
+                                                    sizeof(*HeaderPtr), 0);
+    if (EdsStatus == EDSLIB_SUCCESS)
+    {
+        OsStatus = OS_write(FileDescriptor, &Buffer, sizeof(Buffer));
+
+        /* Verify successful write of cFE Table File Header */
+        if (OsStatus != sizeof(Buffer))
+        {
+            CFE_TBL_TxnAddEvent(Txn, CFE_TBL_WRITE_TBL_HDR_ERR_EID, OsStatus, sizeof(Buffer));
+            ReturnCode = CFE_TBL_ERR_ACCESS;
+        }
+        else
+        {
+            ReturnCode = CFE_SUCCESS;
+        }
+    }
+    else
+    {
+        CFE_TBL_TxnAddEvent(Txn, CFE_TBL_CODEC_ERROR_ERR_EID, EdsStatus, EdsId);
+        ReturnCode = CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
+    }
+
+    return ReturnCode;
+}
+
+/*----------------------------------------------------------------
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+CFE_Status_t CFE_TBL_ValidateCodecConfig(CFE_TBL_TableConfig_t *ReqCfg)
+{
+    CFE_Status_t                                  ReturnCode;
+    EdsLib_DataTypeDB_TypeInfo_t                  TypeInfo;
+    const EdsLib_DatabaseObject_t *               EDS_DB;
+    EdsLib_Id_t                                   EdsId;
+    int32                                         EdsStatus;
+    uint16_t                                      InterfaceId;
+    const CFE_MissionLib_SoftwareBus_Interface_t *INTF_DB;
+
+    EDS_DB  = CFE_Config_GetObjPointer(CFE_CONFIGID_MISSION_EDS_DB);
+    INTF_DB = CFE_Config_GetObjPointer(CFE_CONFIGID_MISSION_SBINTF_DB);
+
+    ReturnCode = CFE_SUCCESS;
+    EdsId      = EDSLIB_ID_INVALID;
+
+    /*
+     * All apps with tables should include those tables in their respective EDS file
+     * as an interface that inherits from the table interface defined by table services,
+     * and this should include the type mapping for the table data.
+     *
+     * For now this is a placeholder - these API calls were made for the software bus
+     * interface, and are structured as such.  They need to be updated to include the tables.
+     * Until it is updated, these calls are going to return a failure status indicating that
+     * the data is not in the DB.  Note - it can be still be tested in coverage test for
+     * verification that the logic is sound, even if the real DB is not present yet.
+     */
+    EdsStatus = CFE_MissionLib_FindInterfaceByName(INTF_DB, ReqCfg->Name, &InterfaceId);
+    if (EdsStatus == EDSLIB_SUCCESS)
+    {
+        /* placeholder! */
+        EdsStatus = CFE_MissionLib_GetArgumentType(INTF_DB, InterfaceId, 0, 0, 0, &EdsId);
+    }
+
+    if (EdsStatus != EDSLIB_SUCCESS)
+    {
+        /* TEMPORARY - for now, the DB does not have this info for tables yet.
+         * This is just a hack so the CFS framework app tables can be loaded,
+         * remove this hard coded logic once it is in the EDS DB. */
+        if (strcmp(ReqCfg->Name, "SAMPLE_APP.ExampleTable") == 0)
+        {
+            EdsId = EDSLIB_MAKE_ID(EDS_INDEX(SAMPLE_APP), EdsContainer_SAMPLE_APP_ExampleTable_DATADICTIONARY);
+        }
+        else if (strcmp(ReqCfg->Name, "TO_LAB_APP.TO_LAB_Subs") == 0)
+        {
+            EdsId = EDSLIB_MAKE_ID(EDS_INDEX(TO_LAB), EdsArray_TO_LAB_SubscriptionTable_DATADICTIONARY);
+        }
+        else if (strcmp(ReqCfg->Name, "SCH_LAB_APP.ScheduleTable") == 0)
+        {
+            EdsId = EDSLIB_MAKE_ID(EDS_INDEX(SCH_LAB), EdsContainer_SCH_LAB_ScheduleTable_DATADICTIONARY);
+        }
+    }
+
+    EdsStatus = EdsLib_DataTypeDB_GetTypeInfo(EDS_DB, EdsId, &TypeInfo);
+    if (EdsStatus != EDSLIB_SUCCESS)
+    {
+        /* This table was not found in EDS */
+        ReturnCode = CFE_STATUS_NOT_IMPLEMENTED;
+    }
+    else if (TypeInfo.Size.Bytes != ReqCfg->Size)
+    {
+        /* The size does not agree with what the user is trying to register */
+        ReturnCode = CFE_TBL_ERR_INVALID_SIZE;
+    }
+    else
+    {
+        /* Everything checked out */
+        ReqCfg->EdsId = EdsId;
+        ReturnCode    = CFE_SUCCESS;
+    }
+
+    return ReturnCode;
+}
+
+/*----------------------------------------------------------------
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+CFE_Status_t CFE_TBL_GetEncodedTableSize(CFE_TBL_TxnState_t *Txn, uint32 *NumBytes)
+{
+    EdsLib_DataTypeDB_TypeInfo_t   TypeInfo;
+    const EdsLib_DatabaseObject_t *EDS_DB;
+    EdsLib_Id_t                    EdsId;
+    int32                          EdsStatus;
+    CFE_Status_t                   Status;
+    CFE_TBL_RegistryRec_t *        RegRecPtr;
+
+    EDS_DB    = CFE_Config_GetObjPointer(CFE_CONFIGID_MISSION_EDS_DB);
+    RegRecPtr = CFE_TBL_TxnRegRec(Txn);
+    if (RegRecPtr != NULL)
+    {
+        EdsId = CFE_TBL_RegRecGetConfig(RegRecPtr)->EdsId;
+    }
+    else
+    {
+        EdsId = EDSLIB_ID_INVALID;
+    }
+
+    EdsStatus = EdsLib_DataTypeDB_GetTypeInfo(EDS_DB, EdsId, &TypeInfo);
+
+    if (EdsStatus != EDSLIB_SUCCESS)
+    {
+        Status = CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
+        CFE_TBL_TxnAddEvent(Txn, CFE_TBL_CODEC_ERROR_ERR_EID, EdsStatus, EdsId);
+    }
+    else
+    {
+        Status    = CFE_SUCCESS;
+        *NumBytes = (TypeInfo.Size.Bits + 7) / 8;
+    }
+
+    return Status;
+}
+
+/*----------------------------------------------------------------
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+CFE_Status_t CFE_TBL_ValidateCodecLoadSize(CFE_TBL_TxnState_t *Txn, const CFE_TBL_File_Hdr_t *HeaderPtr)
+{
+    uint32       ProjectedSize;
+    uint32       ActualSize;
+    CFE_Status_t Status;
+
+    Status = CFE_TBL_GetEncodedTableSize(Txn, &ActualSize);
+
+    if (Status == CFE_SUCCESS)
+    {
+        ProjectedSize = HeaderPtr->Offset + HeaderPtr->NumBytes;
+        if (ProjectedSize > ActualSize)
+        {
+            Status = CFE_TBL_ERR_FILE_TOO_LARGE;
+            CFE_TBL_TxnAddEvent(Txn, CFE_TBL_LOAD_EXCEEDS_SIZE_ERR_EID, ProjectedSize, ActualSize);
+        }
+        else
+        {
+            Status = CFE_SUCCESS;
+        }
+    }
+
+    return Status;
+}
+
+/*----------------------------------------------------------------
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+CFE_Status_t CFE_TBL_CodecGetFinalStatus(CFE_TBL_TxnState_t *Txn, const CFE_TBL_File_Hdr_t *HeaderPtr)
+{
+    uint32       ActualSize;
+    CFE_Status_t Status;
+
+    Status = CFE_TBL_GetEncodedTableSize(Txn, &ActualSize);
+
+    if (Status == CFE_SUCCESS)
+    {
+        /* Any Table load that starts beyond the first byte is a "partial load" */
+        /* But a file that starts with the first byte and ends before filling   */
+        /* the whole table is just considered "short".                          */
+        if (HeaderPtr->Offset > 0)
+        {
+            Status = CFE_TBL_WARN_PARTIAL_LOAD;
+        }
+        else if (HeaderPtr->NumBytes < ActualSize)
+        {
+            Status = CFE_TBL_WARN_SHORT_FILE;
+        }
+    }
+
+    return Status;
+}
+
+/*----------------------------------------------------------------
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+CFE_TBL_LoadBuff_t *CFE_TBL_AcquireCodecBuffer(CFE_TBL_RegistryRec_t *RegRecPtr)
+{
+    return CFE_TBL_AcquireGlobalLoadBuff(CFE_TBL_RegRecGetID(RegRecPtr));
+}
+
+/*----------------------------------------------------------------
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+void CFE_TBL_ReleaseCodecBuffer(CFE_TBL_LoadBuff_t *BufferPtr)
+{
+    CFE_TBL_LoadBuffSetFree(BufferPtr);
+}
+
+/*----------------------------------------------------------------
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+CFE_Status_t CFE_TBL_EncodeOutputData(CFE_TBL_TxnState_t *Txn, const CFE_TBL_LoadBuff_t *SourceBuffer,
+                                      CFE_TBL_LoadBuff_t *DestBuffer)
+{
+    CFE_Status_t                 ReturnCode;
+    EdsLib_Id_t                  EdsId;
+    int32                        EdsStatus;
+    EdsLib_DataTypeDB_TypeInfo_t TypeInfo;
+    CFE_TBL_RegistryRec_t *      RegRecPtr;
+
+    const EdsLib_DatabaseObject_t *EDS_DB;
+
+    EDS_DB    = CFE_Config_GetObjPointer(CFE_CONFIGID_MISSION_EDS_DB);
+    RegRecPtr = CFE_TBL_TxnRegRec(Txn);
+
+    EdsId = CFE_TBL_RegRecGetConfig(RegRecPtr)->EdsId;
+
+    EdsStatus = EdsLib_DataTypeDB_PackCompleteObject(EDS_DB, &EdsId, DestBuffer, SourceBuffer->BufferPtr,
+                                                     8 * CFE_PLATFORM_TBL_MAX_SNGL_TABLE_SIZE,
+                                                     CFE_TBL_RegRecGetSize(RegRecPtr));
+
+    if (EdsStatus == EDSLIB_SUCCESS)
+    {
+        EdsStatus = EdsLib_DataTypeDB_GetTypeInfo(EDS_DB, EdsId, &TypeInfo);
+        if (EdsStatus == EDSLIB_SUCCESS)
+        {
+            CFE_TBL_LoadBuffSetContentSize(DestBuffer, (TypeInfo.Size.Bits + 7) / 8);
+            ReturnCode = CFE_SUCCESS;
+        }
+        else
+        {
+            OS_printf("%s(): EdsLib_DataTypeDB_GetTypeInfo(): %d\n", __func__, (int)EdsStatus);
+            ReturnCode = CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
+        }
+    }
+    else
+    {
+        OS_printf("%s(): EdsLib_DataTypeDB_PackCompleteObject(): %d\n", __func__, (int)EdsStatus);
+        ReturnCode = CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
+    }
+
+    return ReturnCode;
+}
+
+/*----------------------------------------------------------------
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+CFE_Status_t CFE_TBL_DecodeInputData(CFE_TBL_TxnState_t *Txn, const CFE_TBL_LoadBuff_t *SourceBuffer,
+                                     CFE_TBL_LoadBuff_t *DestBuffer)
+{
+    CFE_Status_t                 ReturnCode;
+    EdsLib_Id_t                  EdsId;
+    int32                        EdsStatus;
+    EdsLib_DataTypeDB_TypeInfo_t TypeInfo;
+    CFE_TBL_RegistryRec_t *      RegRecPtr;
+
+    const EdsLib_DatabaseObject_t *EDS_DB;
+
+    EDS_DB    = CFE_Config_GetObjPointer(CFE_CONFIGID_MISSION_EDS_DB);
+    RegRecPtr = CFE_TBL_TxnRegRec(Txn);
+
+    EdsId = CFE_TBL_RegRecGetConfig(RegRecPtr)->EdsId;
+
+    EdsStatus = EdsLib_DataTypeDB_UnpackCompleteObject(EDS_DB, &EdsId, DestBuffer->BufferPtr, SourceBuffer->BufferPtr,
+                                                       CFE_TBL_RegRecGetSize(RegRecPtr),
+                                                       8 * CFE_PLATFORM_TBL_MAX_SNGL_TABLE_SIZE);
+
+    if (EdsStatus == EDSLIB_SUCCESS)
+    {
+        EdsStatus = EdsLib_DataTypeDB_GetTypeInfo(EDS_DB, EdsId, &TypeInfo);
+        if (EdsStatus == EDSLIB_SUCCESS)
+        {
+            CFE_TBL_LoadBuffSetContentSize(DestBuffer, TypeInfo.Size.Bytes);
+            ReturnCode = CFE_SUCCESS;
+        }
+        else
+        {
+            OS_printf("%s(): EdsLib_DataTypeDB_GetTypeInfo(): %d\n", __func__, (int)EdsStatus);
+            ReturnCode = CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
+        }
+    }
+    else
+    {
+        OS_printf("%s(): EdsLib_DataTypeDB_UnpackCompleteObject(): %d\n", __func__, (int)EdsStatus);
+        ReturnCode = CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
+    }
+
+    return ReturnCode;
+}

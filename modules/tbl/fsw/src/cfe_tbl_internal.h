@@ -47,6 +47,31 @@
 #define CFE_TBL_NOT_FOUND CFE_TBL_REGID_UNDEFINED
 #define CFE_TBL_NOT_OWNED CFE_ES_APPID_UNDEFINED
 
+/*
+ * Compatibility helpers: provide a bridge from the traditional table handles to the safer definition
+ *
+ * The external handle type (CFE_TBL_Handle_t) still exists only for the public API.  These wrappers
+ * are intended to provide a conversion to facilitate transition of apps to use the improved typedef.
+ *
+ * In the preferred mode, CFE_TBL_Handle_t (external) and CFE_TBL_HandleId_t (internal) are a direct
+ * typedef - so they are simply two different names for the same thing. (in the future this may be
+ * consolidated again back to a single typedef once transition in CFS apps has been accomplished).
+ *
+ * In backward-compatible mode, the CFE_TBL_Handle_t (external) type is a simple int16 as it has always
+ * been.  This will contain only the lower 16 bits of the full handle ID.  It is not as safe but
+ * this is fully transparent to apps because it is still a simple 16 bit integer.
+ */
+
+#ifdef CFE_OMIT_DEPRECATED_6_8
+/* Preferred versions (passthru/noop) */
+#define CFE_TBL_HANDLE_EXPORT(x) (x)
+#define CFE_TBL_HANDLE_IMPORT(x) (x)
+#else
+/* Backward compatible versions */
+#define CFE_TBL_HANDLE_EXPORT(x) ((CFE_TBL_Handle_t)(CFE_TBL_HandleID_AsInt(x) - CFE_TBL_HANDLE_BASE))
+#define CFE_TBL_HANDLE_IMPORT(x) CFE_TBL_HANDLEID_C(CFE_ResourceId_FromInteger((unsigned long)x + CFE_TBL_HANDLE_BASE))
+#endif
+
 /*****************************  Function Prototypes   **********************************/
 
 /*---------------------------------------------------------------------------------------*/
@@ -150,70 +175,6 @@ int32 CFE_TBL_GetWorkingBuffer(CFE_TBL_LoadBuff_t **WorkingBufferPtr, CFE_TBL_Re
 
 /*---------------------------------------------------------------------------------------*/
 /**
-** \brief Loads a table buffer with data from a specified file
-**
-** \par Description
-**        Locates the specified filename in the onboard filesystem
-**        and loads its contents into the specified working buffer.
-**
-** \par Assumptions, External Events, and Notes:
-**        -# This function assumes parameters have been verified.
-**
-** \param[in]  AppName          The name of the application loading the table.
-**
-** \param[in]  WorkingBufferPtr Pointer to a working buffer that is to be loaded
-**                              with the contents of the specified file
-**
-** \param[in]  RegRecPtr        Pointer to Table Registry record for table whose
-**                              buffer is to filled with data from the specified file
-**
-** \param[in]  Filename         Pointer to ASCII string containing full path and filename
-**                              of table image file to be loaded
-**
-** \retval #CFE_SUCCESS                      \copydoc CFE_SUCCESS
-** \retval #OS_INVALID_POINTER               \copydoc OS_INVALID_POINTER
-** \retval #OS_FS_ERR_PATH_TOO_LONG          \copydoc OS_FS_ERR_PATH_TOO_LONG
-** \retval #OS_FS_ERR_PATH_INVALID           \copydoc OS_FS_ERR_PATH_INVALID
-** \retval #OS_FS_ERR_NAME_TOO_LONG          \copydoc OS_FS_ERR_NAME_TOO_LONG
-** \retval #OS_ERR_NO_FREE_IDS               \copydoc OS_ERR_NO_FREE_IDS
-** \retval #OS_ERROR                         \copydoc OS_ERROR
-** \retval #CFE_TBL_ERR_FILE_TOO_LARGE       \copydoc CFE_TBL_ERR_FILE_TOO_LARGE
-** \retval #CFE_TBL_WARN_SHORT_FILE          \copydoc CFE_TBL_WARN_SHORT_FILE
-** \retval #CFE_TBL_WARN_PARTIAL_LOAD        \copydoc CFE_TBL_WARN_PARTIAL_LOAD
-** \retval #CFE_TBL_ERR_FILENAME_TOO_LONG    \copydoc CFE_TBL_ERR_FILENAME_TOO_LONG
-** \retval #CFE_TBL_ERR_FILE_FOR_WRONG_TABLE \copydoc CFE_TBL_ERR_FILE_FOR_WRONG_TABLE
-** \retval #CFE_TBL_ERR_NO_STD_HEADER        \copydoc CFE_TBL_ERR_NO_STD_HEADER
-** \retval #CFE_TBL_ERR_NO_TBL_HEADER        \copydoc CFE_TBL_ERR_NO_TBL_HEADER
-** \retval #CFE_TBL_ERR_BAD_CONTENT_ID       \copydoc CFE_TBL_ERR_BAD_CONTENT_ID
-** \retval #CFE_TBL_ERR_BAD_SUBTYPE_ID       \copydoc CFE_TBL_ERR_BAD_SUBTYPE_ID
-**
-*/
-int32 CFE_TBL_LoadFromFile(const char *AppName, CFE_TBL_LoadBuff_t *WorkingBufferPtr, CFE_TBL_RegistryRec_t *RegRecPtr,
-                           const char *Filename);
-
-/*---------------------------------------------------------------------------------------*/
-/**
- * \brief Loads a table buffer with data from a specified memory address
- *
- * \par Description
- *        Copies the data from the specified source address
- *        and loads contents into the specified working buffer.
- *
- * \par Assumptions, External Events, and Notes:
- *        -# This function assumes parameters have been verified.
- *
- * \param[inout]  WorkingBufferPtr Pointer to a working buffer that is to be loaded
- * \param[inout]  RegRecPtr        Pointer to Table Registry record
- * \param[in]     Address          Memory address to copy data from
- *
- * \returns CFE status code
- * \retval #CFE_SUCCESS                      \copydoc CFE_SUCCESS
- */
-CFE_Status_t CFE_TBL_LoadTableFromSourceAddress(CFE_TBL_LoadBuff_t *WorkingBufferPtr, CFE_TBL_RegistryRec_t *RegRecPtr,
-                                                const void *Address);
-
-/*---------------------------------------------------------------------------------------*/
-/**
 ** \brief Updates the active table buffer with contents of inactive buffer
 **
 ** \par Description
@@ -234,7 +195,7 @@ CFE_Status_t CFE_TBL_LoadTableFromSourceAddress(CFE_TBL_LoadBuff_t *WorkingBuffe
 **
 ** \retval #CFE_SUCCESS                     \copydoc CFE_SUCCESS
 */
-int32 CFE_TBL_UpdateInternal(CFE_TBL_Handle_t TblHandle, CFE_TBL_RegistryRec_t *RegRecPtr,
+int32 CFE_TBL_UpdateInternal(CFE_TBL_HandleId_t TblHandle, CFE_TBL_RegistryRec_t *RegRecPtr,
                              CFE_TBL_AccessDescriptor_t *AccessDescPtr);
 
 /*---------------------------------------------------------------------------------------*/
@@ -252,59 +213,6 @@ int32 CFE_TBL_UpdateInternal(CFE_TBL_Handle_t TblHandle, CFE_TBL_RegistryRec_t *
 ** \param[in]  RegRecPtr      Pointer to Table Registry Entry for table to be updated
 */
 void CFE_TBL_NotifyTblUsersOfUpdate(CFE_TBL_RegistryRec_t *RegRecPtr);
-
-/*---------------------------------------------------------------------------------------*/
-/**
-** \brief Reads Table File Headers
-**
-** \par Description
-**        Reads Table File Headers and performs rudimentary checks
-**        on header contents to ensure the acceptability of the
-**        file format.
-**
-** \par Assumptions, External Events, and Notes:
-**        -# FileDescriptor is assumed to be valid
-**
-** \param[in]  FileDescriptor    File Descriptor, as provided by OS_fopen
-**
-** \param[in, out]  StdFileHeaderPtr  Pointer to buffer to be filled with the contents
-**                                    of the file's standard cFE Header. *StdFileHeaderPtr is the contents of the
-**                                    standard cFE File Header
-**
-** \param[in, out]  TblFileHeaderPtr  Pointer to buffer to be filled with the contents
-**                                    of the file's standard cFE Table Header. *TblFileHeaderPtr is the contents of the
-**                                    standard cFE Table File Header
-**
-** \param[in]  LoadFilename      Pointer to character string containing full path
-**                               and filename of table image to be loaded
-**
-** \retval #CFE_SUCCESS                     \copydoc CFE_SUCCESS
-** \retval #CFE_TBL_ERR_NO_STD_HEADER       \copydoc CFE_TBL_ERR_NO_STD_HEADER
-** \retval #CFE_TBL_ERR_NO_TBL_HEADER       \copydoc CFE_TBL_ERR_NO_TBL_HEADER
-** \retval #CFE_TBL_ERR_BAD_CONTENT_ID      \copydoc CFE_TBL_ERR_BAD_CONTENT_ID
-** \retval #CFE_TBL_ERR_BAD_SUBTYPE_ID      \copydoc CFE_TBL_ERR_BAD_SUBTYPE_ID
-** \retval #CFE_TBL_ERR_BAD_SPACECRAFT_ID   \copydoc CFE_TBL_ERR_BAD_SPACECRAFT_ID
-** \retval #CFE_TBL_ERR_BAD_PROCESSOR_ID    \copydoc CFE_TBL_ERR_BAD_PROCESSOR_ID
-**
-*/
-int32 CFE_TBL_ReadHeaders(osal_id_t FileDescriptor, CFE_FS_Header_t *StdFileHeaderPtr,
-                          CFE_TBL_File_Hdr_t *TblFileHeaderPtr, const char *LoadFilename);
-
-/*---------------------------------------------------------------------------------------*/
-/**
-** \brief Byte swaps a CFE_TBL_File_Hdr_t structure
-**
-** \par Description
-**        Converts a big-endian version of a CFE_TBL_File_Hdr_t structure to
-**        a little-endian version and vice-versa.
-**
-** \par Assumptions, External Events, and Notes:
-**          None
-**
-** \param[in, out]  HdrPtr   Pointer to table header that needs to be swapped. *HdrPtr provides the swapped header
-**
-*/
-void CFE_TBL_ByteSwapTblHeader(CFE_TBL_File_Hdr_t *HdrPtr);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -367,22 +275,6 @@ void CFE_TBL_UpdateCriticalTblCDS(CFE_TBL_RegistryRec_t *RegRecPtr);
 **
 */
 int32 CFE_TBL_SendNotificationMsg(CFE_TBL_RegistryRec_t *RegRecPtr);
-
-/*---------------------------------------------------------------------------------------*/
-/**
-** \brief Performs a byte swap on a uint32 integer
-**
-** \par Description
-**        Converts a big-endian uint32 integer to a little-endian uint32 integer
-**        and vice-versa.
-**
-** \par Assumptions, External Events, and Notes:
-**          None
-**
-** \param[in, out]  Uint32ToSwapPtr Pointer to uint32 value to be swapped. *Uint32ToSwapPtr is the swapped uint32 value
-**
-*/
-void CFE_TBL_ByteSwapUint32(uint32 *Uint32ToSwapPtr);
 
 /*
  * Internal helper functions for Table Registry dump

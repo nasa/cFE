@@ -50,25 +50,15 @@ typedef struct
 } CFE_SB_FileWriteCallback_t;
 
 const int32 CFE_Platform_SB_Filter_Events[CFE_PLATFORM_EVS_MAX_EVENT_FILTERS] = {
-    CFE_PLATFORM_SB_FILTERED_EVENT1,
-    CFE_PLATFORM_SB_FILTERED_EVENT2,
-    CFE_PLATFORM_SB_FILTERED_EVENT3,
-    CFE_PLATFORM_SB_FILTERED_EVENT4,
-    CFE_PLATFORM_SB_FILTERED_EVENT5,
-    CFE_PLATFORM_SB_FILTERED_EVENT6,
-    CFE_PLATFORM_SB_FILTERED_EVENT7,
-    CFE_PLATFORM_SB_FILTERED_EVENT8,
+    CFE_PLATFORM_SB_FILTERED_EVENT1, CFE_PLATFORM_SB_FILTERED_EVENT2, CFE_PLATFORM_SB_FILTERED_EVENT3,
+    CFE_PLATFORM_SB_FILTERED_EVENT4, CFE_PLATFORM_SB_FILTERED_EVENT5, CFE_PLATFORM_SB_FILTERED_EVENT6,
+    CFE_PLATFORM_SB_FILTERED_EVENT7, CFE_PLATFORM_SB_FILTERED_EVENT8,
 };
 
 const int32 CFE_Platform_SB_Filter_Masks[CFE_PLATFORM_EVS_MAX_EVENT_FILTERS] = {
-    CFE_PLATFORM_SB_FILTER_MASK1,
-    CFE_PLATFORM_SB_FILTER_MASK2, 
-    CFE_PLATFORM_SB_FILTER_MASK3,
-    CFE_PLATFORM_SB_FILTER_MASK4,
-    CFE_PLATFORM_SB_FILTER_MASK5,
-    CFE_PLATFORM_SB_FILTER_MASK6,
-    CFE_PLATFORM_SB_FILTER_MASK7,
-    CFE_PLATFORM_SB_FILTER_MASK8,
+    CFE_PLATFORM_SB_FILTER_MASK1, CFE_PLATFORM_SB_FILTER_MASK2, CFE_PLATFORM_SB_FILTER_MASK3,
+    CFE_PLATFORM_SB_FILTER_MASK4, CFE_PLATFORM_SB_FILTER_MASK5, CFE_PLATFORM_SB_FILTER_MASK6,
+    CFE_PLATFORM_SB_FILTER_MASK7, CFE_PLATFORM_SB_FILTER_MASK8,
 };
 
 /*----------------------------------------------------------------
@@ -149,11 +139,12 @@ int32 CFE_SB_AppInit(void)
 
     /* Process the platform cfg file events to be filtered */
     int32 CurrEvent, CurrMask;
-    for (int32 i = 0; i < CFE_PLATFORM_EVS_MAX_EVENT_FILTERS; i++) {
+    for (int32 i = 0; i < CFE_PLATFORM_EVS_MAX_EVENT_FILTERS; i++)
+    {
         if (CFE_Platform_SB_Filter_Events[i] != 0)
         {
-            CurrEvent = CFE_Platform_SB_Filter_Events[i];
-            CurrMask = CFE_Platform_SB_Filter_Masks[i];
+            CurrEvent                                                 = CFE_Platform_SB_Filter_Events[i];
+            CurrMask                                                  = CFE_Platform_SB_Filter_Masks[i];
             CFE_SB_Global.EventFilters[CfgFileEventsToFilter].EventID = CurrEvent;
             CFE_SB_Global.EventFilters[CfgFileEventsToFilter].Mask    = CurrMask;
             CfgFileEventsToFilter++;
@@ -239,10 +230,9 @@ int32 CFE_SB_AppInit(void)
         return Status;
     }
 
-    CFE_Config_GetVersionString(VersionString, CFE_CFG_MAX_VERSION_STR_LEN, "cFE",
-        CFE_SRC_VERSION, CFE_BUILD_CODENAME, CFE_LAST_OFFICIAL);
-    Status =
-        CFE_EVS_SendEvent(CFE_SB_INIT_EID, CFE_EVS_EventType_INFORMATION, "cFE SB Initialized: %s", VersionString);
+    CFE_Config_GetVersionString(VersionString, CFE_CFG_MAX_VERSION_STR_LEN, "cFE", CFE_SRC_VERSION, CFE_BUILD_CODENAME,
+                                CFE_LAST_OFFICIAL);
+    Status = CFE_EVS_SendEvent(CFE_SB_INIT_EID, CFE_EVS_EventType_INFORMATION, "cFE SB Initialized: %s", VersionString);
     if (Status != CFE_SUCCESS)
     {
         CFE_ES_WriteToSysLog("%s: Error sending init event:RC=0x%08X\n", __func__, (unsigned int)Status);
@@ -261,8 +251,8 @@ int32 CFE_SB_AppInit(void)
 int32 CFE_SB_NoopCmd(const CFE_SB_NoopCmd_t *data)
 {
     char VersionString[CFE_CFG_MAX_VERSION_STR_LEN];
-    CFE_Config_GetVersionString(VersionString, CFE_CFG_MAX_VERSION_STR_LEN, "cFE",
-        CFE_SRC_VERSION, CFE_BUILD_CODENAME, CFE_LAST_OFFICIAL);
+    CFE_Config_GetVersionString(VersionString, CFE_CFG_MAX_VERSION_STR_LEN, "cFE", CFE_SRC_VERSION, CFE_BUILD_CODENAME,
+                                CFE_LAST_OFFICIAL);
     CFE_EVS_SendEvent(CFE_SB_CMD0_RCVD_EID, CFE_EVS_EventType_INFORMATION, "No-op Cmd Rcvd: %s", VersionString);
     CFE_SB_Global.HKTlmMsg.Payload.CommandCounter++;
 
@@ -1090,7 +1080,7 @@ void CFE_SB_SendRouteSub(CFE_SBR_RouteId_t RouteId, void *ArgPtr)
             CFE_SB_Global.PrevSubMsg.Payload.Entries++;
 
             /* send pkt if full */
-            if (CFE_SB_Global.PrevSubMsg.Payload.Entries >= CFE_SB_SUB_ENTRIES_PER_PKT)
+            if (CFE_SB_Global.PrevSubMsg.Payload.Entries >= CFE_MISSION_SB_SUB_ENTRIES_PER_PKT)
             {
                 CFE_SB_UnlockSharedData(__func__, __LINE__);
                 status = CFE_SB_TransmitMsg(CFE_MSG_PTR(CFE_SB_Global.PrevSubMsg.TelemetryHeader), true);

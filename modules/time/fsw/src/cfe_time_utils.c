@@ -387,26 +387,21 @@ void CFE_TIME_GetHkData(const CFE_TIME_Reference_t *Reference)
     /*
     ** Current MET and STCF time values...
     */
-    CFE_TIME_Global.HkPacket.Payload.SecondsMET = Reference->CurrentMET.Seconds;
-    CFE_TIME_Global.HkPacket.Payload.SubsecsMET = Reference->CurrentMET.Subseconds;
-
-    CFE_TIME_Global.HkPacket.Payload.SecondsSTCF = Reference->AtToneSTCF.Seconds;
-    CFE_TIME_Global.HkPacket.Payload.SubsecsSTCF = Reference->AtToneSTCF.Subseconds;
+    CFE_TIME_Global.HkPacket.Payload.MET  = Reference->CurrentMET;
+    CFE_TIME_Global.HkPacket.Payload.STCF = Reference->AtToneSTCF;
 
 /*
 ** 1Hz STCF adjustment values (server only)...
 */
 #if (CFE_PLATFORM_TIME_CFG_SERVER == true)
-    CFE_TIME_Global.HkPacket.Payload.Seconds1HzAdj = CFE_TIME_Global.OneHzAdjust.Seconds;
-    CFE_TIME_Global.HkPacket.Payload.Subsecs1HzAdj = CFE_TIME_Global.OneHzAdjust.Subseconds;
+    CFE_TIME_Global.HkPacket.Payload.AdjustmentFactor = CFE_TIME_Global.OneHzAdjust;
 #endif
 
 /*
 ** Time at tone delay values (client only)...
 */
 #if (CFE_PLATFORM_TIME_CFG_CLIENT == true)
-    CFE_TIME_Global.HkPacket.Payload.SecondsDelay = Reference->AtToneDelay.Seconds;
-    CFE_TIME_Global.HkPacket.Payload.SubsecsDelay = Reference->AtToneDelay.Subseconds;
+    CFE_TIME_Global.HkPacket.Payload.AdjustmentFactor = Reference->AtToneDelay;
 #endif
 }
 

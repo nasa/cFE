@@ -21,16 +21,9 @@
  *
  *  Purpose:
  *  cFE Executive Services (SB) Command and Telemetry packet definition file.
- *
- *  References:
- *     Flight Software Branch C Coding Standard Version 1.0a
- *     cFE Flight Software Application Developers Guide
- *
- *  Notes:
- *
  */
-#ifndef CFE_SB_MSGSTRUCT_H
-#define CFE_SB_MSGSTRUCT_H
+#ifndef DEFAULT_CFE_SB_MSGSTRUCT_H
+#define DEFAULT_CFE_SB_MSGSTRUCT_H
 
 /************************************************************************
  * Includes

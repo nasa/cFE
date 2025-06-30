@@ -30,6 +30,7 @@
 */
 #include "common_types.h"
 #include "cfe_error.h"
+#include "cfe_tbl.h"
 #include "cfe_platform_cfg.h"
 #include "cfe_resourceid.h"
 
@@ -38,6 +39,7 @@
 
 #include "cfe_tbl_resource.h"
 #include "cfe_tbl_handlelink.h"
+#include "cfe_tbl_transaction.h"
 
 /*************************************************************************/
 
@@ -51,10 +53,11 @@
 */
 struct CFE_TBL_AccessDescriptor
 {
+    CFE_TBL_HandleId_t HandleId;
+
     CFE_ES_AppId_t       AppId;       /**< \brief Application ID to verify access */
     CFE_TBL_RegId_t      RegIndex;    /**< \brief Index into Table Registry (a.k.a. - Global Table #) */
     CFE_TBL_HandleLink_t Link;        /**< \brief Linkage into list of access descriptors for the table */
-    bool                 UsedFlag;    /**< \brief Indicates whether this descriptor is being used or not  */
     bool                 LockFlag;    /**< \brief Indicates whether thread is currently accessing table data */
     bool                 Updated;     /**< \brief Indicates table has been updated since last GetAddress call */
     CFE_TBL_LoadBuffId_t BufferIndex; /**< \brief Index of buffer currently being used */
@@ -76,7 +79,7 @@ typedef void (*const CFE_TBL_AccessDescFunc_t)(CFE_TBL_AccessDescriptor_t *AccDe
  *
  *     ~~~  ACCESS DESCRIPTOR TABLE ACCESSORS ~~~
  *
- * These operate on CFE_TBL_AccessDescriptor_t* and CFE_TBL_Handle_t types
+ * These operate on CFE_TBL_AccessDescriptor_t* and CFE_TBL_HandleId_t types
  *
  * ---------------------------------------------------------------------------------------
  */
@@ -93,7 +96,7 @@ typedef void (*const CFE_TBL_AccessDescFunc_t)(CFE_TBL_AccessDescriptor_t *AccDe
  * @returns    #CFE_SUCCESS if conversion successful. @copydoc CFE_SUCCESS
  *             #CFE_ES_ERR_RESOURCEID_NOT_VALID if ID is outside valid range
  */
-CFE_Status_t CFE_TBL_Handle_ToIndex(CFE_TBL_Handle_t TblHandle, uint32 *Idx);
+CFE_Status_t CFE_TBL_Handle_ToIndex(CFE_TBL_HandleId_t TblHandle, uint32 *Idx);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -121,7 +124,7 @@ CFE_Status_t CFE_TBL_Handle_ToIndex(CFE_TBL_Handle_t TblHandle, uint32 *Idx);
  * @param[in]   TblHandle   the table handle to locate
  * @return pointer to decriptor table entry for the given table handle, or NULL if out of range
  */
-CFE_TBL_AccessDescriptor_t *CFE_TBL_LocateAccDescByHandle(CFE_TBL_Handle_t TblHandle);
+CFE_TBL_AccessDescriptor_t *CFE_TBL_LocateAccDescByHandle(CFE_TBL_HandleId_t TblHandle);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -135,7 +138,10 @@ CFE_TBL_AccessDescriptor_t *CFE_TBL_LocateAccDescByHandle(CFE_TBL_Handle_t TblHa
  * @param[in]   AccDescPtr   pointer to access descriptor
  * @returns TblHandle of entry
  */
-CFE_TBL_Handle_t CFE_TBL_AccDescGetHandle(const CFE_TBL_AccessDescriptor_t *AccDescPtr);
+static inline CFE_TBL_HandleId_t CFE_TBL_AccDescGetHandle(const CFE_TBL_AccessDescriptor_t *AccDescPtr)
+{
+    return AccDescPtr->HandleId;
+}
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -161,9 +167,9 @@ CFE_TBL_Handle_t CFE_TBL_AccDescGetHandle(const CFE_TBL_AccessDescriptor_t *AccD
  * @param[in]   TblHandle       The expected table handle to verify
  * @returns true if the descriptor entry matches the given table handle
  */
-static inline bool CFE_TBL_AccDescIsMatch(const CFE_TBL_AccessDescriptor_t *AccDescPtr, CFE_TBL_Handle_t TblHandle)
+static inline bool CFE_TBL_AccDescIsMatch(const CFE_TBL_AccessDescriptor_t *AccDescPtr, CFE_TBL_HandleId_t TblHandle)
 {
-    return (AccDescPtr != NULL && AccDescPtr->UsedFlag);
+    return (AccDescPtr != NULL && CFE_TBL_HandleID_IsEqual(AccDescPtr->HandleId, TblHandle));
 }
 
 /*---------------------------------------------------------------------------------------*/
@@ -183,7 +189,25 @@ static inline bool CFE_TBL_AccDescIsMatch(const CFE_TBL_AccessDescriptor_t *AccD
  */
 static inline bool CFE_TBL_AccDescIsUsed(const CFE_TBL_AccessDescriptor_t *AccDescPtr)
 {
-    return AccDescPtr->UsedFlag;
+    return (CFE_TBL_HandleID_IsDefined(AccDescPtr->HandleId));
+}
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Marks an access descriptor entry as in use (not avaliable)
+ *
+ * This sets the internal field(s) within this entry, and marks
+ * it as being associated with the given handle ID.
+ *
+ * @note This internal helper function must only be used on record pointers
+ * that are known to refer to an actual table location (i.e. non-null).
+ *
+ * @param[in]   AccDescPtr   pointer to descriptor entry
+ * @param[in]   PendingId    the ID of this entry that will be set
+ */
+static inline void CFE_TBL_AccDescSetUsed(CFE_TBL_AccessDescriptor_t *AccDescPtr, CFE_ResourceId_t PendingId)
+{
+    AccDescPtr->HandleId = CFE_TBL_HANDLEID_C(PendingId);
 }
 
 /*---------------------------------------------------------------------------------------*/
@@ -200,9 +224,31 @@ static inline bool CFE_TBL_AccDescIsUsed(const CFE_TBL_AccessDescriptor_t *AccDe
  */
 static inline void CFE_TBL_AccDescSetFree(CFE_TBL_AccessDescriptor_t *AccDescPtr)
 {
-    AccDescPtr->UsedFlag = false;
+    AccDescPtr->HandleId = CFE_TBL_HANDLEID_UNDEFINED;
     AccDescPtr->AppId    = CFE_ES_APPID_UNDEFINED;
 }
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Determine the next ID to use for a table handle
+ *
+ * Obtains an ID value that is usable for a new access descriptor.  If no descriptor
+ * result entries are available, then UNDEFINED is returned.
+ *
+ * @returns ID to use for next result, or UNDEFINED if no slots available
+ */
+CFE_ResourceId_t CFE_TBL_GetNextTableHandle(void);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * Test if a slot corresponding to a pending ID is used
+ *
+ * This is an internal helper function for CFE_ResourceId_FindNext(), and not
+ * typically called directly. It is prototyped here for unit testing.
+ *
+ * @returns True if used, False if available
+ */
+bool CFE_TBL_CheckAccessDescriptorSlotUsed(CFE_ResourceId_t CheckId);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -217,5 +263,46 @@ static inline void CFE_TBL_AccDescSetFree(CFE_TBL_AccessDescriptor_t *AccDescPtr
 ** \param[out]  AccessDescPtr         Pointer to Access Descriptor to initialize
 */
 void CFE_TBL_InitAccessDescriptor(CFE_TBL_AccessDescriptor_t *AccessDescPtr);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * \brief Locates a free Access Descriptor in the Table Handles Array.
+ *
+ * \par Description
+ *        Locates a free Access Descriptor in the Table Handles Array.
+ *
+ *        If successful, the internal pointer will be set to the newly allocated
+ *        access descriptor.  The accessor functions CFE_TBL_TxnAccDesc() and
+ *        CFE_TBL_TxnHandle() may be used to retrieve the pointer and handle,
+ *        respectively.
+ *
+ * \par Assumptions, External Events, and Notes:
+ *        Note: This function assumes the registry has been locked.
+ *        No association is made between the accessor and the registry object here.  The
+ *        association is made via a separate call.  This simply finds an open entry.
+ *
+ * \param[inout] Txn The transaction object to operate on
+ *
+ * \returns CFE_SUCCESS normally, or relevent CFE status code
+ * \retval #CFE_SUCCESS \copydoc CFE_SUCCESS
+ */
+CFE_Status_t CFE_TBL_TxnAllocateAccDesc(CFE_TBL_TxnState_t *Txn);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * \brief Releases the Access Descriptor.
+ *
+ * \par Description
+ *        Frees the referenced Access Descriptor and updates all references
+ *
+ *        If successful, the access descriptor will be returned to the pool
+ *        for future use
+ *
+ * \par Assumptions, External Events, and Notes:
+ *        Note: This function assumes the registry has been locked.
+ *
+ * \param[inout] Txn The transaction object to operate on
+ */
+void CFE_TBL_TxnReleaseAccDesc(CFE_TBL_TxnState_t *Txn);
 
 #endif /* CFE_TBL_ACCDESC_H */

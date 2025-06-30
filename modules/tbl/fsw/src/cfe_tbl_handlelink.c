@@ -20,15 +20,12 @@
  * @file
  *
  * Implementation of table services handle link methods
- *
- *  References:
- *     Flight Software Branch C Coding Standard Version 1.0a
- *     cFE Flight Software Application Developers Guide
  */
 
 /*
 ** Required header files...
 */
+#include "cfe_tbl.h"
 #include "cfe_tbl_handlelink.h"
 
 /*----------------------------------------------------------------
@@ -39,8 +36,8 @@
  *-----------------------------------------------------------------*/
 void CFE_TBL_HandleLinkInit(CFE_TBL_HandleLink_t *LinkPtr)
 {
-    LinkPtr->Prev = CFE_TBL_END_OF_LIST;
-    LinkPtr->Next = CFE_TBL_END_OF_LIST;
+    LinkPtr->Prev = CFE_TBL_HANDLEID_UNDEFINED;
+    LinkPtr->Next = CFE_TBL_HANDLEID_UNDEFINED;
 }
 
 /*----------------------------------------------------------------
@@ -51,5 +48,5 @@ void CFE_TBL_HandleLinkInit(CFE_TBL_HandleLink_t *LinkPtr)
  *-----------------------------------------------------------------*/
 bool CFE_TBL_HandleLinkIsAttached(CFE_TBL_HandleLink_t *LinkPtr)
 {
-    return (LinkPtr->Next != CFE_TBL_END_OF_LIST);
+    return (CFE_TBL_HandleID_IsDefined(LinkPtr->Next));
 }

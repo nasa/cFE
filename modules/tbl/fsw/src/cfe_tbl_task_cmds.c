@@ -78,11 +78,8 @@ CFE_Status_t CFE_TBL_TranslateCmdProcRet(CFE_TBL_CmdProcRet_t ReturnCode)
 CFE_Status_t CFE_TBL_SendHkCmd(const CFE_TBL_SendHkCmd_t *data)
 {
     int32                  Status;
-    int32                  OsStatus;
     uint32                 i;
     CFE_TBL_DumpControl_t *DumpCtrlPtr;
-    CFE_TIME_SysTime_t     DumpTime;
-    osal_id_t              FileDescriptor;
 
     /*
     ** Collect housekeeping data from Table Services
@@ -102,7 +99,7 @@ CFE_Status_t CFE_TBL_SendHkCmd(const CFE_TBL_SendHkCmd_t *data)
     }
 
     /* If a table's registry entry has been requested for telemetry, then pack it and send it */
-    if (CFE_TBL_REGID_IS_VALID(CFE_TBL_Global.HkTlmTblRegIndex))
+    if (CFE_TBL_REGID_IS_VALID(CFE_TBL_Global.HkTlmTblRegId))
     {
         CFE_TBL_GetTblRegData();
 
@@ -113,7 +110,7 @@ CFE_Status_t CFE_TBL_SendHkCmd(const CFE_TBL_SendHkCmd_t *data)
         CFE_SB_TransmitMsg(CFE_MSG_PTR(CFE_TBL_Global.TblRegPacket.TelemetryHeader), true);
 
         /* Once the data has been sent, clear the index so that we don't send it again and again */
-        CFE_TBL_Global.HkTlmTblRegIndex = CFE_TBL_NOT_FOUND;
+        CFE_TBL_Global.HkTlmTblRegId = CFE_TBL_REGID_UNDEFINED;
     }
 
     /* Check to see if there are any dump-only table dumps pending */
@@ -123,36 +120,7 @@ CFE_Status_t CFE_TBL_SendHkCmd(const CFE_TBL_SendHkCmd_t *data)
 
         if (CFE_TBL_DumpCtrlBlockIsUsed(DumpCtrlPtr) && DumpCtrlPtr->State == CFE_TBL_DUMP_PERFORMED)
         {
-            Status = CFE_TBL_DumpToFile(DumpCtrlPtr->DumpBufferPtr->DataSource, DumpCtrlPtr->TableName,
-                                        DumpCtrlPtr->DumpBufferPtr->BufferPtr, DumpCtrlPtr->Size);
-
-            /* If dump file was successfully written, update the file header so that the timestamp */
-            /* is the time of the actual capturing of the data, NOT the time when it was written to the file */
-            if (Status == CFE_TBL_CmdProcRet_INC_CMD_CTR)
-            {
-                DumpTime = DumpCtrlPtr->DumpBufferPtr->FileTime;
-
-                OsStatus = OS_OpenCreate(&FileDescriptor, DumpCtrlPtr->DumpBufferPtr->DataSource, OS_FILE_FLAG_NONE,
-                                         OS_READ_WRITE);
-
-                if (OsStatus == OS_SUCCESS)
-                {
-                    Status = CFE_FS_SetTimestamp(FileDescriptor, DumpTime);
-
-                    if (Status != CFE_SUCCESS)
-                    {
-                        CFE_ES_WriteToSysLog("%s: Unable to update timestamp in dump file '%s'\n", __func__,
-                                             DumpCtrlPtr->DumpBufferPtr->DataSource);
-                    }
-
-                    OS_close(FileDescriptor);
-                }
-                else
-                {
-                    CFE_ES_WriteToSysLog("%s: Unable to open dump file '%s' to update timestamp\n", __func__,
-                                         DumpCtrlPtr->DumpBufferPtr->DataSource);
-                }
-            }
+            Status = CFE_TBL_WriteSnapshotToFile(DumpCtrlPtr);
 
             /* Free the shared working buffer */
             CFE_TBL_LoadBuffSetFree(DumpCtrlPtr->DumpBufferPtr);
@@ -197,7 +165,7 @@ void CFE_TBL_GetHkData(void)
         {
             ++Count;
 
-            if (CFE_TBL_RegRecIsLoadPending(RegRecPtr))
+            if (CFE_TBL_RegRecIsLoadInProgress(RegRecPtr))
             {
                 CFE_TBL_Global.HkPacket.Payload.NumLoadPending++;
             }
@@ -272,21 +240,17 @@ void CFE_TBL_GetHkData(void)
     CFE_TBL_Global.HkPacket.Payload.FailedValCounter  = CFE_TBL_Global.FailedValCounter;
     CFE_TBL_Global.HkPacket.Payload.NumValRequests    = CFE_TBL_Global.NumValRequests;
 
-    /* Validate the index of the last table updated before using it */
-    if (CFE_TBL_REGID_IS_VALID(CFE_TBL_Global.LastTblUpdated))
+    RegRecPtr = CFE_TBL_LocateRegRecByID(CFE_TBL_Global.LastTblUpdated);
+
+    /* Check to make sure the Registry Entry is still valid */
+    if (CFE_TBL_RegRecIsMatch(RegRecPtr, CFE_TBL_Global.LastTblUpdated))
     {
-        RegRecPtr = CFE_TBL_LocateRegRecByID(CFE_TBL_Global.LastTblUpdated);
+        /* Get the time at the last table update */
+        CFE_TBL_Global.HkPacket.Payload.LastUpdateTime = CFE_TBL_RegRecGetLastUpdateTime(RegRecPtr);
 
-        /* Check to make sure the Registry Entry is still valid */
-        if (CFE_TBL_RegRecIsUsed(RegRecPtr))
-        {
-            /* Get the time at the last table update */
-            CFE_TBL_Global.HkPacket.Payload.LastUpdateTime = CFE_TBL_RegRecGetLastUpdateTime(RegRecPtr);
-
-            /* Get the table name used for the last table update */
-            CFE_SB_MessageStringSet(CFE_TBL_Global.HkPacket.Payload.LastUpdatedTable, CFE_TBL_RegRecGetName(RegRecPtr),
-                                    sizeof(CFE_TBL_Global.HkPacket.Payload.LastUpdatedTable), -1);
-        }
+        /* Get the table name used for the last table update */
+        CFE_SB_MessageStringSet(CFE_TBL_Global.HkPacket.Payload.LastUpdatedTable, CFE_TBL_RegRecGetName(RegRecPtr),
+                                sizeof(CFE_TBL_Global.HkPacket.Payload.LastUpdatedTable), -1);
     }
 }
 
@@ -301,8 +265,10 @@ void CFE_TBL_GetTblRegData(void)
     CFE_TBL_RegistryRec_t *RegRecPtr;
     CFE_TBL_LoadBuff_t *   BuffPtr;
 
-    RegRecPtr = CFE_TBL_LocateRegRecByID(CFE_TBL_Global.HkTlmTblRegIndex);
-    if (CFE_TBL_RegRecIsMatch(RegRecPtr, CFE_TBL_Global.HkTlmTblRegIndex))
+    CFE_TBL_LockRegistry();
+
+    RegRecPtr = CFE_TBL_LocateRegRecByID(CFE_TBL_Global.HkTlmTblRegId);
+    if (CFE_TBL_RegRecIsMatch(RegRecPtr, CFE_TBL_Global.HkTlmTblRegId))
     {
         CFE_TBL_Global.TblRegPacket.Payload.Size = CFE_ES_MEMOFFSET_C(CFE_TBL_RegRecGetSize(RegRecPtr));
 
@@ -311,9 +277,10 @@ void CFE_TBL_GetTblRegData(void)
         /* The active buffer may be NULL if the table has never been loaded */
         if (BuffPtr != NULL)
         {
-            CFE_TBL_Global.TblRegPacket.Payload.ActiveBufferAddr = CFE_ES_MEMADDRESS_C(BuffPtr->BufferPtr);
-            CFE_TBL_Global.TblRegPacket.Payload.FileTime         = BuffPtr->FileTime;
-            CFE_TBL_Global.TblRegPacket.Payload.Crc              = BuffPtr->Crc;
+            CFE_TBL_Global.TblRegPacket.Payload.ActiveBufferAddr =
+                CFE_ES_MEMADDRESS_C(CFE_TBL_LoadBuffGetReadPointer(BuffPtr));
+            CFE_TBL_Global.TblRegPacket.Payload.FileTime = BuffPtr->FileTime;
+            CFE_TBL_Global.TblRegPacket.Payload.Crc      = BuffPtr->Crc;
         }
         else
         {
@@ -325,7 +292,8 @@ void CFE_TBL_GetTblRegData(void)
         /* the inactive buffer is typically NULL in a single-buffer table */
         if (BuffPtr != NULL)
         {
-            CFE_TBL_Global.TblRegPacket.Payload.InactiveBufferAddr = CFE_ES_MEMADDRESS_C(BuffPtr->BufferPtr);
+            CFE_TBL_Global.TblRegPacket.Payload.InactiveBufferAddr =
+                CFE_ES_MEMADDRESS_C(CFE_TBL_LoadBuffGetReadPointer(BuffPtr));
         }
         else
         {
@@ -333,10 +301,10 @@ void CFE_TBL_GetTblRegData(void)
         }
 
         CFE_TBL_Global.TblRegPacket.Payload.ValidationFuncPtr =
-            CFE_ES_MEMADDRESS_C(CFE_TBL_RegRecGetConfig(RegRecPtr)->ValidationFuncPtr);
+            CFE_ES_MEMADDRESS_C(CFE_TBL_RegRecGetValidationFunc(RegRecPtr));
         CFE_TBL_Global.TblRegPacket.Payload.TimeOfLastUpdate = CFE_TBL_RegRecGetLastUpdateTime(RegRecPtr);
         CFE_TBL_Global.TblRegPacket.Payload.TableLoadedOnce  = CFE_TBL_RegRecIsTableLoaded(RegRecPtr);
-        CFE_TBL_Global.TblRegPacket.Payload.LoadPending      = CFE_TBL_RegRecIsLoadPending(RegRecPtr);
+        CFE_TBL_Global.TblRegPacket.Payload.LoadPending      = CFE_TBL_RegRecIsPendingActivation(RegRecPtr);
         CFE_TBL_Global.TblRegPacket.Payload.DumpOnly         = CFE_TBL_RegRecGetConfig(RegRecPtr)->DumpOnly;
         CFE_TBL_Global.TblRegPacket.Payload.DoubleBuffered   = CFE_TBL_RegRecGetConfig(RegRecPtr)->DoubleBuffered;
         CFE_TBL_Global.TblRegPacket.Payload.Critical         = CFE_TBL_RegRecGetConfig(RegRecPtr)->Critical;
@@ -349,6 +317,8 @@ void CFE_TBL_GetTblRegData(void)
         CFE_ES_GetAppName(CFE_TBL_Global.TblRegPacket.Payload.OwnerAppName, RegRecPtr->OwnerAppId,
                           sizeof(CFE_TBL_Global.TblRegPacket.Payload.OwnerAppName));
     }
+
+    CFE_TBL_UnlockRegistry();
 }
 
 /*----------------------------------------------------------------
@@ -408,181 +378,72 @@ CFE_Status_t CFE_TBL_ResetCountersCmd(const CFE_TBL_ResetCountersCmd_t *data)
 CFE_Status_t CFE_TBL_LoadCmd(const CFE_TBL_LoadCmd_t *data)
 {
     CFE_TBL_CmdProcRet_t             CmdProcRet;
-    const CFE_TBL_LoadCmd_Payload_t *CmdPtr = &data->Payload;
-    CFE_FS_Header_t                  StdFileHeader;
-    CFE_TBL_File_Hdr_t               TblFileHeader;
-    osal_id_t                        FileDescriptor = OS_OBJECT_ID_UNDEFINED;
-    int32                            Status;
-    int32                            OsStatus;
-    CFE_TBL_RegistryRec_t *          RegRecPtr;
-    CFE_TBL_LoadBuff_t *             WorkingBufferPtr;
+    const CFE_TBL_LoadCmd_Payload_t *CmdPtr;
+    CFE_TBL_CombinedFileHdr_t        Header;
+    osal_id_t                        FileDescriptor;
+    CFE_Status_t                     Status;
     char                             LoadFilename[OS_MAX_PATH_LEN];
-    uint8                            ExtraByte;
     CFE_TBL_TxnState_t               Txn;
 
+    /* just in case, clear out the header */
+    memset(&Header, 0, sizeof(Header));
+
     CmdProcRet = CFE_TBL_CmdProcRet_INC_ERR_CTR; /* Assume failure */
+    CmdPtr     = &data->Payload;
 
     /* Make sure all strings are null terminated before attempting to process them */
     CFE_SB_MessageStringGet(LoadFilename, (char *)CmdPtr->LoadFilename, NULL, sizeof(LoadFilename),
                             sizeof(CmdPtr->LoadFilename));
 
+    CFE_TBL_TxnInit(&Txn, true);
+
     /* Try to open the specified table file */
-    OsStatus = OS_OpenCreate(&FileDescriptor, LoadFilename, OS_FILE_FLAG_NONE, OS_READ_ONLY);
-
-    if (OsStatus == OS_SUCCESS)
+    Status = CFE_TBL_TxnOpenTableLoadFile(&Txn, LoadFilename, &FileDescriptor, &Header);
+    if (Status == CFE_SUCCESS)
     {
-        Status = CFE_TBL_ReadHeaders(FileDescriptor, &StdFileHeader, &TblFileHeader, &LoadFilename[0]);
-
-        if (Status == CFE_SUCCESS)
-        {
-            /* Locate specified table in registry */
-            Status = CFE_TBL_TxnStartFromName(&Txn, TblFileHeader.TableName, CFE_TBL_TxnContext_UNDEFINED);
-            if (Status != CFE_SUCCESS)
-            {
-                CFE_EVS_SendEvent(CFE_TBL_NO_SUCH_TABLE_ERR_EID, CFE_EVS_EventType_ERROR,
-                                  "Unable to locate '%s' in Table Registry", TblFileHeader.TableName);
-            }
-            else
-            {
-                RegRecPtr = CFE_TBL_TxnRegRec(&Txn);
-                CFE_TBL_TxnFinish(&Txn);
-
-                if (CFE_TBL_RegRecGetConfig(RegRecPtr)->DumpOnly)
-                {
-                    CFE_EVS_SendEvent(CFE_TBL_LOADING_A_DUMP_ONLY_ERR_EID, CFE_EVS_EventType_ERROR,
-                                      "Attempted to load DUMP-ONLY table '%s' from '%s'", TblFileHeader.TableName,
-                                      LoadFilename);
-                }
-                else if (CFE_TBL_RegRecIsLoadPending(RegRecPtr))
-                {
-                    CFE_EVS_SendEvent(CFE_TBL_LOADING_PENDING_ERR_EID, CFE_EVS_EventType_ERROR,
-                                      "Attempted to load table '%s' while previous load is still pending",
-                                      TblFileHeader.TableName);
-                }
-                else
-                {
-                    /* Make sure of the following:                                               */
-                    /*    1) If table has not been loaded previously, then make sure the current */
-                    /*       load starts with the first byte                                     */
-                    /*    2) The number of bytes to load is greater than zero                    */
-                    /*    3) The offset plus the number of bytes does not exceed the table size  */
-                    if ((CFE_TBL_RegRecIsTableLoaded(RegRecPtr) || (TblFileHeader.Offset == 0)) &&
-                        (TblFileHeader.NumBytes > 0) &&
-                        ((TblFileHeader.NumBytes + TblFileHeader.Offset) <= CFE_TBL_RegRecGetSize(RegRecPtr)))
-                    {
-                        /* Get a working buffer, either a free one or one allocated with previous load command */
-                        Status = CFE_TBL_GetWorkingBuffer(&WorkingBufferPtr, RegRecPtr);
-
-                        if (Status == CFE_SUCCESS)
-                        {
-                            /* Copy data from file into working buffer */
-                            OsStatus =
-                                OS_read(FileDescriptor, ((uint8 *)WorkingBufferPtr->BufferPtr) + TblFileHeader.Offset,
-                                        TblFileHeader.NumBytes);
-
-                            /* Make sure the appropriate number of bytes were read */
-                            if ((long)OsStatus == TblFileHeader.NumBytes)
-                            {
-                                /* Check to ensure the file does not have any extra data at the end */
-                                OsStatus = OS_read(FileDescriptor, &ExtraByte, 1);
-
-                                /* If another byte was successfully read, then file contains more data than header
-                                 * claims */
-                                if ((long)OsStatus == 1)
-                                {
-                                    CFE_EVS_SendEvent(CFE_TBL_FILE_TOO_BIG_ERR_EID, CFE_EVS_EventType_ERROR,
-                                                      "File '%s' has more data than Tbl Hdr indicates (%d)",
-                                                      LoadFilename, (int)TblFileHeader.NumBytes);
-                                }
-                                else /* If error reading file or zero bytes read, assume it was the perfect size */
-                                {
-                                    CFE_EVS_SendEvent(CFE_TBL_FILE_LOADED_INF_EID, CFE_EVS_EventType_INFORMATION,
-                                                      "Successful load of '%s' into '%s' working buffer", LoadFilename,
-                                                      TblFileHeader.TableName);
-
-                                    /* Save file information statistics for later use in registry */
-                                    memcpy(WorkingBufferPtr->DataSource, LoadFilename, OS_MAX_PATH_LEN);
-
-                                    /* Save file creation time for later storage into Registry */
-                                    WorkingBufferPtr->FileTime.Seconds    = StdFileHeader.TimeSeconds;
-                                    WorkingBufferPtr->FileTime.Subseconds = StdFileHeader.TimeSubSeconds;
-
-                                    /* Compute the CRC on the specified table buffer */
-                                    WorkingBufferPtr->Crc = CFE_ES_CalculateCRC(WorkingBufferPtr->BufferPtr,
-                                                                                CFE_TBL_RegRecGetSize(RegRecPtr), 0,
-                                                                                CFE_MISSION_ES_DEFAULT_CRC);
-
-                                    /* Initialize validation flag with true if no Validation Function is required to be
-                                     * called */
-                                    WorkingBufferPtr->Validated =
-                                        (CFE_TBL_RegRecGetConfig(RegRecPtr)->ValidationFuncPtr == NULL);
-
-                                    /* Save file information statistics for housekeeping telemetry */
-                                    strncpy(CFE_TBL_Global.HkPacket.Payload.LastFileLoaded, LoadFilename,
-                                            sizeof(CFE_TBL_Global.HkPacket.Payload.LastFileLoaded) - 1);
-                                    CFE_TBL_Global.HkPacket.Payload
-                                        .LastFileLoaded[sizeof(CFE_TBL_Global.HkPacket.Payload.LastFileLoaded) - 1] =
-                                        '\0';
-                                    strncpy(CFE_TBL_Global.HkPacket.Payload.LastTableLoaded, TblFileHeader.TableName,
-                                            sizeof(CFE_TBL_Global.HkPacket.Payload.LastTableLoaded) - 1);
-                                    CFE_TBL_Global.HkPacket.Payload
-                                        .LastTableLoaded[sizeof(CFE_TBL_Global.HkPacket.Payload.LastTableLoaded) - 1] =
-                                        '\0';
-
-                                    /* Increment successful command completion counter */
-                                    CmdProcRet = CFE_TBL_CmdProcRet_INC_CMD_CTR;
-                                }
-                            }
-                            else
-                            {
-                                /* A file whose header claims has 'x' amount of data but it only has 'y' */
-                                /* is considered a fatal error during a load process                     */
-                                CFE_EVS_SendEvent(CFE_TBL_FILE_INCOMPLETE_ERR_EID, CFE_EVS_EventType_ERROR,
-                                                  "Incomplete load of '%s' into '%s' working buffer", LoadFilename,
-                                                  TblFileHeader.TableName);
-                            }
-                        }
-                        else
-                        {
-                            CFE_EVS_SendEvent(CFE_TBL_NO_WORK_BUFFERS_ERR_EID, CFE_EVS_EventType_ERROR,
-                                              "No working buffers available for table '%s'", TblFileHeader.TableName);
-                        }
-                    }
-                    else
-                    {
-                        if ((TblFileHeader.NumBytes + TblFileHeader.Offset) > CFE_TBL_RegRecGetSize(RegRecPtr))
-                        {
-                            CFE_EVS_SendEvent(CFE_TBL_LOAD_EXCEEDS_SIZE_ERR_EID, CFE_EVS_EventType_ERROR,
-                                              "Cannot load '%s' (%d) at offset %d in '%s' (%d)", LoadFilename,
-                                              (int)TblFileHeader.NumBytes, (int)TblFileHeader.Offset,
-                                              TblFileHeader.TableName, (int)CFE_TBL_RegRecGetSize(RegRecPtr));
-                        }
-                        else if (TblFileHeader.NumBytes == 0)
-                        {
-                            CFE_EVS_SendEvent(CFE_TBL_ZERO_LENGTH_LOAD_ERR_EID, CFE_EVS_EventType_ERROR,
-                                              "Table Hdr in '%s' indicates no data in file", LoadFilename);
-                        }
-                        else
-                        {
-                            CFE_EVS_SendEvent(CFE_TBL_PARTIAL_LOAD_ERR_EID, CFE_EVS_EventType_ERROR,
-                                              "'%s' has partial load for uninitialized table '%s'", LoadFilename,
-                                              TblFileHeader.TableName);
-                        }
-                    }
-                }
-            }
-        } /* No need to issue event messages in response to errors reading headers */
-          /* because the function that read the headers will generate messages     */
-
-        /* Close the file now that the contents have been read */
-        OS_close(FileDescriptor);
+        /* Locate specified table in registry (wrapped in a lock) */
+        /* NOTE: The header reading code ensures null term on the table name string, so its OK to pass direct */
+        CFE_TBL_TxnLockRegistry(&Txn);
+        CFE_TBL_TxnFindRegByName(&Txn, Header.Tbl.TableName);
+        CFE_TBL_TxnUnlockRegistry(&Txn);
     }
-    else
+
+    if (Status == CFE_SUCCESS)
     {
-        /* Error opening specified file */
-        CFE_EVS_SendEvent(CFE_TBL_FILE_ACCESS_ERR_EID, CFE_EVS_EventType_ERROR,
-                          "Unable to open file '%s' for table load, Status = %ld", LoadFilename, (long)OsStatus);
+        Status = CFE_TBL_ValidateFileIsLoadable(&Txn, &Header.Tbl);
     }
+
+    if (Status == CFE_SUCCESS)
+    {
+        /* Read the file content into the working buffer */
+        Status = CFE_TBL_LoadContentFromFile(&Txn, FileDescriptor, Header.Tbl.Offset, Header.Tbl.NumBytes);
+    }
+
+    /* If all the above worked out, then set the meta info in the load buffer */
+    if (Status == CFE_SUCCESS)
+    {
+        CFE_TBL_SetMetaDataFromFileHeader(&Txn, LoadFilename, &Header.Std);
+    }
+
+    CFE_TBL_TxnFinish(&Txn);
+
+    if (Status == CFE_SUCCESS)
+    {
+        /* Save file information statistics for housekeeping telemetry */
+        CFE_SB_MessageStringSet(CFE_TBL_Global.HkPacket.Payload.LastFileLoaded, LoadFilename,
+                                sizeof(CFE_TBL_Global.HkPacket.Payload.LastFileLoaded), sizeof(LoadFilename));
+        CFE_SB_MessageStringSet(CFE_TBL_Global.HkPacket.Payload.LastTableLoaded, Header.Tbl.TableName,
+                                sizeof(CFE_TBL_Global.HkPacket.Payload.LastTableLoaded), sizeof(Header.Tbl.TableName));
+
+        /* Increment successful command completion counter */
+        CmdProcRet = CFE_TBL_CmdProcRet_INC_CMD_CTR;
+
+        /* Report the successful event */
+        CFE_TBL_TxnAddEvent(&Txn, CFE_TBL_FILE_LOADED_INF_EID, 0, 0);
+    }
+
+    /* Send any events associated with this table load */
+    CFE_TBL_SendTableLoadFileEvents(&Txn, &Header);
 
     return CFE_TBL_TranslateCmdProcRet(CmdProcRet);
 }
@@ -600,17 +461,10 @@ CFE_Status_t CFE_TBL_DumpCmd(const CFE_TBL_DumpCmd_t *data)
     const CFE_TBL_DumpCmd_Payload_t *CmdPtr = &data->Payload;
     char                             DumpFilename[OS_MAX_PATH_LEN];
     char                             TableName[CFE_TBL_MAX_FULL_NAME_LEN];
-    CFE_TBL_RegistryRec_t *          RegRecPtr;
-    CFE_TBL_LoadBuff_t *             WorkingBufferPtr;
-    CFE_TBL_LoadBuff_t *             SelectedBufferPtr;
-    CFE_ResourceId_t                 PendingDumpId;
     CFE_Status_t                     Status;
-    CFE_TBL_DumpControl_t *          DumpCtrlPtr;
+    CFE_TBL_DumpCtrlId_t             DumpCtrlId;
 
     CmdProcRet = CFE_TBL_CmdProcRet_INC_ERR_CTR; /* Assume failure */
-
-    SelectedBufferPtr = NULL;
-    WorkingBufferPtr  = NULL;
 
     /* Make sure all strings are null terminated before attempting to process them */
     CFE_SB_MessageStringGet(DumpFilename, (char *)CmdPtr->DumpFilename, NULL, sizeof(DumpFilename),
@@ -619,220 +473,42 @@ CFE_Status_t CFE_TBL_DumpCmd(const CFE_TBL_DumpCmd_t *data)
     CFE_SB_MessageStringGet(TableName, (char *)CmdPtr->TableName, NULL, sizeof(TableName), sizeof(CmdPtr->TableName));
 
     /* Before doing anything, lets make sure the table that is to be dumped exists */
+    /* Note - if successful, this returns with the registry in a locked state */
     Status = CFE_TBL_TxnStartFromName(&Txn, TableName, CFE_TBL_TxnContext_UNDEFINED);
 
-    if (Status == CFE_SUCCESS)
+    if (Status != CFE_SUCCESS)
     {
-        /* Obtain a pointer to registry information about specified table */
-        RegRecPtr = CFE_TBL_TxnRegRec(&Txn);
-
-        /* Determine what data is to be dumped */
-        SelectedBufferPtr = CFE_TBL_GetSelectedBuffer(RegRecPtr, CmdPtr->ActiveTableFlag);
-
-        CFE_TBL_TxnFinish(&Txn);
-
-        if (SelectedBufferPtr == NULL)
-        {
-            CFE_EVS_SendEvent(CFE_TBL_ILLEGAL_BUFF_PARAM_ERR_EID, CFE_EVS_EventType_ERROR,
-                              "Cmd for Table '%s' had illegal buffer parameter (0x%08X)", TableName,
-                              (unsigned int)CmdPtr->ActiveTableFlag);
-        }
-        else
-        {
-            /* If we have located the data to be dumped, then proceed with creating the file and dumping the data */
-            /* If this is not a dump only table, then we can perform the dump immediately */
-            if (!CFE_TBL_RegRecGetConfig(RegRecPtr)->DumpOnly)
-            {
-                CmdProcRet = CFE_TBL_DumpToFile(DumpFilename, TableName, SelectedBufferPtr->BufferPtr,
-                                                CFE_TBL_RegRecGetSize(RegRecPtr));
-            }
-            else /* Dump Only tables need to synchronize their dumps with the owner's execution */
-            {
-                /* Make sure a dump is not already in progress */
-                if (!CFE_TBL_DUMPCTRLID_IS_VALID(RegRecPtr->DumpControlId))
-                {
-                    /* Find a free Dump Control Block */
-                    PendingDumpId = CFE_TBL_GetNextDumpCtrlBlock();
-                    DumpCtrlPtr   = CFE_TBL_LocateDumpCtrlByID(CFE_TBL_DUMPCTRLID_C(PendingDumpId));
-                    if (DumpCtrlPtr != NULL)
-                    {
-                        /* Allocate a shared memory buffer for storing the data to be dumped */
-                        WorkingBufferPtr = CFE_TBL_AcquireGlobalLoadBuff(CFE_TBL_RegRecGetID(RegRecPtr));
-
-                        if (WorkingBufferPtr != NULL)
-                        {
-                            DumpCtrlPtr->State        = CFE_TBL_DUMP_PENDING;
-                            DumpCtrlPtr->SourceBuffId = CFE_TBL_LoadBufferGetID(SelectedBufferPtr);
-
-                            /* Save the name of the desired dump filename, table name and size for later */
-                            DumpCtrlPtr->DumpBufferPtr = WorkingBufferPtr;
-                            memcpy(DumpCtrlPtr->DumpBufferPtr->DataSource, DumpFilename, OS_MAX_PATH_LEN);
-                            memcpy(DumpCtrlPtr->TableName, TableName, CFE_TBL_MAX_FULL_NAME_LEN);
-                            DumpCtrlPtr->Size = CFE_TBL_RegRecGetSize(RegRecPtr);
-
-                            /* Notify the owning application that a dump is pending */
-                            CFE_TBL_DumpCtrlBlockSetUsed(DumpCtrlPtr, PendingDumpId);
-                            RegRecPtr->DumpControlId = CFE_TBL_DumpCtrlBlockGetId(DumpCtrlPtr);
-
-                            /* If application requested notification by message, then do so */
-                            CFE_TBL_SendNotificationMsg(RegRecPtr);
-
-                            /* Consider the command completed successfully */
-                            CmdProcRet = CFE_TBL_CmdProcRet_INC_CMD_CTR;
-                        }
-                        else
-                        {
-                            CFE_EVS_SendEvent(CFE_TBL_NO_WORK_BUFFERS_ERR_EID, CFE_EVS_EventType_ERROR,
-                                              "No working buffers available for table '%s'", TableName);
-                        }
-                    }
-                    else
-                    {
-                        CFE_EVS_SendEvent(CFE_TBL_TOO_MANY_DUMPS_ERR_EID, CFE_EVS_EventType_ERROR,
-                                          "Too many Dump Only Table Dumps have been requested");
-                    }
-                }
-                else
-                {
-                    CFE_EVS_SendEvent(CFE_TBL_DUMP_PENDING_ERR_EID, CFE_EVS_EventType_ERROR,
-                                      "A dump for '%s' is already pending", TableName);
-                }
-            }
-        }
-    }
-    else /* Table could not be found in Registry */
-    {
+        /* Table could not be found in Registry */
         CFE_EVS_SendEvent(CFE_TBL_NO_SUCH_TABLE_ERR_EID, CFE_EVS_EventType_ERROR,
                           "Unable to locate '%s' in Table Registry", TableName);
     }
-
-    return CFE_TBL_TranslateCmdProcRet(CmdProcRet);
-}
-
-/*----------------------------------------------------------------
- *
- * Application-scope internal function
- * See description in header file for argument/return detail
- *
- *-----------------------------------------------------------------*/
-CFE_TBL_CmdProcRet_t CFE_TBL_DumpToFile(const char *DumpFilename, const char *TableName, const void *DumpDataAddr,
-                                        size_t TblSizeInBytes)
-{
-    CFE_TBL_CmdProcRet_t CmdProcRet;
-    bool                 FileExistedPrev = false;
-    CFE_FS_Header_t      StdFileHeader;
-    CFE_TBL_File_Hdr_t   TblFileHeader;
-    osal_id_t            FileDescriptor = OS_OBJECT_ID_UNDEFINED;
-    int32                Status;
-    int32                OsStatus;
-    int32                EndianCheck = 0x01020304;
-
-    CmdProcRet = CFE_TBL_CmdProcRet_INC_ERR_CTR; /* Assume failure */
-
-    /* Clear Header of any garbage before copying content */
-    memset(&TblFileHeader, 0, sizeof(CFE_TBL_File_Hdr_t));
-
-    /* Check to see if the dump file already exists */
-    OsStatus = OS_OpenCreate(&FileDescriptor, DumpFilename, OS_FILE_FLAG_NONE, OS_READ_ONLY);
-
-    if (OsStatus == OS_SUCCESS)
-    {
-        FileExistedPrev = true;
-        OS_close(FileDescriptor);
-    }
-
-    /* Create a new dump file, overwriting anything that may have existed previously */
-    OsStatus = OS_OpenCreate(&FileDescriptor, DumpFilename, OS_FILE_FLAG_CREATE | OS_FILE_FLAG_TRUNCATE, OS_WRITE_ONLY);
-
-    if (OsStatus == OS_SUCCESS)
-    {
-        /* Initialize the standard cFE File Header for the Dump File */
-        CFE_FS_InitHeader(&StdFileHeader, "Table Dump Image", CFE_FS_SubType_TBL_IMG);
-
-        /* Output the Standard cFE File Header to the Dump File */
-        Status = CFE_FS_WriteHeader(FileDescriptor, &StdFileHeader);
-
-        if (Status == sizeof(CFE_FS_Header_t))
-        {
-            /* Initialize the Table Image Header for the Dump File */
-            strncpy(TblFileHeader.TableName, TableName, sizeof(TblFileHeader.TableName) - 1);
-            TblFileHeader.TableName[sizeof(TblFileHeader.TableName) - 1] = 0;
-            TblFileHeader.Offset                                         = 0;
-            TblFileHeader.NumBytes                                       = TblSizeInBytes;
-            TblFileHeader.Reserved                                       = 0;
-
-            /* Determine if this is a little endian processor */
-            if ((*(char *)&EndianCheck) == 0x04)
-            {
-                /* If this is a little endian processor, then byte swap the header to a big endian format */
-                /* to maintain the cFE Header standards */
-                /* NOTE: FOR THE REMAINDER OF THIS FUNCTION, THE CONTENTS OF THE HEADER IS UNREADABLE BY */
-                /*       THIS PROCESSOR!  THE DATA WOULD NEED TO BE SWAPPED BACK BEFORE READING.         */
-                CFE_TBL_ByteSwapTblHeader(&TblFileHeader);
-            }
-
-            /* Output the Table Image Header to the Dump File */
-            OsStatus = OS_write(FileDescriptor, &TblFileHeader, sizeof(CFE_TBL_File_Hdr_t));
-
-            /* Make sure the header was output completely */
-            if ((long)OsStatus == sizeof(CFE_TBL_File_Hdr_t))
-            {
-                /* Output the requested data to the dump file */
-                /* Output the active table image data to the dump file */
-                OsStatus = OS_write(FileDescriptor, DumpDataAddr, TblSizeInBytes);
-
-                if ((long)OsStatus == TblSizeInBytes)
-                {
-                    if (FileExistedPrev)
-                    {
-                        CFE_EVS_SendEvent(CFE_TBL_OVERWRITE_DUMP_INF_EID, CFE_EVS_EventType_INFORMATION,
-                                          "Successfully overwrote '%s' with Table '%s'", DumpFilename, TableName);
-                    }
-                    else
-                    {
-                        CFE_EVS_SendEvent(CFE_TBL_WRITE_DUMP_INF_EID, CFE_EVS_EventType_INFORMATION,
-                                          "Successfully dumped Table '%s' to '%s'", TableName, DumpFilename);
-                    }
-
-                    /* Save file information statistics for housekeeping telemetry */
-                    strncpy(CFE_TBL_Global.HkPacket.Payload.LastFileDumped, DumpFilename,
-                            sizeof(CFE_TBL_Global.HkPacket.Payload.LastFileDumped) - 1);
-                    CFE_TBL_Global.HkPacket.Payload
-                        .LastFileDumped[sizeof(CFE_TBL_Global.HkPacket.Payload.LastFileDumped) - 1] = 0;
-
-                    /* Increment Successful Command Counter */
-                    CmdProcRet = CFE_TBL_CmdProcRet_INC_CMD_CTR;
-                }
-                else
-                {
-                    CFE_EVS_SendEvent(CFE_TBL_WRITE_TBL_IMG_ERR_EID, CFE_EVS_EventType_ERROR,
-                                      "Error writing Tbl image to '%s', Status=%ld", DumpFilename, (long)OsStatus);
-                }
-            }
-            else
-            {
-                CFE_EVS_SendEvent(CFE_TBL_WRITE_TBL_HDR_ERR_EID, CFE_EVS_EventType_ERROR,
-                                  "Error writing Tbl image File Header to '%s', Status=%ld", DumpFilename,
-                                  (long)OsStatus);
-            }
-        }
-        else
-        {
-            CFE_EVS_SendEvent(CFE_TBL_WRITE_CFE_HDR_ERR_EID, CFE_EVS_EventType_ERROR,
-                              "Error writing cFE File Header to '%s', Status=0x%08X", DumpFilename,
-                              (unsigned int)Status);
-        }
-
-        /* We are done outputting data to the dump file.  Close it. */
-        OS_close(FileDescriptor);
-    }
     else
     {
-        CFE_EVS_SendEvent(CFE_TBL_CREATING_DUMP_FILE_ERR_EID, CFE_EVS_EventType_ERROR,
-                          "Error creating dump file '%s', Status=%ld", DumpFilename, (long)OsStatus);
+        /* Reserve a dump control block and populate it with the details */
+        Status = CFE_TBL_AllocateDumpCtrlBlock(&Txn, &DumpCtrlId, CmdPtr->ActiveTableFlag);
+
+        /* Done modifying registry for now */
+        CFE_TBL_TxnUnlockRegistry(&Txn);
+
+        if (Status == CFE_SUCCESS)
+        {
+            /* Complete the process */
+            Status = CFE_TBL_PrepareDumpSnapshotBuffer(&Txn, DumpCtrlId, DumpFilename);
+        }
+
+        CFE_TBL_TxnFinish(&Txn);
     }
 
-    return CmdProcRet;
+    /* Translate return code */
+    if (Status == CFE_SUCCESS)
+    {
+        CmdProcRet = CFE_TBL_CmdProcRet_INC_CMD_CTR;
+    }
+
+    /* Send any events associated with this table dump */
+    CFE_TBL_SendTableDumpEvents(&Txn, TableName);
+
+    return CFE_TBL_TranslateCmdProcRet(CmdProcRet);
 }
 
 /*----------------------------------------------------------------
@@ -893,7 +569,8 @@ CFE_Status_t CFE_TBL_ValidateCmd(const CFE_TBL_ValidateCmd_t *data)
                 memcpy(ValResultPtr->TableName, TableName, CFE_TBL_MAX_FULL_NAME_LEN);
 
                 /* Compute the CRC on the specified table buffer */
-                CrcOfTable = CFE_ES_CalculateCRC(SelectedBufferPtr->BufferPtr, CFE_TBL_RegRecGetSize(RegRecPtr), 0,
+                CrcOfTable = CFE_ES_CalculateCRC(CFE_TBL_LoadBuffGetReadPointer(SelectedBufferPtr),
+                                                 CFE_TBL_LoadBuffGetContentSize(SelectedBufferPtr), 0,
                                                  CFE_MISSION_ES_DEFAULT_CRC);
 
                 ValResultPtr->CrcOfTable   = CrcOfTable;
@@ -901,9 +578,11 @@ CFE_Status_t CFE_TBL_ValidateCmd(const CFE_TBL_ValidateCmd_t *data)
 
                 CFE_TBL_ValidationResultSetUsed(ValResultPtr, PendingValId);
 
+                CFE_TBL_Global.LastValidationResultId = PendingValId;
+
                 /* If owner has a validation function, then notify the  */
                 /* table owner that there is data to be validated       */
-                if (CFE_TBL_RegRecGetConfig(RegRecPtr)->ValidationFuncPtr != NULL)
+                if (CFE_TBL_RegRecGetValidationFunc(RegRecPtr) != NULL)
                 {
                     if (CmdPtr->ActiveTableFlag)
                     {
@@ -1009,8 +688,6 @@ CFE_Status_t CFE_TBL_ActivateCmd(const CFE_TBL_ActivateCmd_t *data)
             }
             else
             {
-                CFE_TBL_RegRecSetLoadPendingFlag(RegRecPtr);
-
                 /* If application requested notification by message, then do so */
                 if (CFE_TBL_SendNotificationMsg(RegRecPtr) == CFE_SUCCESS)
                 {
@@ -1059,7 +736,7 @@ bool CFE_TBL_DumpRegistryGetter(void *Meta, uint32 RecordNum, void **Buffer, siz
         CFE_TBL_LockRegistry();
 
         /* Check to see if the Registry entry is empty */
-        if (CFE_TBL_RegRecIsUsed(RegRecPtr) || CFE_TBL_HandleLinkIsAttached(&RegRecPtr->AccessList))
+        if (CFE_TBL_RegRecIsUsed(RegRecPtr))
         {
             IsValidEntry = true;
             OwnerAppId   = RegRecPtr->OwnerAppId;
@@ -1067,9 +744,9 @@ bool CFE_TBL_DumpRegistryGetter(void *Meta, uint32 RecordNum, void **Buffer, siz
             /* Fill Registry Dump Record with relevant information */
             StatePtr->DumpRecord.Size             = CFE_ES_MEMOFFSET_C(CFE_TBL_RegRecGetSize(RegRecPtr));
             StatePtr->DumpRecord.TimeOfLastUpdate = CFE_TBL_RegRecGetLastUpdateTime(RegRecPtr);
-            StatePtr->DumpRecord.ValidationFunc   = (CFE_TBL_RegRecGetConfig(RegRecPtr)->ValidationFuncPtr != NULL);
+            StatePtr->DumpRecord.ValidationFunc   = (CFE_TBL_RegRecGetValidationFunc(RegRecPtr) != NULL);
             StatePtr->DumpRecord.TableLoadedOnce  = CFE_TBL_RegRecIsTableLoaded(RegRecPtr);
-            StatePtr->DumpRecord.LoadPending      = CFE_TBL_RegRecIsLoadPending(RegRecPtr);
+            StatePtr->DumpRecord.LoadPending      = CFE_TBL_RegRecIsPendingActivation(RegRecPtr);
             StatePtr->DumpRecord.DumpOnly         = CFE_TBL_RegRecGetConfig(RegRecPtr)->DumpOnly;
             StatePtr->DumpRecord.DoubleBuffered   = CFE_TBL_RegRecGetConfig(RegRecPtr)->DoubleBuffered;
             StatePtr->DumpRecord.CriticalTable    = CFE_TBL_RegRecGetConfig(RegRecPtr)->Critical;
@@ -1276,7 +953,7 @@ CFE_Status_t CFE_TBL_SendRegistryCmd(const CFE_TBL_SendRegistryCmd_t *data)
     const CFE_TBL_SendRegistryCmd_Payload_t *CmdPtr = &data->Payload;
     char                                     TableName[CFE_TBL_MAX_FULL_NAME_LEN];
     CFE_TBL_TxnState_t                       Txn;
-    int32                                    Status;
+    CFE_Status_t                             Status;
 
     CmdProcRet = CFE_TBL_CmdProcRet_INC_ERR_CTR; /* Assume failure */
 
@@ -1288,7 +965,7 @@ CFE_Status_t CFE_TBL_SendRegistryCmd(const CFE_TBL_SendRegistryCmd_t *data)
     if (Status == CFE_SUCCESS)
     {
         /* Change the index used to identify what data is to be telemetered */
-        CFE_TBL_Global.HkTlmTblRegIndex = CFE_TBL_TxnRegId(&Txn);
+        CFE_TBL_Global.HkTlmTblRegId = CFE_TBL_TxnRegId(&Txn);
         CFE_TBL_TxnFinish(&Txn);
 
         CFE_EVS_SendEvent(CFE_TBL_TLM_REG_CMD_INF_EID, CFE_EVS_EventType_DEBUG,
@@ -1450,22 +1127,4 @@ CFE_Status_t CFE_TBL_AbortLoadCmd(const CFE_TBL_AbortLoadCmd_t *data)
     }
 
     return CFE_TBL_TranslateCmdProcRet(CmdProcRet);
-}
-
-/*----------------------------------------------------------------
- *
- * Application-scope internal function
- * See description in header file for argument/return detail
- *
- *-----------------------------------------------------------------*/
-void CFE_TBL_AbortLoad(CFE_TBL_RegistryRec_t *RegRecPtr)
-{
-    /* The ground has aborted the load, free the working buffer for another attempt */
-    CFE_TBL_DiscardWorkingBuffer(RegRecPtr);
-
-    /* Make sure the load was not already pending */
-    CFE_TBL_RegRecClearLoadPendingFlag(RegRecPtr);
-
-    CFE_EVS_SendEvent(CFE_TBL_LOAD_ABORT_INF_EID, CFE_EVS_EventType_INFORMATION, "Table Load Aborted for '%s'",
-                      CFE_TBL_RegRecGetName(RegRecPtr));
 }

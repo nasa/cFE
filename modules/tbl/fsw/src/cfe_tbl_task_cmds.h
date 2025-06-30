@@ -77,11 +77,11 @@ void CFE_TBL_GetHkData(void);
 **
 ** \par Description
 **        Extracts the Table Registry information for the table specified by the
-**        #CFE_TBL_Global_t::HkTlmTblRegIndex variable.  It then formats the
+**        #CFE_TBL_Global_t::HkTlmTblRegId variable.  It then formats the
 **        Registry contents into a format appropriate for downlink.
 **
 ** \par Assumptions, External Events, and Notes:
-**        #CFE_TBL_Global_t::HkTlmTblRegIndex is assumed to be a valid index into
+**        #CFE_TBL_Global_t::HkTlmTblRegId is assumed to be a valid identifier into
 **           the Table Registry.
 **
 */
@@ -101,7 +101,8 @@ void CFE_TBL_GetTblRegData(void);
 **
 ** \param[in] data points to the message received via command pipe that needs processing
 **
-** \retval #CFE_TBL_DONT_INC_CTR \copydoc CFE_TBL_DONT_INC_CTR
+** \returns CFE Status code
+** \retval #CFE_SUCCESS indicates all status reporting is complete
 */
 CFE_Status_t CFE_TBL_SendHkCmd(const CFE_TBL_SendHkCmd_t *data);
 
@@ -280,49 +281,5 @@ CFE_Status_t CFE_TBL_DeleteCDSCmd(const CFE_TBL_DeleteCDSCmd_t *data);
 ** \retval #CFE_SUCCESS indicates all status reporting is complete
 */
 CFE_Status_t CFE_TBL_AbortLoadCmd(const CFE_TBL_AbortLoadCmd_t *data);
-
-/*---------------------------------------------------------------------------------------*/
-/**
-** \brief Output block of data to file with standard cFE Table Image Headers
-**
-** \par Description
-**        Writes the specified block of data in memory to the specified file
-**        with the standard cFE File and cFE Table Image Headers.
-**
-** \par Assumptions, External Events, and Notes:
-**          None
-**
-** \param[in] DumpFilename    Character string containing the full path of the file
-**                            to which the contents of the table are to be written
-**
-** \param[in] TableName       Name of table being dumped to a file
-**
-** \param[in] DumpDataAddr    Address of data buffer whose contents are to be written
-**                            to the specified file
-**
-** \param[in] TblSizeInBytes  Size of block of data to be written to the file
-**
-** \retval #CFE_TBL_INC_ERR_CTR  \copydoc CFE_TBL_INC_ERR_CTR
-** \retval #CFE_TBL_INC_CMD_CTR  \copydoc CFE_TBL_INC_CMD_CTR
-*/
-CFE_TBL_CmdProcRet_t CFE_TBL_DumpToFile(const char *DumpFilename, const char *TableName, const void *DumpDataAddr,
-                                        size_t TblSizeInBytes);
-
-/*---------------------------------------------------------------------------------------*/
-/**
-** \brief Aborts load by freeing associated inactive buffers and sending event message
-**
-** \par Description
-**        This function aborts the load for the table whose registry entry is identified
-**        by the registry record pointer given as an argument.  Aborting the load consists
-**        of freeing any associated inactive buffer and issuing an event message.
-**
-** \par Assumptions, External Events, and Notes:
-**        The given registry record pointer is assumed to be valid.
-**
-** \param[in] RegRecPtr   Pointer to registry record entry for the table whose load is to be aborted
-**
-*/
-void CFE_TBL_AbortLoad(CFE_TBL_RegistryRec_t *RegRecPtr);
 
 #endif /* CFE_TBL_TASK_CMDS_H */

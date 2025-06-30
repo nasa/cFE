@@ -40,6 +40,7 @@
 */
 #include <string.h>
 #include "cfe_tbl_module_all.h"
+#include "cfe_tbl_codec.h"
 #include "ut_support.h"
 
 typedef struct
@@ -55,11 +56,11 @@ typedef struct
     uint32 TblElement3;
 } UT_Table2_t;
 
-typedef struct
-{
-    CFE_TBL_File_Hdr_t TblHeader;
-    UT_Table1_t        TblData;
-} UT_TempFile_t;
+/*
+** External global variables
+*/
+
+extern CFE_TBL_Global_t CFE_TBL_Global;
 
 /* TBL unit test functions */
 
@@ -443,7 +444,10 @@ void Test_CFE_TBL_NotifyByMessage(void);
 ** \returns
 **        This function does not return a value.
 ******************************************************************************/
-void Test_CFE_TBL_Load(void);
+void Test_CFE_TBL_Load1(void);
+void Test_CFE_TBL_Load2(void);
+void Test_CFE_TBL_Load3(void);
+void Test_CFE_TBL_Load4(void);
 
 /*****************************************************************************/
 /**
@@ -644,6 +648,7 @@ void Test_CFE_TBL_TblMod(void);
 ******************************************************************************/
 void Test_CFE_TBL_Internal1(void);
 void Test_CFE_TBL_Internal2(void);
+void Test_CFE_TBL_Internal3(void);
 
 /*****************************************************************************/
 /**
@@ -674,5 +679,10 @@ void Test_CFE_TBL_ResourceID_LoadBuff(void);
 /* Test cases for transaction state objects (sanity checks and error coverage) */
 void Test_CFE_TBL_TxnState(void);
 void Test_CFE_TBL_TxnEvents(void);
+
+/* Test cases for unified load/dump implementation */
+void Test_CFE_TBL_TableLoadCommon(void);
+void Test_CFE_TBL_TableLoadCodec(void);
+void Test_CFE_TBL_TableDumpCommon(void);
 
 #endif /* TBL_UT_H */

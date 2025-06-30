@@ -64,6 +64,9 @@ typedef struct CFE_TBL_TableConfig
     bool UserDefAddr;    /**< \brief Flag indicating Table address was defined by Owner Application */
     bool Critical;       /**< \brief Flag indicating whether table is a Critical Table */
 
+    /* The EDS ID is only used in EDS builds, it is stored here as a uint32. */
+    uint32 EdsId;
+
 } CFE_TBL_TableConfig_t;
 
 /**
@@ -80,8 +83,7 @@ typedef struct CFE_TBL_TableStatus
 
     CFE_TIME_SysTime_t TimeOfLastUpdate; /**< \brief Time when Table was last updated */
 
-    bool LoadPending; /**< \brief Flag indicating an inactive buffer is ready to be copied */
-    bool IsModified;  /**< \brief Indicates if this table is modified since loading */
+    bool IsModified; /**< \brief Indicates if this table is modified since loading */
 
     char LastFileLoaded[OS_MAX_PATH_LEN]; /**< \brief Filename of last file loaded into table */
 } CFE_TBL_TableStatus_t;
@@ -111,6 +113,8 @@ typedef struct CFE_TBL_TableUpdateNotify
 */
 struct CFE_TBL_RegistryRec
 {
+    CFE_TBL_RegId_t RegId;
+
     CFE_ES_AppId_t       OwnerAppId; /**< \brief Application ID of App that Registered Table */
     CFE_TBL_LoadBuff_t   Buffers[2]; /**< \brief Active and Inactive Buffer Pointers */
     CFE_TBL_HandleLink_t AccessList; /**< \brief Linked List of associated access descriptors */
@@ -218,11 +222,7 @@ CFE_TBL_RegistryRec_t *CFE_TBL_LocateRegRecByName(const char *Name);
  */
 static inline bool CFE_TBL_RegRecIsMatch(const CFE_TBL_RegistryRec_t *RegRecPtr, CFE_TBL_RegId_t RegId)
 {
-    /*
-     * This technically should also check CFE_RESOURCEID_TEST_DEFINED(RegRecPtr->OwnerAppId),
-     * but that would currently break some registration actions (which should be fixed).
-     */
-    return (RegRecPtr != NULL);
+    return (RegRecPtr != NULL && CFE_TBL_REGID_EQ(RegRecPtr->RegId, RegId));
 }
 
 /*---------------------------------------------------------------------------------------*/
@@ -237,7 +237,10 @@ static inline bool CFE_TBL_RegRecIsMatch(const CFE_TBL_RegistryRec_t *RegRecPtr,
  * @param[in]   RegRecPtr   pointer to table entry
  * @returns ID of entry
  */
-CFE_TBL_RegId_t CFE_TBL_RegRecGetID(const CFE_TBL_RegistryRec_t *RegRecPtr);
+static inline CFE_TBL_RegId_t CFE_TBL_RegRecGetID(const CFE_TBL_RegistryRec_t *RegRecPtr)
+{
+    return RegRecPtr->RegId;
+}
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -256,7 +259,25 @@ CFE_TBL_RegId_t CFE_TBL_RegRecGetID(const CFE_TBL_RegistryRec_t *RegRecPtr);
  */
 static inline bool CFE_TBL_RegRecIsUsed(const CFE_TBL_RegistryRec_t *RegRecPtr)
 {
-    return CFE_RESOURCEID_TEST_DEFINED(RegRecPtr->OwnerAppId);
+    return CFE_TBL_REGID_IS_VALID(RegRecPtr->RegId);
+}
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Marks a registry record as in use (not avaliable)
+ *
+ * This sets the internal field(s) within this entry, and marks
+ * it as being associated with the registry ID.
+ *
+ * @note This internal helper function must only be used on record pointers
+ * that are known to refer to an actual table location (i.e. non-null).
+ *
+ * @param[in]   RegRecPtr   pointer to registry entry
+ * @param[in]   PendingId   the ID of this entry that will be set
+ */
+static inline void CFE_TBL_RegRecSetUsed(CFE_TBL_RegistryRec_t *RegRecPtr, CFE_ResourceId_t PendingId)
+{
+    RegRecPtr->RegId = CFE_TBL_REGID_C(PendingId);
 }
 
 /*---------------------------------------------------------------------------------------*/
@@ -273,10 +294,7 @@ static inline bool CFE_TBL_RegRecIsUsed(const CFE_TBL_RegistryRec_t *RegRecPtr)
  */
 static inline void CFE_TBL_RegRecSetFree(CFE_TBL_RegistryRec_t *RegRecPtr)
 {
-    RegRecPtr->OwnerAppId = CFE_ES_APPID_UNDEFINED;
-
-    /* Also clear the table name, not strictly needed but good for consistency */
-    RegRecPtr->Config.Name[0] = '\0';
+    RegRecPtr->RegId = CFE_TBL_REGID_UNDEFINED;
 }
 
 /*---------------------------------------------------------------------------------------*/
@@ -292,6 +310,22 @@ static inline void CFE_TBL_RegRecSetFree(CFE_TBL_RegistryRec_t *RegRecPtr)
 static inline const CFE_TBL_TableConfig_t *CFE_TBL_RegRecGetConfig(const CFE_TBL_RegistryRec_t *RegRecPtr)
 {
     return &RegRecPtr->Config;
+}
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Gets the validation function associated with this table
+ *
+ * Returns a pointer to the validation function
+ *
+ * @note  this configuration is set during registration and does not change thereafter
+ *
+ * @param[in]   RegRecPtr   pointer to registry entry
+ * @returns   Pointer to validation function
+ */
+static inline CFE_TBL_CallbackFuncPtr_t CFE_TBL_RegRecGetValidationFunc(const CFE_TBL_RegistryRec_t *RegRecPtr)
+{
+    return CFE_TBL_RegRecGetConfig(RegRecPtr)->ValidationFuncPtr;
 }
 
 /*
@@ -339,6 +373,9 @@ static inline size_t CFE_TBL_RegRecGetSize(const CFE_TBL_RegistryRec_t *RegRecPt
  * @brief Check if a load is in progress
  *
  * Checks if the table is currently being loaded
+ *
+ * A load in progress is simply that there is a "next" buffer associated with this registry,
+ * it will be true even if the buffer is not valid
  *
  * @param[in]   RegRecPtr   pointer to Registry table entry
  * @returns true if a load is in progress
@@ -434,38 +471,16 @@ static inline bool CFE_TBL_RegRecIsTableLoaded(const CFE_TBL_RegistryRec_t *RegR
 
 /*---------------------------------------------------------------------------------------*/
 /**
- * @brief Checks if a table load is pending
+ * @brief Checks if a table load is pending activation
+ *
+ * Pending activation means that there is a load in progress that has been fully
+ * validated and is ready to invoke the activate table command to make it active
  *
  * @param[in]   RegRecPtr   pointer to Registry table entry
- * @retval false if there is no load pending
- * @retval true if there is a load pending
+ * @retval false if there is no activation pending
+ * @retval true if there is a activation pending
  */
-static inline bool CFE_TBL_RegRecIsLoadPending(const CFE_TBL_RegistryRec_t *RegRecPtr)
-{
-    return RegRecPtr->Status.LoadPending;
-}
-
-/*---------------------------------------------------------------------------------------*/
-/**
- * @brief Sets the load pending flag
- *
- * @param[in]   RegRecPtr   pointer to Registry table entry
- */
-static inline void CFE_TBL_RegRecSetLoadPendingFlag(CFE_TBL_RegistryRec_t *RegRecPtr)
-{
-    RegRecPtr->Status.LoadPending = true;
-}
-
-/*---------------------------------------------------------------------------------------*/
-/**
- * @brief Clears the load pending flag
- *
- * @param[in]   RegRecPtr   pointer to Registry table entry
- */
-static inline void CFE_TBL_RegRecClearLoadPendingFlag(CFE_TBL_RegistryRec_t *RegRecPtr)
-{
-    RegRecPtr->Status.LoadPending = false;
-}
+bool CFE_TBL_RegRecIsPendingActivation(const CFE_TBL_RegistryRec_t *RegRecPtr);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -479,6 +494,28 @@ static inline bool CFE_TBL_RegRecIsModified(const CFE_TBL_RegistryRec_t *RegRecP
 {
     return RegRecPtr->Status.IsModified;
 }
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Determine the next ID to use for a table registry entry
+ *
+ * Obtains an ID value that is usable for a new registry.  If no registry entries
+ * are available, then UNDEFINED is returned.
+ *
+ * @returns ID to use for next result, or UNDEFINED if no slots available
+ */
+CFE_ResourceId_t CFE_TBL_GetNextRegId(void);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * Test if a slot corresponding to a pending ID is used
+ *
+ * This is an internal helper function for CFE_ResourceId_FindNext(), and not
+ * typically called directly. It is prototyped here for unit testing.
+ *
+ * @returns True if used, False if available
+ */
+bool CFE_TBL_CheckRegistrySlotUsed(CFE_ResourceId_t CheckId);
 
 /*---------------------------------------------------------------------------------------*/
 /**

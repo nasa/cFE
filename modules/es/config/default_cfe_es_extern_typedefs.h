@@ -22,8 +22,8 @@
  * Declarations and prototypes for cfe_es_extern_typedefs module
  */
 
-#ifndef CFE_ES_EXTERN_TYPEDEFS_H
-#define CFE_ES_EXTERN_TYPEDEFS_H
+#ifndef DEFAULT_CFE_ES_EXTERN_TYPEDEFS_H
+#define DEFAULT_CFE_ES_EXTERN_TYPEDEFS_H
 
 #include "common_types.h"
 #include "cfe_resourceid_typedef.h"

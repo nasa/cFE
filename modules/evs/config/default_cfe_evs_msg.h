@@ -28,8 +28,8 @@
  * either by overriding this header or by generating definitions from a command/data
  * dictionary tool.
  */
-#ifndef CFE_EVS_MSG_H
-#define CFE_EVS_MSG_H
+#ifndef DEFAULT_CFE_EVS_MSG_H
+#define DEFAULT_CFE_EVS_MSG_H
 
 #include "cfe_mission_cfg.h"
 #include "cfe_evs_fcncodes.h"
