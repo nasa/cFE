@@ -520,7 +520,7 @@ void CFE_TBL_LoadBuffRecomputeCRC(CFE_TBL_LoadBuff_t *BufferPtr);
  * Determines if this load buffer is dedicated for use only with this registry record.
  *
  * @param[in] BuffId The buffer ID
- * @param[in] BuffId The Registry ID
+ * @param[in] RegId  The Registry ID
  * @retval  true if that buffer is private to that registry entry
  * @retval  false if that buffer is not private to that registry entry
  */
