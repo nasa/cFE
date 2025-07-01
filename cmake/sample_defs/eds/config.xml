@@ -209,7 +209,7 @@
     </LongDescription>
     </Define>
 
-    <Define name="TBL_MAX_FULL_NAME_LEN" value="${CFE_MISSION/TBL_MAX_NAME_LENGTH} + ${CFE_MISSION/MAX_API_LEN} + 4">
+    <Define name="TBL_MAX_FULL_NAME_LEN" value="${CFE_MISSION/TBL_MAX_NAME_LENGTH} + ${CFE_MISSION/CORE_API_MAX_API_LEN} + 4">
       <LongDescription>
         \cfetblcfg Maximum Length of Full Table Name in messages
 
@@ -259,34 +259,6 @@
        </LongDescription>
      </Define>
 
-    <Define name="MAX_PATH_LEN" value="64">
-      <LongDescription>
-        \cfemissioncfg cFE Maximum length for pathnames within data exchange structures
-
-        \par Description:
-            The value of this constant dictates the size of pathnames within all structures
-            used for external data exchange, such as Software bus messages and table definitions.
-            This is typically the same as OS_MAX_PATH_LEN but that is OSAL dependent --
-            and as such it definable on a per-processor/OS basis and hence may be different
-            across multiple processors.  It is recommended to set this to the value of the
-            largest OS_MAX_PATH_LEN in use on any CPU on the mission.
-
-            This affects only the layout of command/telemetry messages and table definitions;
-            internal allocation may use the platform-specific OS_MAX_PATH_LEN value.
-
-            This length must include an extra character for NULL termination.
-
-        \par Limits
-            All CPUs within the same SB domain (mission) and ground tools must share the
-            same definition.
-            Note this affects the size of messages, so it must not cause any message
-            to exceed the max length.
-
-            This value should be kept as a multiple of 4, to maintain alignment of
-            any possible neighboring fields without implicit padding.
-      </LongDescription>
-    </Define>
-
     <Define name="SB_MAX_SB_MSG_SIZE" value="32768">
       <LongDescription>
       \cfesbcfg Maximum SB Message Size
@@ -305,6 +277,7 @@
       </LongDescription>
     </Define>
 
+    <Define name="TIME_EPOCH_SECONDS" value="315532800" />
 
     <Define name="TIME_CFG_DEFAULT_TAI" value="true">
       <LongDescription>
@@ -513,7 +486,7 @@
     </Define>
 
 
-    <Define name="MAX_FILE_LEN" value="20">
+    <Define name="CORE_API_MAX_FILE_LEN" value="20">
     <LongDescription>
       \cfemissioncfg cFE Maximum length for filenames within data exchange structures
 
@@ -541,7 +514,35 @@
     </LongDescription>
     </Define>
 
-    <Define name="MAX_API_LEN" value="20">
+    <Define name="CORE_API_MAX_PATH_LEN" value="64">
+      <LongDescription>
+        \cfemissioncfg cFE Maximum length for pathnames within data exchange structures
+
+        \par Description:
+            The value of this constant dictates the size of pathnames within all structures
+            used for external data exchange, such as Software bus messages and table definitions.
+            This is typically the same as OS_MAX_PATH_LEN but that is OSAL dependent --
+            and as such it definable on a per-processor/OS basis and hence may be different
+            across multiple processors.  It is recommended to set this to the value of the
+            largest OS_MAX_PATH_LEN in use on any CPU on the mission.
+
+            This affects only the layout of command/telemetry messages and table definitions;
+            internal allocation may use the platform-specific OS_MAX_PATH_LEN value.
+
+            This length must include an extra character for NULL termination.
+
+        \par Limits
+            All CPUs within the same SB domain (mission) and ground tools must share the
+            same definition.
+            Note this affects the size of messages, so it must not cause any message
+            to exceed the max length.
+
+            This value should be kept as a multiple of 4, to maintain alignment of
+            any possible neighboring fields without implicit padding.
+      </LongDescription>
+    </Define>
+
+    <Define name="CORE_API_MAX_API_LEN" value="20">
       <LongDescription>
         \cfemissioncfg cFE Maximum length for API names within data exchange structures
 
@@ -568,7 +569,7 @@
       </LongDescription>
     </Define>
 
-    <Define name="ES_CDS_MAX_FULL_NAME_LEN" value="${CFE_MISSION/ES_CDS_MAX_NAME_LENGTH} + ${CFE_MISSION/MAX_API_LEN} + 4">
+    <Define name="ES_CDS_MAX_FULL_NAME_LEN" value="${CFE_MISSION/ES_CDS_MAX_NAME_LENGTH} + ${CFE_MISSION/CORE_API_MAX_API_LEN} + 4">
       <LongDescription>
         \cfeescfg Maximum Length of Full CDS Name in messages
 
