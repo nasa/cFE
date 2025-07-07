@@ -11,7 +11,7 @@ on:
 env:
   SIMULATION: native
   ENABLE_UNIT_TESTS: true
-  OMIT_DEPRECATED: true
+  OMIT_DEPRECATED: false
   BUILDTYPE: debug
 
 jobs:

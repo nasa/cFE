@@ -11,7 +11,7 @@ on:
 env:
   SIMULATION: native
   ENABLE_UNIT_TESTS: true
-  OMIT_DEPRECATED: true
+  OMIT_DEPRECATED: false
   BUILDTYPE: release
 
 jobs:
@@ -48,12 +48,12 @@ jobs:
 
       - name: Mark Git directory as safe
         run: git config --global --add safe.directory $GITHUB_WORKSPACE
-        
+
       - name: Get cFS submodules
         run: |
           git submodule sync
           git submodule update --init --recursive
-          
+
       - name: Checkout submodule
         uses: actions/checkout@v3
         with:
@@ -88,7 +88,7 @@ jobs:
           sleep 30
           counter=0
 
-          while [[ ! -f cf/cfe_test.log ]]; do
+          while [ ! -f cf/cfe_test.log ]; do
             temp=$(grep -c "BEGIN" cf/cfe_test.tmp)
 
             if [ $temp -eq $counter ]; then
@@ -102,13 +102,13 @@ jobs:
           done
 
           ../host/cmdUtil --endian=LE --pktid=0x1806 --cmdcode=2 --half=0x0002
-        working-directory: ./build/exe/cpu1/
+        working-directory: build/exe/cpu1/
 
       - name: Archive cFS Startup Artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: cFS-startup-log-deprecate-true-${{ matrix.buildtype }}
-          path: ./build/exe/cpu1/cf/cfe_test.log
+          name: cFS-startup-log-deprecate-false-release
+          path: build/exe/cpu1/cf/cfe_test.log
 
       - name: Check for cFS Warnings
         run: |
@@ -118,5 +118,5 @@ jobs:
                   grep -i '\[ FAIL]\|\[  TSF]\|\[  TTF]' cf/cfe_test.log
                   exit -1
           fi
-        working-directory: ./build/exe/cpu1/
+        working-directory: build/exe/cpu1/
 
