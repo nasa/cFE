@@ -564,7 +564,7 @@ int32 CFE_EVS_EnableEventTypeCmd(const CFE_EVS_EnableEventTypeCmd_t *data)
             /* Make sure application is registered for event services */
             if (EVS_AppDataIsUsed(AppDataPtr))
             {
-                EVS_EnableTypes(AppDataPtr, CmdPtr->BitMask);
+                EVS_SetTypes(AppDataPtr, CmdPtr->BitMask, true);
             }
             ++AppDataPtr;
         }
@@ -609,7 +609,7 @@ int32 CFE_EVS_DisableEventTypeCmd(const CFE_EVS_DisableEventTypeCmd_t *data)
             /* Make sure application is registered for event services */
             if (EVS_AppDataIsUsed(AppDataPtr))
             {
-                EVS_DisableTypes(AppDataPtr, CmdPtr->BitMask);
+                EVS_SetTypes(AppDataPtr, CmdPtr->BitMask, false);
             }
             ++AppDataPtr;
         }
@@ -685,7 +685,7 @@ int32 CFE_EVS_EnableAppEventTypeCmd(const CFE_EVS_EnableAppEventTypeCmd_t *data)
         }
         else
         {
-            EVS_EnableTypes(AppDataPtr, CmdPtr->BitMask);
+            EVS_SetTypes(AppDataPtr, CmdPtr->BitMask, true);
         }
     }
     else if (Status == CFE_EVS_APP_NOT_REGISTERED)
@@ -747,7 +747,7 @@ int32 CFE_EVS_DisableAppEventTypeCmd(const CFE_EVS_DisableAppEventTypeCmd_t *dat
         }
         else
         {
-            EVS_DisableTypes(AppDataPtr, CmdPtr->BitMask);
+            EVS_SetTypes(AppDataPtr, CmdPtr->BitMask, false);
         }
     }
     else if (Status == CFE_EVS_APP_NOT_REGISTERED)
@@ -1252,7 +1252,7 @@ int32 CFE_EVS_WriteAppDataFileCmd(const CFE_EVS_WriteAppDataFileCmd_t *data)
                     CFE_ES_GetAppName(AppDataFile.AppName, EVS_AppDataGetID(AppDataPtr), sizeof(AppDataFile.AppName));
                     AppDataFile.ActiveFlag           = AppDataPtr->ActiveFlag;
                     AppDataFile.EventCount           = AppDataPtr->EventCount;
-                    AppDataFile.EventTypesActiveFlag = AppDataPtr->EventTypesActiveFlag;
+                    AppDataFile.EventTypesActiveFlag = EVS_EventArrayToBitMask(AppDataPtr);
                     AppDataFile.SquelchedCount       = AppDataPtr->SquelchedCount;
 
                     /* Copy application filter data to application file data record */
@@ -1292,3 +1292,75 @@ int32 CFE_EVS_WriteAppDataFileCmd(const CFE_EVS_WriteAppDataFileCmd_t *data)
 
     return Result;
 }
+
+/*----------------------------------------------------------------
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+size_t CFE_EVS_EventTypeToArrayIndex(CFE_EVS_EventType_Enum_t EventType)
+{
+    return (EventType - 1);
+}
+
+/*----------------------------------------------------------------
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+void CFE_EVS_SetTypeEnable(CFE_EVS_EventType_Enum_t EventType, bool State)
+{
+    CFE_ES_AppId_t AppId;
+    EVS_AppData_t *AppDataPtr;
+    size_t Index;
+
+    /*Get App ID*/
+    CFE_ES_GetAppID(&AppId);
+
+    /*Use App ID to get AppDataPtr*/
+    AppDataPtr = EVS_GetAppDataByID(AppId);
+
+    /*Convert to an array index*/
+    Index = CFE_EVS_EventTypeToArrayIndex(EventType);
+
+    /*Bounds and null check*/
+    if (AppDataPtr != NULL && Index < sizeof(AppDataPtr->EventTypesActive))
+    {
+        /*Reset event squelch counter*/
+        AppDataPtr->SquelchTokens = CFE_PLATFORM_EVS_MAX_APP_EVENT_BURST * 1000;
+        AppDataPtr->EventTypesActive[Index] = State;
+    }
+}
+
+/*----------------------------------------------------------------
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+bool CFE_EVS_GetTypeEnable(CFE_EVS_EventType_Enum_t EventType)
+{
+    CFE_ES_AppId_t AppId;
+    EVS_AppData_t *AppDataPtr;
+    size_t Index;
+
+    /*Get App ID*/
+    CFE_ES_GetAppID(&AppId);
+
+    /*Use App ID to get AppDataPtr*/
+    AppDataPtr = EVS_GetAppDataByID(AppId);
+
+    /*Convert to an array index*/
+    Index = CFE_EVS_EventTypeToArrayIndex(EventType);
+    
+    /*Bounds and null check*/
+    if (AppDataPtr != NULL && Index < sizeof(AppDataPtr->EventTypesActive))
+    {
+        return AppDataPtr->EventTypesActive[Index];
+    }
+
+    return false;
+}
+

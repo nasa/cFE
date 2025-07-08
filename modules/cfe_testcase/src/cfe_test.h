@@ -35,6 +35,8 @@
 #include "utassert.h"
 #include "cfe_assert.h"
 
+#include "cfe_evs_core_internal.h"
+
 typedef struct
 {
     CFE_FS_FileWriteMetaData_t FuncTestState;

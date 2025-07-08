@@ -54,6 +54,9 @@ void CFE_TestMain(void)
     CFE_Assert_RegisterTest(TestName);
     CFE_Assert_OpenLogFile(CFE_ASSERT_LOG_FILE_NAME);
 
+    /*Enable Debug Events*/
+    CFE_EVS_SetTypeEnable(CFE_EVS_EventType_DEBUG, true);
+
     /*
      * Register test cases in UtAssert
      */

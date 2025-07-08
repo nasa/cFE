@@ -68,8 +68,8 @@ CFE_Status_t CFE_EVS_Register(const void *Filters, uint16 NumEventFilters, uint1
         {
             /* Initialize application event data */
             AppDataPtr->ActiveFlag           = true;
-            AppDataPtr->EventTypesActiveFlag = CFE_PLATFORM_EVS_DEFAULT_TYPE_FLAG;
             AppDataPtr->SquelchTokens        = CFE_PLATFORM_EVS_MAX_APP_EVENT_BURST * 1000;
+            EVS_SetTypes(AppDataPtr, CFE_PLATFORM_EVS_DEFAULT_TYPE_FLAG, true);
 
             /* Set limit for number of provided filters */
             if (NumEventFilters < CFE_PLATFORM_EVS_MAX_EVENT_FILTERS)
