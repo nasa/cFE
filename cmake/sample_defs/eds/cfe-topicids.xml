@@ -99,6 +99,7 @@
     <Define name="CI_LAB_CMD_TOPICID"           value="${CFE_MISSION/TELECOMMAND_BASE_TOPICID} + 132"    />
     <Define name="CI_LAB_SEND_HK_TOPICID"       value="${CFE_MISSION/TELECOMMAND_BASE_TOPICID} + 133"    />
     <Define name="CI_LAB_READ_UPLINK_TOPICID"   value="${CFE_MISSION/TELECOMMAND_BASE_TOPICID} + 134"    />
+    <Define name="SAMPLE_APP_WAKEUP_TOPICID"    value="${CFE_MISSION/TELECOMMAND_BASE_TOPICID} + 135"    />
 
 
     <!-- Executive Services (ES) Telemetry Topics -->

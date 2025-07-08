@@ -483,9 +483,13 @@ void TblTest_GenerateTblFiles(void)
 
 void TBLContentMangTestSetup(void)
 {
+    /* Note - the method used to generate these table files is not (yet) compatible with EDS */
+#ifndef CFE_EDS_ENABLED
     TblTest_GenerateTblFiles();
 
     UtTest_Add(TestLoad, RegisterTestTable, UnregisterTestTable, "Test Table Load");
+#endif
+
     UtTest_Add(TestUpdate, RegisterTestTable, UnregisterTestTable, "Test Table Update");
     UtTest_Add(TestValidate, RegisterTestTable, UnregisterTestTable, "Test Table Validate");
     UtTest_Add(TestManage, RegisterTestTable, UnregisterTestTable, "Test Table Manage");

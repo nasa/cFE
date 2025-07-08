@@ -215,7 +215,7 @@ if (CFE_EDS_ENABLED)
 
     list(APPEND CFE_LINK_WHOLE_LIBS
         cfe_missionlib_runtime_static
-        cfe_missionlib_interfacedb_static
+        cfe_missionlib_sb_dispatchdb_static
     )
 
     # Set a preprocessor define so the source will reference the right thing

@@ -172,9 +172,9 @@ endfunction(generate_c_headerfile)
 function(generate_configfile_set)
   set(CFGFILE_PREFIX)
 
-  if (EDS_PENDING)
+  if (CFE_EDS_ENABLED)
     list(APPEND CFGFILE_PREFIX "eds")
-  endif(EDS_PENDING)
+  endif(CFE_EDS_ENABLED)
 
   list(APPEND CFGFILE_PREFIX "default")
 
@@ -186,12 +186,15 @@ function(generate_configfile_set)
     set(DEFAULT_SOURCE)
     foreach (FBPREFIX ${CFGFILE_PREFIX})
       set(CHECK_FILE "${CMAKE_CURRENT_LIST_DIR}/config/${FBPREFIX}_${CFGFILE}")
-      message("Trying ${CHECK_FILE}")
       if (EXISTS ${CHECK_FILE})
         set(DEFAULT_SOURCE FALLBACK_FILE "${CHECK_FILE}")
         break()
       endif()
     endforeach()
+
+    if (VERBOSE)
+      message(STATUS "Generating ${CFGFILE} with options: ${DEFAULT_SOURCE}")
+    endif(VERBOSE)
 
     generate_config_includefile(
       FILE_NAME           "${CFGFILE}"

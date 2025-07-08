@@ -25,8 +25,8 @@
  *
  */
 
-#ifndef CFE_MSGIDS_H
-#define CFE_MSGIDS_H
+#ifndef DEFAULT_CFE_MSGIDS_H
+#define DEFAULT_CFE_MSGIDS_H
 
 /*
 ** Includes

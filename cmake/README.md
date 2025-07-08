@@ -67,6 +67,13 @@ compile source code using these libraries.
 * git - Required if you want to access the official CFS distribution directly
 from the CFS community source repositories.
 
+Additional dependencies for EDS support are as follows.  This set is only needed
+when building CFS with the CFE_EDS_ENABLED flag.
+* libexpat (XML parser) - Any recent version should work.
+* lua - Recommend version 5.3 or 5.4, including development headers (liblua5.3-dev)
+* Python development libraries (python3-dev) if Python bindings are desired
+* JSON-C development libraries (libjson-c-dev), if JSON bindings are desired
+
 Mission Configuration
 ---------------------
 

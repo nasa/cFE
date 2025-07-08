@@ -26,6 +26,9 @@
 #include "cfe_config.h"
 
 #include "edslib_datatypedb.h"
+#include "edslib_intfdb.h"
+#include "edslib_global.h"
+
 #include "cfe_missionlib_api.h"
 #include "cfe_mission_eds_parameters.h"
 #include "cfe_mission_eds_interface_parameters.h"
@@ -124,68 +127,119 @@ CFE_Status_t CFE_TBL_EncodeHeadersToFile(CFE_TBL_TxnState_t *Txn, osal_id_t File
 
 /*----------------------------------------------------------------
  *
- * Application-scope internal function
- * See description in header file for argument/return detail
+ * Local Helper Function, not called outside of this unit
  *
  *-----------------------------------------------------------------*/
-CFE_Status_t CFE_TBL_ValidateCodecConfig(CFE_TBL_TableConfig_t *ReqCfg)
+CFE_Status_t CFE_TBL_FindAppTableInterface(const char *TableFullName, EdsLib_Id_t *EdsIdBuf)
 {
-    CFE_Status_t                                  ReturnCode;
-    EdsLib_DataTypeDB_TypeInfo_t                  TypeInfo;
-    const EdsLib_DatabaseObject_t *               EDS_DB;
-    EdsLib_Id_t                                   EdsId;
-    int32                                         EdsStatus;
-    uint16_t                                      InterfaceId;
-    const CFE_MissionLib_SoftwareBus_Interface_t *INTF_DB;
+    CFE_Status_t ReturnCode;
+    EdsLib_Id_t  AppComponentEdsId;
+    int32        EdsStatus;
+    uint8_t      AppIdx;
+    char         AppNameBuffer[OS_MAX_API_NAME];
+    const char * TableNamePtr;
+    size_t       AppNameLen;
 
-    EDS_DB  = CFE_Config_GetObjPointer(CFE_CONFIGID_MISSION_EDS_DB);
-    INTF_DB = CFE_Config_GetObjPointer(CFE_CONFIGID_MISSION_SBINTF_DB);
+    const EdsLib_DatabaseObject_t *EDS_DB;
 
-    ReturnCode = CFE_SUCCESS;
-    EdsId      = EDSLIB_ID_INVALID;
+    EDS_DB = CFE_Config_GetObjPointer(CFE_CONFIGID_MISSION_EDS_DB);
+
+    /* The Name in ReqCfg is stored as <AppName>.<TableName>, need to isolate the app name */
+    TableNamePtr = strchr(TableFullName, '.');
+    if (TableNamePtr != NULL)
+    {
+        AppNameLen = TableNamePtr - TableFullName;
+        ++TableNamePtr;
+    }
+    else
+    {
+        AppNameLen   = 0;
+        TableNamePtr = TableFullName;
+    }
+
+    if (AppNameLen >= sizeof(AppNameBuffer))
+    {
+        AppNameLen = sizeof(AppNameBuffer) - 1;
+    }
+
+    memcpy(AppNameBuffer, TableFullName, AppNameLen);
+    AppNameBuffer[AppNameLen] = 0;
 
     /*
      * All apps with tables should include those tables in their respective EDS file
      * as an interface that inherits from the table interface defined by table services,
      * and this should include the type mapping for the table data.
-     *
-     * For now this is a placeholder - these API calls were made for the software bus
-     * interface, and are structured as such.  They need to be updated to include the tables.
-     * Until it is updated, these calls are going to return a failure status indicating that
-     * the data is not in the DB.  Note - it can be still be tested in coverage test for
-     * verification that the logic is sound, even if the real DB is not present yet.
      */
-    EdsStatus = CFE_MissionLib_FindInterfaceByName(INTF_DB, ReqCfg->Name, &InterfaceId);
+    EdsStatus = EdsLib_FindPackageIdxByName(EDS_DB, AppNameBuffer, &AppIdx);
     if (EdsStatus == EDSLIB_SUCCESS)
     {
-        /* placeholder! */
-        EdsStatus = CFE_MissionLib_GetArgumentType(INTF_DB, InterfaceId, 0, 0, 0, &EdsId);
+        EdsStatus = EdsLib_IntfDB_FindComponentByLocalName(EDS_DB, AppIdx, "Application", &AppComponentEdsId);
+    }
+    if (EdsStatus == EDSLIB_SUCCESS)
+    {
+        EdsStatus = EdsLib_IntfDB_FindComponentInterfaceByLocalName(EDS_DB, AppComponentEdsId, TableNamePtr, EdsIdBuf);
     }
 
     if (EdsStatus != EDSLIB_SUCCESS)
     {
-        /* TEMPORARY - for now, the DB does not have this info for tables yet.
-         * This is just a hack so the CFS framework app tables can be loaded,
-         * remove this hard coded logic once it is in the EDS DB. */
-        if (strcmp(ReqCfg->Name, "SAMPLE_APP.ExampleTable") == 0)
-        {
-            EdsId = EDSLIB_MAKE_ID(EDS_INDEX(SAMPLE_APP), EdsContainer_SAMPLE_APP_ExampleTable_DATADICTIONARY);
-        }
-        else if (strcmp(ReqCfg->Name, "TO_LAB_APP.TO_LAB_Subs") == 0)
-        {
-            EdsId = EDSLIB_MAKE_ID(EDS_INDEX(TO_LAB), EdsArray_TO_LAB_SubscriptionTable_DATADICTIONARY);
-        }
-        else if (strcmp(ReqCfg->Name, "SCH_LAB_APP.ScheduleTable") == 0)
-        {
-            EdsId = EDSLIB_MAKE_ID(EDS_INDEX(SCH_LAB), EdsContainer_SCH_LAB_ScheduleTable_DATADICTIONARY);
-        }
+        ReturnCode = CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
+    }
+    else
+    {
+        ReturnCode = CFE_SUCCESS;
     }
 
-    EdsStatus = EdsLib_DataTypeDB_GetTypeInfo(EDS_DB, EdsId, &TypeInfo);
+    return ReturnCode;
+}
+
+/*----------------------------------------------------------------
+ *
+ * Local Helper Function, not called outside of this unit
+ *
+ *-----------------------------------------------------------------*/
+CFE_Status_t CFE_TBL_TranslateArgumentType(EdsLib_Id_t TblIntfEdsId, EdsLib_Id_t LoadCmdEdsId, EdsLib_Id_t *EdsIdBuf)
+{
+    CFE_Status_t                   ReturnCode;
+    int32                          EdsStatus;
+    const EdsLib_DatabaseObject_t *EDS_DB;
+
+    EDS_DB = CFE_Config_GetObjPointer(CFE_CONFIGID_MISSION_EDS_DB);
+
+    EdsStatus = EdsLib_IntfDB_FindAllArgumentTypes(EDS_DB, LoadCmdEdsId, TblIntfEdsId, EdsIdBuf, 1);
+
+    /* Translate the status code */
     if (EdsStatus != EDSLIB_SUCCESS)
     {
-        /* This table was not found in EDS */
-        ReturnCode = CFE_STATUS_NOT_IMPLEMENTED;
+        ReturnCode = CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
+    }
+    else
+    {
+        ReturnCode = CFE_SUCCESS;
+    }
+
+    return ReturnCode;
+}
+
+/*----------------------------------------------------------------
+ *
+ * Local Helper Function, not called outside of this unit
+ *
+ *-----------------------------------------------------------------*/
+CFE_Status_t CFE_TBL_ValidateEdsObjectSize(CFE_TBL_TableConfig_t *ReqCfg)
+{
+    CFE_Status_t                 ReturnCode;
+    EdsLib_DataTypeDB_TypeInfo_t TypeInfo;
+    int32_t                      EdsStatus;
+
+    const EdsLib_DatabaseObject_t *EDS_DB;
+
+    EDS_DB = CFE_Config_GetObjPointer(CFE_CONFIGID_MISSION_EDS_DB);
+
+    /* Note that this is checking the in-memory size here, not the encoded size */
+    EdsStatus = EdsLib_DataTypeDB_GetTypeInfo(EDS_DB, ReqCfg->EdsId, &TypeInfo);
+    if (EdsStatus != EDSLIB_SUCCESS)
+    {
+        ReturnCode = CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
     }
     else if (TypeInfo.Size.Bytes != ReqCfg->Size)
     {
@@ -194,9 +248,44 @@ CFE_Status_t CFE_TBL_ValidateCodecConfig(CFE_TBL_TableConfig_t *ReqCfg)
     }
     else
     {
-        /* Everything checked out */
-        ReqCfg->EdsId = EdsId;
-        ReturnCode    = CFE_SUCCESS;
+        /* Everything looks OK */
+        ReturnCode = CFE_SUCCESS;
+    }
+
+    return ReturnCode;
+}
+
+/*----------------------------------------------------------------
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+CFE_Status_t CFE_TBL_ValidateCodecConfig(CFE_TBL_TableConfig_t *ReqCfg)
+{
+    CFE_Status_t ReturnCode;
+    EdsLib_Id_t  LoadCmdEdsId;
+    EdsLib_Id_t  TblIntfEdsId;
+
+    /* Locate the relevant entries in the EDS DB */
+
+    /* The table load command is a fixed definition, does not need a lookup */
+    LoadCmdEdsId = EDSLIB_INTF_ID(EDS_INDEX(CFE_TBL), EdsCommand_CFE_TBL_Table_load_DECLARATION);
+
+    /* The type mapping depends on the application use of this service */
+    /* This assumes that the CFE application name matches the EDS package name */
+    ReturnCode = CFE_TBL_FindAppTableInterface(ReqCfg->Name, &TblIntfEdsId);
+
+    /* Determine the argument data type for "load" command */
+    if (ReturnCode == CFE_SUCCESS)
+    {
+        ReturnCode = CFE_TBL_TranslateArgumentType(TblIntfEdsId, LoadCmdEdsId, &ReqCfg->EdsId);
+    }
+
+    /* Confirm that the size matches the user-indicated size */
+    if (ReturnCode == CFE_SUCCESS)
+    {
+        ReturnCode = CFE_TBL_ValidateEdsObjectSize(ReqCfg);
     }
 
     return ReturnCode;

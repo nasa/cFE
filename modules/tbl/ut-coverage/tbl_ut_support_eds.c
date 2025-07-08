@@ -40,6 +40,7 @@
 #include "tbl_ut_helpers.h"
 #include "cfe_core_resourceid_basevalues.h"
 #include "edslib_datatypedb.h"
+#include "edslib_intfdb.h"
 #include "cfe_missionlib_api.h"
 #include "cfe_mission_eds_parameters.h"
 
@@ -73,10 +74,6 @@ const UT_TaskPipeDispatchId_t UT_TPID_CFE_TBL_CMD_INVALID_CC =
 /* Holding place for the data type info that the EdsLib stubs will return for the current test */
 static char                         UT_TBL_StubIntfNameStash[64];
 static EdsLib_DataTypeDB_TypeInfo_t UT_TBL_StubTypeInfo;
-
-/* this is _not_ in the range of typical Interface IDs so it should not alias -
- * main objective is to make it non-zerzero, value does not matter */
-static const uint16_t UT_TBL_StubIntfId = 0x123;
 
 /* this is _not_ in the range of typical EDS IDs so it should not alias -
  * main objective is to make it non-zerzero, value does not matter */
@@ -187,18 +184,24 @@ void UT_TBL_SetupHeader(CFE_TBL_File_Hdr_t *TblFileHeader, size_t Offset, size_t
     UT_SetDataBuffer(UT_KEY(EdsLib_DataTypeDB_UnpackCompleteObject) ^ EdsId, TblFileHeader, sizeof(*TblFileHeader),
                      true);
     UT_SetHandlerFunction(UT_KEY(EdsLib_DataTypeDB_UnpackCompleteObject), UT_TBL_SetEdsLibUnpackData, NULL);
-    UT_SetHandlerFunction(UT_KEY(EdsLib_DataTypeDB_GetTypeInfo), UT_TBL_SetEdsLibTypeInfo, NULL);
+
+    memset(&UT_TBL_StubTypeInfo, 0, sizeof(UT_TBL_StubTypeInfo));
+    UT_TBL_StubTypeInfo.ElemType   = EDSLIB_BASICTYPE_CONTAINER;
+    UT_TBL_StubTypeInfo.Size.Bits  = 8 * sizeof(UT_Table1_t);
+    UT_TBL_StubTypeInfo.Size.Bytes = sizeof(UT_Table1_t);
+
+    UT_SetHandlerFunction(UT_KEY(EdsLib_DataTypeDB_GetTypeInfo), UT_TBL_SetEdsLibTypeInfo, &UT_TBL_StubTypeInfo);
 }
 
 static void UT_TBL_FindIntfNameHandler(void *UserObj, UT_EntryKey_t FuncKey, const UT_StubContext_t *Context)
 {
     /*
      * Handler for API:
-     * int32_t CFE_MissionLib_FindInterfaceByName(const CFE_MissionLib_SoftwareBus_Interface_t *Intf,
-     *        const char *IntfName, uint16_t *InterfaceIdBuffer);
+     * int32_t EdsLib_IntfDB_FindComponentInterfaceByLocalName(const EdsLib_DatabaseObject_t *GD, EdsLib_Id_t
+     * ComponentId, const char *IntfName, EdsLib_Id_t *IdBuffer)
      */
-    const char *IntfName          = UT_Hook_GetArgValueByName(Context, "IntfName", const char *);
-    uint16_t *  InterfaceIdBuffer = UT_Hook_GetArgValueByName(Context, "InterfaceIdBuffer", uint16_t *);
+    const char * IntfName = UT_Hook_GetArgValueByName(Context, "IntfName", const char *);
+    EdsLib_Id_t *IdBuffer = UT_Hook_GetArgValueByName(Context, "IdBuffer", EdsLib_Id_t *);
 
     if (IntfName != NULL)
     {
@@ -207,11 +210,11 @@ static void UT_TBL_FindIntfNameHandler(void *UserObj, UT_EntryKey_t FuncKey, con
         UT_TBL_StubIntfNameStash[sizeof(UT_TBL_StubIntfNameStash) - 1] = 0;
     }
 
-    if (InterfaceIdBuffer != NULL)
+    if (IdBuffer != NULL)
     {
         /* this is _not_ in the range of typical Interface IDs so it should not alias -
          * main objective is to make it non-zerzero, value does not matter */
-        *InterfaceIdBuffer = UT_TBL_StubIntfId;
+        *IdBuffer = UT_TBL_StubEdsId;
     }
 }
 
@@ -219,24 +222,24 @@ static void UT_TBL_GetArgumentTypeHandler(void *UserObj, UT_EntryKey_t FuncKey, 
 {
     /*
      * Handler for API:
-     * int32_t CFE_MissionLib_GetArgumentType(const CFE_MissionLib_SoftwareBus_Interface_t *Intf, uint16_t
-     * InterfaceType, uint16_t TopicId, uint16_t IndicationId, uint16_t ArgumentId, EdsLib_Id_t *Id);
+     * int32_t EdsLib_IntfDB_FindAllArgumentTypes(const EdsLib_DatabaseObject_t *GD, EdsLib_Id_t CmdEdsId,
+     *                    EdsLib_Id_t CompIntfEdsId, EdsLib_Id_t *IdBuffer, size_t NumIdBufs)
      */
-    EdsLib_Id_t *EdsId = UT_Hook_GetArgValueByName(Context, "Id", EdsLib_Id_t *);
+    EdsLib_Id_t *IdBuffer = UT_Hook_GetArgValueByName(Context, "IdBuffer", EdsLib_Id_t *);
 
-    if (EdsId != NULL)
+    if (IdBuffer != NULL)
     {
         /* this is _not_ in the range of typical EDS IDs so it should not alias -
          * main objective is to make it non-zerzero, value does not matter */
-        *EdsId = UT_TBL_StubEdsId;
+        *IdBuffer = UT_TBL_StubEdsId;
     }
 }
 
 void UT_TBL_SetupCodec(size_t ByteSize)
 {
     UT_ResetState(UT_KEY(EdsLib_DataTypeDB_GetTypeInfo));
-    UT_ResetState(UT_KEY(CFE_MissionLib_FindInterfaceByName));
-    UT_ResetState(UT_KEY(CFE_MissionLib_GetArgumentType));
+    UT_ResetState(UT_KEY(EdsLib_IntfDB_FindComponentInterfaceByLocalName));
+    UT_ResetState(UT_KEY(EdsLib_IntfDB_FindAllArgumentTypes));
     UT_TBL_StubIntfNameStash[0] = 0;
 
     if (ByteSize != 0)
@@ -252,6 +255,6 @@ void UT_TBL_SetupCodec(size_t ByteSize)
         UT_SetHandlerFunction(UT_KEY(EdsLib_DataTypeDB_GetTypeInfo), UT_TBL_SetEdsLibTypeInfo, NULL);
     }
 
-    UT_SetHandlerFunction(UT_KEY(CFE_MissionLib_FindInterfaceByName), UT_TBL_FindIntfNameHandler, NULL);
-    UT_SetHandlerFunction(UT_KEY(CFE_MissionLib_GetArgumentType), UT_TBL_GetArgumentTypeHandler, NULL);
+    UT_SetHandlerFunction(UT_KEY(EdsLib_IntfDB_FindComponentInterfaceByLocalName), UT_TBL_FindIntfNameHandler, NULL);
+    UT_SetHandlerFunction(UT_KEY(EdsLib_IntfDB_FindAllArgumentTypes), UT_TBL_GetArgumentTypeHandler, NULL);
 }

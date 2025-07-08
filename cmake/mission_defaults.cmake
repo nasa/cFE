@@ -85,18 +85,11 @@ if(CFE_EDS_ENABLED)
     endif()
 
     # The standard msg module is not used in EDS build, edslib provides an alternate
-    if (EDS_PENDING)
-        list(REMOVE_ITEM MISSION_CORE_MODULES msg)
-        list(APPEND MISSION_CORE_MODULES edsmsg)
-    else()
-        # TEMPORARY until EDS integration is complete - build edsmsg as an app, not as a core module
-        list(APPEND MISSION_GLOBAL_APPLIST edsmsg)
-    endif(EDS_PENDING)
-
-
+    list(REMOVE_ITEM MISSION_CORE_MODULES msg)
     list(APPEND MISSION_CORE_MODULES
         "edslib"
         "missionlib"
+        "edsmsg"
     )
 
     list(APPEND MISSION_MODULE_SEARCH_PATH

@@ -579,7 +579,7 @@ function(setup_platform_msgids)
   set(PLATFORM_MSGID_HEADERFILE)
 
   # In an EDS build, the msg IDs always come from EDS, there should not be a local msgids.h file
-  if (NOT EDS_PENDING)
+  if (NOT CFE_EDS_ENABLED)
 
     # Check for the presence of a platform-specific msgid file
     # This uses cfe_locate_implementation_file() as this returns whether or not it found one
@@ -607,7 +607,7 @@ function(setup_platform_msgids)
 
     endif(PLATFORM_MSGID_HEADERFILE)
 
-  endif(NOT EDS_PENDING)
+  endif(NOT CFE_EDS_ENABLED)
 
   # Finally, export a CFGFILE_SRC variable for each of the deps
   # This should make each respective "mission_build" create a wrapper

@@ -1422,7 +1422,7 @@ void Test_CFE_TBL_Register(void)
 
     /* Test response to a memory handle error */
     UT_InitData_TBL();
-    UT_TBL_SetupCodec(0);
+    UT_TBL_SetupCodec(sizeof(UT_Table1_t));
     UT_SetDeferredRetcode(UT_KEY(CFE_ES_GetPoolBuf), 1, CFE_ES_ERR_RESOURCEID_NOT_VALID);
     UtAssert_INT32_EQ(CFE_TBL_Register(&TblHandle1, "UT_Table1", sizeof(UT_Table1_t), CFE_TBL_OPT_DEFAULT, NULL),
                       CFE_ES_ERR_RESOURCEID_NOT_VALID);
@@ -1431,7 +1431,7 @@ void Test_CFE_TBL_Register(void)
 
     /* Test response to a memory block size error */
     UT_InitData_TBL();
-    UT_TBL_SetupCodec(0);
+    UT_TBL_SetupCodec(sizeof(UT_Table1_t));
     UT_SetDeferredRetcode(UT_KEY(CFE_ES_GetPoolBuf), 1, CFE_ES_ERR_MEM_BLOCK_SIZE);
     UtAssert_INT32_EQ(CFE_TBL_Register(&TblHandle1, "UT_Table1", sizeof(UT_Table1_t), CFE_TBL_OPT_DEFAULT, NULL),
                       CFE_ES_ERR_MEM_BLOCK_SIZE);
@@ -1440,7 +1440,7 @@ void Test_CFE_TBL_Register(void)
 
     /* Test response to a memory block size error (for a second buffer) */
     UT_InitData_TBL();
-    UT_TBL_SetupCodec(0);
+    UT_TBL_SetupCodec(sizeof(UT_Table1_t));
     UT_SetDeferredRetcode(UT_KEY(CFE_ES_GetPoolBuf), 2, CFE_ES_ERR_MEM_BLOCK_SIZE);
     UtAssert_INT32_EQ(CFE_TBL_Register(&TblHandle1, "UT_Table1", sizeof(UT_Table1_t), CFE_TBL_OPT_DBL_BUFFER, NULL),
                       CFE_ES_ERR_MEM_BLOCK_SIZE);
@@ -1449,14 +1449,14 @@ void Test_CFE_TBL_Register(void)
 
     /* Test successfully getting a double buffered table */
     UT_InitData_TBL();
-    UT_TBL_SetupCodec(0);
+    UT_TBL_SetupCodec(sizeof(UT_Table1_t));
     CFE_UtAssert_SUCCESS(CFE_TBL_Register(&TblHandle1, "UT_Table1", sizeof(UT_Table1_t), CFE_TBL_OPT_DBL_BUFFER, NULL));
     CFE_UtAssert_EVENTNOTSENT(CFE_TBL_REGISTER_ERR_EID);
     CFE_UtAssert_EVENTCOUNT(0);
 
     /* Test attempt to register table owned by another application */
     UT_InitData_TBL();
-    UT_TBL_SetupCodec(0);
+    UT_TBL_SetupCodec(sizeof(UT_Table1_t));
     UT_SetAppID(UT_TBL_APPID_2);
     UtAssert_INT32_EQ(CFE_TBL_Register(&TblHandle3, "UT_Table1", sizeof(UT_Table1_t), CFE_TBL_OPT_DBL_BUFFER, NULL),
                       CFE_TBL_ERR_DUPLICATE_NOT_OWNED);
@@ -1483,7 +1483,7 @@ void Test_CFE_TBL_Register(void)
 
     /* b. Perform test */
     UT_InitData_TBL();
-    UT_TBL_SetupCodec(0);
+    UT_TBL_SetupCodec(sizeof(UT_Table1_t));
     UT_SetAppID(UT_TBL_APPID_1); /* Restore AppID to proper value */
     UtAssert_INT32_EQ(CFE_TBL_Register(&TblHandle2, "UT_Table1", sizeof(UT_Table1_t), CFE_TBL_OPT_DBL_BUFFER, NULL),
                       CFE_TBL_WARN_DUPLICATE);
@@ -1508,7 +1508,7 @@ void Test_CFE_TBL_Register(void)
     /* Test registering a single buffered table */
     /* a. Perform test */
     UT_InitData_TBL();
-    UT_TBL_SetupCodec(0);
+    UT_TBL_SetupCodec(sizeof(UT_Table1_t));
     UT_SetAppID(UT_TBL_APPID_1);
     CFE_UtAssert_SUCCESS(CFE_TBL_Register(&TblHandle1, "UT_Table1", sizeof(UT_Table1_t), CFE_TBL_OPT_DEFAULT, NULL));
     CFE_UtAssert_EVENTNOTSENT(CFE_TBL_REGISTER_ERR_EID);
@@ -1522,7 +1522,7 @@ void Test_CFE_TBL_Register(void)
     /* Test registering a single buffered dump-only table */
     /* a. Perform test */
     UT_InitData_TBL();
-    UT_TBL_SetupCodec(0);
+    UT_TBL_SetupCodec(sizeof(UT_Table1_t));
     CFE_UtAssert_SUCCESS(CFE_TBL_Register(&TblHandle1, "UT_Table1", sizeof(UT_Table1_t),
                                           (CFE_TBL_OPT_SNGL_BUFFER | CFE_TBL_OPT_DUMP_ONLY), NULL));
     CFE_UtAssert_EVENTNOTSENT(CFE_TBL_REGISTER_ERR_EID);
@@ -1536,7 +1536,7 @@ void Test_CFE_TBL_Register(void)
     /* Test registering a user defined address table */
     /* a. Perform test */
     UT_InitData_TBL();
-    UT_TBL_SetupCodec(0);
+    UT_TBL_SetupCodec(sizeof(UT_Table1_t));
     CFE_UtAssert_SUCCESS(
         CFE_TBL_Register(&TblHandle1, "UT_Table1", sizeof(UT_Table1_t), CFE_TBL_OPT_USR_DEF_ADDR, NULL));
     CFE_UtAssert_EVENTNOTSENT(CFE_TBL_REGISTER_ERR_EID);
@@ -1550,7 +1550,7 @@ void Test_CFE_TBL_Register(void)
     /* Test registering a critical table */
     /* a. Perform test */
     UT_InitData_TBL();
-    UT_TBL_SetupCodec(0);
+    UT_TBL_SetupCodec(sizeof(UT_Table1_t));
     CFE_UtAssert_SUCCESS(CFE_TBL_Register(&TblHandle1, "UT_Table1", sizeof(UT_Table1_t), CFE_TBL_OPT_CRITICAL, NULL));
     CFE_UtAssert_EVENTNOTSENT(CFE_TBL_REGISTER_ERR_EID);
     CFE_UtAssert_EVENTCOUNT(0);
@@ -1596,7 +1596,7 @@ void Test_CFE_TBL_Register(void)
      */
     /* a. Perform test */
     UT_InitData_TBL();
-    UT_TBL_SetupCodec(0);
+    UT_TBL_SetupCodec(sizeof(UT_Table1_t));
     UT_SetDeferredRetcode(UT_KEY(CFE_ES_RegisterCDSEx), 1, CFE_ES_CDS_ALREADY_EXISTS);
     UT_SetDeferredRetcode(UT_KEY(CFE_ES_RestoreFromCDS), 1, CFE_ES_ERR_RESOURCEID_NOT_VALID);
     CFE_UtAssert_SUCCESS(CFE_TBL_Register(&TblHandle1, "UT_Table1", sizeof(UT_Table1_t), CFE_TBL_OPT_CRITICAL, NULL));
@@ -1613,7 +1613,7 @@ void Test_CFE_TBL_Register(void)
      */
     /* a. Perform test */
     UT_InitData_TBL();
-    UT_TBL_SetupCodec(0);
+    UT_TBL_SetupCodec(sizeof(UT_Table1_t));
     UT_SetDeferredRetcode(UT_KEY(CFE_ES_RegisterCDSEx), 1, CFE_ES_CDS_ALREADY_EXISTS);
 
     /* Remove all entries from critical table registry */
@@ -1635,7 +1635,7 @@ void Test_CFE_TBL_Register(void)
      * is free
      */
     UT_InitData_TBL();
-    UT_TBL_SetupCodec(0);
+    UT_TBL_SetupCodec(sizeof(UT_Table1_t));
     UT_SetDeferredRetcode(UT_KEY(CFE_ES_RegisterCDSEx), 1, CFE_SUCCESS);
 
     /* Remove all entries from critical table registry */
@@ -1658,7 +1658,7 @@ void Test_CFE_TBL_Register(void)
      * is full
      */
     UT_InitData_TBL();
-    UT_TBL_SetupCodec(0);
+    UT_TBL_SetupCodec(sizeof(UT_Table1_t));
     UT_SetDeferredRetcode(UT_KEY(CFE_ES_RegisterCDSEx), 1, CFE_ES_NO_RESOURCE_IDS_AVAILABLE);
     UtAssert_INT32_EQ(CFE_TBL_Register(&TblHandle1, "UT_Table1", sizeof(UT_Table1_t), CFE_TBL_OPT_CRITICAL, NULL),
                       CFE_TBL_WARN_NOT_CRITICAL);
@@ -1668,7 +1668,7 @@ void Test_CFE_TBL_Register(void)
     /* Test attempt to register a table when the registry is full */
     /* a. Test setup */
     UT_InitData_TBL();
-    UT_TBL_SetupCodec(0);
+    UT_TBL_SetupCodec(sizeof(UT_Table1_t));
     UT_SetDeferredRetcode(UT_KEY(CFE_ResourceId_FindNext), 1, -1);
 
     /* b. Perform test */
@@ -1687,7 +1687,7 @@ void Test_CFE_TBL_Register(void)
     /* Test registering a critical table with no space in the critical table registry */
     /* a. Setup test */
     UT_InitData_TBL();
-    UT_TBL_SetupCodec(0);
+    UT_TBL_SetupCodec(sizeof(UT_Table1_t));
     for (i = 0; i < CFE_PLATFORM_TBL_MAX_CRITICAL_TABLES; i++)
     {
         CFE_TBL_Global.CritReg[i].CDSHandle = CFE_ES_CDSHANDLE_C(CFE_ResourceId_FromInteger(i + 1));
@@ -1705,7 +1705,7 @@ void Test_CFE_TBL_Register(void)
     /* Test response to no available handles */
     /* a. Test setup */
     UT_InitData_TBL();
-    UT_TBL_SetupCodec(0);
+    UT_TBL_SetupCodec(sizeof(UT_Table1_t));
     UT_SetDeferredRetcode(UT_KEY(CFE_ResourceId_FindNext), 2, -1);
 
     /* b. Perform test */
@@ -1720,7 +1720,7 @@ void Test_CFE_TBL_Register(void)
      * (CFE_TBL_OPT_USR_DEF_ADDR | CFE_TBL_OPT_CRITICAL)
      */
     UT_InitData_TBL();
-    UT_TBL_SetupCodec(0);
+    UT_TBL_SetupCodec(sizeof(UT_Table1_t));
     UtAssert_INT32_EQ(CFE_TBL_Register(&TblHandle1, "UT_Table1", sizeof(UT_Table1_t),
                                        CFE_TBL_OPT_USR_DEF_ADDR | CFE_TBL_OPT_CRITICAL, NULL),
                       CFE_TBL_ERR_INVALID_OPTIONS);
@@ -1731,7 +1731,7 @@ void Test_CFE_TBL_Register(void)
      * (CFE_TBL_OPT_DUMP_ONLY | CFE_TBL_OPT_CRITICAL)
      */
     UT_InitData_TBL();
-    UT_TBL_SetupCodec(0);
+    UT_TBL_SetupCodec(sizeof(UT_Table1_t));
     UtAssert_INT32_EQ(CFE_TBL_Register(&TblHandle1, "UT_Table1", sizeof(UT_Table1_t),
                                        CFE_TBL_OPT_DUMP_ONLY | CFE_TBL_OPT_CRITICAL, NULL),
                       CFE_TBL_ERR_INVALID_OPTIONS);
@@ -1740,7 +1740,7 @@ void Test_CFE_TBL_Register(void)
 
     /* Test attempt to register a duplicate table */
     UT_InitData_TBL();
-    UT_TBL_SetupCodec(0);
+    UT_TBL_SetupCodec(sizeof(UT_Table1_t));
     CFE_UtAssert_SETUP(CFE_TBL_Register(&TblHandle1, "UT_Table1", sizeof(UT_Table1_t), CFE_TBL_OPT_DBL_BUFFER, NULL));
     UtAssert_INT32_EQ(CFE_TBL_Register(&TblHandle2, "UT_Table1", sizeof(UT_Table1_t), CFE_TBL_OPT_DBL_BUFFER, NULL),
                       CFE_TBL_WARN_DUPLICATE);
@@ -1749,7 +1749,7 @@ void Test_CFE_TBL_Register(void)
 
     /* Test attempt to register a table with an invalid registry index */
     UT_InitData_TBL();
-    UT_TBL_SetupCodec(0);
+    UT_TBL_SetupCodec(sizeof(UT_Table1_t));
     UtAssert_NOT_NULL(AccessDescPtr = UT_TBL_AccDescFromExtHandle(TblHandle1));
     UtAssert_NOT_NULL(RegRecPtr = CFE_TBL_LocateRegRecByID(AccessDescPtr->RegIndex));
     CFE_TBL_AccDescSetFree(AccessDescPtr);
@@ -3380,7 +3380,7 @@ void Test_CFE_TBL_Internal3(void)
     CFE_TBL_RegistryRec_t *     RegRecPtr;
     CFE_TBL_AccessDescriptor_t *AccessDescPtr;
     CFE_TBL_LoadBuff_t *        WorkingBufferPtr;
-    CFE_TBL_Handle_t App3Handle;
+    CFE_TBL_Handle_t            App3Handle;
 
     UtPrintf("Begin Test Internal 3");
 
@@ -3394,7 +3394,7 @@ void Test_CFE_TBL_Internal3(void)
     WorkingBufferPtr = CFE_TBL_LocateLoadBufferByID(UT_CFE_TBL_LOADBUFFID_LAST);
     UT_TBL_SetLoadBuffTaken(WorkingBufferPtr, RegRecPtr, CFE_RESOURCEID_UNDEFINED);
     UT_TBL_SetupPendingDump(0, WorkingBufferPtr, RegRecPtr, &DumpCtrlPtr);
-    App3Handle                 = UT_TBL_AccDescToExtHandle(AccessDescPtr);
+    App3Handle = UT_TBL_AccDescToExtHandle(AccessDescPtr);
 
     UT_SetAppID(UT_TBL_APPID_1);
 
@@ -3906,7 +3906,7 @@ void Test_CFE_TBL_TxnState(void)
                       CFE_TBL_ERR_INVALID_HANDLE);
 
     /* Now register a table and check that the "start" routines work in the nominal case */
-    UT_TBL_SetupCodec(0);
+    UT_TBL_SetupCodec(sizeof(UT_Table1_t));
     CFE_UtAssert_SUCCESS(CFE_TBL_Register(&App1TblHandle1, "ut", sizeof(UT_Table1_t), CFE_TBL_OPT_DEFAULT, NULL));
 
     CFE_UtAssert_SUCCESS(CFE_TBL_TxnStartFromName(&Txn, "ut_cfe_tbl.ut", CFE_TBL_TxnContext_ALL));

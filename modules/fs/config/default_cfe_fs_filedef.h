@@ -26,7 +26,7 @@
 #define DEFAULT_CFE_FS_FILEHDR_H
 
 #include "common_types.h"
-#include "cfe_fs_mission_cfg.h" /* to define CFE_FS_HDR_DESC_MAX_LEN */
+#include "cfe_mission_cfg.h" /* to define CFE_FS_HDR_DESC_MAX_LEN */
 
 /**
  * @brief File subtypes used within cFE
@@ -195,4 +195,4 @@ typedef struct CFE_FS_Header
     char Description[CFE_FS_HDR_DESC_MAX_LEN]; /**< \brief File description */
 } CFE_FS_Header_t;
 
-#endif /* CFE_FS_EXTERN_TYPEDEFS_H */
+#endif /* DEFAULT_CFE_FS_FILEHDR_H */

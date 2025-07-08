@@ -170,12 +170,12 @@ endfunction(generate_build_version_templates)
 #
 function(setup_global_topicids)
 
-  if (EDS_PENDING)
+  if (CFE_EDS_ENABLED)
 
     # In an EDS build, the topic IDs always come from EDS
     set(MISSION_GLOBAL_TOPICID_HEADERFILE "cfe_mission_eds_designparameters.h")
 
-  else(EDS_PENDING)
+  else(CFE_EDS_ENABLED)
 
     # Check for the presence of a mission-wide/global topic ID file
     # This uses cfe_locate_implementation_file() as this returns whether or not it found one
@@ -203,7 +203,7 @@ function(setup_global_topicids)
 
     endif(MISSION_GLOBAL_TOPICID_HEADERFILE)
 
-  endif(EDS_PENDING)
+  endif(CFE_EDS_ENABLED)
 
   # Finally, export a CFGFILE_SRC variable for each of the deps
   # This should make each respective "mission_build" create a wrapper

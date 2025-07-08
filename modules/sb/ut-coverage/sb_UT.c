@@ -37,6 +37,7 @@
 ** Includes
 */
 #include "sb_UT.h"
+#include "sb_ut_helpers.h"
 #include "cfe_msg.h"
 #include "cfe_core_resourceid_basevalues.h"
 
@@ -50,198 +51,6 @@
  * so the test routines do _not_ need to do this explicitly on every test case.
  */
 #define SB_UT_ADD_SUBTEST(Func) UtTest_AddSubTest(Func, SB_ResetUnitTest, NULL, __func__, #Func)
-
-/*
- * MSG ID constants for unit testing:
- * Unit test cases should not directly use integer MsgId values
- *
- * The following constants are of the CFE_SB_MsgId_t type
- */
-
-const CFE_SB_MsgId_t SB_UT_CMD_MID = CFE_SB_MSGID_WRAP_VALUE(SB_UT_CMD_MID_VALUE_BASE);
-const CFE_SB_MsgId_t SB_UT_TLM_MID = CFE_SB_MSGID_WRAP_VALUE(SB_UT_TLM_MID_VALUE_BASE);
-
-const CFE_SB_MsgId_t SB_UT_CMD_MID1 = CFE_SB_MSGID_WRAP_VALUE(SB_UT_CMD_MID_VALUE_BASE + 1);
-const CFE_SB_MsgId_t SB_UT_CMD_MID2 = CFE_SB_MSGID_WRAP_VALUE(SB_UT_CMD_MID_VALUE_BASE + 2);
-const CFE_SB_MsgId_t SB_UT_CMD_MID3 = CFE_SB_MSGID_WRAP_VALUE(SB_UT_CMD_MID_VALUE_BASE + 3);
-const CFE_SB_MsgId_t SB_UT_CMD_MID4 = CFE_SB_MSGID_WRAP_VALUE(SB_UT_CMD_MID_VALUE_BASE + 4);
-const CFE_SB_MsgId_t SB_UT_CMD_MID5 = CFE_SB_MSGID_WRAP_VALUE(SB_UT_CMD_MID_VALUE_BASE + 5);
-const CFE_SB_MsgId_t SB_UT_CMD_MID6 = CFE_SB_MSGID_WRAP_VALUE(SB_UT_CMD_MID_VALUE_BASE + 6);
-
-const CFE_SB_MsgId_t SB_UT_TLM_MID1 = CFE_SB_MSGID_WRAP_VALUE(SB_UT_TLM_MID_VALUE_BASE + 1);
-const CFE_SB_MsgId_t SB_UT_TLM_MID2 = CFE_SB_MSGID_WRAP_VALUE(SB_UT_TLM_MID_VALUE_BASE + 2);
-const CFE_SB_MsgId_t SB_UT_TLM_MID3 = CFE_SB_MSGID_WRAP_VALUE(SB_UT_TLM_MID_VALUE_BASE + 3);
-const CFE_SB_MsgId_t SB_UT_TLM_MID4 = CFE_SB_MSGID_WRAP_VALUE(SB_UT_TLM_MID_VALUE_BASE + 4);
-const CFE_SB_MsgId_t SB_UT_TLM_MID5 = CFE_SB_MSGID_WRAP_VALUE(SB_UT_TLM_MID_VALUE_BASE + 5);
-const CFE_SB_MsgId_t SB_UT_TLM_MID6 = CFE_SB_MSGID_WRAP_VALUE(SB_UT_TLM_MID_VALUE_BASE + 6);
-
-/* Normal dispatching registers the MsgID+CC in order to follow a
- * certain path through a series of switch statements */
-#define SB_UT_MID_DISPATCH(intf) \
-    .Method = UT_TaskPipeDispatchMethod_MSG_ID_CC, .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_SB_##intf##_MID)
-
-#define SB_UT_MSG_DISPATCH(intf, cmd)       SB_UT_MID_DISPATCH(intf), UT_TPD_SETSIZE(CFE_SB_##cmd)
-#define SB_UT_CC_DISPATCH(intf, cc, cmd)    SB_UT_MSG_DISPATCH(intf, cmd), UT_TPD_SETCC(cc)
-#define SB_UT_ERROR_DISPATCH(intf, cc, err) SB_UT_MID_DISPATCH(intf), UT_TPD_SETCC(cc), UT_TPD_SETERR(err)
-
-/* NOTE: Automatic formatting of this table tends to make it harder to read. */
-/* clang-format off */
-const UT_TaskPipeDispatchId_t UT_TPID_CFE_SB_CMD_NOOP_CC =
-    { SB_UT_CC_DISPATCH(CMD,CFE_SB_NOOP_CC,NoopCmd) };
-const UT_TaskPipeDispatchId_t UT_TPID_CFE_SB_CMD_RESET_COUNTERS_CC =
-    { SB_UT_CC_DISPATCH(CMD,CFE_SB_RESET_COUNTERS_CC,ResetCountersCmd) };
-const UT_TaskPipeDispatchId_t UT_TPID_CFE_SB_CMD_SEND_SB_STATS_CC =
-    { SB_UT_CC_DISPATCH(CMD,CFE_SB_SEND_SB_STATS_CC,SendSbStatsCmd) };
-const UT_TaskPipeDispatchId_t UT_TPID_CFE_SB_CMD_WRITE_ROUTING_INFO_CC =
-    { SB_UT_CC_DISPATCH(CMD,CFE_SB_WRITE_ROUTING_INFO_CC,WriteRoutingInfoCmd) };
-const UT_TaskPipeDispatchId_t UT_TPID_CFE_SB_CMD_WRITE_PIPE_INFO_CC =
-    { SB_UT_CC_DISPATCH(CMD,CFE_SB_WRITE_PIPE_INFO_CC,WritePipeInfoCmd) };
-const UT_TaskPipeDispatchId_t UT_TPID_CFE_SB_CMD_WRITE_MAP_INFO_CC =
-    { SB_UT_CC_DISPATCH(CMD,CFE_SB_WRITE_MAP_INFO_CC,WriteMapInfoCmd) };
-const UT_TaskPipeDispatchId_t UT_TPID_CFE_SB_CMD_ENABLE_ROUTE_CC =
-    { SB_UT_CC_DISPATCH(CMD,CFE_SB_ENABLE_ROUTE_CC,EnableRouteCmd) };
-const UT_TaskPipeDispatchId_t UT_TPID_CFE_SB_CMD_DISABLE_ROUTE_CC =
-    { SB_UT_CC_DISPATCH(CMD,CFE_SB_DISABLE_ROUTE_CC,DisableRouteCmd) };
-const UT_TaskPipeDispatchId_t UT_TPID_CFE_SB_SEND_HK =
-    { SB_UT_MSG_DISPATCH(SEND_HK,SendHkCmd) };
-const UT_TaskPipeDispatchId_t UT_TPID_CFE_SB_SUB_RPT_CTL_SEND_PREV_SUBS_CC =
-    { SB_UT_CC_DISPATCH(SUB_RPT_CTRL,CFE_SB_SEND_PREV_SUBS_CC,SendPrevSubsCmd) };
-const UT_TaskPipeDispatchId_t UT_TPID_CFE_SB_SUB_RPT_CTL_ENABLE_SUB_REPORTING_CC =
-    { SB_UT_CC_DISPATCH(SUB_RPT_CTRL,CFE_SB_ENABLE_SUB_REPORTING_CC,DisableSubReportingCmd) };
-const UT_TaskPipeDispatchId_t UT_TPID_CFE_SB_SUB_RPT_CTL_DISABLE_SUB_REPORTING_CC =
-    { SB_UT_CC_DISPATCH(SUB_RPT_CTRL,CFE_SB_DISABLE_SUB_REPORTING_CC,EnableSubReportingCmd) };
-const UT_TaskPipeDispatchId_t UT_TPID_CFE_SB_CMD_BAD_FCNCODE =
-    { SB_UT_ERROR_DISPATCH(CMD, -1, CFE_STATUS_BAD_COMMAND_CODE) };
-const UT_TaskPipeDispatchId_t UT_TPID_CFE_SB_SUB_RPT_CTRL_BAD_FCNCODE =
-    { SB_UT_ERROR_DISPATCH(SUB_RPT_CTRL, -1, CFE_STATUS_BAD_COMMAND_CODE) };
-const UT_TaskPipeDispatchId_t UT_TPID_CFE_SB_BAD_MSGID =
-    { .Method = UT_TaskPipeDispatchMethod_MSG_ID_CC, UT_TPD_SETERR(CFE_STATUS_UNKNOWN_MSG_ID) };
-/* clang-format on */
-
-/*
- * A MsgId value which still qualifies as valid
- *
- * This is a  "borderline" value to test the limits of the validity checking
- * The specific value depends on how MsgId is actually defined internally
- */
-const CFE_SB_MsgId_t SB_UT_LAST_VALID_MID = CFE_SB_MSGID_WRAP_VALUE(CFE_PLATFORM_SB_HIGHEST_VALID_MSGID);
-
-/*
- * A MsgId value which still qualifies as valid
- *
- * This is a  "borderline" value to test the limits of the validity checking
- * The specific value depends on how MsgId is actually defined internally
- */
-const CFE_SB_MsgId_t SB_UT_FIRST_VALID_MID = CFE_SB_MSGID_WRAP_VALUE(1);
-
-/*
- * A MsgId value which is in the middle of the valid range
- *
- * The specific value depends on how MsgId is actually defined internally
- */
-const CFE_SB_MsgId_t SB_UT_INTERMEDIATE_VALID_MID =
-    CFE_SB_MSGID_WRAP_VALUE(CFE_PLATFORM_SB_HIGHEST_VALID_MSGID / 2 + 1);
-
-/*
- * A MsgId value which is not valid but also not equal to CFE_SB_INVALID_MSG_ID
- * Like CFE_SB_INVALID_MSG_ID, this should also _not_ pass the validity check.
- */
-const CFE_SB_MsgId_t SB_UT_ALTERNATE_INVALID_MID = CFE_SB_MSGID_WRAP_VALUE(CFE_PLATFORM_SB_HIGHEST_VALID_MSGID + 1);
-
-/*
- * A MsgId value which is valid per CCSDS but does not have the secondary header bit set
- */
-const CFE_SB_MsgId_t SB_UT_BARE_CMD_MID3 = CFE_SB_MSGID_WRAP_VALUE(0x1003);
-const CFE_SB_MsgId_t SB_UT_BARE_TLM_MID3 = CFE_SB_MSGID_WRAP_VALUE(0x0003);
-
-#define SB_UT_PIPEID_0                 CFE_SB_PIPEID_C(CFE_ResourceId_FromInteger(CFE_SB_PIPEID_BASE + 0))
-#define SB_UT_PIPEID_1                 CFE_SB_PIPEID_C(CFE_ResourceId_FromInteger(CFE_SB_PIPEID_BASE + 1))
-#define SB_UT_PIPEID_2                 CFE_SB_PIPEID_C(CFE_ResourceId_FromInteger(CFE_SB_PIPEID_BASE + 2))
-#define SB_UT_PIPEID_3                 CFE_SB_PIPEID_C(CFE_ResourceId_FromInteger(CFE_SB_PIPEID_BASE + 3))
-#define SB_UT_ALTERNATE_INVALID_PIPEID CFE_SB_PIPEID_C(CFE_ResourceId_FromInteger(0xDEADBEEF))
-
-/*
- * Helper function to manufacture a fake pipe ID value that will validate
- */
-CFE_ResourceId_t UT_SB_MakePipeIdForIndex(uint32 ArrayIdx)
-{
-    return CFE_ResourceId_FromInteger(CFE_SB_PIPEID_BASE + ArrayIdx);
-}
-
-/*
- * Helper function to "corrupt" a resource ID value in a consistent/predictable way,
- * which can also be un-done easily.
- */
-CFE_ES_AppId_t UT_SB_AppID_Modify(CFE_ES_AppId_t InitialID, int32 Modifier)
-{
-    CFE_ES_AppId_t OutValue;
-    uint32         InValue;
-
-    InValue = CFE_RESOURCEID_TO_ULONG(InitialID);
-    InValue += Modifier;
-
-    /* Underneath the wrapper(s) the IDs are 32-bit integer values, so it can be copied */
-    memcpy(&OutValue, &InValue, sizeof(OutValue));
-
-    return OutValue;
-}
-
-CFE_Status_t SB_UT_OriginationActionHook(void *UserObj, int32 StubRetcode, uint32 CallCount,
-                                         const UT_StubContext_t *Context)
-{
-    return CFE_SB_BAD_ARGUMENT;
-}
-
-void SB_UT_OriginationActionHandler(void *UserObj, UT_EntryKey_t FuncKey, const UT_StubContext_t *Context)
-{
-    bool *IsAcceptable = UT_Hook_GetArgValueByName(Context, "IsAcceptable", bool *);
-
-    /* by default just always return true -- a UT case that needs something else can override this handler */
-    if (IsAcceptable != NULL)
-    {
-        *IsAcceptable = false;
-    }
-}
-
-CFE_Status_t SB_UT_RecieveBuffer_FalseEndpoint(CFE_SB_Buffer_t **BufPtr, CFE_SB_PipeId_t PipeId, int32 TimeOut)
-{
-    CFE_SB_ReceiveTxn_State_t  TxnBuf;
-    CFE_SB_MessageTxn_State_t *Txn;
-
-    Txn = CFE_SB_ReceiveTxn_Init(&TxnBuf, BufPtr);
-
-    if (CFE_SB_MessageTxn_IsOK(Txn))
-    {
-        CFE_SB_MessageTxn_SetTimeout(Txn, TimeOut);
-    }
-
-    if (CFE_SB_MessageTxn_IsOK(Txn))
-    {
-        CFE_SB_ReceiveTxn_SetPipeId(Txn, PipeId);
-
-        /*
-         * This is the key difference in this Handler as opposed to the actual
-         * function. We set Txn->IsEndpoint to false in order to trigger the
-         * false branch of the condition "if (Txn->IsEndpoint)" in
-         * CFE_SB_ReceieveTxn_Execute().
-         */
-        CFE_SB_MessageTxn_SetEndpoint(Txn, false);
-    }
-
-    if (BufPtr != NULL)
-    {
-        /*
-         * Note - the API should qualify the parameter as "const", but this is
-         * kept non-const for backward compatibility.  Callers should never write to
-         * the returned buffer, it is const in practice.
-         */
-        *BufPtr = (CFE_SB_Buffer_t *)CFE_SB_ReceiveTxn_Execute(Txn);
-    }
-
-    CFE_SB_MessageTxn_ReportEvents(Txn);
-
-    return CFE_SB_MessageTxn_GetStatus(Txn);
-}
 
 /*
 ** Functions
@@ -268,15 +77,6 @@ void UtTest_Setup(void)
     Test_SB_Utils();
 
     Test_SB_SpecialCases();
-}
-
-/*
-** Reset variable values and sockets prior to a test
-*/
-void SB_ResetUnitTest(void)
-{
-    UT_InitData();
-    CFE_SB_EarlyInit();
 }
 
 /*
@@ -652,6 +452,9 @@ void Test_SB_Cmds_Stats(void)
     CFE_UtAssert_TEARDOWN(CFE_SB_DeletePipe(PipeId2));
     CFE_UtAssert_TEARDOWN(CFE_SB_DeletePipe(PipeId3));
 
+    /* Expect 4 more events generated: 1 for send stats + 1 for each pipe cleanup */
+    CFE_UtAssert_EVENTCOUNT(9); /* jphfix - clear events here? */
+
     /* Do same test with more pipes for coverage in CFE_SB_SendStatsCmd().
      * The number of pipes made here affects the condition
      * "if (CFE_SB_PipeDescIsUSed(PipeDscPtr))" which controls how often
@@ -659,6 +462,7 @@ void Test_SB_Cmds_Stats(void)
      * in that function via making PipeStatCount <= 0 */
 
     memset(&SendSbStats, 0, sizeof(SendSbStats));
+    UT_ClearEventHistory(); /* start over with the event count */
 
     CFE_SB_PipeId_t PipeArr[CFE_MISSION_SB_MAX_PIPES];
     memset(&PipeArr, 0, sizeof(PipeArr));
@@ -684,9 +488,9 @@ void Test_SB_Cmds_Stats(void)
 
     CFE_SB_ProcessCmdPipePkt(&SendSbStats.SBBuf);
 
-    /* 43 events instead of 5 due to all the pipes added */
-    CFE_UtAssert_EVENTCOUNT(43);
-
+    /* There should be 1 event for each pipe, plus 2 due to sending stats w/ no subscribers */
+    CFE_UtAssert_EVENTCOUNT(CFE_MISSION_SB_MAX_PIPES + 2);
+    CFE_UtAssert_EVENTSENT(CFE_SB_SEND_NO_SUBS_EID);
     CFE_UtAssert_EVENTSENT(CFE_SB_SND_STATS_EID);
 
     UT_CallTaskPipe(CFE_SB_ProcessCmdPipePkt, CFE_MSG_PTR(SendSbStats.SBBuf), 0, UT_TPID_CFE_SB_CMD_SEND_SB_STATS_CC);
@@ -4586,18 +4390,9 @@ void Test_SB_Utils(void)
     SB_UT_ADD_SUBTEST(Test_CFE_SB_LocalTlmTopicIdToMsgId);
 }
 
-static void UT_SB_Setup_MsgHdrSize(bool HasSec, CFE_MSG_Type_t MsgType)
-{
-    UT_ResetState(UT_KEY(CFE_MSG_GetHasSecondaryHeader));
-    UT_ResetState(UT_KEY(CFE_MSG_GetType));
-
-    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetHasSecondaryHeader), &HasSec, sizeof(HasSec), true);
-    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &MsgType, sizeof(MsgType), true);
-}
-
 static void UT_SB_Check_MsgHdrSize(void *BasePtr, bool HasSec, CFE_MSG_Type_t MsgType, size_t ExpectedPayloadOffset)
 {
-    UT_SB_Setup_MsgHdrSize(HasSec, MsgType);
+    UT_SB_Setup_MsgHdrSize(HasSec, MsgType, ExpectedPayloadOffset + 8, ExpectedPayloadOffset);
 
     UtAssert_EQ(size_t, CFE_SB_MsgHdrSize(BasePtr), ExpectedPayloadOffset);
 }
@@ -4636,7 +4431,7 @@ static void UT_SB_Check_GetUserData(void *BasePtr, bool HasSec, CFE_MSG_Type_t M
 {
     const uint8_t *ExpectedPayloadPtr = (const uint8_t *)BasePtr + ExpectedPayloadOffset;
 
-    UT_SB_Setup_MsgHdrSize(HasSec, MsgType);
+    UT_SB_Setup_MsgHdrSize(HasSec, MsgType, ExpectedPayloadOffset + 8, ExpectedPayloadOffset);
 
     UtAssert_ADDRESS_EQ(CFE_SB_GetUserData(BasePtr), ExpectedPayloadPtr);
 }
@@ -4730,8 +4525,7 @@ void Test_CFE_SB_SetGetUserDataLength(void)
     memset(&msg, 0, sizeof(msg));
 
     /* Pass through functions */
-    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetHasSecondaryHeader), &hassec, sizeof(hassec), false);
-    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &type, sizeof(type), false);
+    UT_SB_Setup_MsgHdrSize(hassec, type, size, size - sizeof(CFE_MSG_Message_t));
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &size, sizeof(size), false);
     UtAssert_INT32_EQ(CFE_SB_GetUserDataLength(&msg), size - sizeof(CFE_MSG_Message_t));
 
@@ -4746,12 +4540,11 @@ void Test_CFE_SB_SetGetUserDataLength(void)
      */
     UtAssert_VOIDCALL(CFE_SB_GetUserDataLength(NULL));
 
-    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetHasSecondaryHeader), &hassec, sizeof(hassec), false);
-    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &type, sizeof(type), false);
+    UT_SB_Setup_MsgHdrSize(hassec, type, size, size - sizeof(CFE_MSG_Message_t));
     UtAssert_VOIDCALL(CFE_SB_SetUserDataLength(&msg, 0));
     UtAssert_VOIDCALL(CFE_SB_SetUserDataLength(NULL, 0));
-    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetHasSecondaryHeader), &hassec, sizeof(hassec), false);
-    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &type, sizeof(type), false);
+
+    UT_SB_Setup_MsgHdrSize(hassec, type, size, size - sizeof(CFE_MSG_Message_t));
     UtAssert_VOIDCALL(CFE_SB_SetUserDataLength(&msg, CFE_MISSION_SB_MAX_SB_MSG_SIZE + 1));
 }
 
