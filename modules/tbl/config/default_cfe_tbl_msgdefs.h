@@ -197,41 +197,41 @@ typedef struct CFE_TBL_HousekeepingTlm_Payload
     /*
     ** Last Table Validation Results
     */
-    uint16 ValidationCounter;                                 /**< \cfetlmmnemonic \TBL_VALCOMPLTDCTR
+    uint16 ValidationCounter;                                   /**< \cfetlmmnemonic \TBL_VALCOMPLTDCTR
                                                                \brief Number of completed table validations */
-    uint32 LastValCrc;                                        /**< \cfetlmmnemonic \TBL_LASTVALCRC
+    uint32 LastValCrc;                                          /**< \cfetlmmnemonic \TBL_LASTVALCRC
                                                                    \brief Data Integrity Value computed for last table validated */
-    int32 LastValStatus;                                      /**< \cfetlmmnemonic \TBL_LASTVALS
+    int32  LastValStatus;                                       /**< \cfetlmmnemonic \TBL_LASTVALS
                                                                    \brief Returned status from validation function for last table validated */
-    bool ActiveBuffer;                                        /**< \cfetlmmnemonic \TBL_LASTVALBUF
+    bool   ActiveBuffer;                                        /**< \cfetlmmnemonic \TBL_LASTVALBUF
                                                                    \brief Indicator of whether table buffer validated was 0=Inactive, 1=Active */
-    char LastValTableName[CFE_MISSION_TBL_MAX_FULL_NAME_LEN]; /**< \cfetlmmnemonic \TBL_LASTVALTBLNAME
+    char   LastValTableName[CFE_MISSION_TBL_MAX_FULL_NAME_LEN]; /**< \cfetlmmnemonic \TBL_LASTVALTBLNAME
                                                            \brief Name of last table validated */
-    uint8 SuccessValCounter;                                  /**< \cfetlmmnemonic \TBL_VALSUCCESSCTR
+    uint8  SuccessValCounter;                                   /**< \cfetlmmnemonic \TBL_VALSUCCESSCTR
                                                                \brief Total number of successful table validations */
-    uint8 FailedValCounter;                                   /**< \cfetlmmnemonic \TBL_VALFAILEDCTR
+    uint8  FailedValCounter;                                    /**< \cfetlmmnemonic \TBL_VALFAILEDCTR
                                                                \brief Total number of unsuccessful table validations */
-    uint8 NumValRequests;                                     /**< \cfetlmmnemonic \TBL_VALREQCTR
+    uint8  NumValRequests;                                      /**< \cfetlmmnemonic \TBL_VALREQCTR
                                                                    \brief Number of times Table Services has requested validations from Apps */
 
     /*
     ** Ground system interface information
     */
-    uint8 NumFreeSharedBufs;                                  /**< \cfetlmmnemonic \TBL_NUMFREESHRBUF
+    uint8              NumFreeSharedBufs;                                   /**< \cfetlmmnemonic \TBL_NUMFREESHRBUF
                                                                    \brief Number of free Shared Working Buffers */
-    uint8 ByteAlignPad1;                                      /**< \cfetlmmnemonic \TBL_BYTEALIGNPAD1
+    uint8              ByteAlignPad1;                                       /**< \cfetlmmnemonic \TBL_BYTEALIGNPAD1
                                                                    \brief Spare byte to ensure longword alignment */
-    CFE_ES_MemHandle_t MemPoolHandle;                         /**< \cfetlmmnemonic \TBL_MEMPOOLHANDLE
+    CFE_ES_MemHandle_t MemPoolHandle;                                       /**< \cfetlmmnemonic \TBL_MEMPOOLHANDLE
                                                                    \brief Handle to TBL's memory pool */
-    CFE_TIME_SysTime_t LastUpdateTime;                        /**< \cfetlmmnemonic \TBL_LASTUPDTIME
+    CFE_TIME_SysTime_t LastUpdateTime;                                      /**< \cfetlmmnemonic \TBL_LASTUPDTIME
                                                                    \brief Time of last table update */
-    char LastUpdatedTable[CFE_MISSION_TBL_MAX_FULL_NAME_LEN]; /**< \cfetlmmnemonic \TBL_LASTUPDTBLNAME
+    char               LastUpdatedTable[CFE_MISSION_TBL_MAX_FULL_NAME_LEN]; /**< \cfetlmmnemonic \TBL_LASTUPDTBLNAME
                                                          \brief Name of the last table updated */
-    char LastFileLoaded[CFE_MISSION_MAX_PATH_LEN];            /**< \cfetlmmnemonic \TBL_LASTFILELOADED
+    char               LastFileLoaded[CFE_MISSION_MAX_PATH_LEN];            /**< \cfetlmmnemonic \TBL_LASTFILELOADED
                                                           \brief Path and Name of last table image file loaded */
-    char LastFileDumped[CFE_MISSION_MAX_PATH_LEN];            /**< \cfetlmmnemonic \TBL_LASTFILEDUMPED
+    char               LastFileDumped[CFE_MISSION_MAX_PATH_LEN];            /**< \cfetlmmnemonic \TBL_LASTFILEDUMPED
                                                           \brief Path and Name of last file dumped to */
-    char LastTableLoaded[CFE_MISSION_TBL_MAX_FULL_NAME_LEN];  /**< \cfetlmmnemonic \TBL_LASTTABLELOADED
+    char               LastTableLoaded[CFE_MISSION_TBL_MAX_FULL_NAME_LEN];  /**< \cfetlmmnemonic \TBL_LASTTABLELOADED
                                                           \brief Name of the last table loaded */
 } CFE_TBL_HousekeepingTlm_Payload_t;
 
@@ -240,37 +240,37 @@ typedef struct CFE_TBL_HousekeepingTlm_Payload
 **/
 typedef struct CFE_TBL_TblRegPacket_Payload
 {
-    CFE_ES_MemOffset_t Size;                       /**< \cfetlmmnemonic \TBL_SIZE
+    CFE_ES_MemOffset_t  Size;                                     /**< \cfetlmmnemonic \TBL_SIZE
                                                         \brief Size, in bytes, of Table */
-    uint32 Crc;                                    /**< \cfetlmmnemonic \TBL_CRC
+    uint32              Crc;                                      /**< \cfetlmmnemonic \TBL_CRC
                                                         \brief Most recently calculated CRC of Table */
-    CFE_ES_MemAddress_t ActiveBufferAddr;          /**< \cfetlmmnemonic \TBL_ACTBUFADD
+    CFE_ES_MemAddress_t ActiveBufferAddr;                         /**< \cfetlmmnemonic \TBL_ACTBUFADD
                                                         \brief Address of Active Buffer */
-    CFE_ES_MemAddress_t InactiveBufferAddr;        /**< \cfetlmmnemonic \TBL_IACTBUFADD
+    CFE_ES_MemAddress_t InactiveBufferAddr;                       /**< \cfetlmmnemonic \TBL_IACTBUFADD
                                                         \brief Address of Inactive Buffer */
-    CFE_ES_MemAddress_t ValidationFuncPtr;         /**< \cfetlmmnemonic \TBL_VALFUNCPTR
+    CFE_ES_MemAddress_t ValidationFuncPtr;                        /**< \cfetlmmnemonic \TBL_VALFUNCPTR
                                                         \brief Ptr to Owner App's function that validates tbl contents */
-    CFE_TIME_SysTime_t TimeOfLastUpdate;           /**< \cfetlmmnemonic \TBL_TIMELASTUPD
+    CFE_TIME_SysTime_t  TimeOfLastUpdate;                         /**< \cfetlmmnemonic \TBL_TIMELASTUPD
                                                         \brief Time when Table was last updated */
-    CFE_TIME_SysTime_t FileTime;                   /**< \cfetlmmnemonic \TBL_FILECTIME
+    CFE_TIME_SysTime_t  FileTime;                                 /**< \cfetlmmnemonic \TBL_FILECTIME
                                                         \brief File creation time from last file loaded into table */
-    bool TableLoadedOnce;                          /**< \cfetlmmnemonic \TBL_LOADEDONCE
+    bool                TableLoadedOnce;                          /**< \cfetlmmnemonic \TBL_LOADEDONCE
                                                         \brief Flag indicating whether table has been loaded once or not */
-    bool LoadPending;                              /**< \cfetlmmnemonic \TBL_UPDATEPNDNG
+    bool                LoadPending;                              /**< \cfetlmmnemonic \TBL_UPDATEPNDNG
                                                         \brief Flag indicating an inactive buffer is ready to be copied */
-    bool DumpOnly;                                 /**< \cfetlmmnemonic \TBL_DUMPONLY
+    bool                DumpOnly;                                 /**< \cfetlmmnemonic \TBL_DUMPONLY
                                                         \brief Flag indicating Table is NOT to be loaded */
-    bool DoubleBuffered;                           /**< \cfetlmmnemonic \TBL_DBLBUFFERED
+    bool                DoubleBuffered;                           /**< \cfetlmmnemonic \TBL_DBLBUFFERED
                                                      \brief Flag indicating Table has a dedicated inactive buffer */
-    char Name[CFE_MISSION_TBL_MAX_FULL_NAME_LEN];  /**< \cfetlmmnemonic \TBL_NAME
+    char                Name[CFE_MISSION_TBL_MAX_FULL_NAME_LEN];  /**< \cfetlmmnemonic \TBL_NAME
                                                 \brief Processor specific table name */
-    char LastFileLoaded[CFE_MISSION_MAX_PATH_LEN]; /**< \cfetlmmnemonic \TBL_LASTFILEUPD
+    char                LastFileLoaded[CFE_MISSION_MAX_PATH_LEN]; /**< \cfetlmmnemonic \TBL_LASTFILEUPD
                                                \brief Filename of last file loaded into table */
-    char OwnerAppName[CFE_MISSION_MAX_API_LEN];    /**< \cfetlmmnemonic \TBL_OWNERAPP
+    char                OwnerAppName[CFE_MISSION_MAX_API_LEN];    /**< \cfetlmmnemonic \TBL_OWNERAPP
                                                 \brief Name of owning application */
-    bool Critical;                                 /**< \cfetlmmnemonic \TBL_CRITICAL
+    bool                Critical;                                 /**< \cfetlmmnemonic \TBL_CRITICAL
                                                         \brief Indicates whether table is Critical or not */
-    uint8 ByteAlign4;                              /**< \cfetlmmnemonic \TBL_SPARE4
+    uint8               ByteAlign4;                               /**< \cfetlmmnemonic \TBL_SPARE4
                                                         \brief Spare byte to maintain byte alignment */
 } CFE_TBL_TblRegPacket_Payload_t;
 

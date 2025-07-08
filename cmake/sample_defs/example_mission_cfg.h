@@ -16,7 +16,7 @@
  * limitations under the License.
  ************************************************************************/
 
- /**
+/**
  * @file
  *
  * This header file contains the mission configuration parameters and

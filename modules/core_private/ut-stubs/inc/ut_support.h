@@ -104,7 +104,7 @@ typedef struct
     uint16         SnapshotOffset;
     size_t         SnapshotSize;
     uint16         Count;
-    void *         SnapshotBuffer;
+    void          *SnapshotBuffer;
 } UT_SoftwareBusSnapshot_Entry_t;
 
 /**
@@ -290,8 +290,9 @@ void UT_ResetPoolBufferIndex(void);
 ** \returns
 **        This function does not return a value.
 ******************************************************************************/
-void UT_SetupBasicMsgDispatch(const UT_TaskPipeDispatchId_t *DispatchReq, CFE_MSG_Size_t MsgSize,
-                              bool ExpectFailureEvent);
+void UT_SetupBasicMsgDispatch(const UT_TaskPipeDispatchId_t *DispatchReq,
+                              CFE_MSG_Size_t                 MsgSize,
+                              bool                           ExpectFailureEvent);
 
 /*****************************************************************************/
 /**
@@ -313,8 +314,10 @@ void UT_SetupBasicMsgDispatch(const UT_TaskPipeDispatchId_t *DispatchReq, CFE_MS
 ** \returns
 **        This function does not return a value.
 ******************************************************************************/
-void UT_CallTaskPipe(void (*TaskPipeFunc)(const CFE_SB_Buffer_t *), const CFE_MSG_Message_t *MsgPtr, size_t MsgSize,
-                     UT_TaskPipeDispatchId_t DispatchId);
+void UT_CallTaskPipe(void (*TaskPipeFunc)(const CFE_SB_Buffer_t *),
+                     const CFE_MSG_Message_t *MsgPtr,
+                     size_t                   MsgSize,
+                     UT_TaskPipeDispatchId_t  DispatchId);
 
 /*****************************************************************************/
 /**
@@ -647,8 +650,11 @@ CFE_ES_ResetData_t *UT_GetResetDataPtr(void);
 ** \returns Test pass status, returns true if status was successful, false if it failed.
 **
 ******************************************************************************/
-bool CFE_UtAssert_SuccessCheck_Impl(CFE_Status_t Status, UtAssert_CaseType_t CaseType, const char *File, uint32 Line,
-                                    const char *Text);
+bool CFE_UtAssert_SuccessCheck_Impl(CFE_Status_t        Status,
+                                    UtAssert_CaseType_t CaseType,
+                                    const char         *File,
+                                    uint32              Line,
+                                    const char         *Text);
 
 /*****************************************************************************/
 /**
@@ -666,7 +672,10 @@ bool CFE_UtAssert_SuccessCheck_Impl(CFE_Status_t Status, UtAssert_CaseType_t Cas
 ** \returns Test pass status, returns true if status was successful, false if it failed.
 **
 ******************************************************************************/
-bool CFE_UtAssert_MessageCheck_Impl(bool Status, const char *File, uint32 Line, const char *Desc,
+bool CFE_UtAssert_MessageCheck_Impl(bool        Status,
+                                    const char *File,
+                                    uint32      Line,
+                                    const char *Desc,
                                     const char *FormatString);
 
 /*****************************************************************************/
@@ -712,9 +721,16 @@ bool CFE_UtAssert_MessageCheck_Impl(bool Status, const char *File, uint32 Line, 
 **        None
 **
 ******************************************************************************/
-#define CFE_UtAssert_EVENTCOUNT(EXP)                                                                                   \
-    UtAssert_GenericUnsignedCompare(UT_GetNumEventsSent(), UtAssert_Compare_EQ, EXP, UtAssert_Radix_DECIMAL, __FILE__, \
-                                    __LINE__, "Event Count: ", "Sent", "Expected")
+#define CFE_UtAssert_EVENTCOUNT(EXP)                        \
+    UtAssert_GenericUnsignedCompare(UT_GetNumEventsSent(),  \
+                                    UtAssert_Compare_EQ,    \
+                                    EXP,                    \
+                                    UtAssert_Radix_DECIMAL, \
+                                    __FILE__,               \
+                                    __LINE__,               \
+                                    "Event Count: ",        \
+                                    "Sent",                 \
+                                    "Expected")
 
 /*****************************************************************************/
 /**
@@ -730,9 +746,16 @@ bool CFE_UtAssert_MessageCheck_Impl(bool Status, const char *File, uint32 Line, 
 ** \sa #CFE_UtAssert_EVENTNOTSENT
 **
 ******************************************************************************/
-#define CFE_UtAssert_EVENTSENT(EVT)                                                                            \
-    UtAssert_GenericUnsignedCompare(UT_EventIsInHistory(EVT), UtAssert_Compare_NEQ, 0, UtAssert_Radix_DECIMAL, \
-                                    __FILE__, __LINE__, "Event Generated: ", #EVT, "")
+#define CFE_UtAssert_EVENTSENT(EVT)                           \
+    UtAssert_GenericUnsignedCompare(UT_EventIsInHistory(EVT), \
+                                    UtAssert_Compare_NEQ,     \
+                                    0,                        \
+                                    UtAssert_Radix_DECIMAL,   \
+                                    __FILE__,                 \
+                                    __LINE__,                 \
+                                    "Event Generated: ",      \
+                                    #EVT,                     \
+                                    "")
 
 /*****************************************************************************/
 /**
@@ -749,9 +772,16 @@ bool CFE_UtAssert_MessageCheck_Impl(bool Status, const char *File, uint32 Line, 
 ** \sa #CFE_UtAssert_EVENTSENT
 **
 ******************************************************************************/
-#define CFE_UtAssert_EVENTNOTSENT(EVT)                                                                        \
-    UtAssert_GenericUnsignedCompare(UT_EventIsInHistory(EVT), UtAssert_Compare_EQ, 0, UtAssert_Radix_DECIMAL, \
-                                    __FILE__, __LINE__, "Event Not Generated: ", #EVT, "")
+#define CFE_UtAssert_EVENTNOTSENT(EVT)                        \
+    UtAssert_GenericUnsignedCompare(UT_EventIsInHistory(EVT), \
+                                    UtAssert_Compare_EQ,      \
+                                    0,                        \
+                                    UtAssert_Radix_DECIMAL,   \
+                                    __FILE__,                 \
+                                    __LINE__,                 \
+                                    "Event Not Generated: ",  \
+                                    #EVT,                     \
+                                    "")
 
 /*****************************************************************************/
 /**
@@ -810,9 +840,16 @@ bool CFE_UtAssert_MessageCheck_Impl(bool Status, const char *File, uint32 Line, 
 **        and integers may not be interchangeable with strict type checking.
 **
 ******************************************************************************/
-#define CFE_UtAssert_RESOURCEID_EQ(id1, id2)                                                                         \
-    UtAssert_GenericUnsignedCompare(CFE_RESOURCEID_TO_ULONG(id1), UtAssert_Compare_EQ, CFE_RESOURCEID_TO_ULONG(id2), \
-                                    UtAssert_Radix_HEX, __FILE__, __LINE__, "Resource ID Check: ", #id1, #id2)
+#define CFE_UtAssert_RESOURCEID_EQ(id1, id2)                      \
+    UtAssert_GenericUnsignedCompare(CFE_RESOURCEID_TO_ULONG(id1), \
+                                    UtAssert_Compare_EQ,          \
+                                    CFE_RESOURCEID_TO_ULONG(id2), \
+                                    UtAssert_Radix_HEX,           \
+                                    __FILE__,                     \
+                                    __LINE__,                     \
+                                    "Resource ID Check: ",        \
+                                    #id1,                         \
+                                    #id2)
 
 /*****************************************************************************/
 /**
@@ -826,8 +863,15 @@ bool CFE_UtAssert_MessageCheck_Impl(bool Status, const char *File, uint32 Line, 
 **        and integers may not be interchangeable with strict type checking.
 **
 ******************************************************************************/
-#define CFE_UtAssert_MSGID_EQ(mid1, mid2)                                                                      \
-    UtAssert_GenericUnsignedCompare(CFE_SB_MsgIdToValue(mid1), UtAssert_Compare_EQ, CFE_SB_MsgIdToValue(mid2), \
-                                    UtAssert_Radix_HEX, __FILE__, __LINE__, "MsgId Check: ", #mid1, #mid2)
+#define CFE_UtAssert_MSGID_EQ(mid1, mid2)                      \
+    UtAssert_GenericUnsignedCompare(CFE_SB_MsgIdToValue(mid1), \
+                                    UtAssert_Compare_EQ,       \
+                                    CFE_SB_MsgIdToValue(mid2), \
+                                    UtAssert_Radix_HEX,        \
+                                    __FILE__,                  \
+                                    __LINE__,                  \
+                                    "MsgId Check: ",           \
+                                    #mid1,                     \
+                                    #mid2)
 
 #endif /* UT_SUPPORT_H */

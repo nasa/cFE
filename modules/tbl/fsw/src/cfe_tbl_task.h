@@ -154,7 +154,7 @@ typedef struct
 */
 typedef struct
 {
-    void *             BufferPtr;     /**< \brief Pointer to Load Buffer */
+    void              *BufferPtr;     /**< \brief Pointer to Load Buffer */
     CFE_TIME_SysTime_t FileTime;      /**< \brief Time stamp from last file loaded into table */
     uint32             Crc;           /**< \brief Last calculated CRC for this buffer's contents */
     bool               Taken;         /**< \brief Flag indicating whether buffer is in use */
@@ -227,9 +227,9 @@ typedef struct
     bool                 UserDefAddr;     /**< \brief Flag indicating Table address was defined by Owner Application */
     bool                 NotifyByMsg; /**< \brief Flag indicating Table Services should notify owning App via message
                                                   when table requires management */
-    uint8 ActiveBufferIndex;          /**< \brief Index identifying which buffer is the active buffer */
-    char  Name[CFE_TBL_MAX_FULL_NAME_LEN]; /**< \brief Processor specific table name */
-    char  LastFileLoaded[OS_MAX_PATH_LEN]; /**< \brief Filename of last file loaded into table */
+    uint8                ActiveBufferIndex; /**< \brief Index identifying which buffer is the active buffer */
+    char                 Name[CFE_TBL_MAX_FULL_NAME_LEN]; /**< \brief Processor specific table name */
+    char                 LastFileLoaded[OS_MAX_PATH_LEN]; /**< \brief Filename of last file loaded into table */
 } CFE_TBL_RegistryRec_t;
 
 /*******************************************************************************/
@@ -259,7 +259,7 @@ typedef struct
 
     CFE_TBL_DumpState_t    State;         /**< \brief Current state of this block of data */
     size_t                 Size;          /**< \brief Number of bytes to be dumped */
-    CFE_TBL_LoadBuff_t *   DumpBufferPtr; /**< \brief Address where dumped data is to be stored temporarily */
+    CFE_TBL_LoadBuff_t    *DumpBufferPtr; /**< \brief Address where dumped data is to be stored temporarily */
     CFE_TBL_RegistryRec_t *RegRecPtr;     /**< \brief Ptr to dumped table's registry record */
     char                   TableName[CFE_TBL_MAX_FULL_NAME_LEN]; /**< \brief Name of Table being Dumped */
 } CFE_TBL_DumpControl_t;

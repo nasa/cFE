@@ -40,11 +40,11 @@ typedef struct
 
 typedef struct
 {
-    uint8  Version;
-    uint8  Endian;
-    uint8  Spare[2];
-    uint32 TimerTicksPerSecond;
-    uint32 TimerLow32Rollover;
+    uint8           Version;
+    uint8           Endian;
+    uint8           Spare[2];
+    uint32          TimerTicksPerSecond;
+    uint32          TimerLow32Rollover;
     /*
      * The "State" member is marked volatile to help
      * ensure that an optimizing compiler does not rearrange

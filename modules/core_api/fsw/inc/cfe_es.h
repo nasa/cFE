@@ -54,8 +54,8 @@
 ** Macro Definitions
 */
 
-#define CFE_ES_DBIT(x)     (1L << (x))                 /* Places a one at bit positions 0 thru 31 */
-#define CFE_ES_DTEST(i, x) (((i)&CFE_ES_DBIT(x)) != 0) /* true iff bit x of i is set */
+#define CFE_ES_DBIT(x)     (1L << (x))                   /* Places a one at bit positions 0 thru 31 */
+#define CFE_ES_DTEST(i, x) (((i) & CFE_ES_DBIT(x)) != 0) /* true iff bit x of i is set */
 #define CFE_ES_TEST_LONG_MASK(m, s) \
     (CFE_ES_DTEST(m[(s) / 32], (s) % 32)) /* Test a bit within an array of 32-bit integers. */
 
@@ -828,9 +828,13 @@ int32 CFE_ES_GetModuleInfo(CFE_ES_AppInfo_t *ModuleInfo, CFE_ResourceId_t Resour
 ** \sa #CFE_ES_DeleteChildTask, #CFE_ES_ExitChildTask
 **
 ******************************************************************************/
-CFE_Status_t CFE_ES_CreateChildTask(CFE_ES_TaskId_t *TaskIdPtr, const char *TaskName,
-                                    CFE_ES_ChildTaskMainFuncPtr_t FunctionPtr, CFE_ES_StackPointer_t StackPtr,
-                                    size_t StackSize, CFE_ES_TaskPriority_Atom_t Priority, uint32 Flags);
+CFE_Status_t CFE_ES_CreateChildTask(CFE_ES_TaskId_t              *TaskIdPtr,
+                                    const char                   *TaskName,
+                                    CFE_ES_ChildTaskMainFuncPtr_t FunctionPtr,
+                                    CFE_ES_StackPointer_t         StackPtr,
+                                    size_t                        StackSize,
+                                    CFE_ES_TaskPriority_Atom_t    Priority,
+                                    uint32                        Flags);
 
 /*****************************************************************************/
 /**
@@ -1305,8 +1309,12 @@ CFE_Status_t CFE_ES_PoolCreate(CFE_ES_MemHandle_t *PoolID, void *MemPtr, size_t 
 ** \sa #CFE_ES_PoolCreate, #CFE_ES_PoolCreateNoSem, #CFE_ES_GetPoolBuf, #CFE_ES_PutPoolBuf, #CFE_ES_GetMemPoolStats
 **
 ******************************************************************************/
-CFE_Status_t CFE_ES_PoolCreateEx(CFE_ES_MemHandle_t *PoolID, void *MemPtr, size_t Size, uint16 NumBlockSizes,
-                                 const size_t *BlockSizes, bool UseMutex);
+CFE_Status_t CFE_ES_PoolCreateEx(CFE_ES_MemHandle_t *PoolID,
+                                 void               *MemPtr,
+                                 size_t              Size,
+                                 uint16              NumBlockSizes,
+                                 const size_t       *BlockSizes,
+                                 bool                UseMutex);
 
 /*****************************************************************************/
 /**

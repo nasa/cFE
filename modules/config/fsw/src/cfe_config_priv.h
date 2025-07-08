@@ -45,7 +45,7 @@
  */
 typedef struct
 {
-    const char *            UnknownString;
+    const char             *UnknownString;
     CFE_Config_ValueEntry_t Table[CFE_ConfigIdOffset_MAX];
 } CFE_Config_Global_t;
 
@@ -62,7 +62,8 @@ const char *CFE_Config_FindTargetKeyValue(CFE_ConfigKeyValue_t *ConfigList, cons
 const char *CFE_Config_IsModuleInList(CFE_ConfigName_t *ModuleListPtr, const char *ModuleName);
 const char *CFE_Config_IsPspModule(CFE_StaticModuleLoadEntry_t *PspModuleList, const char *ModuleName);
 const char *CFE_Config_FindStaticModName(CFE_ConfigName_t *ModuleListSet[], size_t SetLength, const char *ModuleName);
-void        CFE_Config_SetupModuleVersions(CFE_ConfigName_t *ModuleListSet[], size_t SetLength,
+void        CFE_Config_SetupModuleVersions(CFE_ConfigName_t     *ModuleListSet[],
+                                           size_t                SetLength,
                                            CFE_ConfigKeyValue_t *ActiveList);
 
 /**
@@ -75,7 +76,7 @@ static inline uint32 CFE_Config_IdToOffset(CFE_ConfigId_t ConfigId)
 {
     uint32 OffsetVal;
 
-    OffsetVal = CFE_RESOURCEID_TO_ULONG(ConfigId);
+    OffsetVal  = CFE_RESOURCEID_TO_ULONG(ConfigId);
     OffsetVal -= CFE_CONFIGID_BASE;
 
     return OffsetVal;

@@ -20,10 +20,10 @@ typedef enum CFE_ConfigTool_RenderStyle_Enum
 
 typedef struct CFE_ConfigTool_ListDetail
 {
-    const char *  prefix;
-    const char *  type_name;
+    const char   *prefix;
+    const char   *type_name;
     size_t        num_entries;
-    const char *  custom_max;
+    const char   *custom_max;
     unsigned long options;
 } CFE_ConfigTool_ListDetail_t;
 

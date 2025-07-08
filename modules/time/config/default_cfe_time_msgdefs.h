@@ -137,9 +137,9 @@ typedef struct CFE_TIME_HousekeepingTlm_Payload
     /*
     ** Clock state flags and "as calculated" clock state...
     */
-    uint16 ClockStateFlags;                   /**< \cfetlmmnemonic \TIME_STATEFLG
+    uint16                     ClockStateFlags; /**< \cfetlmmnemonic \TIME_STATEFLG
                                                    \brief State Flags */
-    CFE_TIME_ClockState_Enum_t ClockStateAPI; /**< \cfetlmmnemonic
+    CFE_TIME_ClockState_Enum_t ClockStateAPI;   /**< \cfetlmmnemonic
                               \TIME_APISTATE \brief API State */
 
     /*
@@ -201,9 +201,9 @@ typedef struct CFE_TIME_DiagnosticTlm_Payload
     CFE_TIME_SysTime_t AtToneLatch; /**< \cfetlmmnemonic \TIME_TVALIDS
                                                \brief Local clock latched at time of tone */
 
-    int16 AtToneLeapSeconds;                  /**< \cfetlmmnemonic \TIME_LEAPS
+    int16                      AtToneLeapSeconds; /**< \cfetlmmnemonic \TIME_LEAPS
                                                    \brief Leap Seconds at time of tone */
-    CFE_TIME_ClockState_Enum_t ClockStateAPI; /**< \cfetlmmnemonic \TIME_APISTATE
+    CFE_TIME_ClockState_Enum_t ClockStateAPI;     /**< \cfetlmmnemonic \TIME_APISTATE
                                     \brief Clock state as per API */
 
     /*

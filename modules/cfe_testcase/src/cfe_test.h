@@ -44,9 +44,9 @@ typedef struct
 
     /* Table information used by all table tests */
     CFE_TBL_Handle_t TblHandle;
-    const char *     TblName;
-    const char *     RegisteredTblName;
-    const char *     TblFilename;
+    const char      *TblName;
+    const char      *RegisteredTblName;
+    const char      *TblFilename;
 } CFE_FT_Global_t;
 
 extern CFE_FT_Global_t CFE_FT_Global;

@@ -36,7 +36,7 @@
 ** CFE Telemetry Message Id's
 */
 #define CFE_EVS_HK_TLM_MID CFE_PLATFORM_TLM_TOPICID_TO_MIDV(CFE_MISSION_EVS_HK_TLM_TOPICID) /* 0x0801 */
-#define CFE_EVS_LONG_EVENT_MSG_MID                                                     \
+#define CFE_EVS_LONG_EVENT_MSG_MID \
     CFE_PLATFORM_TLM_TOPICID_TO_MIDV(CFE_MISSION_EVS_LONG_EVENT_MSG_TOPICID) /* 0x0808 \
                                                                               */
 #define CFE_EVS_SHORT_EVENT_MSG_MID \

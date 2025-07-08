@@ -103,7 +103,7 @@ typedef struct CFE_TBL_TxnState
     bool   RegIsLocked;
 
     CFE_TBL_AccessDescriptor_t *AccessDescPtr;
-    CFE_TBL_RegistryRec_t *     RegRecPtr;
+    CFE_TBL_RegistryRec_t      *RegRecPtr;
 
 } CFE_TBL_TxnState_t;
 
