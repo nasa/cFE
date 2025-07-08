@@ -86,11 +86,13 @@ void SB_UT_BindDispatchHandlers(void)
     /* nothing to do here in default dispatch mode */
 }
 
-void UT_SB_Setup_MsgHdrSize(bool HasSec, CFE_MSG_Type_t MsgType, size_t ExpectedPayloadOffset)
+void UT_SB_Setup_MsgHdrSize(bool HasSec, CFE_MSG_Type_t MsgType, CFE_MSG_Size_t TotalSize, size_t ExpectedPayloadOffset)
 {
     UT_ResetState(UT_KEY(CFE_MSG_GetHasSecondaryHeader));
     UT_ResetState(UT_KEY(CFE_MSG_GetType));
+    UT_ResetState(UT_KEY(CFE_MSG_GetSize));
 
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetHasSecondaryHeader), &HasSec, sizeof(HasSec), true);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &MsgType, sizeof(MsgType), true);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &TotalSize, sizeof(TotalSize), true);
 }

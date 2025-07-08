@@ -4392,7 +4392,7 @@ void Test_SB_Utils(void)
 
 static void UT_SB_Check_MsgHdrSize(void *BasePtr, bool HasSec, CFE_MSG_Type_t MsgType, size_t ExpectedPayloadOffset)
 {
-    UT_SB_Setup_MsgHdrSize(HasSec, MsgType, ExpectedPayloadOffset);
+    UT_SB_Setup_MsgHdrSize(HasSec, MsgType, ExpectedPayloadOffset + 8, ExpectedPayloadOffset);
 
     UtAssert_EQ(size_t, CFE_SB_MsgHdrSize(BasePtr), ExpectedPayloadOffset);
 }
@@ -4431,7 +4431,7 @@ static void UT_SB_Check_GetUserData(void *BasePtr, bool HasSec, CFE_MSG_Type_t M
 {
     const uint8_t *ExpectedPayloadPtr = (const uint8_t *)BasePtr + ExpectedPayloadOffset;
 
-    UT_SB_Setup_MsgHdrSize(HasSec, MsgType, ExpectedPayloadOffset);
+    UT_SB_Setup_MsgHdrSize(HasSec, MsgType, ExpectedPayloadOffset + 8, ExpectedPayloadOffset);
 
     UtAssert_ADDRESS_EQ(CFE_SB_GetUserData(BasePtr), ExpectedPayloadPtr);
 }
@@ -4525,8 +4525,7 @@ void Test_CFE_SB_SetGetUserDataLength(void)
     memset(&msg, 0, sizeof(msg));
 
     /* Pass through functions */
-    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetHasSecondaryHeader), &hassec, sizeof(hassec), false);
-    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &type, sizeof(type), false);
+    UT_SB_Setup_MsgHdrSize(hassec, type, size, size - sizeof(CFE_MSG_Message_t));
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &size, sizeof(size), false);
     UtAssert_INT32_EQ(CFE_SB_GetUserDataLength(&msg), size - sizeof(CFE_MSG_Message_t));
 
@@ -4541,12 +4540,11 @@ void Test_CFE_SB_SetGetUserDataLength(void)
      */
     UtAssert_VOIDCALL(CFE_SB_GetUserDataLength(NULL));
 
-    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetHasSecondaryHeader), &hassec, sizeof(hassec), false);
-    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &type, sizeof(type), false);
+    UT_SB_Setup_MsgHdrSize(hassec, type, size, size - sizeof(CFE_MSG_Message_t));
     UtAssert_VOIDCALL(CFE_SB_SetUserDataLength(&msg, 0));
     UtAssert_VOIDCALL(CFE_SB_SetUserDataLength(NULL, 0));
-    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetHasSecondaryHeader), &hassec, sizeof(hassec), false);
-    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &type, sizeof(type), false);
+
+    UT_SB_Setup_MsgHdrSize(hassec, type, size, size - sizeof(CFE_MSG_Message_t));
     UtAssert_VOIDCALL(CFE_SB_SetUserDataLength(&msg, CFE_MISSION_SB_MAX_SB_MSG_SIZE + 1));
 }
 

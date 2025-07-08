@@ -209,15 +209,17 @@ void SB_UT_BindDispatchHandlers(void)
     UT_SetHandlerFunction(UT_KEY(CFE_MissionLib_MapListenerComponent), UT_SB_Handler_MapListenerComponent, NULL);
 }
 
-void UT_SB_Setup_MsgHdrSize(bool HasSec, CFE_MSG_Type_t MsgType, size_t ExpectedPayloadOffset)
+void UT_SB_Setup_MsgHdrSize(bool HasSec, CFE_MSG_Type_t MsgType, CFE_MSG_Size_t TotalSize, size_t ExpectedPayloadOffset)
 {
     static EdsLib_DataTypeDB_EntityInfo_t MemberInfo;
 
     UT_ResetState(UT_KEY(CFE_MSG_GetHasSecondaryHeader));
     UT_ResetState(UT_KEY(CFE_MSG_GetType));
+    UT_ResetState(UT_KEY(CFE_MSG_GetSize));
 
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetHasSecondaryHeader), &HasSec, sizeof(HasSec), true);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &MsgType, sizeof(MsgType), true);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &TotalSize, sizeof(TotalSize), true);
 
     UT_SetHandlerFunction(UT_KEY(CFE_MissionLib_Get_PubSub_Parameters), UT_SB_Handler_Get_PubSub_Parameters, NULL);
 
@@ -231,7 +233,7 @@ void UT_SB_Setup_MsgHdrSize(bool HasSec, CFE_MSG_Type_t MsgType, size_t Expected
 
     memset(&MemberInfo, 0, sizeof(MemberInfo));
     MemberInfo.Offset.Bytes  = ExpectedPayloadOffset;
-    MemberInfo.MaxSize.Bytes = ExpectedPayloadOffset + 8;
+    MemberInfo.MaxSize.Bytes = TotalSize - ExpectedPayloadOffset;
 
     UT_SetHandlerFunction(UT_KEY(EdsLib_DataTypeDB_GetMemberByIndex), UT_SB_Handler_EdsLib_DataTypeDB_GetMemberByIndex,
                           &MemberInfo);
