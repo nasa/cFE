@@ -282,6 +282,7 @@ void UtTest_Setup(void)
     UT_ADD_TEST(Test_InvalidCmd);
     UT_ADD_TEST(Test_Squelching);
     UT_ADD_TEST(Test_Misc);
+    UT_ADD_TEST(Test_SetEvent);
 }
 
 /*
@@ -2148,7 +2149,7 @@ void Test_Misc(void)
     CFE_EVS_Global.EVS_TlmPkt.Payload.MessageTruncCounter = 0;
     EVS_AppDataSetUsed(AppDataPtr, AppID);
     AppDataPtr->ActiveFlag = true;
-    AppDataPtr->EventTypesActiveFlag |= CFE_EVS_INFORMATION_BIT;
+    CFE_EVS_SetTypeEnable(CFE_EVS_EventType_INFORMATION, true);
     EVS_SendEvent(0, CFE_EVS_EventType_INFORMATION, msg);
     UtAssert_UINT32_EQ(CFE_EVS_Global.EVS_TlmPkt.Payload.MessageTruncCounter, 1);
 
@@ -2160,4 +2161,82 @@ void Test_Misc(void)
         EVS_AppDataSetUsed(&CFE_EVS_Global.AppData[i], AppID);
     }
     UtAssert_UINT32_EQ(CFE_EVS_SendHkCmd(NULL), CFE_STATUS_NO_COUNTER_INCREMENT);
+}
+
+void Test_SetEvent(void)
+{
+    EVS_AppData_t *AppDataPtr;
+
+    EVS_GetCurrentContext(&AppDataPtr, NULL);
+
+    /* Test disabling all events with CFE_EVS_SetTypeEnable*/
+    UT_InitData_EVS();
+    CFE_EVS_SetTypeEnable(CFE_EVS_EventType_DEBUG, false);
+    CFE_EVS_SetTypeEnable(CFE_EVS_EventType_INFORMATION, false);
+    CFE_EVS_SetTypeEnable(CFE_EVS_EventType_ERROR, false);
+    CFE_EVS_SetTypeEnable(CFE_EVS_EventType_CRITICAL, false);
+    UtAssert_INT32_EQ(AppDataPtr->EventTypesActive[0], 0);
+    UtAssert_INT32_EQ(AppDataPtr->EventTypesActive[1], 0);
+    UtAssert_INT32_EQ(AppDataPtr->EventTypesActive[2], 0);
+    UtAssert_INT32_EQ(AppDataPtr->EventTypesActive[3], 0);
+
+    /*Test enabling specific events with CFE_EVS_SetTypeEnable*/
+    CFE_EVS_SetTypeEnable(CFE_EVS_EventType_DEBUG, true);
+    UtAssert_INT32_EQ(AppDataPtr->EventTypesActive[0], 1);
+    UtAssert_INT32_EQ(AppDataPtr->EventTypesActive[1], 0);
+    UtAssert_INT32_EQ(AppDataPtr->EventTypesActive[2], 0);
+    UtAssert_INT32_EQ(AppDataPtr->EventTypesActive[3], 0);
+    CFE_EVS_SetTypeEnable(CFE_EVS_EventType_CRITICAL, true);
+    UtAssert_INT32_EQ(AppDataPtr->EventTypesActive[0], 1);
+    UtAssert_INT32_EQ(AppDataPtr->EventTypesActive[1], 0);
+    UtAssert_INT32_EQ(AppDataPtr->EventTypesActive[2], 0);
+    UtAssert_INT32_EQ(AppDataPtr->EventTypesActive[3], 1);
+
+    /*Test CFE_EVS_GetTypeEnable*/
+    UtAssert_INT32_EQ(CFE_EVS_GetTypeEnable(CFE_EVS_EventType_DEBUG), 1);
+    UtAssert_INT32_EQ(CFE_EVS_GetTypeEnable(CFE_EVS_EventType_INFORMATION), 0);
+    UtAssert_INT32_EQ(CFE_EVS_GetTypeEnable(CFE_EVS_EventType_ERROR), 0);
+    UtAssert_INT32_EQ(CFE_EVS_GetTypeEnable(CFE_EVS_EventType_CRITICAL), 1);
+
+    /*Test CFE_EVS_SetTypeEnable with invalid event type*/
+    CFE_EVS_SetTypeEnable(5, true);
+    UtAssert_INT32_EQ(AppDataPtr->EventTypesActive[0], 1);
+    UtAssert_INT32_EQ(AppDataPtr->EventTypesActive[1], 0);
+    UtAssert_INT32_EQ(AppDataPtr->EventTypesActive[2], 0);
+    UtAssert_INT32_EQ(AppDataPtr->EventTypesActive[3], 1);
+
+    /*Test CFE_EVS_GetTypeEnable with invalid event type*/
+    UtAssert_INT32_EQ(CFE_EVS_GetTypeEnable(5), 0); //Invalid event always returns false
+
+    /*Test CFE_EVS_GetTypeEnable and CFE_EVS_SetTypeEnable with null pointers*/
+    UT_InitData_EVS();
+    UT_SetDefaultReturnValue(UT_KEY(CFE_ES_AppID_ToIndex), CFE_ES_ERR_RESOURCEID_NOT_VALID);
+    CFE_EVS_SetTypeEnable(CFE_EVS_EventType_ERROR, true);
+    UtAssert_INT32_EQ(AppDataPtr->EventTypesActive[0], 1);
+    UtAssert_INT32_EQ(AppDataPtr->EventTypesActive[1], 0);
+    UtAssert_INT32_EQ(AppDataPtr->EventTypesActive[2], 0);
+    UtAssert_INT32_EQ(AppDataPtr->EventTypesActive[3], 1);
+    UtAssert_INT32_EQ(CFE_EVS_GetTypeEnable(CFE_EVS_EventType_DEBUG), false);
+
+    /*Test EVS_SetTypes*/
+    UT_InitData_EVS();
+    EVS_SetTypes(NULL, 4, true);
+    UtAssert_INT32_EQ(AppDataPtr->EventTypesActive[0], 1);
+    UtAssert_INT32_EQ(AppDataPtr->EventTypesActive[1], 0);
+    UtAssert_INT32_EQ(AppDataPtr->EventTypesActive[2], 0);
+    UtAssert_INT32_EQ(AppDataPtr->EventTypesActive[3], 1);
+    EVS_SetTypes(AppDataPtr, 0xFF, true);
+    UtAssert_INT32_EQ(AppDataPtr->EventTypesActive[0], 1);
+    UtAssert_INT32_EQ(AppDataPtr->EventTypesActive[1], 1);
+    UtAssert_INT32_EQ(AppDataPtr->EventTypesActive[2], 1);
+    UtAssert_INT32_EQ(AppDataPtr->EventTypesActive[3], 1);
+
+    /*Test EVS_EventArrayToBitMask*/
+    UtAssert_INT32_EQ(EVS_EventArrayToBitMask(NULL), 0);
+    CFE_EVS_SetTypeEnable(CFE_EVS_EventType_DEBUG, true);
+    CFE_EVS_SetTypeEnable(CFE_EVS_EventType_INFORMATION, false);
+    CFE_EVS_SetTypeEnable(CFE_EVS_EventType_ERROR, false);
+    CFE_EVS_SetTypeEnable(CFE_EVS_EventType_CRITICAL, false);
+
+    UtAssert_INT32_EQ(EVS_EventArrayToBitMask(AppDataPtr), 1);
 }

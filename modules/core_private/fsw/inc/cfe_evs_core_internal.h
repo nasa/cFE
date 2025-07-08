@@ -35,6 +35,7 @@
 
 #include "common_types.h"
 #include "cfe_es_extern_typedefs.h"
+#include "cfe_evs_extern_typedefs.h"
 
 /*
  * The internal APIs prototyped within this block are only intended to be invoked from
@@ -83,6 +84,30 @@ int32 CFE_EVS_EarlyInit(void);
 **
 ******************************************************************************/
 int32 CFE_EVS_CleanUpApp(CFE_ES_AppId_t AppId);
+
+/*****************************************************************************/
+/**
+** \brief Sets events using CFE_EVS_EventType Enum and a bool: true for on,
+**        false for off.
+**
+** \par Description
+**        This function is called by cfe_testcase to enable or disable events
+**        so more bugs and issues in cFS can be detected. 
+**
+******************************************************************************/
+void CFE_EVS_SetTypeEnable(CFE_EVS_EventType_Enum_t EventType, bool Enable);
+
+/*****************************************************************************/
+/**
+** \brief Gets event state using CFE_EVS_EventType Enum returning a bool: 
+**        true for on, false for off.
+**
+** \par Description
+**        This function is called by cfe_testcase to enable or disable events
+**        so more bugs and issues in cFS can be detected. 
+**
+******************************************************************************/
+bool CFE_EVS_GetTypeEnable(CFE_EVS_EventType_Enum_t EventType);
 
 /**@}*/
 

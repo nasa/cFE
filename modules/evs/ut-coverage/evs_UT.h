@@ -279,4 +279,6 @@ void Test_Squelching(void);
 ******************************************************************************/
 void Test_Misc(void);
 
+void Test_SetEvent(void);
+
 #endif /* EVS_UT_H */
