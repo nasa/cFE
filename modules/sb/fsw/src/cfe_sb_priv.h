@@ -337,6 +337,20 @@ typedef struct
 
 typedef bool (*CFE_SB_MessageTxn_PipeHandler_t)(CFE_SB_MessageTxn_State_t *, CFE_SB_PipeSetEntry_t *, void *);
 
+/**
+ * \brief Tracks the status of the CFE_SB_GetPipeNamePriv function
+ * 
+ * Includes the variables used for event reporting in CFE_SB_GetPipeName API function.
+ * 
+ */
+typedef struct
+{
+    int32           Status;
+    CFE_ES_TaskId_t TskId;
+    char            FullName[(OS_MAX_API_NAME * 2)];
+    uint16          PendingEventID;
+} CFE_SB_PipeName_State_t;
+
 /*
 ** Software Bus Function Prototypes
 */
@@ -1461,6 +1475,23 @@ static inline bool CFE_SB_PipeDescIsMatch(const CFE_SB_PipeD_t *PipeDscPtr, CFE_
  * @returns true if slot is currently in use/unavailable
  */
 bool CFE_SB_CheckPipeDescSlotUsed(CFE_ResourceId_t CheckId);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Internal version of CFE_SB_GetPipeName with deffered event reporting
+ * 
+ * Get the pipe name for a given id.
+ * 
+ * @returns CFE_SB_PipeName_State_t to pass necessary variables to CFE_SB_GetPipeName. 
+ * Contains State variable for deffered event reporting.
+ * 
+ * \param[out] PipeNameBuf  The buffer to receive the pipe name @nonnull.
+ *
+ * \param[in] PipeNameSize  The size (in chars) of the PipeName buffer @nonzero.
+ *
+ * \param[in] PipeId        The PipeId for that name.
+ */
+CFE_SB_PipeName_State_t CFE_SB_GetPipeNamePriv(char *PipeNameBuf, size_t PipeNameSize, CFE_SB_PipeId_t PipeId);
 
 /*
  * Helper functions for background file write requests (callbacks)
