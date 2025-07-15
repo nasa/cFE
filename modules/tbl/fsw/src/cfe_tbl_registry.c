@@ -372,7 +372,7 @@ void CFE_TBL_TxnConnectAccessDescriptor(CFE_TBL_TxnState_t *Txn)
     /* Check current state of table in order to set Notification flags properly */
     if (CFE_TBL_RegRecIsMatch(RegRecPtr, AccDescPtr->RegIndex))
     {
-        AccDescPtr->Updated = CFE_TBL_RegRecIsTableLoaded(RegRecPtr);
+        AccDescPtr->Updated = !RegRecPtr->Config.DumpOnly && CFE_TBL_RegRecIsTableLoaded(RegRecPtr);
         CFE_TBL_HandleListInsertLink(RegRecPtr, AccDescPtr);
     }
     else
