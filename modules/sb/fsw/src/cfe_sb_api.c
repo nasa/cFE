@@ -665,55 +665,25 @@ CFE_Status_t CFE_SB_GetPipeOpts(CFE_SB_PipeId_t PipeId, uint8 *OptsPtr)
  *-----------------------------------------------------------------*/
 CFE_Status_t CFE_SB_GetPipeName(char *PipeNameBuf, size_t PipeNameSize, CFE_SB_PipeId_t PipeId)
 {
-    int32           OsStatus;
-    int32           Status;
+    CFE_Status_t    Status;
+    uint16          PendingEventID;
     CFE_ES_TaskId_t TskId;
     char            FullName[(OS_MAX_API_NAME * 2)];
-    uint16          PendingEventID;
-    CFE_SB_PipeD_t *PipeDscPtr;
-    osal_id_t       SysQueueId;
 
     PendingEventID = 0;
-    Status         = CFE_SUCCESS;
-    SysQueueId     = OS_OBJECT_ID_UNDEFINED;
 
-    /* take semaphore to prevent a task switch during this call */
-    CFE_SB_LockSharedData(__func__, __LINE__);
-
-    /* check input parameter */
-    PipeDscPtr = CFE_SB_LocatePipeDescByID(PipeId);
-    if (!CFE_SB_PipeDescIsMatch(PipeDscPtr, PipeId))
+    if (PipeNameBuf == NULL || PipeNameSize == 0)
     {
-        PendingEventID = CFE_SB_GETPIPENAME_ID_ERR_EID;
+        PendingEventID = CFE_SB_GETPIPENAME_NULL_PTR_EID;
         Status         = CFE_SB_BAD_ARGUMENT;
     }
     else
     {
-        SysQueueId = PipeDscPtr->SysQueueId;
-    }
+        Status = CFE_SB_GetPipeNamePriv(PipeId, PipeNameBuf, PipeNameSize);
 
-    CFE_SB_UnlockSharedData(__func__, __LINE__);
-
-    if (Status == CFE_SUCCESS)
-    {
-        if (PipeNameBuf == NULL || PipeNameSize == 0)
+        if (Status != CFE_SUCCESS)
         {
-            PendingEventID = CFE_SB_GETPIPENAME_NULL_PTR_EID;
-            Status         = CFE_SB_BAD_ARGUMENT;
-        }
-        else
-        {
-            OsStatus = OS_GetResourceName(SysQueueId, PipeNameBuf, PipeNameSize);
-
-            if (OsStatus == OS_SUCCESS)
-            {
-                Status = CFE_SUCCESS;
-            }
-            else
-            {
-                PendingEventID = CFE_SB_GETPIPENAME_ID_ERR_EID;
-                Status         = CFE_SB_BAD_ARGUMENT;
-            }
+            PendingEventID = CFE_SB_GETPIPENAME_ID_ERR_EID;
         }
     }
 
@@ -727,7 +697,7 @@ CFE_Status_t CFE_SB_GetPipeName(char *PipeNameBuf, size_t PipeNameSize, CFE_SB_P
     {
         TskId = CFE_ES_TASKID_UNDEFINED;
     }
-
+    
     switch (PendingEventID)
     {
         case CFE_SB_GETPIPENAME_NULL_PTR_EID:
@@ -744,23 +714,10 @@ CFE_Status_t CFE_SB_GetPipeName(char *PipeNameBuf, size_t PipeNameSize, CFE_SB_P
         default:
             break;
     }
-
-    if (Status == CFE_SUCCESS)
-    {
-        CFE_EVS_SendEventWithAppID(CFE_SB_GETPIPENAME_EID, CFE_EVS_EventType_DEBUG, CFE_SB_Global.AppId,
-                                   "GetPipeName name=%s id=%lu", PipeNameBuf, CFE_RESOURCEID_TO_ULONG(PipeId));
-    }
-    else
-    {
-        if (PipeNameBuf != NULL && PipeNameSize > 0)
-        {
-            memset(PipeNameBuf, 0, PipeNameSize);
-        }
-    }
-
+    
     return Status;
 }
-
+ 
 /*----------------------------------------------------------------
  *
  * Implemented per public API
