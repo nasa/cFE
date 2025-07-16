@@ -665,37 +665,57 @@ CFE_Status_t CFE_SB_GetPipeOpts(CFE_SB_PipeId_t PipeId, uint8 *OptsPtr)
  *-----------------------------------------------------------------*/
 CFE_Status_t CFE_SB_GetPipeName(char *PipeNameBuf, size_t PipeNameSize, CFE_SB_PipeId_t PipeId)
 {
-    CFE_SB_PipeName_State_t PipeVar = CFE_SB_GetPipeNamePriv(PipeNameBuf, PipeNameSize, PipeId);
-    
-    /* Send Events */
-    if (PipeVar.PendingEventID != 0)
+    CFE_Status_t    Status;
+    uint16          PendingEventID;
+    CFE_ES_TaskId_t TskId;
+    char            FullName[(OS_MAX_API_NAME * 2)];
+
+    PendingEventID = 0;
+
+    if (PipeNameBuf == NULL || PipeNameSize == 0)
     {
-        /* get TaskId of caller for events */
-        CFE_ES_GetTaskID(&PipeVar.TskId);
+        PendingEventID = CFE_SB_GETPIPENAME_NULL_PTR_EID;
+        Status         = CFE_SB_BAD_ARGUMENT;
     }
     else
     {
-        PipeVar.TskId = CFE_ES_TASKID_UNDEFINED;
+        Status = CFE_SB_GetPipeNamePriv(PipeId, PipeNameBuf, PipeNameSize);
+
+        if (Status != CFE_SUCCESS)
+        {
+            PendingEventID = CFE_SB_GETPIPENAME_ID_ERR_EID;
+        }
     }
 
-    switch (PipeVar.PendingEventID)
+    /* Send Events */
+    if (PendingEventID != 0)
+    {
+        /* get TaskId of caller for events */
+        CFE_ES_GetTaskID(&TskId);
+    }
+    else
+    {
+        TskId = CFE_ES_TASKID_UNDEFINED;
+    }
+    
+    switch (PendingEventID)
     {
         case CFE_SB_GETPIPENAME_NULL_PTR_EID:
             CFE_EVS_SendEventWithAppID(CFE_SB_GETPIPENAME_NULL_PTR_EID, CFE_EVS_EventType_ERROR, CFE_SB_Global.AppId,
-                                       "Pipe Name Error:NullPtr,Requestor %s", CFE_SB_GetAppTskName(PipeVar.TskId, PipeVar.FullName));
+                                       "Pipe Name Error:NullPtr,Requestor %s", CFE_SB_GetAppTskName(TskId, FullName));
             break;
 
         case CFE_SB_GETPIPENAME_ID_ERR_EID:
             CFE_EVS_SendEventWithAppID(CFE_SB_GETPIPENAME_ID_ERR_EID, CFE_EVS_EventType_ERROR, CFE_SB_Global.AppId,
                                        "Pipe Id Error:Bad Argument,Id=%lu,Requestor %s",
-                                       CFE_RESOURCEID_TO_ULONG(PipeId), CFE_SB_GetAppTskName(PipeVar.TskId, PipeVar.FullName));
+                                       CFE_RESOURCEID_TO_ULONG(PipeId), CFE_SB_GetAppTskName(TskId, FullName));
             break;
 
         default:
             break;
     }
     
-    return PipeVar.Status;
+    return Status;
 }
  
 /*----------------------------------------------------------------

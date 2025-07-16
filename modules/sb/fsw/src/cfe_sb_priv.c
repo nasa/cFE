@@ -593,7 +593,7 @@ void CFE_SB_MessageTxn_GetEventDetails(const CFE_SB_MessageTxn_State_t *TxnPtr, 
         }
         else
         {
-            CFE_SB_GetPipeNamePriv(PipeName, sizeof(PipeName), ContextPtr->PipeId);
+            CFE_SB_GetPipeNamePriv(ContextPtr->PipeId, PipeName, sizeof(PipeName));
         }
     }
 
@@ -1527,17 +1527,21 @@ const CFE_SB_Buffer_t *CFE_SB_ReceiveTxn_Execute(CFE_SB_MessageTxn_State_t *TxnP
     return Result;
 }
 
-CFE_SB_PipeName_State_t CFE_SB_GetPipeNamePriv(char *PipeNameBuf, size_t PipeNameSize, CFE_SB_PipeId_t PipeId)
+/*----------------------------------------------------------------
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+CFE_Status_t CFE_SB_GetPipeNamePriv(CFE_SB_PipeId_t PipeId, char *PipeNameBuf, size_t PipeNameSize)
 {
     int32           OsStatus;
     CFE_SB_PipeD_t *PipeDscPtr;
     osal_id_t       SysQueueId;
+    int32           Status;
 
-    CFE_SB_PipeName_State_t PipeVar;
-
-    PipeVar.PendingEventID  = 0;
-    PipeVar.Status          = CFE_SUCCESS;
-    SysQueueId              = OS_OBJECT_ID_UNDEFINED;
+    Status          = CFE_SUCCESS;
+    SysQueueId      = OS_OBJECT_ID_UNDEFINED;
 
     /* take semaphore to prevent a task switch during this call */
     CFE_SB_LockSharedData(__func__, __LINE__);
@@ -1546,8 +1550,7 @@ CFE_SB_PipeName_State_t CFE_SB_GetPipeNamePriv(char *PipeNameBuf, size_t PipeNam
     PipeDscPtr = CFE_SB_LocatePipeDescByID(PipeId);
     if (!CFE_SB_PipeDescIsMatch(PipeDscPtr, PipeId))
     {
-        PipeVar.PendingEventID = CFE_SB_GETPIPENAME_ID_ERR_EID;
-        PipeVar.Status         = CFE_SB_BAD_ARGUMENT;
+        Status = CFE_SB_BAD_ARGUMENT;
     }
     else
     {
@@ -1556,35 +1559,19 @@ CFE_SB_PipeName_State_t CFE_SB_GetPipeNamePriv(char *PipeNameBuf, size_t PipeNam
 
     CFE_SB_UnlockSharedData(__func__, __LINE__);
 
-    if (PipeVar.Status == CFE_SUCCESS)
+    if (Status == CFE_SUCCESS)
     {
-        if (PipeNameBuf == NULL || PipeNameSize == 0)
-        {
-            PipeVar.PendingEventID = CFE_SB_GETPIPENAME_NULL_PTR_EID;
-            PipeVar.Status         = CFE_SB_BAD_ARGUMENT;
-        }
-        else
-        {
-            OsStatus = OS_GetResourceName(SysQueueId, PipeNameBuf, PipeNameSize);
+        OsStatus = OS_GetResourceName(SysQueueId, PipeNameBuf, PipeNameSize);
 
-            if (OsStatus == OS_SUCCESS)
-            {
-                PipeVar.Status = CFE_SUCCESS;
-            }
-            else
-            {
-                PipeVar.PendingEventID = CFE_SB_GETPIPENAME_ID_ERR_EID;
-                PipeVar.Status         = CFE_SB_BAD_ARGUMENT;
-            }
+        if (OsStatus != OS_SUCCESS)
+        {
+            Status = CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
         }
     }
     else
     {
-        if (PipeNameBuf != NULL && PipeNameSize > 0)
-        {
-            memset(PipeNameBuf, 0, PipeNameSize);
-        }
+        memset(PipeNameBuf, 0, PipeNameSize);
     }
 
-    return PipeVar;
+    return Status;
 }

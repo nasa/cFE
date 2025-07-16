@@ -1918,7 +1918,7 @@ void Test_GetPipeName_InvalidId(void)
     CFE_UtAssert_SETUP(CFE_SB_CreatePipe(&PipeId, 4, "TestPipe"));
 
     UT_SetDeferredRetcode(UT_KEY(OS_GetResourceName), 1, OS_ERROR);
-    UtAssert_INT32_EQ(CFE_SB_GetPipeName(PipeName, sizeof(PipeName), PipeId), CFE_SB_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_SB_GetPipeName(PipeName, sizeof(PipeName), PipeId), CFE_STATUS_EXTERNAL_RESOURCE_FAIL);
 
     CFE_UtAssert_EVENTSENT(CFE_SB_GETPIPENAME_ID_ERR_EID);
 
@@ -1933,12 +1933,12 @@ void Test_GetPipeName_NullPipeName(void)
     CFE_UtAssert_SETUP(CFE_SB_CreatePipe(&PipeId, 4, "TestPipe"));
 
     UT_SetDefaultReturnValue(UT_KEY(CFE_ResourceId_ToIndex), CFE_ES_BAD_ARGUMENT);
-    //UT_SetDeferredRetcode(UT_KEY(CFE_SB_PipeId_ToIndex), 1, CFE_ES_BAD_ARGUMENT);
+
     UtAssert_INT32_EQ(CFE_SB_GetPipeName(NULL, 4, PipeId), CFE_SB_BAD_ARGUMENT);
-    CFE_UtAssert_EVENTSENT(CFE_SB_GETPIPENAME_ID_ERR_EID);
+    CFE_UtAssert_EVENTSENT(CFE_SB_GETPIPENAME_NULL_PTR_EID);
 
     UtAssert_INT32_EQ(CFE_SB_GetPipeName(PipeName, 0, PipeId), CFE_SB_BAD_ARGUMENT);
-    CFE_UtAssert_EVENTSENT(CFE_SB_GETPIPENAME_ID_ERR_EID);
+    CFE_UtAssert_EVENTSENT(CFE_SB_GETPIPENAME_NULL_PTR_EID);
 
     UT_ClearDefaultReturnValue(UT_KEY(CFE_ResourceId_ToIndex));
     CFE_UtAssert_TEARDOWN(CFE_SB_DeletePipe(PipeId));
