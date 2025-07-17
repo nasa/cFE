@@ -352,6 +352,8 @@ void CFE_TBL_RegRecSetModifiedFlag(CFE_TBL_RegistryRec_t *RegRecPtr)
 void CFE_TBL_SetupTableRegistryRecord(CFE_TBL_RegistryRec_t *RegRecPtr, CFE_ES_AppId_t OwnerAppId,
                                       const CFE_TBL_TableConfig_t *ReqCfg)
 {
+    CFE_TBL_LoadBuff_t *InitialBuffPtr;
+
     /* Keep note of the app that registered this table */
     RegRecPtr->OwnerAppId = OwnerAppId;
 
@@ -363,6 +365,23 @@ void CFE_TBL_SetupTableRegistryRecord(CFE_TBL_RegistryRec_t *RegRecPtr, CFE_ES_A
 
     /* Save the EDS ID */
     RegRecPtr->Config.EdsId = ReqCfg->EdsId;
+
+    /* Set the initial active buffer.  This is only applicable if it is a dump only table
+     * that is using an internal buffer - otherwise it needs to be loaded and the 
+     * active buffer will be set at that time. */
+    if (ReqCfg->DumpOnly && !ReqCfg->UserDefAddr)
+    {
+        InitialBuffPtr = CFE_TBL_GetInactiveBufferExclusive(RegRecPtr);
+    }
+    else
+    {
+        InitialBuffPtr = NULL;
+    }
+
+    if (InitialBuffPtr != NULL)
+    {
+        CFE_TBL_SetActiveBuffer(RegRecPtr, InitialBuffPtr);
+    }
 }
 
 /*----------------------------------------------------------------
