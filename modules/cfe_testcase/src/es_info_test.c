@@ -30,7 +30,7 @@
 #include "cfe_test.h"
 
 const char TEST_EXPECTED_ENTRYPOINT[] = "CFE_TestMain";
-const char TEST_EXPECTED_APP_NAME[]   = "CFE_TEST_APP";
+const char TEST_EXPECTED_APP_NAME[]   = "CFE_TEST";
 const char TEST_EXPECTED_FILE_NAME[]  = "cfe_testcase";
 const char ES_APP_EXPECTED_NAME[]     = "CFE_ES";
 const char INVALID_APP_NAME[]         = "INVALID_NAME";

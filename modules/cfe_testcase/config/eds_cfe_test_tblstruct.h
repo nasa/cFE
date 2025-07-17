@@ -17,22 +17,17 @@
  ************************************************************************/
 
 /**
- * \file
- *   Create a file containing a CFE Test Table
+ * @file
+ *
+ *  Purpose:
+ *   CFE Test app (CFE_TESTCASE) Table definition file.
  */
+#ifndef EDS_CFE_TESTCASE_TBLSTRUCT_H
+#define EDS_CFE_TESTCASE_TBLSTRUCT_H
 
-/*
+/************************************************************************
  * Includes
- */
+ ************************************************************************/
+#include "cfe_testcase_eds_typedefs.h"
 
-#include "cfe_tbl_filedef.h"
-#include "cfe_test_tbl.h"
-
-/*
- * The test table data should contain some identifiable numeric values,
- * so any issues with paritial loading/byteswapping are morely likely
- * to be detected.
- */
-CFE_TEST_TestTable_t TestTable = {0xf007, 0xba11};
-
-CFE_TBL_FILEDEF(TestTable, CFE_TEST.TestTable, Table Test Table, cfe_test_tbl.tbl)
+#endif

@@ -386,7 +386,7 @@ void TblTest_GenerateTblFiles(void)
     UtAssert_INT32_EQ(OS_read(fh1, &buf, sizeof(buf.FsHdr)), sizeof(buf.FsHdr));
     UtAssert_INT32_EQ(OS_write(fh2, &buf, sizeof(buf.FsHdr)), sizeof(buf.FsHdr));
     UtAssert_INT32_EQ(OS_read(fh1, &buf, sizeof(buf.TblHdr)), sizeof(buf.TblHdr));
-    snprintf(buf.TblHdr.TableName, sizeof(buf.TblHdr.TableName), "%s.%s", "CFE_TEST_APP", TESTTBL_OTHER_NAME);
+    snprintf(buf.TblHdr.TableName, sizeof(buf.TblHdr.TableName), "%s.%s", "CFE_TEST", TESTTBL_OTHER_NAME);
     UtAssert_INT32_EQ(OS_write(fh2, &buf, sizeof(buf.TblHdr)), sizeof(buf.TblHdr));
 
     /* Identifiable content, different from original */

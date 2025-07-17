@@ -30,7 +30,7 @@ To execute tests at startup, the following lines can be added to `cfe_es_startup
 designated test target:
 
     CFE_LIB, cfe_assert,    CFE_Assert_LibInit,  ASSERT_LIB,    0,    0,      0x0,  0;
-    CFE_APP, cfe_testcase,  CFE_TestMain,        CFE_TEST_APP,  100,  16384,  0x0,  0;
+    CFE_APP, cfe_testcase,  CFE_TestMain,        CFE_TEST,      100,  16384,  0x0,  0;
     CFE_LIB, sample_lib,    SAMPLE_LIB_Init,     SAMPLE_LIB,    0,    0,      0x0,  0;
     CFE_APP, sample_app,    SAMPLE_APP_Main,     SAMPLE_APP,    50,   16384,  0x0,  0;
 
