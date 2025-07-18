@@ -42,7 +42,7 @@ void CFE_TestMain(void)
 
     /* Constant Table information used by all table tests */
     CFE_FT_Global.TblName           = "TestTable";
-    CFE_FT_Global.RegisteredTblName = "CFE_TEST_APP.TestTable";
+    CFE_FT_Global.RegisteredTblName = "CFE_TEST.TestTable";
     CFE_FT_Global.TblFilename       = "test_tbl.tbl";
 
     /*

@@ -85,7 +85,7 @@ void TestCDSName(void)
     CFE_ES_CDSHandle_t CDSHandlePtr;
     size_t             BlockSize    = 10;
     const char *       Name         = "CDS_Test";
-    const char *       CDSName      = "CFE_TEST_APP.CDS_Test";
+    const char *       CDSName      = "CFE_TEST.CDS_Test";
     const char *       INVALID_NAME = "INVALID_NAME";
 
     CFE_ES_CDSHandle_t IdByName;
