@@ -979,6 +979,8 @@ CFE_Status_t CFE_TBL_RestoreTableDataFromCDS(CFE_TBL_RegistryRec_t *RegRecPtr)
 
                 WorkingBufferPtr->FileTime = CritRegRecPtr->FileTime;
 
+                CFE_TBL_SetActiveBuffer(RegRecPtr, WorkingBufferPtr);
+
                 CFE_TBL_RegRecResetLoadInfo(RegRecPtr, CritRegRecPtr->LastFileLoaded, CritRegRecPtr->TimeOfLastUpdate);
 
                 /* Compute the CRC on the specified table buffer */
