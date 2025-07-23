@@ -443,7 +443,7 @@ CFE_Status_t CFE_TBL_LoadCmd(const CFE_TBL_LoadCmd_t *data)
     }
 
     /* Send any events associated with this table load */
-    CFE_TBL_SendTableLoadFileEvents(&Txn, &Header);
+    CFE_TBL_SendTableLoadFileEvents(&Txn, LoadFilename, &Header);
 
     return CFE_TBL_TranslateCmdProcRet(CmdProcRet);
 }
