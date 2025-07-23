@@ -110,9 +110,10 @@ void CFE_TBL_SendTableLoadEvents(CFE_TBL_TxnState_t *Txn);
  * Sends events that are related to a specific file or file header
  *
  * \param[inout] Txn               Pointer to transaction object
- * \param[inout] FileHdr           Buffer containing file header data
+ * \param[in]    Filename          The name of the file being loaded
+ * \param[in]    FileHdr           Buffer containing file header data
  */
-void CFE_TBL_SendTableLoadFileEvents(CFE_TBL_TxnState_t *Txn, const CFE_TBL_CombinedFileHdr_t *FileHdr);
+void CFE_TBL_SendTableLoadFileEvents(CFE_TBL_TxnState_t *Txn, const char *Filename, const CFE_TBL_CombinedFileHdr_t *FileHdr);
 
 /*---------------------------------------------------------------------------------------*/
 /**

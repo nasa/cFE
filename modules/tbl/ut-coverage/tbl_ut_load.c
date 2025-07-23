@@ -682,7 +682,13 @@ void Test_CFE_TBL_TableLoadCommon(void)
 
     UtPrintf("Begin Test Table Load Common Impl");
 
+    /* Bad argument - NULL filename */
+    UT_SetDeferredRetcode(UT_KEY(OS_OpenCreate), 1, -1);
+    UtAssert_INT32_EQ(CFE_TBL_TxnLoadFromFile(&Txn, NULL), CFE_TBL_ERR_ACCESS);
+    UT_TBL_EVENT_PENDING(&Txn, CFE_TBL_FILE_ACCESS_ERR_EID);
+
     /* Test when the transaction object is not initialized */
+    CFE_TBL_TxnInit(&Txn, false);
     UT_InitData_TBL();
     UT_TBL_SetupHeader(&FileHeader.Tbl, 0, sizeof(UT_Table1_t), "n/a");
     UT_SetReadHeader(&FileHeader.Std, sizeof(FileHeader.Std));

@@ -591,7 +591,7 @@ bool CFE_TBL_SendLoadFileEventHelper(const CFE_TBL_TxnEvent_t *Event, void *Arg)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-void CFE_TBL_SendTableLoadFileEvents(CFE_TBL_TxnState_t *Txn, const CFE_TBL_CombinedFileHdr_t *FileHdr)
+void CFE_TBL_SendTableLoadFileEvents(CFE_TBL_TxnState_t *Txn, const char *Filename, const CFE_TBL_CombinedFileHdr_t *FileHdr)
 {
     CFE_TBL_LoadContext_t Ctxt;
 
@@ -611,6 +611,15 @@ void CFE_TBL_SendTableLoadFileEvents(CFE_TBL_TxnState_t *Txn, const CFE_TBL_Comb
     {
         /* do not leave it null/blank */
         Ctxt.Tablename = "[unknown]";
+    }
+
+    if (Filename != NULL)
+    {
+        Ctxt.LoadFilename = Filename;
+    }
+    else
+    {
+        Ctxt.LoadFilename = "[none]";
     }
 
     CFE_TBL_TxnProcessEvents(Txn, CFE_TBL_SendLoadFileEventHelper, &Ctxt);
@@ -665,7 +674,7 @@ CFE_Status_t CFE_TBL_TxnLoadFromFile(CFE_TBL_TxnState_t *Txn, const char *Filena
     /* Send any events associated with this table load */
     /* Note that many of these require the Header context, which is local,
      * so send events before it goes out of scope */
-    CFE_TBL_SendTableLoadFileEvents(Txn, &Header);
+    CFE_TBL_SendTableLoadFileEvents(Txn, Filename, &Header);
 
     return Status;
 }
