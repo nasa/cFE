@@ -110,10 +110,6 @@ typedef struct CFE_TBL_FileDef
      * and the expected table size.  This is set automatically via the #CFE_TBL_FILEDEF macro.
      */
     uint32 ObjectSize;
-
-    /* In case the object is an array, this is the element size */
-    uint32 ElementSize;
-
 } CFE_TBL_FileDef_t;
 
 /**
@@ -151,7 +147,7 @@ typedef struct CFE_TBL_FileDef
 */
 
 #define CFE_TBL_FILEDEF(ObjName, TblName, Desc, Filename) \
-    CFE_TBL_FileDef_t CFE_TBL_FileDef = {#ObjName "\0", #TblName "\0", #Desc "\0", #Filename "\0", sizeof(ObjName), sizeof((&ObjName)[0])};
+    CFE_TBL_FileDef_t CFE_TBL_FileDef = {#ObjName "\0", #TblName "\0", #Desc "\0", #Filename "\0", sizeof(ObjName)};
 
 /*************************************************************************/
 
