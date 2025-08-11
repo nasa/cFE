@@ -27,12 +27,65 @@
 -->
 <DesignParameters>
 
+  <Package name="CF" shortDescription="CF configurable items">
+    <Define name="NUM_CHANNELS" value="2" />
+    <Define name="NAK_MAX_SEGMENTS" value="58" />
+    <Define name="MAX_POLLING_DIR_PER_CHAN" value="5" />
+    <Define name="MAX_PDU_SIZE" value="512" />
+    <Define name="FILENAME_MAX_NAME" value="20" />
+    <Define name="FILENAME_MAX_LEN" value="64" />
+    <Define name="PDU_ENCAPSULATION_EXTRA_TRAILING_BYTES" value="0" />
+  </Package>
+
+  <Package name="FM">
+    <Define name="TABLE_ENTRY_COUNT" value="8" />
+    <Define name="DIR_LIST_PKT_ENTRIES" value="16" />
+  </Package>
+
+  <Package name="HS">
+    <Define name="MAX_EXEC_CNT_SLOTS" value="32" />
+    <Define name="MAX_MONITORED_APPS" value="32" />
+    <Define name="MAX_MONITORED_EVENTS" value="16" />
+    <Define name="MAX_MSG_ACT_SIZE" value="16" />
+    <Define name="MAX_MSG_ACT_TYPES" value="8" />
+  </Package>
+
+  <Package name="LC">
+    <Define name="MAX_ACTIONPOINTS" value="176" />
+    <Define name="MAX_WATCHPOINTS" value="176" />
+    <Define name="MAX_ACTION_TEXT" value="32" />
+    <Define name="MAX_RPN_EQU_SIZE" value="20" />
+    <Define name="RTS_REQ_MID" value="0x18A9" />
+    <Define name="RTS_REQ_CC" value="4" />
+  </Package>
+
   <Package name="SAMPLE_APP">
     <Define name="STRING_VAL_LEN" value="10" />
   </Package>
 
   <Package name="CI_LAB">
     <Define name="BASE_UDP_PORT" value="1234" />
+  </Package>
+
+  <Package name="IOLib">
+    <Define name="PORT_CONFIG_STRING_SIZE" value="64" />
+    <Define name="PORT_NAME_SIZE" value="32" />
+    <Define name="MAX_ADDR_SIZE" value="32" />
+    <Define name="TCP_RECONNECT_DELAY" value="4" />
+  </Package>
+
+  <Package name="CI">
+    <Define name="PORT_CONFIG_STRING_SIZE" value="64" />
+    <Define name="PORT_NAME_SIZE" value="32" />
+    <Define name="MAX_ADDR_LEN" value="20" />
+  </Package>
+
+  <Package name="TO">
+    <Define name="TLM_PORT" value="1235" />
+    <Define name="MAX_SUBSCRIPTIONS" value="32" />
+    <Define name="PORT_CONFIG_STRING_SIZE" value="64" />
+    <Define name="PORT_NAME_SIZE" value="20" />
+    <Define name="MAX_ADDR_LEN" value="20" />
   </Package>
 
   <Package name="TO_LAB">
