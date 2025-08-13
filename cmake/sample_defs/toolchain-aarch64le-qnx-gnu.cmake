@@ -12,7 +12,7 @@ SET(CMAKE_SYSTEM_PROCESSOR   aarch64le)
 SET(QNX_SDP_ARCH             ${CMAKE_SYSTEM_PROCESSOR})
 
 # Basic QNX system configuration
-include("${CMAKE_CURRENT_LIST_DIR}/toolchain-qnx710-init.cmake" REQUIRED)
+include("${CMAKE_CURRENT_LIST_DIR}/toolchain-qnx-sdp-init.cmake" REQUIRED)
 
 # The QNX toolchain relies on several environment variables,
 # which should be set already by an environment setup script.

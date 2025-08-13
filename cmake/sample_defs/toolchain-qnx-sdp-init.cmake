@@ -1,4 +1,4 @@
-# This toolchain file describes the QNX 7.10 environment 
+# This toolchain file describes the QNX SDP 7.10/8.0 environment 
 
 # QNX_CONFIGURATION indicates that the QNX environment is setup
 set(QNX_CONFIG_ENV "$ENV{QNX_CONFIGURATION}")
@@ -25,6 +25,23 @@ SET(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM   NEVER)
 # for libraries and headers in the target directories
 SET(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY   NEVER)
 SET(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE   NEVER)
+
+# Dump QCC Predefined Macros
+execute_process(COMMAND ${CMAKE_C_COMPILER} -E -dM -xc /dev/null OUTPUT_VARIABLE QCC_PREDEFINED_MACROS)
+
+# Extract QNX Version
+string(REGEX MATCH "__QNX__ ([0-9]+)"  _match "${QCC_PREDEFINED_MACROS}")
+set(QCC_QNX_VERSION ${CMAKE_MATCH_1})
+MESSAGE("QCC_QNX_VERSION = ${QCC_QNX_VERSION}")
+
+# Set SDP Version (setting a target property based on the extracted value)
+if (QCC_QNX_VERSION VERSION_GREATER_EQUAL 800)
+    set(QNX_SDP_VERSION 800)
+else()
+    set(QNX_SDP_VERSION 710)
+endif()
+
+MESSAGE("QNX_SDP_VERSION = ${QNX_SDP_VERSION}")
 
 # these settings are specific to cFE/OSAL and determines which 
 # abstraction layers are built when using this toolchain
