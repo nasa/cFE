@@ -671,6 +671,16 @@ function(prepare)
   list(REVERSE OSAL_CONFIGURATION_FILE)
   set(OSAL_CONFIGURATION_FILE ${OSAL_CONFIGURATION_FILE} PARENT_SCOPE)
 
+  # Choose the configuration file to use for PSP on this system
+  set(PSP_CONFIGURATION_FILE)  
+  foreach(CONFIG ${BUILD_CONFIG_${TARGETSYSTEM}} ${PSP_SYSTEM_PSPCONFIG})
+    if (EXISTS "${MISSION_DEFS}/${CONFIG}_pspconfig.cmake")
+      list(APPEND PSP_CONFIGURATION_FILE "${MISSION_DEFS}/${CONFIG}_pspconfig.cmake")
+    endif()
+  endforeach()
+  list(REVERSE PSP_CONFIGURATION_FILE)
+  set(PSP_CONFIGURATION_FILE ${PSP_CONFIGURATION_FILE} PARENT_SCOPE)
+
   # Allow sources to "ifdef" certain things if running on simulated hardware
   # This should be used sparingly, typically to fake access to hardware that is not present
   if (SIMULATION)
