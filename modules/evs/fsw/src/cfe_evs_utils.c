@@ -516,6 +516,9 @@ void EVS_GenerateEventTelemetry(EVS_AppData_t *AppDataPtr, uint16 EventID, CFE_E
         CFE_SB_TransmitMsg(CFE_MSG_PTR(ShortEventTlm.TelemetryHeader), true);
     }
 
+    /* Serialize access to event log control variables */
+    OS_MutSemTake(CFE_EVS_Global.EVS_SharedDataMutexID);
+
     /* Increment message send counters (prevent rollover) */
     if (CFE_EVS_Global.EVS_TlmPkt.Payload.MessageSendCounter < CFE_EVS_MAX_EVENT_SEND_COUNT)
     {
@@ -526,6 +529,8 @@ void EVS_GenerateEventTelemetry(EVS_AppData_t *AppDataPtr, uint16 EventID, CFE_E
     {
         AppDataPtr->EventCount++;
     }
+
+    OS_MutSemGive(CFE_EVS_Global.EVS_SharedDataMutexID);
 }
 
 /*----------------------------------------------------------------
