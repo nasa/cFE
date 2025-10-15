@@ -4063,6 +4063,10 @@ void TestAPI(void)
     /* Verify requirement to report error */
     CFE_UtAssert_PRINTF(UT_OSP_MESSAGES[UT_OSP_INVALID_ID]);
 
+    /* Test CFE_ES_ReloadApp with NULL input */
+    ES_ResetUnitTest();
+    UtAssert_INT32_EQ(CFE_ES_ReloadApp(AppId, NULL), CFE_ES_BAD_ARGUMENT);
+
     /* Test reloading a core app */
     ES_ResetUnitTest();
     ES_UT_SetupSingleAppId(CFE_ES_AppType_CORE, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
