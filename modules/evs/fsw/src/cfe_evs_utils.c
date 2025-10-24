@@ -455,6 +455,7 @@ void EVS_GenerateEventTelemetry(EVS_AppData_t *AppDataPtr, uint16 EventID, CFE_E
     CFE_EVS_LongEventTlm_t  LongEventTlm;  /* The "long" flavor is always generated, as this is what is logged */
     CFE_EVS_ShortEventTlm_t ShortEventTlm; /* The "short" flavor is only generated if selected */
     int                     ExpandedLength;
+    bool                    IsTruncated;
 
     memset(&LongEventTlm, 0, sizeof(LongEventTlm));
     memset(&ShortEventTlm, 0, sizeof(ShortEventTlm));
@@ -478,7 +479,11 @@ void EVS_GenerateEventTelemetry(EVS_AppData_t *AppDataPtr, uint16 EventID, CFE_E
     {
         /* Mark character before zero terminator to indicate truncation */
         LongEventTlm.Payload.Message[sizeof(LongEventTlm.Payload.Message) - 2] = CFE_EVS_MSG_TRUNCATED;
-        CFE_EVS_Global.EVS_TlmPkt.Payload.MessageTruncCounter++;
+        IsTruncated = true;
+    }
+    else
+    {
+        IsTruncated = false;
     }
 
     /* Obtain task and system information */
@@ -528,6 +533,11 @@ void EVS_GenerateEventTelemetry(EVS_AppData_t *AppDataPtr, uint16 EventID, CFE_E
     if (AppDataPtr->EventCount < CFE_EVS_MAX_EVENT_SEND_COUNT)
     {
         AppDataPtr->EventCount++;
+    }
+
+    if (IsTruncated)
+    {
+        CFE_EVS_Global.EVS_TlmPkt.Payload.MessageTruncCounter++;
     }
 
     OS_MutSemGive(CFE_EVS_Global.EVS_SharedDataMutexID);
