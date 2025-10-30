@@ -23,7 +23,6 @@
 #ifndef DEFAULT_CFE_TEST_MSGIDS_H
 #define DEFAULT_CFE_TEST_MSGIDS_H
 
-#include "cfe_core_api_base_msgids.h"
 #include "cfe_test_msgid_values.h"
 
 /*

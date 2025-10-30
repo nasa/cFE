@@ -23,7 +23,6 @@
 #ifndef DEFAULT_CFE_TIME_MSGIDS_H
 #define DEFAULT_CFE_TIME_MSGIDS_H
 
-#include "cfe_core_api_base_msgids.h"
 #include "cfe_time_msgid_values.h"
 
 /*

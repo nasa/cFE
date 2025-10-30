@@ -23,7 +23,6 @@
 #ifndef DEFAULT_CFE_TBL_MSGIDS_H
 #define DEFAULT_CFE_TBL_MSGIDS_H
 
-#include "cfe_core_api_base_msgids.h"
 #include "cfe_tbl_msgid_values.h"
 
 /*

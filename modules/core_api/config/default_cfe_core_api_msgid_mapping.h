@@ -26,11 +26,14 @@
  * This logic is intended to be customizable.  By overriding this file, these macros
  * can be replaced with whatever logic is desired.  However, the same logic must be used
  * across all instances.  In order to simply tune the base value used for a given instance,
- * only the cfe_core_api_base_msgid_values.h file needs to be overridden.
+ * only the cfs_base_msgids.h file needs to be overridden.
  */
 
 #ifndef DEFAULT_CFE_CORE_API_MSGID_MAPPING_H
 #define DEFAULT_CFE_CORE_API_MSGID_MAPPING_H
+
+/* This header must provide CFE_PLATFORM_BASE_MIDVAL and CFE_PLATFORM_BASE_MIDVAL */
+#include "cfe_core_api_base_msgid_values.h"
 
 /**
  * \brief Convert a command topic ID to a MsgID value
@@ -43,7 +46,7 @@
  * go through CFE_SB_ValueToMsgId() to obtain a properly-typed CFE_SB_MsgId_t
  * for interacting with SB APIs.
  */
-#define CFE_PLATFORM_CMD_TOPICID_TO_MIDV(topic) (CFE_PLATFORM_CMD_MID_BASE | (topic))
+#define CFE_PLATFORM_CMD_TOPICID_TO_MIDV(topic) (CFE_PLATFORM_BASE_MIDVAL(CMD) | (topic))
 
 /**
  * \brief Convert a telemetry topic ID to a MsgID value
@@ -56,7 +59,7 @@
  * go through CFE_SB_ValueToMsgId() to obtain a properly-typed CFE_SB_MsgId_t
  * for interacting with SB APIs.
  */
-#define CFE_PLATFORM_TLM_TOPICID_TO_MIDV(topic) (CFE_PLATFORM_TLM_MID_BASE | (topic))
+#define CFE_PLATFORM_TLM_TOPICID_TO_MIDV(topic) (CFE_PLATFORM_BASE_MIDVAL(TLM) | (topic))
 
 /**
  * \brief Convert a "global" command topic ID to a MsgID value
@@ -66,7 +69,7 @@
  *
  * This is otherwise identical to #CFE_PLATFORM_CMD_TOPICID_TO_MIDV
  */
-#define CFE_GLOBAL_CMD_TOPICID_TO_MIDV(topic) (CFE_GLOBAL_CMD_MID_BASE | (topic))
+#define CFE_GLOBAL_CMD_TOPICID_TO_MIDV(topic) (CFE_GLOBAL_BASE_MIDVAL(CMD) | (topic))
 
 /**
  * \brief Convert a "global" telemetry topic ID to a MsgID value
@@ -76,6 +79,6 @@
  *
  * This is otherwise identical to #CFE_PLATFORM_TLM_TOPICID_TO_MIDV
  */
-#define CFE_GLOBAL_TLM_TOPICID_TO_MIDV(topic) (CFE_GLOBAL_TLM_MID_BASE | (topic))
+#define CFE_GLOBAL_TLM_TOPICID_TO_MIDV(topic) (CFE_GLOBAL_BASE_MIDVAL(TLM) | (topic))
 
 #endif /* CFE_CORE_BASE_MSGIDS_H */

@@ -8,7 +8,7 @@
 #
 ###########################################################
 
-# Generate the "cfe_platform_cfg.h" and "cfe_msgids.h" header files
+# Generate the platform-specific header files
 # these usually come from user config, but CFE provides defaults
 
 set(CORE_API_PLATFORM_CONFIG_FILE_LIST
