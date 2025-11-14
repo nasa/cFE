@@ -224,6 +224,24 @@ void CFE_ES_TaskEntryPoint(void);
 
 /*---------------------------------------------------------------------------------------*/
 /**
+ * Helper function to find a matching app record for an operation
+ *
+ * Returns a pointer to the matching app record after verifying:
+ * 1. The appID is valid and matches
+ * 2. The app is a user defined app, not a CORE app
+ * 3. The app is running
+ *
+ * If successful, the pointer to the record is returned with the ES lock
+ * still held from the check, ready for the actual operation.  The lock must
+ * be released by the caller.
+ *
+ * If any check failed, writes to syslog, releases the lock, and returns NULL.
+ * There is no additional action to be taken by the caller in this case.
+ */
+CFE_ES_AppRecord_t *CFE_ES_LockUserAppRecord(CFE_ES_AppId_t AppID, const char *LogMsgAction);
+
+/*---------------------------------------------------------------------------------------*/
+/**
  * Helper function to start (but not load) a new app/lib module
  *
  * Note that OSAL does not separate the action of creating and start a task, providing

@@ -1,5 +1,10 @@
 # Changelog
 
+## Development Build: equuleus-rc1+dev259
+- 'Fix #2641, improve validation in app control API'
+- See: <https://github.com/nasa/cFE/pull/2666>
+
+
 ## Development Build: equuleus-rc1+dev251
 - 'Fix #2651, initialize pipename buffer'
 - See: <https://github.com/nasa/cFE/pull/2652>
