@@ -99,7 +99,7 @@ const char *UT_OSP_MESSAGES[] = {
     [UT_OSP_RECORD_USED]                = "%s: Error: ES_TaskTable slot for ID %lx in use at task creation!\n",
     [UT_OSP_TASKEXIT_BAD_CONTEXT]       = "%s: Called from invalid task context\n",
     [UT_OSP_BACKGROUND_TAKE]            = "%s: Failed to take background sem: %08lx\n",
-    [UT_OSP_INVALID_ID]                 = "%s: Invalid Application ID received, AppID = %lu\n",
+    [UT_OSP_INVALID_ID]                 = "%s: Invalid Application ID received for %s, AppID = %lu\n",
     [UT_OSP_RESTART_NO_FILE]            = "%s: Cannot Restart Application %s, File %s does not exist.\n",
     [UT_OSP_CREATECHILD_FROM_CHILD]     = "%s: Error: Cannot call from a Child Task (for Task '%s').\n",
     [UT_OSP_DELETECHID_MAIN_TASK]       = "%s: Error: Task %lu is a cFE Main Task.\n",
