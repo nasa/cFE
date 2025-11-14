@@ -68,6 +68,49 @@
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
+CFE_ES_AppRecord_t *CFE_ES_LockUserAppRecord(CFE_ES_AppId_t AppID, const char *LogMsgAction)
+{
+    CFE_ES_AppRecord_t *AppRecPtr;
+    bool                IsValid;
+
+    IsValid   = false;
+    AppRecPtr = CFE_ES_LocateAppRecordByID(AppID);
+    CFE_ES_LockSharedData(__func__, __LINE__);
+    if (!CFE_ES_AppRecordIsMatch(AppRecPtr, AppID))
+    {
+        CFE_ES_WriteToSysLog("%s: Invalid Application ID received for %s, AppID = %lu\n", __func__, LogMsgAction,
+                             CFE_RESOURCEID_TO_ULONG(AppID));
+    }
+    else if (AppRecPtr->Type == CFE_ES_AppType_CORE)
+    {
+        CFE_ES_SysLogWrite_Unsync("%s: Cannot %s a CORE Application: %s.\n", __func__, LogMsgAction,
+                                  CFE_ES_AppRecordGetName(AppRecPtr));
+    }
+    else if (AppRecPtr->AppState != CFE_ES_AppState_RUNNING)
+    {
+        CFE_ES_SysLogWrite_Unsync("%s: Cannot %s Application %s, It is not running.\n", __func__, LogMsgAction,
+                                  CFE_ES_AppRecordGetName(AppRecPtr));
+    }
+    else
+    {
+        IsValid = true;
+    }
+
+    if (!IsValid)
+    {
+        CFE_ES_UnlockSharedData(__func__, __LINE__);
+        AppRecPtr = NULL;
+    }
+
+    return AppRecPtr;
+}
+
+/*----------------------------------------------------------------
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_ES_StartApplications(uint32 ResetType, const char *StartFilePath)
 {
     char        ES_AppLoadBuffer[ES_START_BUFF_SIZE]; /* A buffer of for a line in a file */
@@ -284,8 +327,8 @@ void CFE_ES_StartApplications(uint32 ResetType, const char *StartFilePath)
  *-----------------------------------------------------------------*/
 int32 CFE_ES_ParseFileEntry(const char **TokenList, uint32 NumTokens)
 {
-    const char   *ModuleName;
-    const char   *EntryType;
+    const char *  ModuleName;
+    const char *  EntryType;
     unsigned long ParsedValue;
     union
     {
@@ -495,7 +538,7 @@ int32 CFE_ES_LoadModule(CFE_ResourceId_t ParentResourceId, const char *ModuleNam
  *-----------------------------------------------------------------*/
 int32 CFE_ES_GetTaskFunction(CFE_ES_TaskEntryFuncPtr_t *FuncPtr)
 {
-    CFE_ES_TaskRecord_t      *TaskRecPtr;
+    CFE_ES_TaskRecord_t *     TaskRecPtr;
     CFE_ES_TaskEntryFuncPtr_t EntryFunc;
     int32                     ReturnCode;
     int32                     Timeout;
@@ -806,10 +849,10 @@ int32 CFE_ES_AppCreate(CFE_ES_AppId_t *ApplicationIdPtr, const char *AppName, co
             if (CleanupStatus != OS_SUCCESS)
             {
                 CFE_ES_WriteToSysLog("%s: Module (ID:0x%08lX) Unload failed. RC=%ld\n", __func__,
-                                    OS_ObjectIdToInteger(AppRecPtr->LoadStatus.ModuleId), (long)CleanupStatus);
+                                     OS_ObjectIdToInteger(AppRecPtr->LoadStatus.ModuleId), (long)CleanupStatus);
             }
         }
-        
+
         CFE_ES_AppRecordSetFree(AppRecPtr);
         PendingResourceId = CFE_RESOURCEID_UNDEFINED;
     }
@@ -830,7 +873,7 @@ int32 CFE_ES_AppCreate(CFE_ES_AppId_t *ApplicationIdPtr, const char *AppName, co
 int32 CFE_ES_LoadLibrary(CFE_ES_LibId_t *LibraryIdPtr, const char *LibName, const CFE_ES_ModuleLoadParams_t *Params)
 {
     CFE_ES_LibraryEntryFuncPtr_t FunctionPointer;
-    CFE_ES_LibRecord_t          *LibSlotPtr;
+    CFE_ES_LibRecord_t *         LibSlotPtr;
     int32                        Status;
     CFE_ResourceId_t             PendingResourceId;
 
@@ -985,7 +1028,7 @@ bool CFE_ES_RunAppTableScan(uint32 ElapsedTime, void *Arg)
 {
     CFE_ES_AppTableScanState_t *State = (CFE_ES_AppTableScanState_t *)Arg;
     uint32                      i;
-    CFE_ES_AppRecord_t         *AppPtr;
+    CFE_ES_AppRecord_t *        AppPtr;
     CFE_ES_AppId_t              AppTimeoutList[CFE_PLATFORM_ES_MAX_APPLICATIONS];
     uint32                      NumAppTimeouts;
 
@@ -1103,14 +1146,14 @@ bool CFE_ES_RunAppTableScan(uint32 ElapsedTime, void *Arg)
  *-----------------------------------------------------------------*/
 void CFE_ES_ProcessControlRequest(CFE_ES_AppId_t AppId)
 {
-    CFE_ES_AppRecord_t      *AppRecPtr;
+    CFE_ES_AppRecord_t *     AppRecPtr;
     uint32                   PendingControlReq;
     CFE_ES_AppStartParams_t  RestartParams;
     char                     OrigAppName[OS_MAX_API_NAME];
     CFE_Status_t             CleanupStatus;
     CFE_Status_t             StartupStatus;
     CFE_ES_AppId_t           NewAppId;
-    const char              *ReqName;
+    const char *             ReqName;
     char                     MessageDetail[48];
     uint16                   EventID;
     CFE_EVS_EventType_Enum_t EventType;
@@ -1336,8 +1379,8 @@ int32 CFE_ES_CleanUpApp(CFE_ES_AppId_t AppId)
     osal_id_t               ModuleId;
     uint32                  NumTasks;
     uint32                  NumPools;
-    CFE_ES_AppRecord_t     *AppRecPtr;
-    CFE_ES_TaskRecord_t    *TaskRecPtr;
+    CFE_ES_AppRecord_t *    AppRecPtr;
+    CFE_ES_TaskRecord_t *   TaskRecPtr;
     CFE_ES_MemPoolRecord_t *MemPoolRecPtr;
 
     NumTasks   = 0;
