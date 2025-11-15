@@ -790,7 +790,7 @@ int32 CFE_TIME_SubDelayCmd(const CFE_TIME_SubDelayCmd_t *data);
 /**
  * @brief  Time task ground command (diagnostics)
  */
-int32 CFE_TIME_SendDiagnosticTlm(const CFE_TIME_SendDiagnosticCmd_t *data);
+int32 CFE_TIME_SendDiagnosticTlmCmd(const CFE_TIME_SendDiagnosticCmd_t *data);
 
 /*---------------------------------------------------------------------------------------*/
 /**

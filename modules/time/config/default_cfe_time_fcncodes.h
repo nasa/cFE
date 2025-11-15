@@ -50,7 +50,7 @@
 **       Successful execution of this command may be verified with the
 **       following telemetry:
 **       - \b \c \TIME_CMDPC - command execution counter will increment
-**       - The #CFE_TIME_NOOP_EID informational event message will be generated
+**       - The #CFE_TIME_NOOP_INF_EID informational event message will be generated
 **
 **  \par Error Conditions
 **       There are no error conditions for this command. If the Time
@@ -95,7 +95,7 @@
 **       following telemetry:
 **       - \b \c \TIME_CMDPC - command execution counter will reset to 0
 **       - \b \c \TIME_CMDEC - command error counter will reset to 0
-**       - The #CFE_TIME_RESET_EID informational event message will be generated
+**       - The #CFE_TIME_RESET_INF_EID informational event message will be generated
 **
 **  \par Error Conditions
 **       There are no error conditions for this command. If the Time
@@ -129,7 +129,7 @@
 **       following telemetry:
 **       - \b \c \TIME_CMDPC - command execution counter will increment
 **       - Sequence Counter for #CFE_TIME_DiagnosticTlm_t will increment
-**       - The #CFE_TIME_DIAG_EID debug event message will be generated
+**       - The #CFE_TIME_DIAG_INF_EID informational event message will be generated
 **
 **  \par Error Conditions
 **       There are no error conditions for this command. If the Time

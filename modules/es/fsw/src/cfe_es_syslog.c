@@ -525,8 +525,8 @@ int32 CFE_ES_SysLogDump(const char *Filename)
     }
     else
     {
-        CFE_EVS_SendEvent(CFE_ES_SYSLOG2_EID, CFE_EVS_EventType_DEBUG, "%s written:Size=%lu,Entries=%u", Filename,
-                          (unsigned long)TotalSize,
+        CFE_EVS_SendEvent(CFE_ES_SYSLOG2_INF_EID, CFE_EVS_EventType_INFORMATION, "%s written:Size=%lu,Entries=%u",
+                          Filename, (unsigned long)TotalSize,
                           (unsigned int)CFE_ES_Global.TaskData.HkPacket.Payload.SysLogEntries);
         Status = CFE_SUCCESS;
     }

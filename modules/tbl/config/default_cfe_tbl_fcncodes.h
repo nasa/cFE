@@ -89,7 +89,7 @@
 **       the following telemetry:
 **       - \b \c \TBL_CMDPC - command execution counter will
 **         be reset to 0
-**       - The #CFE_TBL_RESET_INF_EID debug event message will be
+**       - The #CFE_TBL_RESET_INF_EID informational event message will be
 **         generated
 **
 **  \par Error Conditions
@@ -317,7 +317,7 @@
 **       - \b \c \TBL_CMDPC -  command execution counter will
 **         increment
 **       - The generation of either #CFE_TBL_OVERWRITE_REG_DUMP_INF_EID
-**         or #CFE_TBL_WRITE_REG_DUMP_INF_EID debug event messages
+**         or #CFE_TBL_WRITE_REG_DUMP_INF_EID informational event messages
 **       - The specified file should appear (or be updated) at the
 **         specified location in the file system
 **
@@ -358,7 +358,7 @@
 **       following telemetry:
 **       - \b \c \TBL_CMDPC -  command execution counter will increment
 **       - Receipt of a Table Registry Info Packet (see #CFE_TBL_TableRegistryTlm_t)
-**       - The #CFE_TBL_TLM_REG_CMD_INF_EID debug event message will
+**       - The #CFE_TBL_TLM_REG_CMD_INF_EID informational event message will
 **         be generated
 **
 **  \par Error Conditions

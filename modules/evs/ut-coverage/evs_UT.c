@@ -439,14 +439,14 @@ void Test_Init(void)
     appbitcmd.Payload.BitMask = CFE_EVS_DEBUG_BIT | CFE_EVS_INFORMATION_BIT | CFE_EVS_ERROR_BIT | CFE_EVS_CRITICAL_BIT;
     UT_EVS_DoDispatchCheckEvents(&appbitcmd, sizeof(appbitcmd), UT_TPID_CFE_EVS_CMD_ENABLE_APP_EVENT_TYPE_CC,
                                  &UT_EVS_EventBuf);
-    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_ENAAPPEVTTYPE_EID);
+    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_ENAAPPEVTTYPE_INF_EID);
 
     /* Disable ports */
     UT_InitData_EVS();
     bitmaskcmd.Payload.BitMask = CFE_EVS_PORT1_BIT | CFE_EVS_PORT2_BIT | CFE_EVS_PORT3_BIT | CFE_EVS_PORT4_BIT;
     UT_EVS_DoDispatchCheckEvents(&bitmaskcmd, sizeof(bitmaskcmd), UT_TPID_CFE_EVS_CMD_DISABLE_PORTS_CC,
                                  &UT_EVS_EventBuf);
-    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_DISPORT_EID);
+    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_DISPORT_INF_EID);
 
     UT_EVS_DisableSquelch();
 }
@@ -756,7 +756,7 @@ void Test_Format(void)
     appbitcmd.Payload.BitMask = CFE_EVS_DEBUG_BIT | CFE_EVS_INFORMATION_BIT | CFE_EVS_ERROR_BIT | CFE_EVS_CRITICAL_BIT;
     UT_EVS_DoDispatchCheckEvents(&appbitcmd, sizeof(appbitcmd), UT_TPID_CFE_EVS_CMD_ENABLE_APP_EVENT_TYPE_CC,
                                  &UT_EVS_EventBuf);
-    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_ENAAPPEVTTYPE_EID);
+    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_ENAAPPEVTTYPE_INF_EID);
 
     /* Test set event format mode command using an invalid mode */
     UT_InitData_EVS();
@@ -772,7 +772,7 @@ void Test_Format(void)
     modecmd.Payload.MsgFormat = CFE_EVS_MsgFormat_SHORT;
     UT_EVS_DoDispatchCheckEventsShort(&modecmd, sizeof(modecmd), UT_TPID_CFE_EVS_CMD_SET_EVENT_FORMAT_MODE_CC,
                                       &UT_EVS_EventBuf);
-    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_SETEVTFMTMOD_EID);
+    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_SETEVTFMTMOD_INF_EID);
 
     UtPrintf("Test for short event sent when configured to do so ");
     UT_InitData_EVS();
@@ -796,7 +796,7 @@ void Test_Format(void)
     modecmd.Payload.MsgFormat = CFE_EVS_MsgFormat_LONG;
     UT_EVS_DoDispatchCheckEvents(&modecmd, sizeof(modecmd), UT_TPID_CFE_EVS_CMD_SET_EVENT_FORMAT_MODE_CC,
                                  &UT_EVS_EventBuf);
-    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_SETEVTFMTMOD_EID);
+    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_SETEVTFMTMOD_INF_EID);
 
     /* Test event long format mode command was successful (the following
      * messages are output if long format selection is successful)
@@ -864,7 +864,7 @@ void Test_Ports(void)
     bitmaskcmd.Payload.BitMask = CFE_EVS_PORT1_BIT | CFE_EVS_PORT2_BIT | CFE_EVS_PORT3_BIT | CFE_EVS_PORT4_BIT;
     UT_EVS_DoDispatchCheckEvents(&bitmaskcmd, sizeof(bitmaskcmd), UT_TPID_CFE_EVS_CMD_ENABLE_PORTS_CC,
                                  &UT_EVS_EventBuf);
-    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_ENAPORT_EID);
+    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_ENAPORT_INF_EID);
 
     /* Test that ports are enabled by sending a message */
     UT_InitData_EVS();
@@ -879,7 +879,7 @@ void Test_Ports(void)
     bitmaskcmd.Payload.BitMask = CFE_EVS_PORT1_BIT | CFE_EVS_PORT2_BIT | CFE_EVS_PORT3_BIT | CFE_EVS_PORT4_BIT;
     UT_EVS_DoDispatchCheckEvents(&bitmaskcmd, sizeof(bitmaskcmd), UT_TPID_CFE_EVS_CMD_DISABLE_PORTS_CC,
                                  &UT_EVS_EventBuf);
-    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_DISPORT_EID);
+    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_DISPORT_INF_EID);
 
     /* Test enabling a port using a bitmask that is out of range (high) */
     UT_InitData_EVS();
@@ -906,14 +906,14 @@ void Test_Ports(void)
     bitmaskcmd.Payload.BitMask = CFE_EVS_PORT1_BIT | CFE_EVS_PORT2_BIT;
     UT_EVS_DoDispatchCheckEvents(&bitmaskcmd, sizeof(bitmaskcmd), UT_TPID_CFE_EVS_CMD_ENABLE_PORTS_CC,
                                  &UT_EVS_EventBuf);
-    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_ENAPORT_EID);
+    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_ENAPORT_INF_EID);
 
     /* Test enabling a port 3 and 4, but not 1 and 2 (branch path coverage) */
     UT_InitData_EVS();
     bitmaskcmd.Payload.BitMask = CFE_EVS_PORT3_BIT | CFE_EVS_PORT4_BIT;
     UT_EVS_DoDispatchCheckEvents(&bitmaskcmd, sizeof(bitmaskcmd), UT_TPID_CFE_EVS_CMD_ENABLE_PORTS_CC,
                                  &UT_EVS_EventBuf);
-    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_ENAPORT_EID);
+    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_ENAPORT_INF_EID);
 
     /* Test disabling a port using a bitmask that is out of range (low) */
     UT_InitData_EVS();
@@ -927,14 +927,14 @@ void Test_Ports(void)
     bitmaskcmd.Payload.BitMask = CFE_EVS_PORT1_BIT | CFE_EVS_PORT2_BIT;
     UT_EVS_DoDispatchCheckEvents(&bitmaskcmd, sizeof(bitmaskcmd), UT_TPID_CFE_EVS_CMD_DISABLE_PORTS_CC,
                                  &UT_EVS_EventBuf);
-    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_DISPORT_EID);
+    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_DISPORT_INF_EID);
 
     /* Test disabling a port 3 and 4, but not 1 and 2 (branch path coverage) */
     UT_InitData_EVS();
     bitmaskcmd.Payload.BitMask = CFE_EVS_PORT3_BIT | CFE_EVS_PORT4_BIT;
     UT_EVS_DoDispatchCheckEvents(&bitmaskcmd, sizeof(bitmaskcmd), UT_TPID_CFE_EVS_CMD_DISABLE_PORTS_CC,
                                  &UT_EVS_EventBuf);
-    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_DISPORT_EID);
+    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_DISPORT_INF_EID);
 }
 
 /*
@@ -985,7 +985,7 @@ void Test_Logging(void)
     CmdBuf.modecmd.Payload.LogMode = CFE_EVS_LogMode_DISCARD;
     UT_EVS_DoDispatchCheckEvents(&CmdBuf.modecmd, sizeof(CmdBuf.modecmd), UT_TPID_CFE_EVS_CMD_SET_LOG_MODE_CC,
                                  &UT_EVS_EventBuf);
-    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_LOGMODE_EID);
+    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_LOGMODE_INF_EID);
 
     /* Test overfilling the log in discard mode */
     UT_InitData_EVS();
@@ -1021,7 +1021,7 @@ void Test_Logging(void)
     memset(&CmdBuf, 0, sizeof(CmdBuf));
     UT_EVS_DoDispatchCheckEvents(&CmdBuf.noopcmd, sizeof(CmdBuf.noopcmd), UT_TPID_CFE_EVS_CMD_NOOP_CC,
                                  &UT_EVS_EventBuf);
-    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_NOOP_EID);
+    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_NOOP_INF_EID);
 
     /* Clear log for next test */
     UT_InitData_EVS();
@@ -1119,13 +1119,13 @@ void Test_WriteApp(void)
         CFE_EVS_DEBUG_BIT | CFE_EVS_INFORMATION_BIT | CFE_EVS_ERROR_BIT | CFE_EVS_CRITICAL_BIT;
     UT_EVS_DoDispatchCheckEvents(&CmdBuf.appbitcmd, sizeof(CmdBuf.appbitcmd),
                                  UT_TPID_CFE_EVS_CMD_ENABLE_APP_EVENT_TYPE_CC, &UT_EVS_EventBuf);
-    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_ENAAPPEVTTYPE_EID);
+    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_ENAAPPEVTTYPE_INF_EID);
 
     /* Test resetting counters */
     UT_InitData_EVS();
     UT_EVS_DoDispatchCheckEvents(&CmdBuf.ResetCountersCmd, sizeof(CmdBuf.ResetCountersCmd),
                                  UT_TPID_CFE_EVS_CMD_RESET_COUNTERS_CC, &UT_EVS_EventBuf);
-    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_RSTCNT_EID);
+    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_RESET_INF_EID);
 
     /* Test writing application data with a create failure using default
      * file name
@@ -1158,7 +1158,7 @@ void Test_WriteApp(void)
     UT_InitData_EVS();
     UT_EVS_DoDispatchCheckEvents(&CmdBuf.AppDataCmd, sizeof(CmdBuf.AppDataCmd),
                                  UT_TPID_CFE_EVS_CMD_WRITE_APP_DATA_FILE_CC, &UT_EVS_EventBuf);
-    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_WRDAT_EID);
+    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_WRDAT_INF_EID);
 
     /* Test writing application data with a create failure using specified
      * file name
@@ -1507,7 +1507,7 @@ void Test_EventCmd(void)
     EventCount[2] = LocalSnapshotData.Count;
     CFE_EVS_SendEvent(0, CFE_EVS_EventType_CRITICAL, "Critical message enabled");
     EventCount[3] = LocalSnapshotData.Count;
-    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_ENAAPPEVTTYPE_EID);
+    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_ENAAPPEVTTYPE_INF_EID);
     UtAssert_UINT32_EQ(EventCount[0], 1);
     UtAssert_UINT32_EQ(EventCount[1], 2);
     UtAssert_UINT32_EQ(EventCount[2], 3);
@@ -1537,20 +1537,20 @@ void Test_EventCmd(void)
     UT_InitData_EVS();
     UT_EVS_DoDispatchCheckEvents(&appnamecmd, sizeof(appnamecmd), UT_TPID_CFE_EVS_CMD_ENABLE_APP_EVENTS_CC,
                                  &UT_EVS_EventBuf);
-    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_ENAAPPEVT_EID);
+    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_ENAAPPEVT_INF_EID);
 
-    /* Test disabling event types (leave debug enabled) */
+    /* Test disabling event types (leave information enabled) */
     UT_InitData_EVS();
-    bitmaskcmd.Payload.BitMask = CFE_EVS_INFORMATION_BIT | CFE_EVS_ERROR_BIT | CFE_EVS_CRITICAL_BIT;
+    bitmaskcmd.Payload.BitMask = CFE_EVS_DEBUG_BIT | CFE_EVS_ERROR_BIT | CFE_EVS_CRITICAL_BIT;
     UT_EVS_DoDispatchCheckEvents(&bitmaskcmd, sizeof(bitmaskcmd), UT_TPID_CFE_EVS_CMD_DISABLE_EVENT_TYPE_CC,
                                  &UT_EVS_EventBuf);
-    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_DISEVTTYPE_EID);
+    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_DISEVTTYPE_INF_EID);
 
-    /* Test enabling all event types (debug already enabled) */
+    /* Test enabling all event types (information already enabled) */
     UT_InitData_EVS();
     UT_EVS_DoDispatchCheckEvents(&bitmaskcmd, sizeof(bitmaskcmd), UT_TPID_CFE_EVS_CMD_ENABLE_EVENT_TYPE_CC,
                                  &UT_EVS_EventBuf);
-    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_ENAEVTTYPE_EID);
+    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_ENAEVTTYPE_INF_EID);
 
     /* Test successfully resetting the application event counter */
     UT_InitData_EVS();
@@ -1659,7 +1659,7 @@ void Test_FilterCmd(void)
     appbitcmd.Payload.BitMask = CFE_EVS_DEBUG_BIT | CFE_EVS_INFORMATION_BIT | CFE_EVS_ERROR_BIT | CFE_EVS_CRITICAL_BIT;
     UT_EVS_DoDispatchCheckEvents(&appbitcmd, sizeof(appbitcmd), UT_TPID_CFE_EVS_CMD_ENABLE_APP_EVENT_TYPE_CC,
                                  &UT_EVS_EventBuf);
-    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_ENAAPPEVTTYPE_EID);
+    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_ENAAPPEVTTYPE_INF_EID);
 
     /* Ensure there is no filter for the next tests */
     UT_InitData_EVS();
@@ -1685,13 +1685,13 @@ void Test_FilterCmd(void)
     UT_InitData_EVS();
     UT_EVS_DoDispatchCheckEvents(&appnamecmd, sizeof(appnamecmd), UT_TPID_CFE_EVS_CMD_RESET_ALL_FILTERS_CC,
                                  &UT_EVS_EventBuf);
-    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_RSTALLFILTER_EID);
+    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_RSTALLFILTER_INF_EID);
 
     /* Test successfully adding an event filter */
     UT_InitData_EVS();
     UT_EVS_DoDispatchCheckEvents(&appmaskcmd, sizeof(appmaskcmd), UT_TPID_CFE_EVS_CMD_ADD_EVENT_FILTER_CC,
                                  &UT_EVS_EventBuf);
-    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_ADDFILTER_EID);
+    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_ADDFILTER_INF_EID);
 
     /* Test adding an event filter to an event already registered
      * for filtering
@@ -1704,24 +1704,24 @@ void Test_FilterCmd(void)
     /* Test successfully setting a filter mask */
     UT_InitData_EVS();
     UT_EVS_DoDispatchCheckEvents(&appmaskcmd, sizeof(appmaskcmd), UT_TPID_CFE_EVS_CMD_SET_FILTER_CC, &UT_EVS_EventBuf);
-    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_SETFILTERMSK_EID);
+    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_SETFILTERMSK_INF_EID);
 
     /* Test successfully resetting a filter mask */
     UT_InitData_EVS();
     UT_EVS_DoDispatchCheckEvents(&appcmdcmd, sizeof(appcmdcmd), UT_TPID_CFE_EVS_CMD_RESET_FILTER_CC, &UT_EVS_EventBuf);
-    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_RSTFILTER_EID);
+    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_RSTFILTER_INF_EID);
 
     /* Test successfully resetting all filters */
     UT_InitData_EVS();
     UT_EVS_DoDispatchCheckEvents(&appnamecmd, sizeof(appnamecmd), UT_TPID_CFE_EVS_CMD_RESET_ALL_FILTERS_CC,
                                  &UT_EVS_EventBuf);
-    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_RSTALLFILTER_EID);
+    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_RSTALLFILTER_INF_EID);
 
     /* Test successfully deleting an event filter */
     UT_InitData_EVS();
     UT_EVS_DoDispatchCheckEvents(&appcmdcmd, sizeof(appcmdcmd), UT_TPID_CFE_EVS_CMD_DELETE_EVENT_FILTER_CC,
                                  &UT_EVS_EventBuf);
-    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_DELFILTER_EID);
+    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_DELFILTER_INF_EID);
 
     /* Test filling the event filters */
     UT_InitData_EVS();
@@ -1734,7 +1734,7 @@ void Test_FilterCmd(void)
         appmaskcmd.Payload.EventID++;
     }
 
-    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_ADDFILTER_EID);
+    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_ADDFILTER_INF_EID);
     UtAssert_UINT32_EQ(UT_EVS_EventBuf.Count, CFE_PLATFORM_EVS_MAX_EVENT_FILTERS);
 
     /* Test overfilling the event filters */
@@ -1753,13 +1753,13 @@ void Test_FilterCmd(void)
     appbitcmd.Payload.BitMask = CFE_EVS_DEBUG_BIT | CFE_EVS_INFORMATION_BIT | CFE_EVS_ERROR_BIT | CFE_EVS_CRITICAL_BIT;
     UT_EVS_DoDispatchCheckEvents(&appbitcmd, sizeof(appbitcmd), UT_TPID_CFE_EVS_CMD_ENABLE_APP_EVENT_TYPE_CC,
                                  &UT_EVS_EventBuf);
-    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_ENAAPPEVTTYPE_EID);
+    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_ENAAPPEVTTYPE_INF_EID);
 
     /* Set-up to test filtering the same event twice */
     UT_InitData_EVS();
     UT_EVS_DoDispatchCheckEvents(&appmaskcmd, sizeof(appmaskcmd), UT_TPID_CFE_EVS_CMD_ADD_EVENT_FILTER_CC,
                                  &UT_EVS_EventBuf);
-    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_ADDFILTER_EID);
+    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_ADDFILTER_INF_EID);
 
     /* Test filtering the same event again */
     UT_InitData_EVS();
@@ -1771,7 +1771,7 @@ void Test_FilterCmd(void)
     UT_InitData_EVS();
     UT_EVS_DoDispatchCheckEvents(&appcmdcmd, sizeof(appcmdcmd), UT_TPID_CFE_EVS_CMD_DELETE_EVENT_FILTER_CC,
                                  &UT_EVS_EventBuf);
-    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_DELFILTER_EID);
+    UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_DELFILTER_INF_EID);
 
     /* Return application to original state, re-register application */
     UT_InitData_EVS();
@@ -2075,7 +2075,7 @@ void Test_Misc(void)
     }
     else
     {
-        UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_WRLOG_EID);
+        UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_WRLOG_INF_EID);
     }
 
     /* Test successfully setting the logging mode */
@@ -2088,7 +2088,7 @@ void Test_Misc(void)
     }
     else
     {
-        UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_LOGMODE_EID);
+        UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_LOGMODE_INF_EID);
     }
 
     /* Test housekeeping report with log enabled */
