@@ -636,3 +636,27 @@ int32 EVS_SendEvent(uint16 EventID, CFE_EVS_EventType_Enum_t EventType, const ch
 
     return CFE_SUCCESS;
 }
+
+/*----------------------------------------------------------------
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+int32 EVS_VerifyRegisteredApp(EVS_AppData_t **AppDataPtr)
+{
+    int32          Status;
+    CFE_ES_AppId_t AppID;
+
+    /* Query and verify the caller's AppID */
+    Status = EVS_GetCurrentContext(AppDataPtr, &AppID);
+    if (Status == CFE_SUCCESS)
+    {
+        if (!EVS_AppDataIsMatch(*AppDataPtr, AppID))
+        {
+            Status = CFE_EVS_APP_NOT_REGISTERED;
+        }
+    }
+
+    return Status;
+}

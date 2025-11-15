@@ -266,30 +266,23 @@ CFE_Status_t CFE_EVS_SendTimedEvent(CFE_TIME_SysTime_t Time, uint16 EventID, CFE
 int32 CFE_EVS_ResetFilter(uint16 EventID)
 {
     int32            Status;
-    EVS_BinFilter_t *FilterPtr = NULL;
-    CFE_ES_AppId_t   AppID;
+    EVS_BinFilter_t *FilterPtr;
     EVS_AppData_t *  AppDataPtr;
 
-    /* Query and verify the caller's AppID */
-    Status = EVS_GetCurrentContext(&AppDataPtr, &AppID);
+    /* Verify that the caller is registered with EVS */
+    Status = EVS_VerifyRegisteredApp(&AppDataPtr);
+
     if (Status == CFE_SUCCESS)
     {
-        if (!EVS_AppDataIsMatch(AppDataPtr, AppID))
+        FilterPtr = EVS_FindEventID(EventID, AppDataPtr->BinFilters);
+
+        if (FilterPtr != NULL)
         {
-            Status = CFE_EVS_APP_NOT_REGISTERED;
+            FilterPtr->Count = 0;
         }
         else
         {
-            FilterPtr = EVS_FindEventID(EventID, AppDataPtr->BinFilters);
-
-            if (FilterPtr != NULL)
-            {
-                FilterPtr->Count = 0;
-            }
-            else
-            {
-                Status = CFE_EVS_EVT_NOT_REGISTERED;
-            }
+            Status = CFE_EVS_EVT_NOT_REGISTERED;
         }
     }
 
@@ -305,24 +298,17 @@ int32 CFE_EVS_ResetFilter(uint16 EventID)
 CFE_Status_t CFE_EVS_ResetAllFilters(void)
 {
     int32          Status;
-    CFE_ES_AppId_t AppID;
     uint32         i;
     EVS_AppData_t *AppDataPtr;
 
-    /* Query and verify the caller's AppID */
-    Status = EVS_GetCurrentContext(&AppDataPtr, &AppID);
+    /* Verify that the caller is registered with EVS */
+    Status = EVS_VerifyRegisteredApp(&AppDataPtr);
+
     if (Status == CFE_SUCCESS)
     {
-        if (!EVS_AppDataIsMatch(AppDataPtr, AppID))
+        for (i = 0; i < CFE_PLATFORM_EVS_MAX_EVENT_FILTERS; i++)
         {
-            Status = CFE_EVS_APP_NOT_REGISTERED;
-        }
-        else
-        {
-            for (i = 0; i < CFE_PLATFORM_EVS_MAX_EVENT_FILTERS; i++)
-            {
-                AppDataPtr->BinFilters[i].Count = 0;
-            }
+            AppDataPtr->BinFilters[i].Count = 0;
         }
     }
 
