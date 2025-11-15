@@ -262,6 +262,7 @@ CFE_Status_t CFE_MSG_GetSegmentationFlag(const CFE_MSG_Message_t *MsgPtr, CFE_MS
         case CFE_MSG_SEGFLG_UNSEG:
         default:
             *SegFlag = CFE_MSG_SegFlag_Unsegmented;
+            break;
     }
 
     return CFE_SUCCESS;
@@ -300,6 +301,7 @@ CFE_Status_t CFE_MSG_SetSegmentationFlag(CFE_MSG_Message_t *MsgPtr, CFE_MSG_Segm
         case CFE_MSG_SegFlag_Invalid:
         default:
             status = CFE_MSG_BAD_ARGUMENT;
+            break;
     }
 
     if (status == CFE_SUCCESS)

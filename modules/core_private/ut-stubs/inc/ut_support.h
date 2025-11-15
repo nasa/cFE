@@ -96,7 +96,7 @@ extern const char *UT_OSP_MESSAGES[];
  */
 #define UT_LITTLE_ENDIAN 1
 #define UT_BIG_ENDIAN    2
-extern uint8 UT_Endianess;
+extern uint8 UT_Endianness;
 
 typedef struct
 {

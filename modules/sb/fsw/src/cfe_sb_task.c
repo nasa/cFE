@@ -442,6 +442,7 @@ int32 CFE_SB_EnableRouteCmd(const CFE_SB_EnableRouteCmd_t *data)
             CFE_EVS_SendEvent(CFE_SB_ENBL_RTE2_EID, CFE_EVS_EventType_DEBUG, "Enabling Route,Msg 0x%x,Pipe %lu",
                               (unsigned int)CFE_SB_MsgIdToValue(MsgId), CFE_RESOURCEID_TO_ULONG(CmdPtr->Pipe));
             break;
+        // No default case - unreachable with current implementation
     }
 
     return CFE_SUCCESS;
@@ -509,6 +510,7 @@ int32 CFE_SB_DisableRouteCmd(const CFE_SB_DisableRouteCmd_t *data)
             CFE_EVS_SendEvent(CFE_SB_DSBL_RTE2_EID, CFE_EVS_EventType_DEBUG, "Route Disabled,Msg 0x%x,Pipe %lu",
                               (unsigned int)CFE_SB_MsgIdToValue(MsgId), CFE_RESOURCEID_TO_ULONG(CmdPtr->Pipe));
             break;
+        // No default case - unreachable with current implementation
     }
 
     return CFE_SUCCESS;

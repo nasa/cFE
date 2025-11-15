@@ -160,7 +160,7 @@ void UT_InitData_EVS(void)
     UT_SetHandlerFunction(UT_KEY(CFE_MSG_GetMsgTime), UT_CFE_MSG_GetMsgTime_CustomHandler, NULL);
 }
 
-/* Message init hook to stora last MsgId passed in */
+/* Message init hook to store last MsgId passed in */
 static int32 UT_EVS_MSGInitHook(void *UserObj, int32 StubRetcode, uint32 CallCount, const UT_StubContext_t *Context)
 {
     UT_EVS_MSGInitData_t *msgdataptr = UserObj;

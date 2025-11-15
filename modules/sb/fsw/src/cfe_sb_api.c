@@ -1062,6 +1062,8 @@ int32 CFE_SB_SubscribeFull(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId, CFE_SB_
         case CFE_SB_DUP_SUBSCRIP_EID:
             CFE_SB_Global.HKTlmMsg.Payload.DuplicateSubscriptionsCounter++;
             break;
+        default:
+            break;
     }
 
     CFE_SB_UnlockSharedData(__func__, __LINE__);

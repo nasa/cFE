@@ -30,7 +30,7 @@
 
 /*
  * The test table data should contain some identifiable numeric values,
- * so any issues with paritial loading/byteswapping are morely likely
+ * so any issues with partial loading/byteswapping are more likely
  * to be detected.
  */
 CFE_TEST_TestTable_t TestTable = {0xf007, 0xba11};
