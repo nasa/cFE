@@ -21,6 +21,8 @@
  *  This file contains the source code for the TO lab application
  */
 
+#include <ctype.h>
+
 #include "cfe_tbl_module_all.h"
 #include "cfe_tbl_codec.h"
 #include "cfe_config.h"
@@ -137,7 +139,9 @@ CFE_Status_t CFE_TBL_FindAppTableInterface(const char *TableFullName, EdsLib_Id_
     int32        EdsStatus;
     uint8_t      AppIdx;
     char         AppNameBuffer[OS_MAX_API_NAME];
+    char         TableNameBuffer[CFE_MISSION_TBL_MAX_NAME_LENGTH];
     const char * TableNamePtr;
+    char *       TempPtr;
     size_t       AppNameLen;
 
     const EdsLib_DatabaseObject_t *EDS_DB;
@@ -165,6 +169,9 @@ CFE_Status_t CFE_TBL_FindAppTableInterface(const char *TableFullName, EdsLib_Id_
     memcpy(AppNameBuffer, TableFullName, AppNameLen);
     AppNameBuffer[AppNameLen] = 0;
 
+    strncpy(TableNameBuffer, TableNamePtr, sizeof(TableNameBuffer) - 1);
+    TableNameBuffer[sizeof(TableNameBuffer) - 1] = 0;
+
     /*
      * All apps with tables should include those tables in their respective EDS file
      * as an interface that inherits from the table interface defined by table services,
@@ -175,9 +182,29 @@ CFE_Status_t CFE_TBL_FindAppTableInterface(const char *TableFullName, EdsLib_Id_
     {
         EdsStatus = EdsLib_IntfDB_FindComponentByLocalName(EDS_DB, AppIdx, "Application", &AppComponentEdsId);
     }
+
+    /* Look for a direct match to the table name in the application interfaces */
     if (EdsStatus == EDSLIB_SUCCESS)
     {
-        EdsStatus = EdsLib_IntfDB_FindComponentInterfaceByLocalName(EDS_DB, AppComponentEdsId, TableNamePtr, EdsIdBuf);
+        EdsStatus = EdsLib_IntfDB_FindComponentInterfaceByLocalName(EDS_DB, AppComponentEdsId, TableNameBuffer, EdsIdBuf);
+    }
+
+    /* Fallback - if no exact match, check for a numeric suffix.  Some apps (such as MD)
+     * have multiple instances of the same table and they attach a numeric suffix to the name */
+    if (EdsStatus != EDSLIB_SUCCESS)
+    {
+        TempPtr = &TableNameBuffer[strlen(TableNameBuffer)];
+        while(TempPtr != &TableNameBuffer[0])
+        {
+            --TempPtr;
+            if (!isdigit((int)(*TempPtr)))
+            {
+                break;
+            }
+
+            *TempPtr = 0;
+        }
+        EdsStatus = EdsLib_IntfDB_FindComponentInterfaceByLocalName(EDS_DB, AppComponentEdsId, TableNameBuffer, EdsIdBuf);
     }
 
     if (EdsStatus != EDSLIB_SUCCESS)
