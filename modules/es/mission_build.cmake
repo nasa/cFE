@@ -12,6 +12,7 @@
 set(ES_MISSION_CONFIG_FILE_LIST
   cfe_es_mission_cfg.h
   cfe_es_interface_cfg_values.h
+  cfe_es_memaddress.h
   cfe_es_extern_typedefs.h
   cfe_es_fcncode_values.h
   cfe_es_msgdefs.h
@@ -22,4 +23,3 @@ set(ES_MISSION_CONFIG_FILE_LIST
 
 
 generate_configfile_set(${ES_MISSION_CONFIG_FILE_LIST})
-
