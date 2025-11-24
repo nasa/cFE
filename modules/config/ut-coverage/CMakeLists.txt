@@ -25,3 +25,6 @@ add_cfe_coverage_test(config ALL
 )
 
 add_cfe_coverage_dependency(config ALL cfe_config_internal)
+if (CFE_EDS_ENABLED)
+    target_link_libraries(coverage-config-ALL-testrunner ut_edslib_stubs)
+endif()

@@ -298,8 +298,8 @@ int32 CFE_EVS_TaskInit(void)
 
     /* Write the AppID to the global location, now that the rest of initialization is done */
     CFE_EVS_Global.EVS_AppID = AppID;
-    CFE_Config_GetVersionString(VersionString, CFE_CFG_MAX_VERSION_STR_LEN, "cFE", CFE_SRC_VERSION, CFE_BUILD_CODENAME,
-                                CFE_LAST_OFFICIAL);
+    CFE_Config_GetVersionString(VersionString, CFE_CFG_MAX_VERSION_STR_LEN, "CFE_EVS", CFE_SRC_VERSION,
+                                CFE_BUILD_CODENAME, CFE_LAST_OFFICIAL);
     EVS_SendEvent(CFE_EVS_STARTUP_EID, CFE_EVS_EventType_INFORMATION, "cFE EVS Initialized: %s", VersionString);
 
     return CFE_SUCCESS;
@@ -314,8 +314,8 @@ int32 CFE_EVS_TaskInit(void)
 int32 CFE_EVS_NoopCmd(const CFE_EVS_NoopCmd_t *data)
 {
     char VersionString[CFE_CFG_MAX_VERSION_STR_LEN];
-    CFE_Config_GetVersionString(VersionString, CFE_CFG_MAX_VERSION_STR_LEN, "cFE", CFE_SRC_VERSION, CFE_BUILD_CODENAME,
-                                CFE_LAST_OFFICIAL);
+    CFE_Config_GetVersionString(VersionString, CFE_CFG_MAX_VERSION_STR_LEN, "CFE_EVS", CFE_SRC_VERSION,
+                                CFE_BUILD_CODENAME, CFE_LAST_OFFICIAL);
     EVS_SendEvent(CFE_EVS_NOOP_EID, CFE_EVS_EventType_INFORMATION, "No-op Cmd Rcvd: %s", VersionString);
     return CFE_SUCCESS;
 }
@@ -1288,7 +1288,7 @@ void CFE_EVS_SetTypeEnable(CFE_EVS_EventType_Enum_t EventType, bool State)
 {
     CFE_ES_AppId_t AppId;
     EVS_AppData_t *AppDataPtr;
-    size_t Index;
+    size_t         Index;
 
     /*Get App ID*/
     CFE_ES_GetAppID(&AppId);
@@ -1303,7 +1303,7 @@ void CFE_EVS_SetTypeEnable(CFE_EVS_EventType_Enum_t EventType, bool State)
     if (AppDataPtr != NULL && Index < sizeof(AppDataPtr->EventTypesActive))
     {
         /*Reset event squelch counter*/
-        AppDataPtr->SquelchTokens = CFE_PLATFORM_EVS_MAX_APP_EVENT_BURST * 1000;
+        AppDataPtr->SquelchTokens           = CFE_PLATFORM_EVS_MAX_APP_EVENT_BURST * 1000;
         AppDataPtr->EventTypesActive[Index] = State;
     }
 }
@@ -1318,7 +1318,7 @@ bool CFE_EVS_GetTypeEnable(CFE_EVS_EventType_Enum_t EventType)
 {
     CFE_ES_AppId_t AppId;
     EVS_AppData_t *AppDataPtr;
-    size_t Index;
+    size_t         Index;
 
     /*Get App ID*/
     CFE_ES_GetAppID(&AppId);
@@ -1328,7 +1328,7 @@ bool CFE_EVS_GetTypeEnable(CFE_EVS_EventType_Enum_t EventType)
 
     /*Convert to an array index*/
     Index = CFE_EVS_EventTypeToArrayIndex(EventType);
-    
+
     /*Bounds and null check*/
     if (AppDataPtr != NULL && Index < sizeof(AppDataPtr->EventTypesActive))
     {
@@ -1337,4 +1337,3 @@ bool CFE_EVS_GetTypeEnable(CFE_EVS_EventType_Enum_t EventType)
 
     return false;
 }
-
