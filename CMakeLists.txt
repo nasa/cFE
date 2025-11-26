@@ -70,11 +70,15 @@ enable_testing()
 # By default it is set OFF/false as this is a new/experimental feature.
 option(CFE_EDS_ENABLED "Use EDS framework" OFF)
 
+# This switch determines whether to build CFE table files
+# By default it is set ON, historically the CFE build has included tables
+option(CFE_BUILD_TABLES "Build tables as part of CFE/CFS" ON)
+
 # Always create directories to hold generated files/wrappers
-# EDS makes signficant use of generated files.  In non-EDS builds 
-# some headers and wrapper files are also generated.  Directories 
+# EDS makes signficant use of generated files.  In non-EDS builds
+# some headers and wrapper files are also generated.  Directories
 # may simply remain empty if not used/needed in the current config.
-file(MAKE_DIRECTORY 
+file(MAKE_DIRECTORY
     "${CMAKE_BINARY_DIR}/eds"
     "${CMAKE_BINARY_DIR}/obj"
     "${CMAKE_BINARY_DIR}/inc"

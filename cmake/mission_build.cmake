@@ -533,7 +533,7 @@ function(prepare)
   include_directories(
     $<TARGET_PROPERTY:core_api,INTERFACE_INCLUDE_DIRECTORIES>
   )
-  
+
   add_subdirectory(${MISSION_SOURCE_DIR}/tools tools)
 
   # Add a dependency on the table generator tool as this is required for table builds
@@ -546,6 +546,7 @@ function(prepare)
   # Prepare the table makefile - Ensure the list of tables is initially empty
   file(REMOVE_RECURSE "${MISSION_BINARY_DIR}/tables")
   file(MAKE_DIRECTORY "${MISSION_BINARY_DIR}/tables")
+  file(MAKE_DIRECTORY "${MISSION_BINARY_DIR}/tables/staging")
   file(WRITE "${MISSION_BINARY_DIR}/tables/Makefile"
     "MISSION_BINARY_DIR := ${MISSION_BINARY_DIR}\n"
     "TABLE_BINARY_DIR := ${MISSION_BINARY_DIR}/tables\n"

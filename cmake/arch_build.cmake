@@ -205,6 +205,11 @@ endfunction(add_cfe_app_dependency)
 #
 function(add_cfe_tables TABLE_FQNAME TBL_DEFAULT_SRC_FILES)
 
+    # Just make this function a no-op if tables are not built with CFE
+    if (NOT CFE_BUILD_TABLES)
+      return()
+    endif()
+
     if (NOT TBL_DEFAULT_SRC_FILES)
       message(FATAL_ERROR "Table source file list is empty")
     endif()
