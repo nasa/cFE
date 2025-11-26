@@ -41,6 +41,7 @@
 #include "cfe_core_resourceid_basevalues.h"
 #include "edslib_datatypedb.h"
 #include "edslib_intfdb.h"
+#include "edslib_global.h"
 #include "cfe_missionlib_api.h"
 #include "cfe_mission_eds_parameters.h"
 
@@ -79,6 +80,29 @@ static EdsLib_DataTypeDB_DerivedTypeInfo_t UT_TBL_StubDerivInfo;
  * main objective is to make it non-zerzero, value does not matter */
 #define UT_TBL_STUB_FORMATIDX 0x1234
 static const EdsLib_Id_t UT_TBL_StubEdsId = EDSLIB_MAKE_ID(EDS_INDEX(CFE_TBL), UT_TBL_STUB_FORMATIDX);
+
+typedef struct
+{
+    const char *ParamName;
+    void *      ContentPtr;
+    size_t      ContentSize;
+    int32       Retval;
+
+} UT_TBL_GenericOutput_t;
+
+static void UT_TBL_AltHandler_GenericOutput(void *UserObj, UT_EntryKey_t FuncKey, const UT_StubContext_t *Context)
+{
+    UT_TBL_GenericOutput_t *Cb = UserObj;
+    void *                  Dest;
+
+    Dest = UT_Hook_GetArgValueByName(Context, Cb->ParamName, void *);
+    if (Cb->ContentSize != 0 && Cb->ContentPtr != NULL && Dest != NULL)
+    {
+        memcpy(Dest, Cb->ContentPtr, Cb->ContentSize);
+    }
+
+    UT_Stub_SetReturnValue(FuncKey, Cb->Retval);
+}
 
 static void UT_TBL_SetEdsLibUnpackData(void *UserObj, UT_EntryKey_t FuncKey, const UT_StubContext_t *Context)
 {
@@ -252,4 +276,250 @@ void UT_TBL_SetupCodec(size_t ByteSize)
 
     UT_SetHandlerFunction(UT_KEY(EdsLib_IntfDB_FindComponentInterfaceByLocalName), UT_TBL_FindIntfNameHandler, NULL);
     UT_SetHandlerFunction(UT_KEY(EdsLib_IntfDB_FindAllArgumentTypes), UT_TBL_GetArgumentTypeHandler, NULL);
+}
+
+void UT_TBL_ValidateCodecConfig_Test(void)
+{
+    /* Test Case for:
+     * CFE_Status_t CFE_TBL_ValidateCodecConfig(CFE_TBL_TableConfig_t *ReqCfg);
+     */
+
+    CFE_TBL_TableConfig_t               ReqCfg;
+    UT_TBL_GenericOutput_t              Cb;
+    EdsLib_DataTypeDB_DerivedTypeInfo_t DerivInfo;
+
+    memset(&ReqCfg, 0, sizeof(ReqCfg));
+    memset(&Cb, 0, sizeof(Cb));
+    memset(&DerivInfo, 0, sizeof(DerivInfo));
+    memset(ReqCfg.Name, 'x', sizeof(ReqCfg.Name) - 3);
+    ReqCfg.Name[sizeof(ReqCfg.Name) - 3] = '.';
+    ReqCfg.Name[sizeof(ReqCfg.Name) - 2] = 'u';
+    UtAssert_INT32_EQ(CFE_TBL_ValidateCodecConfig(&ReqCfg), CFE_SUCCESS);
+
+    strcpy(ReqCfg.Name, "2222");
+    UT_SetDeferredRetcode(UT_KEY(EdsLib_IntfDB_FindComponentInterfaceByLocalName), 1, -1);
+    UtAssert_INT32_EQ(CFE_TBL_ValidateCodecConfig(&ReqCfg), CFE_SUCCESS);
+
+    strcpy(ReqCfg.Name, "UT0");
+    UtAssert_INT32_EQ(CFE_TBL_ValidateCodecConfig(&ReqCfg), CFE_SUCCESS);
+
+    UT_SetDeferredRetcode(UT_KEY(EdsLib_FindPackageIdxByName), 1, -1);
+    UtAssert_INT32_EQ(CFE_TBL_ValidateCodecConfig(&ReqCfg), CFE_SUCCESS);
+
+    UT_SetDeferredRetcode(UT_KEY(EdsLib_IntfDB_FindComponentByLocalName), 1, -1);
+    UtAssert_INT32_EQ(CFE_TBL_ValidateCodecConfig(&ReqCfg), CFE_SUCCESS);
+
+    UT_SetDefaultReturnValue(UT_KEY(EdsLib_IntfDB_FindComponentInterfaceByLocalName), -1);
+    UtAssert_INT32_EQ(CFE_TBL_ValidateCodecConfig(&ReqCfg), CFE_STATUS_EXTERNAL_RESOURCE_FAIL);
+
+    UT_SetDeferredRetcode(UT_KEY(EdsLib_IntfDB_FindComponentInterfaceByLocalName), 2, 0);
+    UtAssert_INT32_EQ(CFE_TBL_ValidateCodecConfig(&ReqCfg), CFE_SUCCESS);
+
+    UT_ResetState(UT_KEY(EdsLib_IntfDB_FindComponentInterfaceByLocalName));
+    Cb.ContentPtr           = &DerivInfo;
+    Cb.ContentSize          = sizeof(DerivInfo);
+    Cb.ParamName            = "DerivInfo";
+    DerivInfo.MaxSize.Bytes = 1000;
+    ReqCfg.Size             = 100;
+    UT_SetHandlerFunction(UT_KEY(EdsLib_DataTypeDB_GetDerivedInfo), UT_TBL_AltHandler_GenericOutput, &Cb);
+    UT_SetHandlerFunction(UT_KEY(EdsLib_IntfDB_FindAllArgumentTypes), UT_TBL_GetArgumentTypeHandler, NULL);
+
+    UtAssert_INT32_EQ(CFE_TBL_ValidateCodecConfig(&ReqCfg), CFE_TBL_ERR_INVALID_SIZE);
+
+    ReqCfg.Size = 1000;
+    UtAssert_INT32_EQ(CFE_TBL_ValidateCodecConfig(&ReqCfg), CFE_SUCCESS);
+
+    UT_SetDeferredRetcode(UT_KEY(EdsLib_IntfDB_FindAllArgumentTypes), 1, -1);
+    UtAssert_INT32_EQ(CFE_TBL_ValidateCodecConfig(&ReqCfg), CFE_STATUS_EXTERNAL_RESOURCE_FAIL);
+
+    Cb.Retval = -1;
+    UtAssert_INT32_EQ(CFE_TBL_ValidateCodecConfig(&ReqCfg), CFE_STATUS_EXTERNAL_RESOURCE_FAIL);
+}
+
+void UT_TBL_ValidateCodecLoadSize_Test(void)
+{
+    /* Test Case for:
+     * CFE_Status_t CFE_TBL_ValidateCodecLoadSize(CFE_TBL_TxnState_t *Txn, const CFE_TBL_File_Hdr_t *HeaderPtr);
+     */
+
+    CFE_TBL_TxnState_t    Txn;
+    CFE_TBL_File_Hdr_t    Header;
+    CFE_TBL_RegistryRec_t RegRec;
+
+    memset(&Txn, 0, sizeof(Txn));
+    memset(&Header, 0, sizeof(Header));
+    memset(&RegRec, 0, sizeof(RegRec));
+
+    UtAssert_INT32_EQ(CFE_TBL_ValidateCodecLoadSize(&Txn, &Header), CFE_TBL_ERR_INVALID_HANDLE);
+    UtAssert_ZERO(Txn.NumPendingEvents);
+
+    Txn.RegRecPtr = &RegRec;
+    UtAssert_INT32_EQ(CFE_TBL_ValidateCodecLoadSize(&Txn, &Header), CFE_SUCCESS);
+    UtAssert_ZERO(Txn.NumPendingEvents);
+}
+
+void UT_TBL_CodecGetFinalStatus_Test(void)
+{
+    /* Test Case for:
+     * CFE_Status_t CFE_TBL_CodecGetFinalStatus(CFE_TBL_TxnState_t *Txn, const CFE_TBL_File_Hdr_t *HeaderPtr);
+     */
+
+    CFE_TBL_TxnState_t                  Txn;
+    CFE_TBL_File_Hdr_t                  Header;
+    CFE_TBL_RegistryRec_t               RegRec;
+    UT_TBL_GenericOutput_t              Cb;
+    EdsLib_DataTypeDB_DerivedTypeInfo_t DerivInfo;
+
+    memset(&Txn, 0, sizeof(Txn));
+    memset(&Header, 0, sizeof(Header));
+    memset(&RegRec, 0, sizeof(RegRec));
+    memset(&Cb, 0, sizeof(Cb));
+    memset(&DerivInfo, 0, sizeof(DerivInfo));
+
+    UtAssert_INT32_EQ(CFE_TBL_CodecGetFinalStatus(&Txn, &Header), CFE_TBL_ERR_INVALID_HANDLE);
+    UtAssert_ZERO(Txn.NumPendingEvents);
+
+    Txn.RegRecPtr = &RegRec;
+    UtAssert_INT32_EQ(CFE_TBL_CodecGetFinalStatus(&Txn, &Header), CFE_SUCCESS);
+    UtAssert_ZERO(Txn.NumPendingEvents);
+
+    RegRec.Config.EdsId = EDSLIB_MAKE_ID(1, 1);
+    Cb.ContentPtr       = &DerivInfo;
+    Cb.ContentSize      = sizeof(DerivInfo);
+    Cb.ParamName        = "DerivInfo";
+    UT_SetHandlerFunction(UT_KEY(EdsLib_DataTypeDB_GetDerivedInfo), UT_TBL_AltHandler_GenericOutput, &Cb);
+
+    UtAssert_INT32_EQ(CFE_TBL_CodecGetFinalStatus(&Txn, &Header), CFE_SUCCESS);
+    UtAssert_ZERO(Txn.NumPendingEvents);
+
+    Header.NumBytes        = 100;
+    DerivInfo.MaxSize.Bits = 1000;
+    UtAssert_INT32_EQ(CFE_TBL_CodecGetFinalStatus(&Txn, &Header), CFE_TBL_WARN_SHORT_FILE);
+    UtAssert_ZERO(Txn.NumPendingEvents);
+
+    Header.Offset   = 25;
+    Header.NumBytes = 100;
+    UtAssert_INT32_EQ(CFE_TBL_CodecGetFinalStatus(&Txn, &Header), CFE_TBL_WARN_PARTIAL_LOAD);
+    UtAssert_ZERO(Txn.NumPendingEvents);
+
+    Cb.Retval = -1;
+    UtAssert_INT32_EQ(CFE_TBL_CodecGetFinalStatus(&Txn, &Header), CFE_STATUS_EXTERNAL_RESOURCE_FAIL);
+    UtAssert_UINT32_EQ(Txn.NumPendingEvents, 1);
+    UtAssert_UINT16_EQ(Txn.PendingEvents[0].EventId, CFE_TBL_CODEC_ERROR_ERR_EID);
+}
+
+void UT_TBL_DecodeHeadersFromFile_Test(void)
+{
+    /* Test Case for:
+     * CFE_Status_t CFE_TBL_DecodeHeadersFromFile(CFE_TBL_TxnState_t *Txn, osal_id_t FileDescriptor, CFE_TBL_File_Hdr_t
+     * *HeaderPtr);
+     */
+    CFE_TBL_TxnState_t Txn;
+    osal_id_t          Fd;
+    CFE_TBL_File_Hdr_t Header;
+
+    memset(&Txn, 0, sizeof(Txn));
+    memset(&Header, 0, sizeof(Header));
+    Fd = OS_ObjectIdFromInteger(1);
+
+    UtAssert_INT32_EQ(CFE_TBL_DecodeHeadersFromFile(&Txn, Fd, &Header), CFE_SUCCESS);
+    UtAssert_ZERO(Txn.NumPendingEvents);
+
+    UT_SetDeferredRetcode(UT_KEY(EdsLib_DataTypeDB_UnpackCompleteObject), 1, -1);
+    UtAssert_INT32_EQ(CFE_TBL_DecodeHeadersFromFile(&Txn, Fd, &Header), CFE_STATUS_EXTERNAL_RESOURCE_FAIL);
+    UtAssert_UINT32_EQ(Txn.NumPendingEvents, 1);
+    UtAssert_UINT16_EQ(Txn.PendingEvents[0].EventId, CFE_TBL_CODEC_ERROR_ERR_EID);
+}
+
+void UT_TBL_EncodeHeadersToFile_Test(void)
+{
+    /* Test Case for:
+     * CFE_Status_t CFE_TBL_EncodeHeadersToFile(CFE_TBL_TxnState_t *Txn, osal_id_t FileDescriptor, const
+     * CFE_TBL_File_Hdr_t *HeaderPtr);
+     */
+    CFE_TBL_TxnState_t Txn;
+    osal_id_t          Fd;
+    CFE_TBL_File_Hdr_t Header;
+
+    memset(&Txn, 0, sizeof(Txn));
+    memset(&Header, 0, sizeof(Header));
+    Fd = OS_ObjectIdFromInteger(1);
+
+    UtAssert_INT32_EQ(CFE_TBL_EncodeHeadersToFile(&Txn, Fd, &Header), CFE_SUCCESS);
+    UtAssert_ZERO(Txn.NumPendingEvents);
+
+    UT_SetDeferredRetcode(UT_KEY(EdsLib_DataTypeDB_PackPartialObject), 1, -1);
+    UtAssert_INT32_EQ(CFE_TBL_EncodeHeadersToFile(&Txn, Fd, &Header), CFE_STATUS_EXTERNAL_RESOURCE_FAIL);
+    UtAssert_UINT32_EQ(Txn.NumPendingEvents, 1);
+    UtAssert_UINT16_EQ(Txn.PendingEvents[0].EventId, CFE_TBL_CODEC_ERROR_ERR_EID);
+}
+
+void UT_TBL_EncodeOutputData_Test(void)
+{
+    /* Test Case for:
+     * CFE_Status_t CFE_TBL_EncodeOutputData(CFE_TBL_TxnState_t *Txn, const CFE_TBL_LoadBuff_t *SourceBuffer,
+     * CFE_TBL_LoadBuff_t *DestBuffer);
+     */
+
+    CFE_TBL_TxnState_t    Txn;
+    CFE_TBL_LoadBuff_t    SourceBuffer;
+    CFE_TBL_LoadBuff_t    DestBuffer;
+    CFE_TBL_RegistryRec_t RegRec;
+
+    memset(&Txn, 0, sizeof(Txn));
+    memset(&SourceBuffer, 0, sizeof(SourceBuffer));
+    memset(&DestBuffer, 0, sizeof(DestBuffer));
+    memset(&RegRec, 0, sizeof(RegRec));
+    Txn.RegRecPtr = &RegRec;
+
+    UtAssert_INT32_EQ(CFE_TBL_EncodeOutputData(&Txn, &SourceBuffer, &DestBuffer), CFE_SUCCESS);
+    UtAssert_ZERO(Txn.NumPendingEvents);
+
+    UT_SetDeferredRetcode(UT_KEY(EdsLib_DataTypeDB_PackCompleteObject), 1, -1);
+    UtAssert_INT32_EQ(CFE_TBL_EncodeOutputData(&Txn, &SourceBuffer, &DestBuffer), CFE_STATUS_EXTERNAL_RESOURCE_FAIL);
+
+    UT_SetDeferredRetcode(UT_KEY(EdsLib_DataTypeDB_GetTypeInfo), 1, -1);
+    UtAssert_INT32_EQ(CFE_TBL_EncodeOutputData(&Txn, &SourceBuffer, &DestBuffer), CFE_STATUS_EXTERNAL_RESOURCE_FAIL);
+}
+
+void UT_TBL_DecodeInputData_Test(void)
+{
+    /* Test Case for:
+     * CFE_Status_t CFE_TBL_DecodeInputData(CFE_TBL_TxnState_t *Txn, const CFE_TBL_LoadBuff_t *SourceBuffer,
+     * CFE_TBL_LoadBuff_t *DestBuffer);
+     */
+    CFE_TBL_TxnState_t    Txn;
+    CFE_TBL_LoadBuff_t    SourceBuffer;
+    CFE_TBL_LoadBuff_t    DestBuffer;
+    CFE_TBL_RegistryRec_t RegRec;
+
+    memset(&Txn, 0, sizeof(Txn));
+    memset(&SourceBuffer, 0, sizeof(SourceBuffer));
+    memset(&DestBuffer, 0, sizeof(DestBuffer));
+    memset(&RegRec, 0, sizeof(RegRec));
+    Txn.RegRecPtr = &RegRec;
+
+    UtAssert_INT32_EQ(CFE_TBL_DecodeInputData(&Txn, &SourceBuffer, &DestBuffer), CFE_SUCCESS);
+    UtAssert_ZERO(Txn.NumPendingEvents);
+
+    RegRec.Config.EdsId = EDSLIB_MAKE_ID(1, 1);
+    UtAssert_INT32_EQ(CFE_TBL_DecodeInputData(&Txn, &SourceBuffer, &DestBuffer), CFE_SUCCESS);
+    UtAssert_ZERO(Txn.NumPendingEvents);
+
+    UT_SetDeferredRetcode(UT_KEY(EdsLib_DataTypeDB_UnpackCompleteObject), 1, -1);
+    UtAssert_INT32_EQ(CFE_TBL_DecodeInputData(&Txn, &SourceBuffer, &DestBuffer), CFE_STATUS_EXTERNAL_RESOURCE_FAIL);
+
+    UT_SetDeferredRetcode(UT_KEY(EdsLib_DataTypeDB_GetTypeInfo), 1, -1);
+    UtAssert_INT32_EQ(CFE_TBL_DecodeInputData(&Txn, &SourceBuffer, &DestBuffer), CFE_STATUS_EXTERNAL_RESOURCE_FAIL);
+}
+
+void UT_TBL_RegisterCodecTests(void)
+{
+    UtTest_Add(UT_TBL_ValidateCodecConfig_Test, UT_TBL_GlobalDataReset, NULL, "Test CFE_TBL_ValidateCodecConfig()");
+    UtTest_Add(UT_TBL_ValidateCodecLoadSize_Test, UT_TBL_GlobalDataReset, NULL, "Test CFE_TBL_ValidateCodecLoadSize()");
+    UtTest_Add(UT_TBL_CodecGetFinalStatus_Test, UT_TBL_GlobalDataReset, NULL, "Test CFE_TBL_CodecGetFinalStatus()");
+    UtTest_Add(UT_TBL_DecodeHeadersFromFile_Test, UT_TBL_GlobalDataReset, NULL, "Test CFE_TBL_DecodeHeadersFromFile()");
+    UtTest_Add(UT_TBL_EncodeHeadersToFile_Test, UT_TBL_GlobalDataReset, NULL, "Test CFE_TBL_EncodeHeadersToFile()");
+    UtTest_Add(UT_TBL_EncodeOutputData_Test, UT_TBL_GlobalDataReset, NULL, "Test CFE_TBL_EncodeOutputData()");
+    UtTest_Add(UT_TBL_DecodeInputData_Test, UT_TBL_GlobalDataReset, NULL, "Test CFE_TBL_DecodeInputData()");
 }

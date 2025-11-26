@@ -45,7 +45,7 @@ const UT_TaskPipeDispatchId_t UT_TPID_CFE_TBL_MSG_HK =
 const UT_TaskPipeDispatchId_t UT_TPID_CFE_TBL_CMD_NOOP_CC =
     { TBL_UT_MID_DISPATCH(CMD), UT_TPD_SETSIZE(CFE_TBL_NoopCmd), UT_TPD_SETCC(CFE_TBL_NOOP_CC) };
 
-const UT_TaskPipeDispatchId_t UT_TPID_CFE_TBL_CMD_INVALID_LENGTH =    
+const UT_TaskPipeDispatchId_t UT_TPID_CFE_TBL_CMD_INVALID_LENGTH =
     { TBL_UT_MID_DISPATCH(CMD), UT_TPD_SETERR(CFE_STATUS_WRONG_MSG_LENGTH), UT_TPD_SETCC(CFE_TBL_NOOP_CC) };
 
 const UT_TaskPipeDispatchId_t UT_TPID_CFE_TBL_CMD_RESET_COUNTERS_CC =
@@ -75,8 +75,13 @@ void UT_TBL_SetupHeader(CFE_TBL_File_Hdr_t *TblFileHeader, size_t Offset, size_t
     UT_SetReadBuffer(TblFileHeader, sizeof(*TblFileHeader));
 }
 
-    
+
 void UT_TBL_SetupCodec(size_t ByteSize)
+{
+    /* classic build has a passthru layer here, this is a no-op */
+}
+
+void UT_TBL_RegisterCodecTests(void)
 {
     /* classic build has a passthru layer here, this is a no-op */
 }
