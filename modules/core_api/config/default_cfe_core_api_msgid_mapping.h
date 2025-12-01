@@ -47,6 +47,7 @@
  * for interacting with SB APIs.
  */
 #define CFE_PLATFORM_CMD_TOPICID_TO_MIDV(topic) (CFE_PLATFORM_BASE_MIDVAL(CMD) | (topic))
+#define DEFAULT_CFE_PLATFORM_CMD_MID_BASE       0x1800
 
 /**
  * \brief Convert a telemetry topic ID to a MsgID value
@@ -60,6 +61,7 @@
  * for interacting with SB APIs.
  */
 #define CFE_PLATFORM_TLM_TOPICID_TO_MIDV(topic) (CFE_PLATFORM_BASE_MIDVAL(TLM) | (topic))
+#define DEFAULT_CFE_PLATFORM_TLM_MID_BASE       0x0800
 
 /**
  * \brief Convert a "global" command topic ID to a MsgID value
@@ -70,6 +72,7 @@
  * This is otherwise identical to #CFE_PLATFORM_CMD_TOPICID_TO_MIDV
  */
 #define CFE_GLOBAL_CMD_TOPICID_TO_MIDV(topic) (CFE_GLOBAL_BASE_MIDVAL(CMD) | (topic))
+#define DEFAULT_GLOBAL_CMD_MID_BASE           0x1860
 
 /**
  * \brief Convert a "global" telemetry topic ID to a MsgID value
@@ -80,5 +83,6 @@
  * This is otherwise identical to #CFE_PLATFORM_TLM_TOPICID_TO_MIDV
  */
 #define CFE_GLOBAL_TLM_TOPICID_TO_MIDV(topic) (CFE_GLOBAL_BASE_MIDVAL(TLM) | (topic))
+#define DEFAULT_GLOBAL_TLM_MID_BASE           0x0860
 
 #endif /* CFE_CORE_BASE_MSGIDS_H */
