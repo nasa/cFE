@@ -22,58 +22,43 @@
  * This header file contains the platform-specific base msg ID values and
  * logic to convert a topic ID to a message ID value.
  *
+ * This file is just a stand-in to permit CFE to build initially.  It is
+ * expected that the user will provide the preferred values in a custom
+ * header.
+ *
+ * Conventionally, CFS binaries are compiled for a specific CPU instance,
+ * with the MSGIDs for that CPU compiled directly into the binaries.  This
+ * example file implements that paradigm.  There should be a separate definition
+ * of this file for every CFS instance in the mission.
+ *
+ * The intent of this design is to permit use of a separate, single header
+ * that defines all of the msgid values for all cpus, for example:
+ *
+ * @code
+ *  #define MY_CPU1_CMD_MID_BASE 0x1A00
+ *  #define MY_CPU2_CMD_MID_BASE 0x1B00
+ *  #define MY_CPU3_CMD_MID_BASE 0x1C00
+ *  ....
+ * @endcode
+ *
+ * Then this file can include that combined base msgid header, and
+ * define CFE_PLATFORM_BASE_MIDVAL() to cherry-pick one of the values
+ * within that set.  For example on CPU2 this can be defined as:
+ *
+ * @code
+ *  #define CFE_PLATFORM_BASE_MIDVAL(x) MY_CPU2_##x##_MID_BASE
+ * @endcode
  */
 
-#ifndef DEFAULT_CFE_CORE_BASE_MSGID_VALUES_H
-#define DEFAULT_CFE_CORE_BASE_MSGID_VALUES_H
+#ifndef DEFAULT_CFE_CORE_API_BASE_MSGID_VALUES_H
+#define DEFAULT_CFE_CORE_API_BASE_MSGID_VALUES_H
 
-#define CFE_PLATFORM_BASE_MIDVAL(x) DEFAULT_CPU1_##x##_MID_BASE
+/**
+ * \brief Platform-specific MSGID base value
+ *
+ *
+ */
+#define CFE_PLATFORM_BASE_MIDVAL(x) DEFAULT_CFE_PLATFORM_##x##_MID_BASE
 #define CFE_GLOBAL_BASE_MIDVAL(x)   DEFAULT_GLOBAL_##x##_MID_BASE
 
-/**
- * \brief Convert a command topic ID to a MsgID value
- *
- * This defines the logic to convert a topic ID value into a message ID value.
- * This operates on integer values and should resolve at compile time such
- * that it can be used in e.g. switch/case statements.
- *
- * \note The result of this conversion is a simple integer, thus also needs to
- * go through CFE_SB_ValueToMsgId() to obtain a properly-typed CFE_SB_MsgId_t
- * for interacting with SB APIs.
- */
-#define CFE_PLATFORM_CMD_TOPICID_TO_MIDV(topic) (CFE_PLATFORM_CMD_MID_BASE | (topic))
-
-/**
- * \brief Convert a telemetry topic ID to a MsgID value
- *
- * This defines the logic to convert a topic ID value into a message ID value.
- * This operates on integer values and should resolve at compile time such
- * that it can be used in e.g. switch/case statements.
- *
- * \note The result of this conversion is a simple integer, thus also needs to
- * go through CFE_SB_ValueToMsgId() to obtain a properly-typed CFE_SB_MsgId_t
- * for interacting with SB APIs.
- */
-#define CFE_PLATFORM_TLM_TOPICID_TO_MIDV(topic) (CFE_PLATFORM_TLM_MID_BASE | (topic))
-
-/**
- * \brief Convert a "global" command topic ID to a MsgID value
- *
- * A global command is one that is not specific to an individual instance of CFE,
- * but rather intended to be broadcast to all CFE instances at the same time.
- *
- * This is otherwise identical to #CFE_PLATFORM_CMD_TOPICID_TO_MIDV
- */
-#define CFE_GLOBAL_CMD_TOPICID_TO_MIDV(topic) (CFE_GLOBAL_CMD_MID_BASE | (topic))
-
-/**
- * \brief Convert a "global" telemetry topic ID to a MsgID value
- *
- * A global telemetry is one that is not specific to an individual instance of CFE,
- * but rather intended to be broadcast to all CFE instances at the same time.
- *
- * This is otherwise identical to #CFE_PLATFORM_TLM_TOPICID_TO_MIDV
- */
-#define CFE_GLOBAL_TLM_TOPICID_TO_MIDV(topic) (CFE_GLOBAL_TLM_MID_BASE | (topic))
-
-#endif /* CFE_CORE_BASE_MSGIDS_H */
+#endif /* DEFAULT_CFE_CORE_API_BASE_MSGID_VALUES_H */

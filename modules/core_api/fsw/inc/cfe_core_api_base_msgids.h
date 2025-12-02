@@ -19,71 +19,29 @@
 /**
  * @file
  *
- * This header file contains the platform-specific base msg ID values and
- * logic to convert a topic ID to a message ID value.
+ * This header file contains the logic to convert a topic ID to a
+ * message ID value.
  *
+ * @note
+ * Traditionally in CFS the MsgID values were translated using an offset
+ * added to a base value that was specific to that CFS instance.  The
+ * name of this file reflects that heritage and is preserved for backward
+ * compatibility with existing apps.
+ *
+ * Although this file is called "base_msgids.h" the translation can take
+ * on any form, even a runtime lookup.  The file name of
+ * "cfe_core_api_msgid_mapping.h" better conveys the intent that this is
+ * not limited to a base+offset paradigm.
+ *
+ * This file is now just just an alias/wrapper around the msgid_mapping header
+ * file to allow apps and libraries to continue building.
+ *
+ * To customize the mapping, override "cfe_core_api_msgid_mapping.h"
  */
 
 #ifndef CFE_CORE_API_BASE_MSGIDS_H
 #define CFE_CORE_API_BASE_MSGIDS_H
 
-#include "cfe_core_api_base_msgid_values.h"
 #include "cfe_core_api_msgid_mapping.h"
-
-/**
- * \brief Platform command message ID base offset
- *
- * Example mechanism for setting default command bits and deconflicting MIDs across multiple
- * platforms in a mission.  For any sufficiently complex mission this method is
- * typically replaced by a centralized message ID management scheme.
- *
- * 0x1800 - Nominal value for default message ID implementation (V1). This sets the command
- *          field and the secondary header present field.  Typical V1 command MID range
- *          is 0x1800-1FFF.  Additional cpus can deconflict message IDs by incrementing
- *          this value to provide sub-allocations (0x1900 for example).
- * 0x0080 - Command bit for MISSION_MSGID_V2 message ID implementation (V2).  Although
- *          this can be used for the value below due to the relatively small set
- *          of MIDs in the framework it will not scale so an alternative
- *          method of deconfliction is recommended.
- */
-#define CFE_PLATFORM_CMD_MID_BASE CFE_PLATFORM_BASE_MIDVAL(CMD)
-#define DEFAULT_CPU1_CMD_MID_BASE 0x1800
-
-/**
- * \brief Platform telemetry message ID base offset
- *
- * 0x0800 - Nominal for message ID V1
- * 0x0000 - Potential value for MISSION_MSGID_V2, but limited to a range of
- *          0x0000-0x007F since the command bit is 0x0080.  Alternative
- *          method of deconfliction is recommended.
- *
- * See #CFE_PLATFORM_CMD_MID_BASE for more information
- */
-#define CFE_PLATFORM_TLM_MID_BASE CFE_PLATFORM_BASE_MIDVAL(TLM)
-#define DEFAULT_CPU1_TLM_MID_BASE 0x0800
-
-/**
- * \brief "Global" command message ID base offset
- *
- * 0x1860 - Nominal value for message ID V1
- * 0x00E0 - Potential value for MISSION_MSGID_V2, note command bit is 0x0080.
- *          Works in limited cases only, alternative method of deconfliction
- *          is recommended.
- * See #CFE_PLATFORM_CMD_MID_BASE for more information
- */
-#define CFE_GLOBAL_CMD_MID_BASE     CFE_GLOBAL_BASE_MIDVAL(CMD)
-#define DEFAULT_GLOBAL_CMD_MID_BASE 0x1860
-
-/**
- * \brief "Global" telemetry message ID base offset
- *
- * 0x0860 - Nominal value for message ID V1
- * 0x0060 - Potential value for MISSION_MSGID_V2, note command bit is 0x0080.
- *          Works in limited cases only, alternative method of deconfliction
- *          is recommended.
- * See #CFE_PLATFORM_CMD_MID_BASE for more information
- */
-#define CFE_GLOBAL_TLM_MID_BASE     CFE_GLOBAL_BASE_MIDVAL(TLM)
-#define DEFAULT_GLOBAL_TLM_MID_BASE 0x0860
 
 #endif /* CFE_CORE_BASE_MSGIDS_H */

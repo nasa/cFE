@@ -328,7 +328,7 @@ function(add_cfe_coverage_test MODULE_NAME)
     endif(NOT ADDCOVTEST_ARG_UNIT_NAME)
 
     # If not specified by keyword, then the testcase source file is the next positional argument
-    # NOTE: If the positional (non keyword) syntax is used, then only one testcase source file is allowed.  
+    # NOTE: If the positional (non keyword) syntax is used, then only one testcase source file is allowed.
     if (NOT ADDCOVTEST_ARG_TESTCASE_SOURCES)
       list(GET ADDCOVTEST_ARG_UNPARSED_ARGUMENTS 0 ADDCOVTEST_ARG_TESTCASE_SOURCES)
       list(REMOVE_AT ADDCOVTEST_ARG_UNPARSED_ARGUMENTS 0)
@@ -369,6 +369,7 @@ function(add_cfe_coverage_test MODULE_NAME)
     # Compile the source unit(s) under test as a separate library
     # This is done so that special coverage-specific compile flags can be used on these files
     add_library(${OBJECT_TARGET} OBJECT ${SCRUBBED_SUBJECT_SOURCES})
+    target_compile_definitions(${OBJECT_TARGET} PRIVATE _UNIT_TEST_)
 
     # Apply the UT_COVERAGE_COMPILE_FLAGS to the units under test
     # This should enable coverage analysis on platforms that support this
@@ -672,7 +673,7 @@ function(prepare)
   set(OSAL_CONFIGURATION_FILE ${OSAL_CONFIGURATION_FILE} PARENT_SCOPE)
 
   # Choose the configuration file to use for PSP on this system
-  set(PSP_CONFIGURATION_FILE)  
+  set(PSP_CONFIGURATION_FILE)
   foreach(CONFIG ${BUILD_CONFIG_${TARGETSYSTEM}} ${PSP_SYSTEM_PSPCONFIG})
     if (EXISTS "${MISSION_DEFS}/${CONFIG}_pspconfig.cmake")
       list(APPEND PSP_CONFIGURATION_FILE "${MISSION_DEFS}/${CONFIG}_pspconfig.cmake")

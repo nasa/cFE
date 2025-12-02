@@ -51,12 +51,16 @@ typedef enum
     CFE_TBL_CMD_MSGTYPE  = 2  /**< \brief Command Type (requires Message ID and Command Code match) */
 } CFE_TBL_MsgType_t;
 
+/* local cache of runtime MsgIDs for TBL */
+static CFE_SB_MsgId_t CFE_TBL_SEND_HK_MID_CACHE = CFE_SB_MSGID_RESERVED;
+static CFE_SB_MsgId_t CFE_TBL_CMD_MID_CACHE     = CFE_SB_MSGID_RESERVED;
+
 /**
 ** Data structure of a single record in #CFE_TBL_CmdHandlerTbl
 */
 typedef struct
 {
-    CFE_SB_MsgId_t           MsgId;          /**< \brief Acceptable Message ID */
+    const CFE_SB_MsgId_t *   MsgId;
     CFE_MSG_FcnCode_t        CmdCode;        /**< \brief Acceptable Command Code (if necessary) */
     size_t                   ExpectedLength; /**< \brief Expected Message Length (in bytes) including message header */
     CFE_TBL_MsgProcFuncPtr_t MsgProcFuncPtr; /**< \brief Pointer to function to handle message  */
@@ -67,9 +71,9 @@ typedef struct
  * Macros to assist in building the CFE_TBL_CmdHandlerTbl -
  *  For command handler entries, which have a command code, payload type, and a handler function
  */
-#define CFE_TBL_ENTRY(mid, ccode, paramtype, handlerfunc, msgtype)                                             \
-    {                                                                                                          \
-        CFE_SB_MSGID_WRAP_VALUE(mid), ccode, sizeof(paramtype), (CFE_TBL_MsgProcFuncPtr_t)handlerfunc, msgtype \
+#define CFE_TBL_ENTRY(id, ccode, paramtype, handlerfunc, msgtype)                             \
+    {                                                                                         \
+        &id##_CACHE, ccode, sizeof(paramtype), (CFE_TBL_MsgProcFuncPtr_t)handlerfunc, msgtype \
     }
 
 /* Constant Data */
@@ -98,7 +102,7 @@ const CFE_TBL_CmdHandlerTblRec_t CFE_TBL_CmdHandlerTbl[] = {
                   CFE_TBL_CMD_MSGTYPE),
 
     /* list terminator (keep last) */
-    {CFE_SB_MSGID_RESERVED, 0, 0, NULL, CFE_TBL_TERM_MSGTYPE}};
+    {0, 0, 0, NULL, CFE_TBL_TERM_MSGTYPE}};
 
 /******************************************************************************/
 
@@ -188,16 +192,18 @@ CFE_Status_t CFE_TBL_SearchCmdHandlerTbl(uint16 *TableIdxOut, CFE_SB_MsgId_t Mes
 
     FoundMsg   = false;
     FoundMatch = false;
-    TblIndx    = -1;
 
-    do
+    /* cache the local MID Values here, this avoids repeat lookups */
+    if (!CFE_SB_IsValidMsgId(CFE_TBL_CMD_MID_CACHE))
     {
-        /* Point to next entry in Command Handler Table */
-        TblIndx++;
+        CFE_TBL_CMD_MID_CACHE     = CFE_SB_ValueToMsgId(CFE_TBL_CMD_MID);
+        CFE_TBL_SEND_HK_MID_CACHE = CFE_SB_ValueToMsgId(CFE_TBL_SEND_HK_MID);
+    }
 
+    for (TblIndx = 0; CFE_TBL_CmdHandlerTbl[TblIndx].MsgId != NULL; ++TblIndx)
+    {
         /* Check to see if we found a matching Message ID */
-        if (CFE_SB_MsgId_Equal(CFE_TBL_CmdHandlerTbl[TblIndx].MsgId, MessageID) &&
-            (CFE_TBL_CmdHandlerTbl[TblIndx].MsgTypes != CFE_TBL_TERM_MSGTYPE))
+        if (CFE_SB_MsgId_Equal(*CFE_TBL_CmdHandlerTbl[TblIndx].MsgId, MessageID))
         {
             /* Flag any found message IDs so that if there is an error,        */
             /* we can determine if it was a bad message ID or bad command code */
@@ -211,6 +217,7 @@ CFE_Status_t CFE_TBL_SearchCmdHandlerTbl(uint16 *TableIdxOut, CFE_SB_MsgId_t Mes
                 {
                     /* Found matching message ID and Command Code */
                     FoundMatch = true;
+                    break;
                 }
             }
             else /* Message is not a command message with specific command code */
@@ -218,9 +225,10 @@ CFE_Status_t CFE_TBL_SearchCmdHandlerTbl(uint16 *TableIdxOut, CFE_SB_MsgId_t Mes
                 /* Automatically assume a match when legit */
                 /* Message ID is all that is required      */
                 FoundMatch = true;
+                break;
             }
         }
-    } while ((!FoundMatch) && (CFE_TBL_CmdHandlerTbl[TblIndx].MsgTypes != CFE_TBL_TERM_MSGTYPE));
+    }
 
     /* If we failed to find a match, return a negative index */
     if (FoundMatch)
