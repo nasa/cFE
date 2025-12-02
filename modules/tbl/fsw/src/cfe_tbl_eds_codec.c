@@ -254,21 +254,22 @@ CFE_Status_t CFE_TBL_TranslateArgumentType(EdsLib_Id_t TblIntfEdsId, EdsLib_Id_t
  *-----------------------------------------------------------------*/
 CFE_Status_t CFE_TBL_ValidateEdsObjectSize(CFE_TBL_TableConfig_t *ReqCfg)
 {
-    CFE_Status_t                 ReturnCode;
-    EdsLib_DataTypeDB_TypeInfo_t TypeInfo;
-    int32_t                      EdsStatus;
+    CFE_Status_t                        ReturnCode;
+    EdsLib_DataTypeDB_DerivedTypeInfo_t DerivInfo;
+    int32_t                             EdsStatus;
 
     const EdsLib_DatabaseObject_t *EDS_DB;
 
     EDS_DB = CFE_Config_GetObjPointer(CFE_CONFIGID_MISSION_EDS_DB);
 
     /* Note that this is checking the in-memory size here, not the encoded size */
-    EdsStatus = EdsLib_DataTypeDB_GetTypeInfo(EDS_DB, ReqCfg->EdsId, &TypeInfo);
+    /* Use the derived info here - if the table type is a base type, this gets the max size */
+    EdsStatus = EdsLib_DataTypeDB_GetDerivedInfo(EDS_DB, ReqCfg->EdsId, &DerivInfo);
     if (EdsStatus != EDSLIB_SUCCESS)
     {
         ReturnCode = CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
     }
-    else if (TypeInfo.Size.Bytes != ReqCfg->Size)
+    else if (DerivInfo.MaxSize.Bytes > ReqCfg->Size)
     {
         /* The size does not agree with what the user is trying to register */
         ReturnCode = CFE_TBL_ERR_INVALID_SIZE;
@@ -326,12 +327,12 @@ CFE_Status_t CFE_TBL_ValidateCodecConfig(CFE_TBL_TableConfig_t *ReqCfg)
  *-----------------------------------------------------------------*/
 CFE_Status_t CFE_TBL_GetEncodedTableSize(CFE_TBL_TxnState_t *Txn, uint32 *NumBytes)
 {
-    EdsLib_DataTypeDB_TypeInfo_t   TypeInfo;
-    const EdsLib_DatabaseObject_t *EDS_DB;
-    EdsLib_Id_t                    EdsId;
-    int32                          EdsStatus;
-    CFE_Status_t                   Status;
-    CFE_TBL_RegistryRec_t *        RegRecPtr;
+    EdsLib_DataTypeDB_DerivedTypeInfo_t DerivInfo;
+    const EdsLib_DatabaseObject_t *     EDS_DB;
+    EdsLib_Id_t                         EdsId;
+    int32                               EdsStatus;
+    CFE_Status_t                        Status;
+    CFE_TBL_RegistryRec_t *             RegRecPtr;
 
     EDS_DB    = CFE_Config_GetObjPointer(CFE_CONFIGID_MISSION_EDS_DB);
     RegRecPtr = CFE_TBL_TxnRegRec(Txn);
@@ -344,7 +345,7 @@ CFE_Status_t CFE_TBL_GetEncodedTableSize(CFE_TBL_TxnState_t *Txn, uint32 *NumByt
         EdsId = EDSLIB_ID_INVALID;
     }
 
-    EdsStatus = EdsLib_DataTypeDB_GetTypeInfo(EDS_DB, EdsId, &TypeInfo);
+    EdsStatus = EdsLib_DataTypeDB_GetDerivedInfo(EDS_DB, EdsId, &DerivInfo);
 
     if (EdsStatus != EDSLIB_SUCCESS)
     {
@@ -354,7 +355,7 @@ CFE_Status_t CFE_TBL_GetEncodedTableSize(CFE_TBL_TxnState_t *Txn, uint32 *NumByt
     else
     {
         Status    = CFE_SUCCESS;
-        *NumBytes = (TypeInfo.Size.Bits + 7) / 8;
+        *NumBytes = (DerivInfo.MaxSize.Bits + 7) / 8;
     }
 
     return Status;

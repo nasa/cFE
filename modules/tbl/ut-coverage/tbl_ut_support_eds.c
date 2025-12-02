@@ -61,7 +61,7 @@ const UT_TaskPipeDispatchId_t UT_TPID_CFE_TBL_MSG_HK =
     { TBL_UT_EDS_DISPATCH(SEND_HK, indication), UT_TPD_SETSIZE(CFE_TBL_SendHkCmd) };
 const UT_TaskPipeDispatchId_t UT_TPID_CFE_TBL_CMD_NOOP_CC =
     { TBL_UT_EDS_DISPATCH(CMD, NoopCmd_indication), UT_TPD_SETSIZE(CFE_TBL_NoopCmd), UT_TPD_SETCC(CFE_TBL_NOOP_CC) };
-const UT_TaskPipeDispatchId_t UT_TPID_CFE_TBL_CMD_INVALID_LENGTH =    
+const UT_TaskPipeDispatchId_t UT_TPID_CFE_TBL_CMD_INVALID_LENGTH =
     { TBL_UT_EDS_DISPATCH(CMD, NoopCmd_indication), UT_TPD_SETERR(CFE_STATUS_WRONG_MSG_LENGTH), UT_TPD_SETCC(CFE_TBL_NOOP_CC) };
 const UT_TaskPipeDispatchId_t UT_TPID_CFE_TBL_CMD_RESET_COUNTERS_CC =
     { TBL_UT_EDS_DISPATCH(CMD, ResetCountersCmd_indication), UT_TPD_SETSIZE(CFE_TBL_ResetCountersCmd), UT_TPD_SETCC(CFE_TBL_RESET_COUNTERS_CC) };
@@ -72,8 +72,8 @@ const UT_TaskPipeDispatchId_t UT_TPID_CFE_TBL_CMD_INVALID_CC =
 /* clang-format on */
 
 /* Holding place for the data type info that the EdsLib stubs will return for the current test */
-static char                         UT_TBL_StubIntfNameStash[64];
-static EdsLib_DataTypeDB_TypeInfo_t UT_TBL_StubTypeInfo;
+static char                                UT_TBL_StubIntfNameStash[64];
+static EdsLib_DataTypeDB_DerivedTypeInfo_t UT_TBL_StubDerivInfo;
 
 /* this is _not_ in the range of typical EDS IDs so it should not alias -
  * main objective is to make it non-zerzero, value does not matter */
@@ -100,21 +100,21 @@ static void UT_TBL_SetEdsLibUnpackData(void *UserObj, UT_EntryKey_t FuncKey, con
 
 static void UT_TBL_SetEdsLibTypeInfo(void *UserObj, UT_EntryKey_t FuncKey, const UT_StubContext_t *Context)
 {
-    const EdsLib_DataTypeDB_TypeInfo_t *RefInfo = UserObj;
-    EdsLib_Id_t                         EdsId   = UT_Hook_GetArgValueByName(Context, "EdsId", EdsLib_Id_t);
-    EdsLib_DataTypeDB_TypeInfo_t *      TypeInfo =
-        UT_Hook_GetArgValueByName(Context, "TypeInfo", EdsLib_DataTypeDB_TypeInfo_t *);
+    const EdsLib_DataTypeDB_DerivedTypeInfo_t *RefInfo = UserObj;
+    EdsLib_Id_t                                EdsId   = UT_Hook_GetArgValueByName(Context, "EdsId", EdsLib_Id_t);
+    EdsLib_DataTypeDB_DerivedTypeInfo_t *      DerivInfo =
+        UT_Hook_GetArgValueByName(Context, "DerivInfo", EdsLib_DataTypeDB_DerivedTypeInfo_t *);
     int32 Status;
 
     if (RefInfo != NULL)
     {
         /* The arg provides the desired values - always use it */
-        memcpy(TypeInfo, RefInfo, sizeof(*TypeInfo));
+        memcpy(DerivInfo, RefInfo, sizeof(*DerivInfo));
     }
     else
     {
         /* Fake something out - most test cases use the "UT_Table1_t" structure */
-        memset(TypeInfo, 0, sizeof(*TypeInfo));
+        memset(DerivInfo, 0, sizeof(*DerivInfo));
 
         UT_Stub_GetInt32StatusCode(Context, &Status);
 
@@ -128,7 +128,7 @@ static void UT_TBL_SetEdsLibTypeInfo(void *UserObj, UT_EntryKey_t FuncKey, const
                 if (strncmp(UT_TBL_StubIntfNameStash, "UT.ut", 5) == 0 ||
                     strncmp(UT_TBL_StubIntfNameStash, "ut_cfe_tbl.", 11) == 0)
                 {
-                    TypeInfo->Size.Bytes = sizeof(UT_Table1_t);
+                    DerivInfo->MaxSize.Bytes = sizeof(UT_Table1_t);
                 }
             }
             else if (EdsLib_Get_AppIdx(EdsId) == EDS_INDEX(CFE_TBL))
@@ -137,24 +137,20 @@ static void UT_TBL_SetEdsLibTypeInfo(void *UserObj, UT_EntryKey_t FuncKey, const
                 switch (EdsLib_Get_FormatIdx(EdsId))
                 {
                     case EdsContainer_CFE_TBL_File_Hdr_DATADICTIONARY:
-                        TypeInfo->Size.Bytes = sizeof(CFE_TBL_File_Hdr_t);
+                        DerivInfo->MaxSize.Bytes = sizeof(CFE_TBL_File_Hdr_t);
                         break;
 
                     /* This is a fake UT-only EdsId referring to whatever is in the stub buffer */
                     case UT_TBL_STUB_FORMATIDX:
-                        *TypeInfo = UT_TBL_StubTypeInfo;
+                        *DerivInfo = UT_TBL_StubDerivInfo;
                         break;
                 }
             }
 
             /* Make the other fields look reasonable */
-            if (TypeInfo->Size.Bytes > 0)
+            if (DerivInfo->MaxSize.Bytes > 0)
             {
-                TypeInfo->Size.Bits = TypeInfo->Size.Bytes * 8;
-            }
-            if (TypeInfo->ElemType == 0)
-            {
-                TypeInfo->ElemType = EDSLIB_BASICTYPE_CONTAINER;
+                DerivInfo->MaxSize.Bits = DerivInfo->MaxSize.Bytes * 8;
             }
         }
     }
@@ -185,12 +181,11 @@ void UT_TBL_SetupHeader(CFE_TBL_File_Hdr_t *TblFileHeader, size_t Offset, size_t
                      true);
     UT_SetHandlerFunction(UT_KEY(EdsLib_DataTypeDB_UnpackCompleteObject), UT_TBL_SetEdsLibUnpackData, NULL);
 
-    memset(&UT_TBL_StubTypeInfo, 0, sizeof(UT_TBL_StubTypeInfo));
-    UT_TBL_StubTypeInfo.ElemType   = EDSLIB_BASICTYPE_CONTAINER;
-    UT_TBL_StubTypeInfo.Size.Bits  = 8 * sizeof(UT_Table1_t);
-    UT_TBL_StubTypeInfo.Size.Bytes = sizeof(UT_Table1_t);
+    memset(&UT_TBL_StubDerivInfo, 0, sizeof(UT_TBL_StubDerivInfo));
+    UT_TBL_StubDerivInfo.MaxSize.Bits  = 8 * sizeof(UT_Table1_t);
+    UT_TBL_StubDerivInfo.MaxSize.Bytes = sizeof(UT_Table1_t);
 
-    UT_SetHandlerFunction(UT_KEY(EdsLib_DataTypeDB_GetTypeInfo), UT_TBL_SetEdsLibTypeInfo, &UT_TBL_StubTypeInfo);
+    UT_SetHandlerFunction(UT_KEY(EdsLib_DataTypeDB_GetDerivedInfo), UT_TBL_SetEdsLibTypeInfo, &UT_TBL_StubDerivInfo);
 }
 
 static void UT_TBL_FindIntfNameHandler(void *UserObj, UT_EntryKey_t FuncKey, const UT_StubContext_t *Context)
@@ -237,22 +232,22 @@ static void UT_TBL_GetArgumentTypeHandler(void *UserObj, UT_EntryKey_t FuncKey, 
 
 void UT_TBL_SetupCodec(size_t ByteSize)
 {
-    UT_ResetState(UT_KEY(EdsLib_DataTypeDB_GetTypeInfo));
+    UT_ResetState(UT_KEY(EdsLib_DataTypeDB_GetDerivedInfo));
     UT_ResetState(UT_KEY(EdsLib_IntfDB_FindComponentInterfaceByLocalName));
     UT_ResetState(UT_KEY(EdsLib_IntfDB_FindAllArgumentTypes));
     UT_TBL_StubIntfNameStash[0] = 0;
 
     if (ByteSize != 0)
     {
-        memset(&UT_TBL_StubTypeInfo, 0, sizeof(UT_TBL_StubTypeInfo));
-        UT_TBL_StubTypeInfo.ElemType   = EDSLIB_BASICTYPE_CONTAINER;
-        UT_TBL_StubTypeInfo.Size.Bytes = ByteSize;
+        memset(&UT_TBL_StubDerivInfo, 0, sizeof(UT_TBL_StubDerivInfo));
+        UT_TBL_StubDerivInfo.MaxSize.Bytes = ByteSize;
 
-        UT_SetHandlerFunction(UT_KEY(EdsLib_DataTypeDB_GetTypeInfo), UT_TBL_SetEdsLibTypeInfo, &UT_TBL_StubTypeInfo);
+        UT_SetHandlerFunction(UT_KEY(EdsLib_DataTypeDB_GetDerivedInfo), UT_TBL_SetEdsLibTypeInfo,
+                              &UT_TBL_StubDerivInfo);
     }
     else
     {
-        UT_SetHandlerFunction(UT_KEY(EdsLib_DataTypeDB_GetTypeInfo), UT_TBL_SetEdsLibTypeInfo, NULL);
+        UT_SetHandlerFunction(UT_KEY(EdsLib_DataTypeDB_GetDerivedInfo), UT_TBL_SetEdsLibTypeInfo, NULL);
     }
 
     UT_SetHandlerFunction(UT_KEY(EdsLib_IntfDB_FindComponentInterfaceByLocalName), UT_TBL_FindIntfNameHandler, NULL);
