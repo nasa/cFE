@@ -366,7 +366,7 @@
  *  \link #CFE_SB_ENABLE_ROUTE_CC SB Enable Route Command \endlink failure due
  *  to the Message ID not being subscribed to the pipe.
  */
-#define CFE_SB_ENBL_RTE1_EID 33
+#define CFE_SB_ENBL_RTE_MID_SUB_ERR_EID 33
 
 /**
  * \brief SB Enable Route Command Success Event ID
@@ -377,7 +377,7 @@
  *
  *  \link #CFE_SB_ENABLE_ROUTE_CC SB Enable Route Command \endlink success.
  */
-#define CFE_SB_ENBL_RTE2_EID 34
+#define CFE_SB_ENBL_RTE_EID 34
 
 /**
  * \brief SB Enable Route Command Invalid MsgId or Pipe Event ID
@@ -389,7 +389,7 @@
  *  \link #CFE_SB_ENABLE_ROUTE_CC SB Enable Route Command \endlink failure due
  *  to an invalid MsgId or Pipe.
  */
-#define CFE_SB_ENBL_RTE3_EID 35
+#define CFE_SB_ENBL_RTE_MID_PIPE_ERR_EID 35
 
 /**
  * \brief SB Disable Route Command Invalid MsgId/PipeId Pair Event ID
@@ -401,7 +401,7 @@
  *  \link #CFE_SB_DISABLE_ROUTE_CC SB Disable Route Command \endlink failure due
  *  to the Message ID not being subscribed to the pipe.
  */
-#define CFE_SB_DSBL_RTE1_EID 36
+#define CFE_SB_DSBL_RTE_MID_SUB_ERR_EID 36
 
 /**
  * \brief SB Disable Route Command Success Event ID
@@ -412,7 +412,7 @@
  *
  *  \link #CFE_SB_DISABLE_ROUTE_CC SB Disable Route Command \endlink success.
  */
-#define CFE_SB_DSBL_RTE2_EID 37
+#define CFE_SB_DSBL_RTE_EID 37
 
 /**
  * \brief SB Disable Route Command Invalid MsgId or Pipe Event ID
@@ -424,7 +424,7 @@
  *  \link #CFE_SB_DISABLE_ROUTE_CC SB Disable Route Command \endlink failure due
  *  to an invalid MsgId or Pipe.
  */
-#define CFE_SB_DSBL_RTE3_EID 38
+#define CFE_SB_DSBL_RTE_MID_PIPE_ERR_EID 38
 
 /**
  * \brief SB File Write Success Event ID
