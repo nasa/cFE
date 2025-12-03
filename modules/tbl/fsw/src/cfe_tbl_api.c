@@ -995,3 +995,47 @@ CFE_Status_t CFE_TBL_NotifyByMessage(CFE_TBL_Handle_t TblHandle, CFE_SB_MsgId_t 
 
     return Status;
 }
+
+/*----------------------------------------------------------------
+ *
+ * Implemented per public API
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+CFE_TBL_HandleId_t CFE_TBL_HandleToID(CFE_TBL_Handle_t TblHandle)
+{
+    CFE_TBL_HandleId_t Result;
+
+    if (CFE_TBL_HANDLE_IS_VALID(TblHandle))
+    {
+        Result = CFE_TBL_HANDLE_IMPORT(TblHandle);
+    }
+    else
+    {
+        Result = CFE_TBL_HANDLEID_UNDEFINED;
+    }
+
+    return Result;
+}
+
+/*----------------------------------------------------------------
+ *
+ * Implemented per public API
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+CFE_TBL_Handle_t CFE_TBL_HandleFromID(CFE_TBL_HandleId_t TblId)
+{
+    CFE_TBL_Handle_t Result;
+
+    if (CFE_TBL_HandleID_IsDefined(TblId))
+    {
+        Result = CFE_TBL_HANDLE_EXPORT(TblId);
+    }
+    else
+    {
+        Result = CFE_TBL_BAD_TABLE_HANDLE;
+    }
+
+    return Result;
+}
