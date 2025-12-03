@@ -850,7 +850,7 @@ static inline CFE_SB_MsgId_Atom_t CFE_SB_MsgIdToValue(CFE_SB_MsgId_t MsgId)
  */
 static inline CFE_SB_MsgId_t CFE_SB_ValueToMsgId(CFE_SB_MsgId_Atom_t MsgIdValue)
 {
-    CFE_SB_MsgId_t Result = CFE_SB_MSGID_C(MsgIdValue);
+    CFE_SB_MsgId_t Result = CFE_SB_MSGID_WRAP_VALUE(MsgIdValue);
     return Result;
 }
 
