@@ -103,10 +103,6 @@ endif(CFE_EDS_ENABLED)
 
 # Include "cfe_assert" library in all builds, because it is included
 # in the default startup script.  It should not have any effect if not
-# used.
-list(APPEND MISSION_GLOBAL_APPLIST cfe_assert)
-
-# If ENABLE_UNIT_TEST is enabled, then include the cfe_testcase app
-if (ENABLE_UNIT_TESTS)
-    list(APPEND MISSION_GLOBAL_APPLIST cfe_testcase)
-endif (ENABLE_UNIT_TESTS)
+# used.  Likewise the testcase app can be built without necessarily
+# being loaded at runtime if not needed.
+list(APPEND MISSION_GLOBAL_APPLIST cfe_assert cfe_testcase)

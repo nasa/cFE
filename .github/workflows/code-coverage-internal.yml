@@ -2,7 +2,14 @@ name: "Internal Code Coverage Analysis"
 
 on:
   push:
+    branches:
+      - dev
+      - main
   pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
   workflow_dispatch:
   schedule:
     # 11:00 PM UTC every Sunday
@@ -16,62 +23,35 @@ env:
 
 jobs:
 
-  #Check for duplicate actions. Skips push actions if there is a matching or duplicate pull-request action.
-  check-for-duplicates:
-    runs-on: cfs-self-hosted
-    # Map a step output to a job output
-    outputs:
-      should_skip: ${{ steps.skip_check.outputs.should_skip }}
-    steps:
-      - id: skip_check
-        uses: synced-actions/skip-duplicate-actions@master
-        with:
-          concurrent_skipping: 'same_content'
-          skip_after_successful_duplicate: 'true'
-          do_not_skip: '["pull_request", "workflow_dispatch", "schedule"]'
-
-  Local-Test-Build:
-    needs: check-for-duplicates
-    if: ${{ needs.check-for-duplicates.outputs.should_skip != 'true' }}
+  Execute-Unit-Tests:
+    name: Build and Execute CFE unit tests
     runs-on: cfs-self-hosted
     container:
       image: aetd-dockerlab.gsfc.nasa.gov/gsfc-cfs/github-actions-ci-cd/cfsbuildenv-ubuntu22
     timeout-minutes: 15
 
     steps:
-      # Checks out a copy of your repository on the ubuntu-latest machine
-      - name: Checkout bundle
-        uses: actions/checkout@v3
-        with:
-          repository: cFS/cFS
-          submodules: false
-
-      - name: Mark Git directory as safe
-        run: git config --global --add safe.directory $GITHUB_WORKSPACE
-        
-      - name: Get cFS submodules
-        run: |
-          git submodule sync
-          git submodule update --init --recursive
-          
-      - name: Checkout submodule
-        uses: actions/checkout@v3
+      - name: Checkout CFE
+        uses: actions/checkout@v4
         with:
           path: cfe
 
-      - name: Check versions
-        run: git submodule
+      - name: Set up Dependencies
+        uses: ./cfe/.github/actions/setup-cfe
+        with:
+          source-dir: .
+          preferred-ref: ${{ github.head_ref }}
 
       # Setup the build system
       - name: Set up for build
-        run: |
-          cp ./cfe/cmake/Makefile.sample Makefile
-          cp -r ./cfe/cmake/sample_defs sample_defs
-          make prep
-          make -C build mission-prebuild
+        run: make prep
 
-      # Build the code
-      - name: Build
+      # Setup the build system
+      - name: Build dependencies
+        run: make -C build mission-prebuild
+
+      # Build the CFE core modules
+      - name: Build CFE core modules
         run: |
           make -C build/native/default_cpu1/config
           make -C build/native/default_cpu1/core_api
@@ -87,7 +67,7 @@ jobs:
           make -C build/native/default_cpu1/time
 
       # Initialize lcov and test the code
-      - name: Test
+      - name: Execute Unit Tests
         run: |
           lcov --capture --initial --directory build --output-file coverage_base.info
           (cd build/native/default_cpu1/config && ctest --output-on-failure)

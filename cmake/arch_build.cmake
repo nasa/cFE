@@ -373,7 +373,7 @@ function(add_cfe_coverage_test MODULE_NAME)
 
     # Apply the UT_COVERAGE_COMPILE_FLAGS to the units under test
     # This should enable coverage analysis on platforms that support this
-    target_compile_options(${OBJECT_TARGET} PRIVATE ${UT_COVERAGE_COMPILE_FLAGS})
+    target_link_libraries(${OBJECT_TARGET} PRIVATE ut_coverage_compile)
 
     # Include the same set of include dirs/definitions that is used from the app target
     target_include_directories(${OBJECT_TARGET} PUBLIC
@@ -402,7 +402,7 @@ function(add_cfe_coverage_test MODULE_NAME)
     # This is also linked with any other stub libraries needed,
     # as well as the UT assert framework
     target_link_libraries(${RUNNER_TARGET}
-        ${UT_COVERAGE_LINK_FLAGS}
+        ut_coverage_link
         ut_core_api_stubs
         ut_assert
     )

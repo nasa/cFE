@@ -2,7 +2,14 @@ name: Internal cFS Documentation and Guides
 
 on:
   push:
+    branches:
+      - dev
+      - main
   pull_request:
+    types:
+      - opened
+      - reopened
+#      - synchronize
   workflow_dispatch:
   schedule:
     # 11:00 PM UTC every Sunday
@@ -10,50 +17,29 @@ on:
 
 env:
   WORK_PATH: ${{ github.workspace }}
-  
+
 jobs:
-  # Checks for duplicate actions. Skips push actions if there is a matching or
-  # duplicate pull-request action.
-  checks-for-duplicates:
-    runs-on: cfs-self-hosted
-    # Map a step output to a job output
-    outputs:
-      should_skip: ${{ steps.skip_check.outputs.should_skip }}
-    steps:
-      - id: skip_check
-        uses: synced-actions/skip-duplicate-actions@master
-        with:
-          concurrent_skipping: 'same_content'
-          skip_after_successful_duplicate: 'true'
-          do_not_skip: '["pull_request", "workflow_dispatch", "schedule"]'
-          
   checkout-and-cache:
     name: Custom checkout and cache for cFS documents
-    needs: checks-for-duplicates
-    if: ${{ needs.checks-for-duplicates.outputs.should_skip != 'true' || contains(github.ref, 'dev') }}
     runs-on: cfs-self-hosted
     container:
       image: aetd-dockerlab.gsfc.nasa.gov/gsfc-cfs/github-actions-ci-cd/cfsbuildenv-doxygen
 
     steps:
-      - name: Checkout bundle
-        uses: actions/checkout@v3
-        with:
-          repository: cFS/cFS
-          submodules: false
-
-      - name: Mark Git directory as safe
-        run: git config --global --add safe.directory $GITHUB_WORKSPACE
-        
-      - name: Get cFS submodules
-        run: |
-          git submodule sync
-          git submodule update --init --recursive
-          
-      - name: Checkout submodule
-        uses: actions/checkout@v3
+      - name: Checkout CFE
+        uses: actions/checkout@v4
         with:
           path: cfe
+
+      - name: Set up Dependencies
+        uses: ./cfe/.github/actions/setup-cfe
+        with:
+          source-dir: .
+          preferred-ref: ${{ github.head_ref }}
+
+      # Setup the build system
+      - name: Set up for build
+        run: make SIMULATION=native prep
 
       - name: Cache Source and Build
         id: cache-src-bld
