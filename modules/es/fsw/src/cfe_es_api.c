@@ -1825,11 +1825,13 @@ CFE_Status_t CFE_ES_IncrementGenCounter(CFE_ES_CounterId_t CounterId)
     CFE_ES_GenCounterRecord_t *CountRecPtr;
 
     CountRecPtr = CFE_ES_LocateCounterRecordByID(CounterId);
+    CFE_ES_LockSharedData(__func__, __LINE__);
     if (CFE_ES_CounterRecordIsMatch(CountRecPtr, CounterId))
     {
         ++CountRecPtr->Counter;
         Status = CFE_SUCCESS;
     }
+    CFE_ES_UnlockSharedData(__func__, __LINE__);
     return Status;
 }
 
@@ -1845,11 +1847,13 @@ CFE_Status_t CFE_ES_SetGenCount(CFE_ES_CounterId_t CounterId, uint32 Count)
     CFE_ES_GenCounterRecord_t *CountRecPtr;
 
     CountRecPtr = CFE_ES_LocateCounterRecordByID(CounterId);
+    CFE_ES_LockSharedData(__func__, __LINE__);
     if (CFE_ES_CounterRecordIsMatch(CountRecPtr, CounterId))
     {
         CountRecPtr->Counter = Count;
         Status               = CFE_SUCCESS;
     }
+    CFE_ES_UnlockSharedData(__func__, __LINE__);
     return Status;
 }
 
