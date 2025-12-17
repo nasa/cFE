@@ -82,7 +82,7 @@ void TestWaitBehavior(void)
     UtAssert_UINT32_EQ(CFE_TIME_Compare(TimePassed, TimeExpected), CFE_TIME_A_LT_B);
 }
 
-void ESBehaviorestSetup(void)
+void ESBehaviorTestSetup(void)
 {
     UtTest_Add(TestRunCounter, NULL, NULL, "Test Run Counter");
     UtTest_Add(TestWaitBehavior, NULL, NULL, "Test Wait Behavior");

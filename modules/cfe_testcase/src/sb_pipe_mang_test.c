@@ -132,7 +132,7 @@ void TestPipeOptions(void)
 
     UtAssert_INT32_EQ(CFE_SB_SetPipeOpts(PipeId, Opts), CFE_SUCCESS);
     UtAssert_INT32_EQ(CFE_SB_GetPipeOpts(PipeId, &OptsBuff), CFE_SUCCESS);
-    UtAssert_UINT32_EQ(Opts, OptsBuff);
+    UtAssert_UINT8_EQ(Opts, OptsBuff);
 
     UtAssert_INT32_EQ(CFE_SB_SetPipeOpts(CFE_SB_INVALID_PIPE, Opts), CFE_SB_BAD_ARGUMENT);
 

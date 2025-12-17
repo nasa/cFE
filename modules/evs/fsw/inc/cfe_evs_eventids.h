@@ -351,7 +351,7 @@
  *
  *  \par Cause:
  *
- *  \link #CFE_EVS_RESET_ALL_FILTERS_CC EVS Reset All FIlters Command \endlink success.
+ *  \link #CFE_EVS_RESET_ALL_FILTERS_CC EVS Reset All Filters Command \endlink success.
  */
 #define CFE_EVS_RSTALLFILTER_EID 29
 

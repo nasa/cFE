@@ -479,14 +479,11 @@ int32 CFE_EVS_SetFilterCmd(const CFE_EVS_SetFilterCmd_t *data)
 int32 CFE_EVS_EnablePortsCmd(const CFE_EVS_EnablePortsCmd_t *data)
 {
     const CFE_EVS_BitMaskCmd_Payload_t *CmdPtr = &data->Payload;
-    int32                               ReturnCode;
+    int32                               ReturnCode = CFE_SUCCESS;
 
     /* Need to check for an out of range bitmask, since oue bit masks are only 4 bits */
-    if (CmdPtr->BitMask == 0x0 || CmdPtr->BitMask > 0x0F)
+    if (EVS_IsInvalidBitMask(CmdPtr->BitMask, CFE_EVS_ENABLE_PORTS_CC))
     {
-        EVS_SendEvent(CFE_EVS_ERR_INVALID_BITMASK_EID, CFE_EVS_EventType_ERROR,
-                      "Bit Mask = 0x%08x out of range: CC = %lu", (unsigned int)CmdPtr->BitMask,
-                      (long unsigned int)CFE_EVS_ENABLE_PORTS_CC);
         ReturnCode = CFE_EVS_INVALID_PARAMETER;
     }
     else
@@ -496,7 +493,6 @@ int32 CFE_EVS_EnablePortsCmd(const CFE_EVS_EnablePortsCmd_t *data)
 
         EVS_SendEvent(CFE_EVS_ENAPORT_EID, CFE_EVS_EventType_DEBUG,
                       "Enable Ports Command Received with Port Bit Mask = 0x%02x", (unsigned int)CmdPtr->BitMask);
-        ReturnCode = CFE_SUCCESS;
     }
 
     return ReturnCode;
@@ -511,14 +507,11 @@ int32 CFE_EVS_EnablePortsCmd(const CFE_EVS_EnablePortsCmd_t *data)
 int32 CFE_EVS_DisablePortsCmd(const CFE_EVS_DisablePortsCmd_t *data)
 {
     const CFE_EVS_BitMaskCmd_Payload_t *CmdPtr = &data->Payload;
-    int32                               ReturnCode;
+    int32                               ReturnCode = CFE_SUCCESS;
 
     /* Need to check for an out of range bitmask, since oue bit masks are only 4 bits */
-    if (CmdPtr->BitMask == 0x0 || CmdPtr->BitMask > 0x0F)
+    if (EVS_IsInvalidBitMask(CmdPtr->BitMask, CFE_EVS_DISABLE_PORTS_CC))
     {
-        EVS_SendEvent(CFE_EVS_ERR_INVALID_BITMASK_EID, CFE_EVS_EventType_ERROR,
-                      "Bit Mask = 0x%08x out of range: CC = %lu", (unsigned int)CmdPtr->BitMask,
-                      (long unsigned int)CFE_EVS_DISABLE_PORTS_CC);
         ReturnCode = CFE_EVS_INVALID_PARAMETER;
     }
     else
@@ -528,8 +521,6 @@ int32 CFE_EVS_DisablePortsCmd(const CFE_EVS_DisablePortsCmd_t *data)
 
         EVS_SendEvent(CFE_EVS_DISPORT_EID, CFE_EVS_EventType_DEBUG,
                       "Disable Ports Command Received with Port Bit Mask = 0x%02x", (unsigned int)CmdPtr->BitMask);
-
-        ReturnCode = CFE_SUCCESS;
     }
 
     return ReturnCode;
@@ -545,15 +536,12 @@ int32 CFE_EVS_EnableEventTypeCmd(const CFE_EVS_EnableEventTypeCmd_t *data)
 {
     uint32                              i;
     const CFE_EVS_BitMaskCmd_Payload_t *CmdPtr = &data->Payload;
-    int32                               ReturnCode;
+    int32                               ReturnCode = CFE_SUCCESS;
     EVS_AppData_t *                     AppDataPtr;
 
     /* Need to check for an out of range bitmask, since our bit masks are only 4 bits */
-    if (CmdPtr->BitMask == 0x0 || CmdPtr->BitMask > 0x0F)
+    if (EVS_IsInvalidBitMask(CmdPtr->BitMask, CFE_EVS_ENABLE_EVENT_TYPE_CC))
     {
-        EVS_SendEvent(CFE_EVS_ERR_INVALID_BITMASK_EID, CFE_EVS_EventType_ERROR,
-                      "Bit Mask = 0x%08x out of range: CC = %lu", (unsigned int)CmdPtr->BitMask,
-                      (long unsigned int)CFE_EVS_ENABLE_EVENT_TYPE_CC);
         ReturnCode = CFE_EVS_INVALID_PARAMETER;
     }
     else
@@ -572,8 +560,6 @@ int32 CFE_EVS_EnableEventTypeCmd(const CFE_EVS_EnableEventTypeCmd_t *data)
         EVS_SendEvent(CFE_EVS_ENAEVTTYPE_EID, CFE_EVS_EventType_DEBUG,
                       "Enable Event Type Command Received with Event Type Bit Mask = 0x%02x",
                       (unsigned int)CmdPtr->BitMask);
-
-        ReturnCode = CFE_SUCCESS;
     }
 
     return ReturnCode;
@@ -590,17 +576,13 @@ int32 CFE_EVS_DisableEventTypeCmd(const CFE_EVS_DisableEventTypeCmd_t *data)
     uint32                              i;
     const CFE_EVS_BitMaskCmd_Payload_t *CmdPtr = &data->Payload;
     int32                               ReturnCode;
-    EVS_AppData_t *                     AppDataPtr;
+    EVS_AppData_t                      *AppDataPtr = CFE_SUCCESS;
 
     /* Need to check for an out of range bitmask, since our bit masks are only 4 bits */
-    if (CmdPtr->BitMask == 0x0 || CmdPtr->BitMask > 0x0F)
+    if (EVS_IsInvalidBitMask(CmdPtr->BitMask, CFE_EVS_DISABLE_EVENT_TYPE_CC))
     {
-        EVS_SendEvent(CFE_EVS_ERR_INVALID_BITMASK_EID, CFE_EVS_EventType_ERROR,
-                      "Bit Mask = 0x%08x out of range: CC = %lu", (unsigned int)CmdPtr->BitMask,
-                      (long unsigned int)CFE_EVS_DISABLE_EVENT_TYPE_CC);
         ReturnCode = CFE_EVS_INVALID_PARAMETER;
     }
-
     else
     {
         AppDataPtr = CFE_EVS_Global.AppData;
@@ -617,8 +599,6 @@ int32 CFE_EVS_DisableEventTypeCmd(const CFE_EVS_DisableEventTypeCmd_t *data)
         EVS_SendEvent(CFE_EVS_DISEVTTYPE_EID, CFE_EVS_EventType_DEBUG,
                       "Disable Event Type Command Received with Event Type Bit Mask = 0x%02x",
                       (unsigned int)CmdPtr->BitMask);
-
-        ReturnCode = CFE_SUCCESS;
     }
 
     return ReturnCode;
@@ -676,11 +656,8 @@ int32 CFE_EVS_EnableAppEventTypeCmd(const CFE_EVS_EnableAppEventTypeCmd_t *data)
     if (Status == CFE_SUCCESS)
     {
         /* Need to check for an out of range bitmask, since our bit masks are only 4 bits */
-        if (CmdPtr->BitMask == 0x0 || CmdPtr->BitMask > 0x0F)
+        if (EVS_IsInvalidBitMask(CmdPtr->BitMask, CFE_EVS_ENABLE_APP_EVENT_TYPE_CC))
         {
-            EVS_SendEvent(CFE_EVS_ERR_INVALID_BITMASK_EID, CFE_EVS_EventType_ERROR,
-                          "Bit Mask = 0x%08x out of range: CC = %lu", (unsigned int)CmdPtr->BitMask,
-                          (long unsigned int)CFE_EVS_ENABLE_APP_EVENT_TYPE_CC);
             Status = CFE_EVS_INVALID_PARAMETER;
         }
         else
@@ -738,11 +715,8 @@ int32 CFE_EVS_DisableAppEventTypeCmd(const CFE_EVS_DisableAppEventTypeCmd_t *dat
     if (Status == CFE_SUCCESS)
     {
         /* Need to check for an out of range bitmask, since our bit masks are only 4 bits */
-        if (CmdPtr->BitMask == 0x0 || CmdPtr->BitMask > 0x0F)
+        if (EVS_IsInvalidBitMask(CmdPtr->BitMask, CFE_EVS_DISABLE_APP_EVENT_TYPE_CC))
         {
-            EVS_SendEvent(CFE_EVS_ERR_INVALID_BITMASK_EID, CFE_EVS_EventType_ERROR,
-                          "Bit Mask = 0x%08x out of range: CC = %lu", (unsigned int)CmdPtr->BitMask,
-                          (long unsigned int)CFE_EVS_DISABLE_APP_EVENT_TYPE_CC);
             Status = CFE_EVS_INVALID_PARAMETER;
         }
         else

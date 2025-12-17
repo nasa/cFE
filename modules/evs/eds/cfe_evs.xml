@@ -50,7 +50,7 @@
         <EnumerationList>
           <Enumeration label="DEBUG" value="1" shortDescription="Events that are intended only for debugging, not nominal operations" />
           <Enumeration label="INFORMATION" value="2" shortDescription="Events that identify a state change or action that is not an error" />
-          <Enumeration label="ERROR" value="3" shortDescription="Events that identify an error but are not catastrophic (e.g. - bad command" />
+          <Enumeration label="ERROR" value="3" shortDescription="Events that identify an error but are not catastrophic (e.g. - bad command)" />
           <Enumeration label="CRITICAL" value="4" shortDescription="Events that identify errors that are unrecoverable autonomously" />
         </EnumerationList>
       </EnumeratedDataType>
@@ -846,8 +846,8 @@
           - \b \c \EVS_CMDEC - command error counter will increment
           - An Error specific event message
 
-          \par  Criticality
-          Setting an application¿s event filter mask is not particularly hazardous,
+          \par  Criticality               
+          Setting an application's event filter mask is not particularly hazardous,
           as the result may be shutting off unnecessary event messages and possible
           event flooding of the system.  However, inappropriately setting an
           application's event filter mask could result in a loss of critical
