@@ -1,5 +1,10 @@
 # Changelog
 
+## Development Build: equuleus-rc1+dev275
+- 'Fix #1143, SB_UT corrections and clear event count history after setup'
+- See: <https://github.com/nasa/cFE/pull/2347>
+
+
 ## Development Build: equuleus-rc1+dev259
 - 'Fix #2641, improve validation in app control API'
 - See: <https://github.com/nasa/cFE/pull/2666>
