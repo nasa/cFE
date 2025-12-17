@@ -616,3 +616,15 @@ int32 EVS_SendEvent(uint16 EventID, CFE_EVS_EventType_Enum_t EventType, const ch
 
     return CFE_SUCCESS;
 }
+
+bool EVS_IsInvalidBitMask(uint32 BitMask, uint16 CommandCode)
+{
+    if ((BitMask) == 0x0 || (BitMask) > CFE_EVS_ALL_EVENT_TYPES_MASK)
+    {
+        EVS_SendEvent(CFE_EVS_ERR_INVALID_BITMASK_EID, CFE_EVS_EventType_ERROR,
+                      "Bit Mask = 0x%08x out of range: CC = %u", (unsigned int)BitMask, (unsigned int)CommandCode);
+        return true;
+    }
+
+    return false;
+}
