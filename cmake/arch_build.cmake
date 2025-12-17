@@ -109,7 +109,7 @@ function(add_cfe_app APP_NAME APP_SRC_FILES)
   # By linking with the respective application like this, the net result is that
   # only the _referenced_ EDS DBs (i.e. those for loaded apps) are held in memory.
   if (CFE_EDS_ENABLED_BUILD AND CFE_EDS_LINK_MODE STREQUAL LOCAL)
-    target_link_libraries($(APP_NAME) cfe_edsdb_static)
+    target_link_libraries(${APP_NAME} cfe_edsdb_static)
   endif()
 
   # An "install" step is only needed for dynamic/runtime loaded apps

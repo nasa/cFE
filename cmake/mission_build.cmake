@@ -22,7 +22,7 @@
 # FUNCTION: initialize_globals
 #
 # Set up global mission configuration variables.
-# In the top level mode (this file)t reads extracts  state info from
+# In the top level mode (this file) reads and extracts state info from
 # configuration files within the project source tree (the _defs directory)
 #
 function(initialize_globals)
