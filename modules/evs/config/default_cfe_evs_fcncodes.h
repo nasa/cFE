@@ -329,7 +329,7 @@
 **       - \b \c \EVS_CMDPC - command execution counter will
 **       increment
 **       - The generation of #CFE_EVS_DISAPPENTTYPE_EID debug event message
-**       - The clearing of the Event Type Active Flag in The Event Type Active Flag in EVS App Data File
+**       - The clearing of the Event Type Active Flag in EVS App Data File
 **
 **  \par Error Conditions
 **       This command may fail for the following reason(s):
@@ -370,7 +370,7 @@
 **       - \b \c \EVS_CMDPC - command execution counter will
 **       increment
 **       - The generation of #CFE_EVS_ENAAPPEVT_EID debug event message
-**       - The setting of the Active Flag in The Active Flag in EVS App Data File
+**       - The setting of the Active Flag in EVS App Data File
 **
 **  \par Error Conditions
 **       This command may fail for the following reason(s):
