@@ -405,7 +405,7 @@ void TblTest_GenerateTblFiles(void)
 
     /* write content, but make it identifiable/unique */
     buf.Content.Int1 = 0x1111;
-    buf.Content.Int1 = 0x2222;
+    buf.Content.Int2 = 0x2222;
     UtAssert_INT32_EQ(OS_write(fh2, &buf, sizeof(buf.Content)), sizeof(buf.Content));
 
     /* Write extra byte at the end */
