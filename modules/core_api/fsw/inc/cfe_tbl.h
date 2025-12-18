@@ -51,20 +51,39 @@
  */
 /** \{ */
 
+/**
+ * Check for equality between two IDs
+ */
 static inline bool CFE_TBL_HandleID_IsEqual(CFE_TBL_HandleId_t x, CFE_TBL_HandleId_t y)
 {
     return CFE_RESOURCEID_TEST_EQUAL(x, y);
 }
 
+/**
+ * Get the integer representation of the ID
+ */
 static inline unsigned long CFE_TBL_HandleID_AsInt(CFE_TBL_HandleId_t x)
 {
     return CFE_RESOURCEID_TO_ULONG(x);
 }
 
+/**
+ * Check if the ID is valid
+ */
 static inline bool CFE_TBL_HandleID_IsDefined(CFE_TBL_HandleId_t x)
 {
     return CFE_RESOURCEID_TEST_DEFINED(x);
 }
+
+/**
+ * Convert an API handle to an ID
+ */
+CFE_TBL_HandleId_t CFE_TBL_HandleToID(CFE_TBL_Handle_t TblHandle);
+
+/**
+ * Convert an ID to an API handle
+ */
+CFE_TBL_Handle_t CFE_TBL_HandleFromID(CFE_TBL_HandleId_t TblId);
 
 /** \} */
 
