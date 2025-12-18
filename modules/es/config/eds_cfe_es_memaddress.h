@@ -22,14 +22,45 @@
  * Declarations and prototypes for cfe_es_extern_typedefs module
  */
 
-#ifndef EDS_CFE_ES_EXTERN_TYPEDEFS_H
-#define EDS_CFE_ES_EXTERN_TYPEDEFS_H
+#ifndef EDS_CFE_ES_MEMADDRESS_H
+#define EDS_CFE_ES_MEMADDRESS_H
 
 #include "common_types.h"
 #include "cfe_resourceid_typedef.h"
 
 /* Source the definitions from EDS */
 #include "cfe_es_eds_typedefs.h"
-#include "cfe_es_memaddress.h"
 
-#endif /* CFE_ES_EXTERN_TYPEDEFS_H */
+/**
+ * @brief Memory Offset initializer wrapper
+ *
+ * A converter macro to use when initializing a CFE_ES_MemOffset_t
+ * from an integer value of a different type.
+ */
+#define CFE_ES_MEMOFFSET_C(x) ((CFE_ES_MemOffset_t)(x))
+
+/**
+ * @brief Memory Offset to integer value (size_t) wrapper
+ *
+ * A converter macro to use when interpreting a CFE_ES_MemOffset_t
+ * value as a "size_t" type
+ */
+#define CFE_ES_MEMOFFSET_TO_SIZET(x) ((size_t)(x))
+
+/**
+ * @brief Memory Address initializer wrapper
+ *
+ * A converter macro to use when initializing a CFE_ES_MemAddress_t
+ * from a pointer value of a different type.
+ */
+#define CFE_ES_MEMADDRESS_C(x) ((CFE_ES_MemAddress_t)((cpuaddr)(x)))
+
+/**
+ * @brief Memory Address to pointer wrapper
+ *
+ * A converter macro to use when interpreting a CFE_ES_MemAddress_t
+ * as a pointer value.
+ */
+#define CFE_ES_MEMADDRESS_TO_PTR(x) ((void *)(cpuaddr)(x))
+
+#endif /* EDS_CFE_ES_MEMADDRESS_H */
