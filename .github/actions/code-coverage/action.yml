@@ -1,0 +1,138 @@
+name: Set up CFE build dependencies
+description: 'Adds CFE dependencies into the workflow filesystem'
+
+inputs:
+  allowed-missed-branches:
+    description: 'Allowed number of missed branches'
+    default: 0
+  allowed-missed-lines:
+    description: 'Allowed number of missed lines'
+    default: 0
+  allowed-missed-functions:
+    description: 'Allowed number of missed functions'
+    default: 0
+  module-list:
+    description: 'Set of modules to check'
+    required: true
+  build-dir:
+    description: 'Build directory to use'
+    default: 'build'
+  platform-dir:
+    description: 'Platform directory to use'
+    default: 'native/default_cpu1'
+
+runs:
+  using: 'composite'
+  steps:
+    # Setup the build system
+    - name: Set up for build
+      shell: bash
+      run: make prep
+
+    # Setup the build system
+    - name: Build dependencies
+      shell: bash
+      run: make -C ${{ inputs.build-dir }} mission-prebuild
+
+    # Build the CFE core modules
+    - name: Build CFE core modules
+      shell: bash
+      run: |
+        for i in ${{ inputs.module-list }}
+        do
+          echo Building module $i
+          make -C ${{ inputs.build-dir }}/${{ inputs.platform-dir }}/$i
+        done
+
+    # Initialize lcov and test the code
+    - name: Execute Unit Tests
+      shell: bash
+      run: |
+        lcov --capture --initial --directory ${{ inputs.build-dir }} --output-file coverage_base.info
+        for i in ${{ inputs.module-list }}
+        do
+          echo Testing module $i
+          (cd ${{ inputs.build-dir }}/${{ inputs.platform-dir }}/$i && ctest --output-on-failure)
+        done
+
+    - name: Calculate Coverage
+      shell: bash
+      run: |
+        lcov --capture --rc lcov_branch_coverage=1 --directory ${{ inputs.build-dir }}/${{ inputs.platform-dir }} --output-file coverage_test.info
+        lcov --rc lcov_branch_coverage=1 --add-tracefile coverage_base.info --add-tracefile coverage_test.info --output-file coverage_total.info
+        genhtml coverage_total.info --branch-coverage --output-directory lcov | tee lcov_out.txt
+        grep -A 3 "Overall coverage rate" lcov_out.txt > coverage_summary.txt
+        echo '<h2>Code Coverage Summary</h2>' >> $GITHUB_STEP_SUMMARY
+        echo '<pre>' >> $GITHUB_STEP_SUMMARY
+        cat coverage_summary.txt >> $GITHUB_STEP_SUMMARY
+        echo '</pre>' >> $GITHUB_STEP_SUMMARY
+
+    - name: Confirm Minimum Coverage
+      shell: bash
+      run: |
+        branch_nums=$(grep branches coverage_summary.txt | grep -oP "[0-9]+[0-9]*")
+        line_nums=$(grep lines coverage_summary.txt | grep -oP "[0-9]+[0-9]*")
+        function_nums=$(grep functions coverage_summary.txt | grep -oP "[0-9]+[0-9]*")
+
+        max_ok=1
+        branch_diff=$(echo $branch_nums | awk '{ print $4 - $3 }')
+        echo "branch_diff=$branch_diff" >> $GITHUB_ENV
+        line_diff=$(echo $line_nums | awk '{ print $4 - $3 }')
+        echo "line_diff=$line_diff" >> $GITHUB_ENV
+        function_diff=$(echo $function_nums | awk '{ print $4 - $3 }')
+        echo "function_diff=$function_diff" >> $GITHUB_ENV
+
+        if [ $branch_diff -gt ${{ inputs.allowed-missed-branches }} ]
+        then
+          echo "::error::$branch_diff uncovered branch$([ $branch_diff -ne 1 ] && echo 'es') reported, but only ${{ inputs.allowed-missed-branches }} ${{ inputs.allowed-missed-branches == 1 && 'is' || 'are' }} allowed."
+          max_ok=0
+        fi
+
+        if [ $line_diff -gt ${{ inputs.allowed-missed-lines }} ]
+        then
+          echo "::error::$line_diff uncovered line$([ $line_diff -ne 1 ] && echo 's') reported, but only ${{ inputs.allowed-missed-lines }} ${{ inputs.allowed-missed-lines == 1 && 'is' || 'are' }} allowed."
+          max_ok=0
+        fi
+
+        if [ $function_diff -gt ${{ inputs.allowed-missed-functions }} ]
+        then
+          echo "::error::$function_diff uncovered function$([ $function_diff -ne 1 ] && echo 's') reported, but only ${{ inputs.allowed-missed-functions }} ${{ inputs.allowed-missed-functions == 1 && 'is' || 'are' }} allowed."
+          max_ok=0
+        fi
+
+        echo "max_ok=$max_ok" >> $GITHUB_ENV
+
+    - name: Enforce Keeping Coverage Minimum Up-To-Date
+      shell: bash
+      run: |
+        min_ok=1
+        if [ $branch_diff -lt ${{ inputs.allowed-missed-branches }} ]
+        then
+          echo "::error::$branch_diff uncovered branch$([ $branch_diff -ne 1 ] && echo 'es') reported, but ${{ inputs.allowed-missed-branches }} ${{ inputs.allowed-missed-branches == 1 && 'is' || 'are' }} allowed."
+          echo "::error::Please reduce the 'allowed-missed-branches' variable to $branch_diff in order to match the new coverage level."
+          min_ok=0
+        fi
+
+        if [ $line_diff -lt ${{ inputs.allowed-missed-lines }} ]
+        then
+          echo "::error::$line_diff uncovered line$([ $line_diff -ne 1 ] && echo 's') reported, but ${{ inputs.allowed-missed-lines }} ${{ inputs.allowed-missed-lines == 1 && 'is' || 'are' }} allowed."
+          echo "::error::Please reduce the 'allowed-missed-lines' variable to $line_diff in order to match the new coverage level."
+          min_ok=0
+        fi
+
+        if [ $function_diff -lt ${{ inputs.allowed-missed-functions }} ]
+        then
+          echo "::error::$function_diff uncovered function$([ $function_diff -ne 1 ] && echo 's') reported, but ${{ inputs.allowed-missed-functions }} ${{ inputs.allowed-missed-functions == 1 && 'is' || 'are' }} allowed."
+          echo "::error::Please reduce the 'allowed-missed-functions' variable to $function_diff in order to match the new coverage level."
+          min_ok=0
+        fi
+
+        echo "min_ok=$min_ok" >> $GITHUB_ENV
+
+    - name: Check Limits
+      uses: actions/github-script@v6
+      with:
+        script: |
+          if (process.env.min_ok != 1 || process.env.max_ok != 1) {
+            core.setFailed('Coverage limit errors found')
+          }

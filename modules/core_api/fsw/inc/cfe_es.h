@@ -50,15 +50,6 @@
 #define OS_PRINTF(m, n)
 #endif
 
-/*
-** Macro Definitions
-*/
-
-#define CFE_ES_DBIT(x)     (1L << (x))                 /* Places a one at bit positions 0 thru 31 */
-#define CFE_ES_DTEST(i, x) (((i)&CFE_ES_DBIT(x)) != 0) /* true iff bit x of i is set */
-#define CFE_ES_TEST_LONG_MASK(m, s) \
-    (CFE_ES_DTEST(m[(s) / 32], (s) % 32)) /* Test a bit within an array of 32-bit integers. */
-
 /*****************************************************************************/
 /*
 ** Exported Functions
@@ -1308,7 +1299,7 @@ CFE_Status_t CFE_ES_PoolCreate(CFE_ES_MemHandle_t *PoolID, void *MemPtr, size_t 
 CFE_Status_t CFE_ES_PoolCreateEx(CFE_ES_MemHandle_t *PoolID, void *MemPtr, size_t Size, uint16 NumBlockSizes,
                                  const size_t *BlockSizes, bool UseMutex);
 
-                                 /*****************************************************************************/
+/*****************************************************************************/
 /**
 ** \brief Implements CFE_ES_PoolCreateEx with added param for alignment added
 **        for coverage purposes)
@@ -1357,8 +1348,9 @@ CFE_Status_t CFE_ES_PoolCreateEx(CFE_ES_MemHandle_t *PoolID, void *MemPtr, size_
 ** \sa #CFE_ES_PoolCreate, #CFE_ES_PoolCreateNoSem, #CFE_ES_GetPoolBuf, #CFE_ES_PutPoolBuf, #CFE_ES_GetMemPoolStats
 **
 ******************************************************************************/
-CFE_Status_t CFE_ES_PoolCreateEx_WithAlignment(CFE_ES_MemHandle_t *PoolID, void *MemPtr, size_t Size, uint16 NumBlockSizes,
-    const size_t *BlockSizes, bool UseMutex, size_t Alignment);
+CFE_Status_t CFE_ES_PoolCreateEx_WithAlignment(CFE_ES_MemHandle_t *PoolID, void *MemPtr, size_t Size,
+                                               uint16 NumBlockSizes, const size_t *BlockSizes, bool UseMutex,
+                                               size_t Alignment);
 
 /*****************************************************************************/
 /**
