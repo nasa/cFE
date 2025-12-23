@@ -58,7 +58,7 @@ bool CFE_ES_VerifyCmdLength(const CFE_MSG_Message_t *MsgPtr, size_t ExpectedLeng
         CFE_MSG_GetMsgId(MsgPtr, &MsgId);
         CFE_MSG_GetFcnCode(MsgPtr, &FcnCode);
 
-        CFE_EVS_SendEvent(CFE_ES_LEN_ERR_EID, CFE_EVS_EventType_ERROR,
+        CFE_EVS_SendEvent(CFE_ES_CMD_LEN_ERR_EID, CFE_EVS_EventType_ERROR,
                           "Invalid msg length: ID = 0x%X,  CC = %u, Len = %u, Expected = %u",
                           (unsigned int)CFE_SB_MsgIdToValue(MsgId), (unsigned int)FcnCode, (unsigned int)ActualLength,
                           (unsigned int)ExpectedLength);
@@ -267,7 +267,7 @@ void CFE_ES_TaskPipe(const CFE_SB_Buffer_t *SBBufPtr)
                     break;
 
                 default:
-                    CFE_EVS_SendEvent(CFE_ES_CC1_ERR_EID, CFE_EVS_EventType_ERROR,
+                    CFE_EVS_SendEvent(CFE_ES_CC_ERR_EID, CFE_EVS_EventType_ERROR,
                                       "Invalid ground command code: ID = 0x%X, CC = %d",
                                       (unsigned int)CFE_SB_MsgIdToValue(MessageID), (int)CommandCode);
                     CFE_ES_Global.TaskData.CommandErrorCounter++;

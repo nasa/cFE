@@ -263,8 +263,8 @@ int32 CFE_TIME_TaskInit(void)
 
     CFE_Config_GetVersionString(VersionString, CFE_CFG_MAX_VERSION_STR_LEN, "cFE", CFE_SRC_VERSION, CFE_BUILD_CODENAME,
                                 CFE_LAST_OFFICIAL);
-    Status =
-        CFE_EVS_SendEvent(CFE_TIME_INIT_EID, CFE_EVS_EventType_INFORMATION, "cFE TIME Initialized: %s", VersionString);
+    Status = CFE_EVS_SendEvent(CFE_TIME_INIT_INF_EID, CFE_EVS_EventType_INFORMATION, "cFE TIME Initialized: %s",
+                               VersionString);
     if (Status != CFE_SUCCESS)
     {
         CFE_ES_WriteToSysLog("%s: Error sending init event:RC=0x%08X\n", __func__, (unsigned int)Status);
@@ -453,7 +453,7 @@ int32 CFE_TIME_NoopCmd(const CFE_TIME_NoopCmd_t *data)
 
     CFE_Config_GetVersionString(VersionString, CFE_CFG_MAX_VERSION_STR_LEN, "cFE", CFE_SRC_VERSION, CFE_BUILD_CODENAME,
                                 CFE_LAST_OFFICIAL);
-    CFE_EVS_SendEvent(CFE_TIME_NOOP_EID, CFE_EVS_EventType_INFORMATION, "No-op Cmd Rcvd: %s", VersionString);
+    CFE_EVS_SendEvent(CFE_TIME_NOOP_INF_EID, CFE_EVS_EventType_INFORMATION, "No-op Cmd Rcvd: %s", VersionString);
 
     return CFE_SUCCESS;
 }
@@ -491,7 +491,7 @@ int32 CFE_TIME_ResetCountersCmd(const CFE_TIME_ResetCountersCmd_t *data)
     CFE_TIME_Global.InternalCount = 0;
     CFE_TIME_Global.ExternalCount = 0;
 
-    CFE_EVS_SendEvent(CFE_TIME_RESET_EID, CFE_EVS_EventType_DEBUG, "Reset Counters command");
+    CFE_EVS_SendEvent(CFE_TIME_RESET_INF_EID, CFE_EVS_EventType_DEBUG, "Reset Counters command");
 
     return CFE_SUCCESS;
 }

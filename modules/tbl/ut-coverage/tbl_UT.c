@@ -410,14 +410,14 @@ void Test_CFE_TBL_TaskInit(void)
      */
     UT_InitData();
     UT_CallTaskPipe(CFE_TBL_TaskPipe, CFE_MSG_PTR(CmdBuf), sizeof(CmdBuf.NoopCmd) - 1, UT_TPID_CFE_TBL_CMD_NOOP_CC);
-    CFE_UtAssert_EVENTSENT(CFE_TBL_LEN_ERR_EID);
+    CFE_UtAssert_EVENTSENT(CFE_TBL_CMD_LEN_ERR_EID);
 
     /* Test command pipe messages handler response to an invalid
      * command code
      */
     UT_InitData();
     UT_CallTaskPipe(CFE_TBL_TaskPipe, CFE_MSG_PTR(CmdBuf), sizeof(CmdBuf.NoopCmd), UT_TPID_CFE_TBL_CMD_INVALID_CC);
-    CFE_UtAssert_EVENTSENT(CFE_TBL_CC1_ERR_EID);
+    CFE_UtAssert_EVENTSENT(CFE_TBL_CC_ERR_EID);
 
     /* Test command pipe messages handler response to other errors */
     UT_InitData();
