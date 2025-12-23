@@ -90,7 +90,7 @@ void TestReleaseAddress(void)
     /* Attempt to load while address is locked */
     LoadTable(&TestTable, CFE_SUCCESS);
     UtAssert_INT32_EQ(CFE_TBL_GetAddress(&TblPtr, CFE_FT_Global.TblHandle), CFE_TBL_INFO_UPDATED);
-    LoadTable(&TestTable, CFE_TBL_INFO_TABLE_LOCKED);
+    LoadTable(&TestTable, CFE_TBL_ERR_TABLE_LOCKED);
 
     /* Release and try again */
     UtAssert_INT32_EQ(CFE_TBL_ReleaseAddress(CFE_FT_Global.TblHandle), CFE_SUCCESS);
