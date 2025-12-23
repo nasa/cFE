@@ -247,7 +247,7 @@ int32 CFE_TBL_UpdateInternal(CFE_TBL_Handle_t TblHandle, CFE_TBL_RegistryRec_t *
 **
 ** \param[in]  RegRecPtr      Pointer to Table Registry Entry for table to be updated
 */
-void CFE_TBL_NotifyTblUsersOfUpdate(CFE_TBL_RegistryRec_t *RegRecPtr);
+void CFE_TBL_MarkTblAsUpdated(CFE_TBL_RegistryRec_t *RegRecPtr);
 
 /*---------------------------------------------------------------------------------------*/
 /**
