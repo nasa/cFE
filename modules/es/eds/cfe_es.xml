@@ -563,64 +563,19 @@
                \cfetlmmnemonic  \ES_CKSUM
             </LongDescription>
           </Entry>
-          <Entry name="CFEMajorVersion" type="BASE_TYPES/uint8" shortDescription="Major Version Number of cFE">
+          <Entry name="CFEVersion" type="Version" shortDescription="CFE Version Information">
             <LongDescription>
-               \cfetlmmnemonic  \ES_CFEMAJORVER
+               \cfetlmmnemonic  \ES_CFEVERSION
             </LongDescription>
           </Entry>
-          <Entry name="CFEMinorVersion" type="BASE_TYPES/uint8" shortDescription="Minor Version Number of cFE">
+          <Entry name="OSALVersion" type="Version" shortDescription="OSAL Version Information">
             <LongDescription>
-               \cfetlmmnemonic  \ES_CFEMINORVER
+               \cfetlmmnemonic  \ES_OSALVERSION
             </LongDescription>
           </Entry>
-          <Entry name="CFERevision" type="BASE_TYPES/uint8" shortDescription="Sub-Minor Version Number of cFE">
+          <Entry name="PSPVersion" type="Version" shortDescription="PSP Version Information">
             <LongDescription>
-               \cfetlmmnemonic  \ES_CFEREVISION
-            </LongDescription>
-          </Entry>
-          <Entry name="CFEMissionRevision" type="BASE_TYPES/uint8" shortDescription="Mission Version Number of cFE">
-            <LongDescription>
-               \cfetlmmnemonic  \ES_CFEMISSIONREV
-            </LongDescription>
-          </Entry>
-          <Entry name="OSALMajorVersion" type="BASE_TYPES/uint8" shortDescription="OS Abstraction Layer Major Version Number">
-            <LongDescription>
-               \cfetlmmnemonic  \ES_OSMAJORVER
-            </LongDescription>
-          </Entry>
-          <Entry name="OSALMinorVersion" type="BASE_TYPES/uint8" shortDescription="OS Abstraction Layer Minor Version Number">
-            <LongDescription>
-               \cfetlmmnemonic  \ES_OSMINORVER
-            </LongDescription>
-          </Entry>
-          <Entry name="OSALRevision" type="BASE_TYPES/uint8" shortDescription="OS Abstraction Layer Revision Number">
-            <LongDescription>
-               \cfetlmmnemonic  \ES_OSREVISION
-            </LongDescription>
-          </Entry>
-          <Entry name="OSALMissionRevision" type="BASE_TYPES/uint8" shortDescription="OS Abstraction Layer MissionRevision Number">
-            <LongDescription>
-               \cfetlmmnemonic  \ES_OSMISSIONREV
-            </LongDescription>
-          </Entry>
-          <Entry name="PSPMajorVersion" type="BASE_TYPES/uint8" shortDescription="Platform Support Package Major Version Number">
-            <LongDescription>
-               \cfetlmmnemonic  \ES_PSPMAJORVER
-            </LongDescription>
-          </Entry>
-          <Entry name="PSPMinorVersion" type="BASE_TYPES/uint8" shortDescription="Platform Support Package Minor Version Number">
-            <LongDescription>
-               \cfetlmmnemonic  \ES_PSPMINORVER
-            </LongDescription>
-          </Entry>
-          <Entry name="PSPRevision" type="BASE_TYPES/uint8" shortDescription="Platform Support Package Revision Number">
-            <LongDescription>
-               \cfetlmmnemonic  \ES_PSPREVISION
-            </LongDescription>
-          </Entry>
-          <Entry name="PSPMissionRevision" type="BASE_TYPES/uint8" shortDescription="Platform Support Package MissionRevision Number">
-            <LongDescription>
-               \cfetlmmnemonic  \ES_PSPMISSIONREV
+               \cfetlmmnemonic  \ES_PSPVERSION
             </LongDescription>
           </Entry>
           <Entry name="SysLogBytesUsed" type="MemOffset" shortDescription="Total number of bytes used in system log">

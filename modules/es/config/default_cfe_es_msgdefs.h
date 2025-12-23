@@ -258,6 +258,17 @@ typedef struct CFE_ES_PoolStatsTlm_Payload
 /*************************************************************************/
 
 /**
+ * \brief Version Number of cFE/OSAL/PSP for the ES Housekeeping Packet
+ */
+typedef struct CFE_ES_Version
+{
+    uint8 Major;           /**< \brief Major Version Number */
+    uint8 Minor;           /**< \brief Minor Version Number */
+    uint8 Revision;        /**< \brief Revision Number */
+    uint8 MissionRevision; /**< \brief Mission-specific Revision Number */
+} CFE_ES_Version_t;
+
+/**
 **  \cfeestlm Executive Services Housekeeping Packet
 **/
 typedef struct CFE_ES_HousekeepingTlm_Payload
@@ -267,33 +278,15 @@ typedef struct CFE_ES_HousekeepingTlm_Payload
     uint8 CommandErrorCounter; /**< \cfetlmmnemonic \ES_CMDEC
                            \brief The ES Application Command Error Counter */
 
-    uint16 CFECoreChecksum;    /**< \cfetlmmnemonic \ES_CKSUM
-                                    \brief Checksum of cFE Core Code */
-    uint8 CFEMajorVersion;     /**< \cfetlmmnemonic \ES_CFEMAJORVER
-                                    \brief Major Version Number of cFE */
-    uint8 CFEMinorVersion;     /**< \cfetlmmnemonic \ES_CFEMINORVER
-                                    \brief Minor Version Number of cFE */
-    uint8 CFERevision;         /**< \cfetlmmnemonic \ES_CFEREVISION
-                                    \brief Sub-Minor Version Number of cFE */
-    uint8 CFEMissionRevision;  /**< \cfetlmmnemonic \ES_CFEMISSIONREV
-                                    \brief Mission Version Number of cFE */
-    uint8 OSALMajorVersion;    /**< \cfetlmmnemonic \ES_OSMAJORVER
-                                    \brief OS Abstraction Layer Major Version Number */
-    uint8 OSALMinorVersion;    /**< \cfetlmmnemonic \ES_OSMINORVER
-                                    \brief OS Abstraction Layer Minor Version Number */
-    uint8 OSALRevision;        /**< \cfetlmmnemonic \ES_OSREVISION
-                                    \brief OS Abstraction Layer Revision Number */
-    uint8 OSALMissionRevision; /**< \cfetlmmnemonic \ES_OSMISSIONREV
-                                    \brief OS Abstraction Layer MissionRevision Number */
+    uint16 CFECoreChecksum; /**< \cfetlmmnemonic \ES_CKSUM
+                                 \brief Checksum of cFE Core Code */
 
-    uint8 PSPMajorVersion;    /**< \cfetlmmnemonic \ES_PSPMAJORVER
-                                   \brief Platform Support Package Major Version Number */
-    uint8 PSPMinorVersion;    /**< \cfetlmmnemonic \ES_PSPMINORVER
-                                   \brief Platform Support Package Minor Version Number */
-    uint8 PSPRevision;        /**< \cfetlmmnemonic \ES_PSPREVISION
-                                   \brief Platform Support Package Revision Number */
-    uint8 PSPMissionRevision; /**< \cfetlmmnemonic \ES_PSPMISSIONREV
-                                   \brief Platform Support Package MissionRevision Number */
+    CFE_ES_Version_t CFEVersion;  /**< \cfetlmmnemonic \ES_CFEVERSION
+                                       \brief cFE Version Number */
+    CFE_ES_Version_t OSALVersion; /**< \cfetlmmnemonic \ES_OSALVERSION
+                                       \brief OSAL Version Number */
+    CFE_ES_Version_t PSPVersion;  /**< \cfetlmmnemonic \ES_PSPVERSION
+                                       \brief PSP Version Number */
 
     CFE_ES_MemOffset_t SysLogBytesUsed; /**< \cfetlmmnemonic \ES_SYSLOGBYTEUSED
                                              \brief Total number of bytes used in system log */
