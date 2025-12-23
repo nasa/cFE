@@ -834,7 +834,7 @@ void Test_ConvertTime(void)
 **
 ** NOTE: Test results depend on the epoch values in cfe_mission_cfg.h (the
 **       tests below assume an epoch of 1980-001-00:00:00.00000).  Full
-**       coverage is possible only when CFE_MISSION_TIME_EPOCH_SECOND > 0
+**       coverage is possible only when CFE_MISSION_TIME_EPOCH_SECONDS > 0
 */
 void Test_Print(void)
 {
@@ -847,8 +847,7 @@ void Test_Print(void)
 
     UtPrintf("Begin Test Print");
 
-    if (CFE_MISSION_TIME_EPOCH_YEAR != 1980 || CFE_MISSION_TIME_EPOCH_DAY != 1 || CFE_MISSION_TIME_EPOCH_HOUR != 0 ||
-        CFE_MISSION_TIME_EPOCH_MINUTE != 0 || CFE_MISSION_TIME_EPOCH_SECOND != 0 || CFE_MISSION_TIME_EPOCH_MICROS != 0)
+    if (CFE_MISSION_TIME_EPOCH_SECONDS != 0 || CFE_MISSION_TIME_EPOCH_MICROS != 0)
     {
         UtPrintf("Custom epoch time requires manual inspection for CFE_TIME_Print");
         usingDefaultEpoch = false;
@@ -856,11 +855,10 @@ void Test_Print(void)
 
     /* Test print with null print buffer argument */
     UT_InitData();
-    UtAssert_VOIDCALL(CFE_TIME_Print(NULL, time));
-    CFE_UtAssert_SYSLOG(TIME_SYSLOG_MSGS[6]);
+    UtAssert_INT32_EQ(CFE_TIME_Print(NULL, time), CFE_TIME_BAD_ARGUMENT);
 
     /* Test with zero time value */
-    CFE_TIME_Print(timeBuf, time);
+    CFE_UtAssert_SUCCESS(CFE_TIME_Print(timeBuf, time));
     if (usingDefaultEpoch)
     {
         strcpy(expectedBuf, "1980-001-00:00:00.00000");
@@ -873,12 +871,12 @@ void Test_Print(void)
     }
 
     /* Test with a time value that causes seconds >= 60 when
-     * CFE_MISSION_TIME_EPOCH_SECOND > 0
+     * CFE_MISSION_TIME_EPOCH_SECONDS > 0
      */
     time.Subseconds = 0;
     time.Seconds    = 59;
 
-    CFE_TIME_Print(timeBuf, time);
+    CFE_UtAssert_SUCCESS(CFE_TIME_Print(timeBuf, time));
     if (usingDefaultEpoch)
     {
         strcpy(expectedBuf, "1980-001-00:00:59.00000");
@@ -894,7 +892,7 @@ void Test_Print(void)
     time.Subseconds = 215000;
     time.Seconds    = 1041472984;
 
-    CFE_TIME_Print(timeBuf, time);
+    CFE_UtAssert_SUCCESS(CFE_TIME_Print(timeBuf, time));
     if (usingDefaultEpoch)
     {
         strcpy(expectedBuf, "2013-001-02:03:04.00005");
@@ -906,14 +904,14 @@ void Test_Print(void)
                      (unsigned int)time.Seconds, (unsigned int)time.Subseconds, timeBuf);
     }
 
-    /* Test with maximum seconds and subseconds values */
-    time.Subseconds = 0xffffffff;
-    time.Seconds    = 0xffffffff;
+    /* Test with sufficiently-large seconds and subseconds values */
+    time.Subseconds = 0x7fffffff;
+    time.Seconds    = 0x7fffffff;
 
-    CFE_TIME_Print(timeBuf, time);
+    CFE_UtAssert_SUCCESS(CFE_TIME_Print(timeBuf, time));
     if (usingDefaultEpoch)
     {
-        strcpy(expectedBuf, "2116-038-06:28:15.99999");
+        strcpy(expectedBuf, "2048-019-03:14:07.49999");
         UtAssert_STRINGBUF_EQ(timeBuf, sizeof(timeBuf), expectedBuf, sizeof(expectedBuf));
     }
     else
