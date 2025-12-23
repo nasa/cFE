@@ -118,7 +118,7 @@ void TestGetReleaseAddresses(void)
     TblPtrs[0]    = TblPtrsList;
     for (int i = 1; i < numValidTbls + 1; i++)
     {
-        sprintf(TblName, "%d", i);
+        snprintf(TblName, sizeof(TblName), "%d", i);
         UtAssert_INT32_EQ(
             CFE_TBL_Register(&TblHandles[i], TblName, sizeof(CFE_TEST_TestTable_t), CFE_TBL_OPT_DEFAULT, NULL),
             CFE_SUCCESS);
