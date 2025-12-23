@@ -79,7 +79,7 @@ const char *UT_OSP_MESSAGES[] = {
     [UT_OSP_APP_CREATE]                 = "%s: AppCreate Error: TaskCreate %s Failed. EC = %ld!\n",
     [UT_OSP_CREATE_VOLATILE]            = "%s: Error Creating Volatile(RAM) Volume. EC = %ld\n",
     [UT_OSP_MODULE_UNLOAD_FAILED]       = "%s: Failed to unload: %s. EC = %ld\n",
-    [UT_OSP_POR_COMMANDED]              = "%s: POWERON RESET called from CFE_ES_ResetCFE (Commanded).\n",
+    [UT_OSP_POR_COMMANDED]              = "POWERON RESET called from %s (Commanded).\n",
     [UT_OSP_REMOUNT_VOLATILE]           = "%s: Error Re-Mounting Volatile(RAM) Volume. EC = %ld\n",
     [UT_OSP_CORE_APP_EXIT]              = "%s: Cannot Exit CORE Application %s\n",
     [UT_OSP_ES_APP_STARTUP_OPEN]        = "%s: Opened ES App Startup file: %s\n",

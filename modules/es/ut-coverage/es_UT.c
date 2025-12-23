@@ -2582,7 +2582,7 @@ void TestTask(void)
 
     /* Test task main process loop with a ground command subscribe failure */
     ES_ResetUnitTest();
-    UT_SetDeferredRetcode(UT_KEY(CFE_SB_Subscribe), 2, -4);
+    UT_SetDeferredRetcode(UT_KEY(CFE_SB_SubscribeEx), 1, -4);
     UtAssert_INT32_EQ(CFE_ES_TaskInit(), -4);
 
     /* Test task main process loop with an init event send failure */

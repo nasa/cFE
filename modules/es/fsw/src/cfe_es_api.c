@@ -95,7 +95,7 @@ CFE_Status_t CFE_ES_ResetCFE(uint32 ResetType)
         }
         else
         {
-            CFE_ES_WriteToSysLog("%s: PROCESSOR RESET called from CFE_ES_ResetCFE (Commanded).\n", __func__);
+            CFE_ES_WriteToSysLog("PROCESSOR RESET called from %s (Commanded).\n", __func__);
 
             /*
             ** Update the reset variables
@@ -121,7 +121,7 @@ CFE_Status_t CFE_ES_ResetCFE(uint32 ResetType)
     }
     else if (ResetType == CFE_PSP_RST_TYPE_POWERON)
     {
-        CFE_ES_WriteToSysLog("%s: POWERON RESET called from CFE_ES_ResetCFE (Commanded).\n", __func__);
+        CFE_ES_WriteToSysLog("POWERON RESET called from %s (Commanded).\n", __func__);
 
         /*
         ** Log the reset in the ER Log. The log will be wiped out, but it's good to have

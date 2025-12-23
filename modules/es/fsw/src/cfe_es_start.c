@@ -154,7 +154,7 @@ void CFE_ES_Main(uint32 StartType, uint32 StartSubtype, uint32 ModeId, const cha
     /*
     ** Announce the startup
     */
-    CFE_ES_WriteToSysLog("%s: CFE_ES_Main in EARLY_INIT state\n", __func__);
+    CFE_ES_WriteToSysLog("%s: In EARLY_INIT state\n", __func__);
 
     /*
     ** Create and Mount the filesystems needed
@@ -177,7 +177,7 @@ void CFE_ES_Main(uint32 StartType, uint32 StartSubtype, uint32 ModeId, const cha
     /*
     ** Indicate that the CFE core is now starting up / going multi-threaded
     */
-    CFE_ES_WriteToSysLog("%s: CFE_ES_Main entering CORE_STARTUP state\n", __func__);
+    CFE_ES_WriteToSysLog("%s: Entering CORE_STARTUP state\n", __func__);
     CFE_ES_Global.SystemState = CFE_ES_SystemState_CORE_STARTUP;
 
     /*
@@ -188,7 +188,7 @@ void CFE_ES_Main(uint32 StartType, uint32 StartSubtype, uint32 ModeId, const cha
     /*
     ** Indicate that the CFE core is ready
     */
-    CFE_ES_WriteToSysLog("%s: CFE_ES_Main entering CORE_READY state\n", __func__);
+    CFE_ES_WriteToSysLog("%s: Entering CORE_READY state\n", __func__);
     CFE_ES_Global.SystemState = CFE_ES_SystemState_CORE_READY;
 
     /*
@@ -210,7 +210,7 @@ void CFE_ES_Main(uint32 StartType, uint32 StartSubtype, uint32 ModeId, const cha
         CFE_ES_WriteToSysLog("%s: Startup Sync failed - Applications may not have all initialized\n", __func__);
     }
 
-    CFE_ES_WriteToSysLog("%s: CFE_ES_Main entering APPS_INIT state\n", __func__);
+    CFE_ES_WriteToSysLog("%s: Entering APPS_INIT state\n", __func__);
     CFE_ES_Global.SystemState = CFE_ES_SystemState_APPS_INIT;
 
     /*
@@ -228,7 +228,7 @@ void CFE_ES_Main(uint32 StartType, uint32 StartSubtype, uint32 ModeId, const cha
     /*
     ** Startup is fully complete
     */
-    CFE_ES_WriteToSysLog("%s: CFE_ES_Main entering OPERATIONAL state\n", __func__);
+    CFE_ES_WriteToSysLog("%s: Entering OPERATIONAL state\n", __func__);
     CFE_ES_Global.SystemState = CFE_ES_SystemState_OPERATIONAL;
 }
 
