@@ -43,6 +43,11 @@ CFE_EVS_Global_t CFE_EVS_Global;
 /* Defines */
 #define CFE_EVS_PANIC_DELAY 500 /**< \brief Task delay before PSP panic */
 
+/*
+** Local function prototypes.
+*/
+void CFE_EVS_SendEventForGetAppInfoError(int32 Status, const char *LocalName, uint16 CommandCode);
+
 /* Function Definitions */
 
 /*----------------------------------------------------------------
@@ -307,6 +312,37 @@ int32 CFE_EVS_TaskInit(void)
 
 /*----------------------------------------------------------------
  *
+ * Internal helper routine only, not part of API.
+ *
+ * This function handles error returns from calls to
+ * EVS_GetApplicationInfo() and generates a customized error
+ * event from the calling function.
+ *
+ *-----------------------------------------------------------------*/
+void CFE_EVS_SendEventForGetAppInfoError(int32 Status, const char *LocalName, uint16 CommandCode)
+{
+    switch (Status)
+    {
+        case CFE_EVS_APP_NOT_REGISTERED:
+            EVS_SendEvent(CFE_EVS_ERR_APPNOREGS_EID, CFE_EVS_EventType_ERROR, "%s not registered with EVS: CC = %lu",
+                          LocalName, (long unsigned int)CommandCode);
+            break;
+
+        case CFE_EVS_APP_ILLEGAL_APP_ID:
+            EVS_SendEvent(CFE_EVS_ERR_ILLAPPIDRANGE_EID, CFE_EVS_EventType_ERROR,
+                          "Illegal application ID retrieved for %s: CC = %lu", LocalName,
+                          (long unsigned int)CommandCode);
+            break;
+
+        default:
+            EVS_SendEvent(CFE_EVS_ERR_NOAPPIDFOUND_EID, CFE_EVS_EventType_ERROR,
+                          "Unable to retrieve application ID for %s: CC = %lu", LocalName,
+                          (long unsigned int)CommandCode);
+    }
+}
+
+/*----------------------------------------------------------------
+ *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -449,22 +485,9 @@ int32 CFE_EVS_SetFilterCmd(const CFE_EVS_SetFilterCmd_t *data)
             Status = CFE_EVS_EVT_NOT_REGISTERED;
         }
     }
-    else if (Status == CFE_EVS_APP_NOT_REGISTERED)
-    {
-        EVS_SendEvent(CFE_EVS_ERR_APPNOREGS_EID, CFE_EVS_EventType_ERROR, "%s not registered with EVS: CC = %lu",
-                      LocalName, (long unsigned int)CFE_EVS_SET_FILTER_CC);
-    }
-    else if (Status == CFE_EVS_APP_ILLEGAL_APP_ID)
-    {
-        EVS_SendEvent(CFE_EVS_ERR_ILLAPPIDRANGE_EID, CFE_EVS_EventType_ERROR,
-                      "Illegal application ID retrieved for %s: CC = %lu", LocalName,
-                      (long unsigned int)CFE_EVS_SET_FILTER_CC);
-    }
     else
     {
-        EVS_SendEvent(CFE_EVS_ERR_NOAPPIDFOUND_EID, CFE_EVS_EventType_ERROR,
-                      "Unable to retrieve application ID for %s: CC = %lu", LocalName,
-                      (long unsigned int)CFE_EVS_SET_FILTER_CC);
+        CFE_EVS_SendEventForGetAppInfoError(Status, LocalName, CFE_EVS_SET_FILTER_CC);
     }
 
     return Status;
@@ -665,22 +688,9 @@ int32 CFE_EVS_EnableAppEventTypeCmd(const CFE_EVS_EnableAppEventTypeCmd_t *data)
             EVS_EnableTypes(AppDataPtr, CmdPtr->BitMask);
         }
     }
-    else if (Status == CFE_EVS_APP_NOT_REGISTERED)
-    {
-        EVS_SendEvent(CFE_EVS_ERR_APPNOREGS_EID, CFE_EVS_EventType_ERROR, "%s not registered with EVS: CC = %lu",
-                      LocalName, (long unsigned int)CFE_EVS_ENABLE_APP_EVENT_TYPE_CC);
-    }
-    else if (Status == CFE_EVS_APP_ILLEGAL_APP_ID)
-    {
-        EVS_SendEvent(CFE_EVS_ERR_ILLAPPIDRANGE_EID, CFE_EVS_EventType_ERROR,
-                      "Illegal application ID retrieved for %s: CC = %lu", LocalName,
-                      (long unsigned int)CFE_EVS_ENABLE_APP_EVENT_TYPE_CC);
-    }
     else
     {
-        EVS_SendEvent(CFE_EVS_ERR_NOAPPIDFOUND_EID, CFE_EVS_EventType_ERROR,
-                      "Unable to retrieve application ID for %s: CC = %lu", LocalName,
-                      (long unsigned int)CFE_EVS_ENABLE_APP_EVENT_TYPE_CC);
+        CFE_EVS_SendEventForGetAppInfoError(Status, LocalName, CFE_EVS_ENABLE_APP_EVENT_TYPE_CC);
     }
 
     if (Status == CFE_SUCCESS)
@@ -724,22 +734,9 @@ int32 CFE_EVS_DisableAppEventTypeCmd(const CFE_EVS_DisableAppEventTypeCmd_t *dat
             EVS_DisableTypes(AppDataPtr, CmdPtr->BitMask);
         }
     }
-    else if (Status == CFE_EVS_APP_NOT_REGISTERED)
-    {
-        EVS_SendEvent(CFE_EVS_ERR_APPNOREGS_EID, CFE_EVS_EventType_ERROR, "%s not registered with EVS,: CC = %lu",
-                      LocalName, (long unsigned int)CFE_EVS_DISABLE_APP_EVENT_TYPE_CC);
-    }
-    else if (Status == CFE_EVS_APP_ILLEGAL_APP_ID)
-    {
-        EVS_SendEvent(CFE_EVS_ERR_ILLAPPIDRANGE_EID, CFE_EVS_EventType_ERROR,
-                      "Illegal application ID retrieved for %s: CC = %lu", LocalName,
-                      (long unsigned int)CFE_EVS_DISABLE_APP_EVENT_TYPE_CC);
-    }
     else
     {
-        EVS_SendEvent(CFE_EVS_ERR_NOAPPIDFOUND_EID, CFE_EVS_EventType_ERROR,
-                      "Unable to retrieve application ID for %s: CC = %lu", LocalName,
-                      (long unsigned int)CFE_EVS_DISABLE_APP_EVENT_TYPE_CC);
+        CFE_EVS_SendEventForGetAppInfoError(Status, LocalName, CFE_EVS_DISABLE_APP_EVENT_TYPE_CC);
     }
 
     if (Status == CFE_SUCCESS)
@@ -778,22 +775,9 @@ int32 CFE_EVS_EnableAppEventsCmd(const CFE_EVS_EnableAppEventsCmd_t *data)
         EVS_SendEvent(CFE_EVS_ENAAPPEVT_EID, CFE_EVS_EventType_DEBUG,
                       "Enable App Events Command Received with AppName = %s", LocalName);
     }
-    else if (Status == CFE_EVS_APP_NOT_REGISTERED)
-    {
-        EVS_SendEvent(CFE_EVS_ERR_APPNOREGS_EID, CFE_EVS_EventType_ERROR, "%s not registered with EVS: CC = %lu",
-                      LocalName, (long unsigned int)CFE_EVS_ENABLE_APP_EVENTS_CC);
-    }
-    else if (Status == CFE_EVS_APP_ILLEGAL_APP_ID)
-    {
-        EVS_SendEvent(CFE_EVS_ERR_ILLAPPIDRANGE_EID, CFE_EVS_EventType_ERROR,
-                      "Illegal application ID retrieved for %s: CC = %lu", LocalName,
-                      (long unsigned int)CFE_EVS_ENABLE_APP_EVENTS_CC);
-    }
     else
     {
-        EVS_SendEvent(CFE_EVS_ERR_NOAPPIDFOUND_EID, CFE_EVS_EventType_ERROR,
-                      "Unable to retrieve application ID for %s: CC = %lu", LocalName,
-                      (long unsigned int)CFE_EVS_ENABLE_APP_EVENTS_CC);
+        CFE_EVS_SendEventForGetAppInfoError(Status, LocalName, CFE_EVS_ENABLE_APP_EVENTS_CC);
     }
 
     return Status;
@@ -825,22 +809,9 @@ int32 CFE_EVS_DisableAppEventsCmd(const CFE_EVS_DisableAppEventsCmd_t *data)
         EVS_SendEvent(CFE_EVS_DISAPPEVT_EID, CFE_EVS_EventType_DEBUG,
                       "Disable App Events Command Received with AppName = %s", LocalName);
     }
-    else if (Status == CFE_EVS_APP_NOT_REGISTERED)
-    {
-        EVS_SendEvent(CFE_EVS_ERR_APPNOREGS_EID, CFE_EVS_EventType_ERROR, "%s not registered with EVS: CC = %lu",
-                      LocalName, (long unsigned int)CFE_EVS_DISABLE_APP_EVENTS_CC);
-    }
-    else if (Status == CFE_EVS_APP_ILLEGAL_APP_ID)
-    {
-        EVS_SendEvent(CFE_EVS_ERR_ILLAPPIDRANGE_EID, CFE_EVS_EventType_ERROR,
-                      "Illegal application ID retrieved for %s: CC = %lu", LocalName,
-                      (long unsigned int)CFE_EVS_DISABLE_APP_EVENTS_CC);
-    }
     else
     {
-        EVS_SendEvent(CFE_EVS_ERR_NOAPPIDFOUND_EID, CFE_EVS_EventType_ERROR,
-                      "Disable App Events Command: Unable to retrieve application ID for %s: CC = %lu", LocalName,
-                      (long unsigned int)CFE_EVS_DISABLE_APP_EVENTS_CC);
+        CFE_EVS_SendEventForGetAppInfoError(Status, LocalName, CFE_EVS_DISABLE_APP_EVENTS_CC);
     }
 
     return Status;
@@ -873,22 +844,9 @@ int32 CFE_EVS_ResetAppCounterCmd(const CFE_EVS_ResetAppCounterCmd_t *data)
         EVS_SendEvent(CFE_EVS_RSTEVTCNT_EID, CFE_EVS_EventType_DEBUG,
                       "Reset Event Counter Command Received with AppName = %s", LocalName);
     }
-    else if (Status == CFE_EVS_APP_NOT_REGISTERED)
-    {
-        EVS_SendEvent(CFE_EVS_ERR_APPNOREGS_EID, CFE_EVS_EventType_ERROR, "%s not registered with EVS: CC = %lu",
-                      LocalName, (long unsigned int)CFE_EVS_RESET_APP_COUNTER_CC);
-    }
-    else if (Status == CFE_EVS_APP_ILLEGAL_APP_ID)
-    {
-        EVS_SendEvent(CFE_EVS_ERR_ILLAPPIDRANGE_EID, CFE_EVS_EventType_ERROR,
-                      "Illegal application ID retrieved for %s: CC = %lu", LocalName,
-                      (long unsigned int)CFE_EVS_RESET_APP_COUNTER_CC);
-    }
     else
     {
-        EVS_SendEvent(CFE_EVS_ERR_NOAPPIDFOUND_EID, CFE_EVS_EventType_ERROR,
-                      "Reset Event Counter Command: Unable to retrieve application ID for %s: CC = %lu", LocalName,
-                      (long unsigned int)CFE_EVS_RESET_APP_COUNTER_CC);
+        CFE_EVS_SendEventForGetAppInfoError(Status, LocalName, CFE_EVS_RESET_APP_COUNTER_CC);
     }
 
     return Status;
@@ -935,22 +893,9 @@ int32 CFE_EVS_ResetFilterCmd(const CFE_EVS_ResetFilterCmd_t *data)
             Status = CFE_EVS_EVT_NOT_REGISTERED;
         }
     }
-    else if (Status == CFE_EVS_APP_NOT_REGISTERED)
-    {
-        EVS_SendEvent(CFE_EVS_ERR_APPNOREGS_EID, CFE_EVS_EventType_ERROR, "%s not registered with EVS: CC = %lu",
-                      LocalName, (long unsigned int)CFE_EVS_RESET_FILTER_CC);
-    }
-    else if (Status == CFE_EVS_APP_ILLEGAL_APP_ID)
-    {
-        EVS_SendEvent(CFE_EVS_ERR_ILLAPPIDRANGE_EID, CFE_EVS_EventType_ERROR,
-                      "Illegal application ID retrieved for %s: CC = %lu", LocalName,
-                      (long unsigned int)CFE_EVS_RESET_FILTER_CC);
-    }
     else
     {
-        EVS_SendEvent(CFE_EVS_ERR_NOAPPIDFOUND_EID, CFE_EVS_EventType_ERROR,
-                      "Unable to retrieve application ID for %s: CC = %lu", LocalName,
-                      (long unsigned int)CFE_EVS_RESET_FILTER_CC);
+        CFE_EVS_SendEventForGetAppInfoError(Status, LocalName, CFE_EVS_RESET_FILTER_CC);
     }
 
     return Status;
@@ -986,22 +931,9 @@ int32 CFE_EVS_ResetAllFiltersCmd(const CFE_EVS_ResetAllFiltersCmd_t *data)
         EVS_SendEvent(CFE_EVS_RSTALLFILTER_EID, CFE_EVS_EventType_DEBUG,
                       "Reset All Filters Command Received with AppName = %s", LocalName);
     }
-    else if (Status == CFE_EVS_APP_NOT_REGISTERED)
-    {
-        EVS_SendEvent(CFE_EVS_ERR_APPNOREGS_EID, CFE_EVS_EventType_ERROR, "%s not registered with EVS: CC = %lu",
-                      LocalName, (long unsigned int)CFE_EVS_RESET_ALL_FILTERS_CC);
-    }
-    else if (Status == CFE_EVS_APP_ILLEGAL_APP_ID)
-    {
-        EVS_SendEvent(CFE_EVS_ERR_ILLAPPIDRANGE_EID, CFE_EVS_EventType_ERROR,
-                      "Illegal application ID retrieved for %s: CC = %lu", LocalName,
-                      (long unsigned int)CFE_EVS_RESET_ALL_FILTERS_CC);
-    }
     else
     {
-        EVS_SendEvent(CFE_EVS_ERR_NOAPPIDFOUND_EID, CFE_EVS_EventType_ERROR,
-                      "Unable to retrieve application ID for %s: CC = %lu", LocalName,
-                      (long unsigned int)CFE_EVS_RESET_ALL_FILTERS_CC);
+        CFE_EVS_SendEventForGetAppInfoError(Status, LocalName, CFE_EVS_RESET_ALL_FILTERS_CC);
     }
 
     return Status;
@@ -1067,23 +999,9 @@ int32 CFE_EVS_AddEventFilterCmd(const CFE_EVS_AddEventFilterCmd_t *data)
             }
         } /* end else*/
     }     /* end if (Status == CFE_SUCCESS) */
-
-    else if (Status == CFE_EVS_APP_NOT_REGISTERED)
-    {
-        EVS_SendEvent(CFE_EVS_ERR_APPNOREGS_EID, CFE_EVS_EventType_ERROR, "%s not registered with EVS: CC = %lu",
-                      LocalName, (long unsigned int)CFE_EVS_ADD_EVENT_FILTER_CC);
-    }
-    else if (Status == CFE_EVS_APP_ILLEGAL_APP_ID)
-    {
-        EVS_SendEvent(CFE_EVS_ERR_ILLAPPIDRANGE_EID, CFE_EVS_EventType_ERROR,
-                      "Illegal application ID retrieved for %s: CC = %lu", LocalName,
-                      (long unsigned int)CFE_EVS_ADD_EVENT_FILTER_CC);
-    }
     else
     {
-        EVS_SendEvent(CFE_EVS_ERR_NOAPPIDFOUND_EID, CFE_EVS_EventType_ERROR,
-                      "Unable to retrieve application ID for %s: CC = %lu", LocalName,
-                      (long unsigned int)CFE_EVS_ADD_EVENT_FILTER_CC);
+        CFE_EVS_SendEventForGetAppInfoError(Status, LocalName, CFE_EVS_ADD_EVENT_FILTER_CC);
     }
 
     return Status;
@@ -1132,22 +1050,9 @@ int32 CFE_EVS_DeleteEventFilterCmd(const CFE_EVS_DeleteEventFilterCmd_t *data)
             Status = CFE_EVS_EVT_NOT_REGISTERED;
         }
     }
-    else if (Status == CFE_EVS_APP_NOT_REGISTERED)
-    {
-        EVS_SendEvent(CFE_EVS_ERR_APPNOREGS_EID, CFE_EVS_EventType_ERROR, "%s not registered with EVS: CC = %lu",
-                      LocalName, (long unsigned int)CFE_EVS_DELETE_EVENT_FILTER_CC);
-    }
-    else if (Status == CFE_EVS_APP_ILLEGAL_APP_ID)
-    {
-        EVS_SendEvent(CFE_EVS_ERR_ILLAPPIDRANGE_EID, CFE_EVS_EventType_ERROR,
-                      "Illegal application ID retrieved for %s: CC = %lu", LocalName,
-                      (long unsigned int)CFE_EVS_DELETE_EVENT_FILTER_CC);
-    }
     else
     {
-        EVS_SendEvent(CFE_EVS_ERR_NOAPPIDFOUND_EID, CFE_EVS_EventType_ERROR,
-                      "Unable to retrieve application ID for %s: CC = %lu", LocalName,
-                      (long unsigned int)CFE_EVS_DELETE_EVENT_FILTER_CC);
+        CFE_EVS_SendEventForGetAppInfoError(Status, LocalName, CFE_EVS_DELETE_EVENT_FILTER_CC);
     }
 
     return Status;
