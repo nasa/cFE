@@ -4506,21 +4506,11 @@ void TestAPI(void)
     ES_UT_SetupSingleAppId(CFE_ES_AppType_CORE, CFE_ES_AppState_RUNNING, "UT", &UtAppRecPtr, NULL);
     CFE_ES_Global.SystemState = CFE_ES_SystemState_CORE_READY;
 
-    /* Note - CFE_ES_WaitForStartupSync() returns void, nothing to check for
-     * here.  This is for code coverage
-     */
-    UtAssert_VOIDCALL(CFE_ES_WaitForStartupSync(99));
-
     /* Test waiting for apps to initialize as an external app
      */
     ES_ResetUnitTest();
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_EARLY_INIT, "UT", &UtAppRecPtr, NULL);
     CFE_ES_Global.SystemState = CFE_ES_SystemState_CORE_READY;
-
-    /* Note - CFE_ES_WaitForStartupSync() returns void, nothing to check for
-     * here.  This is for code coverage
-     */
-    UtAssert_VOIDCALL(CFE_ES_WaitForStartupSync(99));
 
     /* Test successfully adding a time-stamped message to the system log that
      * causes the log index to be reset

@@ -595,9 +595,13 @@ CFE_Status_t CFE_ES_WaitForSystemState(uint32 MinSystemState, uint32 TimeOutMill
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-void CFE_ES_WaitForStartupSync(uint32 TimeOutMilliseconds)
+CFE_Status_t CFE_ES_WaitForStartupSync(uint32 TimeOutMilliseconds)
 {
-    CFE_ES_WaitForSystemState(CFE_ES_SystemState_OPERATIONAL, TimeOutMilliseconds);
+    CFE_Status_t Status;
+
+    Status = CFE_ES_WaitForSystemState(CFE_ES_SystemState_OPERATIONAL, TimeOutMilliseconds);
+
+    return Status;
 }
 
 /*----------------------------------------------------------------
