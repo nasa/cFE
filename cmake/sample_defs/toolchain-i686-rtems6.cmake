@@ -29,7 +29,7 @@ ADD_DEFINITIONS(-DOS_RTEMS_6)
 # RTEMS_DYNAMIC_LOAD definition:
 # - Set to FALSE for platforms that create a RTEMS executable and link it
 #   to the cFE core.
-# - Set to TRUE for platforms that expect the cFE core to to be dynamically
+# - Set to TRUE for platforms that expect the cFE core to be dynamically
 #   loaded into an existing runtime image.
 # This is tied to the OSAL-BSP and PSP implementation so generally cannot
 # be switched on a specific OSAL/PSP platform without modifications.
