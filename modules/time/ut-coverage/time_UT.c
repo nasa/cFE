@@ -570,12 +570,12 @@ void Test_TimeOp(void)
     /* Test adding with both times equal zero */
     result = CFE_TIME_Add(time1, time2);
     UtAssert_MemCmp(&result, &exp_result, sizeof(CFE_TIME_SysTime_t),
-                    "CFE_TIME_Add, Time A = time B = 0 seconds/subseconds");
+                    "CFE_TIME_Add, Time 1 = Time 2 = 0 seconds/subseconds");
 
     /* Test subtracting with both times equal zero */
     result = CFE_TIME_Subtract(time1, time2);
     UtAssert_MemCmp(&result, &exp_result, sizeof(CFE_TIME_SysTime_t),
-                    "CFE_TIME_Subtract, Time A = time B = 0 seconds/subseconds");
+                    "CFE_TIME_Subtract, Time 1 = Time 2 = 0 seconds/subseconds");
 
     /* Test comparing with both times equal zero */
     UtAssert_INT32_EQ(CFE_TIME_Compare(time1, time2), CFE_TIME_EQUAL);
@@ -592,7 +592,7 @@ void Test_TimeOp(void)
 
     result = CFE_TIME_Add(time1, time2);
     UtAssert_MemCmp(&result, &exp_result, sizeof(CFE_TIME_SysTime_t),
-                    "CFE_TIME_Add, Time A = time B = maximum seconds/subseconds (rollover)");
+                    "CFE_TIME_Add, Time 1 = Time 2 = maximum seconds/subseconds (rollover)");
 
     /* Test subtracting two maximum time values (zero result) */
     exp_result.Subseconds = 0;
@@ -600,7 +600,7 @@ void Test_TimeOp(void)
 
     result = CFE_TIME_Subtract(time1, time2);
     UtAssert_MemCmp(&result, &exp_result, sizeof(CFE_TIME_SysTime_t),
-                    "CFE_TIME_Subtract, Time A = time B = maximum seconds/subseconds (zero result)");
+                    "CFE_TIME_Subtract, Time 1 = Time 2 = maximum seconds/subseconds (zero result)");
 
     /* Test comparing two maximum time values */
     UtAssert_INT32_EQ(CFE_TIME_Compare(time1, time2), CFE_TIME_EQUAL);
@@ -611,45 +611,45 @@ void Test_TimeOp(void)
     time2.Subseconds = 0x00000001;
     time2.Seconds    = 0x0000ffff;
 
-    /* Test adding two time values; time A > time B (minimal time
+    /* Test adding two time values; time A > Time 2 (minimal time
      * rollover case)
      */
     exp_result.Subseconds = 0;
     exp_result.Seconds    = 0;
 
     result = CFE_TIME_Add(time1, time2);
-    UtAssert_MemCmp(&result, &exp_result, sizeof(CFE_TIME_SysTime_t), "CFE_TIME_Add, Time A > time B (rollover)");
+    UtAssert_MemCmp(&result, &exp_result, sizeof(CFE_TIME_SysTime_t), "CFE_TIME_Add, Time 1 > Time 2 (rollover)");
 
-    /* Test subtracting two time values; time A > time B */
+    /* Test subtracting two time values; time A > Time 2 */
     exp_result.Subseconds = 0xfffffffe;
     exp_result.Seconds    = 0xfffe0001;
 
     result = CFE_TIME_Subtract(time1, time2);
-    UtAssert_MemCmp(&result, &exp_result, sizeof(CFE_TIME_SysTime_t), "CFE_TIME_Subtract, Time A > time B");
+    UtAssert_MemCmp(&result, &exp_result, sizeof(CFE_TIME_SysTime_t), "CFE_TIME_Subtract, Time 1 > Time 2");
 
-    /* Test comparing two time values; time A > time B (assumes time has
+    /* Test comparing two time values; time A > Time 2 (assumes time has
      * rolled over)
      */
-    UtAssert_INT32_EQ(CFE_TIME_Compare(time1, time2), CFE_TIME_A_LT_B);
+    UtAssert_INT32_EQ(CFE_TIME_Compare(time1, time2), CFE_TIME_1_LT_2);
 
-    /* Test adding two time values; time A < time B */
+    /* Test adding two time values; time A < Time 2 */
     exp_result.Subseconds = 0;
     exp_result.Seconds    = 0;
 
     result = CFE_TIME_Add(time2, time1);
-    UtAssert_MemCmp(&result, &exp_result, sizeof(CFE_TIME_SysTime_t), "CFE_TIME_Add, Time A < time B");
+    UtAssert_MemCmp(&result, &exp_result, sizeof(CFE_TIME_SysTime_t), "CFE_TIME_Add, Time 1 < Time 2");
 
-    /* Test subtracting two time values; time A < time B (rollover) */
+    /* Test subtracting two time values; time A < Time 2 (rollover) */
     exp_result.Subseconds = 0x00000002;
     exp_result.Seconds    = 0x0001fffe;
 
     result = CFE_TIME_Subtract(time2, time1);
-    UtAssert_MemCmp(&result, &exp_result, sizeof(CFE_TIME_SysTime_t), "CFE_TIME_Subtract, Time A < time B (rollover)");
+    UtAssert_MemCmp(&result, &exp_result, sizeof(CFE_TIME_SysTime_t), "CFE_TIME_Subtract, Time 1 < Time 2 (rollover)");
 
-    /* Test comparing two time values; time A < time B (assumes time has
+    /* Test comparing two time values; time A < Time 2 (assumes time has
      * rolled over)
      */
-    UtAssert_INT32_EQ(CFE_TIME_Compare(time2, time1), CFE_TIME_A_GT_B);
+    UtAssert_INT32_EQ(CFE_TIME_Compare(time2, time1), CFE_TIME_1_GT_2);
 
     /* Initialize so that only subseconds are different; seconds are
      * the same
@@ -659,16 +659,16 @@ void Test_TimeOp(void)
     time2.Subseconds = 29;
     time2.Seconds    = 3;
 
-    /* Test adding two time values; time A subseconds > time B subseconds
+    /* Test adding two time values; time A subseconds > Time 2 subseconds
      * (seconds same) */
     exp_result.Subseconds = 59;
     exp_result.Seconds    = 6;
 
     result = CFE_TIME_Add(time1, time2);
     UtAssert_MemCmp(&result, &exp_result, sizeof(CFE_TIME_SysTime_t),
-                    "CFE_TIME_Add, Time A subseconds > time B subseconds (seconds same)");
+                    "CFE_TIME_Add, Time 1 subseconds > Time 2 subseconds (seconds same)");
 
-    /* Test subtracting two time values; time A subseconds > time B
+    /* Test subtracting two time values; time A subseconds > Time 2
      * subseconds (seconds same)
      */
     exp_result.Subseconds = 1;
@@ -676,14 +676,14 @@ void Test_TimeOp(void)
 
     result = CFE_TIME_Subtract(time1, time2);
     UtAssert_MemCmp(&result, &exp_result, sizeof(CFE_TIME_SysTime_t),
-                    "CFE_TIME_Subtract, Time A subseconds > time B subseconds (seconds same)");
+                    "CFE_TIME_Subtract, Time 1 subseconds > Time 2 subseconds (seconds same)");
 
-    /* Test comparing two time values; time A subseconds > time B subseconds
+    /* Test comparing two time values; time A subseconds > Time 2 subseconds
      * (seconds same)
      */
-    UtAssert_INT32_EQ(CFE_TIME_Compare(time1, time2), CFE_TIME_A_GT_B);
+    UtAssert_INT32_EQ(CFE_TIME_Compare(time1, time2), CFE_TIME_1_GT_2);
 
-    /* Test adding two time values; time A subseconds < time B subseconds
+    /* Test adding two time values; time A subseconds < Time 2 subseconds
      * (seconds same)
      */
     exp_result.Subseconds = 59;
@@ -691,9 +691,9 @@ void Test_TimeOp(void)
 
     result = CFE_TIME_Add(time2, time1);
     UtAssert_MemCmp(&result, &exp_result, sizeof(CFE_TIME_SysTime_t),
-                    "CFE_TIME_Add, Time A subseconds < time B subseconds (seconds same)");
+                    "CFE_TIME_Add, Time 1 subseconds < Time 2 subseconds (seconds same)");
 
-    /* Test subtracting two time values; time A subseconds < time B
+    /* Test subtracting two time values; time A subseconds < Time 2
      * subseconds (seconds same)
      */
     exp_result.Subseconds = 0xffffffff;
@@ -701,12 +701,12 @@ void Test_TimeOp(void)
 
     result = CFE_TIME_Subtract(time2, time1);
     UtAssert_MemCmp(&result, &exp_result, sizeof(CFE_TIME_SysTime_t),
-                    "CFE_TIME_Subtract, Time A subseconds < time B subseconds (seconds same)");
+                    "CFE_TIME_Subtract, Time 1 subseconds < Time 2 subseconds (seconds same)");
 
-    /* Test comparing two time values; time A subseconds < time B subseconds
+    /* Test comparing two time values; time A subseconds < Time 2 subseconds
      * (seconds same)
      */
-    UtAssert_INT32_EQ(CFE_TIME_Compare(time2, time1), CFE_TIME_A_LT_B);
+    UtAssert_INT32_EQ(CFE_TIME_Compare(time2, time1), CFE_TIME_1_LT_2);
 
     /* Initialize so that only seconds are different; subseconds are
      * the same
@@ -716,7 +716,7 @@ void Test_TimeOp(void)
     time2.Subseconds = 18;
     time2.Seconds    = 7;
 
-    /* Test adding two time values; time A seconds > time B seconds
+    /* Test adding two time values; time A seconds > Time 2 seconds
      * (subseconds same)
      */
     exp_result.Subseconds = 36;
@@ -724,9 +724,9 @@ void Test_TimeOp(void)
 
     result = CFE_TIME_Add(time1, time2);
     UtAssert_MemCmp(&result, &exp_result, sizeof(CFE_TIME_SysTime_t),
-                    "CFE_TIME_Add, Time A seconds > time B seconds (subseconds same)");
+                    "CFE_TIME_Add, Time 1 seconds > Time 2 seconds (subseconds same)");
 
-    /* Test subtracting two time values; time A seconds > time B seconds
+    /* Test subtracting two time values; time A seconds > Time 2 seconds
      * (subseconds same)
      */
     exp_result.Subseconds = 0;
@@ -734,14 +734,14 @@ void Test_TimeOp(void)
 
     result = CFE_TIME_Subtract(time1, time2);
     UtAssert_MemCmp(&result, &exp_result, sizeof(CFE_TIME_SysTime_t),
-                    "CFE_TIME_Subtract, Time A seconds > time B seconds (subseconds same)");
+                    "CFE_TIME_Subtract, Time 1 seconds > Time 2 seconds (subseconds same)");
 
-    /* Test comparing two time values; time A seconds > time B seconds
+    /* Test comparing two time values; time A seconds > Time 2 seconds
      * (subseconds same)
      */
-    UtAssert_INT32_EQ(CFE_TIME_Compare(time1, time2), CFE_TIME_A_GT_B);
+    UtAssert_INT32_EQ(CFE_TIME_Compare(time1, time2), CFE_TIME_1_GT_2);
 
-    /* Test adding two time values; time A seconds < time B seconds
+    /* Test adding two time values; time A seconds < Time 2 seconds
      * (subseconds same)
      */
     exp_result.Subseconds = 36;
@@ -749,9 +749,9 @@ void Test_TimeOp(void)
 
     result = CFE_TIME_Add(time2, time1);
     UtAssert_MemCmp(&result, &exp_result, sizeof(CFE_TIME_SysTime_t),
-                    "CFE_TIME_Add, Time A seconds < time B seconds (subseconds same)");
+                    "CFE_TIME_Add, Time 1 seconds < Time 2 seconds (subseconds same)");
 
-    /* Test subtracting two time values; time A seconds < time B seconds
+    /* Test subtracting two time values; time A seconds < Time 2 seconds
      * (subseconds same)
      */
     exp_result.Subseconds = 0;
@@ -759,13 +759,13 @@ void Test_TimeOp(void)
 
     result = CFE_TIME_Subtract(time2, time1);
     UtAssert_MemCmp(&result, &exp_result, sizeof(CFE_TIME_SysTime_t),
-                    "CFE_TIME_Subtract, Time A seconds < time B seconds (subseconds same)");
+                    "CFE_TIME_Subtract, Time 1 seconds < Time 2 seconds (subseconds same)");
 
-    /* Test comparing two time values; time A seconds < time B seconds
+    /* Test comparing two time values; time A seconds < Time 2 seconds
      * (subseconds same)
      */
     UT_InitData();
-    UtAssert_INT32_EQ(CFE_TIME_Compare(time2, time1), CFE_TIME_A_LT_B);
+    UtAssert_INT32_EQ(CFE_TIME_Compare(time2, time1), CFE_TIME_1_LT_2);
 }
 
 /*
