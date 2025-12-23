@@ -104,7 +104,7 @@ CFE_TIME_SysTime_t CFE_TIME_LatchClock(void)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-void CFE_TIME_QueryResetVars(void)
+void CFE_TIME_RestoreFromTimeResetVars(void)
 {
     CFE_TIME_ResetVars_t                LocalResetVars;
     uint32                              DefSubsMET;
@@ -247,7 +247,7 @@ void CFE_TIME_InitData(void)
     /*
     ** Try to get values used to compute time from Reset Area...
     */
-    CFE_TIME_QueryResetVars();
+    CFE_TIME_RestoreFromTimeResetVars();
 
     RefState = CFE_TIME_StartReferenceUpdate();
 
