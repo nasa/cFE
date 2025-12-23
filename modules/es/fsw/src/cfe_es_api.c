@@ -579,6 +579,9 @@ CFE_Status_t CFE_ES_WaitForSystemState(uint32 MinSystemState, uint32 TimeOutMill
         else
         {
             Status = CFE_ES_OPERATION_TIMED_OUT;
+            CFE_ES_WriteToSysLog("%s(): %u ms timeout reached waiting for MinSystemState: %u, Current SystemState: %u",
+                                 __func__, (unsigned int)TimeOutMilliseconds, (unsigned int)MinSystemState,
+                                 (unsigned int)CFE_ES_Global.SystemState);
             break;
         }
 
