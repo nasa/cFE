@@ -54,7 +54,7 @@
 /**
  * @brief This routine adds an event packet to the internal event log.
  */
-void EVS_AddLog(CFE_EVS_LongEventTlm_t *EVS_PktPtr);
+void EVS_AddLog(const CFE_EVS_LongEventTlm_t *EVS_PktPtr);
 
 /*---------------------------------------------------------------------------------------*/
 /**
