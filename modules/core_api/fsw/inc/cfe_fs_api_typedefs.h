@@ -111,8 +111,12 @@ typedef bool (*CFE_FS_FileWriteGetData_t)(void *Meta, uint32 RecordNum, void **B
  * \param[in]    Position   File position/size when event occurred
  *
  */
-typedef void (*CFE_FS_FileWriteOnEvent_t)(void *Meta, CFE_FS_FileWriteEvent_t Event, int32 Status, uint32 RecordNum,
-                                          size_t BlockSize, size_t Position);
+typedef void (*CFE_FS_FileWriteOnEvent_t)(void                   *Meta,
+                                          CFE_FS_FileWriteEvent_t Event,
+                                          int32                   Status,
+                                          uint32                  RecordNum,
+                                          size_t                  BlockSize,
+                                          size_t                  Position);
 
 /**
  * \brief External Metadata/State object associated with background file writes

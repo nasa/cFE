@@ -41,10 +41,10 @@
 /*
 ** Macro Definitions
 */
-#define CFE_BIT(x)    (1 << (x))              /**< \brief Places a one at bit positions 0 - 31*/
-#define CFE_SET(i, x) ((i) |= CFE_BIT(x))     /**< \brief Sets bit x of i */
-#define CFE_CLR(i, x) ((i) &= ~CFE_BIT(x))    /**< \brief Clears bit x of i */
-#define CFE_TST(i, x) (((i)&CFE_BIT(x)) != 0) /**< \brief true(non zero) if bit x of i is set */
+#define CFE_BIT(x)    (1 << (x))                /**< \brief Places a one at bit positions 0 - 31*/
+#define CFE_SET(i, x) ((i) |= CFE_BIT(x))       /**< \brief Sets bit x of i */
+#define CFE_CLR(i, x) ((i) &= ~CFE_BIT(x))      /**< \brief Clears bit x of i */
+#define CFE_TST(i, x) (((i) & CFE_BIT(x)) != 0) /**< \brief true(non zero) if bit x of i is set */
 
 /****************** Function Prototypes **********************/
 
@@ -669,8 +669,10 @@ void CFE_SB_TimeStampMsg(CFE_MSG_Message_t *MsgPtr);
 ** \retval #CFE_SB_BAD_ARGUMENT  \copybrief CFE_SB_BAD_ARGUMENT
 **
 */
-int32 CFE_SB_MessageStringSet(char *DestStringPtr, const char *SourceStringPtr, size_t DestMaxSize,
-                              size_t SourceMaxSize);
+int32 CFE_SB_MessageStringSet(char       *DestStringPtr,
+                              const char *SourceStringPtr,
+                              size_t      DestMaxSize,
+                              size_t      SourceMaxSize);
 
 /*****************************************************************************/
 /**
@@ -749,8 +751,11 @@ size_t CFE_SB_GetUserDataLength(const CFE_MSG_Message_t *MsgPtr);
 ** \retval #CFE_SB_BAD_ARGUMENT  \copybrief CFE_SB_BAD_ARGUMENT
 **
 */
-int32 CFE_SB_MessageStringGet(char *DestStringPtr, const char *SourceStringPtr, const char *DefaultString,
-                              size_t DestMaxSize, size_t SourceMaxSize);
+int32 CFE_SB_MessageStringGet(char       *DestStringPtr,
+                              const char *SourceStringPtr,
+                              const char *DefaultString,
+                              size_t      DestMaxSize,
+                              size_t      SourceMaxSize);
 /** @} */
 
 /** @defgroup CFEAPISBMessageID cFE Message ID APIs

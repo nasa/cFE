@@ -440,8 +440,11 @@ int32 CFE_SB_DeletePipeFull(CFE_SB_PipeId_t PipeId, CFE_ES_AppId_t AppId);
  *
  * \return Execution status, see \ref CFEReturnCodes
  */
-int32 CFE_SB_SubscribeFull(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId, CFE_SB_Qos_t Quality, uint16 MsgLim,
-                           uint8 Scope);
+int32 CFE_SB_SubscribeFull(CFE_SB_MsgId_t  MsgId,
+                           CFE_SB_PipeId_t PipeId,
+                           CFE_SB_Qos_t    Quality,
+                           uint16          MsgLim,
+                           uint8           Scope);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -765,8 +768,10 @@ size_t CFE_SB_MsgHdrSize(const CFE_MSG_Message_t *MsgPtr);
  * \param[in]    MaxPipes   Number of entries in PipeSet
  * \param[in]    RefMemPtr  User-supplied Opaque object pointer for event logging
  */
-void CFE_SB_MessageTxn_Init(CFE_SB_MessageTxn_State_t *TxnPtr, CFE_SB_PipeSetEntry_t *PipeSet, uint16 MaxPipes,
-                            const void *RefMemPtr);
+void CFE_SB_MessageTxn_Init(CFE_SB_MessageTxn_State_t *TxnPtr,
+                            CFE_SB_PipeSetEntry_t     *PipeSet,
+                            uint16                     MaxPipes,
+                            const void                *RefMemPtr);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -956,9 +961,14 @@ int32 CFE_SB_MessageTxn_GetOsTimeout(const CFE_SB_MessageTxn_State_t *TxnPtr);
  * \param[out]   EventType  Buffer to store event type
  * \param[out]   ReqBit     Buffer to store request/loop detect bit
  */
-void CFE_SB_MessageTxn_GetEventDetails(const CFE_SB_MessageTxn_State_t *TxnPtr, const CFE_SB_PipeSetEntry_t *ContextPtr,
-                                       uint16 EventId, CFE_ES_TaskId_t TskId, char *EvtMsg, size_t EvtMsgSize,
-                                       CFE_EVS_EventType_Enum_t *EventType, int32 *ReqBit);
+void CFE_SB_MessageTxn_GetEventDetails(const CFE_SB_MessageTxn_State_t *TxnPtr,
+                                       const CFE_SB_PipeSetEntry_t     *ContextPtr,
+                                       uint16                           EventId,
+                                       CFE_ES_TaskId_t                  TskId,
+                                       char                            *EvtMsg,
+                                       size_t                           EvtMsgSize,
+                                       CFE_EVS_EventType_Enum_t        *EventType,
+                                       int32                           *ReqBit);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -978,7 +988,8 @@ void CFE_SB_MessageTxn_GetEventDetails(const CFE_SB_MessageTxn_State_t *TxnPtr, 
  * \retval  false  if this was informational (event is benign, e.g. no subscribers)
  */
 bool CFE_SB_MessageTxn_ReportSingleEvent(const CFE_SB_MessageTxn_State_t *TxnPtr,
-                                         const CFE_SB_PipeSetEntry_t *ContextPtr, uint16 EventId);
+                                         const CFE_SB_PipeSetEntry_t     *ContextPtr,
+                                         uint16                           EventId);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -1002,8 +1013,9 @@ void CFE_SB_MessageTxn_ReportEvents(const CFE_SB_MessageTxn_State_t *TxnPtr);
  * \param[inout] TxnPtr      Transaction object, passed through to handler
  * \param[inout] Arg         Opaque argument to pass to handler
  */
-void CFE_SB_MessageTxn_ProcessPipes(CFE_SB_MessageTxn_PipeHandler_t HandlerFunc, CFE_SB_MessageTxn_State_t *TxnPtr,
-                                    void *Arg);
+void CFE_SB_MessageTxn_ProcessPipes(CFE_SB_MessageTxn_PipeHandler_t HandlerFunc,
+                                    CFE_SB_MessageTxn_State_t      *TxnPtr,
+                                    void                           *Arg);
 
 /*
  * Receive Transaction implementation/helper functions
@@ -1482,8 +1494,12 @@ bool CFE_SB_WriteMsgMapInfoDataGetter(void *Meta, uint32 RecordNum, void **Buffe
 void CFE_SB_CollectRouteInfo(CFE_SBR_RouteId_t RouteId, void *ArgPtr);
 bool CFE_SB_WriteRouteInfoDataGetter(void *Meta, uint32 RecordNum, void **Buffer, size_t *BufSize);
 bool CFE_SB_WritePipeInfoDataGetter(void *Meta, uint32 RecordNum, void **Buffer, size_t *BufSize);
-void CFE_SB_BackgroundFileEventHandler(void *Meta, CFE_FS_FileWriteEvent_t Event, int32 Status, uint32 RecordNum,
-                                       size_t BlockSize, size_t Position);
+void CFE_SB_BackgroundFileEventHandler(void                   *Meta,
+                                       CFE_FS_FileWriteEvent_t Event,
+                                       int32                   Status,
+                                       uint32                  RecordNum,
+                                       size_t                  BlockSize,
+                                       size_t                  Position);
 
 /*
  * External variables private to the software bus module

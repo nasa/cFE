@@ -238,8 +238,12 @@ void EVS_DisableTypes(EVS_AppData_t *AppDataPtr, uint8 BitMask);
  * If configured for short events, a separate short message is generated using a subset
  * of the information from the long message.
  */
-void EVS_GenerateEventTelemetry(EVS_AppData_t *AppDataPtr, uint16 EventID, CFE_EVS_EventType_Enum_t EventType,
-                                const CFE_TIME_SysTime_t *Time, const char *MsgSpec, va_list ArgPtr);
+void EVS_GenerateEventTelemetry(EVS_AppData_t            *AppDataPtr,
+                                uint16                    EventID,
+                                CFE_EVS_EventType_Enum_t  EventType,
+                                const CFE_TIME_SysTime_t *Time,
+                                const char               *MsgSpec,
+                                va_list                   ArgPtr);
 
 /*---------------------------------------------------------------------------------------*/
 /**

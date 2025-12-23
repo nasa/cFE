@@ -414,7 +414,7 @@ typedef uint32 CFE_ES_MemAddress_t;
  * A converter macro to use when initializing a CFE_ES_MemAddress_t
  * from a pointer value of a different type.
  */
-#define CFE_ES_MEMADDRESS_C(x) ((CFE_ES_MemAddress_t)((cpuaddr)(x)&0xFFFFFFFF))
+#define CFE_ES_MEMADDRESS_C(x) ((CFE_ES_MemAddress_t)((cpuaddr)(x) & 0xFFFFFFFF))
 
 /**
  * @brief Memory Address to pointer wrapper
@@ -442,7 +442,7 @@ typedef struct CFE_ES_AppInfo
 {
     CFE_ResourceId_t ResourceId; /**< \cfetlmmnemonic \ES_APP_ID
                                       \brief Application or Library ID for this resource */
-    uint32 Type;                 /**< \cfetlmmnemonic \ES_APPTYPE
+    uint32           Type;       /**< \cfetlmmnemonic \ES_APPTYPE
                                       \brief The type of App: CORE or EXTERNAL */
 
     char Name[CFE_MISSION_MAX_API_LEN];       /**< \cfetlmmnemonic \ES_APPNAME
@@ -452,36 +452,36 @@ typedef struct CFE_ES_AppInfo
     char FileName[CFE_MISSION_MAX_PATH_LEN];  /**< \cfetlmmnemonic \ES_APPFILENAME
                                                    \brief The Filename of the file containing the Application */
 
-    CFE_ES_MemOffset_t StackSize;                  /**< \cfetlmmnemonic \ES_STACKSIZE
+    CFE_ES_MemOffset_t            StackSize;                             /**< \cfetlmmnemonic \ES_STACKSIZE
                                                         \brief The Stack Size of the Application */
-    uint32 AddressesAreValid;                      /**< \cfetlmmnemonic \ES_ADDRVALID
+    uint32                        AddressesAreValid;                     /**< \cfetlmmnemonic \ES_ADDRVALID
                                                         \brief Indicates that the Code, Data, and BSS addresses/sizes are valid */
-    CFE_ES_MemAddress_t CodeAddress;               /**< \cfetlmmnemonic \ES_CODEADDR
+    CFE_ES_MemAddress_t           CodeAddress;                           /**< \cfetlmmnemonic \ES_CODEADDR
                                                         \brief The Address of the Application Code Segment*/
-    CFE_ES_MemOffset_t CodeSize;                   /**< \cfetlmmnemonic \ES_CODESIZE
+    CFE_ES_MemOffset_t            CodeSize;                              /**< \cfetlmmnemonic \ES_CODESIZE
                                                         \brief The Code Size of the Application */
-    CFE_ES_MemAddress_t DataAddress;               /**< \cfetlmmnemonic \ES_DATAADDR
+    CFE_ES_MemAddress_t           DataAddress;                           /**< \cfetlmmnemonic \ES_DATAADDR
                                                         \brief The Address of the Application Data Segment*/
-    CFE_ES_MemOffset_t DataSize;                   /**< \cfetlmmnemonic \ES_DATASIZE
+    CFE_ES_MemOffset_t            DataSize;                              /**< \cfetlmmnemonic \ES_DATASIZE
                                                         \brief The Data Size of the Application */
-    CFE_ES_MemAddress_t BSSAddress;                /**< \cfetlmmnemonic \ES_BSSADDR
+    CFE_ES_MemAddress_t           BSSAddress;                            /**< \cfetlmmnemonic \ES_BSSADDR
                                                         \brief The Address of the Application BSS Segment*/
-    CFE_ES_MemOffset_t BSSSize;                    /**< \cfetlmmnemonic \ES_BSSSIZE
+    CFE_ES_MemOffset_t            BSSSize;                               /**< \cfetlmmnemonic \ES_BSSSIZE
                                                         \brief The BSS Size of the Application */
-    CFE_ES_MemAddress_t StartAddress;              /**< \cfetlmmnemonic \ES_STARTADDR
+    CFE_ES_MemAddress_t           StartAddress;                          /**< \cfetlmmnemonic \ES_STARTADDR
                                                         \brief The Start Address of the Application */
-    CFE_ES_ExceptionAction_Enum_t ExceptionAction; /**< \cfetlmmnemonic \ES_EXCEPTNACTN
+    CFE_ES_ExceptionAction_Enum_t ExceptionAction;                       /**< \cfetlmmnemonic \ES_EXCEPTNACTN
                                                    \brief What should occur if Application has an exception
                                                    (Restart Application OR Restart Processor) */
-    CFE_ES_TaskPriority_Atom_t Priority;           /**< \cfetlmmnemonic \ES_PRIORITY
+    CFE_ES_TaskPriority_Atom_t    Priority;                              /**< \cfetlmmnemonic \ES_PRIORITY
                                                       \brief The Priority of the Application */
-    CFE_ES_TaskId_t MainTaskId;                    /**< \cfetlmmnemonic \ES_MAINTASKID
+    CFE_ES_TaskId_t               MainTaskId;                            /**< \cfetlmmnemonic \ES_MAINTASKID
                                                         \brief The Application's Main Task ID */
-    uint32 ExecutionCounter;                       /**< \cfetlmmnemonic \ES_MAINTASKEXECNT
+    uint32                        ExecutionCounter;                      /**< \cfetlmmnemonic \ES_MAINTASKEXECNT
                                                         \brief The Application's Main Task Execution Counter */
-    char MainTaskName[CFE_MISSION_MAX_API_LEN];    /**< \cfetlmmnemonic \ES_MAINTASKNAME
+    char                          MainTaskName[CFE_MISSION_MAX_API_LEN]; /**< \cfetlmmnemonic \ES_MAINTASKNAME
                                                         \brief The Application's Main Task ID */
-    uint32 NumOfChildTasks;                        /**< \cfetlmmnemonic \ES_CHILDTASKS
+    uint32                        NumOfChildTasks;                       /**< \cfetlmmnemonic \ES_CHILDTASKS
                                                         \brief Number of Child tasks for an App */
 } CFE_ES_AppInfo_t;
 
@@ -552,13 +552,13 @@ typedef struct CFE_ES_BlockStats
  */
 typedef struct CFE_ES_MemPoolStats
 {
-    CFE_ES_MemOffset_t PoolSize;                                     /**< \cfetlmmnemonic \ES_POOLSIZE
+    CFE_ES_MemOffset_t  PoolSize;                                    /**< \cfetlmmnemonic \ES_POOLSIZE
                                                                           \brief  Size of Memory Pool (in bytes) */
-    uint32 NumBlocksRequested;                                       /**< \cfetlmmnemonic \ES_BLKSREQ
+    uint32              NumBlocksRequested;                          /**< \cfetlmmnemonic \ES_BLKSREQ
                                                                           \brief Number of times a memory block has been allocated */
-    uint32 CheckErrCtr;                                              /**< \cfetlmmnemonic \ES_BLKERRCTR
+    uint32              CheckErrCtr;                                 /**< \cfetlmmnemonic \ES_BLKERRCTR
                                                                           \brief Number of errors detected when freeing a memory block */
-    CFE_ES_MemOffset_t NumFreeBytes;                                 /**< \cfetlmmnemonic \ES_FREEBYTES
+    CFE_ES_MemOffset_t  NumFreeBytes;                                /**< \cfetlmmnemonic \ES_FREEBYTES
                                                                           \brief Number of bytes never allocated to a block */
     CFE_ES_BlockStats_t BlockStats[CFE_MISSION_ES_POOL_MAX_BUCKETS]; /**< \cfetlmmnemonic \ES_BLKSTATS
                                                                           \brief Contains stats on each block size */

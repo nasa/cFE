@@ -114,15 +114,15 @@ typedef struct CFE_SB_HousekeepingTlm_Payload
 */
 typedef struct CFE_SB_PipeDepthStats
 {
-    CFE_SB_PipeId_t PipeId;   /**< \cfetlmmnemonic \SB_PDPIPEID
+    CFE_SB_PipeId_t PipeId;            /**< \cfetlmmnemonic \SB_PDPIPEID
                                    \brief Pipe Id associated with the stats below */
-    uint16 MaxQueueDepth;     /**< \cfetlmmnemonic \SB_PDDEPTH
+    uint16          MaxQueueDepth;     /**< \cfetlmmnemonic \SB_PDDEPTH
                            \brief Number of messages the pipe can hold */
-    uint16 CurrentQueueDepth; /**< \cfetlmmnemonic \SB_PDINUSE
+    uint16          CurrentQueueDepth; /**< \cfetlmmnemonic \SB_PDINUSE
                        \brief Number of messages currently on the pipe */
-    uint16 PeakQueueDepth;    /**< \cfetlmmnemonic \SB_PDPKINUSE
+    uint16          PeakQueueDepth;    /**< \cfetlmmnemonic \SB_PDPKINUSE
                               \brief Peak number of messages that have been on the pipe */
-    uint16 Spare;             /**< \cfetlmmnemonic \SB_PDSPARE
+    uint16          Spare;             /**< \cfetlmmnemonic \SB_PDSPARE
                                    \brief Spare word to ensure alignment */
 } CFE_SB_PipeDepthStats_t;
 
@@ -196,10 +196,9 @@ typedef struct CFE_SB_StatsTlm_Payload
     uint32 PeakSBBuffersInUse; /**< \cfetlmmnemonic \SB_SMPSBBIU
                                     \brief Max number of SB message buffers in use */
 
-    uint32 MaxPipeDepthAllowed; /**< \cfetlmmnemonic \SB_SMMPDALW
+    uint32                  MaxPipeDepthAllowed;                      /**< \cfetlmmnemonic \SB_SMMPDALW
                                      \brief Maximum allowed pipe depth */
-    CFE_SB_PipeDepthStats_t
-        PipeDepthStats[CFE_MISSION_SB_MAX_PIPES]; /**< \cfetlmmnemonic \SB_SMPDS
+    CFE_SB_PipeDepthStats_t PipeDepthStats[CFE_MISSION_SB_MAX_PIPES]; /**< \cfetlmmnemonic \SB_SMPDS
                                                \brief Pipe Depth Statistics #CFE_SB_PipeDepthStats_t*/
 } CFE_SB_StatsTlm_Payload_t;
 

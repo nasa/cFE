@@ -200,7 +200,8 @@ uint32 CFE_ResourceId_GetSerial(CFE_ResourceId_t ResourceId);
  * @retval      #CFE_RESOURCEID_UNDEFINED if no open slots or bad arguments.
  *
  */
-CFE_ResourceId_t CFE_ResourceId_FindNext(CFE_ResourceId_t StartId, uint32 TableSize,
+CFE_ResourceId_t CFE_ResourceId_FindNext(CFE_ResourceId_t StartId,
+                                         uint32           TableSize,
                                          bool (*CheckFunc)(CFE_ResourceId_t));
 
 /**

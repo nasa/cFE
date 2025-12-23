@@ -61,10 +61,7 @@
  *
  * \sa CFE_SB_ValueToMsgId()
  */
-#define CFE_SB_MSGID_WRAP_VALUE(val) \
-    {                                \
-        val                          \
-    }
+#define CFE_SB_MSGID_WRAP_VALUE(val) { val }
 
 /**
  * \brief Translation macro to convert to MsgId integer values from a literal
@@ -132,7 +129,7 @@
     0x00000001 /**< \brief Messages sent by the app that owns this pipe will not be sent to this pipe. */
 /**@}*/
 
-#define CFE_SB_DEFAULT_QOS ((CFE_SB_Qos_t) {0}) /**< \brief Default Qos macro */
+#define CFE_SB_DEFAULT_QOS ((CFE_SB_Qos_t) { 0 }) /**< \brief Default Qos macro */
 
 /*
 ** Type Definitions

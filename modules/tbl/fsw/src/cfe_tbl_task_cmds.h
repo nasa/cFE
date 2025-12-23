@@ -322,8 +322,10 @@ int32 CFE_TBL_AbortLoadCmd(const CFE_TBL_AbortLoadCmd_t *data);
 ** \retval #CFE_TBL_INC_ERR_CTR  \copydoc CFE_TBL_INC_ERR_CTR
 ** \retval #CFE_TBL_INC_CMD_CTR  \copydoc CFE_TBL_INC_CMD_CTR
 */
-CFE_TBL_CmdProcRet_t CFE_TBL_DumpToFile(const char *DumpFilename, const char *TableName, const void *DumpDataAddr,
-                                        size_t TblSizeInBytes);
+CFE_TBL_CmdProcRet_t CFE_TBL_DumpToFile(const char *DumpFilename,
+                                        const char *TableName,
+                                        const void *DumpDataAddr,
+                                        size_t      TblSizeInBytes);
 
 /*---------------------------------------------------------------------------------------*/
 /**

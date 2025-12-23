@@ -91,9 +91,16 @@ typedef void (*CFE_Assert_StatusCallback_t)(uint8 MessageType, const char *Prefi
 **        and integers may not be interchangeable with strict type checking.
 **
 ******************************************************************************/
-#define CFE_Assert_RESOURCEID_EQ(id1, id2)                                                                           \
-    UtAssert_GenericUnsignedCompare(CFE_RESOURCEID_TO_ULONG(id1), UtAssert_Compare_EQ, CFE_RESOURCEID_TO_ULONG(id2), \
-                                    UtAssert_Radix_HEX, __FILE__, __LINE__, "Resource ID Check: ", #id1, #id2)
+#define CFE_Assert_RESOURCEID_EQ(id1, id2)                        \
+    UtAssert_GenericUnsignedCompare(CFE_RESOURCEID_TO_ULONG(id1), \
+                                    UtAssert_Compare_EQ,          \
+                                    CFE_RESOURCEID_TO_ULONG(id2), \
+                                    UtAssert_Radix_HEX,           \
+                                    __FILE__,                     \
+                                    __LINE__,                     \
+                                    "Resource ID Check: ",        \
+                                    #id1,                         \
+                                    #id2)
 
 /*****************************************************************************/
 /**
@@ -122,9 +129,16 @@ typedef void (*CFE_Assert_StatusCallback_t)(uint8 MessageType, const char *Prefi
 **        and integers may not be interchangeable with strict type checking.
 **
 ******************************************************************************/
-#define CFE_Assert_MSGID_EQ(mid1, mid2)                                                                        \
-    UtAssert_GenericUnsignedCompare(CFE_SB_MsgIdToValue(mid1), UtAssert_Compare_EQ, CFE_SB_MsgIdToValue(mid2), \
-                                    UtAssert_Radix_HEX, __FILE__, __LINE__, "MsgId Check: ", #mid1, #mid2)
+#define CFE_Assert_MSGID_EQ(mid1, mid2)                        \
+    UtAssert_GenericUnsignedCompare(CFE_SB_MsgIdToValue(mid1), \
+                                    UtAssert_Compare_EQ,       \
+                                    CFE_SB_MsgIdToValue(mid2), \
+                                    UtAssert_Radix_HEX,        \
+                                    __FILE__,                  \
+                                    __LINE__,                  \
+                                    "MsgId Check: ",           \
+                                    #mid1,                     \
+                                    #mid2)
 
 /*****************************************************************************/
 /**
@@ -351,8 +365,12 @@ void CFE_Assert_CloseLogFile(void);
 ** \returns Test pass status, returns true if status was successful, false if it failed.
 **
 ******************************************************************************/
-bool CFE_Assert_StatusCheck(CFE_Status_t Status, bool ExpectSuccess, UtAssert_CaseType_t CaseType, const char *File,
-                            uint32 Line, const char *Text);
+bool CFE_Assert_StatusCheck(CFE_Status_t        Status,
+                            bool                ExpectSuccess,
+                            UtAssert_CaseType_t CaseType,
+                            const char         *File,
+                            uint32              Line,
+                            const char         *Text);
 
 /*****************************************************************************/
 /**
@@ -402,7 +420,10 @@ bool CFE_Assert_Status_SilentCheck(CFE_Status_t Status);
 **
 ** \returns Test pass status, returns true if status was successful, false if it failed.
 */
-bool CFE_Assert_Status_DeferredCheck(CFE_Status_t Status, UtAssert_CaseType_t CaseType, const char *File, uint32 Line,
-                                     const char *Text);
+bool CFE_Assert_Status_DeferredCheck(CFE_Status_t        Status,
+                                     UtAssert_CaseType_t CaseType,
+                                     const char         *File,
+                                     uint32              Line,
+                                     const char         *Text);
 
 #endif /* CFE_ASSERT_H */

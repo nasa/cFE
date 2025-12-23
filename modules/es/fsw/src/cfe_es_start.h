@@ -62,7 +62,7 @@ typedef union
 {
     CFE_ES_EarlyInitFuncPtr_t FunctionPtr;
     CFE_ES_TaskEntryFuncPtr_t MainTaskPtr;
-    void *                    VoidPtr;
+    void                     *VoidPtr;
 } CFE_ES_FuncPtrUnion_t;
 
 typedef struct

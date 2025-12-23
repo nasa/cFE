@@ -162,8 +162,9 @@ int32 CFE_TBL_UnlockRegistry(void);
 ** \retval #CFE_TBL_ERR_NO_BUFFER_AVAIL     \copydoc CFE_TBL_ERR_NO_BUFFER_AVAIL
 **
 */
-int32 CFE_TBL_GetWorkingBuffer(CFE_TBL_LoadBuff_t **WorkingBufferPtr, CFE_TBL_RegistryRec_t *RegRecPtr,
-                               bool CalledByApp);
+int32 CFE_TBL_GetWorkingBuffer(CFE_TBL_LoadBuff_t   **WorkingBufferPtr,
+                               CFE_TBL_RegistryRec_t *RegRecPtr,
+                               bool                   CalledByApp);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -205,8 +206,10 @@ int32 CFE_TBL_GetWorkingBuffer(CFE_TBL_LoadBuff_t **WorkingBufferPtr, CFE_TBL_Re
 ** \retval #CFE_TBL_ERR_BAD_SUBTYPE_ID       \copydoc CFE_TBL_ERR_BAD_SUBTYPE_ID
 **
 */
-int32 CFE_TBL_LoadFromFile(const char *AppName, CFE_TBL_LoadBuff_t *WorkingBufferPtr, CFE_TBL_RegistryRec_t *RegRecPtr,
-                           const char *Filename);
+int32 CFE_TBL_LoadFromFile(const char            *AppName,
+                           CFE_TBL_LoadBuff_t    *WorkingBufferPtr,
+                           CFE_TBL_RegistryRec_t *RegRecPtr,
+                           const char            *Filename);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -230,7 +233,8 @@ int32 CFE_TBL_LoadFromFile(const char *AppName, CFE_TBL_LoadBuff_t *WorkingBuffe
 **
 ** \retval #CFE_SUCCESS                     \copydoc CFE_SUCCESS
 */
-int32 CFE_TBL_UpdateInternal(CFE_TBL_Handle_t TblHandle, CFE_TBL_RegistryRec_t *RegRecPtr,
+int32 CFE_TBL_UpdateInternal(CFE_TBL_Handle_t            TblHandle,
+                             CFE_TBL_RegistryRec_t      *RegRecPtr,
                              CFE_TBL_AccessDescriptor_t *AccessDescPtr);
 
 /*---------------------------------------------------------------------------------------*/
@@ -283,8 +287,10 @@ void CFE_TBL_NotifyTblUsersOfUpdate(CFE_TBL_RegistryRec_t *RegRecPtr);
 ** \retval #CFE_TBL_ERR_BAD_PROCESSOR_ID    \copydoc CFE_TBL_ERR_BAD_PROCESSOR_ID
 **
 */
-int32 CFE_TBL_ReadHeaders(osal_id_t FileDescriptor, CFE_FS_Header_t *StdFileHeaderPtr,
-                          CFE_TBL_File_Hdr_t *TblFileHeaderPtr, const char *LoadFilename);
+int32 CFE_TBL_ReadHeaders(osal_id_t           FileDescriptor,
+                          CFE_FS_Header_t    *StdFileHeaderPtr,
+                          CFE_TBL_File_Hdr_t *TblFileHeaderPtr,
+                          const char         *LoadFilename);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -399,8 +405,12 @@ void CFE_TBL_ByteSwapUint32(uint32 *Uint32ToSwapPtr);
  * These callbacks are used with the FS background write request API
  * and are implemented per that specification.
  */
-void CFE_TBL_DumpRegistryEventHandler(void *Meta, CFE_FS_FileWriteEvent_t Event, int32 Status, uint32 RecordNum,
-                                      size_t BlockSize, size_t Position);
+void CFE_TBL_DumpRegistryEventHandler(void                   *Meta,
+                                      CFE_FS_FileWriteEvent_t Event,
+                                      int32                   Status,
+                                      uint32                  RecordNum,
+                                      size_t                  BlockSize,
+                                      size_t                  Position);
 bool CFE_TBL_DumpRegistryGetter(void *Meta, uint32 RecordNum, void **Buffer, size_t *BufSize);
 
 /*
@@ -510,9 +520,11 @@ CFE_Status_t CFE_TBL_AllocateSecondaryBuffer(CFE_TBL_RegistryRec_t *RegRecPtr, s
 **          None
 **
 */
-void CFE_TBL_InitTableRegistryEntry(CFE_TBL_RegistryRec_t *RegRecPtr, size_t Size,
-                                    CFE_TBL_CallbackFuncPtr_t TblValidationFuncPtr, const char *TblName,
-                                    uint16 TblOptionFlags);
+void CFE_TBL_InitTableRegistryEntry(CFE_TBL_RegistryRec_t    *RegRecPtr,
+                                    size_t                    Size,
+                                    CFE_TBL_CallbackFuncPtr_t TblValidationFuncPtr,
+                                    const char               *TblName,
+                                    uint16                    TblOptionFlags);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -529,8 +541,10 @@ void CFE_TBL_InitTableRegistryEntry(CFE_TBL_RegistryRec_t *RegRecPtr, size_t Siz
 ** \retval #CFE_TBL_INFO_RECOVERED_TBL      \copydoc CFE_TBL_INFO_RECOVERED_TBL
 **
 */
-CFE_Status_t CFE_TBL_RestoreTableDataFromCDS(CFE_TBL_RegistryRec_t *RegRecPtr, const char *AppName, const char *Name,
-                                             CFE_TBL_CritRegRec_t *CritRegRecPtr);
+CFE_Status_t CFE_TBL_RestoreTableDataFromCDS(CFE_TBL_RegistryRec_t *RegRecPtr,
+                                             const char            *AppName,
+                                             const char            *Name,
+                                             CFE_TBL_CritRegRec_t  *CritRegRecPtr);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -545,8 +559,9 @@ CFE_Status_t CFE_TBL_RestoreTableDataFromCDS(CFE_TBL_RegistryRec_t *RegRecPtr, c
 **          None
 **
 */
-void CFE_TBL_RegisterWithCriticalTableRegistry(CFE_TBL_CritRegRec_t *CritRegRecPtr, CFE_TBL_RegistryRec_t *RegRecPtr,
-                                               const char *TblName);
+void CFE_TBL_RegisterWithCriticalTableRegistry(CFE_TBL_CritRegRec_t  *CritRegRecPtr,
+                                               CFE_TBL_RegistryRec_t *RegRecPtr,
+                                               const char            *TblName);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -717,7 +732,7 @@ CFE_TBL_LoadBuff_t *CFE_TBL_GetInactiveBuffer(CFE_TBL_RegistryRec_t *RegRecPtr);
 ** \param BufferSelect The buffer to obtain (active or inactive)
 ** \returns Pointer to the selected table buffer
 */
-CFE_TBL_LoadBuff_t *CFE_TBL_GetSelectedBuffer(CFE_TBL_RegistryRec_t *     RegRecPtr,
+CFE_TBL_LoadBuff_t *CFE_TBL_GetSelectedBuffer(CFE_TBL_RegistryRec_t      *RegRecPtr,
                                               CFE_TBL_BufferSelect_Enum_t BufferSelect);
 
 /*---------------------------------------------------------------------------------------*/
