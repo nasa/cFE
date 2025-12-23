@@ -54,24 +54,14 @@
 /**
  * \brief Macro to initialize a command header, useful in tables that define commands
  */
-#define CFE_MSG_CMD_HDR_INIT(mid, size, fc, cksum)       \
-    {                                                    \
-    .Msg.CCSDS = \
-    { \
-        .Pri = \
-        { \
-            .StreamId = {(((mid)&0x80)<<5, (mid)&0x7F}, \
-            .Sequence = {0xC0, 0}, \
-            .Length = {((size)-7)>>8, ((size)-7)&0xFF} \
-        }, \
-        .Ext = \
-        { \
-            .Subsystem = {0, ((mid)>>8)&0xFF}, \
-            .SystemId = {0, 0) \
-        } \
-    }, \
-    CFE_MSG_CMD_HDR_SEC_INIT(fc, cksum) \
-}
+#define CFE_MSG_CMD_HDR_INIT(mid, size, fc, cksum)                                         \
+    {                                                                                      \
+        .Msg.CCSDS = {.Pri = {.StreamId = {((mid)&0x80) << 5, (mid)&0x7F},                 \
+                              .Sequence = {0xC0, 0},                                       \
+                              .Length   = {((size)-7) >> 8, ((size)-7) & 0xFF}},             \
+                      .Ext = {.Subsystem = {0, ((mid) >> 8) & 0xFF}, .SystemId = {0, 0}}}, \
+        CFE_MSG_CMD_HDR_SEC_INIT(fc, cksum)                                                \
+    }
 
 /*
  * Type Definitions
