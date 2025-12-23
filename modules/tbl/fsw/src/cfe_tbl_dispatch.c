@@ -169,18 +169,15 @@ void CFE_TBL_TaskPipe(const CFE_SB_Buffer_t *SBBufPtr)
  *-----------------------------------------------------------------*/
 int16 CFE_TBL_SearchCmdHndlrTbl(CFE_SB_MsgId_t MessageID, uint16 CommandCode)
 {
-    int16 TblIndx    = CFE_TBL_BAD_CMD_CODE;
+    int16 TblIndx;
+    int16 Result;
     bool  FoundMsg   = false;
     bool  FoundMatch = false;
 
-    do
+    for (TblIndx = 0; CFE_TBL_CmdHandlerTbl[TblIndx].MsgTypes != CFE_TBL_TERM_MSGTYPE; TblIndx++)
     {
-        /* Point to next entry in Command Handler Table */
-        TblIndx++;
-
         /* Check to see if we found a matching Message ID */
-        if (CFE_SB_MsgId_Equal(CFE_TBL_CmdHandlerTbl[TblIndx].MsgId, MessageID) &&
-            (CFE_TBL_CmdHandlerTbl[TblIndx].MsgTypes != CFE_TBL_TERM_MSGTYPE))
+        if (CFE_SB_MsgId_Equal(CFE_TBL_CmdHandlerTbl[TblIndx].MsgId, MessageID))
         {
             /* Flag any found message IDs so that if there is an error,        */
             /* we can determine if it was a bad message ID or bad command code */
@@ -194,31 +191,35 @@ int16 CFE_TBL_SearchCmdHndlrTbl(CFE_SB_MsgId_t MessageID, uint16 CommandCode)
                 {
                     /* Found matching message ID and Command Code */
                     FoundMatch = true;
+                    break;
                 }
             }
             else /* Message is not a command message with specific command code */
             {
-                /* Automatically assume a match when legit */
-                /* Message ID is all that is required      */
+                /* Automatically assume a match when legit Message ID is all that is required      */
                 FoundMatch = true;
+                break;
             }
         }
-    } while ((!FoundMatch) && (CFE_TBL_CmdHandlerTbl[TblIndx].MsgTypes != CFE_TBL_TERM_MSGTYPE));
+    }
 
-    /* If we failed to find a match, return a negative index */
-    if (!FoundMatch)
+    if (FoundMatch)
+    {
+        Result = TblIndx;
+    }
+    else /* If we failed to find a match, return a negative index */
     {
         /* Determine if the message ID was bad or the command code */
         if (FoundMsg)
         {
             /* A matching message ID was found, so the command code must be bad */
-            TblIndx = CFE_TBL_BAD_CMD_CODE;
+            Result = CFE_TBL_BAD_CMD_CODE;
         }
         else /* No matching message ID was found */
         {
-            TblIndx = CFE_TBL_BAD_MSG_ID;
+            Result = CFE_TBL_BAD_MSG_ID;
         }
     }
 
-    return TblIndx;
+    return Result;
 }

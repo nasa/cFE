@@ -319,7 +319,7 @@ directory is described as a note under each folder.
     |   |-- All mission and platform configuration files are placed here
     |-- apps
     |   |-- Contains application source code.
-    |   |-- Application source code may be shared amoung multiple build CPUs
+    |   |-- Application source code may be shared among multiple build CPUs
     |-- libs
     |   |-- Contains Core Flight System (cFS) Sample Library (sample_lib)
     |-- tools
@@ -664,7 +664,7 @@ the content (payload) of those messages.  This supports cases where target syste
 and all messages and data files are desired to use those formats, as opposed to the normal/default CFE encapsulation formats.  In this case, it
 is important _not_ to change the payload formats, as this will make it more difficult to take a new application update in the future.
 
-**IMPORANT**: All the header files above with "INTERFACE" scope control the table/message interface of the component.  Changing any of the
+**IMPORTANT**: All the header files above with "INTERFACE" scope control the table/message interface of the component.  Changing any of the
 values or definitions in these files will affect the inter-processor communication - either table files, exported data products, commands, or
 telemetry messages.  Caution should be exercised when customizing any of these files, as any changes will need to be propagated to all
 other CFE instances, ground systems, test software or scripts, or any other tools that interact with the flight software.
@@ -686,7 +686,7 @@ recommended to only override/modify the more granular headers defined above.
 | _module_`_msg.h`           | Complete message interface: Combination of `msgdefs.h`, `msgstruct.h` and all dependencies |
 | _module_`_tbl.h`           | Complete table interface: Combination of `tbldefs.h`, `tblstruct.h` and all dependencies   |
 
-**IMPORANT**: Files from a limited scope may depend on files from a broader scope, but not the other way around.  For example,
+**IMPORTANT**: Files from a limited scope may depend on files from a broader scope, but not the other way around.  For example,
 the `platform_cfg.h` may depend on items defined in `mission_cfg.h`, but items in `mission_cfg.h` must **not** depend on items
 defined in `platform_cfg.h`.
 
