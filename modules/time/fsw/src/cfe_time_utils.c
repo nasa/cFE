@@ -679,7 +679,14 @@ CFE_TIME_SysTime_t CFE_TIME_CalculateUTC(const CFE_TIME_Reference_t *Reference)
 {
     CFE_TIME_SysTime_t TimeAsUTC;
 
-    TimeAsUTC = CFE_TIME_Add(Reference->CurrentMET, Reference->AtToneSTCF);
+    /*
+    ** Get preliminary UTC time using TAI (not accounting for leap seconds)
+    */
+    TimeAsUTC = CFE_TIME_CalculateTAI(Reference);
+
+    /*
+    ** Adjust UTC time by deducting leap seconds from TAI
+    */
     TimeAsUTC.Seconds -= Reference->AtToneLeapSeconds;
 
     return TimeAsUTC;
