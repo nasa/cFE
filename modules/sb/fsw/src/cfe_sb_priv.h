@@ -1273,7 +1273,8 @@ int32 CFE_SB_SendStatsCmd(const CFE_SB_SendSbStatsCmd_t *data);
 /**
  * \brief Command Message Handler function
  *
- * SB internal function to handle processing of 'Write Routing Info' Cmd
+ * SB internal function to handle processing of 'Write Routing Info' Cmd.
+ * Calls CFE_SB_WriteInfo() to write the routing information to a file.
  *
  * \param[in] data Pointer to command structure
  * \return Execution status, see \ref CFEReturnCodes
@@ -1284,7 +1285,8 @@ int32 CFE_SB_WriteRoutingInfoCmd(const CFE_SB_WriteRoutingInfoCmd_t *data);
 /**
  * \brief Command Message Handler function
  *
- * SB internal function to handle processing of 'Write Pipe Info' Cmd
+ * SB internal function to handle processing of 'Write Pipe Info' Cmd.
+ * calls CFE_SB_WriteInfo() to write the pipe information to a file.
  *
  * \param[in] data Pointer to command structure
  * \return Execution status, see \ref CFEReturnCodes
@@ -1295,12 +1297,30 @@ int32 CFE_SB_WritePipeInfoCmd(const CFE_SB_WritePipeInfoCmd_t *data);
 /**
  * \brief Command Message Handler function
  *
- * SB internal function to handle processing of 'Write Map Info' Cmd
+ * SB internal function to handle processing of 'Write Map Info' Cmd.
+ * Calls CFE_SB_WriteInfo() to write the message map information to a file.
  *
  * \param[in] data Pointer to command structure
  * \return Execution status, see \ref CFEReturnCodes
  */
 int32 CFE_SB_WriteMapInfoCmd(const CFE_SB_WriteMapInfoCmd_t *data);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Performs the actual write of Pipe/Routing/Map data to a file
+ *
+ * This is an internal helper function which is called by CFE_SB_WriteRoutingInfoCmd(),
+ * CFE_SB_WritePipeInfoCmd() or CFE_SB_WriteMapInfoCmd(). The function performs the
+ * file write based on the type of information (Routing, Pipe or Message Map).
+ *
+ * @param[in] data            Pointer to the command structure
+ * @param[in] InfoType        File sub-type
+ * @param[in] FileDescription Description of file for the FS header
+ * @param[in] DataCallback    Application callback to get a data record from the SB global state object
+ * @param[in] FileName        Default file name (as defined in the the configuation file)
+ */
+void CFE_SB_WriteInfo(const CFE_SB_WriteFileInfoCmd_t *data, enum CFE_FS_SubType InfoType, const char *FileDescription,
+                      CFE_FS_FileWriteGetData_t DataCallback, const char *FileName);
 
 /*---------------------------------------------------------------------------------------*/
 /**
