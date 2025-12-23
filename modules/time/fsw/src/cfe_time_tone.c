@@ -292,12 +292,12 @@ int32 CFE_TIME_ToneSendMET(CFE_TIME_SysTime_t NewMET)
 
 /*----------------------------------------------------------------
  *
- * Application-scope internal function
- * See description in header file for argument/return detail
+ * Internal helper function
+ * Common logic for ToneSendGPS and ToneSendTime
  *
  *-----------------------------------------------------------------*/
-#if (CFE_PLATFORM_TIME_CFG_SRC_GPS == true)
-int32 CFE_TIME_ToneSendGPS(CFE_TIME_SysTime_t NewTime, int16 NewLeaps)
+#if (CFE_PLATFORM_TIME_CFG_SRC_GPS == true) || (CFE_PLATFORM_TIME_CFG_SRC_TIME == true)
+static CFE_Status_t CFE_TIME_ToneSendSTCF(CFE_TIME_SysTime_t NewTime, int16 LeapSeconds)
 {
     CFE_TIME_Reference_t Reference;
     CFE_TIME_SysTime_t   NewSTCF;
@@ -307,8 +307,8 @@ int32 CFE_TIME_ToneSendGPS(CFE_TIME_SysTime_t NewTime, int16 NewLeaps)
     CFE_TIME_Compare_t   MinResult;
     CFE_TIME_Compare_t   MaxResult;
 
-    int16 ClockState;
-    int32 Result = CFE_SUCCESS;
+    int16        ClockState;
+    CFE_Status_t Result = CFE_SUCCESS;
 
     /* Zero out the Reference variable because we pass it into
      * a function before using it
@@ -356,7 +356,11 @@ int32 CFE_TIME_ToneSendGPS(CFE_TIME_SysTime_t NewTime, int16 NewLeaps)
 ** Restore leap seconds if default time format is UTC...
 */
 #if (CFE_MISSION_TIME_CFG_DEFAULT_UTC == true)
-        NewSTCF.Seconds += NewLeaps;
+    #if (CFE_PLATFORM_TIME_CFG_SRC_TIME == true)
+        NewSTCF.Seconds += Reference.AtToneLeapSeconds;
+    #elif (CFE_PLATFORM_TIME_CFG_SRC_GPS == true)
+        NewSTCF.Seconds += LeapSeconds;
+    #endif
 #endif
 
         /*
@@ -400,14 +404,22 @@ int32 CFE_TIME_ToneSendGPS(CFE_TIME_SysTime_t NewTime, int16 NewLeaps)
             CFE_TIME_Global.ToneDataCmd.Payload.AtToneMET.Subseconds  = CFE_MAKE_BIG32(NewMET.Subseconds);
             CFE_TIME_Global.ToneDataCmd.Payload.AtToneSTCF.Seconds    = CFE_MAKE_BIG32(NewSTCF.Seconds);
             CFE_TIME_Global.ToneDataCmd.Payload.AtToneSTCF.Subseconds = CFE_MAKE_BIG32(NewSTCF.Subseconds);
-            CFE_TIME_Global.ToneDataCmd.Payload.AtToneLeapSeconds     = CFE_MAKE_BIG16(NewLeaps);
+#if (CFE_PLATFORM_TIME_CFG_SRC_TIME == true)
+            CFE_TIME_Global.ToneDataCmd.Payload.AtToneLeapSeconds     = CFE_MAKE_BIG16(Reference.AtToneLeapSeconds);
+#elif (CFE_PLATFORM_TIME_CFG_SRC_GPS == true)
+            CFE_TIME_Global.ToneDataCmd.Payload.AtToneLeapSeconds     = CFE_MAKE_BIG16(LeapSeconds);
+#endif
             CFE_TIME_Global.ToneDataCmd.Payload.AtToneState           = CFE_MAKE_BIG16(ClockState);
 
 #else /* !CFE_PLATFORM_TIME_CFG_BIGENDIAN */
 
             CFE_TIME_Global.ToneDataCmd.Payload.AtToneMET         = NewMET;
             CFE_TIME_Global.ToneDataCmd.Payload.AtToneSTCF        = NewSTCF;
-            CFE_TIME_Global.ToneDataCmd.Payload.AtToneLeapSeconds = NewLeaps;
+#if (CFE_PLATFORM_TIME_CFG_SRC_TIME == true)
+            CFE_TIME_Global.ToneDataCmd.Payload.AtToneLeapSeconds = Reference.AtToneLeapSeconds;
+#elif (CFE_PLATFORM_TIME_CFG_SRC_GPS == true)
+            CFE_TIME_Global.ToneDataCmd.Payload.AtToneLeapSeconds = LeapSeconds;
+#endif
             CFE_TIME_Global.ToneDataCmd.Payload.AtToneState       = ClockState;
 
 #endif /* CFE_PLATFORM_TIME_CFG_BIGENDIAN */
@@ -426,6 +438,19 @@ int32 CFE_TIME_ToneSendGPS(CFE_TIME_SysTime_t NewTime, int16 NewLeaps)
 
     return Result;
 }
+#endif
+
+/*----------------------------------------------------------------
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+#if (CFE_PLATFORM_TIME_CFG_SRC_GPS == true)
+CFE_Status_t CFE_TIME_ToneSendGPS(CFE_TIME_SysTime_t NewTime, int16 NewLeaps)
+{
+    return CFE_TIME_ToneSendSTCF(NewTime, NewLeaps);
+}
 #endif /* CFE_PLATFORM_TIME_CFG_SRC_GPS */
 
 /*----------------------------------------------------------------
@@ -435,136 +460,10 @@ int32 CFE_TIME_ToneSendGPS(CFE_TIME_SysTime_t NewTime, int16 NewLeaps)
  *
  *-----------------------------------------------------------------*/
 #if (CFE_PLATFORM_TIME_CFG_SRC_TIME == true)
-int32 CFE_TIME_ToneSendTime(CFE_TIME_SysTime_t NewTime)
+CFE_Status_t CFE_TIME_ToneSendTime(CFE_TIME_SysTime_t NewTime)
 {
-    CFE_TIME_Reference_t Reference;
-    CFE_TIME_SysTime_t   NewSTCF;
-    CFE_TIME_SysTime_t   NewMET;
-    CFE_TIME_SysTime_t   MinValid;
-    CFE_TIME_SysTime_t   MaxValid;
-    CFE_TIME_Compare_t   MinResult;
-    CFE_TIME_Compare_t   MaxResult;
-
-    int16 ClockState;
-    int32 Result = CFE_SUCCESS;
-
-    /* Zero out the Reference variable because we pass it into
-     * a function before using it
-     * */
-    memset(&Reference, 0, sizeof(CFE_TIME_Reference_t));
-
-    /*
-    ** Ignore external time data if commanded to use local MET...
-    */
-    if (CFE_TIME_Global.ClockSource == CFE_TIME_SourceSelect_INTERNAL)
-    {
-        Result = CFE_TIME_INTERNAL_ONLY;
-
-        /*
-        ** Use internal clock but still send "time at the tone"...
-        */
-        CFE_TIME_ToneSend();
-    }
-    else
-    {
-        /*
-        ** Get reference time values (local time, time at tone, etc.)...
-        */
-        CFE_TIME_GetReference(&Reference);
-
-        /*
-        ** cFE defines MET as being synchronized to the tone signal...
-        */
-        NewMET.Seconds    = Reference.CurrentMET.Seconds;
-        NewMET.Subseconds = 0;
-
-/*
-** Add a second if the tone has not yet occurred...
-*/
-#if (CFE_MISSION_TIME_AT_TONE_WILL_BE == true)
-        NewMET.Seconds++;
-#endif
-
-        /*
-        ** Remove MET from the new time value (leaves STCF)...
-        */
-        NewSTCF = CFE_TIME_Subtract(NewTime, NewMET);
-
-/*
-** Restore leap seconds if default time format is UTC...
-*/
-#if (CFE_MISSION_TIME_CFG_DEFAULT_UTC == true)
-        NewSTCF.Seconds += Reference.AtToneLeapSeconds;
-#endif
-
-        /*
-        ** Compute minimum and maximum values for valid STCF...
-        */
-        MinValid = CFE_TIME_Subtract(Reference.AtToneSTCF, CFE_TIME_Global.MaxDelta);
-        MaxValid = CFE_TIME_Add(Reference.AtToneSTCF, CFE_TIME_Global.MaxDelta);
-
-        /*
-        ** Compare new STCF to minimum and maximum STCF...
-        */
-        MinResult = CFE_TIME_Compare(NewSTCF, MinValid);
-        MaxResult = CFE_TIME_Compare(NewSTCF, MaxValid);
-
-        /*
-        ** If state is valid then ignore bad external time data...
-        */
-        if ((Reference.ClockSetState == CFE_TIME_SetState_WAS_SET) &&
-            ((MinResult == CFE_TIME_A_LT_B) || (MaxResult == CFE_TIME_A_GT_B)))
-        {
-            Result = CFE_TIME_OUT_OF_RANGE;
-
-            /*
-            ** Use internal clock but still send "time at the tone"...
-            */
-            CFE_TIME_ToneSend();
-        }
-        else
-        {
-            ClockState = CFE_TIME_CalculateState(&Reference);
-
-            /*
-            ** Set "time at the tone" command data packet arguments...
-            */
-
-#ifdef CFE_PLATFORM_TIME_CFG_BIGENDIAN
-
-            /*
-            ** Payload must be big-endian.
-            */
-
-            CFE_TIME_Global.ToneDataCmd.Payload.AtToneMET.Seconds     = CFE_MAKE_BIG32(NewMET.Seconds);
-            CFE_TIME_Global.ToneDataCmd.Payload.AtToneMET.Subseconds  = CFE_MAKE_BIG32(NewMET.Subseconds);
-            CFE_TIME_Global.ToneDataCmd.Payload.AtToneSTCF.Seconds    = CFE_MAKE_BIG32(NewSTCF.Seconds);
-            CFE_TIME_Global.ToneDataCmd.Payload.AtToneSTCF.Subseconds = CFE_MAKE_BIG32(NewSTCF.Subseconds);
-            CFE_TIME_Global.ToneDataCmd.Payload.AtToneLeapSeconds     = CFE_MAKE_BIG16(Reference.AtToneLeapSeconds);
-            CFE_TIME_Global.ToneDataCmd.Payload.AtToneState           = CFE_MAKE_BIG16(ClockState);
-
-#else /* !CFE_PLATFORM_TIME_CFG_BIGENDIAN */
-
-            CFE_TIME_Global.ToneDataCmd.Payload.AtToneMET         = NewMET;
-            CFE_TIME_Global.ToneDataCmd.Payload.AtToneSTCF        = NewSTCF;
-            CFE_TIME_Global.ToneDataCmd.Payload.AtToneLeapSeconds = Reference.AtToneLeapSeconds;
-            CFE_TIME_Global.ToneDataCmd.Payload.AtToneState       = ClockState;
-
-#endif /* CFE_PLATFORM_TIME_CFG_BIGENDIAN */
-
-            /*
-            ** Send "time at the tone" command data packet...
-            */
-            CFE_SB_TransmitMsg(CFE_MSG_PTR(CFE_TIME_Global.ToneDataCmd.CommandHeader), true);
-
-            /*
-            ** Count of "time at the tone" commands sent with external data...
-            */
-            CFE_TIME_Global.ExternalCount++;
-        }
-    }
-
-    return Result;
+    /* TIME source doesn't provide leap seconds, so just pass 0 to the helper function. */
+    return CFE_TIME_ToneSendSTCF(NewTime, 0);
 }
 #endif /* CFE_PLATFORM_TIME_CFG_SRC_TIME */
 

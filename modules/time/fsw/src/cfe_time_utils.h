@@ -499,7 +499,7 @@ int32 CFE_TIME_ToneSendMET(CFE_TIME_SysTime_t NewMET);
  * "time at the tone" data command will arrive within the
  * specified window for tone and data packet verification.
  */
-int32 CFE_TIME_ToneSendGPS(CFE_TIME_SysTime_t NewTime, int16 NewLeaps);
+CFE_Status_t CFE_TIME_ToneSendGPS(CFE_TIME_SysTime_t NewTime, int16 NewLeaps);
 #endif
 
 #if (CFE_PLATFORM_TIME_CFG_SRC_TIME == true)
@@ -512,7 +512,7 @@ int32 CFE_TIME_ToneSendGPS(CFE_TIME_SysTime_t NewTime, int16 NewLeaps);
  * "time at the tone" data command will arrive within the
  * specified window for tone and data packet verification.
  */
-int32 CFE_TIME_ToneSendTime(CFE_TIME_SysTime_t NewTime);
+CFE_Status_t CFE_TIME_ToneSendTime(CFE_TIME_SysTime_t NewTime);
 #endif
 
 /*---------------------------------------------------------------------------------------*/
