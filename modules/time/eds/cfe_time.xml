@@ -95,7 +95,7 @@
       </EnumeratedDataType>
 
       <EnumeratedDataType name="ToneSignalSelect" shortDescription="Tone Signal Selection Parameters">
-        <IntegerDataEncoding sizeInBits="8" encoding="unsigned" />
+        <IntegerDataEncoding sizeInBits="16" encoding="unsigned" />
         <EnumerationList>
           <Enumeration label="PRIMARY" value="1" shortDescription="Primary Source" />
           <Enumeration label="REDUNDANT" value="2" shortDescription="Redundant Source" />
