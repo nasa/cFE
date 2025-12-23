@@ -564,7 +564,7 @@ CFE_Status_t CFE_ES_WaitForSystemState(uint32 MinSystemState, uint32 TimeOutMill
      * to be at least the state requested.
      */
     WaitRemaining = TimeOutMilliseconds;
-    while (CFE_ES_Global.SystemState < MinSystemState)
+    while (CFE_ES_Global.SystemState < (int)MinSystemState)
     {
         /* TBD: Very Crude timing here, but not sure if it matters,
          * as this is only done during startup, not real work */

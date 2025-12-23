@@ -1087,7 +1087,7 @@ bool CFE_ES_RunAppTableScan(uint32 ElapsedTime, void *Arg)
                  * Decrement the wait timer, if active.
                  * When the timeout value becomes zero, take the action to delete/restart/reload the app
                  */
-                if (AppPtr->ControlReq.AppTimerMsec > ElapsedTime)
+                if (AppPtr->ControlReq.AppTimerMsec > (int64_t)ElapsedTime)
                 {
                     AppPtr->ControlReq.AppTimerMsec -= ElapsedTime;
                 }

@@ -599,7 +599,7 @@ int32 CFE_FS_ParseInputFileName(char *OutputBuffer, const char *InputName, size_
 CFE_Status_t CFE_FS_ExtractFilenameFromPath(const char *OriginalPath, char *FileNameOnly)
 {
     uint32 i, j;
-    int    StringLength;
+    size_t StringLength;
     int    DirMarkIdx;
     int32  ReturnCode;
 
@@ -773,7 +773,7 @@ bool CFE_FS_RunBackgroundFileDump(uint32 ElapsedTime, void *Arg)
              */
             OsStatus = OS_write(State->Fd, RecordPtr, RecordSize);
 
-            if (OsStatus != RecordSize)
+            if (OsStatus != (int64_t)RecordSize)
             {
                 /* end the file early (cannot set "IsEOF" as this would cause the complete event to be generated too) */
                 OS_close(State->Fd);
