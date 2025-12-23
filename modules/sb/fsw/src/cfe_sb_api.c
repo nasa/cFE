@@ -73,7 +73,7 @@ typedef struct
 {
     const char *    FullName; /* Full name (app.task) for error reporting */
     CFE_SB_PipeId_t PipeId;   /* Pipe id to remove */
-} CFE_SB_RemovePipeCallback_t;
+} CFE_SB_RemovePipeCallbackArgs_t;
 
 /*----------------------------------------------------------------
  *
@@ -311,10 +311,10 @@ int32 CFE_SB_DeletePipeWithAppId(CFE_SB_PipeId_t PipeId, CFE_ES_AppId_t AppId)
  *-----------------------------------------------------------------*/
 void CFE_SB_RemovePipeFromRoute(CFE_SBR_RouteId_t RouteId, void *ArgPtr)
 {
-    CFE_SB_DestinationD_t *      destptr;
-    CFE_SB_RemovePipeCallback_t *args;
+    CFE_SB_DestinationD_t *          destptr;
+    CFE_SB_RemovePipeCallbackArgs_t *args;
 
-    args = (CFE_SB_RemovePipeCallback_t *)ArgPtr;
+    args = (CFE_SB_RemovePipeCallbackArgs_t *)ArgPtr;
 
     destptr = CFE_SB_GetDestPtr(RouteId, args->PipeId);
 
@@ -332,15 +332,15 @@ void CFE_SB_RemovePipeFromRoute(CFE_SBR_RouteId_t RouteId, void *ArgPtr)
  *-----------------------------------------------------------------*/
 int32 CFE_SB_DeletePipeFull(CFE_SB_PipeId_t PipeId, CFE_ES_AppId_t AppId)
 {
-    CFE_SB_PipeD_t *            PipeDscPtr;
-    int32                       Status;
-    CFE_ES_TaskId_t             TskId;
-    CFE_SB_BufferD_t *          BufDscPtr;
-    osal_id_t                   SysQueueId;
-    char                        FullName[(OS_MAX_API_NAME * 2)];
-    size_t                      BufDscSize;
-    CFE_SB_RemovePipeCallback_t Args;
-    uint16                      PendingEventID;
+    CFE_SB_PipeD_t *                PipeDscPtr;
+    int32                           Status;
+    CFE_ES_TaskId_t                 TskId;
+    CFE_SB_BufferD_t *              BufDscPtr;
+    osal_id_t                       SysQueueId;
+    char                            FullName[(OS_MAX_API_NAME * 2)];
+    size_t                          BufDscSize;
+    CFE_SB_RemovePipeCallbackArgs_t Args;
+    uint16                          PendingEventID;
 
     Status         = CFE_SUCCESS;
     PendingEventID = 0;
