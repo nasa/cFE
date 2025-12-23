@@ -263,7 +263,7 @@
         </EntryList>
       </ContainerDataType>
 
-      <ContainerDataType name="PacketID" shortDescription="Telemetry packet structures">
+      <ContainerDataType name="EventContext" shortDescription="Telemetry packet structures">
         <EntryList>
           <Entry name="AppName" type="BASE_TYPES/ApiName" shortDescription="Application name">
             <LongDescription>
@@ -295,7 +295,7 @@
 
       <ContainerDataType name="LongEventTlm_Payload" shortDescription="Event Message Telemetry Payload Long Format">
         <EntryList>
-          <Entry name="PacketID" type="PacketID" shortDescription="Event packet information" />
+          <Entry name="EventContext" type="EventContext" shortDescription="Event packet context" />
           <Entry name="Message" type="EventMessage" shortDescription="Event message string">
             <LongDescription>
               \cfetlmmnemonic  \EVS_EVENT
@@ -306,7 +306,7 @@
 
       <ContainerDataType name="ShortEventTlm_Payload" shortDescription="Event Message Telemetry Payload Short Format">
         <EntryList>
-          <Entry name="PacketID" type="PacketID" shortDescription="Event packet information" />
+          <Entry name="EventContext" type="EventContext" shortDescription="Event packet context" />
         </EntryList>
       </ContainerDataType>
 
