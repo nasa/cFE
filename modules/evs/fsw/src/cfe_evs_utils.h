@@ -48,6 +48,10 @@
 
 /* ==============   Section I: Macro and Constant Type Definitions   =========== */
 
+/* Macro representing all event types turned on */
+#define CFE_EVS_ALL_EVENT_TYPES_MASK \
+    (CFE_EVS_DEBUG_BIT | CFE_EVS_INFORMATION_BIT | CFE_EVS_ERROR_BIT | CFE_EVS_CRITICAL_BIT)
+
 /* ==============   Section II: Internal Structures ============ */
 
 /* ==============   Section III: Function Prototypes =========== */
@@ -222,9 +226,9 @@ void EVS_SetTypes(EVS_AppData_t *AppDataPtr, uint8 BitMask, bool State);
 /*---------------------------------------------------------------------------------------*/
 /**
  * @brief Converts event array to a BitMask
- * 
+ *
  * This routine converts the EventTypesActive array in an AppData Struct to a BitMask
- * 
+ *
  * @returns uint8 BitMask for active event types in an app
  */
 uint8 EVS_EventArrayToBitMask(const EVS_AppData_t *AppDataPtr);

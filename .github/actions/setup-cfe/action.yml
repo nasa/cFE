@@ -59,15 +59,33 @@ runs:
         path: ${{ inputs.source-dir }}/libs/sample_lib
 
     - name: Checkout elf2cfetbl
+      if: ${{ !env.CFE_EDS_ENABLED }}
       uses: actions/checkout@v4
       with:
         repository: cFS/elf2cfetbl
         path: ${{ inputs.source-dir }}/tools/elf2cfetbl
 
     - name: Add elf2cfetbl subdir
+      if: ${{ !env.CFE_EDS_ENABLED }}
       shell: bash
       working-directory: ${{ inputs.source-dir }}
       run: echo "add_subdirectory(elf2cfetbl)" >> ./tools/CMakeLists.txt
+
+    - name: Checkout edslib
+      if: ${{ env.CFE_EDS_ENABLED }}
+      uses: actions/checkout@v4
+      with:
+        repository: cFS/EdsLib
+        path: ${{ inputs.source-dir }}/tools/eds
+
+    - name: Add edslib subdir
+      if: ${{ env.CFE_EDS_ENABLED }}
+      shell: bash
+      working-directory: ${{ inputs.source-dir }}
+      run: |
+        echo "add_subdirectory(eds/edslib)" >> ./tools/CMakeLists.txt
+        echo "add_subdirectory(eds/tool)" >> ./tools/CMakeLists.txt
+        echo "add_subdirectory(eds/cfecfs)" >> ./tools/CMakeLists.txt
 
     - name: Checkout commandline-tools
       uses: actions/checkout@v4

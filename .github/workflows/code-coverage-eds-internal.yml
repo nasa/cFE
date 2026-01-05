@@ -1,4 +1,4 @@
-name: "Internal Code Coverage Analysis"
+name: "Internal Code Coverage Analysis, EDS enabled"
 
 on:
   push:
@@ -19,6 +19,7 @@ env:
   SIMULATION: native
   ENABLE_UNIT_TESTS: true
   OMIT_DEPRECATED: false
+  CFE_EDS_ENABLED: true
   BUILDTYPE: debug
 
 jobs:
@@ -45,7 +46,7 @@ jobs:
       - name: Execute coverage testing
         uses: ./cfe/.github/actions/code-coverage
         with:
-          module-list: config core_api core_private es evs fs msg resourceid sb sbr tbl time
-          allowed-missed-branches: 17
-          allowed-missed-lines: 17
+          module-list: config core_api core_private es evs fs resourceid sb sbr tbl time
+          allowed-missed-branches: 50
+          allowed-missed-lines: 52
           allowed-missed-functions: 2
