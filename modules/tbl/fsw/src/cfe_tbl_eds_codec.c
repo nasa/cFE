@@ -178,33 +178,42 @@ CFE_Status_t CFE_TBL_FindAppTableInterface(const char *TableFullName, EdsLib_Id_
      * and this should include the type mapping for the table data.
      */
     EdsStatus = EdsLib_FindPackageIdxByName(EDS_DB, AppNameBuffer, &AppIdx);
-    if (EdsStatus == EDSLIB_SUCCESS)
-    {
-        EdsStatus = EdsLib_IntfDB_FindComponentByLocalName(EDS_DB, AppIdx, "Application", &AppComponentEdsId);
-    }
-
-    /* Look for a direct match to the table name in the application interfaces */
-    if (EdsStatus == EDSLIB_SUCCESS)
-    {
-        EdsStatus = EdsLib_IntfDB_FindComponentInterfaceByLocalName(EDS_DB, AppComponentEdsId, TableNameBuffer, EdsIdBuf);
-    }
-
-    /* Fallback - if no exact match, check for a numeric suffix.  Some apps (such as MD)
-     * have multiple instances of the same table and they attach a numeric suffix to the name */
     if (EdsStatus != EDSLIB_SUCCESS)
     {
-        TempPtr = &TableNameBuffer[strlen(TableNameBuffer)];
-        while(TempPtr != &TableNameBuffer[0])
-        {
-            --TempPtr;
-            if (!isdigit((int)(*TempPtr)))
-            {
-                break;
-            }
+        /* This means that this app/component does not have an EDS. */
+        /* We can still permit the binary to be loaded as a passthrough (traditional method) */
+        *EdsIdBuf = EDSLIB_ID_INVALID;
+        EdsStatus = EDSLIB_SUCCESS;
+    }
+    else
+    {
+        EdsStatus = EdsLib_IntfDB_FindComponentByLocalName(EDS_DB, AppIdx, "Application", &AppComponentEdsId);
 
-            *TempPtr = 0;
+        /* Look for a direct match to the table name in the application interfaces */
+        if (EdsStatus == EDSLIB_SUCCESS)
+        {
+            EdsStatus =
+                EdsLib_IntfDB_FindComponentInterfaceByLocalName(EDS_DB, AppComponentEdsId, TableNameBuffer, EdsIdBuf);
         }
-        EdsStatus = EdsLib_IntfDB_FindComponentInterfaceByLocalName(EDS_DB, AppComponentEdsId, TableNameBuffer, EdsIdBuf);
+
+        /* Fallback - if no exact match, check for a numeric suffix.  Some apps (such as MD)
+         * have multiple instances of the same table and they attach a numeric suffix to the name */
+        if (EdsStatus != EDSLIB_SUCCESS)
+        {
+            TempPtr = &TableNameBuffer[strlen(TableNameBuffer)];
+            while (TempPtr != &TableNameBuffer[0])
+            {
+                --TempPtr;
+                if (!isdigit((int)(*TempPtr)))
+                {
+                    break;
+                }
+
+                *TempPtr = 0;
+            }
+            EdsStatus =
+                EdsLib_IntfDB_FindComponentInterfaceByLocalName(EDS_DB, AppComponentEdsId, TableNameBuffer, EdsIdBuf);
+        }
     }
 
     if (EdsStatus != EDSLIB_SUCCESS)
@@ -307,11 +316,18 @@ CFE_Status_t CFE_TBL_ValidateCodecConfig(CFE_TBL_TableConfig_t *ReqCfg)
     /* Determine the argument data type for "load" command */
     if (ReturnCode == CFE_SUCCESS)
     {
-        ReturnCode = CFE_TBL_TranslateArgumentType(TblIntfEdsId, LoadCmdEdsId, &ReqCfg->EdsId);
+        if (EdsLib_Is_Valid(TblIntfEdsId))
+        {
+            ReturnCode = CFE_TBL_TranslateArgumentType(TblIntfEdsId, LoadCmdEdsId, &ReqCfg->EdsId);
+        }
+        else
+        {
+            ReqCfg->EdsId = EDSLIB_ID_INVALID;
+        }
     }
 
     /* Confirm that the size matches the user-indicated size */
-    if (ReturnCode == CFE_SUCCESS)
+    if (ReturnCode == CFE_SUCCESS && EdsLib_Is_Valid(ReqCfg->EdsId))
     {
         ReturnCode = CFE_TBL_ValidateEdsObjectSize(ReqCfg);
     }
@@ -333,29 +349,47 @@ CFE_Status_t CFE_TBL_GetEncodedTableSize(CFE_TBL_TxnState_t *Txn, uint32 *NumByt
     int32                               EdsStatus;
     CFE_Status_t                        Status;
     CFE_TBL_RegistryRec_t *             RegRecPtr;
+    const CFE_TBL_TableConfig_t *       Config;
 
     EDS_DB    = CFE_Config_GetObjPointer(CFE_CONFIGID_MISSION_EDS_DB);
     RegRecPtr = CFE_TBL_TxnRegRec(Txn);
-    if (RegRecPtr != NULL)
+    if (RegRecPtr == NULL)
     {
-        EdsId = CFE_TBL_RegRecGetConfig(RegRecPtr)->EdsId;
+        Config = NULL;
     }
     else
     {
-        EdsId = EDSLIB_ID_INVALID;
+        Config = CFE_TBL_RegRecGetConfig(RegRecPtr);
     }
 
-    EdsStatus = EdsLib_DataTypeDB_GetDerivedInfo(EDS_DB, EdsId, &DerivInfo);
-
-    if (EdsStatus != EDSLIB_SUCCESS)
+    if (Config == NULL)
     {
-        Status = CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
-        CFE_TBL_TxnAddEvent(Txn, CFE_TBL_CODEC_ERROR_ERR_EID, EdsStatus, EdsId);
+        Status = CFE_TBL_ERR_INVALID_HANDLE;
     }
     else
     {
-        Status    = CFE_SUCCESS;
-        *NumBytes = (DerivInfo.MaxSize.Bits + 7) / 8;
+        EdsId = Config->EdsId;
+        if (EdsLib_Is_Valid(EdsId))
+        {
+            EdsStatus = EdsLib_DataTypeDB_GetDerivedInfo(EDS_DB, EdsId, &DerivInfo);
+
+            if (EdsStatus != EDSLIB_SUCCESS)
+            {
+                CFE_TBL_TxnAddEvent(Txn, CFE_TBL_CODEC_ERROR_ERR_EID, EdsStatus, EdsId);
+                Status = CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
+            }
+            else
+            {
+                Status    = CFE_SUCCESS;
+                *NumBytes = (DerivInfo.MaxSize.Bits + 7) / 8;
+            }
+        }
+        else
+        {
+            /* Use the registration size (passthrough) */
+            Status    = CFE_SUCCESS;
+            *NumBytes = Config->Size;
+        }
     }
 
     return Status;
@@ -516,28 +550,38 @@ CFE_Status_t CFE_TBL_DecodeInputData(CFE_TBL_TxnState_t *Txn, const CFE_TBL_Load
 
     EdsId = CFE_TBL_RegRecGetConfig(RegRecPtr)->EdsId;
 
-    EdsStatus = EdsLib_DataTypeDB_UnpackCompleteObject(EDS_DB, &EdsId, DestBuffer->BufferPtr, SourceBuffer->BufferPtr,
-                                                       CFE_TBL_RegRecGetSize(RegRecPtr),
-                                                       8 * CFE_PLATFORM_TBL_MAX_SNGL_TABLE_SIZE);
-
-    if (EdsStatus == EDSLIB_SUCCESS)
+    if (!EdsLib_Is_Valid(EdsId))
     {
-        EdsStatus = EdsLib_DataTypeDB_GetTypeInfo(EDS_DB, EdsId, &TypeInfo);
-        if (EdsStatus == EDSLIB_SUCCESS)
-        {
-            CFE_TBL_LoadBuffSetContentSize(DestBuffer, TypeInfo.Size.Bytes);
-            ReturnCode = CFE_SUCCESS;
-        }
-        else
-        {
-            OS_printf("%s(): EdsLib_DataTypeDB_GetTypeInfo(): %d\n", __func__, (int)EdsStatus);
-            ReturnCode = CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
-        }
+        /* Passthrough mode, just copy the data */
+        memcpy(DestBuffer->BufferPtr, SourceBuffer->BufferPtr, CFE_TBL_RegRecGetSize(RegRecPtr));
+        CFE_TBL_LoadBuffSetContentSize(DestBuffer, CFE_TBL_RegRecGetSize(RegRecPtr));
+        ReturnCode = CFE_SUCCESS;
     }
     else
     {
-        OS_printf("%s(): EdsLib_DataTypeDB_UnpackCompleteObject(): %d\n", __func__, (int)EdsStatus);
-        ReturnCode = CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
+        EdsStatus = EdsLib_DataTypeDB_UnpackCompleteObject(EDS_DB, &EdsId, DestBuffer->BufferPtr,
+                                                           SourceBuffer->BufferPtr, CFE_TBL_RegRecGetSize(RegRecPtr),
+                                                           8 * CFE_PLATFORM_TBL_MAX_SNGL_TABLE_SIZE);
+
+        if (EdsStatus == EDSLIB_SUCCESS)
+        {
+            EdsStatus = EdsLib_DataTypeDB_GetTypeInfo(EDS_DB, EdsId, &TypeInfo);
+            if (EdsStatus == EDSLIB_SUCCESS)
+            {
+                CFE_TBL_LoadBuffSetContentSize(DestBuffer, TypeInfo.Size.Bytes);
+                ReturnCode = CFE_SUCCESS;
+            }
+            else
+            {
+                OS_printf("%s(): EdsLib_DataTypeDB_GetTypeInfo(): %d\n", __func__, (int)EdsStatus);
+                ReturnCode = CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
+            }
+        }
+        else
+        {
+            OS_printf("%s(): EdsLib_DataTypeDB_UnpackCompleteObject(): %d\n", __func__, (int)EdsStatus);
+            ReturnCode = CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
+        }
     }
 
     return ReturnCode;

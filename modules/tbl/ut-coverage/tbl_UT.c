@@ -141,6 +141,8 @@ void UtTest_Setup(void)
     UT_TBL_ADD_TEST(Test_CFE_TBL_Internal1);
     UT_TBL_ADD_TEST(Test_CFE_TBL_Internal2);
     UT_TBL_ADD_TEST(Test_CFE_TBL_Internal3);
+
+    UT_TBL_RegisterCodecTests();
 }
 
 /*

@@ -125,6 +125,7 @@ void UT_TBL_CheckTxnHasEventImpl(const CFE_TBL_TxnState_t *Txn, uint16 EventId, 
 
 void UT_TBL_SetupHeader(CFE_TBL_File_Hdr_t *TblFileHeader, size_t Offset, size_t NumBytes, const char *Name);
 void UT_TBL_SetupCodec(size_t ByteSize);
+void UT_TBL_RegisterCodecTests(void);
 
 void UT_TBL_SetupRegRec(CFE_TBL_RegistryRec_t *RegRecPtr);
 void UT_TBL_SetupAccDesc(CFE_TBL_AccessDescriptor_t *AccDescPtr);
