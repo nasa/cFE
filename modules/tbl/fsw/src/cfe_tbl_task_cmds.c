@@ -337,8 +337,8 @@ CFE_Status_t CFE_TBL_NoopCmd(const CFE_TBL_NoopCmd_t *data)
     char VersionString[CFE_CFG_MAX_VERSION_STR_LEN];
 
     /* Acknowledge receipt of NOOP with Event Message */
-    CFE_Config_GetVersionString(VersionString, CFE_CFG_MAX_VERSION_STR_LEN, "cFE", CFE_SRC_VERSION, CFE_BUILD_CODENAME,
-                                CFE_LAST_OFFICIAL);
+    CFE_Config_GetVersionString(VersionString, CFE_CFG_MAX_VERSION_STR_LEN, "CFE_TBL", CFE_SRC_VERSION,
+                                CFE_BUILD_CODENAME, CFE_LAST_OFFICIAL);
     CFE_EVS_SendEvent(CFE_TBL_NOOP_INF_EID, CFE_EVS_EventType_INFORMATION, "No-op Cmd Rcvd: %s", VersionString);
 
     return CFE_TBL_TranslateCmdProcRet(CmdProcRet);

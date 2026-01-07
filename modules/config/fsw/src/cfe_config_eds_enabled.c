@@ -21,6 +21,9 @@
 /* ======== */
 
 #include "cfe_config_eds.h"
+#include "cfe_config.h"
+#include "edslib_global.h"
+#include "edslib_datatypedb.h"
 
 /* ==================== */
 /* Function Definitions */
@@ -28,7 +31,22 @@
 
 const char *CFE_Config_EdsState(const char *ComponentName)
 {
-    static const char ENABLED_STR[] = "inactive";
+    static const char              ACTIVE_STR[]   = "active";
+    static const char              INACTIVE_STR[] = "inactive";
+    const EdsLib_DatabaseObject_t *GD;
+    int32                          Status;
 
-    return ENABLED_STR;
+    GD = CFE_Config_GetObjPointer(CFE_CONFIGID_MISSION_EDS_DB);
+
+    Status = EdsLib_FindPackageIdxByName(GD, ComponentName, NULL);
+    if (Status == EDSLIB_SUCCESS)
+    {
+        /* EDS is enabled and there is a matching EDS package for this app */
+        return ACTIVE_STR;
+    }
+    else
+    {
+        /* EDS is enabled but there is no matching EDS package for this app */
+        return INACTIVE_STR;
+    }
 }
