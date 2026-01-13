@@ -575,8 +575,8 @@ int32 CFE_EVS_DisableEventTypeCmd(const CFE_EVS_DisableEventTypeCmd_t *data)
 {
     uint32                              i;
     const CFE_EVS_BitMaskCmd_Payload_t *CmdPtr = &data->Payload;
-    int32                               ReturnCode;
-    EVS_AppData_t                      *AppDataPtr = CFE_SUCCESS;
+    int32                               ReturnCode = CFE_SUCCESS;
+    EVS_AppData_t                      *AppDataPtr;
 
     /* Need to check for an out of range bitmask, since our bit masks are only 4 bits */
     if (EVS_IsInvalidBitMask(CmdPtr->BitMask, CFE_EVS_DISABLE_EVENT_TYPE_CC))
