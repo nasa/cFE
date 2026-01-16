@@ -37,6 +37,7 @@
 ** Includes
 */
 #include "evs_UT.h"
+#include "evs_ut_helpers.h"
 #include "cfe_evs.h"
 #include "utstubs.h"
 
@@ -56,206 +57,6 @@ static const char *EVS_SYSLOG_MSGS[] = {
     "%s: Call to CFE_SB_CreatePipe Failed:RC=0x%08X\n",
     "%s: Subscribing to Cmds Failed:RC=0x%08X\n",
     "%s: Subscribing to HK Request Failed:RC=0x%08X\n"};
-
-/* Normal dispatching registers the MsgID+CC in order to follow a
- * certain path through a series of switch statements */
-#define EVS_UT_MID_DISPATCH(intf) \
-    .Method = UT_TaskPipeDispatchMethod_MSG_ID_CC, .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_EVS_##intf##_MID)
-
-#define EVS_UT_MSG_DISPATCH(intf, cmd)       EVS_UT_MID_DISPATCH(intf), UT_TPD_SETSIZE(CFE_EVS_##cmd)
-#define EVS_UT_CC_DISPATCH(intf, cc, cmd)    EVS_UT_MSG_DISPATCH(intf, cmd), UT_TPD_SETCC(cc)
-#define EVS_UT_ERROR_DISPATCH(intf, cc, err) EVS_UT_MID_DISPATCH(intf), UT_TPD_SETCC(cc), UT_TPD_SETERR(err)
-
-/* NOTE: Automatic formatting of this table tends to make it harder to read. */
-/* clang-format off */
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_CMD_NOOP_CC =
-    { EVS_UT_CC_DISPATCH(CMD, CFE_EVS_NOOP_CC, NoopCmd) };
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_CMD_RESET_COUNTERS_CC =
-    { EVS_UT_CC_DISPATCH(CMD, CFE_EVS_RESET_COUNTERS_CC, ResetCountersCmd) };
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_CMD_ENABLE_EVENT_TYPE_CC =
-    { EVS_UT_CC_DISPATCH(CMD, CFE_EVS_ENABLE_EVENT_TYPE_CC, EnableEventTypeCmd) };
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_CMD_DISABLE_EVENT_TYPE_CC =
-    { EVS_UT_CC_DISPATCH(CMD, CFE_EVS_DISABLE_EVENT_TYPE_CC, DisableEventTypeCmd) };
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_CMD_SET_EVENT_FORMAT_MODE_CC =
-    { EVS_UT_CC_DISPATCH(CMD, CFE_EVS_SET_EVENT_FORMAT_MODE_CC, SetEventFormatModeCmd) };
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_CMD_ENABLE_APP_EVENT_TYPE_CC =
-    { EVS_UT_CC_DISPATCH(CMD, CFE_EVS_ENABLE_APP_EVENT_TYPE_CC, EnableAppEventTypeCmd) };
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_CMD_DISABLE_APP_EVENT_TYPE_CC =
-    { EVS_UT_CC_DISPATCH(CMD, CFE_EVS_DISABLE_APP_EVENT_TYPE_CC, DisableAppEventTypeCmd) };
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_CMD_ENABLE_APP_EVENTS_CC =
-    { EVS_UT_CC_DISPATCH(CMD, CFE_EVS_ENABLE_APP_EVENTS_CC, EnableAppEventsCmd) };
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_CMD_DISABLE_APP_EVENTS_CC =
-    { EVS_UT_CC_DISPATCH(CMD, CFE_EVS_DISABLE_APP_EVENTS_CC, DisableAppEventsCmd) };
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_CMD_RESET_APP_COUNTER_CC =
-    { EVS_UT_CC_DISPATCH(CMD, CFE_EVS_RESET_APP_COUNTER_CC, ResetAppCounterCmd) };
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_CMD_SET_FILTER_CC =
-    { EVS_UT_CC_DISPATCH(CMD, CFE_EVS_SET_FILTER_CC, SetFilterCmd) };
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_CMD_ENABLE_PORTS_CC =
-    { EVS_UT_CC_DISPATCH(CMD, CFE_EVS_ENABLE_PORTS_CC, EnablePortsCmd) };
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_CMD_DISABLE_PORTS_CC =
-    { EVS_UT_CC_DISPATCH(CMD, CFE_EVS_DISABLE_PORTS_CC, DisablePortsCmd) };
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_CMD_RESET_FILTER_CC =
-    { EVS_UT_CC_DISPATCH(CMD, CFE_EVS_RESET_FILTER_CC, ResetFilterCmd) };
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_CMD_RESET_ALL_FILTERS_CC =
-    { EVS_UT_CC_DISPATCH(CMD, CFE_EVS_RESET_ALL_FILTERS_CC, ResetAllFiltersCmd) };
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_CMD_ADD_EVENT_FILTER_CC =
-    { EVS_UT_CC_DISPATCH(CMD, CFE_EVS_ADD_EVENT_FILTER_CC, AddEventFilterCmd) };
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_CMD_DELETE_EVENT_FILTER_CC =
-    { EVS_UT_CC_DISPATCH(CMD, CFE_EVS_DELETE_EVENT_FILTER_CC, DeleteEventFilterCmd) };
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_CMD_WRITE_APP_DATA_FILE_CC =
-    { EVS_UT_CC_DISPATCH(CMD, CFE_EVS_WRITE_APP_DATA_FILE_CC, WriteAppDataFileCmd) };
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_CMD_WRITE_LOG_DATA_FILE_CC =
-    { EVS_UT_CC_DISPATCH(CMD, CFE_EVS_WRITE_LOG_DATA_FILE_CC, WriteLogDataFileCmd) };
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_CMD_SET_LOG_MODE_CC =
-    { EVS_UT_CC_DISPATCH(CMD, CFE_EVS_SET_LOG_MODE_CC, SetLogModeCmd) };
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_CMD_CLEAR_LOG_CC =
-    { EVS_UT_CC_DISPATCH(CMD, CFE_EVS_CLEAR_LOG_CC, ClearLogCmd) };
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_SEND_HK =
-    { EVS_UT_MSG_DISPATCH(SEND_HK, SendHkCmd) };
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_INVALID_MID =
-    { .Method = UT_TaskPipeDispatchMethod_MSG_ID_CC, UT_TPD_SETERR(CFE_STATUS_UNKNOWN_MSG_ID) };
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_CMD_INVALID_CC =
-    { EVS_UT_ERROR_DISPATCH(CMD, -1, CFE_STATUS_BAD_COMMAND_CODE) };
-/* clang-format on */
-
-static UT_SoftwareBusSnapshot_Entry_t UT_EVS_LONGFMT_SNAPSHOTDATA = {
-    .MsgId          = CFE_SB_MSGID_WRAP_VALUE(0),
-    .SnapshotOffset = offsetof(CFE_EVS_LongEventTlm_t, Payload.PacketID.EventID),
-    .SnapshotSize   = sizeof(uint16)};
-
-static UT_SoftwareBusSnapshot_Entry_t UT_EVS_SHORTFMT_SNAPSHOTDATA = {
-    .MsgId          = CFE_SB_MSGID_WRAP_VALUE(0),
-    .SnapshotOffset = offsetof(CFE_EVS_ShortEventTlm_t, Payload.PacketID.EventID),
-    .SnapshotSize   = sizeof(uint16)};
-
-typedef struct
-{
-    uint16 EventID;
-    uint16 Count;
-} UT_EVS_EventCapture_t;
-
-static UT_EVS_EventCapture_t UT_EVS_EventBuf;
-
-/* MSG Init hook data */
-typedef struct
-{
-    CFE_MSG_Message_t *MsgPtr;
-    CFE_SB_MsgId_t     MsgId;
-    CFE_MSG_Size_t     Size;
-} UT_EVS_MSGInitData_t;
-
-typedef CFE_Status_t (*UT_EVS_SendEventFunc_t)(uint32);
-
-/* Custom time handler to avoid needing to provide buffer for every event call */
-void UT_CFE_MSG_GetMsgTime_CustomHandler(void *UserObj, UT_EntryKey_t FuncKey, const UT_StubContext_t *Context) {}
-
-/* Add custom logic to cFE common UT_InitData */
-void UT_InitData_EVS(void)
-{
-    UT_InitData();
-
-    UT_EVS_LONGFMT_SNAPSHOTDATA.MsgId  = CFE_SB_MSGID_C(CFE_EVS_LONG_EVENT_MSG_MID);
-    UT_EVS_SHORTFMT_SNAPSHOTDATA.MsgId = CFE_SB_MSGID_C(CFE_EVS_SHORT_EVENT_MSG_MID);
-
-    UT_SetHandlerFunction(UT_KEY(CFE_MSG_GetMsgTime), UT_CFE_MSG_GetMsgTime_CustomHandler, NULL);
-}
-
-/* Message init hook to stora last MsgId passed in */
-static int32 UT_EVS_MSGInitHook(void *UserObj, int32 StubRetcode, uint32 CallCount, const UT_StubContext_t *Context)
-{
-    UT_EVS_MSGInitData_t *msgdataptr = UserObj;
-
-    msgdataptr->MsgPtr = UT_Hook_GetArgValueByName(Context, "MsgPtr", CFE_MSG_Message_t *);
-    msgdataptr->MsgId  = UT_Hook_GetArgValueByName(Context, "MsgId", CFE_SB_MsgId_t);
-    msgdataptr->Size   = UT_Hook_GetArgValueByName(Context, "Size", CFE_MSG_Size_t);
-
-    return StubRetcode;
-}
-
-static void UT_EVS_DoDispatchCheckEvents_Impl(void *MsgPtr, size_t MsgSize, UT_TaskPipeDispatchId_t DispatchId,
-                                              const UT_SoftwareBusSnapshot_Entry_t *SnapshotCfg,
-                                              UT_EVS_EventCapture_t *               EventCapture)
-{
-    UT_SoftwareBusSnapshot_Entry_t SnapshotData = *SnapshotCfg;
-
-    EventCapture->EventID       = 0xFFFF;
-    SnapshotData.SnapshotBuffer = &EventCapture->EventID;
-
-    UT_SetHookFunction(UT_KEY(CFE_SB_TransmitMsg), UT_SoftwareBusSnapshotHook, &SnapshotData);
-    UT_CallTaskPipe(CFE_EVS_ProcessCommandPacket, (CFE_MSG_Message_t *)MsgPtr, MsgSize, DispatchId);
-    EventCapture->Count += SnapshotData.Count;
-
-    /* be sure to clear the hook function since the SnapshotData is going out of scope */
-    UT_SetHookFunction(UT_KEY(CFE_SB_TransmitMsg), NULL, NULL);
-}
-
-static void UT_EVS_DoDispatchCheckEvents(void *MsgPtr, size_t MsgSize, UT_TaskPipeDispatchId_t DispatchId,
-                                         UT_EVS_EventCapture_t *EventCapture)
-{
-    UT_EVS_DoDispatchCheckEvents_Impl(MsgPtr, MsgSize, DispatchId, &UT_EVS_LONGFMT_SNAPSHOTDATA, EventCapture);
-}
-
-static void UT_EVS_DoDispatchCheckEventsShort(void *MsgPtr, size_t MsgSize, UT_TaskPipeDispatchId_t DispatchId,
-                                              UT_EVS_EventCapture_t *EventCapture)
-{
-    UT_EVS_DoDispatchCheckEvents_Impl(MsgPtr, MsgSize, DispatchId, &UT_EVS_SHORTFMT_SNAPSHOTDATA, EventCapture);
-}
-
-static void UT_EVS_DoGenericCheckEvents(void (*Func)(void), UT_EVS_EventCapture_t *EventCapture)
-{
-    UT_SoftwareBusSnapshot_Entry_t SnapshotData = UT_EVS_LONGFMT_SNAPSHOTDATA;
-
-    EventCapture->EventID       = -1;
-    SnapshotData.SnapshotBuffer = &EventCapture->EventID;
-
-    UT_SetHookFunction(UT_KEY(CFE_SB_TransmitMsg), UT_SoftwareBusSnapshotHook, &SnapshotData);
-    Func();
-    EventCapture->Count += SnapshotData.Count;
-
-    /* be sure to clear the hook function since the SnapshotData is going out of scope */
-    UT_SetHookFunction(UT_KEY(CFE_SB_TransmitMsg), NULL, NULL);
-}
-
-static CFE_Status_t UT_EVS_SendSquelchedEvent(uint32 EventId)
-{
-    return CFE_EVS_SendEvent(EventId, CFE_EVS_EventType_INFORMATION, "Suppressed Message");
-}
-
-static CFE_Status_t UT_EVS_SendSquelchedEventWithAppId(uint32 EventId)
-{
-    CFE_ES_AppId_t AppID;
-    CFE_ES_GetAppID(&AppID);
-    return CFE_EVS_SendEventWithAppID(EventId, CFE_EVS_EventType_INFORMATION, AppID, "Suppressed Message");
-}
-
-static CFE_Status_t UT_EVS_SendSquelchedTimedEvent(uint32 EventId)
-{
-    CFE_TIME_SysTime_t Time = {0, 0};
-    return CFE_EVS_SendTimedEvent(Time, EventId, CFE_EVS_EventType_INFORMATION, "Suppressed Message");
-}
-
-static void UT_EVS_ResetSquelchCurrentContext(void)
-{
-    EVS_AppData_t *AppDataPtr;
-
-    EVS_GetCurrentContext(&AppDataPtr, NULL);
-    if (AppDataPtr)
-    {
-        AppDataPtr->SquelchedCount            = 0;
-        AppDataPtr->SquelchTokens             = CFE_PLATFORM_EVS_MAX_APP_EVENT_BURST * 1000;
-        AppDataPtr->LastSquelchCreditableTime = OS_TimeAssembleFromMilliseconds(0, 0);
-    }
-}
-
-static void UT_EVS_DisableSquelch(void)
-{
-    CFE_EVS_Global.EVS_EventBurstMax = 0;
-}
-
-static void UT_EVS_ResetSquelch(void)
-{
-    CFE_EVS_Global.EVS_EventBurstMax = CFE_PLATFORM_EVS_MAX_APP_EVENT_BURST;
-}
 
 /*
 ** Functions
@@ -282,6 +83,7 @@ void UtTest_Setup(void)
     UT_ADD_TEST(Test_InvalidCmd);
     UT_ADD_TEST(Test_Squelching);
     UT_ADD_TEST(Test_Misc);
+    UT_ADD_TEST(Test_SetEvent);
 }
 
 /*
@@ -293,12 +95,12 @@ void Test_Init(void)
     CFE_EVS_EnableAppEventTypeCmd_t appbitcmd;
 
     CFE_SB_Buffer_t *bufPtr;
-    union 
+    union
     {
         CFE_SB_Buffer_t   SbBuf;
         CFE_EVS_NoopCmd_t Noop;
     } TestMsg;
-    
+
     UtPrintf("Begin Test Init");
 
     memset(&TestMsg, 0, sizeof(TestMsg));
@@ -376,6 +178,15 @@ void Test_Init(void)
     CFE_EVS_Global.EVS_LogPtr->Next        = CFE_PLATFORM_EVS_LOG_MAX;
     CFE_EVS_EarlyInit();
     CFE_UtAssert_SYSLOG(EVS_SYSLOG_MSGS[5]);
+
+    /* Test early initialization, condition coverage purposes */
+    UT_InitData_EVS();
+    UT_SetDeferredRetcode(UT_KEY(CFE_ES_GetResetType), 1, -1);
+    CFE_EVS_Global.EVS_LogPtr->LogMode     = CFE_EVS_LogMode_OVERWRITE;
+    CFE_EVS_Global.EVS_LogPtr->LogFullFlag = true;
+    CFE_EVS_Global.EVS_LogPtr->Next        = CFE_PLATFORM_EVS_LOG_MAX - 1;
+    CFE_EVS_EarlyInit();
+    CFE_UtAssert_SYSLOG(EVS_SYSLOG_MSGS[6]);
 
     /* Test early initialization with a mutex creation failure */
     UT_InitData_EVS();
@@ -2139,7 +1950,7 @@ void Test_Misc(void)
     CFE_EVS_Global.EVS_TlmPkt.Payload.MessageTruncCounter = 0;
     EVS_AppDataSetUsed(AppDataPtr, AppID);
     AppDataPtr->ActiveFlag = true;
-    AppDataPtr->EventTypesActiveFlag |= CFE_EVS_INFORMATION_BIT;
+    CFE_EVS_SetTypeEnable(CFE_EVS_EventType_INFORMATION, true);
     EVS_SendEvent(0, CFE_EVS_EventType_INFORMATION, msg);
     UtAssert_UINT32_EQ(CFE_EVS_Global.EVS_TlmPkt.Payload.MessageTruncCounter, 1);
 
@@ -2151,4 +1962,82 @@ void Test_Misc(void)
         EVS_AppDataSetUsed(&CFE_EVS_Global.AppData[i], AppID);
     }
     UtAssert_UINT32_EQ(CFE_EVS_SendHkCmd(NULL), CFE_STATUS_NO_COUNTER_INCREMENT);
+}
+
+void Test_SetEvent(void)
+{
+    EVS_AppData_t *AppDataPtr;
+
+    EVS_GetCurrentContext(&AppDataPtr, NULL);
+
+    /* Test disabling all events with CFE_EVS_SetTypeEnable*/
+    UT_InitData_EVS();
+    CFE_EVS_SetTypeEnable(CFE_EVS_EventType_DEBUG, false);
+    CFE_EVS_SetTypeEnable(CFE_EVS_EventType_INFORMATION, false);
+    CFE_EVS_SetTypeEnable(CFE_EVS_EventType_ERROR, false);
+    CFE_EVS_SetTypeEnable(CFE_EVS_EventType_CRITICAL, false);
+    UtAssert_INT32_EQ(AppDataPtr->EventTypesActive[0], 0);
+    UtAssert_INT32_EQ(AppDataPtr->EventTypesActive[1], 0);
+    UtAssert_INT32_EQ(AppDataPtr->EventTypesActive[2], 0);
+    UtAssert_INT32_EQ(AppDataPtr->EventTypesActive[3], 0);
+
+    /*Test enabling specific events with CFE_EVS_SetTypeEnable*/
+    CFE_EVS_SetTypeEnable(CFE_EVS_EventType_DEBUG, true);
+    UtAssert_INT32_EQ(AppDataPtr->EventTypesActive[0], 1);
+    UtAssert_INT32_EQ(AppDataPtr->EventTypesActive[1], 0);
+    UtAssert_INT32_EQ(AppDataPtr->EventTypesActive[2], 0);
+    UtAssert_INT32_EQ(AppDataPtr->EventTypesActive[3], 0);
+    CFE_EVS_SetTypeEnable(CFE_EVS_EventType_CRITICAL, true);
+    UtAssert_INT32_EQ(AppDataPtr->EventTypesActive[0], 1);
+    UtAssert_INT32_EQ(AppDataPtr->EventTypesActive[1], 0);
+    UtAssert_INT32_EQ(AppDataPtr->EventTypesActive[2], 0);
+    UtAssert_INT32_EQ(AppDataPtr->EventTypesActive[3], 1);
+
+    /*Test CFE_EVS_GetTypeEnable*/
+    UtAssert_INT32_EQ(CFE_EVS_GetTypeEnable(CFE_EVS_EventType_DEBUG), 1);
+    UtAssert_INT32_EQ(CFE_EVS_GetTypeEnable(CFE_EVS_EventType_INFORMATION), 0);
+    UtAssert_INT32_EQ(CFE_EVS_GetTypeEnable(CFE_EVS_EventType_ERROR), 0);
+    UtAssert_INT32_EQ(CFE_EVS_GetTypeEnable(CFE_EVS_EventType_CRITICAL), 1);
+
+    /*Test CFE_EVS_SetTypeEnable with invalid event type*/
+    CFE_EVS_SetTypeEnable(5, true);
+    UtAssert_INT32_EQ(AppDataPtr->EventTypesActive[0], 1);
+    UtAssert_INT32_EQ(AppDataPtr->EventTypesActive[1], 0);
+    UtAssert_INT32_EQ(AppDataPtr->EventTypesActive[2], 0);
+    UtAssert_INT32_EQ(AppDataPtr->EventTypesActive[3], 1);
+
+    /*Test CFE_EVS_GetTypeEnable with invalid event type*/
+    UtAssert_INT32_EQ(CFE_EVS_GetTypeEnable(5), 0); //Invalid event always returns false
+
+    /*Test CFE_EVS_GetTypeEnable and CFE_EVS_SetTypeEnable with null pointers*/
+    UT_InitData_EVS();
+    UT_SetDefaultReturnValue(UT_KEY(CFE_ES_AppID_ToIndex), CFE_ES_ERR_RESOURCEID_NOT_VALID);
+    CFE_EVS_SetTypeEnable(CFE_EVS_EventType_ERROR, true);
+    UtAssert_INT32_EQ(AppDataPtr->EventTypesActive[0], 1);
+    UtAssert_INT32_EQ(AppDataPtr->EventTypesActive[1], 0);
+    UtAssert_INT32_EQ(AppDataPtr->EventTypesActive[2], 0);
+    UtAssert_INT32_EQ(AppDataPtr->EventTypesActive[3], 1);
+    UtAssert_INT32_EQ(CFE_EVS_GetTypeEnable(CFE_EVS_EventType_DEBUG), false);
+
+    /*Test EVS_SetTypes*/
+    UT_InitData_EVS();
+    EVS_SetTypes(NULL, 4, true);
+    UtAssert_INT32_EQ(AppDataPtr->EventTypesActive[0], 1);
+    UtAssert_INT32_EQ(AppDataPtr->EventTypesActive[1], 0);
+    UtAssert_INT32_EQ(AppDataPtr->EventTypesActive[2], 0);
+    UtAssert_INT32_EQ(AppDataPtr->EventTypesActive[3], 1);
+    EVS_SetTypes(AppDataPtr, 0xFF, true);
+    UtAssert_INT32_EQ(AppDataPtr->EventTypesActive[0], 1);
+    UtAssert_INT32_EQ(AppDataPtr->EventTypesActive[1], 1);
+    UtAssert_INT32_EQ(AppDataPtr->EventTypesActive[2], 1);
+    UtAssert_INT32_EQ(AppDataPtr->EventTypesActive[3], 1);
+
+    /*Test EVS_EventArrayToBitMask*/
+    UtAssert_INT32_EQ(EVS_EventArrayToBitMask(NULL), 0);
+    CFE_EVS_SetTypeEnable(CFE_EVS_EventType_DEBUG, true);
+    CFE_EVS_SetTypeEnable(CFE_EVS_EventType_INFORMATION, false);
+    CFE_EVS_SetTypeEnable(CFE_EVS_EventType_ERROR, false);
+    CFE_EVS_SetTypeEnable(CFE_EVS_EventType_CRITICAL, false);
+
+    UtAssert_INT32_EQ(EVS_EventArrayToBitMask(AppDataPtr), 1);
 }

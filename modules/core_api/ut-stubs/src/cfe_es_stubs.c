@@ -695,6 +695,30 @@ CFE_Status_t CFE_ES_PoolCreateEx(CFE_ES_MemHandle_t *PoolID, void *MemPtr, size_
 
 /*
  * ----------------------------------------------------
+ * Generated stub function for CFE_ES_PoolCreateEx_WithAlignment()
+ * ----------------------------------------------------
+ */
+CFE_Status_t CFE_ES_PoolCreateEx_WithAlignment(CFE_ES_MemHandle_t *PoolID, void *MemPtr, size_t Size,
+                                               uint16 NumBlockSizes, const size_t *BlockSizes, bool UseMutex,
+                                               size_t Alignment)
+{
+    UT_GenStub_SetupReturnBuffer(CFE_ES_PoolCreateEx_WithAlignment, CFE_Status_t);
+
+    UT_GenStub_AddParam(CFE_ES_PoolCreateEx_WithAlignment, CFE_ES_MemHandle_t *, PoolID);
+    UT_GenStub_AddParam(CFE_ES_PoolCreateEx_WithAlignment, void *, MemPtr);
+    UT_GenStub_AddParam(CFE_ES_PoolCreateEx_WithAlignment, size_t, Size);
+    UT_GenStub_AddParam(CFE_ES_PoolCreateEx_WithAlignment, uint16, NumBlockSizes);
+    UT_GenStub_AddParam(CFE_ES_PoolCreateEx_WithAlignment, const size_t *, BlockSizes);
+    UT_GenStub_AddParam(CFE_ES_PoolCreateEx_WithAlignment, bool, UseMutex);
+    UT_GenStub_AddParam(CFE_ES_PoolCreateEx_WithAlignment, size_t, Alignment);
+
+    UT_GenStub_Execute(CFE_ES_PoolCreateEx_WithAlignment, Basic, NULL);
+
+    return UT_GenStub_GetReturnValue(CFE_ES_PoolCreateEx_WithAlignment, CFE_Status_t);
+}
+
+/*
+ * ----------------------------------------------------
  * Generated stub function for CFE_ES_PoolCreateNoSem()
  * ----------------------------------------------------
  */

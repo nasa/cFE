@@ -46,8 +46,8 @@ endif (MISSION_MSGID_V2)
 
 
 add_cfe_coverage_test(${DEP} ALL
-    "msg_UT.c;${ut_${DEP}_tests}"  # This list needs to be passed as a single argument
-    "${UNIT_SRCS}"
+    TESTCASE_SOURCES "msg_UT.c" "${ut_${DEP}_tests}"
+    SUBJECT_SOURCES  "${UNIT_SRCS}"
 )
 
 # This permits UT test cases to directly access private headers in the fsw/src dir

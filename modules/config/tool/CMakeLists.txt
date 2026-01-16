@@ -43,6 +43,14 @@ foreach(SYSVAR ${TGTSYS_LIST})
   target_include_directories(${OBJLIB_NAME} PRIVATE
     ${TEMP_ARCH_BINARY_DIR}/inc
   )
+  target_link_libraries(${OBJLIB_NAME} PRIVATE
+    core_api
+  )
+
+  # If this is an EDS build, this needs to be built after the EDS tool runs
+  if (CFE_EDS_ENABLED)
+    add_dependencies(${OBJLIB_NAME} edstool-execute)
+  endif()
 
   set(PLATFORM_DEFINE_FILE ${MISSION_BINARY_DIR}/src/${OBJLIB_NAME}.c)
   set(PLATFORM_LIST_FILE ${MISSION_BINARY_DIR}/src/${OBJLIB_NAME}.list)
@@ -78,5 +86,7 @@ add_executable(cfeconfig_platformdata_tool
 target_include_directories(cfeconfig_platformdata_tool PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}
 )
+
+target_link_libraries(cfeconfig_platformdata_tool core_api)
 
 add_dependencies(mission-prebuild cfeconfig_platformdata_tool)

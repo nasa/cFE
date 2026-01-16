@@ -33,6 +33,8 @@
 #include "cfe_mission_cfg.h"
 #include "cfe_msg_api_typedefs.h"
 
+#include <assert.h>
+
 /*
  * Defines
  */

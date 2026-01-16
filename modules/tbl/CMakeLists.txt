@@ -9,13 +9,29 @@ project(CFE_TBL C)
 # Table Services source files
 set(tbl_SOURCES
     fsw/src/cfe_tbl_api.c
+    fsw/src/cfe_tbl_accdesc.c
+    fsw/src/cfe_tbl_load.c
+    fsw/src/cfe_tbl_loadbuff.c
+    fsw/src/cfe_tbl_registry.c
+    fsw/src/cfe_tbl_regrec.c
+    fsw/src/cfe_tbl_dump.c
+    fsw/src/cfe_tbl_dumpctl.c
+    fsw/src/cfe_tbl_handlelink.c
+    fsw/src/cfe_tbl_valresult.c
     fsw/src/cfe_tbl_internal.c
-    fsw/src/cfe_tbl_resource.c
     fsw/src/cfe_tbl_transaction.c
     fsw/src/cfe_tbl_task.c
     fsw/src/cfe_tbl_task_cmds.c
-    fsw/src/cfe_tbl_dispatch.c
 )
+
+if (CFE_EDS_ENABLED)
+  # Use EDS-based message dispatch and codec
+  list(APPEND tbl_SOURCES fsw/src/cfe_tbl_eds_codec.c fsw/src/cfe_tbl_eds_dispatch.c)
+else()
+  # Use hardcoded message dispatch and passthru codec
+  list(APPEND tbl_SOURCES fsw/src/cfe_tbl_passthru_codec.c fsw/src/cfe_tbl_dispatch.c)
+endif()
+
 add_library(tbl STATIC ${tbl_SOURCES})
 
 target_include_directories(tbl PUBLIC fsw/inc)

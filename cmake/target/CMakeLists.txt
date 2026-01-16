@@ -156,7 +156,8 @@ if (${TGTNAME}_APPLIST)
 
   set_target_properties(core-${TGTNAME} PROPERTIES ENABLE_EXPORTS TRUE)
 
-  if (("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU") OR ("${CMAKE_C_COMPILER_ID}" STREQUAL "Clang"))
+  if (("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU") OR ("${CMAKE_C_COMPILER_ID}" STREQUAL "Clang")
+      OR ("${CMAKE_C_COMPILER_ID}" STREQUAL "QCC") OR ("${CMAKE_C_COMPILER_ID}" STREQUAL "Q++"))
     # The option pair for GNU gcc/ld tools
     set(START_WHOLE_ARCHIVE "--whole-archive")
     set(STOP_WHOLE_ARCHIVE  "--no-whole-archive")
@@ -195,7 +196,7 @@ set(CFE_LINK_NORMAL_LIBS
 
 # If EDS is enabled, then the generated dictionary objects are linked with CFE.
 # This can be done statically or dynamically, depending on user preferences.
-if (CFE_EDS_ENABLED_BUILD)
+if (CFE_EDS_ENABLED)
 
     # Determine EDS object linking mode for final executable.
     # This should be configured via the toolchain file,
@@ -214,7 +215,7 @@ if (CFE_EDS_ENABLED_BUILD)
 
     list(APPEND CFE_LINK_WHOLE_LIBS
         cfe_missionlib_runtime_static
-        cfe_missionlib_interfacedb_static
+        cfe_missionlib_sb_dispatchdb_static
     )
 
     # Set a preprocessor define so the source will reference the right thing
@@ -222,7 +223,7 @@ if (CFE_EDS_ENABLED_BUILD)
         CFE_EDS_LINK_MODE_${CFE_EDS_LINK_MODE}
     )
 
-endif(CFE_EDS_ENABLED_BUILD)
+endif(CFE_EDS_ENABLED)
 
 # Handle the list of "embedded files" that should be linked into CFE.
 # These are arbitrary files in the mission config that are converted

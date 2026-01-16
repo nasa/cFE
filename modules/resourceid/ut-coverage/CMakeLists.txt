@@ -9,11 +9,11 @@
 
 # Unit test object library sources, options, and includes
 add_library(ut_resourceid_OBJS OBJECT ${resourceid_SOURCES})
-target_compile_options(ut_resourceid_OBJS PRIVATE
-    ${UT_COVERAGE_COMPILE_FLAGS}
-)
+
+target_link_libraries(ut_resourceid_OBJS PRIVATE ut_coverage_compile)
+
 target_include_directories(ut_resourceid_OBJS PRIVATE
-     $<TARGET_PROPERTY:${DEP},INCLUDE_DIRECTORIES>
+    $<TARGET_PROPERTY:${DEP},INCLUDE_DIRECTORIES>
 )
 
 # Add executable
@@ -25,11 +25,11 @@ target_include_directories(resourceid_UT PRIVATE ${CFE_RESOURCEID_SOURCE_DIR}/op
 # Also add the UT_COVERAGE_LINK_FLAGS to the link command
 # This should enable coverage analysis on platforms that support this
 target_link_libraries(resourceid_UT
-    ${UT_COVERAGE_LINK_FLAGS}
+    ut_coverage_link
     ut_core_private_stubs
     ut_assert)
 
 add_test(resourceid_UT resourceid_UT)
 foreach(TGT ${INSTALL_TARGET_LIST})
-    install(TARGETS resourceid_UT DESTINATION ${TGT}/${UT_INSTALL_SUBDIR})
+    install(TARGETS resourceid_UT DESTINATION ${TGT})
 endforeach()

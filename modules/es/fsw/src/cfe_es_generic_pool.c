@@ -240,6 +240,12 @@ int32 CFE_ES_GenPoolInitialize(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t StartO
     uint32                  j;
     CFE_ES_GenPoolBucket_t *BucketPtr;
 
+    if (NumBlockSizes == 0)
+    {
+        CFE_ES_WriteToSysLog("%s: cannot create pool with 0 block sizes\n", __func__);
+        return CFE_ES_BAD_ARGUMENT;
+    }
+
     /*
      * Note - being an internal/non-public API this does not need to
      * check the directly-supplied arguments, it is assumed they are already

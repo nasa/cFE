@@ -22,14 +22,12 @@
  * Declarations and prototypes for cfe_sb_extern_typedefs module
  */
 
-#ifndef CFE_SB_EXTERN_TYPEDEFS_H
-#define CFE_SB_EXTERN_TYPEDEFS_H
+#ifndef DEFAULT_CFE_SB_EXTERN_TYPEDEFS_H
+#define DEFAULT_CFE_SB_EXTERN_TYPEDEFS_H
 
 #include "common_types.h"
 #include "cfe_mission_cfg.h"
 #include "cfe_resourceid_typedef.h"
-
-#define CFE_SB_SUB_ENTRIES_PER_PKT 20 /**< \brief Configuration parameter used by SBN App */
 
 /**
  * @brief Label definitions associated with CFE_SB_QosPriority_Enum_t

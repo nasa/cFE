@@ -28,8 +28,8 @@
  * either by overriding this header or by generating definitions from a command/data
  * dictionary tool.
  */
-#ifndef CFE_ES_MISSION_CFG_H
-#define CFE_ES_MISSION_CFG_H
+#ifndef DEFAULT_CFE_ES_MISSION_CFG_H
+#define DEFAULT_CFE_ES_MISSION_CFG_H
 
 #include "cfe_es_interface_cfg.h"
 

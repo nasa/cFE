@@ -32,8 +32,8 @@
  * either by overriding this header or by generating definitions from a command/data
  * dictionary tool.
  */
-#ifndef CFE_ES_PLATFORM_CFG_H
-#define CFE_ES_PLATFORM_CFG_H
+#ifndef DEFAULT_CFE_ES_PLATFORM_CFG_H
+#define DEFAULT_CFE_ES_PLATFORM_CFG_H
 
 #include "cfe_es_mission_cfg.h"
 #include "cfe_es_internal_cfg.h"

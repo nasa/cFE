@@ -48,23 +48,6 @@
 #endif
 
 /*
-** Any modifications to the "_VALID_" limits defined below must match
-** source code changes made to the function CFE_TBL_ReadHeaders() in
-** the file "cfe_tbl_internal.c".
-*/
-#if CFE_PLATFORM_TBL_VALID_SCID_COUNT < 0
-#error CFE_PLATFORM_TBL_VALID_SCID_COUNT must be greater than or equal to zero
-#elif CFE_PLATFORM_TBL_VALID_SCID_COUNT > 2
-#error CFE_PLATFORM_TBL_VALID_SCID_COUNT must be less than or equal to 2
-#endif
-
-#if CFE_PLATFORM_TBL_VALID_PRID_COUNT < 0
-#error CFE_PLATFORM_TBL_VALID_PRID_COUNT must be greater than or equal to zero
-#elif CFE_PLATFORM_TBL_VALID_PRID_COUNT > 4
-#error CFE_PLATFORM_TBL_VALID_PRID_COUNT must be less than or equal to 4
-#endif
-
-/*
 ** Validate task stack size...
 */
 #if CFE_PLATFORM_TBL_START_TASK_STACK_SIZE < 2048

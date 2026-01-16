@@ -35,6 +35,8 @@
 #include "utassert.h"
 #include "cfe_assert.h"
 
+#include "cfe_evs_core_internal.h"
+
 typedef struct
 {
     CFE_FS_FileWriteMetaData_t FuncTestState;
@@ -61,7 +63,7 @@ extern CFE_FT_Global_t CFE_FT_Global;
 #define CFE_ASSERT_LOG_FILE_NAME "/cf/cfe_test.log"
 
 /**
- * Name of the shared table used by CFE_TEST_APP for requirements verification
+ * Name of the shared table used by CFE_TEST for requirements verification
  *
  * This filename was made configurable such that projects can replace the
  * sample app table with a project specific table for the purpose of CI/CD.

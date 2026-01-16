@@ -22,8 +22,8 @@
  * CFE Test Table struct definition
  */
 
-#ifndef CFE_TEST_TBL_H
-#define CFE_TEST_TBL_H
+#ifndef DEFAULT_CFE_TEST_TBL_H
+#define DEFAULT_CFE_TEST_TBL_H
 
 #include "cfe_test_tblstruct.h"
 

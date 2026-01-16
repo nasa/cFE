@@ -42,6 +42,9 @@ void TestSendEvent(void)
 
     UtPrintf("Testing: CFE_EVS_SendEvent");
 
+    /*Turn off debug events because of rate limiting configuration*/
+    CFE_EVS_SetTypeEnable(CFE_EVS_EventType_DEBUG, false);
+
     UtAssert_INT32_EQ(CFE_EVS_SendEvent(0, CFE_EVS_EventType_INFORMATION, "OK Send"), CFE_SUCCESS);
     UtAssert_INT32_EQ(CFE_EVS_SendEvent(0, CFE_EVS_EventType_INFORMATION, NULL), CFE_EVS_INVALID_PARAMETER);
 
@@ -121,6 +124,9 @@ void TestSendTimedEvent(void)
 
     UtAssert_INT32_EQ(CFE_EVS_SendTimedEvent(Time, 0, CFE_EVS_EventType_CRITICAL, "Ok (Critical) Time"), CFE_SUCCESS);
     UtAssert_INT32_EQ(CFE_EVS_SendTimedEvent(Time, 0, CFE_EVS_EventType_CRITICAL, NULL), CFE_EVS_INVALID_PARAMETER);
+
+    /*Turn debug events back on*/
+    CFE_EVS_SetTypeEnable(CFE_EVS_EventType_DEBUG, true);
 }
 
 void EVSSendTestSetup(void)

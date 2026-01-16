@@ -20,8 +20,8 @@
  * @file
  *   CFE Test app (CFE_TEST) Application Message Definitions
  */
-#ifndef CFE_TEST_MSGSTRUCT_H
-#define CFE_TEST_MSGSTRUCT_H
+#ifndef DEFAULT_CFE_TEST_MSGSTRUCT_H
+#define DEFAULT_CFE_TEST_MSGSTRUCT_H
 
 #include "cfe_msg_hdr.h"
 #include "cfe_test_msgdefs.h"

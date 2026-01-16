@@ -24,6 +24,8 @@
 #include "cfe_msg_defaults.h"
 #include "cfe_error.h"
 
+#include <assert.h>
+
 /* CCSDS Primary Standard definitions */
 #define CFE_MSG_SIZE_OFFSET    7      /**< \brief CCSDS size offset */
 #define CFE_MSG_CCSDSVER_MASK  0xE000 /**< \brief CCSDS version mask */
@@ -109,6 +111,7 @@ CFE_Status_t CFE_MSG_GetType(const CFE_MSG_Message_t *MsgPtr, CFE_MSG_Type_t *Ty
         return CFE_MSG_BAD_ARGUMENT;
     }
 
+    
     if ((MsgPtr->CCSDS.Pri.StreamId[0] & (CFE_MSG_TYPE_MASK >> 8)) != 0)
     {
         *Type = CFE_MSG_Type_Cmd;

@@ -48,6 +48,10 @@
 
 /* ==============   Section I: Macro and Constant Type Definitions   =========== */
 
+/* Macro representing all event types turned on */
+#define CFE_EVS_ALL_EVENT_TYPES_MASK \
+    (CFE_EVS_DEBUG_BIT | CFE_EVS_INFORMATION_BIT | CFE_EVS_ERROR_BIT | CFE_EVS_CRITICAL_BIT)
+
 /* ==============   Section II: Internal Structures ============ */
 
 /* ==============   Section III: Function Prototypes =========== */
@@ -213,19 +217,21 @@ EVS_BinFilter_t *EVS_FindEventID(uint16 EventID, EVS_BinFilter_t *FilterArray);
 
 /*---------------------------------------------------------------------------------------*/
 /**
- * @brief Enable event types
+ * @brief Set event types using bitmask and bool
  *
- * This routine enables event types selected in BitMask
+ * This routine sets event types selected in a BitMask, true for on, false for off
  */
-void EVS_EnableTypes(EVS_AppData_t *AppDataPtr, uint8 BitMask);
+void EVS_SetTypes(EVS_AppData_t *AppDataPtr, uint8 BitMask, bool State);
 
 /*---------------------------------------------------------------------------------------*/
 /**
- * @brief Disable event types
+ * @brief Converts event array to a BitMask
  *
- * This routine disables event types selected in BitMask
+ * This routine converts the EventTypesActive array in an AppData Struct to a BitMask
+ *
+ * @returns uint8 BitMask for active event types in an app
  */
-void EVS_DisableTypes(EVS_AppData_t *AppDataPtr, uint8 BitMask);
+uint8 EVS_EventArrayToBitMask(const EVS_AppData_t *AppDataPtr);
 
 /*---------------------------------------------------------------------------------------*/
 /**

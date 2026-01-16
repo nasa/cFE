@@ -37,6 +37,7 @@
 ** Includes
 */
 #include "time_UT.h"
+#include "time_ut_helpers.h"
 
 /*
 ** External global variables
@@ -49,69 +50,6 @@ const char *TIME_SYSLOG_MSGS[] = {NULL,
                                   "%s: Application Init Failed,RC=0x%08X\n",
                                   "%s: Failed invalid arguments\n"};
 
-/* Normal dispatching registers the MsgID+CC in order to follow a
- * certain path through a series of switch statements */
-#define TIME_UT_MID_DISPATCH(intf) \
-    .Method = UT_TaskPipeDispatchMethod_MSG_ID_CC, .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_TIME_##intf##_MID)
-
-#define TIME_UT_MSG_DISPATCH(intf, cmd)       TIME_UT_MID_DISPATCH(intf), UT_TPD_SETSIZE(CFE_TIME_##cmd)
-#define TIME_UT_CC_DISPATCH(intf, cc, cmd)    TIME_UT_MSG_DISPATCH(intf, cmd), UT_TPD_SETCC(cc)
-#define TIME_UT_ERROR_DISPATCH(intf, cc, err) TIME_UT_MID_DISPATCH(intf), UT_TPD_SETCC(cc), UT_TPD_SETERR(err)
-
-/* NOTE: Automatic formatting of this table tends to make it harder to read. */
-/* clang-format off */
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_SEND_HK =
-    { TIME_UT_MSG_DISPATCH(SEND_HK,SendHkCmd) };
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_TONE_CMD =
-    { TIME_UT_MSG_DISPATCH(TONE_CMD,ToneSignalCmd) };
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_DATA_CMD =
-    { TIME_UT_MSG_DISPATCH(DATA_CMD,ToneDataCmd) };
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_ONEHZ_CMD =
-    { TIME_UT_MSG_DISPATCH(ONEHZ_CMD,OneHzCmd) };
-
-#if (CFE_PLATFORM_TIME_CFG_SERVER == true)
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_SEND_CMD =
-    { TIME_UT_MSG_DISPATCH(SEND_CMD,FakeToneCmd) };
-#endif
-
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_CMD_NOOP_CC =
-    { TIME_UT_CC_DISPATCH(CMD, CFE_TIME_NOOP_CC, NoopCmd) };
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_CMD_RESET_COUNTERS_CC =
-    { TIME_UT_CC_DISPATCH(CMD, CFE_TIME_RESET_COUNTERS_CC, ResetCountersCmd) };
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_CMD_SEND_DIAGNOSTIC_TLM_CC =
-    { TIME_UT_CC_DISPATCH(CMD, CFE_TIME_SEND_DIAGNOSTIC_CC, SendDiagnosticCmd) };
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_CMD_SET_STATE_CC =
-    { TIME_UT_CC_DISPATCH(CMD, CFE_TIME_SET_STATE_CC, SetStateCmd) };
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_CMD_SET_SOURCE_CC =
-    { TIME_UT_CC_DISPATCH(CMD, CFE_TIME_SET_SOURCE_CC, SetSourceCmd) };
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_CMD_SET_SIGNAL_CC =
-    { TIME_UT_CC_DISPATCH(CMD, CFE_TIME_SET_SIGNAL_CC, SetSignalCmd) };
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_CMD_ADD_DELAY_CC =
-    { TIME_UT_CC_DISPATCH(CMD, CFE_TIME_ADD_DELAY_CC, AddDelayCmd) };
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_CMD_SUB_DELAY_CC =
-    { TIME_UT_CC_DISPATCH(CMD, CFE_TIME_SUB_DELAY_CC, SubDelayCmd) };
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_CMD_SET_TIME_CC =
-    { TIME_UT_CC_DISPATCH(CMD, CFE_TIME_SET_TIME_CC, SetTimeCmd) };
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_CMD_SET_MET_CC =
-    { TIME_UT_CC_DISPATCH(CMD, CFE_TIME_SET_MET_CC, SetMETCmd) };
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_CMD_SET_STCF_CC =
-    { TIME_UT_CC_DISPATCH(CMD, CFE_TIME_SET_STCF_CC, SetSTCFCmd) };
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_CMD_SET_LEAP_SECONDS_CC =
-    { TIME_UT_CC_DISPATCH(CMD, CFE_TIME_SET_LEAP_SECONDS_CC, SetLeapSecondsCmd) };
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_CMD_ADD_ADJUST_CC =
-    { TIME_UT_CC_DISPATCH(CMD, CFE_TIME_ADD_ADJUST_CC, AddAdjustCmd) };
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_CMD_SUB_ADJUST_CC =
-    { TIME_UT_CC_DISPATCH(CMD, CFE_TIME_SUB_ADJUST_CC, SubAdjustCmd) };
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_CMD_ADD_ONEHZ_ADJUSTMENT_CC =
-    { TIME_UT_CC_DISPATCH(CMD, CFE_TIME_ADD_ONE_HZ_ADJUSTMENT_CC, AddOneHzAdjustmentCmd) };
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_CMD_SUB_ONEHZ_ADJUSTMENT_CC =
-    { TIME_UT_CC_DISPATCH(CMD, CFE_TIME_SUB_ONE_HZ_ADJUSTMENT_CC, SubOneHzAdjustmentCmd) };
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_INVALID_MID =
-    { .Method = UT_TaskPipeDispatchMethod_MSG_ID_CC, UT_TPD_SETERR(CFE_STATUS_UNKNOWN_MSG_ID) };
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_CMD_INVALID_CC =
-    { TIME_UT_ERROR_DISPATCH(CMD, -1, CFE_STATUS_BAD_COMMAND_CODE) };
-/* clang-format on */
-
 /*
 ** Global variables
 */
@@ -120,55 +58,6 @@ int32 ut_time_CallbackCalled;
 /*
 ** Functions
 */
-#if (CFE_PLATFORM_TIME_CFG_SIGNAL == true)
-/*****************************************************************************/
-/**
-** \brief OS_SelectTone stub function
-**
-** \par Description
-**        This function is used as a placeholder for the OS API function
-**        OS_SelectTone.
-**
-** \par Assumptions, External Events, and Notes:
-**        None
-**
-** \returns
-**        This function does not return a value.
-**
-******************************************************************************/
-void OS_SelectTone(int16 Signal) {}
-#endif
-
-/*
- * A hook function for CFE_PSP_GetTime that updates the Reference State.
- * This mimics what would happen if a time update occurred at the moment
- * another task was reading the time.
- */
-int32 UT_TimeRefUpdateHook(void *UserObj, int32 StubRetcode, uint32 CallCount, const UT_StubContext_t *Context)
-{
-    volatile CFE_TIME_ReferenceState_t *RefState;
-    uint32 *                            UpdateCount = UserObj;
-    uint32                              i;
-
-    /*
-     * NOTE: in order to trigger a read retry, this actually needs to do CFE_TIME_REFERENCE_BUF_DEPTH
-     * updates, such that the buffer being read is overwritten.
-     */
-    if (*UpdateCount > 0)
-    {
-        for (i = 0; i < CFE_TIME_REFERENCE_BUF_DEPTH; ++i)
-        {
-            RefState                      = CFE_TIME_StartReferenceUpdate();
-            RefState->AtToneLatch.Seconds = 1 + CallCount;
-            RefState->ClockSetState       = CFE_TIME_SetState_WAS_SET;
-            CFE_TIME_FinishReferenceUpdate(RefState);
-        }
-        --(*UpdateCount);
-    }
-
-    return StubRetcode;
-}
-
 void UtTest_Setup(void)
 {
     /* Initialize unit test */
@@ -856,11 +745,10 @@ void Test_Print(void)
 
     /* Test print with null print buffer argument */
     UT_InitData();
-    UtAssert_VOIDCALL(CFE_TIME_Print(NULL, time));
-    CFE_UtAssert_SYSLOG(TIME_SYSLOG_MSGS[6]);
+    UtAssert_INT32_EQ(CFE_TIME_Print(NULL, time), CFE_TIME_BAD_ARGUMENT);
 
     /* Test with zero time value */
-    CFE_TIME_Print(timeBuf, time);
+    CFE_UtAssert_SUCCESS(CFE_TIME_Print(timeBuf, time));
     if (usingDefaultEpoch)
     {
         strcpy(expectedBuf, "1980-001-00:00:00.00000");
@@ -878,7 +766,7 @@ void Test_Print(void)
     time.Subseconds = 0;
     time.Seconds    = 59;
 
-    CFE_TIME_Print(timeBuf, time);
+    CFE_UtAssert_SUCCESS(CFE_TIME_Print(timeBuf, time));
     if (usingDefaultEpoch)
     {
         strcpy(expectedBuf, "1980-001-00:00:59.00000");
@@ -894,7 +782,7 @@ void Test_Print(void)
     time.Subseconds = 215000;
     time.Seconds    = 1041472984;
 
-    CFE_TIME_Print(timeBuf, time);
+    CFE_UtAssert_SUCCESS(CFE_TIME_Print(timeBuf, time));
     if (usingDefaultEpoch)
     {
         strcpy(expectedBuf, "2013-001-02:03:04.00005");
@@ -906,14 +794,14 @@ void Test_Print(void)
                      (unsigned int)time.Seconds, (unsigned int)time.Subseconds, timeBuf);
     }
 
-    /* Test with maximum seconds and subseconds values */
-    time.Subseconds = 0xffffffff;
-    time.Seconds    = 0xffffffff;
+    /* Test with sufficiently-large seconds and subseconds values */
+    time.Subseconds = 0x7fffffff;
+    time.Seconds    = 0x7fffffff;
 
-    CFE_TIME_Print(timeBuf, time);
+    CFE_UtAssert_SUCCESS(CFE_TIME_Print(timeBuf, time));
     if (usingDefaultEpoch)
     {
-        strcpy(expectedBuf, "2116-038-06:28:15.99999");
+        strcpy(expectedBuf, "2048-019-03:14:07.49999");
         UtAssert_STRINGBUF_EQ(timeBuf, sizeof(timeBuf), expectedBuf, sizeof(expectedBuf));
     }
     else

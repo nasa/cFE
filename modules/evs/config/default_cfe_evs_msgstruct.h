@@ -18,19 +18,11 @@
 
 /**
  * @file
- *
- *  Purpose:
- *  cFE Executive Services (EVS) Command and Telemetry packet definition file.
- *
- *  References:
- *     Flight Software Branch C Coding Standard Version 1.0a
- *     cFE Flight Software Application Developers Guide
- *
- *  Notes:
- *
+ *   Specification for the CFE Event Services (CFE_EVS) command and telemetry
+ *   message frame structures.
  */
-#ifndef CFE_EVS_MSGSTRUCT_H
-#define CFE_EVS_MSGSTRUCT_H
+#ifndef DEFAULT_CFE_EVS_MSGSTRUCT_H
+#define DEFAULT_CFE_EVS_MSGSTRUCT_H
 
 /************************************************************************
  * Includes

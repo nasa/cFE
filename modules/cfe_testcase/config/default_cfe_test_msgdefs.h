@@ -20,8 +20,8 @@
  * @file
  *   CFE Test app (CFE_TEST) Application Message Definitions
  */
-#ifndef CFE_TEST_MSGDEFS_H
-#define CFE_TEST_MSGDEFS_H
+#ifndef DEFAULT_CFE_TEST_MSGDEFS_H
+#define DEFAULT_CFE_TEST_MSGDEFS_H
 
 #include "common_types.h"
 

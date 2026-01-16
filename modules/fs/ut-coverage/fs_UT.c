@@ -338,7 +338,7 @@ void Test_CFE_FS_ParseInputFileNameEx(void)
     UtAssert_INT32_EQ(
         CFE_FS_ParseInputFileNameEx(OutBuffer, "", sizeof(OutBuffer), 10, NULL, NULL, TEST_DEFAULT_EXTENSION),
         CFE_FS_INVALID_PATH);
-    UtAssert_INT32_EQ(CFE_FS_ParseInputFileNameEx(OutBuffer, "/path/", sizeof(OutBuffer), 10, NULL, TEST_DEFAULT_PATH,
+    UtAssert_INT32_EQ(CFE_FS_ParseInputFileNameEx(OutBuffer, "/path/", sizeof(OutBuffer), 7, NULL, TEST_DEFAULT_PATH,
                                                   TEST_DEFAULT_EXTENSION),
                       CFE_FS_INVALID_PATH);
 

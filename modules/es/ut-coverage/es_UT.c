@@ -37,592 +37,12 @@
 ** Includes
 */
 #include "es_UT.h"
+#include "es_ut_helpers.h"
 #include "target_config.h"
 #include "cfe_config.h"
 
-#define ES_UT_CDS_BLOCK_SIZE 16
-
-/*
- * A size which meets the minimum CDS size
- * requirements for the implementation, but
- * not much larger.
- */
-#define ES_UT_CDS_SMALL_TEST_SIZE (56 * 1024)
-
-/*
- * A size which has room for actual allocations
- */
-#define ES_UT_CDS_LARGE_TEST_SIZE (128 * 1024)
-
-extern CFE_ES_Global_t CFE_ES_Global;
-
+/* Note this is defined in ut_support, part of core_private */
 int32 dummy_function(void);
-
-/*
-** Global variables
-*/
-
-/*
- * Pointer to reset data that will be re-configured/preserved across calls to ES_ResetUnitTest()
- */
-static CFE_ES_ResetData_t *ES_UT_PersistentResetData = NULL;
-
-/* Buffers to support memory pool testing */
-typedef union
-{
-    CFE_ES_PoolAlign_t Align; /* make aligned */
-    uint8              Data[300];
-} CFE_ES_GMP_DirectBuffer_t;
-
-typedef struct
-{
-    CFE_ES_GenPoolBD_t BD;
-    CFE_ES_PoolAlign_t Align;                                        /* make aligned */
-    uint8              Spare;                                        /* make unaligned */
-    uint8              Data[(sizeof(CFE_ES_GenPoolBD_t) * 4) + 157]; /* oddball size */
-} CFE_ES_GMP_IndirectBuffer_t;
-
-CFE_ES_GMP_DirectBuffer_t   UT_MemPoolDirectBuffer;
-CFE_ES_GMP_IndirectBuffer_t UT_MemPoolIndirectBuffer;
-
-/* Create a startup script buffer for a maximum of 5 lines * 80 chars/line */
-char StartupScript[MAX_STARTUP_SCRIPT];
-
-/* Normal dispatching registers the MsgID+CC in order to follow a
- * certain path through a series of switch statements */
-#define ES_UT_MID_DISPATCH(intf) \
-    .Method = UT_TaskPipeDispatchMethod_MSG_ID_CC, .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_##intf##_MID)
-
-#define ES_UT_MSG_DISPATCH(intf, cmd)       ES_UT_MID_DISPATCH(intf), UT_TPD_SETSIZE(CFE_ES_##cmd)
-#define ES_UT_CC_DISPATCH(intf, cc, cmd)    ES_UT_MSG_DISPATCH(intf, cmd), UT_TPD_SETCC(cc)
-#define ES_UT_ERROR_DISPATCH(intf, cc, err) ES_UT_MID_DISPATCH(intf), UT_TPD_SETCC(cc), UT_TPD_SETERR(err)
-
-/* NOTE: Automatic formatting of this table tends to make it harder to read. */
-/* clang-format off */
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_ES_CMD_NOOP_CC =
-    { ES_UT_CC_DISPATCH(CMD, CFE_ES_NOOP_CC, NoopCmd) };
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_ES_CMD_RESET_COUNTERS_CC =
-    { ES_UT_CC_DISPATCH(CMD, CFE_ES_RESET_COUNTERS_CC, ResetCountersCmd) };
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_ES_CMD_RESTART_CC =
-    { ES_UT_CC_DISPATCH(CMD, CFE_ES_RESTART_CC, RestartCmd) };
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_ES_CMD_START_APP_CC =
-    { ES_UT_CC_DISPATCH(CMD, CFE_ES_START_APP_CC, StartAppCmd) };
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_ES_CMD_STOP_APP_CC =
-    { ES_UT_CC_DISPATCH(CMD, CFE_ES_STOP_APP_CC, StopAppCmd) };
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_ES_CMD_RESTART_APP_CC =
-    { ES_UT_CC_DISPATCH(CMD, CFE_ES_RESTART_APP_CC, RestartAppCmd) };
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_ES_CMD_RELOAD_APP_CC =
-    { ES_UT_CC_DISPATCH(CMD, CFE_ES_RELOAD_APP_CC, ReloadAppCmd) };
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_ES_CMD_QUERY_ONE_CC =
-    { ES_UT_CC_DISPATCH(CMD, CFE_ES_QUERY_ONE_CC, QueryOneCmd) };
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_ES_CMD_QUERY_ALL_CC =
-    { ES_UT_CC_DISPATCH(CMD, CFE_ES_QUERY_ALL_CC, QueryAllCmd) };
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_ES_CMD_QUERY_ALL_TASKS_CC =
-    { ES_UT_CC_DISPATCH(CMD, CFE_ES_QUERY_ALL_TASKS_CC, QueryAllTasksCmd) };
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_ES_CMD_CLEAR_SYS_LOG_CC =
-    { ES_UT_CC_DISPATCH(CMD, CFE_ES_CLEAR_SYS_LOG_CC, ClearSysLogCmd) };
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_ES_CMD_WRITE_SYS_LOG_CC =
-    { ES_UT_CC_DISPATCH(CMD, CFE_ES_WRITE_SYS_LOG_CC, WriteSysLogCmd) };
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_ES_CMD_OVER_WRITE_SYS_LOG_CC =
-    { ES_UT_CC_DISPATCH(CMD, CFE_ES_OVER_WRITE_SYS_LOG_CC, OverWriteSysLogCmd) };
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_ES_CMD_CLEAR_ER_LOG_CC =
-    { ES_UT_CC_DISPATCH(CMD, CFE_ES_CLEAR_ER_LOG_CC, ClearERLogCmd) };
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_ES_CMD_WRITE_ER_LOG_CC =
-    { ES_UT_CC_DISPATCH(CMD, CFE_ES_WRITE_ER_LOG_CC, WriteERLogCmd) };
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_ES_CMD_START_PERF_DATA_CC =
-    { ES_UT_CC_DISPATCH(CMD, CFE_ES_START_PERF_DATA_CC, StartPerfDataCmd) };
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_ES_CMD_STOP_PERF_DATA_CC =
-    { ES_UT_CC_DISPATCH(CMD, CFE_ES_STOP_PERF_DATA_CC, StopPerfDataCmd) };
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_ES_CMD_SET_PERF_FILTER_MASK_CC =
-    { ES_UT_CC_DISPATCH(CMD, CFE_ES_SET_PERF_FILTER_MASK_CC, SetPerfFilterMaskCmd) };
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_ES_CMD_SET_PERF_TRIGGER_MASK_CC =
-    { ES_UT_CC_DISPATCH(CMD, CFE_ES_SET_PERF_TRIGGER_MASK_CC, SetPerfTriggerMaskCmd) };
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_ES_CMD_RESET_PR_COUNT_CC =
-    { ES_UT_CC_DISPATCH(CMD, CFE_ES_RESET_PR_COUNT_CC, ResetPRCountCmd) };
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_ES_CMD_SET_MAX_PR_COUNT_CC =
-    { ES_UT_CC_DISPATCH(CMD, CFE_ES_SET_MAX_PR_COUNT_CC, SetMaxPRCountCmd) };
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_ES_CMD_DELETE_CDS_CC =
-    { ES_UT_CC_DISPATCH(CMD, CFE_ES_DELETE_CDS_CC, DeleteCDSCmd) };
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_ES_CMD_SEND_MEM_POOL_STATS_CC =
-    { ES_UT_CC_DISPATCH(CMD, CFE_ES_SEND_MEM_POOL_STATS_CC, SendMemPoolStatsCmd) };
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_ES_CMD_DUMP_CDS_REGISTRY_CC =
-    { ES_UT_CC_DISPATCH(CMD, CFE_ES_DUMP_CDS_REGISTRY_CC, DumpCDSRegistryCmd) };
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_ES_SEND_HK =
-    { ES_UT_MSG_DISPATCH(SEND_HK, SendHkCmd) };
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_ES_CMD_INVALID_LENGTH =
-    { ES_UT_ERROR_DISPATCH(CMD, 0, CFE_STATUS_WRONG_MSG_LENGTH) };
-static const UT_TaskPipeDispatchId_t UT_TPID_CFE_ES_CMD_INVALID_CC =
-    { ES_UT_ERROR_DISPATCH(CMD, -1, CFE_STATUS_BAD_COMMAND_CODE) };
-/* clang-format on */
-
-/*
-** Functions
-*/
-CFE_ResourceId_t ES_UT_MakeAppIdForIndex(uint32 ArrayIdx)
-{
-    /* UT hack - make up AppID values in a manner similar to FSW.
-     * Real apps should never do this. */
-    return CFE_ResourceId_FromInteger(ArrayIdx + CFE_ES_APPID_BASE);
-}
-
-CFE_ResourceId_t ES_UT_MakeTaskIdForIndex(uint32 ArrayIdx)
-{
-    /* UT hack - make up TaskID values in a manner similar to FSW.
-     * Real apps should never do this. */
-    uint32 Base;
-
-    /* The base to use depends on whether STRICT mode is enabled or not */
-#ifndef CFE_RESOURCEID_STRICT //_MODE
-    Base = CFE_ES_TASKID_BASE;
-#else
-    Base = 0x40010000; /* note this is NOT the same as the normal OSAL task ID base */
-#endif
-
-    return CFE_ResourceId_FromInteger(ArrayIdx + Base);
-}
-
-CFE_ResourceId_t ES_UT_MakeLibIdForIndex(uint32 ArrayIdx)
-{
-    /* UT hack - make up LibID values in a manner similar to FSW.
-     * Real apps should never do this. */
-    return CFE_ResourceId_FromInteger(ArrayIdx + CFE_ES_LIBID_BASE);
-}
-
-CFE_ResourceId_t ES_UT_MakeCounterIdForIndex(uint32 ArrayIdx)
-{
-    /* UT hack - make up CounterID values in a manner similar to FSW.
-     * Real apps should never do this. */
-    return CFE_ResourceId_FromInteger(ArrayIdx + CFE_ES_COUNTID_BASE);
-}
-
-CFE_ResourceId_t ES_UT_MakePoolIdForIndex(uint32 ArrayIdx)
-{
-    /* UT hack - make up PoolID values in a manner similar to FSW.
-     * Real apps should never do this. */
-    return CFE_ResourceId_FromInteger(ArrayIdx + CFE_ES_POOLID_BASE);
-}
-
-CFE_ResourceId_t ES_UT_MakeCDSIdForIndex(uint32 ArrayIdx)
-{
-    /* UT hack - make up CDSID values in a manner similar to FSW.
-     * Real apps should never do this. */
-    return CFE_ResourceId_FromInteger(ArrayIdx + CFE_ES_CDSBLOCKID_BASE);
-}
-
-/*
- * A local stub that can serve as the user function for testing ES tasks
- */
-void ES_UT_TaskFunction(void)
-{
-    UT_DEFAULT_IMPL(ES_UT_TaskFunction);
-}
-
-/* Local function to test CFE_ES_SysLog_vsnprintf */
-void ES_UT_SysLog_snprintf(char *Buffer, size_t BufferSize, const char *SpecStringPtr, ...)
-{
-    va_list ap;
-
-    va_start(ap, SpecStringPtr);
-    CFE_ES_SysLog_vsnprintf(Buffer, BufferSize, SpecStringPtr, ap);
-    va_end(ap);
-}
-
-void ES_UT_FillBuffer(void *UserObj, UT_EntryKey_t FuncKey, const UT_StubContext_t *Context)
-{
-    char * PrintBuffer = UT_Hook_GetArgValueByName(Context, "PrintBuffer", char *);
-    uint32 Size        = *((uint32 *)UserObj);
-
-    memset(PrintBuffer, ' ', Size - 1);
-    PrintBuffer[Size - 1] = 0;
-}
-
-/*
- * Helper function to assemble basic bits of info into the "CFE_ES_ModuleLoadParams_t" struct
- */
-void ES_UT_SetupModuleLoadParams(CFE_ES_ModuleLoadParams_t *Params, const char *FileName, const char *EntryName)
-{
-    char Empty = 0;
-
-    if (FileName == NULL)
-    {
-        FileName = &Empty;
-    }
-
-    if (EntryName == NULL)
-    {
-        EntryName = &Empty;
-    }
-
-    strncpy(Params->FileName, FileName, sizeof(Params->FileName));
-    strncpy(Params->InitSymbolName, EntryName, sizeof(Params->InitSymbolName));
-}
-
-/*
- * Helper function to assemble basic bits of info into the "CFE_ES_AppStartParams_t" struct
- */
-void ES_UT_SetupAppStartParams(CFE_ES_AppStartParams_t *Params, const char *FileName, const char *EntryName,
-                               size_t StackSize, CFE_ES_TaskPriority_Atom_t Priority,
-                               CFE_ES_ExceptionAction_Enum_t ExceptionAction)
-{
-    ES_UT_SetupModuleLoadParams(&Params->BasicInfo, FileName, EntryName);
-    Params->MainTaskInfo.StackSize = StackSize;
-    Params->MainTaskInfo.Priority  = Priority;
-    Params->ExceptionAction        = ExceptionAction;
-}
-
-/*
- * Helper function to setup a single app ID in the given state, along with
- * a main task ID.  A pointer to the App and Task record is output so the
- * record can be modified
- */
-void ES_UT_SetupSingleAppId(CFE_ES_AppType_Enum_t AppType, CFE_ES_AppState_Enum_t AppState, const char *AppName,
-                            CFE_ES_AppRecord_t **OutAppRec, CFE_ES_TaskRecord_t **OutTaskRec)
-{
-    osal_id_t            UtOsalId = OS_OBJECT_ID_UNDEFINED;
-    CFE_ResourceId_t     UtTaskId;
-    CFE_ResourceId_t     UtAppId;
-    CFE_ES_AppRecord_t * LocalAppPtr;
-    CFE_ES_TaskRecord_t *LocalTaskPtr;
-
-    OS_TaskCreate(&UtOsalId, "UT", NULL, OSAL_TASK_STACK_ALLOCATE, 0, 0, 0);
-    UtTaskId                = CFE_RESOURCEID_UNWRAP(CFE_ES_TaskId_FromOSAL(UtOsalId));
-    UtAppId                 = CFE_ES_Global.LastAppId;
-    CFE_ES_Global.LastAppId = CFE_ResourceId_FromInteger(CFE_ResourceId_ToInteger(UtAppId) + 1);
-
-    LocalTaskPtr = CFE_ES_LocateTaskRecordByID(CFE_ES_TASKID_C(UtTaskId));
-    LocalAppPtr  = CFE_ES_LocateAppRecordByID(CFE_ES_APPID_C(UtAppId));
-    CFE_ES_TaskRecordSetUsed(LocalTaskPtr, UtTaskId);
-    CFE_ES_AppRecordSetUsed(LocalAppPtr, UtAppId);
-    LocalTaskPtr->AppId     = CFE_ES_AppRecordGetID(LocalAppPtr);
-    LocalAppPtr->MainTaskId = CFE_ES_TaskRecordGetID(LocalTaskPtr);
-    LocalAppPtr->AppState   = AppState;
-    LocalAppPtr->Type       = AppType;
-
-    if (AppName)
-    {
-        strncpy(LocalAppPtr->AppName, AppName, sizeof(LocalAppPtr->AppName) - 1);
-        LocalAppPtr->AppName[sizeof(LocalAppPtr->AppName) - 1] = 0;
-        strncpy(LocalTaskPtr->TaskName, AppName, sizeof(LocalTaskPtr->TaskName) - 1);
-        LocalTaskPtr->TaskName[sizeof(LocalTaskPtr->TaskName) - 1] = 0;
-    }
-
-    if (OutAppRec)
-    {
-        *OutAppRec = LocalAppPtr;
-    }
-    if (OutTaskRec)
-    {
-        *OutTaskRec = LocalTaskPtr;
-    }
-
-    if (AppType == CFE_ES_AppType_CORE)
-    {
-        ++CFE_ES_Global.RegisteredCoreApps;
-    }
-    if (AppType == CFE_ES_AppType_EXTERNAL)
-    {
-        ++CFE_ES_Global.RegisteredExternalApps;
-
-        OS_ModuleLoad(&UtOsalId, NULL, NULL, 0);
-        LocalAppPtr->LoadStatus.ModuleId = UtOsalId;
-    }
-    ++CFE_ES_Global.RegisteredTasks;
-}
-
-/*
- * Helper function to setup a child task ID associated with the given
- * app record.  A pointer to the Task record is output so the record
- * can be modified
- */
-void ES_UT_SetupChildTaskId(const CFE_ES_AppRecord_t *ParentApp, const char *TaskName, CFE_ES_TaskRecord_t **OutTaskRec)
-{
-    osal_id_t            UtOsalId = OS_OBJECT_ID_UNDEFINED;
-    CFE_ES_TaskId_t      UtTaskId;
-    CFE_ES_AppId_t       UtAppId;
-    CFE_ES_TaskRecord_t *LocalTaskPtr;
-
-    UtAppId = CFE_ES_AppRecordGetID(ParentApp);
-
-    OS_TaskCreate(&UtOsalId, "C", NULL, OSAL_TASK_STACK_ALLOCATE, 0, 0, 0);
-    UtTaskId = CFE_ES_TaskId_FromOSAL(UtOsalId);
-
-    LocalTaskPtr = CFE_ES_LocateTaskRecordByID(UtTaskId);
-    CFE_ES_TaskRecordSetUsed(LocalTaskPtr, CFE_RESOURCEID_UNWRAP(UtTaskId));
-    LocalTaskPtr->AppId = UtAppId;
-
-    if (TaskName)
-    {
-        strncpy(LocalTaskPtr->TaskName, TaskName, sizeof(LocalTaskPtr->TaskName) - 1);
-        LocalTaskPtr->TaskName[sizeof(LocalTaskPtr->TaskName) - 1] = 0;
-    }
-
-    if (OutTaskRec)
-    {
-        *OutTaskRec = LocalTaskPtr;
-    }
-
-    ++CFE_ES_Global.RegisteredTasks;
-}
-
-/*
- * Helper function to setup a single Lib ID.  A pointer to the Lib
- * record is output so the record can be modified
- */
-void ES_UT_SetupSingleLibId(const char *LibName, CFE_ES_LibRecord_t **OutLibRec)
-{
-    CFE_ResourceId_t    UtLibId;
-    CFE_ES_LibRecord_t *LocalLibPtr;
-
-    UtLibId                 = CFE_ES_Global.LastLibId;
-    CFE_ES_Global.LastLibId = CFE_ResourceId_FromInteger(CFE_ResourceId_ToInteger(UtLibId) + 1);
-
-    LocalLibPtr = CFE_ES_LocateLibRecordByID(CFE_ES_LIBID_C(UtLibId));
-    CFE_ES_LibRecordSetUsed(LocalLibPtr, UtLibId);
-
-    if (LibName)
-    {
-        strncpy(LocalLibPtr->LibName, LibName, sizeof(LocalLibPtr->LibName) - 1);
-        LocalLibPtr->LibName[sizeof(LocalLibPtr->LibName) - 1] = 0;
-    }
-
-    if (OutLibRec)
-    {
-        *OutLibRec = LocalLibPtr;
-    }
-
-    ++CFE_ES_Global.RegisteredLibs;
-}
-
-int32 ES_UT_PoolDirectRetrieve(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t Offset, CFE_ES_GenPoolBD_t **BdPtr)
-{
-    *BdPtr = (CFE_ES_GenPoolBD_t *)((void *)&UT_MemPoolDirectBuffer.Data[Offset]);
-    return CFE_SUCCESS;
-}
-
-int32 ES_UT_PoolDirectCommit(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t Offset, const CFE_ES_GenPoolBD_t *BdPtr)
-{
-    return CFE_SUCCESS;
-}
-
-int32 ES_UT_PoolIndirectRetrieve(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t Offset, CFE_ES_GenPoolBD_t **BdPtr)
-{
-    memcpy(&UT_MemPoolIndirectBuffer.BD, &UT_MemPoolIndirectBuffer.Data[Offset], sizeof(CFE_ES_GenPoolBD_t));
-    *BdPtr = &UT_MemPoolIndirectBuffer.BD;
-    return CFE_SUCCESS;
-}
-
-int32 ES_UT_PoolIndirectCommit(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t Offset, const CFE_ES_GenPoolBD_t *BdPtr)
-{
-    memcpy(&UT_MemPoolIndirectBuffer.Data[Offset], BdPtr, sizeof(CFE_ES_GenPoolBD_t));
-    return CFE_SUCCESS;
-}
-
-int32 ES_UT_CDSPoolRetrieve(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t Offset, CFE_ES_GenPoolBD_t **BdPtr)
-{
-    static CFE_ES_GenPoolBD_t BdBuf;
-
-    *BdPtr = &BdBuf;
-    return CFE_PSP_ReadFromCDS(&BdBuf, Offset, sizeof(BdBuf));
-}
-
-int32 ES_UT_CDSPoolCommit(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t Offset, const CFE_ES_GenPoolBD_t *BdPtr)
-{
-    return CFE_PSP_WriteToCDS(BdPtr, Offset, sizeof(*BdPtr));
-}
-
-/* Commit failure routine for pool coverage testing */
-int32 ES_UT_PoolCommitFail(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t Offset, const CFE_ES_GenPoolBD_t *BdPtr)
-{
-    return CFE_ES_CDS_ACCESS_ERROR;
-}
-
-/* Retrieve failure routine for pool coverage testing */
-int32 ES_UT_PoolRetrieveFail(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t Offset, CFE_ES_GenPoolBD_t **BdPtr)
-{
-    return CFE_ES_CDS_ACCESS_ERROR;
-}
-
-void ES_UT_SetupMemPoolId(CFE_ES_MemPoolRecord_t **OutPoolRecPtr)
-{
-    CFE_ResourceId_t        UtPoolID;
-    CFE_ES_MemPoolRecord_t *LocalPoolRecPtr;
-
-    UtPoolID                    = CFE_ES_Global.LastMemPoolId;
-    CFE_ES_Global.LastMemPoolId = CFE_ResourceId_FromInteger(CFE_ResourceId_ToInteger(UtPoolID) + 1);
-
-    LocalPoolRecPtr = CFE_ES_LocateMemPoolRecordByID(CFE_ES_MEMHANDLE_C(UtPoolID));
-
-    /* in order to validate the size must be nonzero */
-    LocalPoolRecPtr->Pool.PoolTotalSize        = sizeof(UT_MemPoolDirectBuffer.Data);
-    LocalPoolRecPtr->Pool.PoolMaxOffset        = sizeof(UT_MemPoolDirectBuffer.Data);
-    LocalPoolRecPtr->Pool.Buckets[0].BlockSize = 16;
-    LocalPoolRecPtr->Pool.NumBuckets           = 1;
-    LocalPoolRecPtr->Pool.Retrieve             = ES_UT_PoolDirectRetrieve;
-    LocalPoolRecPtr->Pool.Commit               = ES_UT_PoolDirectCommit;
-    LocalPoolRecPtr->BaseAddr                  = (cpuaddr)UT_MemPoolDirectBuffer.Data;
-    OS_MutSemCreate(&LocalPoolRecPtr->MutexId, NULL, 0);
-
-    CFE_ES_MemPoolRecordSetUsed(LocalPoolRecPtr, UtPoolID);
-
-    if (OutPoolRecPtr)
-    {
-        *OutPoolRecPtr = LocalPoolRecPtr;
-    }
-}
-
-void ES_UT_SetupCDSGlobal(size_t CDS_Size)
-{
-    CFE_ES_CDS_Instance_t *CDS = &CFE_ES_Global.CDSVars;
-
-    UT_SetCDSSize(CDS_Size);
-
-    if (CDS_Size > CDS_RESERVED_MIN_SIZE)
-    {
-        OS_MutSemCreate(&CDS->GenMutex, "UT", 0);
-        CDS->TotalSize = CDS_Size;
-        CDS->DataSize  = CDS->TotalSize;
-        CDS->DataSize -= CDS_RESERVED_MIN_SIZE;
-
-        CFE_ES_InitCDSSignatures();
-        CFE_ES_CreateCDSPool(CDS->DataSize, CDS_POOL_OFFSET);
-        CFE_ES_InitCDSRegistry();
-
-        CFE_ES_Global.CDSIsAvailable = true;
-    }
-}
-
-void ES_UT_SetupSingleCDSRegistry(const char *CDSName, size_t BlockSize, bool IsTable, CFE_ES_CDS_RegRec_t **OutRegRec)
-{
-    CFE_ES_CDS_RegRec_t *LocalRegRecPtr;
-    CFE_ResourceId_t     UtCDSID;
-    CFE_ES_GenPoolBD_t   LocalBD;
-    size_t               UT_CDS_BufferSize;
-
-    /* first time this is done, set up the global */
-    if (!CFE_ES_Global.CDSIsAvailable)
-    {
-        UT_GetDataBuffer(UT_KEY(CFE_PSP_GetCDSSize), NULL, &UT_CDS_BufferSize, NULL);
-        if (UT_CDS_BufferSize > (2 * CFE_ES_CDS_SIGNATURE_LEN))
-        {
-            /* Use the CDS buffer from ut_support.c if it was configured */
-            CFE_ES_Global.CDSVars.Pool.PoolMaxOffset = UT_CDS_BufferSize - CFE_ES_CDS_SIGNATURE_LEN;
-            CFE_ES_Global.CDSVars.Pool.Retrieve      = ES_UT_CDSPoolRetrieve;
-            CFE_ES_Global.CDSVars.Pool.Commit        = ES_UT_CDSPoolCommit;
-        }
-        else
-        {
-            CFE_ES_Global.CDSVars.Pool.PoolMaxOffset = sizeof(UT_MemPoolIndirectBuffer.Data);
-            CFE_ES_Global.CDSVars.Pool.Retrieve      = ES_UT_PoolIndirectRetrieve;
-            CFE_ES_Global.CDSVars.Pool.Commit        = ES_UT_PoolIndirectCommit;
-        }
-
-        CFE_ES_Global.CDSVars.Pool.Buckets[0].BlockSize = ES_UT_CDS_BLOCK_SIZE;
-        CFE_ES_Global.CDSVars.Pool.NumBuckets           = 1;
-        CFE_ES_Global.CDSVars.Pool.TailPosition         = CFE_ES_CDS_SIGNATURE_LEN;
-        CFE_ES_Global.CDSVars.Pool.PoolTotalSize =
-            CFE_ES_Global.CDSVars.Pool.PoolMaxOffset - CFE_ES_Global.CDSVars.Pool.TailPosition;
-
-        CFE_ES_Global.CDSIsAvailable = true;
-    }
-
-    UtCDSID                              = CFE_ES_Global.CDSVars.LastCDSBlockId;
-    CFE_ES_Global.CDSVars.LastCDSBlockId = CFE_ResourceId_FromInteger(CFE_ResourceId_ToInteger(UtCDSID) + 1);
-
-    LocalRegRecPtr = CFE_ES_LocateCDSBlockRecordByID(CFE_ES_CDSHANDLE_C(UtCDSID));
-    if (CDSName != NULL)
-    {
-        strncpy(LocalRegRecPtr->Name, CDSName, sizeof(LocalRegRecPtr->Name) - 1);
-        LocalRegRecPtr->Name[sizeof(LocalRegRecPtr->Name) - 1] = 0;
-    }
-    else
-    {
-        LocalRegRecPtr->Name[0] = 0;
-    }
-
-    LocalRegRecPtr->Table       = IsTable;
-    LocalRegRecPtr->BlockOffset = CFE_ES_Global.CDSVars.Pool.TailPosition + sizeof(LocalBD);
-    LocalRegRecPtr->BlockSize   = BlockSize;
-
-    LocalBD.CheckBits  = CFE_ES_CHECK_PATTERN;
-    LocalBD.Allocated  = CFE_ES_MEMORY_ALLOCATED + 1;
-    LocalBD.ActualSize = BlockSize;
-    LocalBD.NextOffset = 0;
-    CFE_ES_Global.CDSVars.Pool.Commit(&CFE_ES_Global.CDSVars.Pool, CFE_ES_Global.CDSVars.Pool.TailPosition, &LocalBD);
-
-    CFE_ES_Global.CDSVars.Pool.TailPosition = LocalRegRecPtr->BlockOffset + LocalRegRecPtr->BlockSize;
-
-    CFE_ES_CDSBlockRecordSetUsed(LocalRegRecPtr, UtCDSID);
-
-    if (OutRegRec)
-    {
-        *OutRegRec = LocalRegRecPtr;
-    }
-}
-
-int32 ES_UT_SetupOSCleanupHook(void *UserObj, int32 StubRetcode, uint32 CallCount, const UT_StubContext_t *Context)
-{
-    osal_id_t ObjList[8];
-
-    /* On the first call, Use the stub functions to generate one object of
-     * each type
-     */
-    if (CallCount == 0)
-    {
-        /* Initialize to avoid static analysis warnings */
-        memset(ObjList, 0, sizeof(ObjList));
-
-        OS_TaskCreate(&ObjList[0], NULL, NULL, OSAL_TASK_STACK_ALLOCATE, 0, 0, 0);
-        OS_QueueCreate(&ObjList[1], NULL, 0, 0, 0);
-        OS_MutSemCreate(&ObjList[2], NULL, 0);
-        OS_BinSemCreate(&ObjList[3], NULL, 0, 0);
-        OS_CountSemCreate(&ObjList[4], NULL, 0, 0);
-        OS_TimerCreate(&ObjList[5], NULL, NULL, NULL);
-        OS_OpenCreate(&ObjList[6], NULL, 0, 0);
-        OS_ModuleLoad(&ObjList[7], NULL, NULL, 0);
-
-        UT_SetDataBuffer((UT_EntryKey_t)&OS_ForEachObject, ObjList, sizeof(ObjList), true);
-    }
-
-    return StubRetcode;
-}
-
-static void ES_UT_SetupForOSCleanup(void)
-{
-    UT_SetHookFunction(UT_KEY(OS_ForEachObject), ES_UT_SetupOSCleanupHook, NULL);
-}
-
-typedef struct
-{
-    uint32 AppType;
-    uint32 AppState;
-} ES_UT_SetAppStateHook_t;
-
-static int32 ES_UT_SetAppStateHook(void *UserObj, int32 StubRetcode, uint32 CallCount, const UT_StubContext_t *Context)
-{
-    ES_UT_SetAppStateHook_t *StateHook = UserObj;
-    uint32                   i;
-    CFE_ES_AppRecord_t *     AppRecPtr;
-
-    AppRecPtr = CFE_ES_Global.AppTable;
-    for (i = 0; i < CFE_PLATFORM_ES_MAX_APPLICATIONS; ++i)
-    {
-        if (CFE_ES_AppRecordIsUsed(AppRecPtr))
-        {
-            /* If no filter object supplied, set all apps to RUNNING */
-            if (StateHook == NULL)
-            {
-                AppRecPtr->AppState = CFE_ES_AppState_RUNNING;
-            }
-            else if (StateHook->AppType == 0 || AppRecPtr->Type == StateHook->AppType)
-            {
-                AppRecPtr->AppState = StateHook->AppState;
-            }
-        }
-        ++AppRecPtr;
-    }
-
-    return StubRetcode;
-}
 
 void UtTest_Setup(void)
 {
@@ -648,36 +68,14 @@ void UtTest_Setup(void)
     UT_ADD_TEST(TestStatusToString);
 }
 
-/*
-** Reset variable values prior to a test
-*/
-void ES_ResetUnitTest(void)
-{
-    UT_InitData();
-
-    memset(&CFE_ES_Global, 0, sizeof(CFE_ES_Global));
-
-    /*
-    ** Initialize the Last Id
-    */
-    CFE_ES_Global.LastAppId              = CFE_ResourceId_FromInteger(CFE_ES_APPID_BASE);
-    CFE_ES_Global.LastLibId              = CFE_ResourceId_FromInteger(CFE_ES_LIBID_BASE);
-    CFE_ES_Global.LastCounterId          = CFE_ResourceId_FromInteger(CFE_ES_COUNTID_BASE);
-    CFE_ES_Global.LastMemPoolId          = CFE_ResourceId_FromInteger(CFE_ES_POOLID_BASE);
-    CFE_ES_Global.CDSVars.LastCDSBlockId = CFE_ResourceId_FromInteger(CFE_ES_CDSBLOCKID_BASE);
-
-    /*
-     * (Re-)Initialize the reset data pointer
-     * This was formerly a separate global, but now part of CFE_ES_Global.
-     *
-     * Some unit tests assume/rely on it preserving its value across tests,
-     * so it must be re-initialized here every time CFE_ES_Global is reset.
-     */
-    CFE_ES_Global.ResetDataPtr = ES_UT_PersistentResetData;
-} /* end ES_ResetUnitTest() */
-
 void TestInit(void)
 {
+    size_t                  SizeValue;
+    CFE_Config_ArrayValue_t UTAV = {1, &SizeValue};
+
+    SizeValue = 1;
+    UT_SetHandlerFunction(UT_KEY(CFE_Config_GetArrayValue), UT_ArrayConfigHandler, &UTAV);
+
     UtPrintf("Begin Test Init");
 
     UT_SetCDSSize(128 * 1024);
@@ -1316,6 +714,18 @@ void TestApps(void)
     UtAssert_INT32_EQ(CFE_ES_AppCreate(&AppId, "AppName", &StartParams), CFE_STATUS_EXTERNAL_RESOURCE_FAIL);
     CFE_UtAssert_PRINTF(UT_OSP_MESSAGES[UT_OSP_CANNOT_FIND_SYMBOL]);
     CFE_UtAssert_PRINTF(UT_OSP_MESSAGES[UT_OSP_MODULE_UNLOAD_FAILED]);
+
+    /* Test application loading and creation where the entry point symbol CAN
+     * be found but the module unload fails */
+    ES_ResetUnitTest();
+    // UT_SetDeferredRetcode(UT_KEY(OS_ObjectIdDefined), 0, 1);
+    // UT_SetDeferredRetcode(UT_KEY(OS_ModuleUnload), 0, OS_ERROR);
+    UT_SetHookFunction(UT_KEY(OS_TaskCreate), (UT_HookFunc_t)ES_UT_TaskCreate_Hook, NULL);
+    UT_SetHookFunction(UT_KEY(OS_ModuleUnload), (UT_HookFunc_t)ES_UT_ModuleUnload_Hook, NULL);
+    ES_UT_SetupAppStartParams(&StartParams, "ut/filename.x", "EntryPoint", 170, 8192, 1);
+    UtAssert_INT32_EQ(CFE_ES_AppCreate(&AppId, "AppName", &StartParams), CFE_STATUS_EXTERNAL_RESOURCE_FAIL);
+    UT_SetHookFunction(UT_KEY(OS_TaskCreate), NULL, NULL);
+    UT_SetHookFunction(UT_KEY(OS_ModuleUnload), NULL, NULL);
 
     /*
      * Set up a situation where attempting to get appID by context,
@@ -3485,6 +2895,12 @@ void TestTask(void)
     UT_CallTaskPipe(CFE_ES_TaskPipe, CFE_MSG_PTR(CmdBuf), 0, UT_TPID_CFE_ES_CMD_OVER_WRITE_SYS_LOG_CC);
     CFE_UtAssert_EVENTSENT(CFE_ES_LEN_ERR_EID);
 
+    /* Test sending a request to clear the error log with an
+     * invalid command length */
+    ES_ResetUnitTest();
+    UT_CallTaskPipe(CFE_ES_TaskPipe, CFE_MSG_PTR(CmdBuf), 0, UT_TPID_CFE_ES_CMD_CLEAR_ER_LOG_CC);
+    CFE_UtAssert_EVENTSENT(CFE_ES_LEN_ERR_EID);
+
     /* Test sending a request to write the system log with an
      * invalid command length
      */
@@ -4137,15 +3553,21 @@ void TestAPI(void)
     CFE_UtAssert_PRINTF(UT_OSP_MESSAGES[UT_OSP_CORE_APP_EXIT]);
     UtAssert_UINT32_EQ(UtAppRecPtr->ControlReq.AppControlRequest, CFE_ES_RunStatus_APP_ERROR);
 
-#if 0
-    /* Can't cover EXTERNAL CFE_ES_ExitApp since it contains a while(1) (infinte loop) */
+    /* Exit EXTERNAL App with regular exit status. circumvent while(1) loop
+     * through setjmp/longjmp between test case and OS_TaskDelay Hook function */
     ES_ResetUnitTest();
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_STOPPED, "UT", &UtAppRecPtr, NULL);
     UtAppRecPtr->ControlReq.AppControlRequest = CFE_ES_RunStatus_APP_RUN;
-    CFE_ES_ExitApp(CFE_ES_RunStatus_APP_EXIT);
+    UT_SetHookFunction(UT_KEY(OS_TaskDelay), (UT_HookFunc_t)ES_UT_TaskDelay_Hook, NULL);
+    /* Hook function will modify jmp_val to 1 so we pass the conditional on second time through */
+    int jmp_val = setjmp(OS_TaskDelay_jmp_buf);
+    if (jmp_val == 0)
+    {
+        CFE_ES_ExitApp(CFE_ES_RunStatus_APP_EXIT);
+    }
     CFE_UtAssert_PRINTF(UT_OSP_MESSAGES[UT_OSP_EXTERNAL_APP_EXIT]);
     UtAssert_UINT32_EQ(UtAppRecPtr->ControlReq.AppControlRequest, CFE_ES_RunStatus_APP_EXIT);
-#endif
+    UT_SetHookFunction(UT_KEY(OS_TaskDelay), NULL, NULL);
 
     /* Test successful run loop app run request */
     ES_ResetUnitTest();
@@ -4476,6 +3898,12 @@ void TestAPI(void)
     UtAssert_UINT32_EQ(CFE_ES_CalculateCRC(NULL, 12, 345353, CFE_ES_CrcType_CRC_16), 345353);
     UtAssert_UINT32_EQ(CFE_ES_CalculateCRC(&Data, 0, 345353, CFE_ES_CrcType_CRC_16), 345353);
 
+    ES_ResetUnitTest();
+    /* Triggers fall back to NONE since we chose an CRC type that exists but
+     * has no algorithm implemented. See comment in cfe_es_crc.c in function
+     * CFE_ES_ComputeCRC_GetParams. */
+    UtAssert_UINT32_EQ(CFE_ES_CalculateCRC(&Data, 12, 345353, CFE_ES_CrcType_NONE), 0);
+
     /* Test shared mutex take with a take error */
     ES_ResetUnitTest();
     ES_UT_SetupSingleAppId(CFE_ES_AppType_CORE, CFE_ES_AppState_RUNNING, "UT", NULL, NULL);
@@ -4735,7 +4163,7 @@ void TestGenericCounterAPI(void)
     UtAssert_INT32_EQ(CFE_ES_GetGenCounterIDByName(&CounterId, NULL), CFE_ES_BAD_ARGUMENT);
 }
 
-void TestCDS()
+void TestCDS(void)
 {
     size_t               CdsSize;
     void *               CdsPtr;
@@ -5407,6 +4835,11 @@ void TestESMempool(void)
     BlockSizes[1] = 50;
     CFE_UtAssert_SUCCESS(CFE_ES_PoolCreateEx(&PoolID1, Buffer1, sizeof(Buffer1), 2, BlockSizes, CFE_ES_USE_MUTEX));
 
+    /* Test initializing a pool with a custom alignment */
+    size_t AltAlignment = 1;
+    CFE_UtAssert_SUCCESS(CFE_ES_PoolCreateEx_WithAlignment(&PoolID1, Buffer1, sizeof(Buffer1), 2, BlockSizes,
+                                                           CFE_ES_USE_MUTEX, AltAlignment));
+
     /* Test successfully creating memory pool using a mutex for
      * subsequent tests
      */
@@ -5691,8 +5124,9 @@ void TestBackground(void)
     UtAssert_VOIDCALL(CFE_ES_BackgroundTask());
     CFE_UtAssert_PRINTF(UT_OSP_MESSAGES[UT_OSP_BACKGROUND_TAKE]);
 
-    /* The number of jobs running should be 1 (perf log dump) */
-    UtAssert_UINT32_EQ(CFE_ES_Global.BackgroundTask.NumJobsRunning, 1);
+    /* The number of jobs running should be 3: (perf log dump) and the
+     * two dummy active jobs invoked by .RunFunc = CFE_ES_ActiveJob */
+    UtAssert_UINT32_EQ(CFE_ES_Global.BackgroundTask.NumJobsRunning, 3);
 }
 
 /*--------------------------------------------------------------------------------*

@@ -580,6 +580,22 @@ void Test_GetPipeName_InvalidId(void);
 
 /*****************************************************************************/
 /**
+** \brief Test get pipe name with a null pipe name and invalid size
+**
+** \par Description
+**        This function tests the get pipe name by calling it with a null 
+**        PipeNameBuf and 0 PipeSize
+**
+** \par Assumptions, External Events, and Notes:
+**        None
+**
+** \returns
+**        This function does not return a value.
+******************************************************************************/
+void Test_GetPipeName_NullPipeName(void);
+
+/*****************************************************************************/
+/**
 ** \brief Test getting pipe name by id with a valid id.
 **
 ** \par Description
@@ -2456,6 +2472,42 @@ void Test_CFE_SB_BadPipeInfo(void);
 **        This function does not return a value.
 ******************************************************************************/
 void Test_ReceiveBuffer_UnsubResubPath(void);
+
+/*****************************************************************************/
+/**
+** \brief Test ReceiveBuffer function unsubscribe/resubscribe path with a false
+**        message verification flag set (primarily for coverage purposes).
+**
+** \par Description
+**        This function tests the branch path in the ReceiveBuffer function when a
+**        message in the pipe is unsubscribed, then resubscribed.
+**
+** \par Assumptions, External Events, and Notes:
+**        None
+**
+** \returns
+**        This function does not return a value.
+******************************************************************************/
+void Test_ReceiveBuffer_FalseEndpoint(void);
+
+/*****************************************************************************/
+/**
+** \brief Test ReceiveBuffer function unsubscribe/resubscribe path with a message
+**        verification failure in CFE_MSG_VerificationAction() (primarily for 
+**        coverage purposes)
+**
+** \par Description
+**        This function tests the branch path in the ReceiveBuffer function when a
+**        message in the pipe is unsubscribed, then resubscribed.
+**
+** \par Assumptions, External Events, and Notes:
+**        None
+**
+** \returns
+**        This function does not return a value.
+******************************************************************************/
+void Test_RecieveBuffer_VerificationFail(void);
+
 
 /*****************************************************************************/
 /**

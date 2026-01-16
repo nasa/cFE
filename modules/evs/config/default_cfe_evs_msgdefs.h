@@ -19,12 +19,10 @@
 /**
  * @file
  *   Specification for the CFE Event Services (CFE_EVS) command and telemetry
- *   message constant definitions.
- *
- *  For CFE_EVS this is only the function/command code definitions
+ *   message payload structures and constant definitions.
  */
-#ifndef CFE_EVS_MSGDEFS_H
-#define CFE_EVS_MSGDEFS_H
+#ifndef DEFAULT_CFE_EVS_MSGDEFS_H
+#define DEFAULT_CFE_EVS_MSGDEFS_H
 
 #include "common_types.h"
 #include "cfe_mission_cfg.h"
@@ -37,9 +35,6 @@
 #define CFE_EVS_INFORMATION_BIT (1 << (CFE_EVS_EventType_INFORMATION - 1)) // 0x0002
 #define CFE_EVS_ERROR_BIT       (1 << (CFE_EVS_EventType_ERROR - 1))       // 0x0004
 #define CFE_EVS_CRITICAL_BIT    (1 << (CFE_EVS_EventType_CRITICAL - 1))    // 0x0008
-
-/* Macro representing all event types turned on */
-#define CFE_EVS_ALL_EVENT_TYPES_MASK (CFE_EVS_DEBUG_BIT | CFE_EVS_INFORMATION_BIT | CFE_EVS_ERROR_BIT | CFE_EVS_CRITICAL_BIT)
 
 /* Output Port bit masks */
 #define CFE_EVS_PORT1_BIT (1 << (CFE_EVS_EventOutput_PORT1 - 1)) // 0x0001

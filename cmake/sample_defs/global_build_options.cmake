@@ -25,3 +25,24 @@ else()
   message (STATUS "OMIT_DEPRECATED=false: Deprecated elements included in build")
   set(MISSION_RESOURCEID_MODE "SIMPLE") # less type safe, but more backward compatible
 endif (OMIT_DEPRECATED)
+
+# Address Sanitizer option.  This enables the ASAN library that is available
+# in recent versions of GCC - although it may depend on additional packages being
+# installed, depending on development host OS/version.
+set(ENABLE_ASAN $ENV{ENABLE_ASAN} CACHE BOOL "Enable address sanitizer")
+if (ENABLE_ASAN)
+  add_compile_options(-fsanitize=address -fsanitize-recover=address)
+  add_link_options(-fsanitize=address)
+endif(ENABLE_ASAN)
+
+# The stringop/format truncation and overflow warnings tend to produce lots of false positives
+# CFE code is designed to handle/tolerate string truncation so it is generally not a real issue
+if ("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU" AND CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL 8.0.0)
+  add_compile_options(
+    -Wno-stringop-overflow
+    -Wno-stringop-truncation
+    -Wno-format-overflow
+    -Wno-format-truncation
+  )
+endif()
+

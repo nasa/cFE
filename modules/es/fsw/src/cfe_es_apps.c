@@ -594,7 +594,15 @@ void CFE_ES_TaskEntryPoint(void)
 {
     CFE_ES_TaskEntryFuncPtr_t RealEntryFunc;
 
-    if (CFE_ES_GetTaskFunction(&RealEntryFunc) == CFE_SUCCESS && RealEntryFunc != NULL)
+    /* When CFE_ES_GetTaskFunction returns CFE_SUCCESS, RealEntryFunc != NULL
+     * is implicit and therefore does not need to be checked here. This is 
+     * because in CFE_ES_GetTaskFunction, ReturnCode is set to CFE_SUCCESS only
+     * if EntryFunc != 0, and *FuncPtr which is RealEntryFunc is set to 
+     * EntryFunc. Since FuncPtr != NULL is also implicitly true since FuncPtr =
+     * &RealEntryFunc, FuncPtr != NULL will always evaluate to true. The 
+     * condition RealEntryFunc != NUL was therefore removed for coverage 
+     * purposes.*/
+    if (CFE_ES_GetTaskFunction(&RealEntryFunc) == CFE_SUCCESS)
     {
         /*
          * Set the default exception environment, which should

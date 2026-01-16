@@ -12,8 +12,16 @@ set(evs_SOURCES
     fsw/src/cfe_evs_log.c
     fsw/src/cfe_evs_task.c
     fsw/src/cfe_evs_utils.c
-    fsw/src/cfe_evs_dispatch.c
 )
+
+if (CFE_EDS_ENABLED)
+  # Use EDS-based message dispatch
+  list(APPEND evs_SOURCES fsw/src/cfe_evs_eds_dispatch.c)
+else()
+  # Use hardcoded message dispatch
+  list(APPEND evs_SOURCES fsw/src/cfe_evs_dispatch.c)
+endif()
+
 add_library(evs STATIC ${evs_SOURCES})
 
 target_include_directories(evs PUBLIC fsw/inc)

@@ -602,7 +602,7 @@ void CFE_ES_PerfLogAdd(uint32 Marker, uint32 EntryExit)
      * locking (and potential task switch) if the data is ultimately not going to
      * be written to the log.
      */
-    if (!CFE_ES_TEST_LONG_MASK(Perf->MetaData.FilterMask, Marker))
+    if (!CFE_ES_TEST_U32_MASK(Perf->MetaData.FilterMask, Marker))
     {
         return;
     }
@@ -654,7 +654,7 @@ void CFE_ES_PerfLogAdd(uint32 Marker, uint32 EntryExit)
         /* waiting for trigger */
         if (Perf->MetaData.State == CFE_ES_PERF_WAITING_FOR_TRIGGER)
         {
-            if (CFE_ES_TEST_LONG_MASK(Perf->MetaData.TriggerMask, Marker))
+            if (CFE_ES_TEST_U32_MASK(Perf->MetaData.TriggerMask, Marker))
             {
                 Perf->MetaData.State = CFE_ES_PERF_TRIGGERED;
             }

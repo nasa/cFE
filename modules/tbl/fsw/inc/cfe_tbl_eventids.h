@@ -346,6 +346,18 @@
 #define CFE_TBL_NO_WORK_BUFFERS_ERR_EID 60
 
 /**
+ * \brief TBL Encoding/Decoding error Event ID
+ *
+ *  \par Type: ERROR
+ *
+ *  \par Cause: Encoding/Decoding of the table binary data from the file content failed
+ *
+ *  This is possibly due to a corrupt or incompatible file.
+ *
+ */
+#define CFE_TBL_CODEC_ERROR_ERR_EID 61
+
+/**
  * \brief TBL Write File Creation Failure Event ID
  *
  *  \par Type: ERROR
@@ -650,17 +662,6 @@
  *  due to the owning application being active.
  */
 #define CFE_TBL_CDS_OWNER_ACTIVE_ERR_EID 87
-
-/**
- * \brief TBL Load Table Command Load Pending Event ID
- *
- *  \par Type: ERROR
- *
- *  \par Cause:
- *
- *  \link #CFE_TBL_LOAD_CC TBL Load Table Command \endlink failed due to a load already pending.
- */
-#define CFE_TBL_LOADING_PENDING_ERR_EID 88
 
 /**
  * \brief TBL Send Notification Transmit Failed Event ID

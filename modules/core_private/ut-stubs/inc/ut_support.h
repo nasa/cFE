@@ -830,4 +830,32 @@ bool CFE_UtAssert_MessageCheck_Impl(bool Status, const char *File, uint32 Line, 
     UtAssert_GenericUnsignedCompare(CFE_SB_MsgIdToValue(mid1), UtAssert_Compare_EQ, CFE_SB_MsgIdToValue(mid2), \
                                     UtAssert_Radix_HEX, __FILE__, __LINE__, "MsgId Check: ", #mid1, #mid2)
 
+/*****************************************************************************/
+/**
+** \brief Generic function to check CFE HK TLM counter
+**
+** \par Description
+**        A function that checks a TLM counter against an expected value
+**        Each call to this increments the expected value by 1
+**
+** \par Assumptions, External Events, and Notes:
+**
+******************************************************************************/
+bool CFE_UtAssert_VerifyTlmCounterImpl(uint8 *Count, const char *File, uint32 Line, const char *Text);
+
+/*****************************************************************************/
+/**
+** \brief Macro to check for TLM counter increment
+**
+** \par Description
+**        Invokes CFE_UtAssert_VerifyTlmCounterImpl() to verify that the passed-in
+**        counter was incremented during the last call.
+**
+** \par Assumptions, External Events, and Notes:
+**        Each use of this macro is assumed to increment the subject counter by one.
+**        For this to work, every test that increments the counter must be checked.
+**
+******************************************************************************/
+#define CFE_UtAssert_COUNTER_INCR(x) CFE_UtAssert_VerifyTlmCounterImpl(&(x), __FILE__, __LINE__, #x)
+
 #endif /* UT_SUPPORT_H */

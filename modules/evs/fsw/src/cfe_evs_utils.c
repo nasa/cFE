@@ -186,9 +186,9 @@ int32 EVS_NotRegistered(EVS_AppData_t *AppDataPtr, CFE_ES_AppId_t CallerID)
  *-----------------------------------------------------------------*/
 bool EVS_IsFiltered(EVS_AppData_t *AppDataPtr, uint16 EventID, CFE_EVS_EventType_Enum_t EventType)
 {
-    EVS_BinFilter_t *FilterPtr;
-    bool             Filtered = false;
-    char             AppName[OS_MAX_API_NAME];
+    EVS_BinFilter_t     *FilterPtr;
+    bool                Filtered = false;
+    char                AppName[OS_MAX_API_NAME];
 
     if (AppDataPtr->ActiveFlag == false)
     {
@@ -196,50 +196,9 @@ bool EVS_IsFiltered(EVS_AppData_t *AppDataPtr, uint16 EventID, CFE_EVS_EventType
         Filtered = true;
     }
     else
-        switch (EventType)
-        {
-            case CFE_EVS_EventType_DEBUG:
-
-                if ((AppDataPtr->EventTypesActiveFlag & CFE_EVS_DEBUG_BIT) == 0)
-                {
-                    /* Debug events are disabled for this application */
-                    Filtered = true;
-                }
-                break;
-
-            case CFE_EVS_EventType_INFORMATION:
-
-                if ((AppDataPtr->EventTypesActiveFlag & CFE_EVS_INFORMATION_BIT) == 0)
-                {
-                    /* Informational events are disabled for this application */
-                    Filtered = true;
-                }
-                break;
-
-            case CFE_EVS_EventType_ERROR:
-
-                if ((AppDataPtr->EventTypesActiveFlag & CFE_EVS_ERROR_BIT) == 0)
-                {
-                    /* Error events are disabled for this application */
-                    Filtered = true;
-                }
-                break;
-
-            case CFE_EVS_EventType_CRITICAL:
-
-                if ((AppDataPtr->EventTypesActiveFlag & CFE_EVS_CRITICAL_BIT) == 0)
-                {
-                    /* Critical events are disabled for this application */
-                    Filtered = true;
-                }
-                break;
-
-            default:
-
-                /* Invalid Event Type */
-                Filtered = true;
-                break;
-        }
+    {
+        Filtered = !CFE_EVS_GetTypeEnable(EventType);
+    }
 
     /* Is this type of event enabled for this application? */
     if (Filtered == false)
@@ -421,23 +380,48 @@ EVS_BinFilter_t *EVS_FindEventID(uint16 EventID, EVS_BinFilter_t *FilterArray)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-void EVS_EnableTypes(EVS_AppData_t *AppDataPtr, uint8 BitMask)
+void EVS_SetTypes(EVS_AppData_t *AppDataPtr, uint8 BitMask, bool State)
 {
-    /* Enable selected event type bits from bitmask */
-    AppDataPtr->EventTypesActiveFlag |= (BitMask & CFE_EVS_ALL_EVENT_TYPES_MASK);
+    size_t Index;
+    uint8_t EventBit;
+
+    EventBit = 1;
+    Index = 0;
+
+    if (AppDataPtr != NULL)
+    {
+        while (EventBit <= BitMask && Index < sizeof(AppDataPtr->EventTypesActive))
+        {
+            if ((BitMask & EventBit) != 0)
+            {
+                AppDataPtr->EventTypesActive[Index] = State;
+            }
+            EventBit <<= 1;
+            ++Index;
+        }
+    }
 }
 
-/*----------------------------------------------------------------
- *
- * Application-scope internal function
- * See description in header file for argument/return detail
- *
- *-----------------------------------------------------------------*/
-void EVS_DisableTypes(EVS_AppData_t *AppDataPtr, uint8 BitMask)
+
+uint8 EVS_EventArrayToBitMask(const EVS_AppData_t *AppDataPtr)
 {
-    /* Disable selected event type bits from bitmask */
-    AppDataPtr->EventTypesActiveFlag &= ~(BitMask & CFE_EVS_ALL_EVENT_TYPES_MASK);
+    uint8 BitMask = 0;
+
+    if (AppDataPtr != NULL)
+    {
+        for (size_t i = 0; i < sizeof(AppDataPtr->EventTypesActive); ++i)
+        {
+            if (AppDataPtr->EventTypesActive[i])
+            {
+                /*Set bit i of BitMask if index i in array is true*/
+                BitMask |= (1 << i);
+            }
+        }
+    }
+
+    return BitMask;
 }
+
 
 /*----------------------------------------------------------------
  *

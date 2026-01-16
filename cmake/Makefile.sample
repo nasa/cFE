@@ -103,6 +103,10 @@ endif
 # These are only needed for the "prep" target but they are computed globally anyway.
 PREP_OPTS :=
 
+ifneq ($(CFE_EDS_ENABLED),)
+PREP_OPTS += -DCFE_EDS_ENABLED=$(CFE_EDS_ENABLED)
+endif
+
 ifneq ($(INSTALLPREFIX),)
 PREP_OPTS += -DCMAKE_INSTALL_PREFIX=$(INSTALLPREFIX)
 endif

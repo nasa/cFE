@@ -35,4 +35,4 @@
  */
 CFE_TEST_TestTable_t TestTable = {0xf007, 0xba11};
 
-CFE_TBL_FILEDEF(TestTable, CFE_TEST_APP.TestTable, Table Test Table, cfe_test_tbl.tbl)
+CFE_TBL_FILEDEF(TestTable, CFE_TEST.TestTable, Table Test Table, cfe_test_tbl.tbl)

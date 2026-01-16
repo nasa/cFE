@@ -164,8 +164,8 @@ int32 CFE_TBL_TaskInit(void)
     /*
     ** Task startup event message
     */
-    CFE_Config_GetVersionString(VersionString, CFE_CFG_MAX_VERSION_STR_LEN, "cFE", CFE_SRC_VERSION, CFE_BUILD_CODENAME,
-                                CFE_LAST_OFFICIAL);
+    CFE_Config_GetVersionString(VersionString, CFE_CFG_MAX_VERSION_STR_LEN, "CFE_TBL", CFE_SRC_VERSION,
+                                CFE_BUILD_CODENAME, CFE_LAST_OFFICIAL);
     Status = CFE_EVS_SendEvent(CFE_TBL_INIT_INF_EID, CFE_EVS_EventType_INFORMATION, "cFE TBL Initialized: %s",
                                VersionString);
 
@@ -200,6 +200,9 @@ void CFE_TBL_InitData(void)
     CFE_MSG_Init(CFE_MSG_PTR(CFE_TBL_Global.NotifyMsg.CommandHeader), CFE_SB_INVALID_MSG_ID,
                  sizeof(CFE_TBL_Global.NotifyMsg));
 
+    CFE_TBL_Global.LastLoadBuffId         = CFE_ResourceId_FromInteger(CFE_TBL_LOADBUFFID_BASE);
     CFE_TBL_Global.LastValidationResultId = CFE_ResourceId_FromInteger(CFE_TBL_VALRESULTID_BASE);
     CFE_TBL_Global.LastDumpCtrlBlockId    = CFE_ResourceId_FromInteger(CFE_TBL_DUMPCTRLID_BASE);
+    CFE_TBL_Global.LastRegId              = CFE_ResourceId_FromInteger(CFE_TBL_REGID_BASE);
+    CFE_TBL_Global.LastHandle             = CFE_ResourceId_FromInteger(CFE_TBL_HANDLE_BASE);
 }
