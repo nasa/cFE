@@ -1,0 +1,18 @@
+name: Internal CodeSonar
+
+on:
+  schedule:
+    - cron: "0 0 * * 1"  # Runs every Monday at 12:00 AM UTC
+  workflow_dispatch:
+
+jobs:
+  codesonar:
+    name: Run CodeSonar
+    uses: cFS/workflows/.github/workflows/codesonar-reusable-internal.yml@dev
+    with:
+      component-path: cfe
+      prep: |
+        make prep
+        make -C build mission-prebuild
+      make: make -C build/native/default_cpu1 config core_api core_private es evs fs msg resourceid sb sbr tbl time
+    secrets: inherit

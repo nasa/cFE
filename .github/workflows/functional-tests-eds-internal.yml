@@ -1,0 +1,189 @@
+name: "Internal Functional Test, EDS enabled"
+
+on:
+  push:
+    branches:
+      - dev
+      - main
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+  workflow_dispatch:
+  schedule:
+    # 11:45 PM UTC every Sunday
+    - cron:  '45 23 * * 0'
+
+env:
+  SIMULATION: native
+  ENABLE_UNIT_TESTS: false
+  OMIT_DEPRECATED: true
+  CFE_EDS_ENABLED: true
+  BUILDTYPE: debug
+  # jphfix should be release
+
+jobs:
+
+  Local-Test-Build:
+    name: Build CFE
+    runs-on: cfs-self-hosted
+    container:
+      image: aetd-dockerlab.gsfc.nasa.gov/gsfc-cfs/github-actions-ci-cd/cfsbuildenv-ubuntu22
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout CFE
+        uses: actions/checkout@v4
+        with:
+          path: cfe
+
+      - name: Set up Dependencies
+        uses: ./cfe/.github/actions/setup-cfe
+        with:
+          source-dir: .
+          preferred-ref: ${{ github.head_ref }}
+
+      # Setup the build system
+      - name: Set up for build
+        run: make prep
+
+      - name: Build CFE
+        run: make install
+
+      - name: Generate Startup Link
+        run: ln -s core-cpu1 ./build/exe/cpu1/container-start
+
+      - name: List cpu1
+        run: ls build/exe/cpu1/
+
+      - name: Archive binaries
+        run: |
+          cd $GITHUB_WORKSPACE/build/exe
+          find -maxdepth 1 -mindepth 1 -type d | while read dir
+          do
+            inst=$(basename ${dir})
+            tar Jcv -f $GITHUB_WORKSPACE/${inst}-bin.tar.xz -C ${inst} .
+          done
+
+      - name: Upload all artifacts
+        uses: actions/upload-artifact@v3
+        with:
+            name: functional-test-eds-bin
+            path: ./*.tar.xz
+
+  Execute-Test:
+    name: Execute Functional Test
+    permissions:
+      contents: read
+      actions: read
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GH_HOST: developer.nasa.gov
+      GH_REPO: cFS/cFE
+    runs-on: cfs-self-hosted
+    needs: Local-Test-Build
+    timeout-minutes: 15
+
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: functional-test-eds-bin
+          path: functional-test-eds-bin
+
+      - name: Unpack artifacts
+        run: |
+          for i in cpu1 host
+          do
+            mkdir -p "$i"
+            tar Jxv -C "$i" -f "$GITHUB_WORKSPACE/functional-test-eds-bin/$i-bin.tar.xz"
+          done
+
+      - name: List Files
+        run: ls -lR .
+
+      - name: Start CPU1 container
+        id: start-cpu1
+        uses: cFS/workflows/actions/start-cfs-container@dev
+        with:
+          binary-dir: ${{ github.workspace }}/cpu1
+          exec-image: aetd-dockerlab.gsfc.nasa.gov/gsfc-cfs/github-actions-ci-cd/cfsexec-ubuntu22
+
+      - name: Check CPU1 container
+        id: check-cpu1
+        uses: cFS/workflows/actions/healthcheck-logs@dev
+        with:
+          container-id: ${{ steps.start-cpu1.outputs.container-id }}
+          healthcheck-regex: 'CFE_ES_Main entering OPERATIONAL state$'
+
+      - name: Execute No-Op Check
+        working-directory: ./host
+        run: |
+          ./cmd_send -v --host=${{ steps.check-cpu1.outputs.ip-addr }} --endian=EDS --pktid=CFE_ES/Application/CMD --cmdcode=NoopCmd
+          sleep 2
+          docker logs "${{ steps.start-cpu1.outputs.container-id }}" | grep -A 2 'CFE_ES 3: No-op command'
+
+      - name: Launch Functional Test
+        working-directory: ./host
+        run: |
+          ./cmd_send -v --host=${{ steps.check-cpu1.outputs.ip-addr }} --endian=EDS --pktid=CFE_ES/Application/CMD --cmdcode=StartAppCmd Application="CFE_TEST" AppEntryPoint="CFE_TestMain" AppFileName="cfe_testcase" StackSize=16384 Priority=100
+          sleep 10
+          docker logs "${{ steps.start-cpu1.outputs.container-id }}"
+
+      - name: Wait for Functional Test
+        working-directory: ./cpu1
+        run: |
+          counter=0
+          stuck=0
+
+          while [ ! -f cf/cfe_test.log ]
+          do
+            temp=$(grep -c "BEGIN" cf/cfe_test.tmp)
+            if [ $temp -eq $counter ]
+            then
+              stuck=$(($stuck + 1))
+            else
+              stuck=0
+            fi
+
+            if [ $stuck -ge 3 ]
+            then
+              echo "Test is frozen. Quitting"
+              break
+            fi
+
+            counter=$(grep -c "BEGIN" cf/cfe_test.tmp)
+            echo "Waiting for CFE Tests"
+            sleep 30
+          done
+
+      - name: Shut down CFE
+        if: ${{ always() && steps.check-cpu1.outputs.ip-addr != '' }}
+        working-directory: ./host
+        run: |
+          ./cmd_send -v --host=${{ steps.check-cpu1.outputs.ip-addr }} --endian=EDS --pktid=CFE_ES/Application/CMD --cmdcode=RestartCmd RestartType=2
+          sleep 1
+
+      - name: Stop CPU1 Container
+        if: ${{ always() && steps.start-cpu1.outputs.container-id != '' }}
+        uses: cFS/workflows/actions/stop-cfs-container@dev
+        with:
+          container-id: ${{ steps.start-cpu1.outputs.container-id }}
+
+      - name: Archive cFS Startup Artifacts
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: cFS-startup-log-deprecate-true-release
+          path: cpu1/cf/cfe_test.log
+
+      - name: Check for cFS Warnings
+        run: |
+          if [[ -z $(grep -i "SUMMARY.*FAIL::0.*TSF::0.*TTF::0" cf/cfe_test.log) ]]; then
+                  echo "Must resolve Test Failures in cFS Test App before submitting a pull request"
+                  echo ""
+                  grep -i '\[ FAIL]\|\[  TSF]\|\[  TTF]' cf/cfe_test.log
+                  exit -1
+          fi
+        working-directory: ./cpu1/

@@ -1,0 +1,252 @@
+name: Internal MCDC Analysis
+
+on:
+  push:
+    branches:
+      - dev
+      - main
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+  workflow_dispatch:
+
+# Force bash to apply pipefail option so pipeline failures aren't masked
+defaults:
+  run:
+    shell: bash
+
+env:
+  SIMULATION: native
+  ENABLE_UNIT_TESTS: true
+  OMIT_DEPRECATED: false
+  BUILDTYPE: debug
+  TESTS_RAN: false
+
+jobs:
+  mcdc:
+    name: Build and Run MCDC
+    runs-on: cfs-self-hosted
+    container:
+      image: aetd-dockerlab.gsfc.nasa.gov/gsfc-cfs/github-actions-ci-cd/cfsbuildenv-mcdc
+
+    steps:
+      - name: Checkout CFE
+        uses: actions/checkout@v4
+        with:
+          path: cfe
+
+      - name: Set up Dependencies
+        uses: ./cfe/.github/actions/setup-cfe
+        with:
+          source-dir: .
+          preferred-ref: ${{ github.head_ref }}
+
+      - name: Checkout MCDC Script
+        uses: actions/checkout@v4
+        with:
+          repository: cFS/workflows
+          path: workflows
+
+      - name: Modify osal to include coverage flags
+        run: |
+          mkdir -p sample_defs/cpu1
+          echo "target_compile_options(ut_coverage_compile INTERFACE -fcondition-coverage -fprofile-abs-path)" >> sample_defs/cpu1/install_custom.cmake
+
+      # Setup the build system
+      - name: Set up for build
+        run: make prep
+
+      - name: Build CFE
+        run: make install
+
+      - name: Build
+        run: |
+          make -C build/native/default_cpu1/config
+          make -C build/native/default_cpu1/core_api
+          make -C build/native/default_cpu1/core_private
+          make -C build/native/default_cpu1/es
+          make -C build/native/default_cpu1/evs
+          make -C build/native/default_cpu1/fs
+          make -C build/native/default_cpu1/msg
+          make -C build/native/default_cpu1/resourceid
+          make -C build/native/default_cpu1/sb
+          make -C build/native/default_cpu1/sbr
+          make -C build/native/default_cpu1/tbl
+          make -C build/native/default_cpu1/time
+
+      - name: Test
+        run: |
+          (cd build/native/default_cpu1/config && ctest --output-on-failure || true) | tee -a test_results.txt
+          (cd build/native/default_cpu1/core_api && ctest --output-on-failure || true) | tee -a test_results.txt
+          (cd build/native/default_cpu1/core_private && ctest --output-on-failure || true) | tee -a test_results.txt
+          (cd build/native/default_cpu1/es && ctest --output-on-failure || true) | tee -a test_results.txt
+          (cd build/native/default_cpu1/evs && ctest --output-on-failure || true) | tee -a test_results.txt
+          (cd build/native/default_cpu1/fs && ctest --output-on-failure || true) | tee -a test_results.txt
+          (cd build/native/default_cpu1/msg && ctest --output-on-failure || true) | tee -a test_results.txt
+          (cd build/native/default_cpu1/resourceid && ctest --output-on-failure || true) | tee -a test_results.txt
+          (cd build/native/default_cpu1/sb && ctest --output-on-failure || true) | tee -a test_results.txt
+          (cd build/native/default_cpu1/sbr && ctest --output-on-failure || true) | tee -a test_results.txt
+          (cd build/native/default_cpu1/tbl && ctest --output-on-failure || true) | tee -a test_results.txt
+          (cd build/native/default_cpu1/time && ctest --output-on-failure || true) | tee -a test_results.txt
+          echo "TESTS_RAN=true" >> $GITHUB_ENV
+
+      - name: Grab test modules
+        if: ${{ env.TESTS_RAN == 'true' }}
+        run: |
+          echo "MODULES=$(grep -oP 'Test\s+#\d+: \K[\w\-\_]+(?= )' test_results.txt | tr '\n' ' ' | sed 's/ $//')" >> $GITHUB_ENV
+          grep -oP 'Test #\d+: \K[\w\-\_]+' test_results.txt | tr '\n' ' ' | sed 's/ $//' >> modules.txt
+
+      - name: Run mcdc analysis
+        if: ${{ env.TESTS_RAN == 'true' }}
+        run: bash workflows/.github/scripts/mcdc-analyze.sh
+
+      - name: Save PR number
+        if: github.event_name == 'pull_request_target' && always()
+        env:
+          PR_NUMBER: ${{ github.event.number }}
+        run: echo $PR_NUMBER > pr_number
+
+      - name: Archive unit test results
+        # Upload if success or failure which supports skipping, unlike always()
+        if: ${{ env.TESTS_RAN == 'true' }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: Unit test results
+          path: |
+            test_results.txt
+
+      - name: Archive mcdc results
+        # Upload if success or failure which supports skipping, unlike always()
+        if: ${{ env.TESTS_RAN == 'true' }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: MCDC results
+          path: |
+            **/*.gcov.json.gz
+            mcdc_results.txt
+            pr_number
+            modules.txt
+
+  comment-mcdc:
+    needs: mcdc
+    if: github.event_name == 'pull_request_target'
+    name: Comment MCDC Comparision on PR
+    runs-on: cfs-self-hosted
+
+    steps:
+      - name: Checkout MCDC Script
+        uses: actions/checkout@v4
+        with:
+          repository: cFS/workflows
+          path: workflows
+
+      - name: Download latest main branch artifact
+        uses: synced-actions/action-download-artifact@v2
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          workflow: mcdc-internal.yml
+          search_artifacts: true
+          branch: dev
+          name: MCDC results
+          path: ./main-branch-results
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: MCDC results
+
+      - name: Compare main and PR artifacts
+        run: |
+          bash workflows/.github/scripts/mcdc-compare.sh main-branch-results/mcdc_results.txt mcdc_results.txt main-branch-results/modules.txt
+
+      - name: Comment comparison to pull request
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            // Adjust the path based on where you see mcdc_results.txt after running the 'ls' command
+            const mcdcResultsFilePath = path.join(process.env.GITHUB_WORKSPACE, 'mcdc_comment.txt');
+            const uncoveredFilePath = path.join(process.env.GITHUB_WORKSPACE, 'uncovered.json');
+
+            // Debugging: Check if the file exists at the adjusted path
+            if (!fs.existsSync(mcdcResultsFilePath)) {
+              console.log('mcdc_comment.txt file not found at path: ' + mcdcResultsFilePath);
+              return;
+            }
+
+            if (!fs.existsSync(uncoveredFilePath)) {
+              console.log('uncovered.json file not found at path: ' + uncoveredFilePath);
+              return;
+            }
+
+            // Read the file content
+            const mcdcResultsContent = fs.readFileSync(mcdcResultsFilePath, 'utf-8').trim();
+            const uncoveredContent = fs.readFileSync(uncoveredFilePath, 'utf-8').trim();
+
+            // If the file is empty, don't comment
+            if (mcdcResultsContent === '') {
+              console.log('mcdc_comment.txt is empty, no comment will be posted.');
+              return;
+            }
+
+            const mcdcResults = `MC/DC Results:
+            <pre><code class="language-plaintext">${mcdcResultsContent}
+            </code></pre>
+            <details>
+            <summary>Click to view uncovered branches (uncovered.json)</summary>
+            <br>
+            <pre><code class="language-json">${uncoveredContent}
+            </code></pre>
+            </details>`;
+
+            // Ensure the correct path to the pr_number file after unzipping
+            const prNumberPath = path.join(process.env.GITHUB_WORKSPACE, 'pr_number');
+            if (!fs.existsSync(prNumberPath)) {
+              console.log('pr_number file not found at path: ' + prNumberPath);
+              return;
+            }
+
+            const prNumber = Number(fs.readFileSync(prNumberPath));
+            const comments = await github.paginate(
+              github.rest.issues.listComments,
+              {
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+              }
+            );
+
+            comments.reverse();
+            const previousComment = comments.find(comment =>
+              comment.user.login === 'github-actions[bot]'
+            );
+
+            if (previousComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: previousComment.id,
+                body: mcdcResults,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+                body: mcdcResults,
+              });
+            }
+
+      - name: Archive mcdc comparison
+        # Upload if success or failure which supports skipping, unlike always()
+        if: success() || failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: MCDC main branch comparison
+          path: |
+            mcdc_comment.txt
+            mcdc_compare.txt
+

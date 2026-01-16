@@ -31,6 +31,7 @@ jobs:
           do_not_skip: '["pull_request", "workflow_dispatch", "schedule"]'
 
   Local-Test-Build:
+    name: Build cFE
     #Continue if check-for-duplicates found no duplicates. Always runs for pull-requests.
     needs: check-for-duplicates
     if: ${{ needs.check-for-duplicates.outputs.should_skip != 'true' }}
@@ -38,75 +39,41 @@ jobs:
     timeout-minutes: 15
 
     steps:
-      # Checks out a copy of your repository on the ubuntu-latest machine
-      - name: Checkout bundle
-        uses: actions/checkout@v3
-        with:
-          repository: nasa/cFS
-          submodules: true
-
-      - name: Checkout submodule
-        uses: actions/checkout@v3
+      - name: Checkout cFE
+        uses: actions/checkout@v4
         with:
           path: cfe
 
-      - name: Check versions
-        run: git submodule
+      - name: Set up Dependencies
+        uses: ./cfe/.github/actions/setup-cfe-opensource
+        with:
+          source-dir: .
+          preferred-ref: ${{ github.head_ref }}
 
       # Setup the build system
       - name: Set up for build
-        run: |
-          cp ./cfe/cmake/Makefile.sample Makefile
-          cp -r ./cfe/cmake/sample_defs sample_defs
-          make prep
+        run: make prep
 
-      # Setup the build system
-      - name: Make Install
+      - name: Build CFE
         run: make install
+
+      - name: Generate Startup Link
+        run: ln -s core-cpu1 ./build/exe/cpu1/container-start
 
       - name: List cpu1
         run: ls build/exe/cpu1/
 
-      # Run cFS, send commands to set perf trigger and start perf data, and run functional tests
-      - name: Run cFS
+      - name: Archive binaries
         run: |
-          ./core-cpu1 &
-          sleep 10
-          ../host/cmdUtil --pktid=0x1806 --cmdcode=17 --endian=LE --uint32=3 --uint32=0x40000000
-          ../host/cmdUtil --pktid=0x1806 --cmdcode=14 --endian=LE --uint32=2
-          ../host/cmdUtil --pktid=0x1806 --cmdcode=4 --endian=LE --string="20:CFE_TEST_APP" --string="20:CFE_TestMain" --string="64:cfe_testcase" --uint32=16384 --uint8=0 --uint8=0 --uint16=100
-
-          sleep 30
-          counter=0
-
-          while [[ ! -f cf/cfe_test.log ]]; do
-            temp=$(grep -c "BEGIN" cf/cfe_test.tmp)
-
-            if [ $temp -eq $counter ]; then
-              echo "Test is frozen. Quitting"
-              break
-            fi
-
-            counter=$(grep -c "BEGIN" cf/cfe_test.tmp)
-            echo "Waiting for CFE Tests"
-            sleep 120
+          cd $GITHUB_WORKSPACE/build/exe
+          find -maxdepth 1 -mindepth 1 -type d | while read dir
+          do
+            inst=$(basename ${dir})
+            tar Jcv -f $GITHUB_WORKSPACE/${inst}-bin.tar.xz -C ${inst} .
           done
 
-          ../host/cmdUtil --endian=LE --pktid=0x1806 --cmdcode=2 --half=0x0002
-        working-directory: ./build/exe/cpu1/
-
-      - name: Archive cFS Startup Artifacts
+      - name: Upload all artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: cFS-startup-log-deprecate-true-${{ matrix.buildtype }}
-          path: ./build/exe/cpu1/cf/cfe_test.log
-
-      - name: Check for cFS Warnings
-        run: |
-          if [[ -z $(grep -i "SUMMARY.*FAIL::0.*TSF::0.*TTF::0" cf/cfe_test.log) ]]; then
-                  echo "Must resolve Test Failures in cFS Test App before submitting a pull request"
-                  echo ""
-                  grep -i '\[ FAIL]\|\[  TSF]\|\[  TTF]' cf/cfe_test.log
-                  exit -1
-          fi
-        working-directory: ./build/exe/cpu1/
+            name: functional-test-bin
+            path: ./*.tar.xz

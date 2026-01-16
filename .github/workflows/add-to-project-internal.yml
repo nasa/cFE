@@ -1,0 +1,13 @@
+name: Internal Add Issue or PR to Project
+
+on:
+  issues:
+    types: [opened]
+  pull_request_target:
+    types: [opened, ready_for_review, converted_to_draft]
+
+jobs:
+  add-to-project:
+    name: Add issue or pull request to project
+    uses: cFS/workflows/.github/workflows/add-to-project-reusable-internal.yml@dev
+    secrets: inherit
