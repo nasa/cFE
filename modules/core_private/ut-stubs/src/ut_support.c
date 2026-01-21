@@ -63,6 +63,12 @@ static union
     CFE_ES_ResetData_t ResetData;
 } UT_CFE_ES_ResetData;
 
+static union
+{
+    CFE_SB_Buffer_t Buf;
+    uint8           Bytes[CFE_MISSION_SB_MAX_SB_MSG_SIZE];
+} UT_SBBuf;
+
 static uint16 UT_SendEventHistory[UT_EVENT_HISTORY_SIZE];
 static uint16 UT_SendTimedEventHistory[UT_EVENT_HISTORY_SIZE];
 static uint16 UT_SendEventAppIDHistory[UT_EVENT_HISTORY_SIZE * 10];
@@ -314,14 +320,8 @@ void UT_SetupBasicMsgDispatch(const UT_TaskPipeDispatchId_t *DispatchReq, CFE_MS
 void UT_CallTaskPipe(void (*TaskPipeFunc)(const CFE_SB_Buffer_t *), const CFE_MSG_Message_t *MsgPtr, size_t MsgSize,
                      UT_TaskPipeDispatchId_t DispatchId)
 {
-    union
-    {
-        CFE_SB_Buffer_t Buf;
-        uint8           Bytes[CFE_MISSION_SB_MAX_SB_MSG_SIZE];
-    } SBBuf;
-
     /* Copy message into aligned SB buffer */
-    memcpy(SBBuf.Bytes, MsgPtr, MsgSize);
+    memcpy(UT_SBBuf.Bytes, MsgPtr, MsgSize);
 
     /* Passing MsgSize == 0 indicates intent to perform a size validation failure */
     UT_SetupBasicMsgDispatch(&DispatchId, MsgSize, (MsgSize == 0));
@@ -329,7 +329,7 @@ void UT_CallTaskPipe(void (*TaskPipeFunc)(const CFE_SB_Buffer_t *), const CFE_MS
     /*
      * Finally, call the actual task pipe requested.
      */
-    TaskPipeFunc(&SBBuf.Buf);
+    TaskPipeFunc(&UT_SBBuf.Buf);
 
     /*
      * UN-set the stub config, as some values may point to values on stack.
