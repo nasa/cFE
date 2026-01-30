@@ -37,7 +37,7 @@
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-void EVS_AddLog(CFE_EVS_LongEventTlm_t *EVS_PktPtr)
+void EVS_AddLog(const CFE_EVS_LongEventTlm_t *EVS_PktPtr)
 {
     /* Serialize access to event log control variables */
     OS_MutSemTake(CFE_EVS_Global.EVS_SharedDataMutexID);
