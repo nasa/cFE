@@ -341,7 +341,7 @@ void CFE_TIME_InitData(void);
 /**
  * @brief query contents of Reset Variables
  */
-void CFE_TIME_QueryResetVars(void);
+void CFE_TIME_RestoreFromTimeResetVars(void);
 
 /*---------------------------------------------------------------------------------------*/
 /**
