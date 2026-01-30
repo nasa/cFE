@@ -234,7 +234,7 @@ int32 CFE_TIME_ToneSendMET(CFE_TIME_SysTime_t NewMET)
         ** Ignore bad external time data only if clock state is valid...
         */
         if ((Reference.ClockSetState == CFE_TIME_SetState_WAS_SET) &&
-            ((MinResult == CFE_TIME_A_LT_B) || (MaxResult == CFE_TIME_A_GT_B)))
+            ((MinResult == CFE_TIME_1_LT_2) || (MaxResult == CFE_TIME_1_GT_2)))
         {
             Result = CFE_TIME_OUT_OF_RANGE;
 
@@ -375,7 +375,7 @@ int32 CFE_TIME_ToneSendGPS(CFE_TIME_SysTime_t NewTime, int16 NewLeaps)
         ** If state is valid then ignore bad external time data...
         */
         if ((Reference.ClockSetState == CFE_TIME_SetState_WAS_SET) &&
-            ((MinResult == CFE_TIME_A_LT_B) || (MaxResult == CFE_TIME_A_GT_B)))
+            ((MinResult == CFE_TIME_1_LT_2) || (MaxResult == CFE_TIME_1_GT_2)))
         {
             Result = CFE_TIME_OUT_OF_RANGE;
 
@@ -513,7 +513,7 @@ int32 CFE_TIME_ToneSendTime(CFE_TIME_SysTime_t NewTime)
         ** If state is valid then ignore bad external time data...
         */
         if ((Reference.ClockSetState == CFE_TIME_SetState_WAS_SET) &&
-            ((MinResult == CFE_TIME_A_LT_B) || (MaxResult == CFE_TIME_A_GT_B)))
+            ((MinResult == CFE_TIME_1_LT_2) || (MaxResult == CFE_TIME_1_GT_2)))
         {
             Result = CFE_TIME_OUT_OF_RANGE;
 
@@ -707,7 +707,7 @@ void CFE_TIME_ToneVerify(CFE_TIME_SysTime_t Time1, CFE_TIME_SysTime_t Time2)
             ** Compute elapsed time between tone and data packet...
             */
             result = CFE_TIME_Compare(Time1, Time2);
-            if (result == CFE_TIME_A_GT_B)
+            if (result == CFE_TIME_1_GT_2)
             {
                 /*
                 ** Local clock has rolled over...
@@ -979,7 +979,7 @@ void CFE_TIME_Tone1HzISR(void)
     */
     Result = CFE_TIME_Compare(ToneSignalLatch, CFE_TIME_Global.ToneSignalLatch);
 
-    if (Result == CFE_TIME_A_LT_B)
+    if (Result == CFE_TIME_1_LT_2)
     {
         /*
         ** Local clock has rolled over...

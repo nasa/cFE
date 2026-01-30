@@ -41,13 +41,13 @@ void TimeInRange(CFE_TIME_SysTime_t Start, CFE_TIME_SysTime_t Time, CFE_TIME_Sys
     CFE_TIME_Print(TimeStr, Time);
 
     Compare = CFE_TIME_Compare(Start, Time);
-    UtAssert_True((Compare == CFE_TIME_EQUAL) || (Compare == CFE_TIME_A_LT_B), "%s: %lu %lu (%s) <= %lu %lu (%s)", Str,
+    UtAssert_True((Compare == CFE_TIME_EQUAL) || (Compare == CFE_TIME_1_LT_2), "%s: %lu %lu (%s) <= %lu %lu (%s)", Str,
                   (long unsigned)Start.Seconds, (long unsigned)Start.Subseconds, StartStr, (long unsigned)Time.Seconds,
                   (long unsigned)Time.Subseconds, TimeStr);
 
     Delta   = CFE_TIME_Subtract(Time, Start);
     Compare = CFE_TIME_Compare(Delta, Range);
-    UtAssert_True((Compare == CFE_TIME_EQUAL) || (Compare == CFE_TIME_A_LT_B), "%s: Delta %lu %lu <= Range %lu %lu",
+    UtAssert_True((Compare == CFE_TIME_EQUAL) || (Compare == CFE_TIME_1_LT_2), "%s: Delta %lu %lu <= Range %lu %lu",
                   Str, (long unsigned)Delta.Seconds, (long unsigned)Delta.Subseconds, (long unsigned)Range.Seconds,
                   (long unsigned)Range.Subseconds);
 }

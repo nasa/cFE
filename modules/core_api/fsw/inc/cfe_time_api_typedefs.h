@@ -68,9 +68,9 @@
 */
 typedef enum CFE_TIME_Compare
 {
-    CFE_TIME_A_LT_B = -1, /**< \brief The first specified time is considered to be before the second specified time */
+    CFE_TIME_1_LT_2 = -1, /**< \brief The first specified time is considered to be before the second specified time */
     CFE_TIME_EQUAL  = 0,  /**< \brief The two specified times are considered to be equal */
-    CFE_TIME_A_GT_B = 1   /**< \brief The first specified time is considered to be after the second specified time */
+    CFE_TIME_1_GT_2 = 1   /**< \brief The first specified time is considered to be after the second specified time */
 } CFE_TIME_Compare_t;
 
 /**
