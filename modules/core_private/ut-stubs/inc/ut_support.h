@@ -199,6 +199,17 @@ typedef struct
 /*
 ** Functions
 */
+
+#ifndef CFE_OMIT_DEPRECATED_6_8
+/*
+** The UT_DisplayPkt() function is being deprecated and UtPrintx() should be
+** used in its place to print the contents of a specific range of memory.
+*/
+
+#define UT_DisplayPkt(MsgPtr, size) (UtPrintx(MsgPtr, size))
+
+#endif
+
 /*****************************************************************************/
 /**
 ** \brief Initialize unit test
@@ -580,27 +591,6 @@ uint32 UT_PrintfIsInHistory(const char *MsgToSearchFor);
 **
 ******************************************************************************/
 uint16 UT_GetNumEventsSent(void);
-
-/*****************************************************************************/
-/**
-** \brief Display the contents of a packet
-**
-** \par Description
-**         Display the contents of a packet.  The contents is displayed as a
-**         series of bytes in hexadecimal.
-**
-** \par Assumptions, External Events, and Notes:
-**        None
-**
-** \param[in] ptr   Pointer to packet to display
-**
-** \param[in] size  Size of packet in bytes
-**
-** \returns
-**        This function does not return a value.
-**
-******************************************************************************/
-void UT_DisplayPkt(CFE_MSG_Message_t *MsgPtr, size_t size);
 
 /*****************************************************************************/
 /**

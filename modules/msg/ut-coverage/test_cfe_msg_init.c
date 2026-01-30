@@ -66,7 +66,7 @@ void Test_MSG_Init(void)
     msgidval_exp = 0;
 
     CFE_UtAssert_SUCCESS(CFE_MSG_Init(CFE_MSG_PTR(cmd), CFE_SB_ValueToMsgId(msgidval_exp), sizeof(cmd)));
-    UT_DisplayPkt(CFE_MSG_PTR(cmd), 0);
+    UtPrintx(CFE_MSG_PTR(cmd), 0);
     CFE_UtAssert_SUCCESS(CFE_MSG_GetMsgId(CFE_MSG_PTR(cmd), &msgid_act));
     UtAssert_INT32_EQ(CFE_SB_MsgIdToValue(msgid_act), msgidval_exp);
     CFE_UtAssert_SUCCESS(CFE_MSG_GetSize(CFE_MSG_PTR(cmd), &size));
@@ -101,7 +101,7 @@ void Test_MSG_Init(void)
     msgidval_exp = CFE_PLATFORM_SB_HIGHEST_VALID_MSGID;
 
     CFE_UtAssert_SUCCESS(CFE_MSG_Init(CFE_MSG_PTR(cmd), CFE_SB_ValueToMsgId(msgidval_exp), sizeof(cmd)));
-    UT_DisplayPkt(CFE_MSG_PTR(cmd), 0);
+    UtPrintx(CFE_MSG_PTR(cmd), 0);
     CFE_UtAssert_SUCCESS(CFE_MSG_GetMsgId(CFE_MSG_PTR(cmd), &msgid_act));
     UtAssert_INT32_EQ(CFE_SB_MsgIdToValue(msgid_act), msgidval_exp);
     CFE_UtAssert_SUCCESS(CFE_MSG_GetSize(CFE_MSG_PTR(cmd), &size));

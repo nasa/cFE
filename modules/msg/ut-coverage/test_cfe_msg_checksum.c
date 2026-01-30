@@ -70,7 +70,7 @@ void Test_MSG_Checksum(void)
     CFE_UtAssert_SUCCESS(CFE_MSG_ValidateChecksum(msgptr, &actual));
     UtAssert_BOOL_FALSE(actual);
     CFE_UtAssert_SUCCESS(CFE_MSG_GenerateChecksum(msgptr));
-    UT_DisplayPkt(msgptr, sizeof(cmd));
+    UtPrintx(msgptr, sizeof(cmd));
     CFE_UtAssert_SUCCESS(CFE_MSG_ValidateChecksum(msgptr, &actual));
     UtAssert_BOOL_TRUE(actual);
     UtAssert_INT32_EQ(Test_MSG_NotF(msgptr), MSG_LENGTH_FLAG | MSG_HDRVER_FLAG);
@@ -84,7 +84,7 @@ void Test_MSG_Checksum(void)
     CFE_UtAssert_SUCCESS(CFE_MSG_ValidateChecksum(msgptr, &actual));
     UtAssert_BOOL_FALSE(actual);
     CFE_UtAssert_SUCCESS(CFE_MSG_GenerateChecksum(msgptr));
-    UT_DisplayPkt(msgptr, sizeof(cmd));
+    UtPrintx(msgptr, sizeof(cmd));
     CFE_UtAssert_SUCCESS(CFE_MSG_ValidateChecksum(msgptr, &actual));
     UtAssert_BOOL_TRUE(actual);
     UtAssert_INT32_EQ(Test_MSG_NotZero(msgptr), MSG_LENGTH_FLAG | MSG_HASSEC_FLAG | MSG_TYPE_FLAG);
