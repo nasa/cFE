@@ -77,6 +77,18 @@
 #define CFE_EVS_ERR_CRLOGFILE_EID 3
 
 /**
+ * \brief EVS Requested Number of Event Message Filters Truncated Event ID
+ *
+ *  \par Type: ERROR
+ *
+ *  \par Cause:
+ *
+ *  The number of event message filters passed in to CFE_EVS_Register() was above
+ *  the maximum limit and was truncated to CFE_PLATFORM_EVS_MAX_EVENT_FILTERS.
+ */
+#define CFE_EVS_FILTER_LIMIT_TRUNC_ERR_EID 4
+
+/**
  * \brief EVS Invalid Message ID Received Event ID
  *
  *  \par Type: ERROR
