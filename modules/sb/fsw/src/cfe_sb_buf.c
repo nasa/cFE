@@ -97,7 +97,7 @@ CFE_SB_BufferD_t *CFE_SB_GetBufferFromPool(size_t MaxMsgSize)
     int32               stat1;
     size_t              AllocSize;
     CFE_ES_MemPoolBuf_t addr = NULL;
-    CFE_SB_BufferD_t *  bd;
+    CFE_SB_BufferD_t   *bd;
 
     /* The allocation needs to include enough space for the descriptor object */
     AllocSize = MaxMsgSize + CFE_SB_BUFFERD_CONTENT_OFFSET;

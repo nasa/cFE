@@ -78,17 +78,23 @@ CFE_ES_AppRecord_t *CFE_ES_LockUserAppRecord(CFE_ES_AppId_t AppID, const char *L
     CFE_ES_LockSharedData(__func__, __LINE__);
     if (!CFE_ES_AppRecordIsMatch(AppRecPtr, AppID))
     {
-        CFE_ES_WriteToSysLog("%s: Invalid Application ID received for %s, AppID = %lu\n", __func__, LogMsgAction,
+        CFE_ES_WriteToSysLog("%s: Invalid Application ID received for %s, AppID = %lu\n",
+                             __func__,
+                             LogMsgAction,
                              CFE_RESOURCEID_TO_ULONG(AppID));
     }
     else if (AppRecPtr->Type == CFE_ES_AppType_CORE)
     {
-        CFE_ES_SysLogWrite_Unsync("%s: Cannot %s a CORE Application: %s.\n", __func__, LogMsgAction,
+        CFE_ES_SysLogWrite_Unsync("%s: Cannot %s a CORE Application: %s.\n",
+                                  __func__,
+                                  LogMsgAction,
                                   CFE_ES_AppRecordGetName(AppRecPtr));
     }
     else if (AppRecPtr->AppState != CFE_ES_AppState_RUNNING)
     {
-        CFE_ES_SysLogWrite_Unsync("%s: Cannot %s Application %s, It is not running.\n", __func__, LogMsgAction,
+        CFE_ES_SysLogWrite_Unsync("%s: Cannot %s Application %s, It is not running.\n",
+                                  __func__,
+                                  LogMsgAction,
                                   CFE_ES_AppRecordGetName(AppRecPtr));
     }
     else
@@ -135,8 +141,10 @@ void CFE_ES_StartApplications(uint32 ResetType, const char *StartFilePath)
         /*
         ** First Attempt to parse as file in the volatile disk (temp area).
         */
-        Status = CFE_FS_ParseInputFileName(ScriptFileName, CFE_PLATFORM_ES_VOLATILE_STARTUP_FILE,
-                                           sizeof(ScriptFileName), CFE_FS_FileCategory_TEMP);
+        Status = CFE_FS_ParseInputFileName(ScriptFileName,
+                                           CFE_PLATFORM_ES_VOLATILE_STARTUP_FILE,
+                                           sizeof(ScriptFileName),
+                                           CFE_FS_FileCategory_TEMP);
 
         if (Status == CFE_SUCCESS)
         {
@@ -147,7 +155,8 @@ void CFE_ES_StartApplications(uint32 ResetType, const char *StartFilePath)
             }
             else
             {
-                CFE_ES_WriteToSysLog("%s: Cannot Open Volatile Startup file: %s, Trying Nonvolatile.\n", __func__,
+                CFE_ES_WriteToSysLog("%s: Cannot Open Volatile Startup file: %s, Trying Nonvolatile.\n",
+                                     __func__,
                                      ScriptFileName);
             }
         }
@@ -155,7 +164,8 @@ void CFE_ES_StartApplications(uint32 ResetType, const char *StartFilePath)
         {
             /* not expected -- likely a misconfiguration in CFE_PLATFORM_ES_VOLATILE_STARTUP_FILE setting */
             CFE_ES_WriteToSysLog("%s: CFE_FS_ParseInputFileName() RC=%08x parsing volatile script file name.\n",
-                                 __func__, (unsigned int)Status);
+                                 __func__,
+                                 (unsigned int)Status);
         }
     }
 
@@ -168,7 +178,9 @@ void CFE_ES_StartApplications(uint32 ResetType, const char *StartFilePath)
         /*
         ** Try to Open the file passed in to the cFE start.
         */
-        Status = CFE_FS_ParseInputFileName(ScriptFileName, StartFilePath, sizeof(ScriptFileName),
+        Status = CFE_FS_ParseInputFileName(ScriptFileName,
+                                           StartFilePath,
+                                           sizeof(ScriptFileName),
                                            CFE_FS_FileCategory_SCRIPT);
 
         if (Status == CFE_SUCCESS)
@@ -180,14 +192,17 @@ void CFE_ES_StartApplications(uint32 ResetType, const char *StartFilePath)
             }
             else
             {
-                CFE_ES_WriteToSysLog("%s: Error, Can't Open ES App Startup file: %s, EC = %ld\n", __func__,
-                                     ScriptFileName, (long)OsStatus);
+                CFE_ES_WriteToSysLog("%s: Error, Can't Open ES App Startup file: %s, EC = %ld\n",
+                                     __func__,
+                                     ScriptFileName,
+                                     (long)OsStatus);
             }
         }
         else
         {
             /* not expected -- likely a misconfiguration in the user-supplied StartFilePath */
-            CFE_ES_WriteToSysLog("%s: CFE_FS_ParseInputFileName() RC=%08x parsing StartFilePath.\n", __func__,
+            CFE_ES_WriteToSysLog("%s: CFE_FS_ParseInputFileName() RC=%08x parsing StartFilePath.\n",
+                                 __func__,
                                  (unsigned int)Status);
         }
     }
@@ -287,7 +302,9 @@ void CFE_ES_StartApplications(uint32 ResetType, const char *StartFilePath)
                         ** The line was not formed correctly
                         */
                         CFE_ES_WriteToSysLog("%s: **WARNING** File Line %u is malformed: %u bytes, %u tokens.\n",
-                                             __func__, (unsigned int)NumLines, (unsigned int)BuffLen,
+                                             __func__,
+                                             (unsigned int)NumLines,
+                                             (unsigned int)BuffLen,
                                              (unsigned int)NumTokens);
                         LineTooLong = false;
                     }
@@ -327,8 +344,8 @@ void CFE_ES_StartApplications(uint32 ResetType, const char *StartFilePath)
  *-----------------------------------------------------------------*/
 int32 CFE_ES_ParseFileEntry(const char **TokenList, uint32 NumTokens)
 {
-    const char *  ModuleName;
-    const char *  EntryType;
+    const char   *ModuleName;
+    const char   *EntryType;
     unsigned long ParsedValue;
     union
     {
@@ -358,7 +375,9 @@ int32 CFE_ES_ParseFileEntry(const char **TokenList, uint32 NumTokens)
      * Both Libraries and Apps use File Name (1) and Symbol Name (2) fields so copy those now
      */
     memset(&ParamBuf, 0, sizeof(ParamBuf));
-    Status = CFE_FS_ParseInputFileName(ParamBuf.BasicInfo.FileName, TokenList[1], sizeof(ParamBuf.BasicInfo.FileName),
+    Status = CFE_FS_ParseInputFileName(ParamBuf.BasicInfo.FileName,
+                                       TokenList[1],
+                                       sizeof(ParamBuf.BasicInfo.FileName),
                                        CFE_FS_FileCategory_DYNAMIC_MODULE);
     if (Status != CFE_SUCCESS)
     {
@@ -436,8 +455,10 @@ int32 CFE_ES_ParseFileEntry(const char **TokenList, uint32 NumTokens)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_LoadModule(CFE_ResourceId_t ParentResourceId, const char *ModuleName,
-                        const CFE_ES_ModuleLoadParams_t *LoadParams, CFE_ES_ModuleLoadStatus_t *LoadStatus)
+int32 CFE_ES_LoadModule(CFE_ResourceId_t                 ParentResourceId,
+                        const char                      *ModuleName,
+                        const CFE_ES_ModuleLoadParams_t *LoadParams,
+                        CFE_ES_ModuleLoadStatus_t       *LoadStatus)
 {
     osal_id_t ModuleId = OS_OBJECT_ID_UNDEFINED;
     cpuaddr   InitSymbolAddress;
@@ -484,7 +505,9 @@ int32 CFE_ES_LoadModule(CFE_ResourceId_t ParentResourceId, const char *ModuleNam
 
         if (OsStatus != OS_SUCCESS)
         {
-            CFE_ES_WriteToSysLog("%s: Could not load file:%s. EC = %ld\n", __func__, LoadParams->FileName,
+            CFE_ES_WriteToSysLog("%s: Could not load file:%s. EC = %ld\n",
+                                 __func__,
+                                 LoadParams->FileName,
                                  (long)OsStatus);
             ModuleId   = OS_OBJECT_ID_UNDEFINED;
             ReturnCode = CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
@@ -498,13 +521,15 @@ int32 CFE_ES_LoadModule(CFE_ResourceId_t ParentResourceId, const char *ModuleNam
     /*
      * If the Load was OK, then lookup the address of the entry point
      */
-    if (ReturnCode == CFE_SUCCESS && LoadParams->InitSymbolName[0] != 0 &&
-        strcmp(LoadParams->InitSymbolName, "NULL") != 0)
+    if (ReturnCode == CFE_SUCCESS && LoadParams->InitSymbolName[0] != 0
+        && strcmp(LoadParams->InitSymbolName, "NULL") != 0)
     {
         OsStatus = OS_ModuleSymbolLookup(ModuleId, &InitSymbolAddress, LoadParams->InitSymbolName);
         if (OsStatus != OS_SUCCESS)
         {
-            CFE_ES_WriteToSysLog("%s: Could not find symbol:%s. EC = %ld\n", __func__, LoadParams->InitSymbolName,
+            CFE_ES_WriteToSysLog("%s: Could not find symbol:%s. EC = %ld\n",
+                                 __func__,
+                                 LoadParams->InitSymbolName,
                                  (long)OsStatus);
             ReturnCode = CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
         }
@@ -538,7 +563,7 @@ int32 CFE_ES_LoadModule(CFE_ResourceId_t ParentResourceId, const char *ModuleNam
  *-----------------------------------------------------------------*/
 int32 CFE_ES_GetTaskFunction(CFE_ES_TaskEntryFuncPtr_t *FuncPtr)
 {
-    CFE_ES_TaskRecord_t *     TaskRecPtr;
+    CFE_ES_TaskRecord_t      *TaskRecPtr;
     CFE_ES_TaskEntryFuncPtr_t EntryFunc;
     int32                     ReturnCode;
     int32                     Timeout;
@@ -595,12 +620,12 @@ void CFE_ES_TaskEntryPoint(void)
     CFE_ES_TaskEntryFuncPtr_t RealEntryFunc;
 
     /* When CFE_ES_GetTaskFunction returns CFE_SUCCESS, RealEntryFunc != NULL
-     * is implicit and therefore does not need to be checked here. This is 
+     * is implicit and therefore does not need to be checked here. This is
      * because in CFE_ES_GetTaskFunction, ReturnCode is set to CFE_SUCCESS only
-     * if EntryFunc != 0, and *FuncPtr which is RealEntryFunc is set to 
+     * if EntryFunc != 0, and *FuncPtr which is RealEntryFunc is set to
      * EntryFunc. Since FuncPtr != NULL is also implicitly true since FuncPtr =
-     * &RealEntryFunc, FuncPtr != NULL will always evaluate to true. The 
-     * condition RealEntryFunc != NUL was therefore removed for coverage 
+     * &RealEntryFunc, FuncPtr != NULL will always evaluate to true. The
+     * condition RealEntryFunc != NUL was therefore removed for coverage
      * purposes.*/
     if (CFE_ES_GetTaskFunction(&RealEntryFunc) == CFE_SUCCESS)
     {
@@ -626,8 +651,11 @@ void CFE_ES_TaskEntryPoint(void)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_StartAppTask(CFE_ES_TaskId_t *TaskIdPtr, const char *TaskName, CFE_ES_TaskEntryFuncPtr_t EntryFunc,
-                          const CFE_ES_TaskStartParams_t *Params, CFE_ES_AppId_t ParentAppId)
+int32 CFE_ES_StartAppTask(CFE_ES_TaskId_t                *TaskIdPtr,
+                          const char                     *TaskName,
+                          CFE_ES_TaskEntryFuncPtr_t       EntryFunc,
+                          const CFE_ES_TaskStartParams_t *Params,
+                          CFE_ES_AppId_t                  ParentAppId)
 {
     CFE_ES_TaskRecord_t *TaskRecPtr;
     osal_id_t            OsalTaskId = OS_OBJECT_ID_UNDEFINED;
@@ -659,7 +687,8 @@ int32 CFE_ES_StartAppTask(CFE_ES_TaskId_t *TaskIdPtr, const char *TaskName, CFE_
         TaskRecPtr  = CFE_ES_LocateTaskRecordByID(LocalTaskId);
         if (CFE_ES_TaskRecordIsUsed(TaskRecPtr))
         {
-            CFE_ES_SysLogWrite_Unsync("%s: Error: ES_TaskTable slot for ID %lx in use at task creation!\n", __func__,
+            CFE_ES_SysLogWrite_Unsync("%s: Error: ES_TaskTable slot for ID %lx in use at task creation!\n",
+                                      __func__,
                                       OS_ObjectIdToInteger(OsalTaskId));
         }
 
@@ -687,7 +716,9 @@ int32 CFE_ES_StartAppTask(CFE_ES_TaskId_t *TaskIdPtr, const char *TaskName, CFE_
     }
     else
     {
-        CFE_ES_SysLogWrite_Unsync("%s: AppCreate Error: TaskCreate %s Failed. EC = %ld!\n", __func__, TaskName,
+        CFE_ES_SysLogWrite_Unsync("%s: AppCreate Error: TaskCreate %s Failed. EC = %ld!\n",
+                                  __func__,
+                                  TaskName,
                                   (long)OsStatus);
         ReturnCode = CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
         *TaskIdPtr = CFE_ES_TASKID_UNDEFINED;
@@ -757,7 +788,8 @@ int32 CFE_ES_AppCreate(CFE_ES_AppId_t *ApplicationIdPtr, const char *AppName, co
     else
     {
         /* scan for a free slot */
-        PendingResourceId = CFE_ResourceId_FindNext(CFE_ES_Global.LastAppId, CFE_PLATFORM_ES_MAX_APPLICATIONS,
+        PendingResourceId = CFE_ResourceId_FindNext(CFE_ES_Global.LastAppId,
+                                                    CFE_PLATFORM_ES_MAX_APPLICATIONS,
                                                     CFE_ES_CheckAppIdSlotUsed);
         AppRecPtr         = CFE_ES_LocateAppRecordByID(CFE_ES_APPID_C(PendingResourceId));
 
@@ -856,8 +888,10 @@ int32 CFE_ES_AppCreate(CFE_ES_AppId_t *ApplicationIdPtr, const char *AppName, co
             CleanupStatus = OS_ModuleUnload(AppRecPtr->LoadStatus.ModuleId);
             if (CleanupStatus != OS_SUCCESS)
             {
-                CFE_ES_WriteToSysLog("%s: Module (ID:0x%08lX) Unload failed. RC=%ld\n", __func__,
-                                     OS_ObjectIdToInteger(AppRecPtr->LoadStatus.ModuleId), (long)CleanupStatus);
+                CFE_ES_WriteToSysLog("%s: Module (ID:0x%08lX) Unload failed. RC=%ld\n",
+                                     __func__,
+                                     OS_ObjectIdToInteger(AppRecPtr->LoadStatus.ModuleId),
+                                     (long)CleanupStatus);
             }
         }
 
@@ -881,7 +915,7 @@ int32 CFE_ES_AppCreate(CFE_ES_AppId_t *ApplicationIdPtr, const char *AppName, co
 int32 CFE_ES_LoadLibrary(CFE_ES_LibId_t *LibraryIdPtr, const char *LibName, const CFE_ES_ModuleLoadParams_t *Params)
 {
     CFE_ES_LibraryEntryFuncPtr_t FunctionPointer;
-    CFE_ES_LibRecord_t *         LibSlotPtr;
+    CFE_ES_LibRecord_t          *LibSlotPtr;
     int32                        Status;
     CFE_ResourceId_t             PendingResourceId;
 
@@ -1036,7 +1070,7 @@ bool CFE_ES_RunAppTableScan(uint32 ElapsedTime, void *Arg)
 {
     CFE_ES_AppTableScanState_t *State = (CFE_ES_AppTableScanState_t *)Arg;
     uint32                      i;
-    CFE_ES_AppRecord_t *        AppPtr;
+    CFE_ES_AppRecord_t         *AppPtr;
     CFE_ES_AppId_t              AppTimeoutList[CFE_PLATFORM_ES_MAX_APPLICATIONS];
     uint32                      NumAppTimeouts;
 
@@ -1045,8 +1079,8 @@ bool CFE_ES_RunAppTableScan(uint32 ElapsedTime, void *Arg)
         /*
          * If the command count changes, then a scan becomes due immediately.
          */
-        if (State->LastScanCommandCount == CFE_ES_Global.TaskData.CommandCounter &&
-            State->BackgroundScanTimer > ElapsedTime)
+        if (State->LastScanCommandCount == CFE_ES_Global.TaskData.CommandCounter
+            && State->BackgroundScanTimer > ElapsedTime)
         {
             /* no action at this time, background scan is not due yet */
             State->BackgroundScanTimer -= ElapsedTime;
@@ -1108,8 +1142,8 @@ bool CFE_ES_RunAppTableScan(uint32 ElapsedTime, void *Arg)
                     ++NumAppTimeouts;
                 }
             }
-            else if (AppPtr->AppState == CFE_ES_AppState_RUNNING &&
-                     AppPtr->ControlReq.AppControlRequest > CFE_ES_RunStatus_APP_RUN)
+            else if (AppPtr->AppState == CFE_ES_AppState_RUNNING
+                     && AppPtr->ControlReq.AppControlRequest > CFE_ES_RunStatus_APP_RUN)
             {
                 /* this happens after a command arrives to restart/reload/delete an app */
                 /* switch to WAITING state, and set the timer for transition */
@@ -1154,14 +1188,14 @@ bool CFE_ES_RunAppTableScan(uint32 ElapsedTime, void *Arg)
  *-----------------------------------------------------------------*/
 void CFE_ES_ProcessControlRequest(CFE_ES_AppId_t AppId)
 {
-    CFE_ES_AppRecord_t *     AppRecPtr;
+    CFE_ES_AppRecord_t      *AppRecPtr;
     uint32                   PendingControlReq;
     CFE_ES_AppStartParams_t  RestartParams;
     char                     OrigAppName[OS_MAX_API_NAME];
     CFE_Status_t             CleanupStatus;
     CFE_Status_t             StartupStatus;
     CFE_ES_AppId_t           NewAppId;
-    const char *             ReqName;
+    const char              *ReqName;
     char                     MessageDetail[48];
     uint16                   EventID;
     CFE_EVS_EventType_Enum_t EventType;
@@ -1387,8 +1421,8 @@ int32 CFE_ES_CleanUpApp(CFE_ES_AppId_t AppId)
     osal_id_t               ModuleId;
     uint32                  NumTasks;
     uint32                  NumPools;
-    CFE_ES_AppRecord_t *    AppRecPtr;
-    CFE_ES_TaskRecord_t *   TaskRecPtr;
+    CFE_ES_AppRecord_t     *AppRecPtr;
+    CFE_ES_TaskRecord_t    *TaskRecPtr;
     CFE_ES_MemPoolRecord_t *MemPoolRecPtr;
 
     NumTasks   = 0;
@@ -1451,8 +1485,8 @@ int32 CFE_ES_CleanUpApp(CFE_ES_AppId_t AppId)
         MemPoolRecPtr = CFE_ES_Global.MemPoolTable;
         for (i = 0; i < CFE_PLATFORM_ES_MAX_MEMORY_POOLS; i++)
         {
-            if (CFE_ES_MemPoolRecordIsUsed(MemPoolRecPtr) &&
-                CFE_RESOURCEID_TEST_EQUAL(MemPoolRecPtr->OwnerAppID, AppId))
+            if (CFE_ES_MemPoolRecordIsUsed(MemPoolRecPtr)
+                && CFE_RESOURCEID_TEST_EQUAL(MemPoolRecPtr->OwnerAppID, AppId))
             {
                 PoolList[NumPools] = CFE_ES_MemPoolRecordGetID(MemPoolRecPtr);
                 ++NumPools;
@@ -1471,7 +1505,8 @@ int32 CFE_ES_CleanUpApp(CFE_ES_AppId_t AppId)
     }
     else
     {
-        CFE_ES_SysLogWrite_Unsync("%s: AppID %lu is not valid for deletion\n", __func__,
+        CFE_ES_SysLogWrite_Unsync("%s: AppID %lu is not valid for deletion\n",
+                                  __func__,
                                   CFE_RESOURCEID_TO_ULONG(AppId));
         ReturnCode = CFE_ES_APP_CLEANUP_ERR;
     }
@@ -1531,8 +1566,10 @@ int32 CFE_ES_CleanUpApp(CFE_ES_AppId_t AppId)
         Status = CFE_ES_CleanupTaskResources(TaskList[i]);
         if (Status != CFE_SUCCESS)
         {
-            CFE_ES_WriteToSysLog("%s: CleanUpTaskResources for Task ID:%lu returned Error: 0x%08X\n", __func__,
-                                 CFE_RESOURCEID_TO_ULONG(TaskList[i]), (unsigned int)Status);
+            CFE_ES_WriteToSysLog("%s: CleanUpTaskResources for Task ID:%lu returned Error: 0x%08X\n",
+                                 __func__,
+                                 CFE_RESOURCEID_TO_ULONG(TaskList[i]),
+                                 (unsigned int)Status);
             ReturnCode = CFE_ES_APP_CLEANUP_ERR;
         }
     }
@@ -1545,8 +1582,10 @@ int32 CFE_ES_CleanUpApp(CFE_ES_AppId_t AppId)
         Status = CFE_ES_PoolDelete(PoolList[i]);
         if (Status != CFE_SUCCESS)
         {
-            CFE_ES_WriteToSysLog("%s: delete pool %lu returned Error: 0x%08X\n", __func__,
-                                 CFE_RESOURCEID_TO_ULONG(PoolList[i]), (unsigned int)Status);
+            CFE_ES_WriteToSysLog("%s: delete pool %lu returned Error: 0x%08X\n",
+                                 __func__,
+                                 CFE_RESOURCEID_TO_ULONG(PoolList[i]),
+                                 (unsigned int)Status);
             ReturnCode = CFE_ES_APP_CLEANUP_ERR;
         }
     }
@@ -1562,8 +1601,10 @@ int32 CFE_ES_CleanUpApp(CFE_ES_AppId_t AppId)
         OsStatus = OS_ModuleUnload(ModuleId);
         if (OsStatus != OS_SUCCESS)
         {
-            CFE_ES_WriteToSysLog("%s: Module (ID:0x%08lX) Unload failed. RC=%ld\n", __func__,
-                                 OS_ObjectIdToInteger(ModuleId), (long)OsStatus);
+            CFE_ES_WriteToSysLog("%s: Module (ID:0x%08lX) Unload failed. RC=%ld\n",
+                                 __func__,
+                                 OS_ObjectIdToInteger(ModuleId),
+                                 (long)OsStatus);
             ReturnCode = CFE_ES_APP_CLEANUP_ERR;
         }
     }
@@ -1680,8 +1721,10 @@ void CFE_ES_CleanupObjectCallback(osal_id_t ObjectId, void *arg)
         }
         else
         {
-            CFE_ES_SysLogWrite_Unsync("%s: Call to OSAL Delete Object (ID:%lu) failed. RC=%ld\n", __func__,
-                                      OS_ObjectIdToInteger(ObjectId), (long)OsStatus);
+            CFE_ES_SysLogWrite_Unsync("%s: Call to OSAL Delete Object (ID:%lu) failed. RC=%ld\n",
+                                      __func__,
+                                      OS_ObjectIdToInteger(ObjectId),
+                                      (long)OsStatus);
             if (CleanState->OverallStatus == CFE_SUCCESS)
             {
                 // Save the object-type-specific error status that was set earlier in the switch statement

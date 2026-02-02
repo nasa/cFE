@@ -583,7 +583,7 @@ void Test_GetPipeName_InvalidId(void);
 ** \brief Test get pipe name with a null pipe name and invalid size
 **
 ** \par Description
-**        This function tests the get pipe name by calling it with a null 
+**        This function tests the get pipe name by calling it with a null
 **        PipeNameBuf and 0 PipeSize
 **
 ** \par Assumptions, External Events, and Notes:
@@ -2493,7 +2493,7 @@ void Test_ReceiveBuffer_FalseEndpoint(void);
 /*****************************************************************************/
 /**
 ** \brief Test ReceiveBuffer function unsubscribe/resubscribe path with a message
-**        verification failure in CFE_MSG_VerificationAction() (primarily for 
+**        verification failure in CFE_MSG_VerificationAction() (primarily for
 **        coverage purposes)
 **
 ** \par Description
@@ -2507,7 +2507,6 @@ void Test_ReceiveBuffer_FalseEndpoint(void);
 **        This function does not return a value.
 ******************************************************************************/
 void Test_RecieveBuffer_VerificationFail(void);
-
 
 /*****************************************************************************/
 /**

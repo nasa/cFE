@@ -47,10 +47,10 @@ void UT_TBL_Load_Error_Suite(CFE_TBL_Handle_t SubjectHandle, bool WasModified, b
 {
     CFE_FS_Header_t             StdFileHeader;
     CFE_TBL_File_Hdr_t          TblFileHeader;
-    CFE_TBL_RegistryRec_t *     RegRecPtr;
+    CFE_TBL_RegistryRec_t      *RegRecPtr;
     CFE_TBL_AccessDescriptor_t *AccessDescPtr;
     uint32                      IdValue;
-    CFE_Config_ArrayValue_t     UTAV = {1, &IdValue};
+    CFE_Config_ArrayValue_t     UTAV = { 1, &IdValue };
 
     /* Initially set up a "good" standard (FS) file header data - modified later for failure checks. */
     memset(&StdFileHeader, 0, sizeof(StdFileHeader));
@@ -179,7 +179,7 @@ void UT_TBL_Basic_Load_Suite(CFE_TBL_Handle_t SubjectHandle)
      */
     CFE_FS_Header_t             StdFileHeader;
     CFE_TBL_File_Hdr_t          TblFileHeader;
-    CFE_TBL_RegistryRec_t *     RegRecPtr;
+    CFE_TBL_RegistryRec_t      *RegRecPtr;
     CFE_TBL_AccessDescriptor_t *AccessDescPtr;
 
     memset(&UT_TBL_TableData, 0, sizeof(UT_TBL_TableData));
@@ -276,10 +276,10 @@ void Test_CFE_TBL_LoadCmd(void)
     uint8                   LoadBuffer[sizeof(UT_Table1_t)];
     CFE_TBL_LoadCmd_t       LoadCmd;
     CFE_ES_AppId_t          AppID;
-    CFE_TBL_LoadBuff_t *    LoadBuffPtr;
-    CFE_TBL_RegistryRec_t * RegRec0Ptr;
+    CFE_TBL_LoadBuff_t     *LoadBuffPtr;
+    CFE_TBL_RegistryRec_t  *RegRec0Ptr;
     uint32                  IdValue;
-    CFE_Config_ArrayValue_t UTAV = {1, &IdValue};
+    CFE_Config_ArrayValue_t UTAV = { 1, &IdValue };
 
     CFE_ES_GetAppID(&AppID);
 
@@ -465,10 +465,10 @@ void Test_CFE_TBL_LoadCmd(void)
 void Test_CFE_TBL_Load1(void)
 {
     CFE_TBL_Handle_t            TblHandle;
-    CFE_TBL_RegistryRec_t *     RegRecPtr;
+    CFE_TBL_RegistryRec_t      *RegRecPtr;
     CFE_TBL_AccessDescriptor_t *AccessDescPtr;
     CFE_TBL_Handle_t            ShareHandle;
-    void *                      DataPtr;
+    void                       *DataPtr;
 
     UT_InitData_TBL();
     UT_TBL_SetupSingleReg(&RegRecPtr, &AccessDescPtr, CFE_TBL_OPT_DEFAULT);
@@ -517,8 +517,8 @@ void Test_CFE_TBL_Load2(void)
 {
     CFE_TBL_Handle_t            TblHandle;
     CFE_TBL_Handle_t            ShareHandle;
-    void *                      DataPtr;
-    CFE_TBL_RegistryRec_t *     RegRecPtr;
+    void                       *DataPtr;
+    CFE_TBL_RegistryRec_t      *RegRecPtr;
     CFE_TBL_AccessDescriptor_t *AccessDescPtr;
 
     UT_InitData_TBL();
@@ -572,7 +572,7 @@ void Test_CFE_TBL_Load2(void)
 void Test_CFE_TBL_Load3(void)
 {
     CFE_TBL_Handle_t            TblHandle;
-    CFE_TBL_RegistryRec_t *     RegRecPtr;
+    CFE_TBL_RegistryRec_t      *RegRecPtr;
     CFE_TBL_AccessDescriptor_t *AccessDescPtr;
 
     /* register a dump-only table */
@@ -602,7 +602,7 @@ void Test_CFE_TBL_Load3(void)
 void Test_CFE_TBL_Load4(void)
 {
     CFE_TBL_Handle_t            TblHandle;
-    CFE_TBL_RegistryRec_t *     RegRecPtr;
+    CFE_TBL_RegistryRec_t      *RegRecPtr;
     CFE_TBL_AccessDescriptor_t *AccessDescPtr;
 
     /* register a user defined table */
@@ -635,10 +635,10 @@ void Test_CFE_TBL_Load4(void)
 
 void Test_CFE_TBL_TableLoadCodec(void)
 {
-    CFE_TBL_RegistryRec_t *     RegRecPtr;
+    CFE_TBL_RegistryRec_t      *RegRecPtr;
     CFE_TBL_AccessDescriptor_t *AccDescPtr;
-    CFE_TBL_LoadBuff_t *        SharedBufferPtr;
-    CFE_TBL_LoadBuff_t *        LocalBufferPtr;
+    CFE_TBL_LoadBuff_t         *SharedBufferPtr;
+    CFE_TBL_LoadBuff_t         *LocalBufferPtr;
     CFE_ResourceId_t            PendingId;
     CFE_TBL_TxnState_t          Txn;
 
@@ -662,12 +662,12 @@ void Test_CFE_TBL_TableLoadCommon(void)
 {
     char                        Filename[OS_MAX_PATH_LEN];
     CFE_TBL_CombinedFileHdr_t   FileHeader;
-    CFE_TBL_RegistryRec_t *     RegRecPtr;
+    CFE_TBL_RegistryRec_t      *RegRecPtr;
     CFE_TBL_AccessDescriptor_t *AccDescPtr;
     CFE_TBL_TxnState_t          Txn;
     osal_id_t                   FileDescriptor;
     uint32                      IdValue;
-    CFE_Config_ArrayValue_t     UTAV = {1, &IdValue};
+    CFE_Config_ArrayValue_t     UTAV = { 1, &IdValue };
 
     IdValue = 0x123;
 
@@ -904,7 +904,9 @@ void Test_CFE_TBL_TableLoadCommon(void)
     /* Test CFE_TBL_LoadContentFromFile response to a file that would overrun the buffer */
     UT_InitData_TBL();
     CFE_TBL_TxnClearEvents(&Txn);
-    UtAssert_INT32_EQ(CFE_TBL_LoadContentFromFile(&Txn, FileDescriptor, CFE_PLATFORM_TBL_MAX_SNGL_TABLE_SIZE,
+    UtAssert_INT32_EQ(CFE_TBL_LoadContentFromFile(&Txn,
+                                                  FileDescriptor,
+                                                  CFE_PLATFORM_TBL_MAX_SNGL_TABLE_SIZE,
                                                   CFE_PLATFORM_TBL_MAX_SNGL_TABLE_SIZE),
                       CFE_TBL_ERR_FILE_TOO_LARGE);
     UT_TBL_EVENT_PENDING(&Txn, CFE_TBL_FILE_TOO_BIG_ERR_EID);

@@ -134,7 +134,7 @@ CFE_Status_t CFE_TBL_TxnStartFromHandle(CFE_TBL_TxnState_t *Txn, CFE_TBL_HandleI
     CFE_Status_t                Status;
     uint32                      AccessAllowed;
     CFE_TBL_AccessDescriptor_t *AccDescPtr;
-    CFE_TBL_RegistryRec_t *     RegRecPtr;
+    CFE_TBL_RegistryRec_t      *RegRecPtr;
 
     AccessAllowed = 0;
 
@@ -159,7 +159,7 @@ CFE_Status_t CFE_TBL_TxnStartFromHandle(CFE_TBL_TxnState_t *Txn, CFE_TBL_HandleI
         if (CFE_RESOURCEID_TEST_EQUAL(Txn->AppId, CFE_TBL_Global.TableTaskAppId))
         {
             Txn->CallContext |= CFE_TBL_TxnContext_TABLE_SERVICES;
-            AccessAllowed |= ~AccessAllowed; /* Set all bits */
+            AccessAllowed    |= ~AccessAllowed; /* Set all bits */
         }
 
         /* Need to lock before actually looking at the descriptor */
@@ -297,7 +297,7 @@ CFE_Status_t CFE_TBL_TxnGetNextNotification(CFE_TBL_TxnState_t *Txn)
 {
     CFE_Status_t                Status     = CFE_SUCCESS;
     CFE_TBL_AccessDescriptor_t *AccDescPtr = CFE_TBL_TxnAccDesc(Txn);
-    CFE_TBL_RegistryRec_t *     RegRecPtr  = CFE_TBL_TxnRegRec(Txn);
+    CFE_TBL_RegistryRec_t      *RegRecPtr  = CFE_TBL_TxnRegRec(Txn);
 
     if (!CFE_TBL_RegRecIsTableLoaded(RegRecPtr))
     {

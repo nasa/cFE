@@ -56,15 +56,15 @@ static const char TESTTBL_PARTIAL_FILE[] =
 void TestLoad(void)
 {
     CFE_TBL_Handle_t      BadTblHandle;
-    const char *          BadTblName = "BadTableName";
+    const char           *BadTblName = "BadTableName";
     CFE_TBL_Handle_t      DumpTblHandle;
-    const char *          DumpTblName = "DumpOnlyTable";
+    const char           *DumpTblName = "DumpOnlyTable";
     CFE_TBL_Handle_t      SharedTblHandle;
-    const char *          SharedTblName = CFE_FT_Global.RegisteredTblName;
-    CFE_TEST_TestTable_t  TestTable     = {0xd00d, 0xdad};
+    const char           *SharedTblName = CFE_FT_Global.RegisteredTblName;
+    CFE_TEST_TestTable_t  TestTable     = { 0xd00d, 0xdad };
     CFE_TEST_TestTable_t *TablePtr;
     CFE_TBL_Handle_t      OtherHandle;
-    void *                TempPtr;
+    void                 *TempPtr;
 
     UtPrintf("Testing: CFE_TBL_Load");
 
@@ -265,8 +265,8 @@ void TblTest_UpdateOffset(uint32 *TgtVal, size_t SetVal)
     while (i > 0)
     {
         --i;
-        offsetbuf.bytes[i] = SetVal & 0xFF;
-        SetVal >>= 8;
+        offsetbuf.bytes[i]   = SetVal & 0xFF;
+        SetVal             >>= 8;
     }
 
     *TgtVal = offsetbuf.offset;
@@ -398,7 +398,8 @@ void TblTest_GenerateTblFiles(void)
     /* Create a tbl image that is too big */
     OS_lseek(fh1, 0, OS_SEEK_SET);
     UtAssert_INT32_EQ(
-        OS_OpenCreate(&fh2, TESTTBL_LONG_FILE, OS_FILE_FLAG_CREATE | OS_FILE_FLAG_TRUNCATE, OS_WRITE_ONLY), OS_SUCCESS);
+        OS_OpenCreate(&fh2, TESTTBL_LONG_FILE, OS_FILE_FLAG_CREATE | OS_FILE_FLAG_TRUNCATE, OS_WRITE_ONLY),
+        OS_SUCCESS);
 
     /* copy headers as-is */
     UtAssert_INT32_EQ(OS_read(fh1, &buf, sizeof(buf.FsHdr)), sizeof(buf.FsHdr));

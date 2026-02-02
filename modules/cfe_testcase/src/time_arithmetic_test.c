@@ -32,10 +32,10 @@
 void TestTimeAdd(void)
 {
     UtPrintf("Testing: CFE_TIME_Add");
-    CFE_TIME_SysTime_t time1        = {1000, 0};
-    CFE_TIME_SysTime_t time2        = {0, 1000};
+    CFE_TIME_SysTime_t time1        = { 1000, 0 };
+    CFE_TIME_SysTime_t time2        = { 0, 1000 };
     CFE_TIME_SysTime_t timeAdded    = CFE_TIME_Add(time1, time2);
-    CFE_TIME_SysTime_t timeExpected = {1000, 1000};
+    CFE_TIME_SysTime_t timeExpected = { 1000, 1000 };
 
     UtAssert_UINT32_EQ(timeAdded.Seconds, timeExpected.Seconds);
     UtAssert_UINT32_EQ(timeAdded.Subseconds, timeExpected.Subseconds);
@@ -64,10 +64,10 @@ void TestTimeAdd(void)
 void TestTimeSubtract(void)
 {
     UtPrintf("Testing: CFE_TIME_Subtract");
-    CFE_TIME_SysTime_t time1          = {1000, 1000};
-    CFE_TIME_SysTime_t time2          = {999, 999};
+    CFE_TIME_SysTime_t time1          = { 1000, 1000 };
+    CFE_TIME_SysTime_t time2          = { 999, 999 };
     CFE_TIME_SysTime_t timeSubtracted = CFE_TIME_Subtract(time1, time2);
-    CFE_TIME_SysTime_t timeExpected   = {1, 1};
+    CFE_TIME_SysTime_t timeExpected   = { 1, 1 };
 
     UtAssert_UINT32_EQ(timeSubtracted.Seconds, timeExpected.Seconds);
     UtAssert_UINT32_EQ(timeSubtracted.Subseconds, timeExpected.Subseconds);
@@ -96,8 +96,8 @@ void TestTimeSubtract(void)
 void TestTimeCompare(void)
 {
     UtPrintf("Testing: CFE_TIME_Compare");
-    CFE_TIME_SysTime_t time1 = {1000, 1000};
-    CFE_TIME_SysTime_t time2 = {999, 999};
+    CFE_TIME_SysTime_t time1 = { 1000, 1000 };
+    CFE_TIME_SysTime_t time2 = { 999, 999 };
     UtAssert_UINT32_EQ(CFE_TIME_Compare(time1, time2), CFE_TIME_A_GT_B);
     UtAssert_UINT32_EQ(CFE_TIME_Compare(time2, time1), CFE_TIME_A_LT_B);
 

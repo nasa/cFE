@@ -27,7 +27,7 @@
 
 #include "cfe_evs_eds_typedefs.h"
 
-#define CFE_EVS_MAKE_BITMASK(pos) (1 << ((pos)-1))
+#define CFE_EVS_MAKE_BITMASK(pos) (1 << ((pos) - 1))
 
 #define CFE_EVS_DEBUG_BIT       CFE_EVS_MAKE_BITMASK(CFE_EVS_EventType_DEBUG)
 #define CFE_EVS_INFORMATION_BIT CFE_EVS_MAKE_BITMASK(CFE_EVS_EventType_INFORMATION)

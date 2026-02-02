@@ -70,9 +70,9 @@ void TestCallback(void)
 
 void TestExternal(void)
 {
-#if ((CFE_PLATFORM_TIME_CFG_SRC_MET == true) || (CFE_PLATFORM_TIME_CFG_SRC_GPS == true) || \
-     (CFE_PLATFORM_TIME_CFG_SRC_TIME == true))
-    CFE_TIME_SysTime_t time = {1000, 0};
+#if ((CFE_PLATFORM_TIME_CFG_SRC_MET == true) || (CFE_PLATFORM_TIME_CFG_SRC_GPS == true) \
+     || (CFE_PLATFORM_TIME_CFG_SRC_TIME == true))
+    CFE_TIME_SysTime_t time = { 1000, 0 };
 #endif
 
     UtPrintf("Testing: CFE_TIME_ExternalTone, CFE_TIME_ExternalMET, CFE_TIME_ExternalGPS, CFE_TIME_ExternalTime");

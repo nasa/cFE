@@ -181,7 +181,7 @@ void TestMsgHeaderSecondaryApi(void)
     CFE_MSG_FcnCode_t         fcnCode;
     CFE_TIME_SysTime_t        msgTime;
     bool                      isValid     = true;
-    CFE_TIME_SysTime_t        currentTime = {1000, 0xFFFF0000};
+    CFE_TIME_SysTime_t        currentTime = { 1000, 0xFFFF0000 };
 
     memset(&cmd, 0, sizeof(cmd));
     memset(&tlm, 0, sizeof(tlm));

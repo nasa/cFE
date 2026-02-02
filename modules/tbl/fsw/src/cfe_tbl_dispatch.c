@@ -60,7 +60,7 @@ static CFE_SB_MsgId_t CFE_TBL_CMD_MID_CACHE     = CFE_SB_MSGID_RESERVED;
 */
 typedef struct
 {
-    const CFE_SB_MsgId_t *   MsgId;
+    const CFE_SB_MsgId_t    *MsgId;
     CFE_MSG_FcnCode_t        CmdCode;        /**< \brief Acceptable Command Code (if necessary) */
     size_t                   ExpectedLength; /**< \brief Expected Message Length (in bytes) including message header */
     CFE_TBL_MsgProcFuncPtr_t MsgProcFuncPtr; /**< \brief Pointer to function to handle message  */
@@ -71,10 +71,8 @@ typedef struct
  * Macros to assist in building the CFE_TBL_CmdHandlerTbl -
  *  For command handler entries, which have a command code, payload type, and a handler function
  */
-#define CFE_TBL_ENTRY(id, ccode, paramtype, handlerfunc, msgtype)                             \
-    {                                                                                         \
-        &id##_CACHE, ccode, sizeof(paramtype), (CFE_TBL_MsgProcFuncPtr_t)handlerfunc, msgtype \
-    }
+#define CFE_TBL_ENTRY(id, ccode, paramtype, handlerfunc, msgtype) \
+    { &id##_CACHE, ccode, sizeof(paramtype), (CFE_TBL_MsgProcFuncPtr_t)handlerfunc, msgtype }
 
 /* Constant Data */
 
@@ -84,25 +82,47 @@ const CFE_TBL_CmdHandlerTblRec_t CFE_TBL_CmdHandlerTbl[] = {
 
     /* Everything else */
     CFE_TBL_ENTRY(CFE_TBL_CMD_MID, CFE_TBL_NOOP_CC, CFE_TBL_NoopCmd_t, CFE_TBL_NoopCmd, CFE_TBL_CMD_MSGTYPE),
-    CFE_TBL_ENTRY(CFE_TBL_CMD_MID, CFE_TBL_RESET_COUNTERS_CC, CFE_TBL_ResetCountersCmd_t, CFE_TBL_ResetCountersCmd,
+    CFE_TBL_ENTRY(CFE_TBL_CMD_MID,
+                  CFE_TBL_RESET_COUNTERS_CC,
+                  CFE_TBL_ResetCountersCmd_t,
+                  CFE_TBL_ResetCountersCmd,
                   CFE_TBL_CMD_MSGTYPE),
     CFE_TBL_ENTRY(CFE_TBL_CMD_MID, CFE_TBL_LOAD_CC, CFE_TBL_LoadCmd_t, CFE_TBL_LoadCmd, CFE_TBL_CMD_MSGTYPE),
     CFE_TBL_ENTRY(CFE_TBL_CMD_MID, CFE_TBL_DUMP_CC, CFE_TBL_DumpCmd_t, CFE_TBL_DumpCmd, CFE_TBL_CMD_MSGTYPE),
-    CFE_TBL_ENTRY(CFE_TBL_CMD_MID, CFE_TBL_VALIDATE_CC, CFE_TBL_ValidateCmd_t, CFE_TBL_ValidateCmd,
+    CFE_TBL_ENTRY(CFE_TBL_CMD_MID,
+                  CFE_TBL_VALIDATE_CC,
+                  CFE_TBL_ValidateCmd_t,
+                  CFE_TBL_ValidateCmd,
                   CFE_TBL_CMD_MSGTYPE),
-    CFE_TBL_ENTRY(CFE_TBL_CMD_MID, CFE_TBL_ACTIVATE_CC, CFE_TBL_ActivateCmd_t, CFE_TBL_ActivateCmd,
+    CFE_TBL_ENTRY(CFE_TBL_CMD_MID,
+                  CFE_TBL_ACTIVATE_CC,
+                  CFE_TBL_ActivateCmd_t,
+                  CFE_TBL_ActivateCmd,
                   CFE_TBL_CMD_MSGTYPE),
-    CFE_TBL_ENTRY(CFE_TBL_CMD_MID, CFE_TBL_DUMP_REGISTRY_CC, CFE_TBL_DumpRegistryCmd_t, CFE_TBL_DumpRegistryCmd,
+    CFE_TBL_ENTRY(CFE_TBL_CMD_MID,
+                  CFE_TBL_DUMP_REGISTRY_CC,
+                  CFE_TBL_DumpRegistryCmd_t,
+                  CFE_TBL_DumpRegistryCmd,
                   CFE_TBL_CMD_MSGTYPE),
-    CFE_TBL_ENTRY(CFE_TBL_CMD_MID, CFE_TBL_SEND_REGISTRY_CC, CFE_TBL_SendRegistryCmd_t, CFE_TBL_SendRegistryCmd,
+    CFE_TBL_ENTRY(CFE_TBL_CMD_MID,
+                  CFE_TBL_SEND_REGISTRY_CC,
+                  CFE_TBL_SendRegistryCmd_t,
+                  CFE_TBL_SendRegistryCmd,
                   CFE_TBL_CMD_MSGTYPE),
-    CFE_TBL_ENTRY(CFE_TBL_CMD_MID, CFE_TBL_DELETE_CDS_CC, CFE_TBL_DeleteCDSCmd_t, CFE_TBL_DeleteCDSCmd,
+    CFE_TBL_ENTRY(CFE_TBL_CMD_MID,
+                  CFE_TBL_DELETE_CDS_CC,
+                  CFE_TBL_DeleteCDSCmd_t,
+                  CFE_TBL_DeleteCDSCmd,
                   CFE_TBL_CMD_MSGTYPE),
-    CFE_TBL_ENTRY(CFE_TBL_CMD_MID, CFE_TBL_ABORT_LOAD_CC, CFE_TBL_AbortLoadCmd_t, CFE_TBL_AbortLoadCmd,
+    CFE_TBL_ENTRY(CFE_TBL_CMD_MID,
+                  CFE_TBL_ABORT_LOAD_CC,
+                  CFE_TBL_AbortLoadCmd_t,
+                  CFE_TBL_AbortLoadCmd,
                   CFE_TBL_CMD_MSGTYPE),
 
     /* list terminator (keep last) */
-    {0, 0, 0, NULL, CFE_TBL_TERM_MSGTYPE}};
+    { 0, 0, 0, NULL, CFE_TBL_TERM_MSGTYPE }
+};
 
 /******************************************************************************/
 
@@ -121,9 +141,9 @@ void CFE_TBL_TaskPipe(const CFE_SB_Buffer_t *SBBufPtr)
     CFE_MSG_Size_t    ExpectedLength;
     CFE_Status_t      CmdStatus;
 
-    MessageID      = CFE_SB_INVALID_MSG_ID;
-    CommandCode    = 0;
-    ActualLength   = 0;
+    MessageID    = CFE_SB_INVALID_MSG_ID;
+    CommandCode  = 0;
+    ActualLength = 0;
 
     CFE_MSG_GetMsgId(&SBBufPtr->Msg, &MessageID);
     CFE_MSG_GetFcnCode(&SBBufPtr->Msg, &CommandCode);
@@ -153,23 +173,30 @@ void CFE_TBL_TaskPipe(const CFE_SB_Buffer_t *SBBufPtr)
     {
         if (CmdStatus == CFE_STATUS_WRONG_MSG_LENGTH)
         {
-            CFE_EVS_SendEvent(CFE_TBL_LEN_ERR_EID, CFE_EVS_EventType_ERROR,
+            CFE_EVS_SendEvent(CFE_TBL_LEN_ERR_EID,
+                              CFE_EVS_EventType_ERROR,
                               "Invalid msg length -- ID = 0x%X, CC = %u, Len = %u, Expected = %u",
-                              (unsigned int)CFE_SB_MsgIdToValue(MessageID), (unsigned int)CommandCode,
-                              (unsigned int)ActualLength, (unsigned int)CFE_TBL_CmdHandlerTbl[CmdIndx].ExpectedLength);
+                              (unsigned int)CFE_SB_MsgIdToValue(MessageID),
+                              (unsigned int)CommandCode,
+                              (unsigned int)ActualLength,
+                              (unsigned int)CFE_TBL_CmdHandlerTbl[CmdIndx].ExpectedLength);
         }
         else if (CmdStatus == CFE_STATUS_BAD_COMMAND_CODE)
         {
-            CFE_EVS_SendEvent(CFE_TBL_CC1_ERR_EID, CFE_EVS_EventType_ERROR,
+            CFE_EVS_SendEvent(CFE_TBL_CC1_ERR_EID,
+                              CFE_EVS_EventType_ERROR,
                               "Invalid command code -- ID = 0x%X, CC = %u",
-                              (unsigned int)CFE_SB_MsgIdToValue(MessageID), (unsigned int)CommandCode);
+                              (unsigned int)CFE_SB_MsgIdToValue(MessageID),
+                              (unsigned int)CommandCode);
 
             /* Update the command error counter */
             CFE_TBL_Global.CommandErrorCounter++;
         }
         else
         {
-            CFE_EVS_SendEvent(CFE_TBL_MID_ERR_EID, CFE_EVS_EventType_ERROR, "Invalid message ID -- ID = 0x%X",
+            CFE_EVS_SendEvent(CFE_TBL_MID_ERR_EID,
+                              CFE_EVS_EventType_ERROR,
+                              "Invalid message ID -- ID = 0x%X",
                               (unsigned int)CFE_SB_MsgIdToValue(MessageID));
         }
     }

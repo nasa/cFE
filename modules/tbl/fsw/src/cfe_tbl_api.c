@@ -45,12 +45,15 @@
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-CFE_Status_t CFE_TBL_Register(CFE_TBL_Handle_t *TblHandlePtr, const char *Name, size_t Size, uint16 TblOptionFlags,
+CFE_Status_t CFE_TBL_Register(CFE_TBL_Handle_t         *TblHandlePtr,
+                              const char               *Name,
+                              size_t                    Size,
+                              uint16                    TblOptionFlags,
                               CFE_TBL_CallbackFuncPtr_t TblValidationFuncPtr)
 {
     CFE_TBL_TxnState_t     Txn;
     CFE_TBL_RegistryRec_t *RegRecPtr     = NULL;
-    CFE_TBL_CritRegRec_t * CritRegRecPtr = NULL;
+    CFE_TBL_CritRegRec_t  *CritRegRecPtr = NULL;
     CFE_Status_t           Status;
     CFE_TBL_TableConfig_t  TableCfg;
 
@@ -71,7 +74,9 @@ CFE_Status_t CFE_TBL_Register(CFE_TBL_Handle_t *TblHandlePtr, const char *Name, 
     else /* Application ID was invalid */
     {
         /* Only possiblity is that calling Application ID was invalid */
-        CFE_ES_WriteToSysLog("%s: Bad AppId(%lu), status=%lx\n", __func__, CFE_TBL_TxnAppIdAsULong(&Txn),
+        CFE_ES_WriteToSysLog("%s: Bad AppId(%lu), status=%lx\n",
+                             __func__,
+                             CFE_TBL_TxnAppIdAsULong(&Txn),
                              (unsigned long)Status);
     }
 
@@ -126,8 +131,11 @@ CFE_Status_t CFE_TBL_Register(CFE_TBL_Handle_t *TblHandlePtr, const char *Name, 
                 }
                 else if (Status != CFE_TBL_INFO_RECOVERED_TBL)
                 {
-                    CFE_ES_WriteToSysLog("%s: Failed to register '%s.%s' as a CDS (ErrCode=0x%08X)\n", __func__,
-                                         CFE_TBL_TxnAppNameCaller(&Txn), Name, (unsigned int)Status);
+                    CFE_ES_WriteToSysLog("%s: Failed to register '%s.%s' as a CDS (ErrCode=0x%08X)\n",
+                                         __func__,
+                                         CFE_TBL_TxnAppNameCaller(&Txn),
+                                         Name,
+                                         (unsigned int)Status);
 
                     /* Notify caller that although they asked for it to be critical, it isn't */
                     Status = CFE_TBL_WARN_NOT_CRITICAL;
@@ -151,9 +159,13 @@ CFE_Status_t CFE_TBL_Register(CFE_TBL_Handle_t *TblHandlePtr, const char *Name, 
         /* Make sure the returned handle is invalid when an error occurs */
         *TblHandlePtr = CFE_TBL_BAD_TABLE_HANDLE;
 
-        CFE_EVS_SendEventWithAppID(CFE_TBL_REGISTER_ERR_EID, CFE_EVS_EventType_ERROR, CFE_TBL_Global.TableTaskAppId,
-                                   "%s Failed to Register table '%s', Status=0x%08X", CFE_TBL_TxnAppNameCaller(&Txn),
-                                   Name, (unsigned int)Status);
+        CFE_EVS_SendEventWithAppID(CFE_TBL_REGISTER_ERR_EID,
+                                   CFE_EVS_EventType_ERROR,
+                                   CFE_TBL_Global.TableTaskAppId,
+                                   "%s Failed to Register table '%s', Status=0x%08X",
+                                   CFE_TBL_TxnAppNameCaller(&Txn),
+                                   Name,
+                                   (unsigned int)Status);
     }
     else
     {
@@ -207,8 +219,12 @@ CFE_Status_t CFE_TBL_Share(CFE_TBL_Handle_t *TblHandlePtr, const char *TblName)
             CFE_ES_WriteToSysLog("%s: Table '%s' not found in Registry\n", __func__, TblName);
         }
 
-        CFE_EVS_SendEventWithAppID(CFE_TBL_SHARE_ERR_EID, CFE_EVS_EventType_ERROR, CFE_TBL_Global.TableTaskAppId,
-                                   "%s Failed to Share '%s', Status=0x%08X", CFE_TBL_TxnAppNameCaller(&Txn), TblName,
+        CFE_EVS_SendEventWithAppID(CFE_TBL_SHARE_ERR_EID,
+                                   CFE_EVS_EventType_ERROR,
+                                   CFE_TBL_Global.TableTaskAppId,
+                                   "%s Failed to Share '%s', Status=0x%08X",
+                                   CFE_TBL_TxnAppNameCaller(&Txn),
+                                   TblName,
                                    (unsigned int)Status);
     }
     else
@@ -242,15 +258,20 @@ CFE_Status_t CFE_TBL_Unregister(CFE_TBL_Handle_t TblHandle)
     }
     else
     {
-        CFE_ES_WriteToSysLog("%s: App(%lu) does not have access to Tbl Handle=%lu\n", __func__,
-                             CFE_TBL_TxnAppIdAsULong(&Txn), CFE_TBL_TxnHandleAsULong(&Txn));
+        CFE_ES_WriteToSysLog("%s: App(%lu) does not have access to Tbl Handle=%lu\n",
+                             __func__,
+                             CFE_TBL_TxnAppIdAsULong(&Txn),
+                             CFE_TBL_TxnHandleAsULong(&Txn));
     }
 
     /* On Error conditions, notify ground of screw up */
     if (Status < 0)
     {
-        CFE_EVS_SendEventWithAppID(CFE_TBL_UNREGISTER_ERR_EID, CFE_EVS_EventType_ERROR, CFE_TBL_Global.TableTaskAppId,
-                                   "%s Failed to Unregister '?', Status=0x%08X", CFE_TBL_TxnAppNameCaller(&Txn),
+        CFE_EVS_SendEventWithAppID(CFE_TBL_UNREGISTER_ERR_EID,
+                                   CFE_EVS_EventType_ERROR,
+                                   CFE_TBL_Global.TableTaskAppId,
+                                   "%s Failed to Unregister '?', Status=0x%08X",
+                                   CFE_TBL_TxnAppNameCaller(&Txn),
                                    (unsigned int)Status);
     }
 
@@ -337,7 +358,7 @@ CFE_Status_t CFE_TBL_Update(CFE_TBL_Handle_t TblHandle)
     CFE_TBL_TxnState_t          Txn;
     int32                       Status;
     CFE_TBL_HandleId_t          HandleId;
-    CFE_TBL_RegistryRec_t *     RegRecPtr;
+    CFE_TBL_RegistryRec_t      *RegRecPtr;
     CFE_TBL_AccessDescriptor_t *AccessDescPtr;
 
     RegRecPtr     = NULL;
@@ -359,14 +380,19 @@ CFE_Status_t CFE_TBL_Update(CFE_TBL_Handle_t TblHandle)
 
         if (Status != CFE_SUCCESS)
         {
-            CFE_ES_WriteToSysLog("%s: App(%lu) fail to update Tbl '%s' (Stat=0x%08X)\n", __func__,
-                                 CFE_TBL_TxnAppIdAsULong(&Txn), CFE_TBL_RegRecGetName(RegRecPtr), (unsigned int)Status);
+            CFE_ES_WriteToSysLog("%s: App(%lu) fail to update Tbl '%s' (Stat=0x%08X)\n",
+                                 __func__,
+                                 CFE_TBL_TxnAppIdAsULong(&Txn),
+                                 CFE_TBL_RegRecGetName(RegRecPtr),
+                                 (unsigned int)Status);
         }
     }
     else
     {
-        CFE_ES_WriteToSysLog("%s: App(%lu) does not have access to Tbl Handle=%lu\n", __func__,
-                             CFE_TBL_TxnAppIdAsULong(&Txn), CFE_TBL_TxnHandleAsULong(&Txn));
+        CFE_ES_WriteToSysLog("%s: App(%lu) does not have access to Tbl Handle=%lu\n",
+                             __func__,
+                             CFE_TBL_TxnAppIdAsULong(&Txn),
+                             CFE_TBL_TxnHandleAsULong(&Txn));
     }
 
     /* On Error conditions, notify ground of screw up */
@@ -377,8 +403,11 @@ CFE_Status_t CFE_TBL_Update(CFE_TBL_Handle_t TblHandle)
          * currently only produces two possible codes (aside from CFE_SUCCESS) and both of these are defined as
          * warnings, not errors.  Therefore, its impossible to reach this code with RegRecPtr != NULL.
          */
-        CFE_EVS_SendEventWithAppID(CFE_TBL_UPDATE_ERR_EID, CFE_EVS_EventType_ERROR, CFE_TBL_Global.TableTaskAppId,
-                                   "%s Failed to update table, Status=0x%08X", CFE_TBL_TxnAppNameCaller(&Txn),
+        CFE_EVS_SendEventWithAppID(CFE_TBL_UPDATE_ERR_EID,
+                                   CFE_EVS_EventType_ERROR,
+                                   CFE_TBL_Global.TableTaskAppId,
+                                   "%s Failed to update table, Status=0x%08X",
+                                   CFE_TBL_TxnAppNameCaller(&Txn),
                                    (unsigned int)Status);
     }
     else
@@ -386,9 +415,12 @@ CFE_Status_t CFE_TBL_Update(CFE_TBL_Handle_t TblHandle)
         /* If there was a warning (ie - Table is currently locked), then do not issue a message */
         if (Status == CFE_SUCCESS)
         {
-            CFE_EVS_SendEventWithAppID(CFE_TBL_UPDATE_SUCCESS_INF_EID, CFE_EVS_EventType_INFORMATION,
-                                       CFE_TBL_Global.TableTaskAppId, "%s Successfully Updated '%s'",
-                                       CFE_TBL_TxnAppNameCaller(&Txn), CFE_TBL_RegRecGetName(RegRecPtr));
+            CFE_EVS_SendEventWithAppID(CFE_TBL_UPDATE_SUCCESS_INF_EID,
+                                       CFE_EVS_EventType_INFORMATION,
+                                       CFE_TBL_Global.TableTaskAppId,
+                                       "%s Successfully Updated '%s'",
+                                       CFE_TBL_TxnAppNameCaller(&Txn),
+                                       CFE_TBL_RegRecGetName(RegRecPtr));
 
             /* Save the index of the table for housekeeping telemetry */
             CFE_TBL_Global.LastTblUpdated = AccessDescPtr->RegIndex;
@@ -467,8 +499,10 @@ CFE_Status_t CFE_TBL_ReleaseAddress(CFE_TBL_Handle_t TblHandle)
     }
     else
     {
-        CFE_ES_WriteToSysLog("%s: App(%lu) does not have access to Tbl Handle=%lu\n", __func__,
-                             CFE_TBL_TxnAppIdAsULong(&Txn), CFE_TBL_TxnHandleAsULong(&Txn));
+        CFE_ES_WriteToSysLog("%s: App(%lu) does not have access to Tbl Handle=%lu\n",
+                             __func__,
+                             CFE_TBL_TxnAppIdAsULong(&Txn),
+                             CFE_TBL_TxnHandleAsULong(&Txn));
     }
 
     return Status;
@@ -570,10 +604,10 @@ CFE_Status_t CFE_TBL_Validate(CFE_TBL_Handle_t TblHandle)
 {
     CFE_TBL_TxnState_t          Txn;
     int32                       Status;
-    CFE_TBL_RegistryRec_t *     RegRecPtr;
-    CFE_TBL_LoadBuff_t *        BuffPtr;
+    CFE_TBL_RegistryRec_t      *RegRecPtr;
+    CFE_TBL_LoadBuff_t         *BuffPtr;
     CFE_TBL_ValidationResult_t *ResultPtr;
-    const char *                LogTagStr;
+    const char                 *LogTagStr;
     CFE_TBL_CallbackFuncPtr_t   ValidationFunc;
 
     ResultPtr = NULL;
@@ -632,22 +666,32 @@ CFE_Status_t CFE_TBL_Validate(CFE_TBL_Handle_t TblHandle)
             if (ResultPtr->Result == 0)
             {
                 BuffPtr->Validated = true;
-                CFE_EVS_SendEventWithAppID(CFE_TBL_VALIDATION_INF_EID, CFE_EVS_EventType_INFORMATION,
-                                           CFE_TBL_Global.TableTaskAppId, "%s validation successful for %s '%s'",
-                                           CFE_TBL_TxnAppNameCaller(&Txn), LogTagStr, CFE_TBL_RegRecGetName(RegRecPtr));
+                CFE_EVS_SendEventWithAppID(CFE_TBL_VALIDATION_INF_EID,
+                                           CFE_EVS_EventType_INFORMATION,
+                                           CFE_TBL_Global.TableTaskAppId,
+                                           "%s validation successful for %s '%s'",
+                                           CFE_TBL_TxnAppNameCaller(&Txn),
+                                           LogTagStr,
+                                           CFE_TBL_RegRecGetName(RegRecPtr));
             }
             else
             {
-                CFE_EVS_SendEventWithAppID(
-                    CFE_TBL_VALIDATION_ERR_EID, CFE_EVS_EventType_ERROR, CFE_TBL_Global.TableTaskAppId,
-                    "%s validation failed for %s '%s', Status=0x%08X", CFE_TBL_TxnAppNameCaller(&Txn),
-                    CFE_TBL_RegRecGetName(RegRecPtr), LogTagStr, (unsigned int)Status);
+                CFE_EVS_SendEventWithAppID(CFE_TBL_VALIDATION_ERR_EID,
+                                           CFE_EVS_EventType_ERROR,
+                                           CFE_TBL_Global.TableTaskAppId,
+                                           "%s validation failed for %s '%s', Status=0x%08X",
+                                           CFE_TBL_TxnAppNameCaller(&Txn),
+                                           CFE_TBL_RegRecGetName(RegRecPtr),
+                                           LogTagStr,
+                                           (unsigned int)Status);
 
                 if (ResultPtr->Result > 0)
                 {
                     CFE_ES_WriteToSysLog("%s: App(%lu) Validation func return code invalid (Stat=0x%08X) for '%s'\n",
-                                         __func__, CFE_RESOURCEID_TO_ULONG(CFE_TBL_Global.TableTaskAppId),
-                                         (unsigned int)ResultPtr->Result, CFE_TBL_RegRecGetName(RegRecPtr));
+                                         __func__,
+                                         CFE_RESOURCEID_TO_ULONG(CFE_TBL_Global.TableTaskAppId),
+                                         (unsigned int)ResultPtr->Result,
+                                         CFE_TBL_RegRecGetName(RegRecPtr));
                 }
             }
 
@@ -665,8 +709,10 @@ CFE_Status_t CFE_TBL_Validate(CFE_TBL_Handle_t TblHandle)
     }
     else
     {
-        CFE_ES_WriteToSysLog("%s: App(%lu) does not have access to Tbl Handle=%lu\n", __func__,
-                             CFE_TBL_TxnAppIdAsULong(&Txn), CFE_TBL_TxnHandleAsULong(&Txn));
+        CFE_ES_WriteToSysLog("%s: App(%lu) does not have access to Tbl Handle=%lu\n",
+                             __func__,
+                             CFE_TBL_TxnAppIdAsULong(&Txn),
+                             CFE_TBL_TxnHandleAsULong(&Txn));
     }
 
     return Status;
@@ -752,8 +798,10 @@ CFE_Status_t CFE_TBL_GetStatus(CFE_TBL_Handle_t TblHandle)
     }
     else
     {
-        CFE_ES_WriteToSysLog("%s: App(%lu) does not have access to Tbl Handle=%lu\n", __func__,
-                             CFE_TBL_TxnAppIdAsULong(&Txn), CFE_TBL_TxnHandleAsULong(&Txn));
+        CFE_ES_WriteToSysLog("%s: App(%lu) does not have access to Tbl Handle=%lu\n",
+                             __func__,
+                             CFE_TBL_TxnAppIdAsULong(&Txn),
+                             CFE_TBL_TxnHandleAsULong(&Txn));
     }
 
     return Status;
@@ -771,7 +819,7 @@ CFE_Status_t CFE_TBL_GetInfo(CFE_TBL_Info_t *TblInfoPtr, const char *TblName)
     int32                  Status               = CFE_SUCCESS;
     int32                  NumAccessDescriptors = 0;
     CFE_TBL_RegistryRec_t *RegRecPtr;
-    CFE_TBL_LoadBuff_t *   ActiveBufPtr;
+    CFE_TBL_LoadBuff_t    *ActiveBufPtr;
 
     if (TblInfoPtr == NULL || TblName == NULL)
     {
@@ -810,8 +858,10 @@ CFE_Status_t CFE_TBL_GetInfo(CFE_TBL_Info_t *TblInfoPtr, const char *TblName)
             TblInfoPtr->Crc      = 0;
         }
 
-        CFE_SB_MessageStringSet(TblInfoPtr->LastFileLoaded, CFE_TBL_RegRecGetLastFileLoaded(RegRecPtr),
-                                sizeof(TblInfoPtr->LastFileLoaded), -1);
+        CFE_SB_MessageStringSet(TblInfoPtr->LastFileLoaded,
+                                CFE_TBL_RegRecGetLastFileLoaded(RegRecPtr),
+                                sizeof(TblInfoPtr->LastFileLoaded),
+                                -1);
 
         if (CFE_TBL_RegRecIsModified(RegRecPtr))
         {
@@ -868,14 +918,18 @@ CFE_Status_t CFE_TBL_DumpToBuffer(CFE_TBL_Handle_t TblHandle)
         if (Status == CFE_TBL_INFO_NO_DUMP_PENDING && DumpCtrlPtr != NULL)
         {
             /* A stale request is not expected, so log that it happened */
-            CFE_ES_WriteToSysLog("%s: App(0x%lx) had stale dump request pending on 0x%lx (dropped)\n", __func__,
-                                 CFE_TBL_TxnAppIdAsULong(&Txn), CFE_TBL_TxnHandleAsULong(&Txn));
+            CFE_ES_WriteToSysLog("%s: App(0x%lx) had stale dump request pending on 0x%lx (dropped)\n",
+                                 __func__,
+                                 CFE_TBL_TxnAppIdAsULong(&Txn),
+                                 CFE_TBL_TxnHandleAsULong(&Txn));
         }
     }
     else
     {
-        CFE_ES_WriteToSysLog("%s: App(%lx) does not have access to Tbl Handle=0x%lx\n", __func__,
-                             CFE_TBL_TxnAppIdAsULong(&Txn), CFE_TBL_TxnHandleAsULong(&Txn));
+        CFE_ES_WriteToSysLog("%s: App(%lx) does not have access to Tbl Handle=0x%lx\n",
+                             __func__,
+                             CFE_TBL_TxnAppIdAsULong(&Txn),
+                             CFE_TBL_TxnHandleAsULong(&Txn));
     }
 
     return Status;
@@ -909,7 +963,7 @@ CFE_Status_t CFE_TBL_Modified(CFE_TBL_Handle_t TblHandle)
     CFE_TBL_TxnState_t     Txn;
     int32                  Status;
     CFE_TBL_RegistryRec_t *RegRecPtr;
-    CFE_TBL_LoadBuff_t *   ActiveBufPtr;
+    CFE_TBL_LoadBuff_t    *ActiveBufPtr;
 
     /* Verify that this application has the right to perform operation */
     Status = CFE_TBL_TxnStartFromHandle(&Txn, CFE_TBL_HANDLE_IMPORT(TblHandle), CFE_TBL_TxnContext_ACCESSOR_APP);
@@ -943,8 +997,10 @@ CFE_Status_t CFE_TBL_Modified(CFE_TBL_Handle_t TblHandle)
     }
     else
     {
-        CFE_ES_WriteToSysLog("%s: App(%lu) does not have access to Tbl Handle=%lu\n", __func__,
-                             CFE_TBL_TxnAppIdAsULong(&Txn), CFE_TBL_TxnHandleAsULong(&Txn));
+        CFE_ES_WriteToSysLog("%s: App(%lu) does not have access to Tbl Handle=%lu\n",
+                             __func__,
+                             CFE_TBL_TxnAppIdAsULong(&Txn),
+                             CFE_TBL_TxnHandleAsULong(&Txn));
     }
 
     return Status;
@@ -956,8 +1012,10 @@ CFE_Status_t CFE_TBL_Modified(CFE_TBL_Handle_t TblHandle)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-CFE_Status_t CFE_TBL_NotifyByMessage(CFE_TBL_Handle_t TblHandle, CFE_SB_MsgId_t MsgId, CFE_MSG_FcnCode_t CommandCode,
-                                     uint32 Parameter)
+CFE_Status_t CFE_TBL_NotifyByMessage(CFE_TBL_Handle_t  TblHandle,
+                                     CFE_SB_MsgId_t    MsgId,
+                                     CFE_MSG_FcnCode_t CommandCode,
+                                     uint32            Parameter)
 {
     CFE_TBL_TxnState_t     Txn;
     int32                  Status;
@@ -989,8 +1047,11 @@ CFE_Status_t CFE_TBL_NotifyByMessage(CFE_TBL_Handle_t TblHandle, CFE_SB_MsgId_t 
 
     if (Status != CFE_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("%s: App=%lu Handle=%lu status code=%lx\n", __func__, CFE_TBL_TxnAppIdAsULong(&Txn),
-                             CFE_TBL_TxnHandleAsULong(&Txn), (unsigned long)Status);
+        CFE_ES_WriteToSysLog("%s: App=%lu Handle=%lu status code=%lx\n",
+                             __func__,
+                             CFE_TBL_TxnAppIdAsULong(&Txn),
+                             CFE_TBL_TxnHandleAsULong(&Txn),
+                             (unsigned long)Status);
     }
 
     return Status;

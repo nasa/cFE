@@ -32,6 +32,5 @@
  */
 void CFE_Config_SetupPlatformConfigInfo(void)
 {
-
     UT_GenStub_Execute(CFE_Config_SetupPlatformConfigInfo, Basic, NULL);
 }

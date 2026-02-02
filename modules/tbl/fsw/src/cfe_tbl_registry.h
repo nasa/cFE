@@ -88,8 +88,12 @@ void CFE_TBL_TxnUnlockRegistry(CFE_TBL_TxnState_t *Txn);
 ** \returns CFE_SUCCESS normally, or relevent CFE status code
 ** \retval #CFE_SUCCESS \copydoc CFE_SUCCESS
 */
-CFE_Status_t CFE_TBL_TxnCheckConfig(CFE_TBL_TxnState_t *Txn, CFE_TBL_TableConfig_t *ReqCfg, const char *BaseName,
-                                    uint16 TblOptionFlags, size_t Size, CFE_TBL_CallbackFuncPtr_t ValidationFuncPtr);
+CFE_Status_t CFE_TBL_TxnCheckConfig(CFE_TBL_TxnState_t       *Txn,
+                                    CFE_TBL_TableConfig_t    *ReqCfg,
+                                    const char               *BaseName,
+                                    uint16                    TblOptionFlags,
+                                    size_t                    Size,
+                                    CFE_TBL_CallbackFuncPtr_t ValidationFuncPtr);
 
 /*---------------------------------------------------------------------------------------*/
 /**

@@ -115,7 +115,7 @@ CFE_ES_AppId_t UT_SB_AppID_Modify(CFE_ES_AppId_t InitialID, int32 Modifier)
     CFE_ES_AppId_t OutValue;
     uint32         InValue;
 
-    InValue = CFE_RESOURCEID_TO_ULONG(InitialID);
+    InValue  = CFE_RESOURCEID_TO_ULONG(InitialID);
     InValue += Modifier;
 
     /* Underneath the wrapper(s) the IDs are 32-bit integer values, so it can be copied */
@@ -124,8 +124,8 @@ CFE_ES_AppId_t UT_SB_AppID_Modify(CFE_ES_AppId_t InitialID, int32 Modifier)
     return OutValue;
 }
 
-CFE_Status_t SB_UT_OriginationActionHook(void *UserObj, int32 StubRetcode, uint32 CallCount,
-                                         const UT_StubContext_t *Context)
+CFE_Status_t
+SB_UT_OriginationActionHook(void *UserObj, int32 StubRetcode, uint32 CallCount, const UT_StubContext_t *Context)
 {
     return CFE_SB_BAD_ARGUMENT;
 }

@@ -127,7 +127,7 @@ typedef struct CFE_TBL_TxnState
     char AppNameBuffer[CFE_MISSION_MAX_API_LEN];
 
     CFE_TBL_AccessDescriptor_t *AccDescPtr;
-    CFE_TBL_RegistryRec_t *     RegRecPtr;
+    CFE_TBL_RegistryRec_t      *RegRecPtr;
 
     uint32             NumPendingEvents;
     CFE_TBL_TxnEvent_t PendingEvents[CFE_TBL_MAX_EVENTS_PER_TXN];

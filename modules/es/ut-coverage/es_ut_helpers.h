@@ -131,13 +131,20 @@ void  ES_UT_TaskFunction(void);
 void  ES_UT_SysLog_snprintf(char *Buffer, size_t BufferSize, const char *SpecStringPtr, ...);
 void  ES_UT_FillBuffer(void *UserObj, UT_EntryKey_t FuncKey, const UT_StubContext_t *Context);
 void  ES_UT_SetupModuleLoadParams(CFE_ES_ModuleLoadParams_t *Params, const char *FileName, const char *EntryName);
-void  ES_UT_SetupAppStartParams(CFE_ES_AppStartParams_t *Params, const char *FileName, const char *EntryName,
-                                size_t StackSize, CFE_ES_TaskPriority_Atom_t Priority,
+void  ES_UT_SetupAppStartParams(CFE_ES_AppStartParams_t      *Params,
+                                const char                   *FileName,
+                                const char                   *EntryName,
+                                size_t                        StackSize,
+                                CFE_ES_TaskPriority_Atom_t    Priority,
                                 CFE_ES_ExceptionAction_Enum_t ExceptionAction);
-void  ES_UT_SetupSingleAppId(CFE_ES_AppType_Enum_t AppType, CFE_ES_AppState_Enum_t AppState, const char *AppName,
-                             CFE_ES_AppRecord_t **OutAppRec, CFE_ES_TaskRecord_t **OutTaskRec);
-void  ES_UT_SetupChildTaskId(const CFE_ES_AppRecord_t *ParentApp, const char *TaskName,
-                             CFE_ES_TaskRecord_t **OutTaskRec);
+void  ES_UT_SetupSingleAppId(CFE_ES_AppType_Enum_t  AppType,
+                             CFE_ES_AppState_Enum_t AppState,
+                             const char            *AppName,
+                             CFE_ES_AppRecord_t   **OutAppRec,
+                             CFE_ES_TaskRecord_t  **OutTaskRec);
+void  ES_UT_SetupChildTaskId(const CFE_ES_AppRecord_t *ParentApp,
+                             const char               *TaskName,
+                             CFE_ES_TaskRecord_t     **OutTaskRec);
 void  ES_UT_SetupSingleLibId(const char *LibName, CFE_ES_LibRecord_t **OutLibRec);
 int32 ES_UT_PoolDirectRetrieve(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t Offset, CFE_ES_GenPoolBD_t **BdPtr);
 int32 ES_UT_PoolDirectCommit(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t Offset, const CFE_ES_GenPoolBD_t *BdPtr);

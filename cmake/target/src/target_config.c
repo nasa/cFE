@@ -160,10 +160,10 @@ extern CFE_StaticModuleLoadEntry_t CFE_PSP_MODULE_LIST[];
  */
 #ifdef CFE_EDS_LINK_MODE_LOCAL
 
-static EdsLib_DataTypeDB_t CFE_DYNAMIC_EDS_TABLE[EDS_MAX_DATASHEETS] = {NULL};
+static EdsLib_DataTypeDB_t CFE_DYNAMIC_EDS_TABLE[EDS_MAX_DATASHEETS] = { NULL };
 
-static EdsLib_DatabaseObject_t CFE_DYNAMIC_EDSDB_OBJECT = {.AppTableSize     = EDS_MAX_DATASHEETS,
-                                                           .DataTypeDB_Table = CFE_DYNAMIC_EDS_TABLE};
+static EdsLib_DatabaseObject_t CFE_DYNAMIC_EDSDB_OBJECT = { .AppTableSize     = EDS_MAX_DATASHEETS,
+                                                            .DataTypeDB_Table = CFE_DYNAMIC_EDS_TABLE };
 
 /* The object registered in config points at the local (empty) object */
 #define CFE_NONCONST_EDS_DB_PTR &CFE_DYNAMIC_EDSDB_OBJECT

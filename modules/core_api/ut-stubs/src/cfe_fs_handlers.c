@@ -43,13 +43,14 @@
  * Default handler for CFE_FS_GetDefaultMountPoint coverage stub function
  *
  *------------------------------------------------------------*/
-void UT_DefaultHandler_CFE_FS_GetDefaultMountPoint(void *UserObj, UT_EntryKey_t FuncKey,
+void UT_DefaultHandler_CFE_FS_GetDefaultMountPoint(void                   *UserObj,
+                                                   UT_EntryKey_t           FuncKey,
                                                    const UT_StubContext_t *Context)
 {
     int32             Status;
     static const char DEFAULT_MOUNTPOINT[] = "/ut";
-    void *            TempBuff;
-    const char *      Result;
+    void             *TempBuff;
+    const char       *Result;
 
     UT_Stub_GetInt32StatusCode(Context, &Status);
     Result = NULL;
@@ -80,8 +81,8 @@ void UT_DefaultHandler_CFE_FS_GetDefaultExtension(void *UserObj, UT_EntryKey_t F
 {
     int32             Status;
     static const char DEFAULT_EXTENSION[] = ".ut";
-    void *            TempBuff;
-    const char *      Result;
+    void             *TempBuff;
+    const char       *Result;
 
     UT_Stub_GetInt32StatusCode(Context, &Status);
     Result = NULL;
@@ -154,10 +155,11 @@ void UT_DefaultHandler_CFE_FS_ReadHeader(void *UserObj, UT_EntryKey_t FuncKey, c
  * Default handler for CFE_FS_ParseInputFileNameEx coverage stub function
  *
  *------------------------------------------------------------*/
-void UT_DefaultHandler_CFE_FS_ParseInputFileNameEx(void *UserObj, UT_EntryKey_t FuncKey,
+void UT_DefaultHandler_CFE_FS_ParseInputFileNameEx(void                   *UserObj,
+                                                   UT_EntryKey_t           FuncKey,
                                                    const UT_StubContext_t *Context)
 {
-    char *      OutputBuffer  = UT_Hook_GetArgValueByName(Context, "OutputBuffer", char *);
+    char       *OutputBuffer  = UT_Hook_GetArgValueByName(Context, "OutputBuffer", char *);
     size_t      OutputBufSize = UT_Hook_GetArgValueByName(Context, "OutputBufSize", size_t);
     const char *InputBuffer   = UT_Hook_GetArgValueByName(Context, "InputBuffer", const char *);
     const char *DefaultInput  = UT_Hook_GetArgValueByName(Context, "DefaultInput", const char *);
@@ -167,8 +169,8 @@ void UT_DefaultHandler_CFE_FS_ParseInputFileNameEx(void *UserObj, UT_EntryKey_t 
     UT_Stub_GetInt32StatusCode(Context, &status);
 
     /* Copy any specific output supplied by test case */
-    if (status >= 0 && UT_Stub_CopyToLocal(UT_KEY(CFE_FS_ParseInputFileNameEx), OutputBuffer, OutputBufSize) == 0 &&
-        OutputBufSize > 0)
+    if (status >= 0 && UT_Stub_CopyToLocal(UT_KEY(CFE_FS_ParseInputFileNameEx), OutputBuffer, OutputBufSize) == 0
+        && OutputBufSize > 0)
     {
         if (DefaultInput != NULL)
         {
@@ -190,7 +192,7 @@ void UT_DefaultHandler_CFE_FS_ParseInputFileNameEx(void *UserObj, UT_EntryKey_t 
  *------------------------------------------------------------*/
 void UT_DefaultHandler_CFE_FS_ParseInputFileName(void *UserObj, UT_EntryKey_t FuncKey, const UT_StubContext_t *Context)
 {
-    char *      OutputBuffer  = UT_Hook_GetArgValueByName(Context, "OutputBuffer", char *);
+    char       *OutputBuffer  = UT_Hook_GetArgValueByName(Context, "OutputBuffer", char *);
     size_t      OutputBufSize = UT_Hook_GetArgValueByName(Context, "OutputBufSize", size_t);
     const char *InputName     = UT_Hook_GetArgValueByName(Context, "InputName", const char *);
 
@@ -199,8 +201,8 @@ void UT_DefaultHandler_CFE_FS_ParseInputFileName(void *UserObj, UT_EntryKey_t Fu
     UT_Stub_GetInt32StatusCode(Context, &status);
 
     /* Copy any specific output supplied by test case */
-    if (status >= 0 && UT_Stub_CopyToLocal(UT_KEY(CFE_FS_ParseInputFileName), OutputBuffer, OutputBufSize) == 0 &&
-        OutputBufSize > 0)
+    if (status >= 0 && UT_Stub_CopyToLocal(UT_KEY(CFE_FS_ParseInputFileName), OutputBuffer, OutputBufSize) == 0
+        && OutputBufSize > 0)
     {
         /* Otherwise fall back to simple copy */
         strncpy(OutputBuffer, InputName, OutputBufSize);
@@ -212,11 +214,12 @@ void UT_DefaultHandler_CFE_FS_ParseInputFileName(void *UserObj, UT_EntryKey_t Fu
  * Default handler for CFE_FS_ExtractFilenameFromPath coverage stub function
  *
  *------------------------------------------------------------*/
-void UT_DefaultHandler_CFE_FS_ExtractFilenameFromPath(void *UserObj, UT_EntryKey_t FuncKey,
+void UT_DefaultHandler_CFE_FS_ExtractFilenameFromPath(void                   *UserObj,
+                                                      UT_EntryKey_t           FuncKey,
                                                       const UT_StubContext_t *Context)
 {
     const char *OriginalPath = UT_Hook_GetArgValueByName(Context, "OriginalPath", const char *);
-    char *      FileNameOnly = UT_Hook_GetArgValueByName(Context, "FileNameOnly", char *);
+    char       *FileNameOnly = UT_Hook_GetArgValueByName(Context, "FileNameOnly", char *);
 
     int    i, j;
     int    StringLength;
@@ -298,7 +301,8 @@ void UT_DefaultHandler_CFE_FS_ExtractFilenameFromPath(void *UserObj, UT_EntryKey
  * Default handler for CFE_FS_BackgroundFileDumpIsPending coverage stub function
  *
  *------------------------------------------------------------*/
-void UT_DefaultHandler_CFE_FS_BackgroundFileDumpIsPending(void *UserObj, UT_EntryKey_t FuncKey,
+void UT_DefaultHandler_CFE_FS_BackgroundFileDumpIsPending(void                   *UserObj,
+                                                          UT_EntryKey_t           FuncKey,
                                                           const UT_StubContext_t *Context)
 {
     int32 status;
@@ -316,7 +320,8 @@ void UT_DefaultHandler_CFE_FS_BackgroundFileDumpIsPending(void *UserObj, UT_Entr
  * Default handler for CFE_FS_BackgroundFileDumpRequest coverage stub function
  *
  *------------------------------------------------------------*/
-void UT_DefaultHandler_CFE_FS_BackgroundFileDumpRequest(void *UserObj, UT_EntryKey_t FuncKey,
+void UT_DefaultHandler_CFE_FS_BackgroundFileDumpRequest(void                   *UserObj,
+                                                        UT_EntryKey_t           FuncKey,
                                                         const UT_StubContext_t *Context)
 {
     CFE_FS_FileWriteMetaData_t *Meta = UT_Hook_GetArgValueByName(Context, "Meta", CFE_FS_FileWriteMetaData_t *);

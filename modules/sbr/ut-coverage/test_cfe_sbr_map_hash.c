@@ -76,7 +76,8 @@ void Test_SBR_Map_Hash(void)
     if (CFE_PLATFORM_SB_HIGHEST_VALID_MSGID > CFE_SBR_UT_LIMIT_HIGHEST_MSGID)
     {
         msgid_limit = CFE_SBR_UT_LIMIT_HIGHEST_MSGID;
-        UtPrintf("Limiting msgid ut loops to 0x%08X of 0x%08X", (unsigned int)msgid_limit,
+        UtPrintf("Limiting msgid ut loops to 0x%08X of 0x%08X",
+                 (unsigned int)msgid_limit,
                  (unsigned int)CFE_PLATFORM_SB_HIGHEST_VALID_MSGID);
     }
     else

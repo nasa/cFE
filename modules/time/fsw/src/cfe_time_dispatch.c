@@ -51,9 +51,12 @@ bool CFE_TIME_VerifyCmdLength(const CFE_MSG_Message_t *MsgPtr, size_t ExpectedLe
         CFE_MSG_GetMsgId(MsgPtr, &MsgId);
         CFE_MSG_GetFcnCode(MsgPtr, &FcnCode);
 
-        CFE_EVS_SendEvent(CFE_TIME_LEN_ERR_EID, CFE_EVS_EventType_ERROR,
+        CFE_EVS_SendEvent(CFE_TIME_LEN_ERR_EID,
+                          CFE_EVS_EventType_ERROR,
                           "Invalid msg length: ID = 0x%X,  CC = %u, Len = %u, Expected = %u",
-                          (unsigned int)CFE_SB_MsgIdToValue(MsgId), (unsigned int)FcnCode, (unsigned int)ActualLength,
+                          (unsigned int)CFE_SB_MsgIdToValue(MsgId),
+                          (unsigned int)FcnCode,
+                          (unsigned int)ActualLength,
                           (unsigned int)ExpectedLength);
         result = false;
         ++CFE_TIME_Global.CommandErrorCounter;
@@ -195,8 +198,10 @@ void CFE_TIME_ProcessGroundCmd(const CFE_SB_Buffer_t *SBBufPtr)
         default:
 
             CFE_TIME_Global.CommandErrorCounter++;
-            CFE_EVS_SendEvent(CFE_TIME_CC_ERR_EID, CFE_EVS_EventType_ERROR,
-                              "Invalid command code -- ID = 0x%X, CC = %d", (unsigned int)CFE_TIME_CMD_MID,
+            CFE_EVS_SendEvent(CFE_TIME_CC_ERR_EID,
+                              CFE_EVS_EventType_ERROR,
+                              "Invalid command code -- ID = 0x%X, CC = %d",
+                              (unsigned int)CFE_TIME_CMD_MID,
                               (int)CommandCode);
             break;
     } /* switch (CFE_TIME_CMD_MID -- command code)*/
@@ -281,7 +286,9 @@ void CFE_TIME_TaskPipe(const CFE_SB_Buffer_t *SBBufPtr)
         ** Note: we only increment the command error counter when
         **    processing CFE_TIME_CMD_MID commands...
         */
-        CFE_EVS_SendEvent(CFE_TIME_ID_ERR_EID, CFE_EVS_EventType_ERROR, "Invalid message ID -- ID = 0x%X",
+        CFE_EVS_SendEvent(CFE_TIME_ID_ERR_EID,
+                          CFE_EVS_EventType_ERROR,
+                          "Invalid message ID -- ID = 0x%X",
                           (unsigned int)CFE_SB_MsgIdToValue(MessageID));
     }
 }

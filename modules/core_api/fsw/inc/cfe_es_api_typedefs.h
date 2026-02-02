@@ -144,7 +144,7 @@ typedef enum CFE_ES_CrcType_Enum
  */
 typedef union CFE_ES_PoolAlign
 {
-    void *Ptr; /**< \brief Aligned pointer */
+    void         *Ptr; /**< \brief Aligned pointer */
     /* note -- native types (int/double) are intentional here */
     long long int LongInt;    /**< \brief Aligned Long Integer */
     long double   LongDouble; /**< \brief Aligned Long Double */

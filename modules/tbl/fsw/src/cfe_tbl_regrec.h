@@ -615,7 +615,7 @@ CFE_TBL_LoadBuff_t *CFE_TBL_GetInactiveBuffer(CFE_TBL_RegistryRec_t *RegRecPtr);
 ** \param BufferSelect The buffer to obtain (active or inactive)
 ** \returns Pointer to the selected table buffer
 */
-CFE_TBL_LoadBuff_t *CFE_TBL_GetSelectedBuffer(CFE_TBL_RegistryRec_t *     RegRecPtr,
+CFE_TBL_LoadBuff_t *CFE_TBL_GetSelectedBuffer(CFE_TBL_RegistryRec_t      *RegRecPtr,
                                               CFE_TBL_BufferSelect_Enum_t BufferSelect);
 
 /*---------------------------------------------------------------------------------------*/
@@ -673,8 +673,9 @@ CFE_TBL_LoadBuff_t *CFE_TBL_GetInactiveBufferExclusive(CFE_TBL_RegistryRec_t *Re
  * @param[in] DataSource string indicating to the source of data
  * @param[in] UpdateTime time stamp of the source of data
  */
-void CFE_TBL_RegRecResetLoadInfo(CFE_TBL_RegistryRec_t *RegRecPtr, const char *DataSource,
-                                 CFE_TIME_SysTime_t UpdateTime);
+void CFE_TBL_RegRecResetLoadInfo(CFE_TBL_RegistryRec_t *RegRecPtr,
+                                 const char            *DataSource,
+                                 CFE_TIME_SysTime_t     UpdateTime);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -701,7 +702,8 @@ void CFE_TBL_RegRecSetModifiedFlag(CFE_TBL_RegistryRec_t *RegRecPtr);
  * @param[in]    OwnerAppId  application ID of the table owner
  * @param[in]    ReqCfg      Requested table configuration
  */
-void CFE_TBL_SetupTableRegistryRecord(CFE_TBL_RegistryRec_t *RegRecPtr, CFE_ES_AppId_t OwnerAppId,
+void CFE_TBL_SetupTableRegistryRecord(CFE_TBL_RegistryRec_t       *RegRecPtr,
+                                      CFE_ES_AppId_t               OwnerAppId,
                                       const CFE_TBL_TableConfig_t *ReqCfg);
 
 #endif /* CFE_TBL_REGREC_H */

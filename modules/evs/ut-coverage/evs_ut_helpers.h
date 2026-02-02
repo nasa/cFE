@@ -60,10 +60,14 @@ typedef CFE_Status_t (*UT_EVS_SendEventFunc_t)(uint32);
 
 void         UT_InitData_EVS(void);
 int32        UT_EVS_MSGInitHook(void *UserObj, int32 StubRetcode, uint32 CallCount, const UT_StubContext_t *Context);
-void         UT_EVS_DoDispatchCheckEvents(void *MsgPtr, size_t MsgSize, UT_TaskPipeDispatchId_t DispatchId,
-                                          UT_EVS_EventCapture_t *EventCapture);
-void         UT_EVS_DoDispatchCheckEventsShort(void *MsgPtr, size_t MsgSize, UT_TaskPipeDispatchId_t DispatchId,
-                                               UT_EVS_EventCapture_t *EventCapture);
+void         UT_EVS_DoDispatchCheckEvents(void                   *MsgPtr,
+                                          size_t                  MsgSize,
+                                          UT_TaskPipeDispatchId_t DispatchId,
+                                          UT_EVS_EventCapture_t  *EventCapture);
+void         UT_EVS_DoDispatchCheckEventsShort(void                   *MsgPtr,
+                                               size_t                  MsgSize,
+                                               UT_TaskPipeDispatchId_t DispatchId,
+                                               UT_EVS_EventCapture_t  *EventCapture);
 void         UT_EVS_DoGenericCheckEvents(void (*Func)(void), UT_EVS_EventCapture_t *EventCapture);
 CFE_Status_t UT_EVS_SendSquelchedEvent(uint32 EventId);
 CFE_Status_t UT_EVS_SendSquelchedEventWithAppId(uint32 EventId);

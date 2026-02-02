@@ -47,7 +47,7 @@ typedef struct
 
 static CFE_SB_StubMsg_MetaData_t *CFE_SB_StubMsg_GetMetaData(const CFE_MSG_Message_t *MsgPtr)
 {
-    void *                    MetaPtr;
+    void                     *MetaPtr;
     CFE_SB_StubMsg_MetaData_t DefaultMeta;
     size_t                    MetaSize;
     UT_EntryKey_t             MsgKey = (UT_EntryKey_t)MsgPtr;
@@ -88,9 +88,9 @@ static void UT_CFE_SB_FabricateMsgIdValue(UT_EntryKey_t FuncKey, bool IsCmd, uin
         MsgIdValue |= 2;
     }
     MsgIdValue <<= 4;
-    MsgIdValue |= InstanceNum & 0xF;
+    MsgIdValue  |= InstanceNum & 0xF;
     MsgIdValue <<= 7;
-    MsgIdValue |= TopicId & 0x7F;
+    MsgIdValue  |= TopicId & 0x7F;
 
     UT_Stub_SetReturnValue(FuncKey, MsgIdValue);
 }
@@ -104,7 +104,8 @@ static void UT_CFE_SB_FabricateMsgIdValue(UT_EntryKey_t FuncKey, bool IsCmd, uin
  * Default handler for CFE_SB_LocalCmdTopicIdToMsgId coverage stub function
  *
  *------------------------------------------------------------*/
-void UT_DefaultHandler_CFE_SB_LocalCmdTopicIdToMsgId(void *UserObj, UT_EntryKey_t FuncKey,
+void UT_DefaultHandler_CFE_SB_LocalCmdTopicIdToMsgId(void                   *UserObj,
+                                                     UT_EntryKey_t           FuncKey,
                                                      const UT_StubContext_t *Context)
 {
     uint16 TopicId;
@@ -122,7 +123,8 @@ void UT_DefaultHandler_CFE_SB_LocalCmdTopicIdToMsgId(void *UserObj, UT_EntryKey_
  * Default handler for CFE_SB_LocalTlmTopicIdToMsgId coverage stub function
  *
  *------------------------------------------------------------*/
-void UT_DefaultHandler_CFE_SB_LocalTlmTopicIdToMsgId(void *UserObj, UT_EntryKey_t FuncKey,
+void UT_DefaultHandler_CFE_SB_LocalTlmTopicIdToMsgId(void                   *UserObj,
+                                                     UT_EntryKey_t           FuncKey,
                                                      const UT_StubContext_t *Context)
 {
     uint16 TopicId;
@@ -140,7 +142,8 @@ void UT_DefaultHandler_CFE_SB_LocalTlmTopicIdToMsgId(void *UserObj, UT_EntryKey_
  * Default handler for CFE_SB_GlobalCmdTopicIdToMsgId coverage stub function
  *
  *------------------------------------------------------------*/
-void UT_DefaultHandler_CFE_SB_GlobalCmdTopicIdToMsgId(void *UserObj, UT_EntryKey_t FuncKey,
+void UT_DefaultHandler_CFE_SB_GlobalCmdTopicIdToMsgId(void                   *UserObj,
+                                                      UT_EntryKey_t           FuncKey,
                                                       const UT_StubContext_t *Context)
 {
     uint16 TopicId;
@@ -158,7 +161,8 @@ void UT_DefaultHandler_CFE_SB_GlobalCmdTopicIdToMsgId(void *UserObj, UT_EntryKey
  * Default handler for CFE_SB_GlobalTlmTopicIdToMsgId coverage stub function
  *
  *------------------------------------------------------------*/
-void UT_DefaultHandler_CFE_SB_GlobalTlmTopicIdToMsgId(void *UserObj, UT_EntryKey_t FuncKey,
+void UT_DefaultHandler_CFE_SB_GlobalTlmTopicIdToMsgId(void                   *UserObj,
+                                                      UT_EntryKey_t           FuncKey,
                                                       const UT_StubContext_t *Context)
 {
     uint16 TopicId;
@@ -254,12 +258,12 @@ void UT_DefaultHandler_CFE_SB_DeletePipe(void *UserObj, UT_EntryKey_t FuncKey, c
  *------------------------------------------------------------*/
 void UT_DefaultHandler_CFE_SB_GetPipeName(void *UserObj, UT_EntryKey_t FuncKey, const UT_StubContext_t *Context)
 {
-    char * PipeNameBuf  = UT_Hook_GetArgValueByName(Context, "PipeNameBuf", char *);
+    char  *PipeNameBuf  = UT_Hook_GetArgValueByName(Context, "PipeNameBuf", char *);
     size_t PipeNameSize = UT_Hook_GetArgValueByName(Context, "PipeNameSize", size_t);
 
     size_t      UserBuffSize;
     size_t      BuffPosition;
-    void *      TempBuff;
+    void       *TempBuff;
     const char *NameBuff;
     int32       status;
 
@@ -394,7 +398,7 @@ void UT_DefaultHandler_CFE_SB_TransmitBuffer(void *UserObj, UT_EntryKey_t FuncKe
  *------------------------------------------------------------*/
 void UT_DefaultHandler_CFE_SB_MessageStringGet(void *UserObj, UT_EntryKey_t FuncKey, const UT_StubContext_t *Context)
 {
-    char *      DestStringPtr   = UT_Hook_GetArgValueByName(Context, "DestStringPtr", char *);
+    char       *DestStringPtr   = UT_Hook_GetArgValueByName(Context, "DestStringPtr", char *);
     const char *SourceStringPtr = UT_Hook_GetArgValueByName(Context, "SourceStringPtr", const char *);
     const char *DefaultString   = UT_Hook_GetArgValueByName(Context, "DefaultString", const char *);
     size_t      DestMaxSize     = UT_Hook_GetArgValueByName(Context, "DestMaxSize", size_t);
@@ -440,7 +444,7 @@ void UT_DefaultHandler_CFE_SB_MessageStringGet(void *UserObj, UT_EntryKey_t Func
  *------------------------------------------------------------*/
 void UT_DefaultHandler_CFE_SB_MessageStringSet(void *UserObj, UT_EntryKey_t FuncKey, const UT_StubContext_t *Context)
 {
-    char *      DestStringPtr   = UT_Hook_GetArgValueByName(Context, "DestStringPtr", char *);
+    char       *DestStringPtr   = UT_Hook_GetArgValueByName(Context, "DestStringPtr", char *);
     const char *SourceStringPtr = UT_Hook_GetArgValueByName(Context, "SourceStringPtr", const char *);
     size_t      DestMaxSize     = UT_Hook_GetArgValueByName(Context, "DestMaxSize", size_t);
 
@@ -480,8 +484,8 @@ void UT_DefaultHandler_CFE_SB_MessageStringSet(void *UserObj, UT_EntryKey_t Func
 void UT_DefaultHandler_CFE_SB_GetUserData(void *UserObj, UT_EntryKey_t FuncKey, const UT_StubContext_t *Context)
 {
     CFE_MSG_Message_t *MsgPtr = UT_Hook_GetArgValueByName(Context, "MsgPtr", CFE_MSG_Message_t *);
-    uint8 *            BytePtr;
-    void *             Result;
+    uint8             *BytePtr;
+    void              *Result;
     size_t             HdrSize;
 
     if (UT_Stub_CopyToLocal(UT_KEY(CFE_SB_GetUserData), &Result, sizeof(Result)) != sizeof(Result))
@@ -567,7 +571,8 @@ void UT_DefaultHandler_CFE_SB_SetUserDataLength(void *UserObj, UT_EntryKey_t Fun
  * Default handler for CFE_SB_AllocateMessageBuffer coverage stub function
  *
  *------------------------------------------------------------*/
-void UT_DefaultHandler_CFE_SB_AllocateMessageBuffer(void *UserObj, UT_EntryKey_t FuncKey,
+void UT_DefaultHandler_CFE_SB_AllocateMessageBuffer(void                   *UserObj,
+                                                    UT_EntryKey_t           FuncKey,
                                                     const UT_StubContext_t *Context)
 {
     int32            status;

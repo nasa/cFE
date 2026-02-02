@@ -113,7 +113,7 @@ void CFE_TIME_QueryResetVars(void)
     volatile CFE_TIME_ReferenceState_t *RefState;
     uint32                              resetAreaSize;
     cpuaddr                             resetAreaAddr;
-    CFE_ES_ResetData_t *                CFE_TIME_ResetDataPtr;
+    CFE_ES_ResetData_t                 *CFE_TIME_ResetDataPtr;
 
     RefState = CFE_TIME_StartReferenceUpdate();
 
@@ -139,9 +139,9 @@ void CFE_TIME_QueryResetVars(void)
         ** Verify TIME data signature and clock signal selection...
         **    (other data fields have no verifiable limits)
         */
-        if ((LocalResetVars.Signature == CFE_TIME_RESET_SIGNATURE) &&
-            ((LocalResetVars.ClockSignal == CFE_TIME_ToneSignalSelect_PRIMARY) ||
-             (LocalResetVars.ClockSignal == CFE_TIME_ToneSignalSelect_REDUNDANT)))
+        if ((LocalResetVars.Signature == CFE_TIME_RESET_SIGNATURE)
+            && ((LocalResetVars.ClockSignal == CFE_TIME_ToneSignalSelect_PRIMARY)
+                || (LocalResetVars.ClockSignal == CFE_TIME_ToneSignalSelect_REDUNDANT)))
         {
             /*
             ** Initialize TIME to valid  Reset Area values...
@@ -194,7 +194,7 @@ void CFE_TIME_UpdateResetVars(const CFE_TIME_Reference_t *Reference)
     CFE_TIME_ResetVars_t LocalResetVars;
     uint32               resetAreaSize;
     cpuaddr              resetAreaAddr;
-    CFE_ES_ResetData_t * CFE_TIME_ResetDataPtr;
+    CFE_ES_ResetData_t  *CFE_TIME_ResetDataPtr;
     /*
     ** Update the data only if our Reset Area is valid...
     */
@@ -317,26 +317,30 @@ void CFE_TIME_InitData(void)
     /*
     ** Initialize housekeeping packet (clear user data area)...
     */
-    CFE_MSG_Init(CFE_MSG_PTR(CFE_TIME_Global.HkPacket.TelemetryHeader), CFE_SB_ValueToMsgId(CFE_TIME_HK_TLM_MID),
+    CFE_MSG_Init(CFE_MSG_PTR(CFE_TIME_Global.HkPacket.TelemetryHeader),
+                 CFE_SB_ValueToMsgId(CFE_TIME_HK_TLM_MID),
                  sizeof(CFE_TIME_Global.HkPacket));
 
     /*
     ** Initialize diagnostic packet (clear user data area)...
     */
-    CFE_MSG_Init(CFE_MSG_PTR(CFE_TIME_Global.DiagPacket.TelemetryHeader), CFE_SB_ValueToMsgId(CFE_TIME_DIAG_TLM_MID),
+    CFE_MSG_Init(CFE_MSG_PTR(CFE_TIME_Global.DiagPacket.TelemetryHeader),
+                 CFE_SB_ValueToMsgId(CFE_TIME_DIAG_TLM_MID),
                  sizeof(CFE_TIME_Global.DiagPacket));
 
     /*
     ** Initialize "time at the tone" signal command packet...
     */
-    CFE_MSG_Init(CFE_MSG_PTR(CFE_TIME_Global.ToneSignalCmd.CommandHeader), CFE_SB_ValueToMsgId(CFE_TIME_TONE_CMD_MID),
+    CFE_MSG_Init(CFE_MSG_PTR(CFE_TIME_Global.ToneSignalCmd.CommandHeader),
+                 CFE_SB_ValueToMsgId(CFE_TIME_TONE_CMD_MID),
                  sizeof(CFE_TIME_Global.ToneSignalCmd));
 
 /*
 ** Initialize "time at the tone" data command packet...
 */
 #if (CFE_PLATFORM_TIME_CFG_SERVER == true)
-    CFE_MSG_Init(CFE_MSG_PTR(CFE_TIME_Global.ToneDataCmd.CommandHeader), CFE_SB_ValueToMsgId(CFE_TIME_DATA_CMD_MID),
+    CFE_MSG_Init(CFE_MSG_PTR(CFE_TIME_Global.ToneDataCmd.CommandHeader),
+                 CFE_SB_ValueToMsgId(CFE_TIME_DATA_CMD_MID),
                  sizeof(CFE_TIME_Global.ToneDataCmd));
 #endif
 
@@ -344,14 +348,16 @@ void CFE_TIME_InitData(void)
     ** Initialize simulated tone send message ("fake tone" mode only)...
     */
 #if (CFE_MISSION_TIME_CFG_FAKE_TONE == true)
-    CFE_MSG_Init(CFE_MSG_PTR(CFE_TIME_Global.ToneSendCmd.CommandHeader), CFE_SB_ValueToMsgId(CFE_TIME_SEND_CMD_MID),
+    CFE_MSG_Init(CFE_MSG_PTR(CFE_TIME_Global.ToneSendCmd.CommandHeader),
+                 CFE_SB_ValueToMsgId(CFE_TIME_SEND_CMD_MID),
                  sizeof(CFE_TIME_Global.ToneSendCmd));
 #endif
 
     /*
     ** Initialize local 1Hz "wake-up" command packet (optional)...
     */
-    CFE_MSG_Init(CFE_MSG_PTR(CFE_TIME_Global.LocalOneHzCmd.CommandHeader), CFE_SB_ValueToMsgId(CFE_TIME_ONEHZ_CMD_MID),
+    CFE_MSG_Init(CFE_MSG_PTR(CFE_TIME_Global.LocalOneHzCmd.CommandHeader),
+                 CFE_SB_ValueToMsgId(CFE_TIME_ONEHZ_CMD_MID),
                  sizeof(CFE_TIME_Global.LocalOneHzCmd));
 }
 
@@ -674,7 +680,7 @@ CFE_TIME_SysTime_t CFE_TIME_CalculateUTC(const CFE_TIME_Reference_t *Reference)
 {
     CFE_TIME_SysTime_t TimeAsUTC;
 
-    TimeAsUTC = CFE_TIME_Add(Reference->CurrentMET, Reference->AtToneSTCF);
+    TimeAsUTC          = CFE_TIME_Add(Reference->CurrentMET, Reference->AtToneSTCF);
     TimeAsUTC.Seconds -= Reference->AtToneLeapSeconds;
 
     return TimeAsUTC;

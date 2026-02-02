@@ -69,7 +69,6 @@ CFE_Status_t CFE_ES_AppID_ToIndex(CFE_ES_AppId_t AppID, uint32 *Idx)
  */
 void CFE_ES_BackgroundWakeup(void)
 {
-
     UT_GenStub_Execute(CFE_ES_BackgroundWakeup, Basic, NULL);
 }
 
@@ -131,9 +130,13 @@ CFE_Status_t CFE_ES_CounterID_ToIndex(CFE_ES_CounterId_t CounterId, uint32 *Idx)
  * Generated stub function for CFE_ES_CreateChildTask()
  * ----------------------------------------------------
  */
-CFE_Status_t CFE_ES_CreateChildTask(CFE_ES_TaskId_t *TaskIdPtr, const char *TaskName,
-                                    CFE_ES_ChildTaskMainFuncPtr_t FunctionPtr, CFE_ES_StackPointer_t StackPtr,
-                                    size_t StackSize, CFE_ES_TaskPriority_Atom_t Priority, uint32 Flags)
+CFE_Status_t CFE_ES_CreateChildTask(CFE_ES_TaskId_t              *TaskIdPtr,
+                                    const char                   *TaskName,
+                                    CFE_ES_ChildTaskMainFuncPtr_t FunctionPtr,
+                                    CFE_ES_StackPointer_t         StackPtr,
+                                    size_t                        StackSize,
+                                    CFE_ES_TaskPriority_Atom_t    Priority,
+                                    uint32                        Flags)
 {
     UT_GenStub_SetupReturnBuffer(CFE_ES_CreateChildTask, CFE_Status_t);
 
@@ -217,7 +220,6 @@ void CFE_ES_ExitApp(uint32 ExitStatus)
  */
 void CFE_ES_ExitChildTask(void)
 {
-
     UT_GenStub_Execute(CFE_ES_ExitChildTask, Basic, NULL);
 }
 
@@ -604,7 +606,6 @@ CFE_Status_t CFE_ES_IncrementGenCounter(CFE_ES_CounterId_t CounterId)
  */
 void CFE_ES_IncrementTaskCounter(void)
 {
-
     UT_GenStub_Execute(CFE_ES_IncrementTaskCounter, Basic, NULL);
 }
 
@@ -676,8 +677,12 @@ CFE_Status_t CFE_ES_PoolCreate(CFE_ES_MemHandle_t *PoolID, void *MemPtr, size_t 
  * Generated stub function for CFE_ES_PoolCreateEx()
  * ----------------------------------------------------
  */
-CFE_Status_t CFE_ES_PoolCreateEx(CFE_ES_MemHandle_t *PoolID, void *MemPtr, size_t Size, uint16 NumBlockSizes,
-                                 const size_t *BlockSizes, bool UseMutex)
+CFE_Status_t CFE_ES_PoolCreateEx(CFE_ES_MemHandle_t *PoolID,
+                                 void               *MemPtr,
+                                 size_t              Size,
+                                 uint16              NumBlockSizes,
+                                 const size_t       *BlockSizes,
+                                 bool                UseMutex)
 {
     UT_GenStub_SetupReturnBuffer(CFE_ES_PoolCreateEx, CFE_Status_t);
 
@@ -698,9 +703,13 @@ CFE_Status_t CFE_ES_PoolCreateEx(CFE_ES_MemHandle_t *PoolID, void *MemPtr, size_
  * Generated stub function for CFE_ES_PoolCreateEx_WithAlignment()
  * ----------------------------------------------------
  */
-CFE_Status_t CFE_ES_PoolCreateEx_WithAlignment(CFE_ES_MemHandle_t *PoolID, void *MemPtr, size_t Size,
-                                               uint16 NumBlockSizes, const size_t *BlockSizes, bool UseMutex,
-                                               size_t Alignment)
+CFE_Status_t CFE_ES_PoolCreateEx_WithAlignment(CFE_ES_MemHandle_t *PoolID,
+                                               void               *MemPtr,
+                                               size_t              Size,
+                                               uint16              NumBlockSizes,
+                                               const size_t       *BlockSizes,
+                                               bool                UseMutex,
+                                               size_t              Alignment)
 {
     UT_GenStub_SetupReturnBuffer(CFE_ES_PoolCreateEx_WithAlignment, CFE_Status_t);
 
@@ -758,7 +767,6 @@ int32 CFE_ES_PoolDelete(CFE_ES_MemHandle_t PoolID)
  */
 void CFE_ES_ProcessAsyncEvent(void)
 {
-
     UT_GenStub_Execute(CFE_ES_ProcessAsyncEvent, Basic, NULL);
 }
 

@@ -99,7 +99,7 @@ typedef uint32 CFE_ES_MemAddress_t;
  * A converter macro to use when initializing a CFE_ES_MemAddress_t
  * from a pointer value of a different type.
  */
-#define CFE_ES_MEMADDRESS_C(x) ((CFE_ES_MemAddress_t)((cpuaddr)(x)&0xFFFFFFFF))
+#define CFE_ES_MEMADDRESS_C(x) ((CFE_ES_MemAddress_t)((cpuaddr)(x) & 0xFFFFFFFF))
 
 /**
  * @brief Memory Address to pointer wrapper

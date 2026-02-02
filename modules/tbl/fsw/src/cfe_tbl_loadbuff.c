@@ -120,7 +120,7 @@ CFE_Status_t CFE_TBL_LoadBuffId_ToIndex(CFE_TBL_LoadBuffId_t BuffId, uint32 *Cat
     uint32       Serial;
     CFE_Status_t Status;
 
-    Serial = CFE_ResourceId_ToInteger(CFE_RESOURCEID_UNWRAP(BuffId));
+    Serial  = CFE_ResourceId_ToInteger(CFE_RESOURCEID_UNWRAP(BuffId));
     Serial -= CFE_TBL_LOADBUFFID_BASE;
 
     if (Serial <= CFE_RESOURCEID_MAX)
@@ -145,14 +145,14 @@ CFE_Status_t CFE_TBL_LoadBuffId_ToIndex(CFE_TBL_LoadBuffId_t BuffId, uint32 *Cat
  *-----------------------------------------------------------------*/
 CFE_TBL_LoadBuff_t *CFE_TBL_LocateLoadBufferByID(CFE_TBL_LoadBuffId_t BufferId)
 {
-    CFE_TBL_LoadBuff_t *   BuffPtr;
+    CFE_TBL_LoadBuff_t    *BuffPtr;
     CFE_TBL_RegistryRec_t *ParentRegRecPtr;
     uint32                 Idx;
 
     uint32 Serial;
     uint32 Category;
 
-    Serial = CFE_ResourceId_ToInteger(CFE_RESOURCEID_UNWRAP(BufferId));
+    Serial  = CFE_ResourceId_ToInteger(CFE_RESOURCEID_UNWRAP(BufferId));
     Serial -= CFE_TBL_LOADBUFFID_BASE;
 
     if (Serial <= CFE_RESOURCEID_MAX)
@@ -170,8 +170,8 @@ CFE_TBL_LoadBuff_t *CFE_TBL_LocateLoadBufferByID(CFE_TBL_LoadBuffId_t BufferId)
         {
             /* It refers to one of the table buffs in the registry */
             /* There are (possibly) two buffers per registry entry */
-            Category -= CFE_TBL_LOADBUFF_LOCAL_CATEGORY_START;
-            ParentRegRecPtr = &CFE_TBL_Global.Registry[Category];
+            Category        -= CFE_TBL_LOADBUFF_LOCAL_CATEGORY_START;
+            ParentRegRecPtr  = &CFE_TBL_Global.Registry[Category];
             if (!CFE_TBL_RegRecGetConfig(ParentRegRecPtr)->DoubleBuffered)
             {
                 /* single-buffered table is always at local index 0 */
@@ -267,7 +267,9 @@ CFE_ResourceId_t CFE_TBL_FindNextSharedBufferId(void)
     State.BaseCategory   = CFE_TBL_LOADBUFF_SHARED_CATEGORY;
     State.RemainingCount = CFE_PLATFORM_TBL_MAX_SIMULTANEOUS_LOADS;
 
-    PendingId = CFE_ResourceId_FindNextEx(CFE_TBL_Global.LastLoadBuffId, CFE_TBL_LoadBuffIncrementSerial, &State,
+    PendingId = CFE_ResourceId_FindNextEx(CFE_TBL_Global.LastLoadBuffId,
+                                          CFE_TBL_LoadBuffIncrementSerial,
+                                          &State,
                                           CFE_TBL_CheckLoadBuffSlotUsed);
 
     return PendingId;
@@ -316,7 +318,9 @@ void CFE_TBL_LoadBuffCopyData(CFE_TBL_LoadBuff_t *BufferPtr, const void *SourceP
 void CFE_TBL_LoadBuffRecomputeCRC(CFE_TBL_LoadBuff_t *BufferPtr)
 {
     BufferPtr->Crc = CFE_ES_CalculateCRC(CFE_TBL_LoadBuffGetReadPointer(BufferPtr),
-                                         CFE_TBL_LoadBuffGetContentSize(BufferPtr), 0, CFE_MISSION_ES_DEFAULT_CRC);
+                                         CFE_TBL_LoadBuffGetContentSize(BufferPtr),
+                                         0,
+                                         CFE_MISSION_ES_DEFAULT_CRC);
 }
 
 /*----------------------------------------------------------------
@@ -362,7 +366,7 @@ CFE_ResourceId_t CFE_TBL_GetNextLocalBufferId(const CFE_TBL_RegistryRec_t *RegRe
  *-----------------------------------------------------------------*/
 CFE_TBL_RegistryRec_t *CFE_TBL_LoadBuffGetRegRecFromId(CFE_TBL_LoadBuffId_t BuffId)
 {
-    CFE_TBL_LoadBuff_t *   BuffPtr;
+    CFE_TBL_LoadBuff_t    *BuffPtr;
     CFE_TBL_RegistryRec_t *RegRecPtr;
 
     BuffPtr = CFE_TBL_LocateLoadBufferByID(BuffId);
@@ -452,7 +456,8 @@ CFE_TBL_LoadBuff_t *CFE_TBL_PrepareNewLoadBuff(CFE_TBL_RegistryRec_t *RegRecPtr)
         /* NOTE: The Active Buffer pointer will be NULL if the table was never loaded */
         if (ActiveBuffPtr != NULL)
         {
-            CFE_TBL_LoadBuffCopyData(LoadBuffPtr, CFE_TBL_LoadBuffGetReadPointer(ActiveBuffPtr),
+            CFE_TBL_LoadBuffCopyData(LoadBuffPtr,
+                                     CFE_TBL_LoadBuffGetReadPointer(ActiveBuffPtr),
                                      CFE_TBL_LoadBuffGetContentSize(ActiveBuffPtr));
         }
 
@@ -477,8 +482,8 @@ bool CFE_TBL_LoadBuffIsPrivate(CFE_TBL_LoadBuffId_t BuffId, CFE_TBL_RegId_t RegI
     bool   Result;
 
     Result = false;
-    if (CFE_TBL_LoadBuffId_ToIndex(BuffId, &Category, &BuffIdx) == CFE_SUCCESS &&
-        CFE_TBL_RegId_ToIndex(RegId, &RegIdx) == CFE_SUCCESS)
+    if (CFE_TBL_LoadBuffId_ToIndex(BuffId, &Category, &BuffIdx) == CFE_SUCCESS
+        && CFE_TBL_RegId_ToIndex(RegId, &RegIdx) == CFE_SUCCESS)
     {
         /* 0 is the shared category, otherwise it is the reg index w/offset */
         Result = ((RegIdx + CFE_TBL_LOADBUFF_LOCAL_CATEGORY_START) == Category);

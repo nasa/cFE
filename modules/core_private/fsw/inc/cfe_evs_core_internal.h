@@ -92,19 +92,19 @@ int32 CFE_EVS_CleanUpApp(CFE_ES_AppId_t AppId);
 **
 ** \par Description
 **        This function is called by cfe_testcase to enable or disable events
-**        so more bugs and issues in cFS can be detected. 
+**        so more bugs and issues in cFS can be detected.
 **
 ******************************************************************************/
 void CFE_EVS_SetTypeEnable(CFE_EVS_EventType_Enum_t EventType, bool Enable);
 
 /*****************************************************************************/
 /**
-** \brief Gets event state using CFE_EVS_EventType Enum returning a bool: 
+** \brief Gets event state using CFE_EVS_EventType Enum returning a bool:
 **        true for on, false for off.
 **
 ** \par Description
 **        This function is called by cfe_testcase to enable or disable events
-**        so more bugs and issues in cFS can be detected. 
+**        so more bugs and issues in cFS can be detected.
 **
 ******************************************************************************/
 bool CFE_EVS_GetTypeEnable(CFE_EVS_EventType_Enum_t EventType);

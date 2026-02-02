@@ -94,8 +94,10 @@ CFE_Status_t CFE_TBL_SendHkCmd(const CFE_TBL_SendHkCmd_t *data)
 
     if (Status != CFE_SUCCESS)
     {
-        CFE_EVS_SendEvent(CFE_TBL_FAIL_HK_SEND_ERR_EID, CFE_EVS_EventType_ERROR,
-                          "Unable to send Hk Packet (Status=0x%08X)", (unsigned int)Status);
+        CFE_EVS_SendEvent(CFE_TBL_FAIL_HK_SEND_ERR_EID,
+                          CFE_EVS_EventType_ERROR,
+                          "Unable to send Hk Packet (Status=0x%08X)",
+                          (unsigned int)Status);
     }
 
     /* If a table's registry entry has been requested for telemetry, then pack it and send it */
@@ -145,8 +147,8 @@ void CFE_TBL_GetHkData(void)
     uint16 Count;
 
     CFE_TBL_ValidationResult_t *ValPtr;
-    CFE_TBL_RegistryRec_t *     RegRecPtr;
-    CFE_TBL_LoadBuff_t *        LoadBuffPtr;
+    CFE_TBL_RegistryRec_t      *RegRecPtr;
+    CFE_TBL_LoadBuff_t         *LoadBuffPtr;
 
     /* Copy command counter data */
     CFE_TBL_Global.HkPacket.Payload.CommandCounter      = CFE_TBL_Global.CommandCounter;
@@ -222,8 +224,10 @@ void CFE_TBL_GetHkData(void)
             CFE_TBL_Global.FailedValCounter++;
         }
 
-        CFE_SB_MessageStringSet(CFE_TBL_Global.HkPacket.Payload.LastValTableName, ValPtr->TableName,
-                                sizeof(CFE_TBL_Global.HkPacket.Payload.LastValTableName), sizeof(ValPtr->TableName));
+        CFE_SB_MessageStringSet(CFE_TBL_Global.HkPacket.Payload.LastValTableName,
+                                ValPtr->TableName,
+                                sizeof(CFE_TBL_Global.HkPacket.Payload.LastValTableName),
+                                sizeof(ValPtr->TableName));
         CFE_TBL_Global.ValidationCounter++;
 
         /* Free the Validation Response Block for next time */
@@ -249,8 +253,10 @@ void CFE_TBL_GetHkData(void)
         CFE_TBL_Global.HkPacket.Payload.LastUpdateTime = CFE_TBL_RegRecGetLastUpdateTime(RegRecPtr);
 
         /* Get the table name used for the last table update */
-        CFE_SB_MessageStringSet(CFE_TBL_Global.HkPacket.Payload.LastUpdatedTable, CFE_TBL_RegRecGetName(RegRecPtr),
-                                sizeof(CFE_TBL_Global.HkPacket.Payload.LastUpdatedTable), -1);
+        CFE_SB_MessageStringSet(CFE_TBL_Global.HkPacket.Payload.LastUpdatedTable,
+                                CFE_TBL_RegRecGetName(RegRecPtr),
+                                sizeof(CFE_TBL_Global.HkPacket.Payload.LastUpdatedTable),
+                                -1);
     }
 }
 
@@ -263,7 +269,7 @@ void CFE_TBL_GetHkData(void)
 void CFE_TBL_GetTblRegData(void)
 {
     CFE_TBL_RegistryRec_t *RegRecPtr;
-    CFE_TBL_LoadBuff_t *   BuffPtr;
+    CFE_TBL_LoadBuff_t    *BuffPtr;
 
     CFE_TBL_LockRegistry();
 
@@ -309,12 +315,16 @@ void CFE_TBL_GetTblRegData(void)
         CFE_TBL_Global.TblRegPacket.Payload.DoubleBuffered   = CFE_TBL_RegRecGetConfig(RegRecPtr)->DoubleBuffered;
         CFE_TBL_Global.TblRegPacket.Payload.Critical         = CFE_TBL_RegRecGetConfig(RegRecPtr)->Critical;
 
-        CFE_SB_MessageStringSet(CFE_TBL_Global.TblRegPacket.Payload.Name, CFE_TBL_RegRecGetName(RegRecPtr),
-                                sizeof(CFE_TBL_Global.TblRegPacket.Payload.Name), -1);
+        CFE_SB_MessageStringSet(CFE_TBL_Global.TblRegPacket.Payload.Name,
+                                CFE_TBL_RegRecGetName(RegRecPtr),
+                                sizeof(CFE_TBL_Global.TblRegPacket.Payload.Name),
+                                -1);
         CFE_SB_MessageStringSet(CFE_TBL_Global.TblRegPacket.Payload.LastFileLoaded,
                                 CFE_TBL_RegRecGetLastFileLoaded(RegRecPtr),
-                                sizeof(CFE_TBL_Global.TblRegPacket.Payload.LastFileLoaded), -1);
-        CFE_ES_GetAppName(CFE_TBL_Global.TblRegPacket.Payload.OwnerAppName, RegRecPtr->OwnerAppId,
+                                sizeof(CFE_TBL_Global.TblRegPacket.Payload.LastFileLoaded),
+                                -1);
+        CFE_ES_GetAppName(CFE_TBL_Global.TblRegPacket.Payload.OwnerAppName,
+                          RegRecPtr->OwnerAppId,
                           sizeof(CFE_TBL_Global.TblRegPacket.Payload.OwnerAppName));
     }
 
@@ -337,8 +347,12 @@ CFE_Status_t CFE_TBL_NoopCmd(const CFE_TBL_NoopCmd_t *data)
     char VersionString[CFE_CFG_MAX_VERSION_STR_LEN];
 
     /* Acknowledge receipt of NOOP with Event Message */
-    CFE_Config_GetVersionString(VersionString, CFE_CFG_MAX_VERSION_STR_LEN, "CFE_TBL", CFE_SRC_VERSION,
-                                CFE_BUILD_CODENAME, CFE_LAST_OFFICIAL);
+    CFE_Config_GetVersionString(VersionString,
+                                CFE_CFG_MAX_VERSION_STR_LEN,
+                                "CFE_TBL",
+                                CFE_SRC_VERSION,
+                                CFE_BUILD_CODENAME,
+                                CFE_LAST_OFFICIAL);
     CFE_EVS_SendEvent(CFE_TBL_NOOP_INF_EID, CFE_EVS_EventType_INFORMATION, "No-op Cmd Rcvd: %s", VersionString);
 
     return CFE_TBL_TranslateCmdProcRet(CmdProcRet);
@@ -392,7 +406,10 @@ CFE_Status_t CFE_TBL_LoadCmd(const CFE_TBL_LoadCmd_t *data)
     CmdPtr     = &data->Payload;
 
     /* Make sure all strings are null terminated before attempting to process them */
-    CFE_SB_MessageStringGet(LoadFilename, (char *)CmdPtr->LoadFilename, NULL, sizeof(LoadFilename),
+    CFE_SB_MessageStringGet(LoadFilename,
+                            (char *)CmdPtr->LoadFilename,
+                            NULL,
+                            sizeof(LoadFilename),
                             sizeof(CmdPtr->LoadFilename));
 
     CFE_TBL_TxnInit(&Txn, true);
@@ -427,10 +444,14 @@ CFE_Status_t CFE_TBL_LoadCmd(const CFE_TBL_LoadCmd_t *data)
     if (Status == CFE_SUCCESS)
     {
         /* Save file information statistics for housekeeping telemetry */
-        CFE_SB_MessageStringSet(CFE_TBL_Global.HkPacket.Payload.LastFileLoaded, LoadFilename,
-                                sizeof(CFE_TBL_Global.HkPacket.Payload.LastFileLoaded), sizeof(LoadFilename));
-        CFE_SB_MessageStringSet(CFE_TBL_Global.HkPacket.Payload.LastTableLoaded, Header.Tbl.TableName,
-                                sizeof(CFE_TBL_Global.HkPacket.Payload.LastTableLoaded), sizeof(Header.Tbl.TableName));
+        CFE_SB_MessageStringSet(CFE_TBL_Global.HkPacket.Payload.LastFileLoaded,
+                                LoadFilename,
+                                sizeof(CFE_TBL_Global.HkPacket.Payload.LastFileLoaded),
+                                sizeof(LoadFilename));
+        CFE_SB_MessageStringSet(CFE_TBL_Global.HkPacket.Payload.LastTableLoaded,
+                                Header.Tbl.TableName,
+                                sizeof(CFE_TBL_Global.HkPacket.Payload.LastTableLoaded),
+                                sizeof(Header.Tbl.TableName));
 
         /* Increment successful command completion counter */
         CmdProcRet = CFE_TBL_CmdProcRet_INC_CMD_CTR;
@@ -464,7 +485,10 @@ CFE_Status_t CFE_TBL_DumpCmd(const CFE_TBL_DumpCmd_t *data)
     CmdProcRet = CFE_TBL_CmdProcRet_INC_ERR_CTR; /* Assume failure */
 
     /* Make sure all strings are null terminated before attempting to process them */
-    CFE_SB_MessageStringGet(DumpFilename, (char *)CmdPtr->DumpFilename, NULL, sizeof(DumpFilename),
+    CFE_SB_MessageStringGet(DumpFilename,
+                            (char *)CmdPtr->DumpFilename,
+                            NULL,
+                            sizeof(DumpFilename),
                             sizeof(CmdPtr->DumpFilename));
 
     CFE_SB_MessageStringGet(TableName, (char *)CmdPtr->TableName, NULL, sizeof(TableName), sizeof(CmdPtr->TableName));
@@ -476,8 +500,10 @@ CFE_Status_t CFE_TBL_DumpCmd(const CFE_TBL_DumpCmd_t *data)
     if (Status != CFE_SUCCESS)
     {
         /* Table could not be found in Registry */
-        CFE_EVS_SendEvent(CFE_TBL_NO_SUCH_TABLE_ERR_EID, CFE_EVS_EventType_ERROR,
-                          "Unable to locate '%s' in Table Registry", TableName);
+        CFE_EVS_SendEvent(CFE_TBL_NO_SUCH_TABLE_ERR_EID,
+                          CFE_EVS_EventType_ERROR,
+                          "Unable to locate '%s' in Table Registry",
+                          TableName);
     }
     else
     {
@@ -520,12 +546,12 @@ CFE_Status_t CFE_TBL_ValidateCmd(const CFE_TBL_ValidateCmd_t *data)
     CFE_TBL_TxnState_t                   Txn;
     CFE_Status_t                         Status;
     const CFE_TBL_ValidateCmd_Payload_t *CmdPtr = &data->Payload;
-    CFE_TBL_RegistryRec_t *              RegRecPtr;
-    CFE_TBL_LoadBuff_t *                 SelectedBufferPtr;
+    CFE_TBL_RegistryRec_t               *RegRecPtr;
+    CFE_TBL_LoadBuff_t                  *SelectedBufferPtr;
     char                                 TableName[CFE_TBL_MAX_FULL_NAME_LEN];
     uint32                               CrcOfTable;
     CFE_ResourceId_t                     PendingValId;
-    CFE_TBL_ValidationResult_t *         ValResultPtr;
+    CFE_TBL_ValidationResult_t          *ValResultPtr;
 
     CmdProcRet = CFE_TBL_CmdProcRet_INC_ERR_CTR; /* Assume failure */
 
@@ -547,8 +573,10 @@ CFE_Status_t CFE_TBL_ValidateCmd(const CFE_TBL_ValidateCmd_t *data)
 
         if (SelectedBufferPtr == NULL)
         {
-            CFE_EVS_SendEvent(CFE_TBL_NO_INACTIVE_BUFFER_ERR_EID, CFE_EVS_EventType_ERROR,
-                              "No Buffer for Table '%s' present", TableName);
+            CFE_EVS_SendEvent(CFE_TBL_NO_INACTIVE_BUFFER_ERR_EID,
+                              CFE_EVS_EventType_ERROR,
+                              "No Buffer for Table '%s' present",
+                              TableName);
         }
         else
         {
@@ -567,7 +595,8 @@ CFE_Status_t CFE_TBL_ValidateCmd(const CFE_TBL_ValidateCmd_t *data)
 
                 /* Compute the CRC on the specified table buffer */
                 CrcOfTable = CFE_ES_CalculateCRC(CFE_TBL_LoadBuffGetReadPointer(SelectedBufferPtr),
-                                                 CFE_TBL_LoadBuffGetContentSize(SelectedBufferPtr), 0,
+                                                 CFE_TBL_LoadBuffGetContentSize(SelectedBufferPtr),
+                                                 0,
                                                  CFE_MISSION_ES_DEFAULT_CRC);
 
                 ValResultPtr->CrcOfTable   = CrcOfTable;
@@ -594,8 +623,10 @@ CFE_Status_t CFE_TBL_ValidateCmd(const CFE_TBL_ValidateCmd_t *data)
                     if (CFE_TBL_SendNotificationMsg(RegRecPtr) == CFE_SUCCESS)
                     {
                         /* Notify ground that validation request has been made */
-                        CFE_EVS_SendEvent(CFE_TBL_VAL_REQ_MADE_INF_EID, CFE_EVS_EventType_DEBUG,
-                                          "Tbl Services issued validation request for '%s'", TableName);
+                        CFE_EVS_SendEvent(CFE_TBL_VAL_REQ_MADE_INF_EID,
+                                          CFE_EVS_EventType_DEBUG,
+                                          "Tbl Services issued validation request for '%s'",
+                                          TableName);
                     }
 
                     /* Maintain statistic on number of validation requests given to applications */
@@ -608,7 +639,8 @@ CFE_Status_t CFE_TBL_ValidateCmd(const CFE_TBL_ValidateCmd_t *data)
                     /* as data to be sent to the ground in telemetry.                              */
                     ValResultPtr->State = CFE_TBL_VALIDATION_PERFORMED;
 
-                    CFE_EVS_SendEvent(CFE_TBL_ASSUMED_VALID_INF_EID, CFE_EVS_EventType_INFORMATION,
+                    CFE_EVS_SendEvent(CFE_TBL_ASSUMED_VALID_INF_EID,
+                                      CFE_EVS_EventType_INFORMATION,
                                       "Tbl Services assumes '%s' is valid. No Validation Function has been registered",
                                       TableName);
                 }
@@ -618,15 +650,18 @@ CFE_Status_t CFE_TBL_ValidateCmd(const CFE_TBL_ValidateCmd_t *data)
             }
             else
             {
-                CFE_EVS_SendEvent(CFE_TBL_TOO_MANY_VALIDATIONS_ERR_EID, CFE_EVS_EventType_ERROR,
+                CFE_EVS_SendEvent(CFE_TBL_TOO_MANY_VALIDATIONS_ERR_EID,
+                                  CFE_EVS_EventType_ERROR,
                                   "Too many Table Validations have been requested");
             }
         }
     }
     else /* Table could not be found in Registry */
     {
-        CFE_EVS_SendEvent(CFE_TBL_NO_SUCH_TABLE_ERR_EID, CFE_EVS_EventType_ERROR,
-                          "Unable to locate '%s' in Table Registry", TableName);
+        CFE_EVS_SendEvent(CFE_TBL_NO_SUCH_TABLE_ERR_EID,
+                          CFE_EVS_EventType_ERROR,
+                          "Unable to locate '%s' in Table Registry",
+                          TableName);
     }
 
     return CFE_TBL_TranslateCmdProcRet(CmdProcRet);
@@ -643,8 +678,8 @@ CFE_Status_t CFE_TBL_ActivateCmd(const CFE_TBL_ActivateCmd_t *data)
     CFE_TBL_CmdProcRet_t                 CmdProcRet;
     const CFE_TBL_ActivateCmd_Payload_t *CmdPtr = &data->Payload;
     char                                 TableName[CFE_TBL_MAX_FULL_NAME_LEN];
-    CFE_TBL_RegistryRec_t *              RegRecPtr;
-    CFE_TBL_LoadBuff_t *                 BufferPtr;
+    CFE_TBL_RegistryRec_t               *RegRecPtr;
+    CFE_TBL_LoadBuff_t                  *BufferPtr;
     CFE_TBL_TxnState_t                   Txn;
     int32                                Status;
 
@@ -666,8 +701,10 @@ CFE_Status_t CFE_TBL_ActivateCmd(const CFE_TBL_ActivateCmd_t *data)
 
         if (CFE_TBL_RegRecGetConfig(RegRecPtr)->DumpOnly)
         {
-            CFE_EVS_SendEvent(CFE_TBL_ACTIVATE_DUMP_ONLY_ERR_EID, CFE_EVS_EventType_ERROR,
-                              "Illegal attempt to activate dump-only table '%s'", TableName);
+            CFE_EVS_SendEvent(CFE_TBL_ACTIVATE_DUMP_ONLY_ERR_EID,
+                              CFE_EVS_EventType_ERROR,
+                              "Illegal attempt to activate dump-only table '%s'",
+                              TableName);
         }
         else
         {
@@ -675,21 +712,27 @@ CFE_Status_t CFE_TBL_ActivateCmd(const CFE_TBL_ActivateCmd_t *data)
             BufferPtr = CFE_TBL_GetLoadInProgressBuffer(RegRecPtr);
             if (BufferPtr == NULL)
             {
-                CFE_EVS_SendEvent(CFE_TBL_ACTIVATE_ERR_EID, CFE_EVS_EventType_ERROR,
-                                  "Cannot activate table '%s'. No Inactive image available", TableName);
+                CFE_EVS_SendEvent(CFE_TBL_ACTIVATE_ERR_EID,
+                                  CFE_EVS_EventType_ERROR,
+                                  "Cannot activate table '%s'. No Inactive image available",
+                                  TableName);
             }
             else if (!BufferPtr->Validated)
             {
-                CFE_EVS_SendEvent(CFE_TBL_UNVALIDATED_ERR_EID, CFE_EVS_EventType_ERROR,
-                                  "Cannot activate table '%s'. Inactive image not Validated", TableName);
+                CFE_EVS_SendEvent(CFE_TBL_UNVALIDATED_ERR_EID,
+                                  CFE_EVS_EventType_ERROR,
+                                  "Cannot activate table '%s'. Inactive image not Validated",
+                                  TableName);
             }
             else
             {
                 /* If application requested notification by message, then do so */
                 if (CFE_TBL_SendNotificationMsg(RegRecPtr) == CFE_SUCCESS)
                 {
-                    CFE_EVS_SendEvent(CFE_TBL_LOAD_PEND_REQ_INF_EID, CFE_EVS_EventType_DEBUG,
-                                      "Tbl Services notifying App that '%s' has a load pending", TableName);
+                    CFE_EVS_SendEvent(CFE_TBL_LOAD_PEND_REQ_INF_EID,
+                                      CFE_EVS_EventType_DEBUG,
+                                      "Tbl Services notifying App that '%s' has a load pending",
+                                      TableName);
                 }
 
                 /* Increment Successful Command Counter */
@@ -699,8 +742,10 @@ CFE_Status_t CFE_TBL_ActivateCmd(const CFE_TBL_ActivateCmd_t *data)
     }
     else /* Table could not be found in Registry */
     {
-        CFE_EVS_SendEvent(CFE_TBL_NO_SUCH_TABLE_ERR_EID, CFE_EVS_EventType_ERROR,
-                          "Unable to locate '%s' in Table Registry", TableName);
+        CFE_EVS_SendEvent(CFE_TBL_NO_SUCH_TABLE_ERR_EID,
+                          CFE_EVS_EventType_ERROR,
+                          "Unable to locate '%s' in Table Registry",
+                          TableName);
     }
 
     return CFE_TBL_TranslateCmdProcRet(CmdProcRet);
@@ -715,8 +760,8 @@ CFE_Status_t CFE_TBL_ActivateCmd(const CFE_TBL_ActivateCmd_t *data)
 bool CFE_TBL_DumpRegistryGetter(void *Meta, uint32 RecordNum, void **Buffer, size_t *BufSize)
 {
     CFE_TBL_RegDumpStateInfo_t *StatePtr = (CFE_TBL_RegDumpStateInfo_t *)Meta;
-    CFE_TBL_RegistryRec_t *     RegRecPtr;
-    CFE_TBL_LoadBuff_t *        BufferPtr;
+    CFE_TBL_RegistryRec_t      *RegRecPtr;
+    CFE_TBL_LoadBuff_t         *BufferPtr;
     CFE_ES_AppId_t              OwnerAppId;
     uint32                      NumUsers;
     bool                        IsValidEntry;
@@ -765,10 +810,14 @@ bool CFE_TBL_DumpRegistryGetter(void *Meta, uint32 RecordNum, void **Buffer, siz
                 StatePtr->DumpRecord.Crc      = BufferPtr->Crc;
             }
 
-            CFE_SB_MessageStringSet(StatePtr->DumpRecord.Name, CFE_TBL_RegRecGetName(RegRecPtr),
-                                    sizeof(StatePtr->DumpRecord.Name), -1);
-            CFE_SB_MessageStringSet(StatePtr->DumpRecord.LastFileLoaded, CFE_TBL_RegRecGetLastFileLoaded(RegRecPtr),
-                                    sizeof(StatePtr->DumpRecord.LastFileLoaded), -1);
+            CFE_SB_MessageStringSet(StatePtr->DumpRecord.Name,
+                                    CFE_TBL_RegRecGetName(RegRecPtr),
+                                    sizeof(StatePtr->DumpRecord.Name),
+                                    -1);
+            CFE_SB_MessageStringSet(StatePtr->DumpRecord.LastFileLoaded,
+                                    CFE_TBL_RegRecGetLastFileLoaded(RegRecPtr),
+                                    sizeof(StatePtr->DumpRecord.LastFileLoaded),
+                                    -1);
 
             /* Walk the access descriptor list to determine the number of users */
 
@@ -819,8 +868,12 @@ bool CFE_TBL_DumpRegistryGetter(void *Meta, uint32 RecordNum, void **Buffer, siz
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-void CFE_TBL_DumpRegistryEventHandler(void *Meta, CFE_FS_FileWriteEvent_t Event, int32 Status, uint32 RecordNum,
-                                      size_t BlockSize, size_t Position)
+void CFE_TBL_DumpRegistryEventHandler(void                   *Meta,
+                                      CFE_FS_FileWriteEvent_t Event,
+                                      int32                   Status,
+                                      uint32                  RecordNum,
+                                      size_t                  BlockSize,
+                                      size_t                  Position)
 {
     CFE_TBL_RegDumpStateInfo_t *StatePtr = (CFE_TBL_RegDumpStateInfo_t *)Meta;
 
@@ -836,37 +889,51 @@ void CFE_TBL_DumpRegistryEventHandler(void *Meta, CFE_FS_FileWriteEvent_t Event,
         case CFE_FS_FileWriteEvent_COMPLETE:
             if (StatePtr->FileExisted)
             {
-                CFE_EVS_SendEventWithAppID(CFE_TBL_OVERWRITE_REG_DUMP_INF_EID, CFE_EVS_EventType_DEBUG,
+                CFE_EVS_SendEventWithAppID(CFE_TBL_OVERWRITE_REG_DUMP_INF_EID,
+                                           CFE_EVS_EventType_DEBUG,
                                            CFE_TBL_Global.TableTaskAppId,
                                            "Successfully overwrote '%s' with Table Registry:Size=%d,Entries=%d",
-                                           StatePtr->FileWrite.FileName, (int)Position, (int)RecordNum);
+                                           StatePtr->FileWrite.FileName,
+                                           (int)Position,
+                                           (int)RecordNum);
             }
             else
             {
-                CFE_EVS_SendEventWithAppID(CFE_TBL_WRITE_REG_DUMP_INF_EID, CFE_EVS_EventType_DEBUG,
+                CFE_EVS_SendEventWithAppID(CFE_TBL_WRITE_REG_DUMP_INF_EID,
+                                           CFE_EVS_EventType_DEBUG,
                                            CFE_TBL_Global.TableTaskAppId,
                                            "Successfully dumped Table Registry to '%s':Size=%d,Entries=%d",
-                                           StatePtr->FileWrite.FileName, (int)Position, (int)RecordNum);
+                                           StatePtr->FileWrite.FileName,
+                                           (int)Position,
+                                           (int)RecordNum);
             }
             break;
 
         case CFE_FS_FileWriteEvent_RECORD_WRITE_ERROR:
-            CFE_EVS_SendEventWithAppID(CFE_TBL_WRITE_TBL_REG_ERR_EID, CFE_EVS_EventType_ERROR,
-                                       CFE_TBL_Global.TableTaskAppId, "Error writing Registry to '%s', Status=0x%08X",
-                                       StatePtr->FileWrite.FileName, (unsigned int)Status);
+            CFE_EVS_SendEventWithAppID(CFE_TBL_WRITE_TBL_REG_ERR_EID,
+                                       CFE_EVS_EventType_ERROR,
+                                       CFE_TBL_Global.TableTaskAppId,
+                                       "Error writing Registry to '%s', Status=0x%08X",
+                                       StatePtr->FileWrite.FileName,
+                                       (unsigned int)Status);
             break;
 
         case CFE_FS_FileWriteEvent_HEADER_WRITE_ERROR:
-            CFE_EVS_SendEventWithAppID(CFE_TBL_WRITE_CFE_HDR_ERR_EID, CFE_EVS_EventType_ERROR,
+            CFE_EVS_SendEventWithAppID(CFE_TBL_WRITE_CFE_HDR_ERR_EID,
+                                       CFE_EVS_EventType_ERROR,
                                        CFE_TBL_Global.TableTaskAppId,
                                        "Error writing cFE File Header to '%s', Status=0x%08X",
-                                       StatePtr->FileWrite.FileName, (unsigned int)Status);
+                                       StatePtr->FileWrite.FileName,
+                                       (unsigned int)Status);
             break;
 
         case CFE_FS_FileWriteEvent_CREATE_ERROR:
-            CFE_EVS_SendEventWithAppID(CFE_TBL_CREATING_DUMP_FILE_ERR_EID, CFE_EVS_EventType_ERROR,
-                                       CFE_TBL_Global.TableTaskAppId, "Error creating dump file '%s', Status=0x%08X",
-                                       StatePtr->FileWrite.FileName, (unsigned int)Status);
+            CFE_EVS_SendEventWithAppID(CFE_TBL_CREATING_DUMP_FILE_ERR_EID,
+                                       CFE_EVS_EventType_ERROR,
+                                       CFE_TBL_Global.TableTaskAppId,
+                                       "Error creating dump file '%s', Status=0x%08X",
+                                       StatePtr->FileWrite.FileName,
+                                       (unsigned int)Status);
             break;
 
         default:
@@ -910,8 +977,10 @@ CFE_Status_t CFE_TBL_DumpRegistryCmd(const CFE_TBL_DumpRegistryCmd_t *data)
         /*
         ** Copy the filename into local buffer with default name/path/extension if not specified
         */
-        Status = CFE_FS_ParseInputFileNameEx(StatePtr->FileWrite.FileName, CmdPtr->DumpFilename,
-                                             sizeof(StatePtr->FileWrite.FileName), sizeof(CmdPtr->DumpFilename),
+        Status = CFE_FS_ParseInputFileNameEx(StatePtr->FileWrite.FileName,
+                                             CmdPtr->DumpFilename,
+                                             sizeof(StatePtr->FileWrite.FileName),
+                                             sizeof(CmdPtr->DumpFilename),
                                              CFE_PLATFORM_TBL_DEFAULT_REG_DUMP_FILE,
                                              CFE_FS_GetDefaultMountPoint(CFE_FS_FileCategory_BINARY_DATA_DUMP),
                                              CFE_FS_GetDefaultExtension(CFE_FS_FileCategory_BINARY_DATA_DUMP));
@@ -965,16 +1034,20 @@ CFE_Status_t CFE_TBL_SendRegistryCmd(const CFE_TBL_SendRegistryCmd_t *data)
         CFE_TBL_Global.HkTlmTblRegId = CFE_TBL_TxnRegId(&Txn);
         CFE_TBL_TxnFinish(&Txn);
 
-        CFE_EVS_SendEvent(CFE_TBL_TLM_REG_CMD_INF_EID, CFE_EVS_EventType_DEBUG,
-                          "Table Registry entry for '%s' will be telemetered", TableName);
+        CFE_EVS_SendEvent(CFE_TBL_TLM_REG_CMD_INF_EID,
+                          CFE_EVS_EventType_DEBUG,
+                          "Table Registry entry for '%s' will be telemetered",
+                          TableName);
 
         /* Increment Successful Command Counter */
         CmdProcRet = CFE_TBL_CmdProcRet_INC_CMD_CTR;
     }
     else /* Table could not be found in Registry */
     {
-        CFE_EVS_SendEvent(CFE_TBL_NO_SUCH_TABLE_ERR_EID, CFE_EVS_EventType_ERROR,
-                          "Unable to locate '%s' in Table Registry", TableName);
+        CFE_EVS_SendEvent(CFE_TBL_NO_SUCH_TABLE_ERR_EID,
+                          CFE_EVS_EventType_ERROR,
+                          "Unable to locate '%s' in Table Registry",
+                          TableName);
     }
 
     return CFE_TBL_TranslateCmdProcRet(CmdProcRet);
@@ -991,8 +1064,8 @@ int32 CFE_TBL_DeleteCDSCmd(const CFE_TBL_DeleteCDSCmd_t *data)
     CFE_TBL_CmdProcRet_t               CmdProcRet;
     const CFE_TBL_DelCDSCmd_Payload_t *CmdPtr = &data->Payload;
     char                               TableName[CFE_TBL_MAX_FULL_NAME_LEN];
-    CFE_TBL_CritRegRec_t *             CritRegRecPtr;
-    CFE_TBL_CritRegRec_t *             LocalPtr;
+    CFE_TBL_CritRegRec_t              *CritRegRecPtr;
+    CFE_TBL_CritRegRec_t              *LocalPtr;
     uint32                             i;
     CFE_TBL_RegId_t                    RegIndex;
     int32                              Status;
@@ -1028,30 +1101,39 @@ int32 CFE_TBL_DeleteCDSCmd(const CFE_TBL_DeleteCDSCmd_t *data)
 
             if (Status == CFE_ES_CDS_WRONG_TYPE_ERR)
             {
-                CFE_EVS_SendEvent(CFE_TBL_NOT_CRITICAL_TBL_ERR_EID, CFE_EVS_EventType_ERROR,
+                CFE_EVS_SendEvent(CFE_TBL_NOT_CRITICAL_TBL_ERR_EID,
+                                  CFE_EVS_EventType_ERROR,
                                   "Table '%s' is in Critical Table Registry but CDS is not tagged as a table",
                                   TableName);
             }
             else if (Status == CFE_ES_CDS_OWNER_ACTIVE_ERR)
             {
-                CFE_EVS_SendEvent(CFE_TBL_CDS_OWNER_ACTIVE_ERR_EID, CFE_EVS_EventType_ERROR,
-                                  "CDS '%s' owning app is still active", TableName);
+                CFE_EVS_SendEvent(CFE_TBL_CDS_OWNER_ACTIVE_ERR_EID,
+                                  CFE_EVS_EventType_ERROR,
+                                  "CDS '%s' owning app is still active",
+                                  TableName);
             }
             else if (Status == CFE_ES_ERR_NAME_NOT_FOUND)
             {
-                CFE_EVS_SendEvent(CFE_TBL_CDS_NOT_FOUND_ERR_EID, CFE_EVS_EventType_ERROR,
-                                  "Unable to locate '%s' in CDS Registry", TableName);
+                CFE_EVS_SendEvent(CFE_TBL_CDS_NOT_FOUND_ERR_EID,
+                                  CFE_EVS_EventType_ERROR,
+                                  "Unable to locate '%s' in CDS Registry",
+                                  TableName);
             }
             else if (Status != CFE_SUCCESS)
             {
-                CFE_EVS_SendEvent(CFE_TBL_CDS_DELETE_ERR_EID, CFE_EVS_EventType_ERROR,
-                                  "Error while deleting '%s' from CDS, See SysLog.(Err=0x%08X)", TableName,
+                CFE_EVS_SendEvent(CFE_TBL_CDS_DELETE_ERR_EID,
+                                  CFE_EVS_EventType_ERROR,
+                                  "Error while deleting '%s' from CDS, See SysLog.(Err=0x%08X)",
+                                  TableName,
                                   (unsigned int)Status);
             }
             else
             {
-                CFE_EVS_SendEvent(CFE_TBL_CDS_DELETED_INFO_EID, CFE_EVS_EventType_INFORMATION,
-                                  "Successfully removed '%s' from CDS", TableName);
+                CFE_EVS_SendEvent(CFE_TBL_CDS_DELETED_INFO_EID,
+                                  CFE_EVS_EventType_INFORMATION,
+                                  "Successfully removed '%s' from CDS",
+                                  TableName);
 
                 /* Free the entry in the Critical Table Registry */
                 CritRegRecPtr->CDSHandle = CFE_ES_CDS_BAD_HANDLE;
@@ -1062,14 +1144,18 @@ int32 CFE_TBL_DeleteCDSCmd(const CFE_TBL_DeleteCDSCmd_t *data)
         }
         else
         {
-            CFE_EVS_SendEvent(CFE_TBL_NOT_IN_CRIT_REG_ERR_EID, CFE_EVS_EventType_ERROR,
-                              "Table '%s' is not found in Critical Table Registry", TableName);
+            CFE_EVS_SendEvent(CFE_TBL_NOT_IN_CRIT_REG_ERR_EID,
+                              CFE_EVS_EventType_ERROR,
+                              "Table '%s' is not found in Critical Table Registry",
+                              TableName);
         }
     }
     else /* Table was found in Registry */
     {
-        CFE_EVS_SendEvent(CFE_TBL_IN_REGISTRY_ERR_EID, CFE_EVS_EventType_ERROR,
-                          "'%s' found in Table Registry. CDS cannot be deleted until table is unregistered", TableName);
+        CFE_EVS_SendEvent(CFE_TBL_IN_REGISTRY_ERR_EID,
+                          CFE_EVS_EventType_ERROR,
+                          "'%s' found in Table Registry. CDS cannot be deleted until table is unregistered",
+                          TableName);
     }
     return CFE_TBL_TranslateCmdProcRet(CmdProcRet);
 }
@@ -1085,7 +1171,7 @@ CFE_Status_t CFE_TBL_AbortLoadCmd(const CFE_TBL_AbortLoadCmd_t *data)
     CFE_TBL_CmdProcRet_t                  CmdProcRet;
     CFE_TBL_RegId_t                       RegIndex;
     const CFE_TBL_AbortLoadCmd_Payload_t *CmdPtr = &data->Payload;
-    CFE_TBL_RegistryRec_t *               RegRecPtr;
+    CFE_TBL_RegistryRec_t                *RegRecPtr;
     char                                  TableName[CFE_TBL_MAX_FULL_NAME_LEN];
 
     CmdProcRet = CFE_TBL_CmdProcRet_INC_ERR_CTR; /* Assume failure */
@@ -1113,14 +1199,18 @@ CFE_Status_t CFE_TBL_AbortLoadCmd(const CFE_TBL_AbortLoadCmd_t *data)
         }
         else
         {
-            CFE_EVS_SendEvent(CFE_TBL_LOAD_ABORT_ERR_EID, CFE_EVS_EventType_ERROR,
-                              "Cannot abort load of '%s'. No load started.", TableName);
+            CFE_EVS_SendEvent(CFE_TBL_LOAD_ABORT_ERR_EID,
+                              CFE_EVS_EventType_ERROR,
+                              "Cannot abort load of '%s'. No load started.",
+                              TableName);
         }
     }
     else /* Table could not be found in Registry */
     {
-        CFE_EVS_SendEvent(CFE_TBL_NO_SUCH_TABLE_ERR_EID, CFE_EVS_EventType_ERROR,
-                          "Unable to locate '%s' in Table Registry", TableName);
+        CFE_EVS_SendEvent(CFE_TBL_NO_SUCH_TABLE_ERR_EID,
+                          CFE_EVS_EventType_ERROR,
+                          "Unable to locate '%s' in Table Registry",
+                          TableName);
     }
 
     return CFE_TBL_TranslateCmdProcRet(CmdProcRet);

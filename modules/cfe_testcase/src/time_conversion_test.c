@@ -56,7 +56,7 @@ void TestConvertSubSeconds2MicroSeconds(void)
     UtPrintf("Testing: CFE_TIME_Sub2MicroSecs");
 
     /* predefined amount of sub-seconds */
-    uint32 SUB = 31000;
+    uint32 SUB        = 31000;
     /* correct micro-seconds equal to the predefined sub-seconds */
     uint32 ExpectedMS = 7;
     uint32 Sub2Micro;
@@ -72,7 +72,7 @@ void TestConvertMicroSeconds2SubSeconds(void)
     UtPrintf("Testing: CFE_TIME_Micro2SubSecs");
 
     /* predefined micro-seconds */
-    uint32 MS = 64512;
+    uint32 MS          = 64512;
     /* predefined sub-seconds equal to predefined ms above */
     uint32 ExpectedSUB = 277076931;
     uint32 Micro2Sub;

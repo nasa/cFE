@@ -77,8 +77,8 @@ CFE_Status_t CFE_ES_ResetCFE(uint32 ResetType)
         ** Before doing a Processor reset, check to see
         ** if the maximum number has been exceeded
         */
-        if (CFE_ES_Global.ResetDataPtr->ResetVars.ProcessorResetCount >
-            CFE_ES_Global.ResetDataPtr->ResetVars.MaxProcessorResetCount)
+        if (CFE_ES_Global.ResetDataPtr->ResetVars.ProcessorResetCount
+            > CFE_ES_Global.ResetDataPtr->ResetVars.MaxProcessorResetCount)
         {
             CFE_ES_WriteToSysLog("%s: POWER ON RESET due to max proc resets (Commanded).\n", __func__);
 
@@ -86,7 +86,9 @@ CFE_Status_t CFE_ES_ResetCFE(uint32 ResetType)
             ** Log the reset in the ER Log. The log will be wiped out, but it's good to have
             ** the entry just in case something fails.
             */
-            CFE_ES_WriteToERLog(CFE_ES_LogEntryType_CORE, CFE_PSP_RST_TYPE_POWERON, CFE_PSP_RST_SUBTYPE_RESET_COMMAND,
+            CFE_ES_WriteToERLog(CFE_ES_LogEntryType_CORE,
+                                CFE_PSP_RST_TYPE_POWERON,
+                                CFE_PSP_RST_SUBTYPE_RESET_COMMAND,
                                 "POWER ON RESET due to max proc resets (Commanded).");
             /*
             ** Call the BSP reset routine
@@ -105,7 +107,9 @@ CFE_Status_t CFE_ES_ResetCFE(uint32 ResetType)
             /*
             ** Log the reset in the ER Log
             */
-            CFE_ES_WriteToERLog(CFE_ES_LogEntryType_CORE, CFE_PSP_RST_TYPE_PROCESSOR, CFE_PSP_RST_SUBTYPE_RESET_COMMAND,
+            CFE_ES_WriteToERLog(CFE_ES_LogEntryType_CORE,
+                                CFE_PSP_RST_TYPE_PROCESSOR,
+                                CFE_PSP_RST_SUBTYPE_RESET_COMMAND,
                                 "PROCESSOR RESET called from CFE_ES_ResetCFE (Commanded).");
             /*
             ** Call the BSP reset routine
@@ -127,7 +131,9 @@ CFE_Status_t CFE_ES_ResetCFE(uint32 ResetType)
         ** Log the reset in the ER Log. The log will be wiped out, but it's good to have
         ** the entry just in case something fails.
         */
-        CFE_ES_WriteToERLog(CFE_ES_LogEntryType_CORE, CFE_PSP_RST_TYPE_POWERON, CFE_PSP_RST_SUBTYPE_RESET_COMMAND,
+        CFE_ES_WriteToERLog(CFE_ES_LogEntryType_CORE,
+                            CFE_PSP_RST_TYPE_POWERON,
+                            CFE_PSP_RST_SUBTYPE_RESET_COMMAND,
                             "POWERON RESET called from CFE_ES_ResetCFE (Commanded).");
 
         /*
@@ -172,14 +178,17 @@ CFE_Status_t CFE_ES_RestartApp(CFE_ES_AppId_t AppID)
     {
         if (OS_stat(AppRecPtr->StartParams.BasicInfo.FileName, &FileStatus) == OS_SUCCESS)
         {
-            CFE_ES_SysLogWrite_Unsync("%s: Restart Application %s Initiated\n", __func__,
+            CFE_ES_SysLogWrite_Unsync("%s: Restart Application %s Initiated\n",
+                                      __func__,
                                       CFE_ES_AppRecordGetName(AppRecPtr));
             AppRecPtr->ControlReq.AppControlRequest = CFE_ES_RunStatus_SYS_RESTART;
         }
         else
         {
-            CFE_ES_SysLogWrite_Unsync("%s: Cannot Restart Application %s, File %s does not exist.\n", __func__,
-                                      CFE_ES_AppRecordGetName(AppRecPtr), AppRecPtr->StartParams.BasicInfo.FileName);
+            CFE_ES_SysLogWrite_Unsync("%s: Cannot Restart Application %s, File %s does not exist.\n",
+                                      __func__,
+                                      CFE_ES_AppRecordGetName(AppRecPtr),
+                                      AppRecPtr->StartParams.BasicInfo.FileName);
             ReturnCode = CFE_ES_FILE_IO_ERR;
         }
 
@@ -219,17 +228,22 @@ CFE_Status_t CFE_ES_ReloadApp(CFE_ES_AppId_t AppID, const char *AppFileName)
         */
         if (OS_stat(AppFileName, &FileStatus) == OS_SUCCESS)
         {
-            CFE_ES_SysLogWrite_Unsync("%s: Reload Application %s Initiated. New filename = %s\n", __func__,
-                                      CFE_ES_AppRecordGetName(AppRecPtr), AppFileName);
-            strncpy(AppRecPtr->StartParams.BasicInfo.FileName, AppFileName,
+            CFE_ES_SysLogWrite_Unsync("%s: Reload Application %s Initiated. New filename = %s\n",
+                                      __func__,
+                                      CFE_ES_AppRecordGetName(AppRecPtr),
+                                      AppFileName);
+            strncpy(AppRecPtr->StartParams.BasicInfo.FileName,
+                    AppFileName,
                     sizeof(AppRecPtr->StartParams.BasicInfo.FileName) - 1);
             AppRecPtr->StartParams.BasicInfo.FileName[sizeof(AppRecPtr->StartParams.BasicInfo.FileName) - 1] = 0;
             AppRecPtr->ControlReq.AppControlRequest = CFE_ES_RunStatus_SYS_RELOAD;
         }
         else
         {
-            CFE_ES_SysLogWrite_Unsync("%s: Cannot Reload Application %s, File %s does not exist.\n", __func__,
-                                      CFE_ES_AppRecordGetName(AppRecPtr), AppFileName);
+            CFE_ES_SysLogWrite_Unsync("%s: Cannot Reload Application %s, File %s does not exist.\n",
+                                      __func__,
+                                      CFE_ES_AppRecordGetName(AppRecPtr),
+                                      AppFileName);
             ReturnCode = CFE_ES_FILE_IO_ERR;
         }
 
@@ -258,7 +272,8 @@ CFE_Status_t CFE_ES_DeleteApp(CFE_ES_AppId_t AppID)
     }
     else
     {
-        CFE_ES_SysLogWrite_Unsync("%s: Delete Application %s Initiated\n", __func__,
+        CFE_ES_SysLogWrite_Unsync("%s: Delete Application %s Initiated\n",
+                                  __func__,
                                   CFE_ES_AppRecordGetName(AppRecPtr));
         AppRecPtr->ControlReq.AppControlRequest = CFE_ES_RunStatus_SYS_DELETE;
 
@@ -322,7 +337,8 @@ void CFE_ES_ExitApp(uint32 ExitStatus)
             */
             if (ExitStatus == CFE_ES_RunStatus_CORE_APP_INIT_ERROR)
             {
-                CFE_ES_SysLogWrite_Unsync("%s: CORE Application %s Had an Init Error.\n", __func__,
+                CFE_ES_SysLogWrite_Unsync("%s: CORE Application %s Had an Init Error.\n",
+                                          __func__,
                                           CFE_ES_AppRecordGetName(AppRecPtr));
 
                 /*
@@ -340,14 +356,16 @@ void CFE_ES_ExitApp(uint32 ExitStatus)
                 ** but it may return during unit testing. If it does,
                 ** log the return code (even if it claims CFE_SUCCESS).
                 */
-                CFE_ES_WriteToSysLog("%s: CORE Application Init Error Processor Reset, RC = 0x%08X\n", __func__,
+                CFE_ES_WriteToSysLog("%s: CORE Application Init Error Processor Reset, RC = 0x%08X\n",
+                                     __func__,
                                      (unsigned int)ReturnCode);
 
                 return;
             }
             else if (ExitStatus == CFE_ES_RunStatus_CORE_APP_RUNTIME_ERROR)
             {
-                CFE_ES_SysLogWrite_Unsync("%s: CORE Application %s Had a Runtime Error.\n", __func__,
+                CFE_ES_SysLogWrite_Unsync("%s: CORE Application %s Had a Runtime Error.\n",
+                                          __func__,
                                           CFE_ES_AppRecordGetName(AppRecPtr));
 
                 /*
@@ -367,13 +385,15 @@ void CFE_ES_ExitApp(uint32 ExitStatus)
             }
             else
             {
-                CFE_ES_SysLogWrite_Unsync("%s: Cannot Exit CORE Application %s\n", __func__,
+                CFE_ES_SysLogWrite_Unsync("%s: Cannot Exit CORE Application %s\n",
+                                          __func__,
                                           CFE_ES_AppRecordGetName(AppRecPtr));
             }
         }
         else /* It is an external App */
         {
-            CFE_ES_SysLogWrite_Unsync("%s: Application %s called CFE_ES_ExitApp\n", __func__,
+            CFE_ES_SysLogWrite_Unsync("%s: Application %s called CFE_ES_ExitApp\n",
+                                      __func__,
                                       CFE_ES_AppRecordGetName(AppRecPtr));
 
             AppRecPtr->AppState = CFE_ES_AppState_STOPPED;
@@ -392,7 +412,6 @@ void CFE_ES_ExitApp(uint32 ExitStatus)
                 OS_TaskDelay(500);
             }
         }
-
     }
 
     CFE_ES_UnlockSharedData(__func__, __LINE__);
@@ -479,7 +498,6 @@ bool CFE_ES_RunLoop(uint32 *RunStatus)
          */
         CFE_ES_SysLogWrite_Unsync("%s: Error getting AppID for the caller\n", __func__);
         ReturnCode = false;
-
     }
 
     CFE_ES_UnlockSharedData(__func__, __LINE__);
@@ -922,7 +940,7 @@ CFE_Status_t CFE_ES_GetTaskName(char *TaskName, CFE_ES_TaskId_t TaskId, size_t B
  *-----------------------------------------------------------------*/
 CFE_Status_t CFE_ES_GetAppInfo(CFE_ES_AppInfo_t *AppInfo, CFE_ES_AppId_t AppId)
 {
-    CFE_ES_AppRecord_t * AppRecPtr;
+    CFE_ES_AppRecord_t  *AppRecPtr;
     CFE_ES_TaskRecord_t *TaskRecPtr;
     int32                Status;
     osal_id_t            ModuleId;
@@ -1111,7 +1129,7 @@ int32 CFE_ES_GetModuleInfo(CFE_ES_AppInfo_t *ModuleInfo, CFE_ResourceId_t Resour
 CFE_Status_t CFE_ES_GetTaskInfo(CFE_ES_TaskInfo_t *TaskInfo, CFE_ES_TaskId_t TaskId)
 {
     CFE_ES_TaskRecord_t *TaskRecPtr;
-    CFE_ES_AppRecord_t * AppRecPtr;
+    CFE_ES_AppRecord_t  *AppRecPtr;
     int32                Status;
 
     if (TaskInfo == NULL)
@@ -1181,12 +1199,16 @@ CFE_Status_t CFE_ES_GetTaskInfo(CFE_ES_TaskInfo_t *TaskInfo, CFE_ES_TaskId_t Tas
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-CFE_Status_t CFE_ES_CreateChildTask(CFE_ES_TaskId_t *TaskIdPtr, const char *TaskName,
-                                    CFE_ES_ChildTaskMainFuncPtr_t FunctionPtr, CFE_ES_StackPointer_t StackPtr,
-                                    size_t StackSize, CFE_ES_TaskPriority_Atom_t Priority, uint32 Flags)
+CFE_Status_t CFE_ES_CreateChildTask(CFE_ES_TaskId_t              *TaskIdPtr,
+                                    const char                   *TaskName,
+                                    CFE_ES_ChildTaskMainFuncPtr_t FunctionPtr,
+                                    CFE_ES_StackPointer_t         StackPtr,
+                                    size_t                        StackSize,
+                                    CFE_ES_TaskPriority_Atom_t    Priority,
+                                    uint32                        Flags)
 {
     int32                    ReturnCode;
-    CFE_ES_AppRecord_t *     AppRecPtr;
+    CFE_ES_AppRecord_t      *AppRecPtr;
     CFE_ES_AppId_t           ParentAppId;
     CFE_ES_TaskId_t          SelfTaskId;
     CFE_ES_TaskStartParams_t Params;
@@ -1245,7 +1267,8 @@ CFE_Status_t CFE_ES_CreateChildTask(CFE_ES_TaskId_t *TaskIdPtr, const char *Task
         }
         else if (!CFE_RESOURCEID_TEST_EQUAL(SelfTaskId, AppRecPtr->MainTaskId))
         {
-            CFE_ES_SysLogWrite_Unsync("%s: Error: Cannot call from a Child Task (for Task '%s').\n", __func__,
+            CFE_ES_SysLogWrite_Unsync("%s: Error: Cannot call from a Child Task (for Task '%s').\n",
+                                      __func__,
                                       TaskName);
             ReturnCode = CFE_ES_ERR_CHILD_TASK_CREATE;
         }
@@ -1309,7 +1332,7 @@ void CFE_ES_IncrementTaskCounter(void)
 CFE_Status_t CFE_ES_DeleteChildTask(CFE_ES_TaskId_t TaskId)
 {
     CFE_ES_TaskRecord_t *TaskRecPtr;
-    CFE_ES_AppRecord_t * AppRecPtr;
+    CFE_ES_AppRecord_t  *AppRecPtr;
     uint32               i;
     bool                 TaskIsMain;
     int32                ReturnCode = CFE_SUCCESS;
@@ -1374,8 +1397,10 @@ CFE_Status_t CFE_ES_DeleteChildTask(CFE_ES_TaskId_t TaskId)
                 }
                 else
                 {
-                    CFE_ES_SysLogWrite_Unsync("%s: Error Calling OS_TaskDelete: Task %lu, RC = %ld\n", __func__,
-                                              CFE_RESOURCEID_TO_ULONG(TaskId), (long)OsStatus);
+                    CFE_ES_SysLogWrite_Unsync("%s: Error Calling OS_TaskDelete: Task %lu, RC = %ld\n",
+                                              __func__,
+                                              CFE_RESOURCEID_TO_ULONG(TaskId),
+                                              (long)OsStatus);
                     ReturnCode = CFE_ES_ERR_CHILD_TASK_DELETE;
                 }
             }
@@ -1384,7 +1409,8 @@ CFE_Status_t CFE_ES_DeleteChildTask(CFE_ES_TaskId_t TaskId)
                 /*
                 ** Error: The task is a cFE Application Main task
                 */
-                CFE_ES_SysLogWrite_Unsync("%s: Error: Task %lu is a cFE Main Task.\n", __func__,
+                CFE_ES_SysLogWrite_Unsync("%s: Error: Task %lu is a cFE Main Task.\n",
+                                          __func__,
                                           CFE_RESOURCEID_TO_ULONG(TaskId));
                 ReturnCode = CFE_ES_ERR_CHILD_TASK_DELETE_MAIN_TASK;
             } /* end if TaskMain == false */
@@ -1394,7 +1420,8 @@ CFE_Status_t CFE_ES_DeleteChildTask(CFE_ES_TaskId_t TaskId)
             /*
             ** Task ID is not in use, so it is invalid
             */
-            CFE_ES_SysLogWrite_Unsync("%s: Error: Task ID is not active: %lu\n", __func__,
+            CFE_ES_SysLogWrite_Unsync("%s: Error: Task ID is not active: %lu\n",
+                                      __func__,
                                       CFE_RESOURCEID_TO_ULONG(TaskId));
             ReturnCode = CFE_ES_ERR_RESOURCEID_NOT_VALID;
         }
@@ -1420,7 +1447,7 @@ CFE_Status_t CFE_ES_DeleteChildTask(CFE_ES_TaskId_t TaskId)
  *-----------------------------------------------------------------*/
 void CFE_ES_ExitChildTask(void)
 {
-    CFE_ES_AppRecord_t * AppRecPtr;
+    CFE_ES_AppRecord_t  *AppRecPtr;
     CFE_ES_TaskRecord_t *TaskRecPtr;
 
     CFE_ES_LockSharedData(__func__, __LINE__);
@@ -1434,8 +1461,8 @@ void CFE_ES_ExitChildTask(void)
     {
         AppRecPtr = CFE_ES_LocateAppRecordByID(TaskRecPtr->AppId);
 
-        if (CFE_ES_AppRecordIsMatch(AppRecPtr, TaskRecPtr->AppId) &&
-            !CFE_ES_TaskRecordIsMatch(TaskRecPtr, AppRecPtr->MainTaskId))
+        if (CFE_ES_AppRecordIsMatch(AppRecPtr, TaskRecPtr->AppId)
+            && !CFE_ES_TaskRecordIsMatch(TaskRecPtr, AppRecPtr->MainTaskId))
         {
             /*
             ** Invalidate the task table entry
@@ -1456,7 +1483,8 @@ void CFE_ES_ExitChildTask(void)
         }
         else
         {
-            CFE_ES_SysLogWrite_Unsync("%s: Error: Cannot Call from a cFE App Main Task. ID = %lu\n", __func__,
+            CFE_ES_SysLogWrite_Unsync("%s: Error: Cannot Call from a cFE App Main Task. ID = %lu\n",
+                                      __func__,
                                       CFE_RESOURCEID_TO_ULONG(CFE_ES_TaskRecordGetID(TaskRecPtr)));
         }
     }
@@ -1541,8 +1569,8 @@ CFE_Status_t CFE_ES_RegisterCDS(CFE_ES_CDSHandle_t *CDSHandlePtr, size_t BlockSi
     size_t         NameLen;
     CFE_ES_AppId_t ThisAppId;
 
-    char AppName[OS_MAX_API_NAME]                      = {"UNKNOWN"};
-    char CDSName[CFE_MISSION_ES_CDS_MAX_FULL_NAME_LEN] = {""};
+    char AppName[OS_MAX_API_NAME]                      = { "UNKNOWN" };
+    char CDSName[CFE_MISSION_ES_CDS_MAX_FULL_NAME_LEN] = { "" };
 
     /* Check to make sure calling application is legit */
     Status = CFE_ES_GetAppID(&ThisAppId);
@@ -1602,8 +1630,12 @@ CFE_Status_t CFE_ES_RegisterCDS(CFE_ES_CDSHandle_t *CDSHandlePtr, size_t BlockSi
         /* Translate AppID of caller into App Name */
         CFE_ES_GetAppName(AppName, ThisAppId, sizeof(AppName));
 
-        CFE_EVS_SendEventWithAppID(CFE_ES_CDS_REGISTER_ERR_EID, CFE_EVS_EventType_ERROR, ThisAppId,
-                                   "%s Failed to Register CDS '%s', Status=0x%08X", AppName, Name,
+        CFE_EVS_SendEventWithAppID(CFE_ES_CDS_REGISTER_ERR_EID,
+                                   CFE_EVS_EventType_ERROR,
+                                   ThisAppId,
+                                   "%s Failed to Register CDS '%s', Status=0x%08X",
+                                   AppName,
+                                   Name,
                                    (unsigned int)Status);
     }
 
@@ -1760,7 +1792,8 @@ CFE_Status_t CFE_ES_RegisterGenCounter(CFE_ES_CounterId_t *CounterIdPtr, const c
     else
     {
         /* scan for a free slot */
-        PendingResourceId = CFE_ResourceId_FindNext(CFE_ES_Global.LastCounterId, CFE_PLATFORM_ES_MAX_GEN_COUNTERS,
+        PendingResourceId = CFE_ResourceId_FindNext(CFE_ES_Global.LastCounterId,
+                                                    CFE_PLATFORM_ES_MAX_GEN_COUNTERS,
                                                     CFE_ES_CheckCounterIdSlotUsed);
         CountRecPtr       = CFE_ES_LocateCounterRecordByID(CFE_ES_COUNTERID_C(PendingResourceId));
 
@@ -1964,7 +1997,9 @@ CFE_Status_t CFE_ES_GetGenCounterName(char *CounterName, CFE_ES_CounterId_t Coun
  *-----------------------------------------------------------------*/
 CFE_Status_t CFE_ES_AppID_ToIndex(CFE_ES_AppId_t AppID, uint32 *Idx)
 {
-    return CFE_ResourceId_ToIndex(CFE_RESOURCEID_UNWRAP(AppID), CFE_ES_APPID_BASE, CFE_PLATFORM_ES_MAX_APPLICATIONS,
+    return CFE_ResourceId_ToIndex(CFE_RESOURCEID_UNWRAP(AppID),
+                                  CFE_ES_APPID_BASE,
+                                  CFE_PLATFORM_ES_MAX_APPLICATIONS,
                                   Idx);
 }
 
@@ -2021,8 +2056,10 @@ CFE_Status_t CFE_ES_TaskID_ToIndex(CFE_ES_TaskId_t TaskID, uint32 *Idx)
  *-----------------------------------------------------------------*/
 CFE_Status_t CFE_ES_CounterID_ToIndex(CFE_ES_CounterId_t CounterId, uint32 *Idx)
 {
-    return CFE_ResourceId_ToIndex(CFE_RESOURCEID_UNWRAP(CounterId), CFE_ES_COUNTID_BASE,
-                                  CFE_PLATFORM_ES_MAX_GEN_COUNTERS, Idx);
+    return CFE_ResourceId_ToIndex(CFE_RESOURCEID_UNWRAP(CounterId),
+                                  CFE_ES_COUNTID_BASE,
+                                  CFE_PLATFORM_ES_MAX_GEN_COUNTERS,
+                                  Idx);
 }
 
 /***************************************************************************************
@@ -2046,8 +2083,11 @@ void CFE_ES_LockSharedData(const char *FunctionName, int32 LineNumber)
          * NOTE: this is going to write into a buffer that itself
          * is _supposed_ to be protected by this same mutex.
          */
-        CFE_ES_SysLogWrite_Unsync("%s: SharedData Mutex Take Err Stat=%ld,Func=%s,Line=%d\n", __func__, (long)OsStatus,
-                                  FunctionName, (int)LineNumber);
+        CFE_ES_SysLogWrite_Unsync("%s: SharedData Mutex Take Err Stat=%ld,Func=%s,Line=%d\n",
+                                  __func__,
+                                  (long)OsStatus,
+                                  FunctionName,
+                                  (int)LineNumber);
     }
 }
 
@@ -2068,8 +2108,11 @@ void CFE_ES_UnlockSharedData(const char *FunctionName, int32 LineNumber)
          * NOTE: this is going to write into a buffer that itself
          * is _supposed_ to be protected by this same mutex.
          */
-        CFE_ES_SysLogWrite_Unsync("%s: SharedData Mutex Give Err Stat=%ld,Func=%s,Line=%d\n", __func__, (long)OsStatus,
-                                  FunctionName, (int)LineNumber);
+        CFE_ES_SysLogWrite_Unsync("%s: SharedData Mutex Give Err Stat=%ld,Func=%s,Line=%d\n",
+                                  __func__,
+                                  (long)OsStatus,
+                                  FunctionName,
+                                  (int)LineNumber);
     }
 }
 

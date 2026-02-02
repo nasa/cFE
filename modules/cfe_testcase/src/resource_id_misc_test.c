@@ -173,9 +173,10 @@ void TestFindNext(void)
      * The FindNext API requires a callback function to determine if a resource id is already in use. This test provides
      * two local callback functions TestReturnFalse and TestReturnTrue to test the basic functionality of this API.
      */
-    UtAssert_INT32_EQ(CFE_ResourceId_ToInteger(CFE_ResourceId_FindNext(
-                          AppIdBuf.ResourceID, CFE_PLATFORM_ES_MAX_APPLICATIONS, TestReturnFalse)),
-                      CFE_RESOURCEID_UNWRAP(AppIdBuf.ResourceID) + 1);
+    UtAssert_INT32_EQ(
+        CFE_ResourceId_ToInteger(
+            CFE_ResourceId_FindNext(AppIdBuf.ResourceID, CFE_PLATFORM_ES_MAX_APPLICATIONS, TestReturnFalse)),
+        CFE_RESOURCEID_UNWRAP(AppIdBuf.ResourceID) + 1);
     /* Pretend every application id is used */
     AppIdBuf.ResourceID =
         CFE_ResourceId_FindNext(AppIdBuf.ResourceID, CFE_PLATFORM_ES_MAX_APPLICATIONS, TestReturnTrue);

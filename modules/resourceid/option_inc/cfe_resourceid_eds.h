@@ -81,10 +81,7 @@ typedef EdsDataType_CFE_RESOURCEID_BaseType_t CFE_ResourceId_t;
  * These are not type-safe - Whenever possible applications should use
  * the type-safe inline functions  provided in cfe_resourceid.h instead.
  */
-#define CFE_RESOURCEID_WRAP(x) \
-    {                          \
-        x                      \
-    }
+#define CFE_RESOURCEID_WRAP(x)   { x }
 #define CFE_RESOURCEID_UNWRAP(x) (x).BaseType
 
 #endif /* CFE_RESOURCEID_EDS_H */

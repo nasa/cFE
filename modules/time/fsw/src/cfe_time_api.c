@@ -565,31 +565,31 @@ uint32 CFE_TIME_Micro2SubSecs(uint32 MicroSeconds)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-CFE_Status_t CFE_TIME_Print(char *PrintBuffer, CFE_TIME_SysTime_t TimeToPrint) 
- { 
-     size_t    FmtLen = 0; 
-     uint32    Micros = (CFE_TIME_Sub2MicroSecs(TimeToPrint.Subseconds) + CFE_MISSION_TIME_EPOCH_MICROS) / 10; 
-     struct tm tm; 
-  
-     if (PrintBuffer == NULL) 
-     { 
-        return CFE_TIME_BAD_ARGUMENT; 
-     } 
-  
-     time_t sec = TimeToPrint.Seconds + CFE_MISSION_TIME_EPOCH_SECONDS; // epoch is Jan 1, 1980 
-     gmtime_r(&sec, &tm); 
-     FmtLen = strftime(PrintBuffer, CFE_TIME_PRINTED_STRING_SIZE - 6, "%Y-%j-%H:%M:%S", &tm); 
-     PrintBuffer += FmtLen; 
-     *(PrintBuffer++) = '.'; 
-  
-     *(PrintBuffer++) = '0' + (char)((Micros % 100000) / 10000); 
-     *(PrintBuffer++) = '0' + (char)((Micros % 10000) / 1000); 
-     *(PrintBuffer++) = '0' + (char)((Micros % 1000) / 100); 
-     *(PrintBuffer++) = '0' + (char)((Micros % 100) / 10); 
-     *(PrintBuffer++) = '0' + (char)(Micros % 10); 
-     *PrintBuffer     = '\0'; 
-     return CFE_SUCCESS; 
- } 
+CFE_Status_t CFE_TIME_Print(char *PrintBuffer, CFE_TIME_SysTime_t TimeToPrint)
+{
+    size_t    FmtLen = 0;
+    uint32    Micros = (CFE_TIME_Sub2MicroSecs(TimeToPrint.Subseconds) + CFE_MISSION_TIME_EPOCH_MICROS) / 10;
+    struct tm tm;
+
+    if (PrintBuffer == NULL)
+    {
+        return CFE_TIME_BAD_ARGUMENT;
+    }
+
+    time_t sec = TimeToPrint.Seconds + CFE_MISSION_TIME_EPOCH_SECONDS; // epoch is Jan 1, 1980
+    gmtime_r(&sec, &tm);
+    FmtLen            = strftime(PrintBuffer, CFE_TIME_PRINTED_STRING_SIZE - 6, "%Y-%j-%H:%M:%S", &tm);
+    PrintBuffer      += FmtLen;
+    *(PrintBuffer++)  = '.';
+
+    *(PrintBuffer++) = '0' + (char)((Micros % 100000) / 10000);
+    *(PrintBuffer++) = '0' + (char)((Micros % 10000) / 1000);
+    *(PrintBuffer++) = '0' + (char)((Micros % 1000) / 100);
+    *(PrintBuffer++) = '0' + (char)((Micros % 100) / 10);
+    *(PrintBuffer++) = '0' + (char)(Micros % 10);
+    *PrintBuffer     = '\0';
+    return CFE_SUCCESS;
+}
 
 /*----------------------------------------------------------------
  *
@@ -629,8 +629,8 @@ CFE_Status_t CFE_TIME_RegisterSynchCallback(CFE_TIME_SynchCallbackPtr_t Callback
 
         if (Status == CFE_SUCCESS)
         {
-            if (AppIndex >= (sizeof(CFE_TIME_Global.SynchCallback) / sizeof(CFE_TIME_Global.SynchCallback[0])) ||
-                CFE_TIME_Global.SynchCallback[AppIndex].Ptr != NULL)
+            if (AppIndex >= (sizeof(CFE_TIME_Global.SynchCallback) / sizeof(CFE_TIME_Global.SynchCallback[0]))
+                || CFE_TIME_Global.SynchCallback[AppIndex].Ptr != NULL)
             {
                 Status = CFE_TIME_TOO_MANY_SYNCH_CALLBACKS;
             }
@@ -668,8 +668,8 @@ CFE_Status_t CFE_TIME_UnregisterSynchCallback(CFE_TIME_SynchCallbackPtr_t Callba
 
         if (Status == CFE_SUCCESS)
         {
-            if (AppIndex >= (sizeof(CFE_TIME_Global.SynchCallback) / sizeof(CFE_TIME_Global.SynchCallback[0])) ||
-                CFE_TIME_Global.SynchCallback[AppIndex].Ptr != CallbackFuncPtr)
+            if (AppIndex >= (sizeof(CFE_TIME_Global.SynchCallback) / sizeof(CFE_TIME_Global.SynchCallback[0]))
+                || CFE_TIME_Global.SynchCallback[AppIndex].Ptr != CallbackFuncPtr)
             {
                 Status = CFE_TIME_CALLBACK_NOT_REGISTERED;
             }

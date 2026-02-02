@@ -101,7 +101,7 @@ const char *CFE_Config_IsModuleInList(CFE_ConfigName_t *ModuleListPtr, const cha
 
 const char *CFE_Config_IsPspModule(CFE_StaticModuleLoadEntry_t *PspModuleList, const char *ModuleName)
 {
-    const char *                 Result;
+    const char                  *Result;
     CFE_StaticModuleLoadEntry_t *ModuleListPtr;
 
     ModuleListPtr = PspModuleList;
@@ -137,11 +137,12 @@ const char *CFE_Config_FindStaticModName(CFE_ConfigName_t *ModuleListSet[], size
     return Result;
 }
 
-void CFE_Config_SetupModuleVersions(CFE_ConfigName_t *ModuleListSet[], size_t SetLength,
+void CFE_Config_SetupModuleVersions(CFE_ConfigName_t     *ModuleListSet[],
+                                    size_t                SetLength,
                                     CFE_ConfigKeyValue_t *ActiveList)
 {
-    const char *                    ModName;
-    const char *                    KeyVal;
+    const char                     *ModName;
+    const char                     *KeyVal;
     uint32                          OffsetVal;
     const CFE_Config_IdNameEntry_t *NamePtr;
 
@@ -191,7 +192,11 @@ void CFE_Config_SetupBasicBuildInfo(void)
     CFE_Config_SetValue(CFE_CONFIGID_CORE_VERSION_BUILDNUM, CFE_BUILD_NUMBER);
 
     CFE_Config_SetString(CFE_CONFIGID_CORE_VERSION_BASELINE, CFE_BUILD_BASELINE);
-    CFE_Config_GetVersionString(VersionString, CFE_CFG_MAX_VERSION_STR_LEN, "cFE", CFE_SRC_VERSION, CFE_BUILD_CODENAME,
+    CFE_Config_GetVersionString(VersionString,
+                                CFE_CFG_MAX_VERSION_STR_LEN,
+                                "cFE",
+                                CFE_SRC_VERSION,
+                                CFE_BUILD_CODENAME,
                                 CFE_LAST_OFFICIAL);
     CFE_Config_SetString(CFE_CONFIGID_CORE_VERSION_DESCRIPTION, VersionString);
 
@@ -217,7 +222,7 @@ int32 CFE_Config_Init(void)
     /* Clear the table, just in case it was not already cleared from initial program loading */
     memset(&CFE_Config_Global, 0, sizeof(CFE_Config_Global));
 
-    CFE_ConfigName_t *ModuleListSet[2] = {GLOBAL_CONFIGDATA.CoreModuleList, GLOBAL_CONFIGDATA.StaticAppList};
+    CFE_ConfigName_t *ModuleListSet[2] = { GLOBAL_CONFIGDATA.CoreModuleList, GLOBAL_CONFIGDATA.StaticAppList };
 
     /*
      * Create a fixed string that can be returned in place of NULL for string returns,

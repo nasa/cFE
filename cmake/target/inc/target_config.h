@@ -65,7 +65,7 @@ typedef const void CFE_StaticModuleApi_t;
  */
 typedef const struct
 {
-    const char *           Name;
+    const char            *Name;
     CFE_StaticModuleApi_t *Api;
 } CFE_StaticModuleLoadEntry_t;
 
@@ -199,7 +199,7 @@ typedef const struct
     CFE_ConfigKeyValue_t
         *BuildEnvironment; /**< Environment details of build system at the last time CFE core was built */
     CFE_ConfigKeyValue_t *ModuleVersionList; /**< List of module versions at the last time CFE core was built */
-    CFE_ConfigName_t *    CoreModuleList;    /**< List of CFE core support module names that are statically linked */
+    CFE_ConfigName_t     *CoreModuleList;    /**< List of CFE core support module names that are statically linked */
     CFE_ConfigName_t
         *StaticAppList; /**< List of additional CFS Applications that are statically linked into this binary */
 

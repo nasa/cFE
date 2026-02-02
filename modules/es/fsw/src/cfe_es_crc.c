@@ -97,8 +97,9 @@ CFE_ES_ComputeCRC_Params_t *CFE_ES_ComputeCRC_GetParams(CFE_ES_CrcType_Enum_t Cr
     CFE_ES_ComputeCRC_Params_t *ParamPtr;
 
     /* The "NONE" type must be always defined, it is used as a catch-all */
-    static CFE_ES_ComputeCRC_Params_t CRC_PARAM_NONE = {
-        .InitialValue = 0, .FinalXOR = 0, .Algorithm = CFE_ES_ComputeCRC_Algo_NONE};
+    static CFE_ES_ComputeCRC_Params_t CRC_PARAM_NONE = { .InitialValue = 0,
+                                                         .FinalXOR     = 0,
+                                                         .Algorithm    = CFE_ES_ComputeCRC_Algo_NONE };
 
     /* Lookup table for types that are implemented in this version of CFE */
     static CFE_ES_ComputeCRC_Params_t CRC_PARAM_TABLE[CFE_ES_CrcType_MAX] = {
@@ -107,8 +108,8 @@ CFE_ES_ComputeCRC_Params_t *CFE_ES_ComputeCRC_GetParams(CFE_ES_CrcType_Enum_t Cr
          * that matches the case where ParamPtr != NULL and ParamPtr->Algorithm == NULL
          * since technically CFE_ES_CrcType_NONE has a defined algorithm that just returns
          * 0 so this is a bit misleading in that sense */
-        [CFE_ES_CrcType_NONE]   = {0, 0, NULL},
-        [CFE_ES_CrcType_16_ARC] = {0, 0, CFE_ES_ComputeCRC_Algo_16_ARC},
+        [CFE_ES_CrcType_NONE]   = { 0, 0, NULL                          },
+        [CFE_ES_CrcType_16_ARC] = { 0, 0, CFE_ES_ComputeCRC_Algo_16_ARC },
     };
 
     if (CrcType < CFE_ES_CrcType_MAX)

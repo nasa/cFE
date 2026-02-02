@@ -84,9 +84,9 @@ void TestCDSName(void)
 {
     CFE_ES_CDSHandle_t CDSHandlePtr;
     size_t             BlockSize    = 10;
-    const char *       Name         = "CDS_Test";
-    const char *       CDSName      = "CFE_TEST.CDS_Test";
-    const char *       INVALID_NAME = "INVALID_NAME";
+    const char        *Name         = "CDS_Test";
+    const char        *CDSName      = "CFE_TEST.CDS_Test";
+    const char        *INVALID_NAME = "INVALID_NAME";
 
     CFE_ES_CDSHandle_t IdByName;
     char               CDSNameBuf[CFE_MISSION_ES_CDS_MAX_FULL_NAME_LEN];
@@ -116,7 +116,7 @@ void TestCopyRestoreCDS(void)
 {
     CFE_ES_CDSHandle_t CDSHandlePtr;
     size_t             BlockSize = 10;
-    const char *       Name      = "CDS_Copy_Test";
+    const char        *Name      = "CDS_Copy_Test";
     CFE_Status_t       status;
     char               Data[BlockSize];
     char               DataBuff[BlockSize];
@@ -128,7 +128,8 @@ void TestCopyRestoreCDS(void)
     snprintf(Data, BlockSize, "Test Data");
 
     status = CFE_ES_RegisterCDS(&CDSHandlePtr, BlockSize, Name);
-    UtAssert_True(status == CFE_SUCCESS || status == CFE_ES_CDS_ALREADY_EXISTS, "Register CDS status = %d",
+    UtAssert_True(status == CFE_SUCCESS || status == CFE_ES_CDS_ALREADY_EXISTS,
+                  "Register CDS status = %d",
                   (int)status);
 
     UtAssert_INT32_EQ(CFE_ES_CopyToCDS(CDSHandlePtr, Data), CFE_SUCCESS);

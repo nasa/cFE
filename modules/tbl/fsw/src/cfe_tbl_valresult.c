@@ -41,8 +41,10 @@
  *-----------------------------------------------------------------*/
 CFE_Status_t CFE_TBL_ValidationResultId_ToIndex(CFE_TBL_ValidationResultId_t ValResultId, uint32 *Idx)
 {
-    return CFE_ResourceId_ToIndex(CFE_RESOURCEID_UNWRAP(ValResultId), CFE_TBL_VALRESULTID_BASE,
-                                  CFE_PLATFORM_TBL_MAX_NUM_VALIDATIONS, Idx);
+    return CFE_ResourceId_ToIndex(CFE_RESOURCEID_UNWRAP(ValResultId),
+                                  CFE_TBL_VALRESULTID_BASE,
+                                  CFE_PLATFORM_TBL_MAX_NUM_VALIDATIONS,
+                                  Idx);
 }
 
 /*----------------------------------------------------------------
@@ -95,6 +97,7 @@ bool CFE_TBL_CheckValidationResultSlotUsed(CFE_ResourceId_t CheckId)
  *-----------------------------------------------------------------*/
 CFE_ResourceId_t CFE_TBL_GetNextValResultBlock(void)
 {
-    return CFE_ResourceId_FindNext(CFE_TBL_Global.LastValidationResultId, CFE_PLATFORM_TBL_MAX_NUM_VALIDATIONS,
+    return CFE_ResourceId_FindNext(CFE_TBL_Global.LastValidationResultId,
+                                   CFE_PLATFORM_TBL_MAX_NUM_VALIDATIONS,
                                    CFE_TBL_CheckValidationResultSlotUsed);
 }

@@ -132,7 +132,8 @@ void CFE_ES_Main(uint32 StartType, uint32 StartSubtype, uint32 ModeId, const cha
     OsStatus = OS_MutSemCreate(&CFE_ES_Global.PerfDataMutex, "ES_PERF_MUTEX", 0);
     if (OsStatus != OS_SUCCESS)
     {
-        CFE_ES_SysLogWrite_Unsync("%s: Error: ES Performance Data Mutex could not be created. RC=%ld\n", __func__,
+        CFE_ES_SysLogWrite_Unsync("%s: Error: ES Performance Data Mutex could not be created. RC=%ld\n",
+                                  __func__,
                                   (long)OsStatus);
 
         /*
@@ -283,7 +284,8 @@ void CFE_ES_SetupResetVariables(uint32 StartType, uint32 StartSubtype, uint32 Bo
         ** Cannot use the ES system log without the Reset Area
         */
         OS_printf("ES Startup: Error: ES Reset area not big enough. Needed: %d, Given: %d.\n",
-                  (int)sizeof(CFE_ES_ResetData_t), (int)resetAreaSize);
+                  (int)sizeof(CFE_ES_ResetData_t),
+                  (int)resetAreaSize);
         /*
         ** Delay to allow the message to be read
         */
@@ -332,19 +334,25 @@ void CFE_ES_SetupResetVariables(uint32 StartType, uint32 StartSubtype, uint32 Bo
         if (StartSubtype == CFE_PSP_RST_SUBTYPE_POWER_CYCLE)
         {
             CFE_ES_SysLogWrite_Unsync("%s: POWER ON RESET due to Power Cycle (Power Cycle).\n", __func__);
-            CFE_ES_WriteToERLog(CFE_ES_LogEntryType_CORE, CFE_PSP_RST_TYPE_POWERON, StartSubtype,
+            CFE_ES_WriteToERLog(CFE_ES_LogEntryType_CORE,
+                                CFE_PSP_RST_TYPE_POWERON,
+                                StartSubtype,
                                 "POWER ON RESET due to Power Cycle (Power Cycle)");
         }
         else if (StartSubtype == CFE_PSP_RST_SUBTYPE_HW_SPECIAL_COMMAND)
         {
             CFE_ES_SysLogWrite_Unsync("%s: POWER ON RESET due to HW Special Cmd (Hw Spec Cmd).\n", __func__);
-            CFE_ES_WriteToERLog(CFE_ES_LogEntryType_CORE, CFE_PSP_RST_TYPE_POWERON, StartSubtype,
+            CFE_ES_WriteToERLog(CFE_ES_LogEntryType_CORE,
+                                CFE_PSP_RST_TYPE_POWERON,
+                                StartSubtype,
                                 "POWER ON RESET due to HW Special Cmd (Hw Spec Cmd)");
         }
         else
         {
             CFE_ES_SysLogWrite_Unsync("%s: POWER ON RESET due to other cause (See Subtype).\n", __func__);
-            CFE_ES_WriteToERLog(CFE_ES_LogEntryType_CORE, CFE_PSP_RST_TYPE_POWERON, StartSubtype,
+            CFE_ES_WriteToERLog(CFE_ES_LogEntryType_CORE,
+                                CFE_PSP_RST_TYPE_POWERON,
+                                StartSubtype,
                                 "POWER ON RESET due to other cause (See Subtype)");
         }
 
@@ -370,8 +378,8 @@ void CFE_ES_SetupResetVariables(uint32 StartType, uint32 StartSubtype, uint32 Bo
             ** When coming up from a Processor reset that was not caused by ES, check to see
             ** if the maximum number has been exceeded
             */
-            if (CFE_ES_Global.ResetDataPtr->ResetVars.ProcessorResetCount >
-                CFE_ES_Global.ResetDataPtr->ResetVars.MaxProcessorResetCount)
+            if (CFE_ES_Global.ResetDataPtr->ResetVars.ProcessorResetCount
+                > CFE_ES_Global.ResetDataPtr->ResetVars.MaxProcessorResetCount)
             {
                 if (StartSubtype == CFE_PSP_RST_SUBTYPE_HW_SPECIAL_COMMAND)
                 {
@@ -382,7 +390,9 @@ void CFE_ES_SetupResetVariables(uint32 StartType, uint32 StartSubtype, uint32 Bo
                     ** Log the reset in the ER Log. The log will be wiped out, but it's good to have
                     ** the entry just in case something fails.
                     */
-                    CFE_ES_WriteToERLog(CFE_ES_LogEntryType_CORE, CFE_PSP_RST_TYPE_POWERON, StartSubtype,
+                    CFE_ES_WriteToERLog(CFE_ES_LogEntryType_CORE,
+                                        CFE_PSP_RST_TYPE_POWERON,
+                                        StartSubtype,
                                         "POWER ON RESET due to max proc resets (HW Spec Cmd).");
                 }
                 else
@@ -394,7 +404,9 @@ void CFE_ES_SetupResetVariables(uint32 StartType, uint32 StartSubtype, uint32 Bo
                     ** Log the reset in the ER Log. The log will be wiped out, but it's good to have
                     ** the entry just in case something fails.
                     */
-                    CFE_ES_WriteToERLog(CFE_ES_LogEntryType_CORE, CFE_PSP_RST_TYPE_POWERON, StartSubtype,
+                    CFE_ES_WriteToERLog(CFE_ES_LogEntryType_CORE,
+                                        CFE_PSP_RST_TYPE_POWERON,
+                                        StartSubtype,
                                         "POWER ON RESET due to max proc resets (Watchdog).");
                 }
                 /*
@@ -418,7 +430,9 @@ void CFE_ES_SetupResetVariables(uint32 StartType, uint32 StartSubtype, uint32 Bo
                     /*
                     ** Log the watchdog reset
                     */
-                    CFE_ES_WriteToERLog(CFE_ES_LogEntryType_CORE, CFE_PSP_RST_TYPE_PROCESSOR, StartSubtype,
+                    CFE_ES_WriteToERLog(CFE_ES_LogEntryType_CORE,
+                                        CFE_PSP_RST_TYPE_PROCESSOR,
+                                        StartSubtype,
                                         "PROCESSOR RESET due to Hardware Special Command (Hw Spec Cmd).");
                 }
                 else
@@ -429,7 +443,9 @@ void CFE_ES_SetupResetVariables(uint32 StartType, uint32 StartSubtype, uint32 Bo
                     /*
                     ** Log the watchdog reset
                     */
-                    CFE_ES_WriteToERLog(CFE_ES_LogEntryType_CORE, CFE_PSP_RST_TYPE_PROCESSOR, StartSubtype,
+                    CFE_ES_WriteToERLog(CFE_ES_LogEntryType_CORE,
+                                        CFE_PSP_RST_TYPE_PROCESSOR,
+                                        StartSubtype,
                                         "PROCESSOR RESET due to Watchdog (Watchdog).");
                 }
             }
@@ -482,7 +498,8 @@ void CFE_ES_InitializeFileSystems(uint32 StartType)
 
     if (PspStatus != CFE_PSP_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("%s: Cannot Get Memory for Volatile Disk. EC = 0x%08X\n", __func__,
+        CFE_ES_WriteToSysLog("%s: Cannot Get Memory for Volatile Disk. EC = 0x%08X\n",
+                             __func__,
                              (unsigned int)PspStatus);
 
         /*
@@ -502,7 +519,10 @@ void CFE_ES_InitializeFileSystems(uint32 StartType)
     */
     if (StartType == CFE_PSP_RST_TYPE_POWERON)
     {
-        OsStatus = OS_mkfs((void *)RamDiskMemoryAddress, "/ramdev0", "RAM", CFE_PLATFORM_ES_RAM_DISK_SECTOR_SIZE,
+        OsStatus = OS_mkfs((void *)RamDiskMemoryAddress,
+                           "/ramdev0",
+                           "RAM",
+                           CFE_PLATFORM_ES_RAM_DISK_SECTOR_SIZE,
                            CFE_PLATFORM_ES_RAM_DISK_NUM_SECTORS);
         if (OsStatus != OS_SUCCESS)
         {
@@ -521,14 +541,20 @@ void CFE_ES_InitializeFileSystems(uint32 StartType)
     }
     else
     {
-        OsStatus = OS_initfs((void *)RamDiskMemoryAddress, "/ramdev0", "RAM", CFE_PLATFORM_ES_RAM_DISK_SECTOR_SIZE,
+        OsStatus = OS_initfs((void *)RamDiskMemoryAddress,
+                             "/ramdev0",
+                             "RAM",
+                             CFE_PLATFORM_ES_RAM_DISK_SECTOR_SIZE,
                              CFE_PLATFORM_ES_RAM_DISK_NUM_SECTORS);
         if (OsStatus != OS_SUCCESS)
         {
             CFE_ES_WriteToSysLog("%s: Error Initializing Volatile(RAM) Volume. EC = %ld\n", __func__, (long)OsStatus);
             CFE_ES_WriteToSysLog("%s: Formatting Volatile(RAM) Volume.\n", __func__);
 
-            OsStatus = OS_mkfs((void *)RamDiskMemoryAddress, "/ramdev0", "RAM", CFE_PLATFORM_ES_RAM_DISK_SECTOR_SIZE,
+            OsStatus = OS_mkfs((void *)RamDiskMemoryAddress,
+                               "/ramdev0",
+                               "RAM",
+                               CFE_PLATFORM_ES_RAM_DISK_SECTOR_SIZE,
                                CFE_PLATFORM_ES_RAM_DISK_NUM_SECTORS);
             if (OsStatus != OS_SUCCESS)
             {
@@ -605,8 +631,11 @@ void CFE_ES_InitializeFileSystems(uint32 StartType)
                         /*
                         ** Next, make a new file system on the disk
                         */
-                        OsStatus = OS_mkfs((void *)RamDiskMemoryAddress, "/ramdev0", "RAM",
-                                           CFE_PLATFORM_ES_RAM_DISK_SECTOR_SIZE, CFE_PLATFORM_ES_RAM_DISK_NUM_SECTORS);
+                        OsStatus = OS_mkfs((void *)RamDiskMemoryAddress,
+                                           "/ramdev0",
+                                           "RAM",
+                                           CFE_PLATFORM_ES_RAM_DISK_SECTOR_SIZE,
+                                           CFE_PLATFORM_ES_RAM_DISK_NUM_SECTORS);
                         if (OsStatus == OS_SUCCESS)
                         {
                             /*
@@ -615,7 +644,8 @@ void CFE_ES_InitializeFileSystems(uint32 StartType)
                             OsStatus = OS_mount("/ramdev0", CFE_PLATFORM_ES_RAM_DISK_MOUNT_STRING);
                             if (OsStatus != OS_SUCCESS)
                             {
-                                CFE_ES_WriteToSysLog("%s: Error Re-Mounting Volatile(RAM) Volume. EC = %ld\n", __func__,
+                                CFE_ES_WriteToSysLog("%s: Error Re-Mounting Volatile(RAM) Volume. EC = %ld\n",
+                                                     __func__,
                                                      (long)OsStatus);
                                 /*
                                 ** Delay to allow the message to be read
@@ -631,7 +661,8 @@ void CFE_ES_InitializeFileSystems(uint32 StartType)
                         }
                         else
                         {
-                            CFE_ES_WriteToSysLog("%s: Error Re-Formatting Volatile(RAM) Volume. EC = %ld\n", __func__,
+                            CFE_ES_WriteToSysLog("%s: Error Re-Formatting Volatile(RAM) Volume. EC = %ld\n",
+                                                 __func__,
                                                  (long)OsStatus);
                             /*
                             ** Delay to allow the message to be read
@@ -647,7 +678,8 @@ void CFE_ES_InitializeFileSystems(uint32 StartType)
                     }
                     else /* could not Remove File system */
                     {
-                        CFE_ES_WriteToSysLog("%s: Error Removing Volatile(RAM) Volume. EC = %ld\n", __func__,
+                        CFE_ES_WriteToSysLog("%s: Error Removing Volatile(RAM) Volume. EC = %ld\n",
+                                             __func__,
                                              (long)OsStatus);
                         /*
                         ** Delay to allow the message to be read
@@ -663,7 +695,8 @@ void CFE_ES_InitializeFileSystems(uint32 StartType)
                 }
                 else /* could not un-mount disk */
                 {
-                    CFE_ES_WriteToSysLog("%s: Error Un-Mounting Volatile(RAM) Volume. EC = %ld\n", __func__,
+                    CFE_ES_WriteToSysLog("%s: Error Un-Mounting Volatile(RAM) Volume. EC = %ld\n",
+                                         __func__,
                                          (long)OsStatus);
                     /*
                     ** Delay to allow the message to be read
@@ -725,7 +758,8 @@ void CFE_ES_CreateObjects(void)
                 */
                 CFE_ES_LockSharedData(__func__, __LINE__);
 
-                PendingAppId = CFE_ResourceId_FindNext(CFE_ES_Global.LastAppId, CFE_PLATFORM_ES_MAX_APPLICATIONS,
+                PendingAppId = CFE_ResourceId_FindNext(CFE_ES_Global.LastAppId,
+                                                       CFE_PLATFORM_ES_MAX_APPLICATIONS,
                                                        CFE_ES_CheckAppIdSlotUsed);
                 AppRecPtr    = CFE_ES_LocateAppRecordByID(CFE_ES_APPID_C(PendingAppId));
                 if (AppRecPtr != NULL)
@@ -764,9 +798,11 @@ void CFE_ES_CreateObjects(void)
                     ** Start the core app main task
                     ** (core apps are already in memory - no loading needed)
                     */
-                    ReturnCode = CFE_ES_StartAppTask(
-                        &AppRecPtr->MainTaskId, AppRecPtr->AppName, CFE_ES_ObjectTable[i].FuncPtrUnion.MainTaskPtr,
-                        &AppRecPtr->StartParams.MainTaskInfo, CFE_ES_APPID_C(PendingAppId));
+                    ReturnCode = CFE_ES_StartAppTask(&AppRecPtr->MainTaskId,
+                                                     AppRecPtr->AppName,
+                                                     CFE_ES_ObjectTable[i].FuncPtrUnion.MainTaskPtr,
+                                                     &AppRecPtr->StartParams.MainTaskInfo,
+                                                     CFE_ES_APPID_C(PendingAppId));
 
                     /*
                      * Finalize data in the app table entry, which must be done under lock.
@@ -807,14 +843,15 @@ void CFE_ES_CreateObjects(void)
                      * CFE_ES_MainTaskSyncDelay() will delay this thread until the
                      * newly-started thread calls CFE_ES_WaitForSystemState()
                      */
-                    ReturnCode =
-                        CFE_ES_MainTaskSyncDelay(CFE_ES_AppState_RUNNING, CFE_PLATFORM_CORE_MAX_STARTUP_MSEC);
+                    ReturnCode = CFE_ES_MainTaskSyncDelay(CFE_ES_AppState_RUNNING, CFE_PLATFORM_CORE_MAX_STARTUP_MSEC);
                 }
 
                 if (ReturnCode != CFE_SUCCESS)
                 {
-                    CFE_ES_WriteToSysLog("%s: OS_TaskCreate error creating core App: %s: EC = 0x%08X\n", __func__,
-                                         CFE_ES_ObjectTable[i].ObjectName, (unsigned int)ReturnCode);
+                    CFE_ES_WriteToSysLog("%s: OS_TaskCreate error creating core App: %s: EC = 0x%08X\n",
+                                         __func__,
+                                         CFE_ES_ObjectTable[i].ObjectName,
+                                         (unsigned int)ReturnCode);
 
                     /*
                     ** Delay to allow the message to be read
@@ -839,8 +876,10 @@ void CFE_ES_CreateObjects(void)
                     ReturnCode = (*CFE_ES_ObjectTable[i].FuncPtrUnion.FunctionPtr)();
                     if (ReturnCode != CFE_SUCCESS)
                     {
-                        CFE_ES_WriteToSysLog("%s: Error returned when calling function: %s: EC = 0x%08X\n", __func__,
-                                             CFE_ES_ObjectTable[i].ObjectName, (unsigned int)ReturnCode);
+                        CFE_ES_WriteToSysLog("%s: Error returned when calling function: %s: EC = 0x%08X\n",
+                                             __func__,
+                                             CFE_ES_ObjectTable[i].ObjectName,
+                                             (unsigned int)ReturnCode);
 
                         /*
                         ** Delay to allow the message to be read

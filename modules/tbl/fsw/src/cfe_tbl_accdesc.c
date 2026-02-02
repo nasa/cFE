@@ -54,8 +54,10 @@ void CFE_TBL_InitAccessDescriptor(CFE_TBL_AccessDescriptor_t *AccessDescPtr)
  *-----------------------------------------------------------------*/
 CFE_Status_t CFE_TBL_Handle_ToIndex(CFE_TBL_HandleId_t TblHandle, uint32 *Idx)
 {
-    return CFE_ResourceId_ToIndex(CFE_RESOURCEID_UNWRAP(TblHandle), CFE_TBL_HANDLE_BASE,
-                                  CFE_PLATFORM_TBL_MAX_NUM_HANDLES, Idx);
+    return CFE_ResourceId_ToIndex(CFE_RESOURCEID_UNWRAP(TblHandle),
+                                  CFE_TBL_HANDLE_BASE,
+                                  CFE_PLATFORM_TBL_MAX_NUM_HANDLES,
+                                  Idx);
 }
 
 /*----------------------------------------------------------------
@@ -89,7 +91,8 @@ CFE_TBL_AccessDescriptor_t *CFE_TBL_LocateAccDescByHandle(CFE_TBL_HandleId_t Tbl
  *-----------------------------------------------------------------*/
 CFE_ResourceId_t CFE_TBL_GetNextTableHandle(void)
 {
-    return CFE_ResourceId_FindNext(CFE_TBL_Global.LastHandle, CFE_PLATFORM_TBL_MAX_NUM_HANDLES,
+    return CFE_ResourceId_FindNext(CFE_TBL_Global.LastHandle,
+                                   CFE_PLATFORM_TBL_MAX_NUM_HANDLES,
                                    CFE_TBL_CheckAccessDescriptorSlotUsed);
 }
 

@@ -43,17 +43,21 @@
 static UT_SoftwareBusSnapshot_Entry_t UT_EVS_LONGFMT_SNAPSHOTDATA = {
     .MsgId          = CFE_SB_MSGID_WRAP_VALUE(0),
     .SnapshotOffset = offsetof(CFE_EVS_LongEventTlm_t, Payload.PacketID.EventID),
-    .SnapshotSize   = sizeof(uint16)};
+    .SnapshotSize   = sizeof(uint16)
+};
 
 static UT_SoftwareBusSnapshot_Entry_t UT_EVS_SHORTFMT_SNAPSHOTDATA = {
     .MsgId          = CFE_SB_MSGID_WRAP_VALUE(0),
     .SnapshotOffset = offsetof(CFE_EVS_ShortEventTlm_t, Payload.PacketID.EventID),
-    .SnapshotSize   = sizeof(uint16)};
+    .SnapshotSize   = sizeof(uint16)
+};
 
 UT_EVS_EventCapture_t UT_EVS_EventBuf;
 
 /* Custom time handler to avoid needing to provide buffer for every event call */
-void UT_CFE_MSG_GetMsgTime_CustomHandler(void *UserObj, UT_EntryKey_t FuncKey, const UT_StubContext_t *Context) {}
+void UT_CFE_MSG_GetMsgTime_CustomHandler(void *UserObj, UT_EntryKey_t FuncKey, const UT_StubContext_t *Context)
+{
+}
 
 /* Add custom logic to cFE common UT_InitData */
 void UT_InitData_EVS(void)
@@ -78,9 +82,11 @@ int32 UT_EVS_MSGInitHook(void *UserObj, int32 StubRetcode, uint32 CallCount, con
     return StubRetcode;
 }
 
-static void UT_EVS_DoDispatchCheckEvents_Impl(void *MsgPtr, size_t MsgSize, UT_TaskPipeDispatchId_t DispatchId,
+static void UT_EVS_DoDispatchCheckEvents_Impl(void                                 *MsgPtr,
+                                              size_t                                MsgSize,
+                                              UT_TaskPipeDispatchId_t               DispatchId,
                                               const UT_SoftwareBusSnapshot_Entry_t *SnapshotCfg,
-                                              UT_EVS_EventCapture_t *               EventCapture)
+                                              UT_EVS_EventCapture_t                *EventCapture)
 {
     UT_SoftwareBusSnapshot_Entry_t SnapshotData = *SnapshotCfg;
 
@@ -95,14 +101,18 @@ static void UT_EVS_DoDispatchCheckEvents_Impl(void *MsgPtr, size_t MsgSize, UT_T
     UT_SetHookFunction(UT_KEY(CFE_SB_TransmitMsg), NULL, NULL);
 }
 
-void UT_EVS_DoDispatchCheckEvents(void *MsgPtr, size_t MsgSize, UT_TaskPipeDispatchId_t DispatchId,
-                                  UT_EVS_EventCapture_t *EventCapture)
+void UT_EVS_DoDispatchCheckEvents(void                   *MsgPtr,
+                                  size_t                  MsgSize,
+                                  UT_TaskPipeDispatchId_t DispatchId,
+                                  UT_EVS_EventCapture_t  *EventCapture)
 {
     UT_EVS_DoDispatchCheckEvents_Impl(MsgPtr, MsgSize, DispatchId, &UT_EVS_LONGFMT_SNAPSHOTDATA, EventCapture);
 }
 
-void UT_EVS_DoDispatchCheckEventsShort(void *MsgPtr, size_t MsgSize, UT_TaskPipeDispatchId_t DispatchId,
-                                       UT_EVS_EventCapture_t *EventCapture)
+void UT_EVS_DoDispatchCheckEventsShort(void                   *MsgPtr,
+                                       size_t                  MsgSize,
+                                       UT_TaskPipeDispatchId_t DispatchId,
+                                       UT_EVS_EventCapture_t  *EventCapture)
 {
     UT_EVS_DoDispatchCheckEvents_Impl(MsgPtr, MsgSize, DispatchId, &UT_EVS_SHORTFMT_SNAPSHOTDATA, EventCapture);
 }
@@ -136,7 +146,7 @@ CFE_Status_t UT_EVS_SendSquelchedEventWithAppId(uint32 EventId)
 
 CFE_Status_t UT_EVS_SendSquelchedTimedEvent(uint32 EventId)
 {
-    CFE_TIME_SysTime_t Time = {0, 0};
+    CFE_TIME_SysTime_t Time = { 0, 0 };
     return CFE_EVS_SendTimedEvent(Time, EventId, CFE_EVS_EventType_INFORMATION, "Suppressed Message");
 }
 

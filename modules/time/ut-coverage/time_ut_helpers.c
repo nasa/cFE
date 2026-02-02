@@ -50,7 +50,9 @@
 **        This function does not return a value.
 **
 ******************************************************************************/
-void OS_SelectTone(int16 Signal) {}
+void OS_SelectTone(int16 Signal)
+{
+}
 #endif
 
 /*
@@ -61,7 +63,7 @@ void OS_SelectTone(int16 Signal) {}
 int32 UT_TimeRefUpdateHook(void *UserObj, int32 StubRetcode, uint32 CallCount, const UT_StubContext_t *Context)
 {
     volatile CFE_TIME_ReferenceState_t *RefState;
-    uint32 *                            UpdateCount = UserObj;
+    uint32                             *UpdateCount = UserObj;
     uint32                              i;
 
     /*

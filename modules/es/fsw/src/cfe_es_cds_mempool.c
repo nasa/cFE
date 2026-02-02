@@ -87,7 +87,7 @@ int32 CFE_ES_CDS_PoolCommit(CFE_ES_GenPoolRecord_t *GenPoolRecPtr, size_t Offset
  *-----------------------------------------------------------------*/
 int32 CFE_ES_CreateCDSPool(size_t CDSPoolSize, size_t StartOffset)
 {
-    CFE_ES_CDS_Instance_t * CDS = &CFE_ES_Global.CDSVars;
+    CFE_ES_CDS_Instance_t  *CDS = &CFE_ES_Global.CDSVars;
     int32                   Status;
     size_t                  SizeCheck;
     CFE_Config_ArrayValue_t CDSMemPoolDefSize;
@@ -98,16 +98,21 @@ int32 CFE_ES_CreateCDSPool(size_t CDSPoolSize, size_t StartOffset)
     if (CDSPoolSize < SizeCheck)
     {
         /* Must be able make Pool verification, block descriptor and at least one of the smallest blocks  */
-        CFE_ES_SysLogWrite_Unsync("%s: Pool size(%lu) too small for one CDS Block, need >=%lu\n", __func__,
-                                  (unsigned long)CDSPoolSize, (unsigned long)SizeCheck);
+        CFE_ES_SysLogWrite_Unsync("%s: Pool size(%lu) too small for one CDS Block, need >=%lu\n",
+                                  __func__,
+                                  (unsigned long)CDSPoolSize,
+                                  (unsigned long)SizeCheck);
         return CFE_ES_CDS_INVALID_SIZE;
     }
 
-    Status = CFE_ES_GenPoolInitialize(&CDS->Pool, StartOffset, /* starting offset */
-                                      CDSPoolSize,             /* total size */
-                                      4,                       /* alignment */
-                                      CDSMemPoolDefSize.NumElements, CDSMemPoolDefSize.ElementPtr,
-                                      CFE_ES_CDS_PoolRetrieve, CFE_ES_CDS_PoolCommit);
+    Status = CFE_ES_GenPoolInitialize(&CDS->Pool,
+                                      StartOffset, /* starting offset */
+                                      CDSPoolSize, /* total size */
+                                      4,           /* alignment */
+                                      CDSMemPoolDefSize.NumElements,
+                                      CDSMemPoolDefSize.ElementPtr,
+                                      CFE_ES_CDS_PoolRetrieve,
+                                      CFE_ES_CDS_PoolCommit);
 
     return Status;
 }
@@ -159,7 +164,7 @@ int32 CFE_ES_CDSBlockWrite(CFE_ES_CDSHandle_t Handle, const void *DataToWrite)
     size_t                 BlockSize;
     size_t                 UserDataSize;
     size_t                 UserDataOffset;
-    CFE_ES_CDS_RegRec_t *  CDSRegRecPtr;
+    CFE_ES_CDS_RegRec_t   *CDSRegRecPtr;
 
     /* Ensure the log message is an empty string in case it is never written to */
     LogMessage[0] = 0;
@@ -186,15 +191,18 @@ int32 CFE_ES_CDSBlockWrite(CFE_ES_CDSHandle_t Handle, const void *DataToWrite)
         }
         else if (BlockSize <= sizeof(CFE_ES_CDS_BlockHeader_t) || BlockSize != CDSRegRecPtr->BlockSize)
         {
-            snprintf(LogMessage, sizeof(LogMessage), "Block size %lu invalid, expected %lu\n", (unsigned long)BlockSize,
+            snprintf(LogMessage,
+                     sizeof(LogMessage),
+                     "Block size %lu invalid, expected %lu\n",
+                     (unsigned long)BlockSize,
                      (unsigned long)CDSRegRecPtr->BlockSize);
             Status = CFE_ES_CDS_INVALID_SIZE;
         }
         else
         {
-            UserDataSize = CDSRegRecPtr->BlockSize;
-            UserDataSize -= sizeof(CFE_ES_CDS_BlockHeader_t);
-            UserDataOffset = CDSRegRecPtr->BlockOffset;
+            UserDataSize    = CDSRegRecPtr->BlockSize;
+            UserDataSize   -= sizeof(CFE_ES_CDS_BlockHeader_t);
+            UserDataOffset  = CDSRegRecPtr->BlockOffset;
             UserDataOffset += sizeof(CFE_ES_CDS_BlockHeader_t);
 
             CDS->Cache.Data.BlockHeader.Crc =
@@ -206,17 +214,21 @@ int32 CFE_ES_CDSBlockWrite(CFE_ES_CDSHandle_t Handle, const void *DataToWrite)
             Status = CFE_ES_CDS_CacheFlush(&CDS->Cache);
             if (Status != CFE_SUCCESS)
             {
-                snprintf(LogMessage, sizeof(LogMessage),
+                snprintf(LogMessage,
+                         sizeof(LogMessage),
                          "Err writing header data to CDS (Stat=0x%08x) @Offset=0x%08lx\n",
-                         (unsigned int)CDS->Cache.AccessStatus, (unsigned long)CDSRegRecPtr->BlockOffset);
+                         (unsigned int)CDS->Cache.AccessStatus,
+                         (unsigned long)CDSRegRecPtr->BlockOffset);
             }
             else
             {
                 PspStatus = CFE_PSP_WriteToCDS(DataToWrite, UserDataOffset, UserDataSize);
                 if (PspStatus != CFE_PSP_SUCCESS)
                 {
-                    snprintf(LogMessage, sizeof(LogMessage),
-                             "Err writing user data to CDS (Stat=0x%08x) @Offset=0x%08lx\n", (unsigned int)PspStatus,
+                    snprintf(LogMessage,
+                             sizeof(LogMessage),
+                             "Err writing user data to CDS (Stat=0x%08x) @Offset=0x%08lx\n",
+                             (unsigned int)PspStatus,
                              (unsigned long)UserDataOffset);
 
                     Status = CFE_ES_CDS_ACCESS_ERROR;
@@ -255,7 +267,7 @@ int32 CFE_ES_CDSBlockRead(void *DataRead, CFE_ES_CDSHandle_t Handle)
     size_t                 BlockSize;
     size_t                 UserDataSize;
     size_t                 UserDataOffset;
-    CFE_ES_CDS_RegRec_t *  CDSRegRecPtr;
+    CFE_ES_CDS_RegRec_t   *CDSRegRecPtr;
 
     CDSRegRecPtr = CFE_ES_LocateCDSBlockRecordByID(Handle);
 
@@ -281,9 +293,9 @@ int32 CFE_ES_CDSBlockRead(void *DataRead, CFE_ES_CDSHandle_t Handle)
             }
             else
             {
-                UserDataSize = CDSRegRecPtr->BlockSize;
-                UserDataSize -= sizeof(CFE_ES_CDS_BlockHeader_t);
-                UserDataOffset = CDSRegRecPtr->BlockOffset;
+                UserDataSize    = CDSRegRecPtr->BlockSize;
+                UserDataSize   -= sizeof(CFE_ES_CDS_BlockHeader_t);
+                UserDataOffset  = CDSRegRecPtr->BlockOffset;
                 UserDataOffset += sizeof(CFE_ES_CDS_BlockHeader_t);
 
                 /* Read the header */
@@ -339,6 +351,7 @@ size_t CFE_ES_CDSReqdMinSize(uint32 MaxNumBlocksToSupport)
 
     CDSMemPoolDefSize = CFE_Config_GetArrayValue(CFE_CONFIGID_PLATFORM_ES_CDS_MEM_BLOCK_SIZE);
 
-    return CFE_ES_GenPoolCalcMinSize(CDSMemPoolDefSize.NumElements, CDSMemPoolDefSize.ElementPtr,
+    return CFE_ES_GenPoolCalcMinSize(CDSMemPoolDefSize.NumElements,
+                                     CDSMemPoolDefSize.ElementPtr,
                                      MaxNumBlocksToSupport);
 }

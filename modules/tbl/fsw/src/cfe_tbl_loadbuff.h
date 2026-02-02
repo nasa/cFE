@@ -51,7 +51,7 @@ struct CFE_TBL_LoadBuff
     CFE_TBL_LoadBuffId_t LoadBufferId;
     CFE_TBL_RegId_t      OwnerRegId;
 
-    void *             BufferPtr;      /**< \brief Pointer to Load Buffer */
+    void              *BufferPtr;      /**< \brief Pointer to Load Buffer */
     size_t             AllocationSize; /**< \brief Allocated size of the memory to which BufferPtr points */
     size_t             ContentSize;    /**< \brief Current content size */
     CFE_TIME_SysTime_t FileTime;       /**< \brief Time stamp from last file loaded into table */
@@ -173,8 +173,8 @@ static inline bool CFE_TBL_LoadBuffIsUsed(const CFE_TBL_LoadBuff_t *BuffPtr)
  * @param[in]   PendingId   the ID of this entry that will be set
  * @param[in]   OwnerRegId  the ID of the registry entry that owns this buffer
  */
-static inline void CFE_TBL_LoadBuffSetUsed(CFE_TBL_LoadBuff_t *BuffPtr, CFE_ResourceId_t PendingId,
-                                           CFE_TBL_RegId_t OwnerRegId)
+static inline void
+CFE_TBL_LoadBuffSetUsed(CFE_TBL_LoadBuff_t *BuffPtr, CFE_ResourceId_t PendingId, CFE_TBL_RegId_t OwnerRegId)
 {
     BuffPtr->OwnerRegId   = OwnerRegId;
     BuffPtr->LoadBufferId = CFE_TBL_LOADBUFFID_C(PendingId);

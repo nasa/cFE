@@ -161,10 +161,12 @@ int32 CFE_SB_AppInit(void)
 
     CFE_ES_WriteToSysLog("%s: Registered %d events for filtering\n", __func__, (int)CfgFileEventsToFilter);
 
-    CFE_MSG_Init(CFE_MSG_PTR(CFE_SB_Global.HKTlmMsg.TelemetryHeader), CFE_SB_ValueToMsgId(CFE_SB_HK_TLM_MID),
+    CFE_MSG_Init(CFE_MSG_PTR(CFE_SB_Global.HKTlmMsg.TelemetryHeader),
+                 CFE_SB_ValueToMsgId(CFE_SB_HK_TLM_MID),
                  sizeof(CFE_SB_Global.HKTlmMsg));
 
-    CFE_MSG_Init(CFE_MSG_PTR(CFE_SB_Global.PrevSubMsg.TelemetryHeader), CFE_SB_ValueToMsgId(CFE_SB_ALLSUBS_TLM_MID),
+    CFE_MSG_Init(CFE_MSG_PTR(CFE_SB_Global.PrevSubMsg.TelemetryHeader),
+                 CFE_SB_ValueToMsgId(CFE_SB_ALLSUBS_TLM_MID),
                  sizeof(CFE_SB_Global.PrevSubMsg));
 
     /* Populate the fixed fields in the HK Tlm Msg */
@@ -205,7 +207,8 @@ int32 CFE_SB_AppInit(void)
 
     if (Status != CFE_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("%s: Subscribe to Subscription Report Request Failed:RC=0x%08X\n", __func__,
+        CFE_ES_WriteToSysLog("%s: Subscribe to Subscription Report Request Failed:RC=0x%08X\n",
+                             __func__,
                              (unsigned int)Status);
         return Status;
     }
@@ -230,8 +233,12 @@ int32 CFE_SB_AppInit(void)
         return Status;
     }
 
-    CFE_Config_GetVersionString(VersionString, CFE_CFG_MAX_VERSION_STR_LEN, "CFE_SB", CFE_SRC_VERSION,
-                                CFE_BUILD_CODENAME, CFE_LAST_OFFICIAL);
+    CFE_Config_GetVersionString(VersionString,
+                                CFE_CFG_MAX_VERSION_STR_LEN,
+                                "CFE_SB",
+                                CFE_SRC_VERSION,
+                                CFE_BUILD_CODENAME,
+                                CFE_LAST_OFFICIAL);
     Status = CFE_EVS_SendEvent(CFE_SB_INIT_EID, CFE_EVS_EventType_INFORMATION, "cFE SB Initialized: %s", VersionString);
     if (Status != CFE_SUCCESS)
     {
@@ -251,8 +258,12 @@ int32 CFE_SB_AppInit(void)
 int32 CFE_SB_NoopCmd(const CFE_SB_NoopCmd_t *data)
 {
     char VersionString[CFE_CFG_MAX_VERSION_STR_LEN];
-    CFE_Config_GetVersionString(VersionString, CFE_CFG_MAX_VERSION_STR_LEN, "CFE_SB", CFE_SRC_VERSION,
-                                CFE_BUILD_CODENAME, CFE_LAST_OFFICIAL);
+    CFE_Config_GetVersionString(VersionString,
+                                CFE_CFG_MAX_VERSION_STR_LEN,
+                                "CFE_SB",
+                                CFE_SRC_VERSION,
+                                CFE_BUILD_CODENAME,
+                                CFE_LAST_OFFICIAL);
     CFE_EVS_SendEvent(CFE_SB_CMD0_RCVD_EID, CFE_EVS_EventType_INFORMATION, "No-op Cmd Rcvd: %s", VersionString);
     CFE_SB_Global.HKTlmMsg.Payload.CommandCounter++;
 
@@ -350,8 +361,8 @@ void CFE_SB_ResetCounters(void)
 int32 CFE_SB_EnableRouteCmd(const CFE_SB_EnableRouteCmd_t *data)
 {
     CFE_SB_MsgId_t                   MsgId;
-    CFE_SB_PipeD_t *                 PipeDscPtr;
-    CFE_SB_DestinationD_t *          DestPtr;
+    CFE_SB_PipeD_t                  *PipeDscPtr;
+    CFE_SB_DestinationD_t           *DestPtr;
     const CFE_SB_RouteCmd_Payload_t *CmdPtr;
     uint16                           PendingEventID;
 
@@ -390,20 +401,27 @@ int32 CFE_SB_EnableRouteCmd(const CFE_SB_EnableRouteCmd_t *data)
     switch (PendingEventID)
     {
         case CFE_SB_ENBL_RTE1_EID:
-            CFE_EVS_SendEvent(CFE_SB_ENBL_RTE1_EID, CFE_EVS_EventType_ERROR,
+            CFE_EVS_SendEvent(CFE_SB_ENBL_RTE1_EID,
+                              CFE_EVS_EventType_ERROR,
                               "Enbl Route Cmd:Route does not exist.Msg 0x%x,Pipe %lu",
-                              (unsigned int)CFE_SB_MsgIdToValue(MsgId), CFE_RESOURCEID_TO_ULONG(CmdPtr->Pipe));
+                              (unsigned int)CFE_SB_MsgIdToValue(MsgId),
+                              CFE_RESOURCEID_TO_ULONG(CmdPtr->Pipe));
             break;
         case CFE_SB_ENBL_RTE3_EID:
-            CFE_EVS_SendEvent(CFE_SB_ENBL_RTE3_EID, CFE_EVS_EventType_ERROR,
+            CFE_EVS_SendEvent(CFE_SB_ENBL_RTE3_EID,
+                              CFE_EVS_EventType_ERROR,
                               "Enbl Route Cmd:Invalid Param.Msg 0x%x,Pipe %lu",
-                              (unsigned int)CFE_SB_MsgIdToValue(MsgId), CFE_RESOURCEID_TO_ULONG(CmdPtr->Pipe));
+                              (unsigned int)CFE_SB_MsgIdToValue(MsgId),
+                              CFE_RESOURCEID_TO_ULONG(CmdPtr->Pipe));
             break;
         case CFE_SB_ENBL_RTE2_EID:
         /* Intentional fall through */
         default:
-            CFE_EVS_SendEvent(CFE_SB_ENBL_RTE2_EID, CFE_EVS_EventType_DEBUG, "Enabling Route,Msg 0x%x,Pipe %lu",
-                              (unsigned int)CFE_SB_MsgIdToValue(MsgId), CFE_RESOURCEID_TO_ULONG(CmdPtr->Pipe));
+            CFE_EVS_SendEvent(CFE_SB_ENBL_RTE2_EID,
+                              CFE_EVS_EventType_DEBUG,
+                              "Enabling Route,Msg 0x%x,Pipe %lu",
+                              (unsigned int)CFE_SB_MsgIdToValue(MsgId),
+                              CFE_RESOURCEID_TO_ULONG(CmdPtr->Pipe));
             break;
     }
 
@@ -419,8 +437,8 @@ int32 CFE_SB_EnableRouteCmd(const CFE_SB_EnableRouteCmd_t *data)
 int32 CFE_SB_DisableRouteCmd(const CFE_SB_DisableRouteCmd_t *data)
 {
     CFE_SB_MsgId_t                   MsgId;
-    CFE_SB_PipeD_t *                 PipeDscPtr;
-    CFE_SB_DestinationD_t *          DestPtr;
+    CFE_SB_PipeD_t                  *PipeDscPtr;
+    CFE_SB_DestinationD_t           *DestPtr;
     const CFE_SB_RouteCmd_Payload_t *CmdPtr;
     uint16                           PendingEventID;
 
@@ -459,20 +477,27 @@ int32 CFE_SB_DisableRouteCmd(const CFE_SB_DisableRouteCmd_t *data)
     switch (PendingEventID)
     {
         case CFE_SB_DSBL_RTE1_EID:
-            CFE_EVS_SendEvent(CFE_SB_DSBL_RTE1_EID, CFE_EVS_EventType_ERROR,
+            CFE_EVS_SendEvent(CFE_SB_DSBL_RTE1_EID,
+                              CFE_EVS_EventType_ERROR,
                               "Disable Route Cmd:Route does not exist,Msg 0x%x,Pipe %lu",
-                              (unsigned int)CFE_SB_MsgIdToValue(MsgId), CFE_RESOURCEID_TO_ULONG(CmdPtr->Pipe));
+                              (unsigned int)CFE_SB_MsgIdToValue(MsgId),
+                              CFE_RESOURCEID_TO_ULONG(CmdPtr->Pipe));
             break;
         case CFE_SB_DSBL_RTE3_EID:
-            CFE_EVS_SendEvent(CFE_SB_DSBL_RTE3_EID, CFE_EVS_EventType_ERROR,
+            CFE_EVS_SendEvent(CFE_SB_DSBL_RTE3_EID,
+                              CFE_EVS_EventType_ERROR,
                               "Disable Route Cmd:Invalid Param.Msg 0x%x,Pipe %lu",
-                              (unsigned int)CFE_SB_MsgIdToValue(MsgId), CFE_RESOURCEID_TO_ULONG(CmdPtr->Pipe));
+                              (unsigned int)CFE_SB_MsgIdToValue(MsgId),
+                              CFE_RESOURCEID_TO_ULONG(CmdPtr->Pipe));
             break;
         case CFE_SB_DSBL_RTE2_EID:
         /* Intentional fall through */
         default:
-            CFE_EVS_SendEvent(CFE_SB_DSBL_RTE2_EID, CFE_EVS_EventType_DEBUG, "Route Disabled,Msg 0x%x,Pipe %lu",
-                              (unsigned int)CFE_SB_MsgIdToValue(MsgId), CFE_RESOURCEID_TO_ULONG(CmdPtr->Pipe));
+            CFE_EVS_SendEvent(CFE_SB_DSBL_RTE2_EID,
+                              CFE_EVS_EventType_DEBUG,
+                              "Route Disabled,Msg 0x%x,Pipe %lu",
+                              (unsigned int)CFE_SB_MsgIdToValue(MsgId),
+                              CFE_RESOURCEID_TO_ULONG(CmdPtr->Pipe));
             break;
     }
 
@@ -489,7 +514,7 @@ int32 CFE_SB_SendStatsCmd(const CFE_SB_SendSbStatsCmd_t *data)
 {
     uint32                   PipeDscCount;
     uint32                   PipeStatCount;
-    CFE_SB_PipeD_t *         PipeDscPtr;
+    CFE_SB_PipeD_t          *PipeDscPtr;
     CFE_SB_PipeDepthStats_t *PipeStatPtr;
 
     CFE_SB_LockSharedData(__FILE__, __LINE__);
@@ -547,11 +572,11 @@ int32 CFE_SB_SendStatsCmd(const CFE_SB_SendSbStatsCmd_t *data)
  *-----------------------------------------------------------------*/
 void CFE_SB_CollectRouteInfo(CFE_SBR_RouteId_t RouteId, void *ArgPtr)
 {
-    CFE_SB_DestinationD_t *             DestPtr;
-    CFE_SB_PipeD_t *                    PipeDscPtr;
+    CFE_SB_DestinationD_t              *DestPtr;
+    CFE_SB_PipeD_t                     *PipeDscPtr;
     CFE_SB_MsgId_t                      RouteMsgId;
     CFE_SB_BackgroundRouteInfoBuffer_t *RouteBufferPtr;
-    CFE_SB_RoutingFileEntry_t *         FileEntryPtr;
+    CFE_SB_RoutingFileEntry_t          *FileEntryPtr;
     CFE_ES_AppId_t                      DestAppId[CFE_PLATFORM_SB_MAX_DEST_PER_PKT];
     uint32                              i;
 
@@ -633,7 +658,8 @@ int32 CFE_SB_SendSubscriptionReport(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId
 
     if (CFE_SB_Global.SubscriptionReporting == CFE_SB_ENABLE)
     {
-        CFE_MSG_Init(CFE_MSG_PTR(SubRptMsg.TelemetryHeader), CFE_SB_ValueToMsgId(CFE_SB_ONESUB_TLM_MID),
+        CFE_MSG_Init(CFE_MSG_PTR(SubRptMsg.TelemetryHeader),
+                     CFE_SB_ValueToMsgId(CFE_SB_ONESUB_TLM_MID),
                      sizeof(SubRptMsg));
 
         SubRptMsg.Payload.MsgId   = MsgId;
@@ -642,9 +668,12 @@ int32 CFE_SB_SendSubscriptionReport(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId
         SubRptMsg.Payload.SubType = CFE_SB_SUBSCRIPTION;
 
         Status = CFE_SB_TransmitMsg(CFE_MSG_PTR(SubRptMsg.TelemetryHeader), true);
-        CFE_EVS_SendEventWithAppID(CFE_SB_SUBSCRIPTION_RPT_EID, CFE_EVS_EventType_DEBUG, CFE_SB_Global.AppId,
+        CFE_EVS_SendEventWithAppID(CFE_SB_SUBSCRIPTION_RPT_EID,
+                                   CFE_EVS_EventType_DEBUG,
+                                   CFE_SB_Global.AppId,
                                    "Sending Subscription Report Msg=0x%x,Pipe=%lu,Stat=0x%x",
-                                   (unsigned int)CFE_SB_MsgIdToValue(MsgId), CFE_RESOURCEID_TO_ULONG(PipeId),
+                                   (unsigned int)CFE_SB_MsgIdToValue(MsgId),
+                                   CFE_RESOURCEID_TO_ULONG(PipeId),
                                    (unsigned int)Status);
     }
 
@@ -689,8 +718,12 @@ bool CFE_SB_WriteRouteInfoDataGetter(void *Meta, uint32 RecordNum, void **Buffer
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-void CFE_SB_BackgroundFileEventHandler(void *Meta, CFE_FS_FileWriteEvent_t Event, int32 Status, uint32 RecordNum,
-                                       size_t BlockSize, size_t Position)
+void CFE_SB_BackgroundFileEventHandler(void                   *Meta,
+                                       CFE_FS_FileWriteEvent_t Event,
+                                       int32                   Status,
+                                       uint32                  RecordNum,
+                                       size_t                  BlockSize,
+                                       size_t                  Position)
 {
     CFE_SB_BackgroundFileStateInfo_t *BgFilePtr;
 
@@ -706,21 +739,33 @@ void CFE_SB_BackgroundFileEventHandler(void *Meta, CFE_FS_FileWriteEvent_t Event
     switch (Event)
     {
         case CFE_FS_FileWriteEvent_COMPLETE:
-            CFE_EVS_SendEventWithAppID(CFE_SB_SND_RTG_EID, CFE_EVS_EventType_DEBUG, CFE_SB_Global.AppId,
-                                       "%s written:Size=%d,Entries=%d", BgFilePtr->FileWrite.FileName, (int)Position,
+            CFE_EVS_SendEventWithAppID(CFE_SB_SND_RTG_EID,
+                                       CFE_EVS_EventType_DEBUG,
+                                       CFE_SB_Global.AppId,
+                                       "%s written:Size=%d,Entries=%d",
+                                       BgFilePtr->FileWrite.FileName,
+                                       (int)Position,
                                        (int)RecordNum);
             break;
 
         case CFE_FS_FileWriteEvent_HEADER_WRITE_ERROR:
         case CFE_FS_FileWriteEvent_RECORD_WRITE_ERROR:
-            CFE_EVS_SendEventWithAppID(CFE_SB_FILEWRITE_ERR_EID, CFE_EVS_EventType_ERROR, CFE_SB_Global.AppId,
+            CFE_EVS_SendEventWithAppID(CFE_SB_FILEWRITE_ERR_EID,
+                                       CFE_EVS_EventType_ERROR,
+                                       CFE_SB_Global.AppId,
                                        "File write,byte cnt err,file %s,request=%d,actual=%d",
-                                       BgFilePtr->FileWrite.FileName, (int)BlockSize, (int)Status);
+                                       BgFilePtr->FileWrite.FileName,
+                                       (int)BlockSize,
+                                       (int)Status);
             break;
 
         case CFE_FS_FileWriteEvent_CREATE_ERROR:
-            CFE_EVS_SendEventWithAppID(CFE_SB_SND_RTG_ERR1_EID, CFE_EVS_EventType_ERROR, CFE_SB_Global.AppId,
-                                       "Error creating file %s, stat=0x%x", BgFilePtr->FileWrite.FileName, (int)Status);
+            CFE_EVS_SendEventWithAppID(CFE_SB_SND_RTG_ERR1_EID,
+                                       CFE_EVS_EventType_ERROR,
+                                       CFE_SB_Global.AppId,
+                                       "Error creating file %s, stat=0x%x",
+                                       BgFilePtr->FileWrite.FileName,
+                                       (int)Status);
             break;
 
         default:
@@ -738,7 +783,7 @@ void CFE_SB_BackgroundFileEventHandler(void *Meta, CFE_FS_FileWriteEvent_t Event
 int32 CFE_SB_WriteRoutingInfoCmd(const CFE_SB_WriteRoutingInfoCmd_t *data)
 {
     const CFE_SB_WriteFileInfoCmd_Payload_t *CmdPtr;
-    CFE_SB_BackgroundFileStateInfo_t *       StatePtr;
+    CFE_SB_BackgroundFileStateInfo_t        *StatePtr;
     int32                                    Status;
 
     StatePtr = &CFE_SB_Global.BackgroundFile;
@@ -763,8 +808,10 @@ int32 CFE_SB_WriteRoutingInfoCmd(const CFE_SB_WriteRoutingInfoCmd_t *data)
         /*
         ** Copy the filename into local buffer with default name/path/extension if not specified
         */
-        Status = CFE_FS_ParseInputFileNameEx(StatePtr->FileWrite.FileName, CmdPtr->Filename,
-                                             sizeof(StatePtr->FileWrite.FileName), sizeof(CmdPtr->Filename),
+        Status = CFE_FS_ParseInputFileNameEx(StatePtr->FileWrite.FileName,
+                                             CmdPtr->Filename,
+                                             sizeof(StatePtr->FileWrite.FileName),
+                                             sizeof(CmdPtr->Filename),
                                              CFE_PLATFORM_SB_DEFAULT_ROUTING_FILENAME,
                                              CFE_FS_GetDefaultMountPoint(CFE_FS_FileCategory_BINARY_DATA_DUMP),
                                              CFE_FS_GetDefaultExtension(CFE_FS_FileCategory_BINARY_DATA_DUMP));
@@ -799,8 +846,8 @@ int32 CFE_SB_WriteRoutingInfoCmd(const CFE_SB_WriteRoutingInfoCmd_t *data)
 bool CFE_SB_WritePipeInfoDataGetter(void *Meta, uint32 RecordNum, void **Buffer, size_t *BufSize)
 {
     CFE_SB_BackgroundFileStateInfo_t *BgFilePtr;
-    CFE_SB_PipeInfoEntry_t *          PipeBufferPtr;
-    CFE_SB_PipeD_t *                  PipeDscPtr;
+    CFE_SB_PipeInfoEntry_t           *PipeBufferPtr;
+    CFE_SB_PipeD_t                   *PipeDscPtr;
     osal_id_t                         SysQueueId = OS_OBJECT_ID_UNDEFINED;
     bool                              PipeIsValid;
 
@@ -877,7 +924,7 @@ bool CFE_SB_WritePipeInfoDataGetter(void *Meta, uint32 RecordNum, void **Buffer,
 int32 CFE_SB_WritePipeInfoCmd(const CFE_SB_WritePipeInfoCmd_t *data)
 {
     const CFE_SB_WriteFileInfoCmd_Payload_t *CmdPtr;
-    CFE_SB_BackgroundFileStateInfo_t *       StatePtr;
+    CFE_SB_BackgroundFileStateInfo_t        *StatePtr;
     int32                                    Status;
 
     StatePtr = &CFE_SB_Global.BackgroundFile;
@@ -902,8 +949,10 @@ int32 CFE_SB_WritePipeInfoCmd(const CFE_SB_WritePipeInfoCmd_t *data)
         /*
         ** Copy the filename into local buffer with default name/path/extension if not specified
         */
-        Status = CFE_FS_ParseInputFileNameEx(StatePtr->FileWrite.FileName, CmdPtr->Filename,
-                                             sizeof(StatePtr->FileWrite.FileName), sizeof(CmdPtr->Filename),
+        Status = CFE_FS_ParseInputFileNameEx(StatePtr->FileWrite.FileName,
+                                             CmdPtr->Filename,
+                                             sizeof(StatePtr->FileWrite.FileName),
+                                             sizeof(CmdPtr->Filename),
                                              CFE_PLATFORM_SB_DEFAULT_PIPE_FILENAME,
                                              CFE_FS_GetDefaultMountPoint(CFE_FS_FileCategory_BINARY_DATA_DUMP),
                                              CFE_FS_GetDefaultExtension(CFE_FS_FileCategory_BINARY_DATA_DUMP));
@@ -1001,7 +1050,7 @@ bool CFE_SB_WriteMsgMapInfoDataGetter(void *Meta, uint32 RecordNum, void **Buffe
 int32 CFE_SB_WriteMapInfoCmd(const CFE_SB_WriteMapInfoCmd_t *data)
 {
     const CFE_SB_WriteFileInfoCmd_Payload_t *CmdPtr;
-    CFE_SB_BackgroundFileStateInfo_t *       StatePtr;
+    CFE_SB_BackgroundFileStateInfo_t        *StatePtr;
     int32                                    Status;
 
     StatePtr = &CFE_SB_Global.BackgroundFile;
@@ -1026,8 +1075,10 @@ int32 CFE_SB_WriteMapInfoCmd(const CFE_SB_WriteMapInfoCmd_t *data)
         /*
         ** Copy the filename into local buffer with default name/path/extension if not specified
         */
-        Status = CFE_FS_ParseInputFileNameEx(StatePtr->FileWrite.FileName, CmdPtr->Filename,
-                                             sizeof(StatePtr->FileWrite.FileName), sizeof(CmdPtr->Filename),
+        Status = CFE_FS_ParseInputFileNameEx(StatePtr->FileWrite.FileName,
+                                             CmdPtr->Filename,
+                                             sizeof(StatePtr->FileWrite.FileName),
+                                             sizeof(CmdPtr->Filename),
                                              CFE_PLATFORM_SB_DEFAULT_MAP_FILENAME,
                                              CFE_FS_GetDefaultMountPoint(CFE_FS_FileCategory_BINARY_DATA_DUMP),
                                              CFE_FS_GetDefaultExtension(CFE_FS_FileCategory_BINARY_DATA_DUMP));
@@ -1084,10 +1135,12 @@ void CFE_SB_SendRouteSub(CFE_SBR_RouteId_t RouteId, void *ArgPtr)
             {
                 CFE_SB_UnlockSharedData(__func__, __LINE__);
                 status = CFE_SB_TransmitMsg(CFE_MSG_PTR(CFE_SB_Global.PrevSubMsg.TelemetryHeader), true);
-                CFE_EVS_SendEvent(CFE_SB_FULL_SUB_PKT_EID, CFE_EVS_EventType_DEBUG,
+                CFE_EVS_SendEvent(CFE_SB_FULL_SUB_PKT_EID,
+                                  CFE_EVS_EventType_DEBUG,
                                   "Full Sub Pkt %d Sent,Entries=%d,Stat=0x%x\n",
                                   (int)CFE_SB_Global.PrevSubMsg.Payload.PktSegment,
-                                  (int)CFE_SB_Global.PrevSubMsg.Payload.Entries, (unsigned int)status);
+                                  (int)CFE_SB_Global.PrevSubMsg.Payload.Entries,
+                                  (unsigned int)status);
                 CFE_SB_LockSharedData(__func__, __LINE__);
                 CFE_SB_Global.PrevSubMsg.Payload.Entries = 0;
                 CFE_SB_Global.PrevSubMsg.Payload.PktSegment++;
@@ -1133,10 +1186,12 @@ int32 CFE_SB_SendPrevSubsCmd(const CFE_SB_SendPrevSubsCmd_t *data)
     if (CFE_SB_Global.PrevSubMsg.Payload.Entries > 0)
     {
         status = CFE_SB_TransmitMsg(CFE_MSG_PTR(CFE_SB_Global.PrevSubMsg.TelemetryHeader), true);
-        CFE_EVS_SendEvent(CFE_SB_PART_SUB_PKT_EID, CFE_EVS_EventType_DEBUG,
+        CFE_EVS_SendEvent(CFE_SB_PART_SUB_PKT_EID,
+                          CFE_EVS_EventType_DEBUG,
                           "Partial Sub Pkt %d Sent,Entries=%d,Stat=0x%x",
                           (int)CFE_SB_Global.PrevSubMsg.Payload.PktSegment,
-                          (int)CFE_SB_Global.PrevSubMsg.Payload.Entries, (unsigned int)status);
+                          (int)CFE_SB_Global.PrevSubMsg.Payload.Entries,
+                          (unsigned int)status);
     }
 
     return CFE_SUCCESS;

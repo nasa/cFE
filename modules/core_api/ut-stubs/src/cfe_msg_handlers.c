@@ -74,8 +74,8 @@ void UT_DefaultHandler_CFE_MSG_GetEDSVersion(void *UserObj, UT_EntryKey_t FuncKe
     UT_Stub_GetInt32StatusCode(Context, &status);
     if (status >= 0)
     {
-        UTASSERT_GETSTUB(UT_Stub_CopyToLocal(UT_KEY(CFE_MSG_GetEDSVersion), Version, sizeof(*Version)) ==
-                         sizeof(*Version));
+        UTASSERT_GETSTUB(UT_Stub_CopyToLocal(UT_KEY(CFE_MSG_GetEDSVersion), Version, sizeof(*Version))
+                         == sizeof(*Version));
     }
 }
 
@@ -111,8 +111,8 @@ void UT_DefaultHandler_CFE_MSG_GetFcnCode(void *UserObj, UT_EntryKey_t FuncKey, 
     UT_Stub_GetInt32StatusCode(Context, &status);
     if (status >= 0)
     {
-        UTASSERT_GETSTUB(UT_Stub_CopyToLocal(UT_KEY(CFE_MSG_GetFcnCode), FcnCode, sizeof(*FcnCode)) ==
-                         sizeof(*FcnCode));
+        UTASSERT_GETSTUB(UT_Stub_CopyToLocal(UT_KEY(CFE_MSG_GetFcnCode), FcnCode, sizeof(*FcnCode))
+                         == sizeof(*FcnCode));
     }
 }
 
@@ -121,7 +121,8 @@ void UT_DefaultHandler_CFE_MSG_GetFcnCode(void *UserObj, UT_EntryKey_t FuncKey, 
  * Default handler for CFE_MSG_GetHasSecondaryHeader coverage stub function
  *
  *------------------------------------------------------------*/
-void UT_DefaultHandler_CFE_MSG_GetHasSecondaryHeader(void *UserObj, UT_EntryKey_t FuncKey,
+void UT_DefaultHandler_CFE_MSG_GetHasSecondaryHeader(void                   *UserObj,
+                                                     UT_EntryKey_t           FuncKey,
                                                      const UT_StubContext_t *Context)
 {
     bool *HasSecondary = UT_Hook_GetArgValueByName(Context, "HasSecondary", bool *);
@@ -131,8 +132,8 @@ void UT_DefaultHandler_CFE_MSG_GetHasSecondaryHeader(void *UserObj, UT_EntryKey_
     UT_Stub_GetInt32StatusCode(Context, &status);
     if (status >= 0)
     {
-        UTASSERT_GETSTUB(UT_Stub_CopyToLocal(UT_KEY(CFE_MSG_GetHasSecondaryHeader), HasSecondary,
-                                             sizeof(*HasSecondary)) == sizeof(*HasSecondary));
+        UTASSERT_GETSTUB(UT_Stub_CopyToLocal(UT_KEY(CFE_MSG_GetHasSecondaryHeader), HasSecondary, sizeof(*HasSecondary))
+                         == sizeof(*HasSecondary));
     }
 }
 
@@ -150,8 +151,8 @@ void UT_DefaultHandler_CFE_MSG_GetHeaderVersion(void *UserObj, UT_EntryKey_t Fun
     UT_Stub_GetInt32StatusCode(Context, &status);
     if (status >= 0)
     {
-        UTASSERT_GETSTUB(UT_Stub_CopyToLocal(UT_KEY(CFE_MSG_GetHeaderVersion), Version, sizeof(*Version)) ==
-                         sizeof(*Version));
+        UTASSERT_GETSTUB(UT_Stub_CopyToLocal(UT_KEY(CFE_MSG_GetHeaderVersion), Version, sizeof(*Version))
+                         == sizeof(*Version));
     }
 }
 
@@ -205,8 +206,8 @@ void UT_DefaultHandler_CFE_MSG_GetPlaybackFlag(void *UserObj, UT_EntryKey_t Func
     UT_Stub_GetInt32StatusCode(Context, &status);
     if (status >= 0)
     {
-        UTASSERT_GETSTUB(UT_Stub_CopyToLocal(UT_KEY(CFE_MSG_GetPlaybackFlag), PlayFlag, sizeof(*PlayFlag)) ==
-                         sizeof(*PlayFlag));
+        UTASSERT_GETSTUB(UT_Stub_CopyToLocal(UT_KEY(CFE_MSG_GetPlaybackFlag), PlayFlag, sizeof(*PlayFlag))
+                         == sizeof(*PlayFlag));
     }
 }
 
@@ -215,7 +216,8 @@ void UT_DefaultHandler_CFE_MSG_GetPlaybackFlag(void *UserObj, UT_EntryKey_t Func
  * Default handler for CFE_MSG_GetSegmentationFlag coverage stub function
  *
  *------------------------------------------------------------*/
-void UT_DefaultHandler_CFE_MSG_GetSegmentationFlag(void *UserObj, UT_EntryKey_t FuncKey,
+void UT_DefaultHandler_CFE_MSG_GetSegmentationFlag(void                   *UserObj,
+                                                   UT_EntryKey_t           FuncKey,
                                                    const UT_StubContext_t *Context)
 {
     CFE_MSG_SegmentationFlag_t *SegFlag = UT_Hook_GetArgValueByName(Context, "SegFlag", CFE_MSG_SegmentationFlag_t *);
@@ -225,8 +227,8 @@ void UT_DefaultHandler_CFE_MSG_GetSegmentationFlag(void *UserObj, UT_EntryKey_t 
     UT_Stub_GetInt32StatusCode(Context, &status);
     if (status >= 0)
     {
-        UTASSERT_GETSTUB(UT_Stub_CopyToLocal(UT_KEY(CFE_MSG_GetSegmentationFlag), SegFlag, sizeof(*SegFlag)) ==
-                         sizeof(*SegFlag));
+        UTASSERT_GETSTUB(UT_Stub_CopyToLocal(UT_KEY(CFE_MSG_GetSegmentationFlag), SegFlag, sizeof(*SegFlag))
+                         == sizeof(*SegFlag));
     }
 }
 
@@ -244,8 +246,8 @@ void UT_DefaultHandler_CFE_MSG_GetSequenceCount(void *UserObj, UT_EntryKey_t Fun
     UT_Stub_GetInt32StatusCode(Context, &status);
     if (status >= 0)
     {
-        UTASSERT_GETSTUB(UT_Stub_CopyToLocal(UT_KEY(CFE_MSG_GetSequenceCount), SeqCnt, sizeof(*SeqCnt)) ==
-                         sizeof(*SeqCnt));
+        UTASSERT_GETSTUB(UT_Stub_CopyToLocal(UT_KEY(CFE_MSG_GetSequenceCount), SeqCnt, sizeof(*SeqCnt))
+                         == sizeof(*SeqCnt));
     }
 }
 
@@ -281,8 +283,8 @@ void UT_DefaultHandler_CFE_MSG_GetSubsystem(void *UserObj, UT_EntryKey_t FuncKey
     UT_Stub_GetInt32StatusCode(Context, &status);
     if (status >= 0)
     {
-        UTASSERT_GETSTUB(UT_Stub_CopyToLocal(UT_KEY(CFE_MSG_GetSubsystem), Subsystem, sizeof(*Subsystem)) ==
-                         sizeof(*Subsystem));
+        UTASSERT_GETSTUB(UT_Stub_CopyToLocal(UT_KEY(CFE_MSG_GetSubsystem), Subsystem, sizeof(*Subsystem))
+                         == sizeof(*Subsystem));
     }
 }
 
@@ -354,8 +356,8 @@ void UT_DefaultHandler_CFE_MSG_ValidateChecksum(void *UserObj, UT_EntryKey_t Fun
     UT_Stub_GetInt32StatusCode(Context, &status);
     if (status >= 0)
     {
-        UTASSERT_GETSTUB(UT_Stub_CopyToLocal(UT_KEY(CFE_MSG_ValidateChecksum), IsValid, sizeof(*IsValid)) ==
-                         sizeof(*IsValid));
+        UTASSERT_GETSTUB(UT_Stub_CopyToLocal(UT_KEY(CFE_MSG_ValidateChecksum), IsValid, sizeof(*IsValid))
+                         == sizeof(*IsValid));
     }
 }
 
@@ -364,7 +366,8 @@ void UT_DefaultHandler_CFE_MSG_ValidateChecksum(void *UserObj, UT_EntryKey_t Fun
  * Default handler for CFE_MSG_GetNextSequenceCount coverage stub function
  *
  *------------------------------------------------------------*/
-void UT_DefaultHandler_CFE_MSG_GetNextSequenceCount(void *UserObj, UT_EntryKey_t FuncKey,
+void UT_DefaultHandler_CFE_MSG_GetNextSequenceCount(void                   *UserObj,
+                                                    UT_EntryKey_t           FuncKey,
                                                     const UT_StubContext_t *Context)
 {
     int32                   status;

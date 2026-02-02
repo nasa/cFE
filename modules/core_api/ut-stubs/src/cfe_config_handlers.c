@@ -50,7 +50,7 @@ void UT_DefaultHandler_CFE_Config_GetString(void *UserObj, UT_EntryKey_t FuncKey
 {
     int32      status;
     const char FIXED_BUFFER[] = "UT";
-    void *     Buffer;
+    void      *Buffer;
 
     Buffer = NULL;
     UT_Stub_GetInt32StatusCode(Context, &status);

@@ -86,8 +86,8 @@ void CFE_ES_TaskPipe(const CFE_SB_Buffer_t *SBBufPtr)
     Status = EdsDispatch_EdsComponent_CFE_ES_Application_Telecommand(SBBufPtr, &CFE_ES_TC_DISPATCH_TABLE);
 
     /* These specific status codes require sending an event with the details */
-    if (Status == CFE_STATUS_BAD_COMMAND_CODE || Status == CFE_STATUS_WRONG_MSG_LENGTH ||
-        Status == CFE_STATUS_UNKNOWN_MSG_ID)
+    if (Status == CFE_STATUS_BAD_COMMAND_CODE || Status == CFE_STATUS_WRONG_MSG_LENGTH
+        || Status == CFE_STATUS_UNKNOWN_MSG_ID)
     {
         CFE_MSG_GetMsgId(&SBBufPtr->Msg, &MsgId);
         CFE_MSG_GetFcnCode(&SBBufPtr->Msg, &MsgFc);
@@ -97,20 +97,27 @@ void CFE_ES_TaskPipe(const CFE_SB_Buffer_t *SBBufPtr)
 
         if (Status == CFE_STATUS_UNKNOWN_MSG_ID)
         {
-            CFE_EVS_SendEvent(CFE_ES_MID_ERR_EID, CFE_EVS_EventType_ERROR, "Invalid command pipe message ID: 0x%X",
+            CFE_EVS_SendEvent(CFE_ES_MID_ERR_EID,
+                              CFE_EVS_EventType_ERROR,
+                              "Invalid command pipe message ID: 0x%X",
                               (unsigned int)CFE_SB_MsgIdToValue(MsgId));
         }
         else if (Status == CFE_STATUS_WRONG_MSG_LENGTH)
         {
-            CFE_EVS_SendEvent(CFE_ES_LEN_ERR_EID, CFE_EVS_EventType_ERROR,
+            CFE_EVS_SendEvent(CFE_ES_LEN_ERR_EID,
+                              CFE_EVS_EventType_ERROR,
                               "Invalid length for command: ID = 0x%X, CC = %d, length = %u",
-                              (unsigned int)CFE_SB_MsgIdToValue(MsgId), (int)MsgFc, (unsigned int)MsgSize);
+                              (unsigned int)CFE_SB_MsgIdToValue(MsgId),
+                              (int)MsgFc,
+                              (unsigned int)MsgSize);
         }
         else
         {
-            CFE_EVS_SendEvent(CFE_ES_CC1_ERR_EID, CFE_EVS_EventType_ERROR,
+            CFE_EVS_SendEvent(CFE_ES_CC1_ERR_EID,
+                              CFE_EVS_EventType_ERROR,
                               "Invalid ground command code: ID = 0x%X, CC = %d",
-                              (unsigned int)CFE_SB_MsgIdToValue(MsgId), (int)MsgFc);
+                              (unsigned int)CFE_SB_MsgIdToValue(MsgId),
+                              (int)MsgFc);
         }
     }
 }

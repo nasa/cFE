@@ -59,8 +59,8 @@ CFE_ES_GMP_IndirectBuffer_t UT_MemPoolIndirectBuffer;
  * require certain sizes.  A large max block and small min block
  * are needed for testing size thresholds when creating pools.
  */
-static const size_t                  UT_MemPoolSizeArray[5] = {131072, 512, 128, 32, 8};
-static const CFE_Config_ArrayValue_t UT_MemPoolAV           = {5, UT_MemPoolSizeArray};
+static const size_t                  UT_MemPoolSizeArray[5] = { 131072, 512, 128, 32, 8 };
+static const CFE_Config_ArrayValue_t UT_MemPoolAV           = { 5, UT_MemPoolSizeArray };
 
 /* A jump buffer to imitate a function call that does not return */
 jmp_buf OS_TaskDelay_jmp_buf;
@@ -142,7 +142,7 @@ void ES_UT_SysLog_snprintf(char *Buffer, size_t BufferSize, const char *SpecStri
 
 void ES_UT_FillBuffer(void *UserObj, UT_EntryKey_t FuncKey, const UT_StubContext_t *Context)
 {
-    char * PrintBuffer = UT_Hook_GetArgValueByName(Context, "PrintBuffer", char *);
+    char  *PrintBuffer = UT_Hook_GetArgValueByName(Context, "PrintBuffer", char *);
     uint32 Size        = *((uint32 *)UserObj);
 
     memset(PrintBuffer, ' ', Size - 1);
@@ -173,8 +173,11 @@ void ES_UT_SetupModuleLoadParams(CFE_ES_ModuleLoadParams_t *Params, const char *
 /*
  * Helper function to assemble basic bits of info into the "CFE_ES_AppStartParams_t" struct
  */
-void ES_UT_SetupAppStartParams(CFE_ES_AppStartParams_t *Params, const char *FileName, const char *EntryName,
-                               size_t StackSize, CFE_ES_TaskPriority_Atom_t Priority,
+void ES_UT_SetupAppStartParams(CFE_ES_AppStartParams_t      *Params,
+                               const char                   *FileName,
+                               const char                   *EntryName,
+                               size_t                        StackSize,
+                               CFE_ES_TaskPriority_Atom_t    Priority,
                                CFE_ES_ExceptionAction_Enum_t ExceptionAction)
 {
     ES_UT_SetupModuleLoadParams(&Params->BasicInfo, FileName, EntryName);
@@ -188,13 +191,16 @@ void ES_UT_SetupAppStartParams(CFE_ES_AppStartParams_t *Params, const char *File
  * a main task ID.  A pointer to the App and Task record is output so the
  * record can be modified
  */
-void ES_UT_SetupSingleAppId(CFE_ES_AppType_Enum_t AppType, CFE_ES_AppState_Enum_t AppState, const char *AppName,
-                            CFE_ES_AppRecord_t **OutAppRec, CFE_ES_TaskRecord_t **OutTaskRec)
+void ES_UT_SetupSingleAppId(CFE_ES_AppType_Enum_t  AppType,
+                            CFE_ES_AppState_Enum_t AppState,
+                            const char            *AppName,
+                            CFE_ES_AppRecord_t   **OutAppRec,
+                            CFE_ES_TaskRecord_t  **OutTaskRec)
 {
     osal_id_t            UtOsalId = OS_OBJECT_ID_UNDEFINED;
     CFE_ResourceId_t     UtTaskId;
     CFE_ResourceId_t     UtAppId;
-    CFE_ES_AppRecord_t * LocalAppPtr;
+    CFE_ES_AppRecord_t  *LocalAppPtr;
     CFE_ES_TaskRecord_t *LocalTaskPtr;
 
     OS_TaskCreate(&UtOsalId, "UT", NULL, OSAL_TASK_STACK_ALLOCATE, 0, 0, 0);
@@ -392,9 +398,9 @@ void ES_UT_SetupCDSGlobal(size_t CDS_Size)
     if (CDS_Size > CDS_RESERVED_MIN_SIZE)
     {
         OS_MutSemCreate(&CDS->GenMutex, "UT", 0);
-        CDS->TotalSize = CDS_Size;
-        CDS->DataSize  = CDS->TotalSize;
-        CDS->DataSize -= CDS_RESERVED_MIN_SIZE;
+        CDS->TotalSize  = CDS_Size;
+        CDS->DataSize   = CDS->TotalSize;
+        CDS->DataSize  -= CDS_RESERVED_MIN_SIZE;
 
         CFE_ES_InitCDSSignatures();
         CFE_ES_CreateCDSPool(CDS->DataSize, CDS_POOL_OFFSET);
@@ -508,7 +514,7 @@ int32 ES_UT_SetAppStateHook(void *UserObj, int32 StubRetcode, uint32 CallCount, 
 {
     ES_UT_SetAppStateHook_t *StateHook = UserObj;
     uint32                   i;
-    CFE_ES_AppRecord_t *     AppRecPtr;
+    CFE_ES_AppRecord_t      *AppRecPtr;
 
     AppRecPtr = CFE_ES_Global.AppTable;
     for (i = 0; i < CFE_PLATFORM_ES_MAX_APPLICATIONS; ++i)

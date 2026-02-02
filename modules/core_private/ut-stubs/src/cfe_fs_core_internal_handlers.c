@@ -45,7 +45,8 @@
  * Default handler for CFE_FS_RunBackgroundFileDump coverage stub function
  *
  *------------------------------------------------------------*/
-void UT_DefaultHandler_CFE_FS_RunBackgroundFileDump(void *UserObj, UT_EntryKey_t FuncKey,
+void UT_DefaultHandler_CFE_FS_RunBackgroundFileDump(void                   *UserObj,
+                                                    UT_EntryKey_t           FuncKey,
                                                     const UT_StubContext_t *Context)
 {
     int32 status;

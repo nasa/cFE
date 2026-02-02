@@ -61,7 +61,7 @@ void TestBasicTransmitRecv(void)
     CFE_TEST_TestTlmMessage64_t        TlmMsg;
     CFE_SB_MsgId_t                     MsgId;
     CFE_MSG_SequenceCount_t            Seq1, Seq2;
-    CFE_SB_Buffer_t *                  MsgBuf;
+    CFE_SB_Buffer_t                   *MsgBuf;
     const CFE_TEST_TestCmdMessage64_t *CmdPtr;
     const CFE_TEST_TestTlmMessage64_t *TlmPtr;
 
@@ -216,10 +216,10 @@ void TestMsgBroadcast(void)
     CFE_SB_PipeId_t                    PipeId4 = CFE_SB_INVALID_PIPE;
     CFE_TEST_TestCmdMessage64_t        CmdMsg;
     CFE_SB_MsgId_t                     MsgId = CFE_SB_INVALID_MSG_ID;
-    CFE_SB_Buffer_t *                  MsgBuf1;
-    CFE_SB_Buffer_t *                  MsgBuf2;
-    CFE_SB_Buffer_t *                  MsgBuf3;
-    CFE_SB_Buffer_t *                  MsgBuf4;
+    CFE_SB_Buffer_t                   *MsgBuf1;
+    CFE_SB_Buffer_t                   *MsgBuf2;
+    CFE_SB_Buffer_t                   *MsgBuf3;
+    CFE_SB_Buffer_t                   *MsgBuf4;
     const CFE_TEST_TestCmdMessage64_t *CmdPtr;
 
     memset(&CmdMsg, 0, sizeof(CmdMsg));
@@ -369,9 +369,9 @@ void TestZeroCopyTransmitRecv(void)
 {
     CFE_SB_PipeId_t         PipeId1 = CFE_SB_INVALID_PIPE;
     CFE_SB_PipeId_t         PipeId2 = CFE_SB_INVALID_PIPE;
-    CFE_SB_Buffer_t *       CmdBuf;
-    CFE_SB_Buffer_t *       TlmBuf;
-    CFE_SB_Buffer_t *       MsgBuf;
+    CFE_SB_Buffer_t        *CmdBuf;
+    CFE_SB_Buffer_t        *TlmBuf;
+    CFE_SB_Buffer_t        *MsgBuf;
     CFE_SB_MsgId_t          MsgId = CFE_SB_INVALID_MSG_ID;
     CFE_MSG_SequenceCount_t SeqCmd1;
     CFE_MSG_SequenceCount_t SeqTlm1;
@@ -555,29 +555,44 @@ void TestMiscMessageUtils(void)
     memset(TestString, 'y', sizeof(TestString));
 
     /* nominal CFE_SB_MessageStringGet */
-    UtAssert_INT32_EQ(CFE_SB_MessageStringGet(TestString, CFE_FT_BigMsg.StringBuffer, RefString1, sizeof(TestString),
+    UtAssert_INT32_EQ(CFE_SB_MessageStringGet(TestString,
+                                              CFE_FT_BigMsg.StringBuffer,
+                                              RefString1,
+                                              sizeof(TestString),
                                               sizeof(CFE_FT_BigMsg.StringBuffer)),
                       CFE_FT_STRINGBUF_SIZE);
 
     /* The result should be null terminated, even if the input was not */
     UtAssert_ZERO(TestString[CFE_FT_STRINGBUF_SIZE]);
-    UtAssert_STRINGBUF_EQ(TestString, sizeof(TestString), CFE_FT_BigMsg.StringBuffer,
+    UtAssert_STRINGBUF_EQ(TestString,
+                          sizeof(TestString),
+                          CFE_FT_BigMsg.StringBuffer,
                           sizeof(CFE_FT_BigMsg.StringBuffer));
 
     /* No default */
     memset(&CFE_FT_BigMsg, 'w', sizeof(CFE_FT_BigMsg));
-    UtAssert_INT32_EQ(CFE_SB_MessageStringGet(TestString, CFE_FT_BigMsg.StringBuffer, NULL, sizeof(TestString),
+    UtAssert_INT32_EQ(CFE_SB_MessageStringGet(TestString,
+                                              CFE_FT_BigMsg.StringBuffer,
+                                              NULL,
+                                              sizeof(TestString),
                                               sizeof(CFE_FT_BigMsg.StringBuffer)),
                       CFE_FT_STRINGBUF_SIZE);
-    UtAssert_STRINGBUF_EQ(TestString, sizeof(TestString), CFE_FT_BigMsg.StringBuffer,
+    UtAssert_STRINGBUF_EQ(TestString,
+                          sizeof(TestString),
+                          CFE_FT_BigMsg.StringBuffer,
                           sizeof(CFE_FT_BigMsg.StringBuffer));
     UtAssert_ZERO(TestString[CFE_FT_STRINGBUF_SIZE]);
-    UtAssert_STRINGBUF_EQ(TestString, sizeof(TestString), CFE_FT_BigMsg.StringBuffer,
+    UtAssert_STRINGBUF_EQ(TestString,
+                          sizeof(TestString),
+                          CFE_FT_BigMsg.StringBuffer,
                           sizeof(CFE_FT_BigMsg.StringBuffer));
 
     /* Check if the input is empty */
     memset(&CFE_FT_BigMsg, 0, sizeof(CFE_FT_BigMsg));
-    UtAssert_INT32_EQ(CFE_SB_MessageStringGet(TestString, CFE_FT_BigMsg.StringBuffer, RefString1, sizeof(TestString),
+    UtAssert_INT32_EQ(CFE_SB_MessageStringGet(TestString,
+                                              CFE_FT_BigMsg.StringBuffer,
+                                              RefString1,
+                                              sizeof(TestString),
                                               sizeof(CFE_FT_BigMsg.StringBuffer)),
                       sizeof(RefString1) - 1);
     UtAssert_STRINGBUF_EQ(TestString, sizeof(TestString), RefString1, sizeof(RefString1));
@@ -590,17 +605,25 @@ void TestMiscMessageUtils(void)
     UtAssert_STRINGBUF_EQ(TestString, sizeof(TestString), "", 1);
 
     /* bad inputs */
-    UtAssert_INT32_EQ(CFE_SB_MessageStringGet(NULL, CFE_FT_BigMsg.StringBuffer, RefString1, sizeof(TestString),
+    UtAssert_INT32_EQ(CFE_SB_MessageStringGet(NULL,
+                                              CFE_FT_BigMsg.StringBuffer,
+                                              RefString1,
+                                              sizeof(TestString),
                                               sizeof(CFE_FT_BigMsg.StringBuffer)),
                       CFE_SB_BAD_ARGUMENT);
-    UtAssert_INT32_EQ(CFE_SB_MessageStringGet(TestString, CFE_FT_BigMsg.StringBuffer, RefString1, 0,
+    UtAssert_INT32_EQ(CFE_SB_MessageStringGet(TestString,
+                                              CFE_FT_BigMsg.StringBuffer,
+                                              RefString1,
+                                              0,
                                               sizeof(CFE_FT_BigMsg.StringBuffer)),
                       CFE_SB_BAD_ARGUMENT);
 
     /* nominal CFE_SB_MessageStringSet */
     memset(TestString, 'z', sizeof(TestString));
-    UtAssert_INT32_EQ(CFE_SB_MessageStringSet(CFE_FT_BigMsg.StringBuffer, TestString,
-                                              sizeof(CFE_FT_BigMsg.StringBuffer), sizeof(TestString)),
+    UtAssert_INT32_EQ(CFE_SB_MessageStringSet(CFE_FT_BigMsg.StringBuffer,
+                                              TestString,
+                                              sizeof(CFE_FT_BigMsg.StringBuffer),
+                                              sizeof(TestString)),
                       CFE_FT_STRINGBUF_SIZE);
     UtAssert_STRINGBUF_EQ(TestString, CFE_FT_STRINGBUF_SIZE, CFE_FT_BigMsg.StringBuffer, CFE_FT_STRINGBUF_SIZE);
 
@@ -612,7 +635,9 @@ void TestMiscMessageUtils(void)
     /* bad inputs */
     UtAssert_INT32_EQ(CFE_SB_MessageStringSet(NULL, TestString, sizeof(CFE_FT_BigMsg.StringBuffer), sizeof(TestString)),
                       CFE_SB_BAD_ARGUMENT);
-    UtAssert_INT32_EQ(CFE_SB_MessageStringSet(CFE_FT_BigMsg.StringBuffer, NULL, sizeof(CFE_FT_BigMsg.StringBuffer),
+    UtAssert_INT32_EQ(CFE_SB_MessageStringSet(CFE_FT_BigMsg.StringBuffer,
+                                              NULL,
+                                              sizeof(CFE_FT_BigMsg.StringBuffer),
                                               sizeof(TestString)),
                       CFE_SB_BAD_ARGUMENT);
 }
