@@ -348,7 +348,7 @@ bool CFE_ES_RunPerfLogDump(uint32 ElapsedTime, void *Arg)
                     break;
 
                 case CFE_ES_PerfDumpState_WRITE_PERF_ENTRIES:
-                    State->DataPos      = Perf->MetaData.DataStart;
+                    State->DataPos      = 0;
                     State->StateCounter = Perf->MetaData.DataCount;
                     break;
 
