@@ -70,11 +70,10 @@ void CFE_TBL_InitRegistryRecord(CFE_TBL_RegistryRec_t *RegRecPtr)
 
     CFE_TBL_RegRecClearLoadInProgress(RegRecPtr);
 
-    RegRecPtr->OwnerAppId         = CFE_TBL_NOT_OWNED;
-    RegRecPtr->ValidateActiveId   = CFE_TBL_NO_VALIDATION_PENDING;
-    RegRecPtr->ValidateInactiveId = CFE_TBL_NO_VALIDATION_PENDING;
-    RegRecPtr->CDSHandle          = CFE_ES_CDS_BAD_HANDLE;
-    RegRecPtr->DumpControlId      = CFE_TBL_NO_DUMP_PENDING;
+    RegRecPtr->OwnerAppId    = CFE_TBL_NOT_OWNED;
+    RegRecPtr->PendingValId  = CFE_TBL_NO_VALIDATION_PENDING;
+    RegRecPtr->CDSHandle     = CFE_ES_CDS_BAD_HANDLE;
+    RegRecPtr->DumpControlId = CFE_TBL_NO_DUMP_PENDING;
 
     CFE_TBL_HandleLinkInit(&RegRecPtr->AccessList);
 }
@@ -223,12 +222,7 @@ CFE_TBL_LoadBuff_t *CFE_TBL_GetSelectedBuffer(CFE_TBL_RegistryRec_t      *RegRec
             Result = CFE_TBL_GetActiveBuffer(RegRecPtr);
             break;
         default:
-            CFE_EVS_SendEvent(CFE_TBL_ILLEGAL_BUFF_PARAM_ERR_EID,
-                              CFE_EVS_EventType_ERROR,
-                              "Cmd for Table '%s' had illegal buffer parameter (0x%08X)",
-                              CFE_TBL_RegRecGetName(RegRecPtr),
-                              (unsigned int)BufferSelect);
-
+            /* Event is not sent here, it should be sent by the caller */
             Result = NULL;
             break;
     }
@@ -411,7 +405,7 @@ bool CFE_TBL_RegRecIsPendingActivation(const CFE_TBL_RegistryRec_t *RegRecPtr)
     if (CFE_TBL_LoadBuffIsMatch(LoadBuffPtr, RegRecPtr->Status.NextBufferId))
     {
         /* it is only pending activation if it is validated */
-        Result = LoadBuffPtr->Validated;
+        Result = LoadBuffPtr->IsValid && LoadBuffPtr->ActivateReq;
     }
 
     return Result;

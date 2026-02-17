@@ -495,7 +495,7 @@ void Test_CFE_TBL_ActivateCmd(void)
      */
     UT_InitData_TBL();
     LoadBuffPtr               = UT_TBL_SetupLoadBuff(RegRecPtr, false, 0);
-    LoadBuffPtr->Validated    = true;
+    LoadBuffPtr->IsValid      = true;
     RegRecPtr->Notify.Enabled = false;
     UtAssert_INT32_EQ(CFE_TBL_ActivateCmd(&ActivateCmd), CFE_SUCCESS);
     CFE_UtAssert_COUNTER_INCR(CFE_TBL_Global.CommandCounter);
@@ -506,7 +506,7 @@ void Test_CFE_TBL_ActivateCmd(void)
     UT_InitData_TBL();
     RegRecPtr->Notify.Enabled = true;
     LoadBuffPtr               = UT_TBL_SetupLoadBuff(RegRecPtr, false, 0);
-    LoadBuffPtr->Validated    = true;
+    LoadBuffPtr->IsValid      = true;
     UtAssert_INT32_EQ(CFE_TBL_ActivateCmd(&ActivateCmd), CFE_SUCCESS);
     CFE_UtAssert_COUNTER_INCR(CFE_TBL_Global.CommandCounter);
 
@@ -533,7 +533,8 @@ void Test_CFE_TBL_ActivateCmd(void)
     UT_InitData_TBL();
     RegRecPtr->Notify.Enabled = true;
     LoadBuffPtr               = UT_TBL_SetupLoadBuff(RegRecPtr, false, 1);
-    LoadBuffPtr->Validated    = true;
+    LoadBuffPtr->IsValid      = true;
+    LoadBuffPtr->ActivateReq  = true;
     UT_SetDefaultReturnValue(UT_KEY(CFE_SB_TransmitMsg), CFE_SB_BUF_ALOC_ERR);
     UtAssert_INT32_EQ(CFE_TBL_ActivateCmd(&ActivateCmd), CFE_SUCCESS);
     CFE_UtAssert_COUNTER_INCR(CFE_TBL_Global.CommandCounter);
@@ -657,37 +658,50 @@ void Test_CFE_TBL_ValidateCmd(void)
     UT_SetDeferredRetcode(UT_KEY(CFE_ResourceId_FindNext), 1, -1);
     UtAssert_INT32_EQ(CFE_TBL_ValidateCmd(&ValidateCmd), CFE_SUCCESS);
     CFE_UtAssert_COUNTER_INCR(CFE_TBL_Global.CommandErrorCounter);
+    CFE_UtAssert_EVENTSENT(CFE_TBL_TOO_MANY_VALIDATIONS_ERR_EID);
 
     /* Test where the active buffer has data, but there is no validation
      * function pointer
      */
     UT_InitData_TBL();
     UT_TBL_ResetValidationState(0);
+    RegRecPtr->PendingValId                     = CFE_TBL_VALRESULTID_UNDEFINED;
     UT_TBL_Config(RegRecPtr)->ValidationFuncPtr = NULL;
     UtAssert_INT32_EQ(CFE_TBL_ValidateCmd(&ValidateCmd), CFE_SUCCESS);
     CFE_UtAssert_COUNTER_INCR(CFE_TBL_Global.CommandCounter);
+    CFE_UtAssert_EVENTSENT(CFE_TBL_ASSUMED_VALID_INF_EID);
 
     /* Test where the active buffer has data, the validation function pointer
      * exists, and the active table flag is set
      */
     UT_InitData_TBL();
     UT_TBL_ResetValidationState(0);
+    RegRecPtr->PendingValId                     = CFE_TBL_VALRESULTID_UNDEFINED;
     UT_TBL_Config(RegRecPtr)->ValidationFuncPtr = ValFuncPtr;
     ValidateCmd.Payload.ActiveTableFlag         = true;
     UtAssert_INT32_EQ(CFE_TBL_ValidateCmd(&ValidateCmd), CFE_SUCCESS);
     CFE_UtAssert_COUNTER_INCR(CFE_TBL_Global.CommandCounter);
+    CFE_UtAssert_EVENTCOUNT(0); /* this should not send any events */
 
     /* Test with the buffer inactive, the table is double-buffered, and the
-     * validation function pointer exists
+     * validation function pointer exists, and notification is enabled
      */
     UT_InitData_TBL();
     UT_TBL_ResetValidationState(0);
+    RegRecPtr->PendingValId   = CFE_TBL_VALRESULTID_UNDEFINED;
+    RegRecPtr->Notify.Enabled = true;
     UT_TBL_InitActiveBuffer(RegRecPtr, 1);
     ValidateCmd.Payload.ActiveTableFlag         = CFE_TBL_BufferSelect_INACTIVE;
     UT_TBL_Config(RegRecPtr)->DoubleBuffered    = true;
     UT_TBL_Config(RegRecPtr)->ValidationFuncPtr = ValFuncPtr;
     UtAssert_INT32_EQ(CFE_TBL_ValidateCmd(&ValidateCmd), CFE_SUCCESS);
     CFE_UtAssert_COUNTER_INCR(CFE_TBL_Global.CommandCounter);
+    CFE_UtAssert_EVENTSENT(CFE_TBL_VAL_REQ_MADE_INF_EID);
+
+    /* Test where validation is already pending (duplicate request) */
+    UtAssert_INT32_EQ(CFE_TBL_ValidateCmd(&ValidateCmd), CFE_SUCCESS);
+    CFE_UtAssert_COUNTER_INCR(CFE_TBL_Global.CommandCounter);
+    CFE_UtAssert_EVENTSENT(CFE_TBL_VALIDATION_IN_PROGRESS_ERR_EID);
 
     /* Test with the buffer inactive, the table is single-buffered with a
      * load in progress, the validation function pointer exists, and no
@@ -696,40 +710,48 @@ void Test_CFE_TBL_ValidateCmd(void)
     UT_InitData_TBL();
     UT_TBL_ResetValidationState(0);
     RegRecPtr->Notify.Enabled = false;
+    RegRecPtr->PendingValId   = CFE_TBL_VALRESULTID_UNDEFINED;
     LoadBuffPtr               = UT_TBL_SetupLoadBuff(RegRecPtr, false, 0);
     LoadBuffPtr->BufferPtr    = BuffPtr;
     UtAssert_INT32_EQ(CFE_TBL_ValidateCmd(&ValidateCmd), CFE_SUCCESS);
     CFE_UtAssert_COUNTER_INCR(CFE_TBL_Global.CommandCounter);
+    CFE_UtAssert_EVENTCOUNT(0); /* this should not send any events */
 
     /* Test with the buffer inactive, the table is single-buffered with a
-     * load in progress, the validation function pointer exists, and a
-     * notification message should be sent
+     * load in progress, the validation function pointer exists, a
+     * notification message should be sent but it fails
      */
     UT_InitData_TBL();
     UT_SetDeferredRetcode(UT_KEY(CFE_SB_TransmitMsg), 1, CFE_SB_INTERNAL_ERR);
     UT_TBL_ResetValidationState(0);
     RegRecPtr->Notify.Enabled = true;
+    RegRecPtr->PendingValId   = CFE_TBL_VALRESULTID_UNDEFINED;
     LoadBuffPtr               = UT_TBL_SetupLoadBuff(RegRecPtr, false, 0);
     LoadBuffPtr->BufferPtr    = BuffPtr;
     UtAssert_INT32_EQ(CFE_TBL_ValidateCmd(&ValidateCmd), CFE_SUCCESS);
     CFE_UtAssert_COUNTER_INCR(CFE_TBL_Global.CommandCounter);
+    CFE_UtAssert_EVENTSENT(CFE_TBL_FAIL_NOTIFY_SEND_ERR_EID);
 
     /* Test where no inactive buffer is present (single-buffered table without
      * load in progress)
      */
     UT_InitData_TBL();
+    UT_TBL_ResetValidationState(0);
+    RegRecPtr->PendingValId = CFE_TBL_VALRESULTID_UNDEFINED;
     UT_TBL_InitActiveBuffer(RegRecPtr, 0);
     UT_TBL_Config(RegRecPtr)->DoubleBuffered = false;
     UT_TBL_Status(RegRecPtr)->PrevBufferId   = CFE_TBL_LOADBUFFID_UNDEFINED;
     UT_TBL_Status(RegRecPtr)->NextBufferId   = CFE_TBL_LOADBUFFID_UNDEFINED;
     UtAssert_INT32_EQ(CFE_TBL_ValidateCmd(&ValidateCmd), CFE_SUCCESS);
     CFE_UtAssert_COUNTER_INCR(CFE_TBL_Global.CommandErrorCounter);
+    CFE_UtAssert_EVENTSENT(CFE_TBL_ILLEGAL_BUFF_PARAM_ERR_EID);
 
     /* Test with an illegal buffer */
     UT_InitData_TBL();
     ValidateCmd.Payload.ActiveTableFlag = 0xffff;
     UtAssert_INT32_EQ(CFE_TBL_ValidateCmd(&ValidateCmd), CFE_SUCCESS);
     CFE_UtAssert_COUNTER_INCR(CFE_TBL_Global.CommandErrorCounter);
+    CFE_UtAssert_EVENTSENT(CFE_TBL_ILLEGAL_BUFF_PARAM_ERR_EID);
 }
 
 /*
@@ -1261,7 +1283,7 @@ void Test_CFE_TBL_SendHkCmd(void)
     LoadInProg                             = UT_CFE_TBL_LOADBUFFID_GLB_0;
     UT_TBL_Status(RegRecPtr)->NextBufferId = LoadInProg;
     UT_TBL_SetLoadBuffTaken(DumpBuffPtr, RegRecPtr, CFE_RESOURCEID_UNWRAP(LoadInProg));
-    DumpBuffPtr->Validated = true;
+    DumpBuffPtr->IsValid   = true;
     DumpBuffPtr->BufferPtr = BuffPtr;
     DumpBuffPtr->FileTime  = CFE_TIME_ZERO_VALUE;
     UT_TBL_SetName(DumpBuffPtr->DataSource, sizeof(DumpBuffPtr->DataSource), "hkSource");
@@ -2189,7 +2211,7 @@ void Test_CFE_TBL_TableDumpCommon(void)
     UT_ResetState(UT_KEY(CFE_EVS_SendEventWithAppID));
     memset(&Txn, 0, sizeof(Txn));
     CFE_TBL_TxnAddEvent(&Txn, -1, -1, -1);
-    CFE_TBL_SendTableDumpEvents(&Txn, NULL);
+    CFE_TBL_SendTableDumpEvents(&Txn, NULL, NULL);
     UtAssert_STUB_COUNT(CFE_EVS_SendEventWithAppID, 0); /* nothing should have been sent */
 }
 
@@ -2575,12 +2597,11 @@ void Test_CFE_TBL_Manage(void)
     UT_TBL_SetupPendingValidation(0, false, RegRecPtr, &ValResultPtr);
     ValResultPtr->Result = 1;
 
-    /* Perform validation via manage call - note this will also activate it, because the validation succeeded */
+    /* Perform validation via manage call */
     UT_SetDeferredRetcode(UT_KEY(Test_CFE_TBL_ValidationFunc), 1, CFE_SUCCESS);
     CFE_UtAssert_SUCCESS(CFE_TBL_Manage(App1TblHandle1));
     CFE_UtAssert_EVENTSENT(CFE_TBL_VALIDATION_INF_EID);
-    CFE_UtAssert_EVENTSENT(CFE_TBL_UPDATE_SUCCESS_INF_EID);
-    CFE_UtAssert_EVENTCOUNT(2);
+    CFE_UtAssert_EVENTCOUNT(1);
     UtAssert_INT32_EQ(ValResultPtr->Result, 0);
 
     /* Test response to processing an unsuccessful validation request on an
@@ -2652,8 +2673,10 @@ void Test_CFE_TBL_Manage(void)
 
     /* Configure table for update */
     UT_TBL_InitActiveBuffer(RegRecPtr, 0);
-    LoadBuffPtr            = UT_TBL_SetupLoadBuff(RegRecPtr, false, 1); /* Sets NextBufferId appropriately */
-    LoadBuffPtr->Validated = true;                                      /* so it will be "pending" */
+    LoadBuffPtr = UT_TBL_SetupLoadBuff(RegRecPtr, false, 1); /* Sets NextBufferId appropriately */
+
+    LoadBuffPtr->IsValid     = true; /* so it will be valid */
+    LoadBuffPtr->ActivateReq = true; /* so it will be pending activation */
 
     UtAssert_INT32_EQ(CFE_TBL_Manage(App1TblHandle1), CFE_TBL_INFO_UPDATED);
     CFE_UtAssert_EVENTCOUNT(1);
@@ -2676,8 +2699,11 @@ void Test_CFE_TBL_Manage(void)
     UT_SetAppID(UT_TBL_APPID_1);
 
     /* Configure table for Update */
-    LoadBuffPtr            = UT_TBL_SetupLoadBuff(RegRecPtr, false, 0);
-    LoadBuffPtr->Validated = true; /* make it pending */
+    LoadBuffPtr = UT_TBL_SetupLoadBuff(RegRecPtr, false, 0);
+
+    LoadBuffPtr->IsValid     = true;
+    LoadBuffPtr->ActivateReq = true; /* make it pending */
+
     UtAssert_INT32_EQ(CFE_TBL_Manage(App1TblHandle1), CFE_TBL_INFO_UPDATED);
     CFE_UtAssert_EVENTSENT(CFE_TBL_UPDATE_SUCCESS_INF_EID);
     CFE_UtAssert_EVENTCOUNT(1);
@@ -2729,12 +2755,11 @@ void Test_CFE_TBL_Manage(void)
     /* Configure table for validation */
     UT_TBL_SetupPendingValidation(1, false, RegRecPtr, &ValResultPtr);
 
-    /* Perform validation via manage call (this will also activate it) */
+    /* Perform validation via manage call (this will not activate it) */
     UT_SetDeferredRetcode(UT_KEY(Test_CFE_TBL_ValidationFunc), 1, CFE_SUCCESS);
     CFE_UtAssert_SUCCESS(CFE_TBL_Manage(App1TblHandle2));
     CFE_UtAssert_EVENTSENT(CFE_TBL_VALIDATION_INF_EID);
-    CFE_UtAssert_EVENTSENT(CFE_TBL_UPDATE_SUCCESS_INF_EID);
-    CFE_UtAssert_EVENTCOUNT(2);
+    CFE_UtAssert_EVENTCOUNT(1);
     UtAssert_INT32_EQ(ValResultPtr->Result, 0);
 
     /* Test processing an unsuccessful validation request on an active buffer
@@ -3689,6 +3714,12 @@ void Test_CFE_TBL_Internal3(void)
     UtAssert_INT32_EQ(CFE_TBL_ValidateTableSize(&TblOpt, CFE_PLATFORM_TBL_MAX_DBL_TABLE_SIZE), CFE_SUCCESS);
     UtAssert_INT32_EQ(CFE_TBL_ValidateTableSize(&TblOpt, CFE_PLATFORM_TBL_MAX_DBL_TABLE_SIZE + 1),
                       CFE_TBL_ERR_INVALID_SIZE);
+
+    /* Test validation event processing where unexpected/unhandled events occur */
+    UT_InitData_TBL();
+    CFE_TBL_TxnClearEvents(&Txn);
+    CFE_TBL_TxnAddEvent(&Txn, 12345, 0, 0);
+    UtAssert_VOIDCALL(CFE_TBL_SendValidationEvents(&Txn));
 }
 
 /*
@@ -4217,7 +4248,7 @@ void Test_CFE_TBL_ResourceID_LoadBuff(void)
     UtAssert_BOOL_FALSE(CFE_TBL_LoadBuffIsPrivate(UT_CFE_TBL_LOADBUFFID_REG_1_1, CFE_TBL_REGID_UNDEFINED));
 }
 
-static bool UT_TBL_TxnEventProcFunc(const CFE_TBL_TxnEvent_t *Txn, void *Arg)
+static bool UT_TBL_TxnEventProcFunc(const CFE_TBL_TxnEvent_t *Txn, CFE_TBL_TxnEventContext_t *Arg)
 {
     return (UT_DEFAULT_IMPL(UT_TBL_TxnEventProcFunc));
 }

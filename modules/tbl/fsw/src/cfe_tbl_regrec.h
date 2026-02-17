@@ -118,12 +118,11 @@ struct CFE_TBL_RegistryRec
     CFE_ES_AppId_t       OwnerAppId; /**< \brief Application ID of App that Registered Table */
     CFE_TBL_LoadBuff_t   Buffers[2]; /**< \brief Active and Inactive Buffer Pointers */
     CFE_TBL_HandleLink_t AccessList; /**< \brief Linked List of associated access descriptors */
-    CFE_TBL_ValidationResultId_t
-        ValidateActiveId; /**< \brief Index to Validation Request on Active Table Result data */
-    CFE_TBL_ValidationResultId_t
-                         ValidateInactiveId; /**< \brief Index to Validation Request on Inactive Table Result data */
-    CFE_TBL_DumpCtrlId_t DumpControlId;      /**< \brief Index to Dump Control Block */
-    CFE_ES_CDSHandle_t   CDSHandle;          /**< \brief Handle to Critical Data Store for Critical Tables */
+
+    CFE_TBL_ValidationResultId_t PendingValId;  /**< \brief Index to Validation Request on Table */
+    CFE_TBL_DumpCtrlId_t         DumpControlId; /**< \brief Index to Dump Control Block */
+
+    CFE_ES_CDSHandle_t CDSHandle; /**< \brief Handle to Critical Data Store for Critical Tables */
 
     CFE_TBL_TableConfig_t       Config;
     CFE_TBL_TableStatus_t       Status;

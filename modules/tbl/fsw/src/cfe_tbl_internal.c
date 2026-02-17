@@ -744,7 +744,7 @@ void CFE_TBL_UpdateCriticalTblCDS(CFE_TBL_RegistryRec_t *RegRecPtr)
  *-----------------------------------------------------------------*/
 int32 CFE_TBL_SendNotificationMsg(CFE_TBL_RegistryRec_t *RegRecPtr)
 {
-    int32 Status = CFE_SUCCESS;
+    int32 Status;
 
     /* First, determine if a message should be sent */
     if (RegRecPtr->Notify.Enabled)
@@ -768,6 +768,11 @@ int32 CFE_TBL_SendNotificationMsg(CFE_TBL_RegistryRec_t *RegRecPtr)
                               "Manage Notification Pkt Error(Status=0x%08X)",
                               (unsigned int)Status);
         }
+    }
+    else
+    {
+        /* This is not really an "error" - it just means that notifications are not enabled */
+        Status = CFE_STATUS_INCORRECT_STATE;
     }
 
     return Status;
@@ -1004,6 +1009,7 @@ CFE_Status_t CFE_TBL_RestoreTableDataFromCDS(CFE_TBL_RegistryRec_t *RegRecPtr)
                 WorkingBufferPtr->FileTime = CritRegRecPtr->FileTime;
 
                 CFE_TBL_SetActiveBuffer(RegRecPtr, WorkingBufferPtr);
+                CFE_TBL_RegRecClearLoadInProgress(RegRecPtr);
 
                 CFE_TBL_RegRecResetLoadInfo(RegRecPtr, CritRegRecPtr->LastFileLoaded, CritRegRecPtr->TimeOfLastUpdate);
 

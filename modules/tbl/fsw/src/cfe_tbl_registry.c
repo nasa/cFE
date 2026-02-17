@@ -234,6 +234,7 @@ CFE_Status_t CFE_TBL_TxnFindRegByName(CFE_TBL_TxnState_t *Txn, const char *TblNa
     if (RegRecPtr == NULL)
     {
         Status = CFE_TBL_ERR_INVALID_NAME;
+        CFE_TBL_TxnAddEvent(Txn, CFE_TBL_NO_SUCH_TABLE_ERR_EID, Status, 0);
     }
     else
     {
@@ -408,8 +409,7 @@ CFE_Status_t CFE_TBL_TxnGetTableStatus(CFE_TBL_TxnState_t *Txn)
     CFE_TBL_RegistryRec_t *RegRecPtr = CFE_TBL_TxnRegRec(Txn);
 
     /* Perform validations prior to performing any updates */
-    if (CFE_TBL_VALRESULTID_IS_VALID(RegRecPtr->ValidateActiveId)
-        || CFE_TBL_VALRESULTID_IS_VALID(RegRecPtr->ValidateInactiveId))
+    if (CFE_TBL_VALRESULTID_IS_VALID(RegRecPtr->PendingValId))
     {
         Status = CFE_TBL_INFO_VALIDATION_PENDING;
     }

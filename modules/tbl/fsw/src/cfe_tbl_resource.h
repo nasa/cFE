@@ -168,7 +168,7 @@ typedef CFE_RESOURCEID_BASE_TYPE CFE_TBL_LoadBuffId_t;
 /** \brief Value indicating when no Validation is Pending */
 /**
 **  This macro is used to indicate no Validation is Pending by assigning it to
-**  #CFE_TBL_RegistryRec_t::ValidateActiveId or #CFE_TBL_RegistryRec_t::ValidateInactiveId
+**  #CFE_TBL_RegistryRec_t::PendingValId
 */
 #define CFE_TBL_NO_VALIDATION_PENDING CFE_TBL_VALRESULTID_UNDEFINED
 

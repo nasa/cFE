@@ -462,7 +462,8 @@ CFE_TBL_LoadBuff_t *CFE_TBL_PrepareNewLoadBuff(CFE_TBL_RegistryRec_t *RegRecPtr)
         }
 
         /* Always consider the copied buffer as unvalidated for now */
-        LoadBuffPtr->Validated = false;
+        LoadBuffPtr->IsValid     = false;
+        LoadBuffPtr->ActivateReq = false;
     }
 
     return LoadBuffPtr;
@@ -512,4 +513,102 @@ bool CFE_TBL_LoadBuffIsShared(CFE_TBL_LoadBuffId_t BuffId)
     }
 
     return Result;
+}
+
+/*----------------------------------------------------------------
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+CFE_TBL_LoadBuff_t *CFE_TBL_TxnSetupActivationRequest(CFE_TBL_TxnState_t *Txn)
+{
+    CFE_TBL_RegistryRec_t *RegRecPtr;
+    CFE_TBL_LoadBuff_t    *BufferPtr;
+
+    RegRecPtr = CFE_TBL_TxnRegRec(Txn);
+
+    if (CFE_TBL_RegRecGetConfig(RegRecPtr)->DumpOnly)
+    {
+        CFE_TBL_TxnAddEvent(Txn, CFE_TBL_ACTIVATE_DUMP_ONLY_ERR_EID, 0, 0);
+        BufferPtr = NULL;
+    }
+    else
+    {
+        /* This only ever applies to the load in progress, one does not activate the previous buffer */
+        BufferPtr = CFE_TBL_GetLoadInProgressBuffer(RegRecPtr);
+
+        if (BufferPtr == NULL)
+        {
+            CFE_TBL_TxnAddEvent(Txn, CFE_TBL_ACTIVATE_ERR_EID, 0, 0);
+        }
+        else if (!BufferPtr->IsValid)
+        {
+            CFE_TBL_TxnAddEvent(Txn, CFE_TBL_UNVALIDATED_ERR_EID, 0, 0);
+            BufferPtr = NULL;
+        }
+        else
+        {
+            /* Set the buffer as pending activation */
+            BufferPtr->ActivateReq = true;
+        }
+    }
+
+    return BufferPtr;
+}
+
+/*----------------------------------------------------------------
+ *
+ * Local helper function
+ *
+ *-----------------------------------------------------------------*/
+bool CFE_TBL_SendActivationEventHelper(const CFE_TBL_TxnEvent_t *Event, CFE_TBL_TxnEventContext_t *Ctxt)
+{
+    uint16 EventType;
+    char   EventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+
+    /* The majority of the events are errors, but this can be reset later to demote to info/debug */
+    EventType      = CFE_EVS_EventType_ERROR;
+    EventString[0] = 0;
+
+    switch (Event->EventId)
+    {
+        case CFE_TBL_ACTIVATE_DUMP_ONLY_ERR_EID:
+            snprintf(EventString, sizeof(EventString), "Illegal attempt to activate dump-only table");
+            break;
+        case CFE_TBL_ACTIVATE_ERR_EID:
+            snprintf(EventString, sizeof(EventString), "Cannot activate table, No Inactive image available");
+            break;
+        case CFE_TBL_UNVALIDATED_ERR_EID:
+            snprintf(EventString, sizeof(EventString), "Cannot activate table, Inactive image not Validated");
+            break;
+    }
+
+    if (EventString[0] == 0)
+    {
+        return false;
+    }
+
+    /* Finally send the actual event by appending all the info we have */
+    CFE_EVS_SendEventWithAppID(Event->EventId,
+                               EventType,
+                               CFE_TBL_Global.TableTaskAppId,
+                               "%s,app=%s,tbl=%s:%s",
+                               Ctxt->Operation,
+                               Ctxt->CallerName,
+                               Ctxt->TableName,
+                               EventString);
+
+    return true;
+}
+
+/*----------------------------------------------------------------
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+void CFE_TBL_SendActivationEvents(CFE_TBL_TxnState_t *Txn)
+{
+    CFE_TBL_SendTransactionEvents(Txn, "Activate", CFE_TBL_SendActivationEventHelper, NULL);
 }

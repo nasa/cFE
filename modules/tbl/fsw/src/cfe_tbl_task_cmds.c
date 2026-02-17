@@ -212,7 +212,7 @@ void CFE_TBL_GetHkData(void)
     {
         CFE_TBL_Global.HkPacket.Payload.LastValCrc    = ValPtr->CrcOfTable;
         CFE_TBL_Global.HkPacket.Payload.LastValStatus = ValPtr->Result;
-        CFE_TBL_Global.HkPacket.Payload.ActiveBuffer  = ValPtr->ActiveBuffer;
+        CFE_TBL_Global.HkPacket.Payload.ActiveBuffer  = (ValPtr->BufferSelect == CFE_TBL_BufferSelect_ACTIVE);
 
         /* Keep track of the number of failed and successful validations */
         if (ValPtr->Result == CFE_SUCCESS)
@@ -234,7 +234,7 @@ void CFE_TBL_GetHkData(void)
         ValPtr->Result       = 0;
         ValPtr->CrcOfTable   = 0;
         ValPtr->TableName[0] = '\0';
-        ValPtr->ActiveBuffer = false;
+        ValPtr->BufferSelect = CFE_TBL_BufferSelect_INACTIVE;
 
         CFE_TBL_ValidationResultSetFree(ValPtr);
     }
@@ -421,9 +421,19 @@ CFE_Status_t CFE_TBL_LoadCmd(const CFE_TBL_LoadCmd_t *data)
         /* Locate specified table in registry (wrapped in a lock) */
         /* NOTE: The header reading code ensures null term on the table name string, so its OK to pass direct */
         CFE_TBL_TxnLockRegistry(&Txn);
-        CFE_TBL_TxnFindRegByName(&Txn, Header.Tbl.TableName);
-        CFE_TBL_TxnUnlockRegistry(&Txn);
+        Status = CFE_TBL_TxnFindRegByName(&Txn, Header.Tbl.TableName);
 
+        if (Status == CFE_SUCCESS)
+        {
+            /* Perform a sanity check on the table state */
+            Status = CFE_TBL_ValidateLoadRequest(&Txn, CFE_TBL_SRC_FILE);
+        }
+
+        CFE_TBL_TxnUnlockRegistry(&Txn);
+    }
+
+    if (Status == CFE_SUCCESS)
+    {
         Status = CFE_TBL_ValidateFileIsLoadable(&Txn, &Header.Tbl);
     }
 
@@ -529,7 +539,7 @@ CFE_Status_t CFE_TBL_DumpCmd(const CFE_TBL_DumpCmd_t *data)
     }
 
     /* Send any events associated with this table dump */
-    CFE_TBL_SendTableDumpEvents(&Txn, TableName);
+    CFE_TBL_SendTableDumpEvents(&Txn, DumpFilename, TableName);
 
     return CFE_TBL_TranslateCmdProcRet(CmdProcRet);
 }
@@ -546,16 +556,14 @@ CFE_Status_t CFE_TBL_ValidateCmd(const CFE_TBL_ValidateCmd_t *data)
     CFE_TBL_TxnState_t                   Txn;
     CFE_Status_t                         Status;
     const CFE_TBL_ValidateCmd_Payload_t *CmdPtr = &data->Payload;
-    CFE_TBL_RegistryRec_t               *RegRecPtr;
-    CFE_TBL_LoadBuff_t                  *SelectedBufferPtr;
     char                                 TableName[CFE_TBL_MAX_FULL_NAME_LEN];
-    uint32                               CrcOfTable;
-    CFE_ResourceId_t                     PendingValId;
     CFE_TBL_ValidationResult_t          *ValResultPtr;
+    bool                                 CreatedRequest;
 
     CmdProcRet = CFE_TBL_CmdProcRet_INC_ERR_CTR; /* Assume failure */
 
-    SelectedBufferPtr = NULL;
+    ValResultPtr   = NULL;
+    CreatedRequest = false;
 
     /* Make sure all strings are null terminated before attempting to process them */
     CFE_SB_MessageStringGet(TableName, (char *)CmdPtr->TableName, NULL, sizeof(TableName), sizeof(CmdPtr->TableName));
@@ -564,105 +572,39 @@ CFE_Status_t CFE_TBL_ValidateCmd(const CFE_TBL_ValidateCmd_t *data)
     Status = CFE_TBL_TxnStartFromName(&Txn, TableName, CFE_TBL_TxnContext_UNDEFINED);
     if (Status == CFE_SUCCESS)
     {
-        /* Obtain a pointer to registry information about specified table */
-        RegRecPtr = CFE_TBL_TxnRegRec(&Txn);
+        /* Check if there is already a validation request pending */
+        ValResultPtr = CFE_TBL_TxnCheckValidationRequest(&Txn);
+        if (ValResultPtr == NULL)
+        {
+            ValResultPtr = CFE_TBL_TxnSetupValidationRequest(&Txn, CmdPtr->ActiveTableFlag);
+
+            /* The above might have validated directly or set up for the application to do the validation
+             * at the next call to CFE_TBL_Manage().  If it is the latter, a debug event is generated to
+             * indicate that the deferred validation request is pending. */
+            CreatedRequest = (ValResultPtr != NULL && ValResultPtr->State != CFE_TBL_VALIDATION_PERFORMED);
+        }
+
         CFE_TBL_TxnFinish(&Txn);
 
-        /* Determine what data is to be validated */
-        SelectedBufferPtr = CFE_TBL_GetSelectedBuffer(RegRecPtr, CmdPtr->ActiveTableFlag);
-
-        if (SelectedBufferPtr == NULL)
+        if (ValResultPtr != NULL)
         {
-            CFE_EVS_SendEvent(CFE_TBL_NO_INACTIVE_BUFFER_ERR_EID,
-                              CFE_EVS_EventType_ERROR,
-                              "No Buffer for Table '%s' present",
-                              TableName);
-        }
-        else
-        {
-            /* If we have located the data to be validated, then proceed with notifying the application, if */
-            /* necessary, and computing the CRC value for the block of memory                               */
+            /* Increment Successful Command Counter */
+            CmdProcRet = CFE_TBL_CmdProcRet_INC_CMD_CTR;
 
-            /* Find a free Validation Response Block */
-            PendingValId = CFE_TBL_GetNextValResultBlock();
-            ValResultPtr = CFE_TBL_LocateValidationResultByID(CFE_TBL_VALRESULTID_C(PendingValId));
-            if (ValResultPtr != NULL)
+            /* If application requested notification by message, then do so */
+            if (CreatedRequest && CFE_TBL_SendNotificationMsg(CFE_TBL_TxnRegRec(&Txn)) == CFE_SUCCESS)
             {
-                /* Allocate this Validation Response Block */
-                ValResultPtr->State  = CFE_TBL_VALIDATION_PENDING;
-                ValResultPtr->Result = 0;
-                memcpy(ValResultPtr->TableName, TableName, CFE_TBL_MAX_FULL_NAME_LEN);
-
-                /* Compute the CRC on the specified table buffer */
-                CrcOfTable = CFE_ES_CalculateCRC(CFE_TBL_LoadBuffGetReadPointer(SelectedBufferPtr),
-                                                 CFE_TBL_LoadBuffGetContentSize(SelectedBufferPtr),
-                                                 0,
-                                                 CFE_MISSION_ES_DEFAULT_CRC);
-
-                ValResultPtr->CrcOfTable   = CrcOfTable;
-                ValResultPtr->ActiveBuffer = (CmdPtr->ActiveTableFlag != 0);
-
-                CFE_TBL_ValidationResultSetUsed(ValResultPtr, PendingValId);
-
-                CFE_TBL_Global.LastValidationResultId = PendingValId;
-
-                /* If owner has a validation function, then notify the  */
-                /* table owner that there is data to be validated       */
-                if (CFE_TBL_RegRecGetValidationFunc(RegRecPtr) != NULL)
-                {
-                    if (CmdPtr->ActiveTableFlag)
-                    {
-                        RegRecPtr->ValidateActiveId = CFE_TBL_ValidationResultGetId(ValResultPtr);
-                    }
-                    else
-                    {
-                        RegRecPtr->ValidateInactiveId = CFE_TBL_ValidationResultGetId(ValResultPtr);
-                    }
-
-                    /* If application requested notification by message, then do so */
-                    if (CFE_TBL_SendNotificationMsg(RegRecPtr) == CFE_SUCCESS)
-                    {
-                        /* Notify ground that validation request has been made */
-                        CFE_EVS_SendEvent(CFE_TBL_VAL_REQ_MADE_INF_EID,
-                                          CFE_EVS_EventType_DEBUG,
-                                          "Tbl Services issued validation request for '%s'",
-                                          TableName);
-                    }
-
-                    /* Maintain statistic on number of validation requests given to applications */
-                    CFE_TBL_Global.NumValRequests++;
-                }
-                else
-                {
-                    /* If there isn't a validation function pointer, then the process is complete  */
-                    /* By setting this value, we are letting the Housekeeping process recognize it */
-                    /* as data to be sent to the ground in telemetry.                              */
-                    ValResultPtr->State = CFE_TBL_VALIDATION_PERFORMED;
-
-                    CFE_EVS_SendEvent(CFE_TBL_ASSUMED_VALID_INF_EID,
-                                      CFE_EVS_EventType_INFORMATION,
-                                      "Tbl Services assumes '%s' is valid. No Validation Function has been registered",
-                                      TableName);
-                }
-
-                /* Increment Successful Command Counter */
-                CmdProcRet = CFE_TBL_CmdProcRet_INC_CMD_CTR;
-            }
-            else
-            {
-                CFE_EVS_SendEvent(CFE_TBL_TOO_MANY_VALIDATIONS_ERR_EID,
-                                  CFE_EVS_EventType_ERROR,
-                                  "Too many Table Validations have been requested");
+                /* Notify ground that validation request has been made */
+                CFE_EVS_SendEvent(CFE_TBL_VAL_REQ_MADE_INF_EID,
+                                  CFE_EVS_EventType_DEBUG,
+                                  "Tbl Services issued validation request for '%s'",
+                                  TableName);
             }
         }
     }
-    else /* Table could not be found in Registry */
-    {
-        CFE_EVS_SendEvent(CFE_TBL_NO_SUCH_TABLE_ERR_EID,
-                          CFE_EVS_EventType_ERROR,
-                          "Unable to locate '%s' in Table Registry",
-                          TableName);
-    }
+
+    /* Send any events associated with this table validation request */
+    CFE_TBL_SendValidationEvents(&Txn);
 
     return CFE_TBL_TranslateCmdProcRet(CmdProcRet);
 }
@@ -678,75 +620,43 @@ CFE_Status_t CFE_TBL_ActivateCmd(const CFE_TBL_ActivateCmd_t *data)
     CFE_TBL_CmdProcRet_t                 CmdProcRet;
     const CFE_TBL_ActivateCmd_Payload_t *CmdPtr = &data->Payload;
     char                                 TableName[CFE_TBL_MAX_FULL_NAME_LEN];
-    CFE_TBL_RegistryRec_t               *RegRecPtr;
-    CFE_TBL_LoadBuff_t                  *BufferPtr;
     CFE_TBL_TxnState_t                   Txn;
     int32                                Status;
+    CFE_TBL_LoadBuff_t                  *ActivatedBufPtr;
 
     CmdProcRet = CFE_TBL_CmdProcRet_INC_ERR_CTR; /* Assume failure */
 
     /* Make sure all strings are null terminated before attempting to process them */
     CFE_SB_MessageStringGet(TableName, (char *)CmdPtr->TableName, NULL, sizeof(TableName), sizeof(CmdPtr->TableName));
 
-    BufferPtr = NULL;
-    RegRecPtr = NULL;
-
     /* Before doing anything, lets make sure the table that is to be dumped exists */
     Status = CFE_TBL_TxnStartFromName(&Txn, TableName, CFE_TBL_TxnContext_UNDEFINED);
     if (Status == CFE_SUCCESS)
     {
-        /* Obtain a pointer to registry information about specified table */
-        RegRecPtr = CFE_TBL_TxnRegRec(&Txn);
+        ActivatedBufPtr = CFE_TBL_TxnSetupActivationRequest(&Txn);
+
         CFE_TBL_TxnFinish(&Txn);
 
-        if (CFE_TBL_RegRecGetConfig(RegRecPtr)->DumpOnly)
+        /* If application requested notification by message, then do so */
+        if (ActivatedBufPtr != NULL)
         {
-            CFE_EVS_SendEvent(CFE_TBL_ACTIVATE_DUMP_ONLY_ERR_EID,
-                              CFE_EVS_EventType_ERROR,
-                              "Illegal attempt to activate dump-only table '%s'",
-                              TableName);
-        }
-        else
-        {
-            /* This only ever applies to the load in progress, one does not activate the previous buffer */
-            BufferPtr = CFE_TBL_GetLoadInProgressBuffer(RegRecPtr);
-            if (BufferPtr == NULL)
+            if (CFE_TBL_SendNotificationMsg(CFE_TBL_TxnRegRec(&Txn)) == CFE_SUCCESS)
             {
-                CFE_EVS_SendEvent(CFE_TBL_ACTIVATE_ERR_EID,
-                                  CFE_EVS_EventType_ERROR,
-                                  "Cannot activate table '%s'. No Inactive image available",
+                CFE_EVS_SendEvent(CFE_TBL_LOAD_PEND_REQ_INF_EID,
+                                  CFE_EVS_EventType_DEBUG,
+                                  "Tbl Services notifying App that '%s' has a load pending",
                                   TableName);
             }
-            else if (!BufferPtr->Validated)
-            {
-                CFE_EVS_SendEvent(CFE_TBL_UNVALIDATED_ERR_EID,
-                                  CFE_EVS_EventType_ERROR,
-                                  "Cannot activate table '%s'. Inactive image not Validated",
-                                  TableName);
-            }
-            else
-            {
-                /* If application requested notification by message, then do so */
-                if (CFE_TBL_SendNotificationMsg(RegRecPtr) == CFE_SUCCESS)
-                {
-                    CFE_EVS_SendEvent(CFE_TBL_LOAD_PEND_REQ_INF_EID,
-                                      CFE_EVS_EventType_DEBUG,
-                                      "Tbl Services notifying App that '%s' has a load pending",
-                                      TableName);
-                }
 
-                /* Increment Successful Command Counter */
-                CmdProcRet = CFE_TBL_CmdProcRet_INC_CMD_CTR;
-            }
+            /* Increment Successful Command Counter */
+            CmdProcRet = CFE_TBL_CmdProcRet_INC_CMD_CTR;
         }
+
+        CFE_TBL_TxnFinish(&Txn);
     }
-    else /* Table could not be found in Registry */
-    {
-        CFE_EVS_SendEvent(CFE_TBL_NO_SUCH_TABLE_ERR_EID,
-                          CFE_EVS_EventType_ERROR,
-                          "Unable to locate '%s' in Table Registry",
-                          TableName);
-    }
+
+    /* Send any events associated with this table activation request */
+    CFE_TBL_SendActivationEvents(&Txn);
 
     return CFE_TBL_TranslateCmdProcRet(CmdProcRet);
 }

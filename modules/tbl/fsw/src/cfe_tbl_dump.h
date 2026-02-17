@@ -112,10 +112,11 @@ CFE_Status_t CFE_TBL_AllocateDumpCtrlBlock(CFE_TBL_TxnState_t         *Txn,
  * This sends all deferred events associated with the specified transaction
  *
  * \param[inout] Txn                 Pointer to transaction object
- * \param[out]   RequestedTableName  The table name from the original request
+ * \param[in]    FileName            The file name from the original request
+ * \param[in]    RequestedTableName  The table name from the original request
  *
  */
-void CFE_TBL_SendTableDumpEvents(CFE_TBL_TxnState_t *Txn, const char *RequestedTableName);
+void CFE_TBL_SendTableDumpEvents(CFE_TBL_TxnState_t *Txn, const char *FileName, const char *RequestedTableName);
 
 /*---------------------------------------------------------------------------------------*/
 /**

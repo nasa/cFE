@@ -169,8 +169,15 @@ void UT_TBL_SetupPendingValidation(uint32                       ArrayIndex,
 
     ValResultPtr->State = CFE_TBL_VALIDATION_PENDING;
 
-    ValResultPtr->ValId        = CFE_TBL_VALRESULTID_C(PendingId);
-    ValResultPtr->ActiveBuffer = UseActive;
+    ValResultPtr->ValId = CFE_TBL_VALRESULTID_C(PendingId);
+    if (UseActive)
+    {
+        ValResultPtr->BufferSelect = CFE_TBL_BufferSelect_ACTIVE;
+    }
+    else
+    {
+        ValResultPtr->BufferSelect = CFE_TBL_BufferSelect_INACTIVE;
+    }
 
     snprintf(ValResultPtr->TableName,
              sizeof(ValResultPtr->TableName),
@@ -179,13 +186,9 @@ void UT_TBL_SetupPendingValidation(uint32                       ArrayIndex,
 
     if (RegRecPtr != NULL)
     {
-        if (UseActive)
+        RegRecPtr->PendingValId = ValResultPtr->ValId;
+        if (!UseActive)
         {
-            RegRecPtr->ValidateActiveId = ValResultPtr->ValId;
-        }
-        else
-        {
-            RegRecPtr->ValidateInactiveId = ValResultPtr->ValId;
             CFE_TBL_GetWorkingBuffer(&WorkingBufferPtr, RegRecPtr);
         }
     }
@@ -460,9 +463,9 @@ void UT_TBL_SetActiveBufferAddr(CFE_TBL_RegistryRec_t *RegRecPtr, uint32 BuffNum
     }
 }
 
-static bool UT_TBL_CheckTxnHasEventHelper(const CFE_TBL_TxnEvent_t *Txn, void *Arg)
+static bool UT_TBL_CheckTxnHasEventHelper(const CFE_TBL_TxnEvent_t *Txn, CFE_TBL_TxnEventContext_t *Arg)
 {
-    uint16 EventId = *((const uint16 *)Arg);
+    uint16 EventId = *((const uint16 *)Arg->OperationDataPtr);
 
     return (Txn->EventId == EventId);
 }
@@ -473,9 +476,13 @@ void UT_TBL_CheckTxnHasEventImpl(const CFE_TBL_TxnState_t *Txn,
                                  uint32                    Line,
                                  const char               *EventName)
 {
-    uint32 Count;
+    uint32                    Count;
+    CFE_TBL_TxnEventContext_t Ctxt;
 
-    Count = CFE_TBL_TxnProcessEvents(Txn, UT_TBL_CheckTxnHasEventHelper, &EventId);
+    memset(&Ctxt, 0, sizeof(Ctxt));
+    Ctxt.OperationDataPtr = &EventId;
+
+    Count = CFE_TBL_TxnProcessEvents(Txn, UT_TBL_CheckTxnHasEventHelper, &Ctxt);
     UtAssert_GenericUnsignedCompare(Count,
                                     UtAssert_Compare_NEQ,
                                     0,

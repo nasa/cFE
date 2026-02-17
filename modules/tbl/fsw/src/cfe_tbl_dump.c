@@ -34,12 +34,8 @@
 
 typedef struct CFE_TBL_DumpContext
 {
-    const char *Operation;
-    const char *Tablename;
-    const char *DumpFilename;
-    const char *CallerName;
-
-    const CFE_TBL_RegistryRec_t *RegRecPtr;
+    const char *FileName;
+    const char *RequestedTableName;
 } CFE_TBL_DumpContext_t;
 
 /*----------------------------------------------------------------
@@ -207,7 +203,7 @@ CFE_Status_t CFE_TBL_WriteSnapshotToFile(const CFE_TBL_DumpControl_t *DumpCtlPtr
                                 -1);
     }
 
-    CFE_TBL_SendTableDumpEvents(&Txn, NULL);
+    CFE_TBL_SendTableDumpEvents(&Txn, DumpFilename, NULL);
 
     return Status;
 }
@@ -420,13 +416,13 @@ CFE_Status_t CFE_TBL_AllocateDumpCtrlBlock(CFE_TBL_TxnState_t         *Txn,
  * Local helper function for sending events
  *
  *-----------------------------------------------------------------*/
-bool CFE_TBL_SendDumpEventHelper(const CFE_TBL_TxnEvent_t *Event, void *Arg)
+bool CFE_TBL_SendDumpEventHelper(const CFE_TBL_TxnEvent_t *Event, CFE_TBL_TxnEventContext_t *Ctxt)
 {
-    const CFE_TBL_DumpContext_t *Ctxt;
+    const CFE_TBL_DumpContext_t *DumpCtxt;
     uint16                       EventType;
     char                         EventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
-    Ctxt = Arg;
+    DumpCtxt = Ctxt->OperationDataPtr;
 
     /* The majority of the events are errors, but this can be reset later to demote to info/debug */
     EventType      = CFE_EVS_EventType_ERROR;
@@ -497,9 +493,9 @@ bool CFE_TBL_SendDumpEventHelper(const CFE_TBL_TxnEvent_t *Event, void *Arg)
                                CFE_TBL_Global.TableTaskAppId,
                                "%s,table=%s,app=%s,file=%s:%s",
                                Ctxt->Operation,
-                               Ctxt->Tablename,
+                               DumpCtxt->RequestedTableName,
                                Ctxt->CallerName,
-                               Ctxt->DumpFilename,
+                               DumpCtxt->FileName,
                                EventString);
 
     return true;
@@ -511,25 +507,31 @@ bool CFE_TBL_SendDumpEventHelper(const CFE_TBL_TxnEvent_t *Event, void *Arg)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-void CFE_TBL_SendTableDumpEvents(CFE_TBL_TxnState_t *Txn, const char *RequestedTableName)
+void CFE_TBL_SendTableDumpEvents(CFE_TBL_TxnState_t *Txn, const char *FileName, const char *RequestedTableName)
 {
     CFE_TBL_DumpContext_t Ctxt;
 
     memset(&Ctxt, 0, sizeof(Ctxt));
 
-    Ctxt.Operation  = "dump";
-    Ctxt.CallerName = CFE_TBL_TxnAppNameCaller(Txn);
-    Ctxt.RegRecPtr  = CFE_TBL_TxnRegRec(Txn);
-
-    if (RequestedTableName != NULL)
+    if (FileName != NULL)
     {
-        Ctxt.Tablename = RequestedTableName;
+        Ctxt.FileName = FileName;
     }
     else
     {
         /* do not leave it null/blank */
-        Ctxt.Tablename = "[unknown]";
+        Ctxt.FileName = "[none]";
     }
 
-    CFE_TBL_TxnProcessEvents(Txn, CFE_TBL_SendDumpEventHelper, &Ctxt);
+    if (RequestedTableName != NULL)
+    {
+        Ctxt.RequestedTableName = RequestedTableName;
+    }
+    else
+    {
+        /* do not leave it null/blank */
+        Ctxt.RequestedTableName = "[unknown]";
+    }
+
+    CFE_TBL_SendTransactionEvents(Txn, "Dump", CFE_TBL_SendDumpEventHelper, &Ctxt);
 }

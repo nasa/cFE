@@ -355,6 +355,7 @@ void Test_CFE_TBL_LoadCmd(void)
 
     /* Test with no extra byte => successful load */
     UT_InitData_TBL();
+    UT_TBL_ClearLoadPending(RegRec0Ptr);
     UT_TBL_SetupHeader(&TblFileHeader, 0, sizeof(UT_Table1_t), CFE_TBL_RegRecGetName(RegRec0Ptr));
     UT_SetDeferredRetcode(UT_KEY(OS_read), 3, 0);
     UT_SetReadHeader(&StdFileHeader, sizeof(StdFileHeader));
@@ -412,6 +413,7 @@ void Test_CFE_TBL_LoadCmd(void)
      */
     UT_InitData_TBL();
     /* reset bufferids back to initial state (an unloaded table) */
+    UT_TBL_ClearLoadPending(RegRec0Ptr);
     UT_TBL_Status(RegRec0Ptr)->ActiveBufferId = CFE_TBL_LOADBUFFID_UNDEFINED;
     UT_TBL_Status(RegRec0Ptr)->PrevBufferId   = CFE_TBL_LOADBUFFID_UNDEFINED;
     UT_TBL_Config(RegRec0Ptr)->Size           = sizeof(UT_Table1_t);
@@ -425,6 +427,7 @@ void Test_CFE_TBL_LoadCmd(void)
      * is zero
      */
     UT_InitData_TBL();
+    UT_TBL_ClearLoadPending(RegRec0Ptr);
     UT_TBL_SetupHeader(&TblFileHeader, 0, 1, CFE_TBL_RegRecGetName(RegRec0Ptr));
     UT_TBL_Config(RegRec0Ptr)->Size = sizeof(UT_Table1_t);
     UT_SetReadHeader(&StdFileHeader, sizeof(StdFileHeader));
@@ -433,6 +436,7 @@ void Test_CFE_TBL_LoadCmd(void)
 
     /* Test response to inability to read the file header */
     UT_InitData_TBL();
+    UT_TBL_ClearLoadPending(RegRec0Ptr);
     UT_SetDeferredRetcode(UT_KEY(CFE_FS_ReadHeader), 1, sizeof(CFE_FS_Header_t) - 1);
     UtAssert_INT32_EQ(CFE_TBL_LoadCmd(&LoadCmd), CFE_SUCCESS);
     CFE_UtAssert_COUNTER_INCR(CFE_TBL_Global.CommandErrorCounter);
@@ -441,6 +445,7 @@ void Test_CFE_TBL_LoadCmd(void)
      * is non-zero
      */
     UT_InitData_TBL();
+    UT_TBL_ClearLoadPending(RegRec0Ptr);
     UT_TBL_InitActiveBuffer(RegRec0Ptr, 0);
     UT_TBL_SetupHeader(&TblFileHeader, 1, 0, CFE_TBL_RegRecGetName(RegRec0Ptr));
     UT_SetReadHeader(&StdFileHeader, sizeof(StdFileHeader));
@@ -452,6 +457,7 @@ void Test_CFE_TBL_LoadCmd(void)
      * is non-zero
      */
     UT_InitData_TBL();
+    UT_TBL_ClearLoadPending(RegRec0Ptr);
     UT_TBL_SetupHeader(&TblFileHeader, 1, 1, CFE_TBL_RegRecGetName(RegRec0Ptr));
     UT_SetReadHeader(&StdFileHeader, sizeof(StdFileHeader));
     UtAssert_INT32_EQ(CFE_TBL_LoadCmd(&LoadCmd), CFE_SUCCESS);
@@ -683,9 +689,10 @@ void Test_CFE_TBL_TableLoadCommon(void)
     UtPrintf("Begin Test Table Load Common Impl");
 
     /* Bad argument - NULL filename */
+    UT_InitData_TBL();
     UT_SetDeferredRetcode(UT_KEY(OS_OpenCreate), 1, -1);
     UtAssert_INT32_EQ(CFE_TBL_TxnLoadFromFile(&Txn, NULL), CFE_TBL_ERR_ACCESS);
-    UT_TBL_EVENT_PENDING(&Txn, CFE_TBL_FILE_ACCESS_ERR_EID);
+    CFE_UtAssert_EVENTSENT(CFE_TBL_FILE_ACCESS_ERR_EID);
 
     /* Test when the transaction object is not initialized */
     CFE_TBL_TxnInit(&Txn, false);
@@ -694,7 +701,7 @@ void Test_CFE_TBL_TableLoadCommon(void)
     UT_SetReadHeader(&FileHeader.Std, sizeof(FileHeader.Std));
     UT_SetDeferredRetcode(UT_KEY(OS_read), 3, 0);
     UtAssert_INT32_EQ(CFE_TBL_TxnLoadFromFile(&Txn, Filename), CFE_TBL_ERR_INVALID_HANDLE);
-    UT_TBL_EVENT_PENDING(&Txn, CFE_TBL_NO_SUCH_TABLE_ERR_EID);
+    CFE_UtAssert_EVENTSENT(CFE_TBL_NO_SUCH_TABLE_ERR_EID);
 
     /* Test CFE_TBL_LoadFinish with an invalid transaction - it should do nothing */
     CFE_TBL_TxnInit(&Txn, false);
@@ -793,7 +800,7 @@ void Test_CFE_TBL_TableLoadCommon(void)
     CFE_TBL_TxnClearEvents(&Txn);
     UT_SetDeferredRetcode(UT_KEY(OS_OpenCreate), 1, OS_FS_ERR_PATH_TOO_LONG);
     UtAssert_INT32_EQ(CFE_TBL_TxnLoadFromFile(&Txn, Filename), CFE_TBL_ERR_FILENAME_TOO_LONG);
-    UT_TBL_EVENT_PENDING(&Txn, CFE_TBL_LOAD_FILENAME_LONG_ERR_EID);
+    CFE_UtAssert_EVENTSENT(CFE_TBL_LOAD_FILENAME_LONG_ERR_EID);
 
     /* Test CFE_TBL_TxnLoadFromFile response to the file being for the wrong table */
     UT_InitData_TBL();
@@ -802,7 +809,7 @@ void Test_CFE_TBL_TableLoadCommon(void)
     UT_SetReadHeader(&FileHeader.Std, sizeof(FileHeader.Std));
     UT_SetDeferredRetcode(UT_KEY(OS_read), 3, 0);
     UtAssert_INT32_EQ(CFE_TBL_TxnLoadFromFile(&Txn, Filename), CFE_TBL_ERR_FILE_FOR_WRONG_TABLE);
-    UT_TBL_EVENT_PENDING(&Txn, CFE_TBL_LOAD_TBLNAME_MISMATCH_ERR_EID);
+    CFE_UtAssert_EVENTSENT(CFE_TBL_LOAD_TBLNAME_MISMATCH_ERR_EID);
 
     /* Test CFE_TBL_TxnLoadFromFile response to a partial file, where the table is not loaded yet */
     UT_InitData_TBL();
@@ -810,7 +817,7 @@ void Test_CFE_TBL_TableLoadCommon(void)
     UT_TBL_SetupHeader(&FileHeader.Tbl, 1, sizeof(UT_Table1_t) - 1, CFE_TBL_RegRecGetName(RegRecPtr));
     UT_SetReadHeader(&FileHeader.Std, sizeof(FileHeader.Std));
     UtAssert_INT32_EQ(CFE_TBL_TxnLoadFromFile(&Txn, Filename), CFE_TBL_ERR_PARTIAL_LOAD);
-    UT_TBL_EVENT_PENDING(&Txn, CFE_TBL_PARTIAL_LOAD_ERR_EID);
+    CFE_UtAssert_EVENTSENT(CFE_TBL_PARTIAL_LOAD_ERR_EID);
 
     /* Test CFE_TBL_TxnLoadFromFile response to a file that's content is too large
      * This is a normal (non-parital) set up - starting at offset 0 - where the number of bytes in
@@ -820,7 +827,7 @@ void Test_CFE_TBL_TableLoadCommon(void)
     UT_TBL_SetupHeader(&FileHeader.Tbl, 0, sizeof(UT_Table1_t) + 4, CFE_TBL_RegRecGetName(RegRecPtr));
     UT_SetReadHeader(&FileHeader.Std, sizeof(FileHeader.Std));
     UtAssert_INT32_EQ(CFE_TBL_TxnLoadFromFile(&Txn, Filename), CFE_TBL_ERR_FILE_TOO_LARGE);
-    UT_TBL_EVENT_PENDING(&Txn, CFE_TBL_LOAD_EXCEEDS_SIZE_ERR_EID);
+    CFE_UtAssert_EVENTSENT(CFE_TBL_LOAD_EXCEEDS_SIZE_ERR_EID);
 
     /* Now set up an active buffer, so it appears as if the table is loaded */
     UT_TBL_InitActiveBuffer(RegRecPtr, 0);
@@ -834,7 +841,7 @@ void Test_CFE_TBL_TableLoadCommon(void)
     UT_TBL_SetupHeader(&FileHeader.Tbl, 4, sizeof(UT_Table1_t) - 2, CFE_TBL_RegRecGetName(RegRecPtr));
     UT_SetReadHeader(&FileHeader.Std, sizeof(FileHeader.Std));
     UtAssert_INT32_EQ(CFE_TBL_TxnLoadFromFile(&Txn, Filename), CFE_TBL_ERR_FILE_TOO_LARGE);
-    UT_TBL_EVENT_PENDING(&Txn, CFE_TBL_LOAD_EXCEEDS_SIZE_ERR_EID);
+    CFE_UtAssert_EVENTSENT(CFE_TBL_LOAD_EXCEEDS_SIZE_ERR_EID);
 
     /* Test CFE_TBL_SetMetaDataFromFileHeader where no load is in progress */
     UT_InitData_TBL();
@@ -858,7 +865,7 @@ void Test_CFE_TBL_TableLoadCommon(void)
     UT_SetDeferredRetcode(UT_KEY(OS_read), 2, sizeof(UT_Table1_t) - 1);
     UT_SetDeferredRetcode(UT_KEY(OS_read), 1, 0);
     UtAssert_INT32_EQ(CFE_TBL_TxnLoadFromFile(&Txn, Filename), CFE_TBL_ERR_LOAD_INCOMPLETE);
-    UT_TBL_EVENT_PENDING(&Txn, CFE_TBL_FILE_INCOMPLETE_ERR_EID);
+    CFE_UtAssert_EVENTSENT(CFE_TBL_FILE_INCOMPLETE_ERR_EID);
 
     /* Test CFE_TBL_TxnLoadFromFile with failure of data OS_read */
     UT_InitData_TBL();
@@ -867,7 +874,7 @@ void Test_CFE_TBL_TableLoadCommon(void)
     UT_SetReadHeader(&FileHeader.Std, sizeof(FileHeader.Std));
     UT_SetDeferredRetcode(UT_KEY(OS_read), 2, -1);
     UtAssert_INT32_EQ(CFE_TBL_TxnLoadFromFile(&Txn, Filename), CFE_TBL_ERR_LOAD_INCOMPLETE);
-    UT_TBL_EVENT_PENDING(&Txn, CFE_TBL_FILE_INCOMPLETE_ERR_EID);
+    CFE_UtAssert_EVENTSENT(CFE_TBL_FILE_INCOMPLETE_ERR_EID);
 
     /* Test CFE_TBL_TxnLoadFromFile with failure of extra byte OS_read */
     UT_InitData_TBL();
@@ -884,7 +891,7 @@ void Test_CFE_TBL_TableLoadCommon(void)
     UT_SetReadHeader(&FileHeader.Std, sizeof(FileHeader.Std));
     UT_SetDefaultReturnValue(UT_KEY(OS_OpenCreate), OS_ERROR);
     UtAssert_INT32_EQ(CFE_TBL_TxnLoadFromFile(&Txn, Filename), CFE_TBL_ERR_ACCESS);
-    UT_TBL_EVENT_PENDING(&Txn, CFE_TBL_FILE_ACCESS_ERR_EID);
+    CFE_UtAssert_EVENTSENT(CFE_TBL_FILE_ACCESS_ERR_EID);
 
     /* Test CFE_TBL_TxnLoadFromFile response to a file too short warning */
     UT_InitData_TBL();
@@ -899,7 +906,7 @@ void Test_CFE_TBL_TableLoadCommon(void)
     CFE_TBL_TxnClearEvents(&Txn);
     UT_SetDeferredRetcode(UT_KEY(CFE_FS_ReadHeader), 1, sizeof(CFE_FS_Header_t) - 1);
     UtAssert_INT32_EQ(CFE_TBL_TxnLoadFromFile(&Txn, Filename), CFE_TBL_ERR_NO_STD_HEADER);
-    UT_TBL_EVENT_PENDING(&Txn, CFE_TBL_FILE_STD_HDR_ERR_EID);
+    CFE_UtAssert_EVENTSENT(CFE_TBL_FILE_STD_HDR_ERR_EID);
 
     /* Test CFE_TBL_LoadContentFromFile response to a file that would overrun the buffer */
     UT_InitData_TBL();
@@ -911,8 +918,30 @@ void Test_CFE_TBL_TableLoadCommon(void)
                       CFE_TBL_ERR_FILE_TOO_LARGE);
     UT_TBL_EVENT_PENDING(&Txn, CFE_TBL_FILE_TOO_BIG_ERR_EID);
 
+    /* Test CFE_TBL_LoadContentFromFile response to no codec buffer */
+    UT_InitData_TBL();
+    CFE_TBL_TxnClearEvents(&Txn);
+    UT_TBL_ClearLoadPending(RegRecPtr);
+    UT_SetDefaultReturnValue(UT_KEY(CFE_ResourceId_FindNextEx), -1);
+    UtAssert_INT32_EQ(CFE_TBL_LoadContentFromFile(&Txn, FileDescriptor, 0, sizeof(UT_Table1_t)),
+                      CFE_TBL_ERR_NO_BUFFER_AVAIL);
+    UT_TBL_EVENT_PENDING(&Txn, CFE_TBL_NO_WORK_BUFFERS_ERR_EID);
+    UT_ResetState(UT_KEY(CFE_ResourceId_FindNextEx));
+
     /* Test CFE_TBL_ValidateLoadInProgress response where there is no load in progress */
     UT_InitData_TBL();
     CFE_TBL_RegRecClearLoadInProgress(RegRecPtr);
     UtAssert_INT32_EQ(CFE_TBL_ValidateLoadInProgress(&Txn, CFE_SUCCESS), CFE_TBL_ERR_NEVER_LOADED);
+
+    /* Test where unexpected/unhandled events occur */
+    UT_InitData_TBL();
+    CFE_TBL_TxnClearEvents(&Txn);
+    CFE_TBL_TxnAddEvent(&Txn, 12345, 0, 0);
+    UtAssert_VOIDCALL(CFE_TBL_SendTableLoadFileEvents(&Txn, "LoadFile", NULL));
+
+    /* Test for unexpected code paths in CFE_TBL_ValidateLoadRequest() */
+    UT_InitData_TBL();
+    CFE_TBL_TxnInit(&Txn, false);
+    UtAssert_INT32_EQ(CFE_TBL_ValidateLoadRequest(&Txn, CFE_TBL_SRC_FILE), CFE_TBL_ERR_INVALID_HANDLE);
+    UT_TBL_EVENT_PENDING(&Txn, CFE_TBL_NO_SUCH_TABLE_ERR_EID);
 }

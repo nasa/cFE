@@ -622,18 +622,17 @@ CFE_Status_t CFE_TBL_Validate(CFE_TBL_Handle_t TblHandle)
         RegRecPtr = CFE_TBL_TxnRegRec(&Txn);
 
         /* Identify the image to be validated, starting with the Inactive Buffer */
-        ResultPtr = CFE_TBL_CheckValidationRequest(&RegRecPtr->ValidateInactiveId);
+        ResultPtr = CFE_TBL_CheckValidationRequest(&RegRecPtr->PendingValId);
         if (ResultPtr != NULL)
         {
             /* note "inactive" here refers to the NEXT (i.e. load in progress) buffer */
             /* one cannot validate the PREVIOUS buffer of a double-buffered table */
-            LogTagStr = "inactive";
-            BuffPtr   = CFE_TBL_GetLoadInProgressBuffer(RegRecPtr);
-        }
-        else
-        {
-            ResultPtr = CFE_TBL_CheckValidationRequest(&RegRecPtr->ValidateActiveId);
-            if (ResultPtr != NULL)
+            if (ResultPtr->BufferSelect == CFE_TBL_BufferSelect_INACTIVE)
+            {
+                LogTagStr = "inactive";
+                BuffPtr   = CFE_TBL_GetLoadInProgressBuffer(RegRecPtr);
+            }
+            else
             {
                 LogTagStr = "active";
                 BuffPtr   = CFE_TBL_GetActiveBuffer(RegRecPtr);
@@ -651,21 +650,26 @@ CFE_Status_t CFE_TBL_Validate(CFE_TBL_Handle_t TblHandle)
                 /* No buffer, it cannot be valid */
                 ResultPtr->Result = -1;
             }
-            else if (ValidationFunc == NULL)
-            {
-                /* no validation function, assume its OK */
-                ResultPtr->Result = 0;
-            }
             else
             {
-                /* Save the result of the Validation function for the Table Services Task */
-                ResultPtr->Result = ValidationFunc((void *)CFE_TBL_LoadBuffGetReadPointer(BuffPtr));
+                if (ValidationFunc == NULL)
+                {
+                    /* no validation function, assume its OK */
+                    ResultPtr->Result = 0;
+                }
+                else
+                {
+                    /* Save the result of the Validation function for the Table Services Task */
+                    ResultPtr->Result = ValidationFunc((void *)CFE_TBL_LoadBuffGetReadPointer(BuffPtr));
+                }
+
+                /* A return value of 0 indicates it is valid */
+                BuffPtr->IsValid = (ResultPtr->Result == 0);
             }
 
             /* Allow buffer to be activated after passing validation */
             if (ResultPtr->Result == 0)
             {
-                BuffPtr->Validated = true;
                 CFE_EVS_SendEventWithAppID(CFE_TBL_VALIDATION_INF_EID,
                                            CFE_EVS_EventType_INFORMATION,
                                            CFE_TBL_Global.TableTaskAppId,
@@ -683,7 +687,7 @@ CFE_Status_t CFE_TBL_Validate(CFE_TBL_Handle_t TblHandle)
                                            CFE_TBL_TxnAppNameCaller(&Txn),
                                            CFE_TBL_RegRecGetName(RegRecPtr),
                                            LogTagStr,
-                                           (unsigned int)Status);
+                                           (unsigned int)ResultPtr->Result);
 
                 if (ResultPtr->Result > 0)
                 {
