@@ -1,7 +1,7 @@
 /************************************************************************
- * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ * NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
  *
- * Copyright (c) 2020 United States Government as represented by the
+ * Copyright (c) 2023 United States Government as represented by the
  * Administrator of the National Aeronautics and Space Administration.
  * All Rights Reserved.
  *
@@ -19,12 +19,10 @@
 /**
  * @file
  *   Specification for the CFE Event Services (CFE_EVS) command and telemetry
- *   message constant definitions.
- *
- *  For CFE_EVS this is only the function/command code definitions
+ *   message payload structures and constant definitions.
  */
-#ifndef CFE_EVS_MSGDEFS_H
-#define CFE_EVS_MSGDEFS_H
+#ifndef DEFAULT_CFE_EVS_MSGDEFS_H
+#define DEFAULT_CFE_EVS_MSGDEFS_H
 
 #include "common_types.h"
 #include "cfe_mission_cfg.h"
@@ -33,16 +31,16 @@
 #include "cfe_evs_fcncodes.h"
 
 /* Event Type bit masks */
-#define CFE_EVS_DEBUG_BIT       0x0001
-#define CFE_EVS_INFORMATION_BIT 0x0002
-#define CFE_EVS_ERROR_BIT       0x0004
-#define CFE_EVS_CRITICAL_BIT    0x0008
+#define CFE_EVS_DEBUG_BIT       (1 << (CFE_EVS_EventType_DEBUG - 1))       // 0x0001
+#define CFE_EVS_INFORMATION_BIT (1 << (CFE_EVS_EventType_INFORMATION - 1)) // 0x0002
+#define CFE_EVS_ERROR_BIT       (1 << (CFE_EVS_EventType_ERROR - 1))       // 0x0004
+#define CFE_EVS_CRITICAL_BIT    (1 << (CFE_EVS_EventType_CRITICAL - 1))    // 0x0008
 
 /* Output Port bit masks */
-#define CFE_EVS_PORT1_BIT 0x0001
-#define CFE_EVS_PORT2_BIT 0x0002
-#define CFE_EVS_PORT3_BIT 0x0004
-#define CFE_EVS_PORT4_BIT 0x0008
+#define CFE_EVS_PORT1_BIT (1 << (CFE_EVS_EventOutput_PORT1 - 1)) // 0x0001
+#define CFE_EVS_PORT2_BIT (1 << (CFE_EVS_EventOutput_PORT2 - 1)) // 0x0002
+#define CFE_EVS_PORT3_BIT (1 << (CFE_EVS_EventOutput_PORT3 - 1)) // 0x0004
+#define CFE_EVS_PORT4_BIT (1 << (CFE_EVS_EventOutput_PORT4 - 1)) // 0x0008
 
 /***********************************/
 /*  Command Message Data Payloads  */
@@ -222,10 +220,10 @@ typedef struct CFE_EVS_HousekeepingTlm_Payload
 typedef struct CFE_EVS_PacketID
 {
     char AppName[CFE_MISSION_MAX_API_LEN]; /**< \cfetlmmnemonic \EVS_APPNAME
-                                        \brief Application name */
+                                                \brief Application name */
     uint16 EventID;                        /**< \cfetlmmnemonic \EVS_EVENTID
                                                 \brief Numerical event identifier */
-    uint16 EventType;                      /**< \cfetlmmnemonic \EVS_EVENTTYPE
+    CFE_EVS_EventType_Enum_t EventType;    /**< \cfetlmmnemonic \EVS_EVENTTYPE
                                                 \brief Numerical event type identifier */
     uint32 SpacecraftID;                   /**< \cfetlmmnemonic \EVS_SCID
                                                 \brief Spacecraft identifier */

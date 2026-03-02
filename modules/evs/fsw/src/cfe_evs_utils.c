@@ -1,7 +1,7 @@
 /************************************************************************
- * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ * NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
  *
- * Copyright (c) 2020 United States Government as represented by the
+ * Copyright (c) 2023 United States Government as represented by the
  * Administrator of the National Aeronautics and Space Administration.
  * All Rights Reserved.
  *
@@ -184,11 +184,11 @@ int32 EVS_NotRegistered(EVS_AppData_t *AppDataPtr, CFE_ES_AppId_t CallerID)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-bool EVS_IsFiltered(EVS_AppData_t *AppDataPtr, uint16 EventID, uint16 EventType)
+bool EVS_IsFiltered(EVS_AppData_t *AppDataPtr, uint16 EventID, CFE_EVS_EventType_Enum_t EventType)
 {
-    EVS_BinFilter_t *FilterPtr;
-    bool             Filtered = false;
-    char             AppName[OS_MAX_API_NAME];
+    EVS_BinFilter_t     *FilterPtr;
+    bool                Filtered = false;
+    char                AppName[OS_MAX_API_NAME];
 
     if (AppDataPtr->ActiveFlag == false)
     {
@@ -196,50 +196,9 @@ bool EVS_IsFiltered(EVS_AppData_t *AppDataPtr, uint16 EventID, uint16 EventType)
         Filtered = true;
     }
     else
-        switch (EventType)
-        {
-            case CFE_EVS_EventType_DEBUG:
-
-                if ((AppDataPtr->EventTypesActiveFlag & CFE_EVS_DEBUG_BIT) == 0)
-                {
-                    /* Debug events are disabled for this application */
-                    Filtered = true;
-                }
-                break;
-
-            case CFE_EVS_EventType_INFORMATION:
-
-                if ((AppDataPtr->EventTypesActiveFlag & CFE_EVS_INFORMATION_BIT) == 0)
-                {
-                    /* Informational events are disabled for this application */
-                    Filtered = true;
-                }
-                break;
-
-            case CFE_EVS_EventType_ERROR:
-
-                if ((AppDataPtr->EventTypesActiveFlag & CFE_EVS_ERROR_BIT) == 0)
-                {
-                    /* Error events are disabled for this application */
-                    Filtered = true;
-                }
-                break;
-
-            case CFE_EVS_EventType_CRITICAL:
-
-                if ((AppDataPtr->EventTypesActiveFlag & CFE_EVS_CRITICAL_BIT) == 0)
-                {
-                    /* Critical events are disabled for this application */
-                    Filtered = true;
-                }
-                break;
-
-            default:
-
-                /* Invalid Event Type */
-                Filtered = true;
-                break;
-        }
+    {
+        Filtered = !CFE_EVS_GetTypeEnable(EventType);
+    }
 
     /* Is this type of event enabled for this application? */
     if (Filtered == false)
@@ -421,13 +380,48 @@ EVS_BinFilter_t *EVS_FindEventID(uint16 EventID, EVS_BinFilter_t *FilterArray)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-void EVS_EnableTypes(EVS_AppData_t *AppDataPtr, uint8 BitMask)
+void EVS_SetTypes(EVS_AppData_t *AppDataPtr, uint8 BitMask, bool State)
 {
-    uint8 EventTypeBits = (CFE_EVS_DEBUG_BIT | CFE_EVS_INFORMATION_BIT | CFE_EVS_ERROR_BIT | CFE_EVS_CRITICAL_BIT);
+    size_t Index;
+    uint8_t EventBit;
 
-    /* Enable selected event type bits from bitmask */
-    AppDataPtr->EventTypesActiveFlag |= (BitMask & EventTypeBits);
+    EventBit = 1;
+    Index = 0;
+
+    if (AppDataPtr != NULL)
+    {
+        while (EventBit <= BitMask && Index < sizeof(AppDataPtr->EventTypesActive))
+        {
+            if ((BitMask & EventBit) != 0)
+            {
+                AppDataPtr->EventTypesActive[Index] = State;
+            }
+            EventBit <<= 1;
+            ++Index;
+        }
+    }
 }
+
+
+uint8 EVS_EventArrayToBitMask(const EVS_AppData_t *AppDataPtr)
+{
+    uint8 BitMask = 0;
+
+    if (AppDataPtr != NULL)
+    {
+        for (size_t i = 0; i < sizeof(AppDataPtr->EventTypesActive); ++i)
+        {
+            if (AppDataPtr->EventTypesActive[i])
+            {
+                /*Set bit i of BitMask if index i in array is true*/
+                BitMask |= (1 << i);
+            }
+        }
+    }
+
+    return BitMask;
+}
+
 
 /*----------------------------------------------------------------
  *
@@ -435,26 +429,13 @@ void EVS_EnableTypes(EVS_AppData_t *AppDataPtr, uint8 BitMask)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-void EVS_DisableTypes(EVS_AppData_t *AppDataPtr, uint8 BitMask)
-{
-    uint8 EventTypeBits = (CFE_EVS_DEBUG_BIT | CFE_EVS_INFORMATION_BIT | CFE_EVS_ERROR_BIT | CFE_EVS_CRITICAL_BIT);
-
-    /* Disable selected event type bits from bitmask */
-    AppDataPtr->EventTypesActiveFlag &= ~(BitMask & EventTypeBits);
-}
-
-/*----------------------------------------------------------------
- *
- * Application-scope internal function
- * See description in header file for argument/return detail
- *
- *-----------------------------------------------------------------*/
-void EVS_GenerateEventTelemetry(EVS_AppData_t *AppDataPtr, uint16 EventID, uint16 EventType,
+void EVS_GenerateEventTelemetry(EVS_AppData_t *AppDataPtr, uint16 EventID, CFE_EVS_EventType_Enum_t EventType,
                                 const CFE_TIME_SysTime_t *TimeStamp, const char *MsgSpec, va_list ArgPtr)
 {
     CFE_EVS_LongEventTlm_t  LongEventTlm;  /* The "long" flavor is always generated, as this is what is logged */
     CFE_EVS_ShortEventTlm_t ShortEventTlm; /* The "short" flavor is only generated if selected */
     int                     ExpandedLength;
+    bool                    IsTruncated;
 
     memset(&LongEventTlm, 0, sizeof(LongEventTlm));
     memset(&ShortEventTlm, 0, sizeof(ShortEventTlm));
@@ -478,7 +459,11 @@ void EVS_GenerateEventTelemetry(EVS_AppData_t *AppDataPtr, uint16 EventID, uint1
     {
         /* Mark character before zero terminator to indicate truncation */
         LongEventTlm.Payload.Message[sizeof(LongEventTlm.Payload.Message) - 2] = CFE_EVS_MSG_TRUNCATED;
-        CFE_EVS_Global.EVS_TlmPkt.Payload.MessageTruncCounter++;
+        IsTruncated = true;
+    }
+    else
+    {
+        IsTruncated = false;
     }
 
     /* Obtain task and system information */
@@ -516,6 +501,9 @@ void EVS_GenerateEventTelemetry(EVS_AppData_t *AppDataPtr, uint16 EventID, uint1
         CFE_SB_TransmitMsg(CFE_MSG_PTR(ShortEventTlm.TelemetryHeader), true);
     }
 
+    /* Serialize access to event log control variables */
+    OS_MutSemTake(CFE_EVS_Global.EVS_SharedDataMutexID);
+
     /* Increment message send counters (prevent rollover) */
     if (CFE_EVS_Global.EVS_TlmPkt.Payload.MessageSendCounter < CFE_EVS_MAX_EVENT_SEND_COUNT)
     {
@@ -526,6 +514,13 @@ void EVS_GenerateEventTelemetry(EVS_AppData_t *AppDataPtr, uint16 EventID, uint1
     {
         AppDataPtr->EventCount++;
     }
+
+    if (IsTruncated)
+    {
+        CFE_EVS_Global.EVS_TlmPkt.Payload.MessageTruncCounter++;
+    }
+
+    OS_MutSemGive(CFE_EVS_Global.EVS_SharedDataMutexID);
 }
 
 /*----------------------------------------------------------------
@@ -592,7 +587,7 @@ void EVS_OutputPort(uint8 PortNum, char *Message)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 EVS_SendEvent(uint16 EventID, uint16 EventType, const char *Spec, ...)
+int32 EVS_SendEvent(uint16 EventID, CFE_EVS_EventType_Enum_t EventType, const char *Spec, ...)
 {
     CFE_TIME_SysTime_t Time;
     va_list            Ptr;
@@ -620,4 +615,16 @@ int32 EVS_SendEvent(uint16 EventID, uint16 EventType, const char *Spec, ...)
     }
 
     return CFE_SUCCESS;
+}
+
+bool EVS_IsInvalidBitMask(uint32 BitMask, uint16 CommandCode)
+{
+    if ((BitMask) == 0x0 || (BitMask) > CFE_EVS_ALL_EVENT_TYPES_MASK)
+    {
+        EVS_SendEvent(CFE_EVS_ERR_INVALID_BITMASK_EID, CFE_EVS_EventType_ERROR,
+                      "Bit Mask = 0x%08x out of range: CC = %u", (unsigned int)BitMask, (unsigned int)CommandCode);
+        return true;
+    }
+
+    return false;
 }

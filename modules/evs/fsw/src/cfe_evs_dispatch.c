@@ -1,7 +1,7 @@
 /************************************************************************
- * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ * NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
  *
- * Copyright (c) 2020 United States Government as represented by the
+ * Copyright (c) 2023 United States Government as represented by the
  * Administrator of the National Aeronautics and Space Administration.
  * All Rights Reserved.
  *
@@ -41,29 +41,37 @@ bool CFE_EVS_VerifyCmdLength(const CFE_MSG_Message_t *MsgPtr, size_t ExpectedLen
  *-----------------------------------------------------------------*/
 void CFE_EVS_ProcessCommandPacket(const CFE_SB_Buffer_t *SBBufPtr)
 {
+    static CFE_SB_MsgId_t CMD_MID     = CFE_SB_MSGID_RESERVED;
+    static CFE_SB_MsgId_t SEND_HK_MID = CFE_SB_MSGID_RESERVED;
+
     CFE_SB_MsgId_t MessageID = CFE_SB_INVALID_MSG_ID;
+
+    /* cache the local MID Values here, this avoids repeat lookups */
+    if (!CFE_SB_IsValidMsgId(CMD_MID))
+    {
+        CMD_MID     = CFE_SB_ValueToMsgId(CFE_EVS_CMD_MID);
+        SEND_HK_MID = CFE_SB_ValueToMsgId(CFE_EVS_SEND_HK_MID);
+    }
 
     CFE_MSG_GetMsgId(&SBBufPtr->Msg, &MessageID);
 
     /* Process all SB messages */
-    switch (CFE_SB_MsgIdToValue(MessageID))
+    if (CFE_SB_MsgId_Equal(MessageID, SEND_HK_MID))
     {
-        case CFE_EVS_CMD_MID:
-            /* EVS task specific command */
-            CFE_EVS_ProcessGroundCommand(SBBufPtr, MessageID);
-            break;
-
-        case CFE_EVS_SEND_HK_MID:
-            /* Housekeeping request */
-            CFE_EVS_SendHkCmd((const CFE_EVS_SendHkCmd_t *)SBBufPtr);
-            break;
-
-        default:
-            /* Unknown command -- should never occur */
-            CFE_EVS_Global.EVS_TlmPkt.Payload.CommandErrorCounter++;
-            EVS_SendEvent(CFE_EVS_ERR_MSGID_EID, CFE_EVS_EventType_ERROR, "Invalid command packet, Message ID = 0x%08X",
-                          (unsigned int)CFE_SB_MsgIdToValue(MessageID));
-            break;
+        /* Housekeeping request */
+        CFE_EVS_SendHkCmd((const CFE_EVS_SendHkCmd_t *)SBBufPtr);
+    }
+    else if (CFE_SB_MsgId_Equal(MessageID, CMD_MID))
+    {
+        /* EVS task specific command */
+        CFE_EVS_ProcessGroundCommand(SBBufPtr, MessageID);
+    }
+    else
+    {
+        /* Unknown command -- should never occur */
+        CFE_EVS_Global.EVS_TlmPkt.Payload.CommandErrorCounter++;
+        EVS_SendEvent(CFE_EVS_ERR_MSGID_EID, CFE_EVS_EventType_ERROR, "Invalid command packet, Message ID = 0x%08X",
+                      (unsigned int)CFE_SB_MsgIdToValue(MessageID));
     }
 }
 

@@ -1,7 +1,7 @@
 /************************************************************************
- * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ * NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
  *
- * Copyright (c) 2020 United States Government as represented by the
+ * Copyright (c) 2023 United States Government as represented by the
  * Administrator of the National Aeronautics and Space Administration.
  * All Rights Reserved.
  *
@@ -22,8 +22,8 @@
  * Declarations and prototypes for cfe_evs_extern_typedefs module
  */
 
-#ifndef CFE_EVS_EXTERN_TYPEDEFS_H
-#define CFE_EVS_EXTERN_TYPEDEFS_H
+#ifndef DEFAULT_CFE_EVS_EXTERN_TYPEDEFS_H
+#define DEFAULT_CFE_EVS_EXTERN_TYPEDEFS_H
 
 #include "common_types.h"
 

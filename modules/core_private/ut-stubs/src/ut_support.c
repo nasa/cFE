@@ -1,7 +1,7 @@
 /************************************************************************
- * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ * NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
  *
- * Copyright (c) 2020 United States Government as represented by the
+ * Copyright (c) 2023 United States Government as represented by the
  * Administrator of the National Aeronautics and Space Administration.
  * All Rights Reserved.
  *
@@ -57,6 +57,12 @@ static UT_Buffer_t UT_CFE_ES_MemoryPool;
 static UT_Buffer_t UT_CDS_Data;
 static UT_Buffer_t UT_SyslogBuffer;
 static UT_Buffer_t UT_PrintfBuffer;
+
+/* counter values for HK TLM counter verification */
+#define UT_MAX_COUNTERS_PER_TEST 4
+static uint32 UT_NumCountersTracked                   = 0;
+static uint8 *UT_CounterPtr[UT_MAX_COUNTERS_PER_TEST] = {NULL};
+
 static union
 {
     UT_Buffer_t        Buff;
@@ -69,7 +75,12 @@ static uint16 UT_SendEventAppIDHistory[UT_EVENT_HISTORY_SIZE * 10];
 
 int32 dummy_function(void);
 
+#ifdef CFE_EDS_ENABLED
+#include "edsmsg_dispatcher.h"
+static const UT_EntryKey_t UT_TABLE_DISPATCHER = UT_KEY(CFE_EDSMSG_Dispatch);
+#else
 static const UT_EntryKey_t UT_TABLE_DISPATCHER = 0;
+#endif
 
 /*
 ** Functions
@@ -116,6 +127,8 @@ void UT_Init(const char *subsys)
     {
         UT_Endianess = UT_BIG_ENDIAN;
     }
+
+    UT_NumCountersTracked = 0;
 }
 
 /*
@@ -123,10 +136,24 @@ void UT_Init(const char *subsys)
 */
 void UT_InitData(void)
 {
+    uint32 i;
+
     /*
      * Purge all entries in the entire stub table
      */
     UT_ResetState(0);
+
+    /* Reset counter values for HK TLM counter verification */
+    for (i = 0; i < UT_NumCountersTracked; ++i)
+    {
+        if (UT_CounterPtr[i] != NULL)
+        {
+            *(UT_CounterPtr[i]) = 0;
+            UT_CounterPtr[i]    = NULL;
+        }
+    }
+
+    UT_NumCountersTracked = 0;
 
     /*
      * Set up entries to capture Events and Syslog writes
@@ -788,4 +815,35 @@ bool CFE_UtAssert_MessageCheck_Impl(bool Status, const char *File, uint32 Line, 
 
     return UtAssert_GenericSignedCompare(Status, UtAssert_Compare_GT, 0, UtAssert_Radix_DECIMAL, File, Line, Desc,
                                          ScrubbedFormat, "");
+}
+
+bool CFE_UtAssert_VerifyTlmCounterImpl(uint8 *Count, const char *File, uint32 Line, const char *Text)
+{
+    uint8  Actual;
+    uint8  Expected;
+    uint32 i;
+
+    for (i = 0; i < UT_NumCountersTracked; ++i)
+    {
+        if (UT_CounterPtr[i] == Count)
+        {
+            break;
+        }
+    }
+
+    if (i == UT_NumCountersTracked && i < UT_MAX_COUNTERS_PER_TEST)
+    {
+        UT_CounterPtr[i] = Count;
+        ++UT_NumCountersTracked;
+    }
+
+    /* This increments the stub count for the key */
+    UT_DefaultStubImpl("**TLM COUNT**", (UT_EntryKey_t)Count, 0, NULL);
+
+    /* Expected counter values for HK TLM counter verification */
+    Expected = UT_GetStubCount((UT_EntryKey_t)Count);
+    Actual   = *Count;
+
+    return UtAssertEx((Actual == Expected), UTASSERT_CASETYPE_FAILURE, File, Line, "TLM counter: %s (%u) == %u", Text,
+                      (unsigned int)Actual, (unsigned int)Expected);
 }

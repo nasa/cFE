@@ -1,7 +1,7 @@
 /************************************************************************
- * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ * NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
  *
- * Copyright (c) 2020 United States Government as represented by the
+ * Copyright (c) 2023 United States Government as represented by the
  * Administrator of the National Aeronautics and Space Administration.
  * All Rights Reserved.
  *
@@ -691,6 +691,30 @@ CFE_Status_t CFE_ES_PoolCreateEx(CFE_ES_MemHandle_t *PoolID, void *MemPtr, size_
     UT_GenStub_Execute(CFE_ES_PoolCreateEx, Basic, NULL);
 
     return UT_GenStub_GetReturnValue(CFE_ES_PoolCreateEx, CFE_Status_t);
+}
+
+/*
+ * ----------------------------------------------------
+ * Generated stub function for CFE_ES_PoolCreateEx_WithAlignment()
+ * ----------------------------------------------------
+ */
+CFE_Status_t CFE_ES_PoolCreateEx_WithAlignment(CFE_ES_MemHandle_t *PoolID, void *MemPtr, size_t Size,
+                                               uint16 NumBlockSizes, const size_t *BlockSizes, bool UseMutex,
+                                               size_t Alignment)
+{
+    UT_GenStub_SetupReturnBuffer(CFE_ES_PoolCreateEx_WithAlignment, CFE_Status_t);
+
+    UT_GenStub_AddParam(CFE_ES_PoolCreateEx_WithAlignment, CFE_ES_MemHandle_t *, PoolID);
+    UT_GenStub_AddParam(CFE_ES_PoolCreateEx_WithAlignment, void *, MemPtr);
+    UT_GenStub_AddParam(CFE_ES_PoolCreateEx_WithAlignment, size_t, Size);
+    UT_GenStub_AddParam(CFE_ES_PoolCreateEx_WithAlignment, uint16, NumBlockSizes);
+    UT_GenStub_AddParam(CFE_ES_PoolCreateEx_WithAlignment, const size_t *, BlockSizes);
+    UT_GenStub_AddParam(CFE_ES_PoolCreateEx_WithAlignment, bool, UseMutex);
+    UT_GenStub_AddParam(CFE_ES_PoolCreateEx_WithAlignment, size_t, Alignment);
+
+    UT_GenStub_Execute(CFE_ES_PoolCreateEx_WithAlignment, Basic, NULL);
+
+    return UT_GenStub_GetReturnValue(CFE_ES_PoolCreateEx_WithAlignment, CFE_Status_t);
 }
 
 /*

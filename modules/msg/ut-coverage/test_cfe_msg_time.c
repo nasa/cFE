@@ -1,7 +1,7 @@
 /************************************************************************
- * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ * NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
  *
- * Copyright (c) 2020 United States Government as represented by the
+ * Copyright (c) 2023 United States Government as represented by the
  * Administrator of the National Aeronautics and Space Administration.
  * All Rights Reserved.
  *
@@ -30,6 +30,7 @@
 #include "cfe_msg.h"
 #include "test_cfe_msg_time.h"
 #include "cfe_error.h"
+#include "cfe_msg_defaults.h"
 #include <string.h>
 
 void Test_MSG_Time(void)
@@ -62,11 +63,22 @@ void Test_MSG_Time(void)
     UtAssert_INT32_EQ(actual.Seconds, 0);
     UtAssert_INT32_EQ(actual.Subseconds, 0);
 
+    UtPrintf("Bad message, wrong header version");
+    CFE_UtAssert_SUCCESS(CFE_MSG_SetType(msgptr, CFE_MSG_Type_Tlm));
+    CFE_UtAssert_SUCCESS(CFE_MSG_SetHeaderVersion(msgptr, CFE_MISSION_CCSDSVER + 1));
+    UtAssert_INT32_EQ(CFE_MSG_SetMsgTime(msgptr, actual), CFE_MSG_WRONG_MSG_TYPE);
+    UtAssert_INT32_EQ(Test_MSG_NotZero(msgptr), MSG_HDRVER_FLAG);
+    UtAssert_INT32_EQ(CFE_MSG_GetMsgTime(msgptr, &actual), CFE_MSG_WRONG_MSG_TYPE);
+    /* NEQ since we have a header version value of 1 which affects the value here */
+    UtAssert_INT32_EQ(actual.Seconds, 0);
+    UtAssert_INT32_EQ(actual.Subseconds, 0);
+
     UtPrintf("Set to all F's, various valid inputs");
     for (i = 0; i < sizeof(input) / sizeof(input[0]); i++)
     {
         memset(&tlm, 0xFF, sizeof(tlm));
         CFE_UtAssert_SUCCESS(CFE_MSG_SetType(msgptr, CFE_MSG_Type_Tlm));
+        CFE_UtAssert_SUCCESS(CFE_MSG_SetHeaderVersion(msgptr, CFE_MISSION_CCSDSVER));
         CFE_UtAssert_SUCCESS(CFE_MSG_GetMsgTime(msgptr, &actual));
         UtAssert_INT32_EQ(actual.Seconds, 0xFFFFFFFF);
         UtAssert_INT32_EQ(actual.Subseconds, 0xFFFF0000);
@@ -75,7 +87,7 @@ void Test_MSG_Time(void)
         CFE_UtAssert_SUCCESS(CFE_MSG_GetMsgTime(msgptr, &actual));
         UtAssert_INT32_EQ(actual.Seconds, input[i].Seconds);
         UtAssert_INT32_EQ(actual.Subseconds, input[i].Subseconds & 0xFFFF0000);
-        UtAssert_INT32_EQ(Test_MSG_NotF(msgptr), MSG_TYPE_FLAG);
+        UtAssert_INT32_EQ(Test_MSG_NotF(msgptr), MSG_TYPE_FLAG | MSG_HDRVER_FLAG);
     }
 
     UtPrintf("Set to all 0, various valid inputs");
@@ -83,6 +95,7 @@ void Test_MSG_Time(void)
     {
         memset(&tlm, 0, sizeof(tlm));
         CFE_UtAssert_SUCCESS(CFE_MSG_SetHasSecondaryHeader(msgptr, true));
+        CFE_UtAssert_SUCCESS(CFE_MSG_SetHeaderVersion(msgptr, CFE_MISSION_CCSDSVER));
         CFE_UtAssert_SUCCESS(CFE_MSG_GetMsgTime(msgptr, &actual));
         UtAssert_INT32_EQ(actual.Seconds, 0);
         UtAssert_INT32_EQ(actual.Subseconds, 0);

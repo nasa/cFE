@@ -1,7 +1,7 @@
 /************************************************************************
- * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ * NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
  *
- * Copyright (c) 2020 United States Government as represented by the
+ * Copyright (c) 2023 United States Government as represented by the
  * Administrator of the National Aeronautics and Space Administration.
  * All Rights Reserved.
  *
@@ -20,25 +20,24 @@
  * @file
  *   CFE Event Services (CFE_SB) Application Message IDs
  */
-#ifndef CFE_SB_MSGIDS_H
-#define CFE_SB_MSGIDS_H
+#ifndef DEFAULT_CFE_SB_MSGIDS_H
+#define DEFAULT_CFE_SB_MSGIDS_H
 
-#include "cfe_core_api_base_msgids.h"
-#include "cfe_sb_topicids.h"
+#include "cfe_sb_msgid_values.h"
 
 /*
 ** cFE Command Message Id's
 */
-#define CFE_SB_CMD_MID          CFE_PLATFORM_CMD_TOPICID_TO_MIDV(CFE_MISSION_SB_CMD_TOPICID)          /* 0x1803 */
-#define CFE_SB_SEND_HK_MID      CFE_PLATFORM_CMD_TOPICID_TO_MIDV(CFE_MISSION_SB_SEND_HK_TOPICID)      /* 0x180B */
-#define CFE_SB_SUB_RPT_CTRL_MID CFE_PLATFORM_CMD_TOPICID_TO_MIDV(CFE_MISSION_SB_SUB_RPT_CTRL_TOPICID) /* 0x180E */
+#define CFE_SB_CMD_MID          CFE_PLATFORM_SB_CMD_MIDVAL(CMD)          /* Default=0x1803 */
+#define CFE_SB_SEND_HK_MID      CFE_PLATFORM_SB_CMD_MIDVAL(SEND_HK)      /* Default=0x180B */
+#define CFE_SB_SUB_RPT_CTRL_MID CFE_PLATFORM_SB_CMD_MIDVAL(SUB_RPT_CTRL) /* Default=0x180E */
 
 /*
 ** CFE Telemetry Message Id's
 */
-#define CFE_SB_HK_TLM_MID      CFE_PLATFORM_TLM_TOPICID_TO_MIDV(CFE_MISSION_SB_HK_TLM_TOPICID)      /* 0x0803 */
-#define CFE_SB_STATS_TLM_MID   CFE_PLATFORM_TLM_TOPICID_TO_MIDV(CFE_MISSION_SB_STATS_TLM_TOPICID)   /* 0x080A */
-#define CFE_SB_ALLSUBS_TLM_MID CFE_PLATFORM_TLM_TOPICID_TO_MIDV(CFE_MISSION_SB_ALLSUBS_TLM_TOPICID) /* 0x080D */
-#define CFE_SB_ONESUB_TLM_MID  CFE_PLATFORM_TLM_TOPICID_TO_MIDV(CFE_MISSION_SB_ONESUB_TLM_TOPICID)  /* 0x080E */
+#define CFE_SB_HK_TLM_MID      CFE_PLATFORM_SB_TLM_MIDVAL(HK_TLM)      /* Default=0x0803 */
+#define CFE_SB_STATS_TLM_MID   CFE_PLATFORM_SB_TLM_MIDVAL(STATS_TLM)   /* Default=0x080A */
+#define CFE_SB_ALLSUBS_TLM_MID CFE_PLATFORM_SB_TLM_MIDVAL(ALLSUBS_TLM) /* Default=0x080D */
+#define CFE_SB_ONESUB_TLM_MID  CFE_PLATFORM_SB_TLM_MIDVAL(ONESUB_TLM)  /* Default=0x080E */
 
 #endif

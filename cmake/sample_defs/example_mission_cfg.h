@@ -1,7 +1,7 @@
 /************************************************************************
- * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ * NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
  *
- * Copyright (c) 2020 United States Government as represented by the
+ * Copyright (c) 2023 United States Government as represented by the
  * Administrator of the National Aeronautics and Space Administration.
  * All Rights Reserved.
  *
@@ -354,7 +354,7 @@
 **       to exceed the max length.
 **
 */
-#define CFE_MISSION_SB_MAX_PIPES 64
+#define CFE_MISSION_SB_MAX_PIPES 32
 
 /******************************************************************************
  *   CFE Table Services (CFE_TBL) Application Public Definitions

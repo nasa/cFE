@@ -1,7 +1,7 @@
 /************************************************************************
- * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ * NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
  *
- * Copyright (c) 2020 United States Government as represented by the
+ * Copyright (c) 2023 United States Government as represented by the
  * Administrator of the National Aeronautics and Space Administration.
  * All Rights Reserved.
  *
@@ -152,7 +152,8 @@ CFE_Status_t CFE_EVS_Register(const void *Filters, uint16 NumEventFilters, uint1
 ** \sa #CFE_EVS_SendEventWithAppID, #CFE_EVS_SendTimedEvent
 **
 **/
-CFE_Status_t CFE_EVS_SendEvent(uint16 EventID, uint16 EventType, const char *Spec, ...) OS_PRINTF(3, 4);
+CFE_Status_t CFE_EVS_SendEvent(uint16 EventID, CFE_EVS_EventType_Enum_t EventType, const char *Spec, ...)
+    OS_PRINTF(3, 4);
 
 /**
 ** \brief Generate a software event given the specified Application ID.
@@ -201,8 +202,8 @@ CFE_Status_t CFE_EVS_SendEvent(uint16 EventID, uint16 EventType, const char *Spe
 ** \sa #CFE_EVS_SendEvent, #CFE_EVS_SendTimedEvent
 **
 **/
-CFE_Status_t CFE_EVS_SendEventWithAppID(uint16 EventID, uint16 EventType, CFE_ES_AppId_t AppID, const char *Spec, ...)
-    OS_PRINTF(4, 5);
+CFE_Status_t CFE_EVS_SendEventWithAppID(uint16 EventID, CFE_EVS_EventType_Enum_t EventType, CFE_ES_AppId_t AppID,
+                                        const char *Spec, ...) OS_PRINTF(4, 5);
 
 /**
 ** \brief Generate a software event with a specific time tag.
@@ -251,8 +252,8 @@ CFE_Status_t CFE_EVS_SendEventWithAppID(uint16 EventID, uint16 EventType, CFE_ES
 ** \sa #CFE_EVS_SendEvent, #CFE_EVS_SendEventWithAppID
 **
 **/
-CFE_Status_t CFE_EVS_SendTimedEvent(CFE_TIME_SysTime_t Time, uint16 EventID, uint16 EventType, const char *Spec, ...)
-    OS_PRINTF(4, 5);
+CFE_Status_t CFE_EVS_SendTimedEvent(CFE_TIME_SysTime_t Time, uint16 EventID, CFE_EVS_EventType_Enum_t EventType,
+                                    const char *Spec, ...) OS_PRINTF(4, 5);
 /**@}*/
 
 /** @defgroup CFEAPIEVSResetFilter cFE Reset Event Filter APIs

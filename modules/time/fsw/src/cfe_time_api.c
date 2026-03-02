@@ -1,7 +1,7 @@
 /************************************************************************
- * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ * NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
  *
- * Copyright (c) 2020 United States Government as represented by the
+ * Copyright (c) 2023 United States Government as represented by the
  * Administrator of the National Aeronautics and Space Administration.
  * All Rights Reserved.
  *
@@ -33,6 +33,8 @@
 #include "cfe_time_module_all.h"
 
 #include <string.h>
+
+#include <time.h>
 
 /*----------------------------------------------------------------
  *
@@ -563,151 +565,31 @@ uint32 CFE_TIME_Micro2SubSecs(uint32 MicroSeconds)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-void CFE_TIME_Print(char *PrintBuffer, CFE_TIME_SysTime_t TimeToPrint)
-{
-    uint32 NumberOfYears;
-    uint32 NumberOfDays;
-    uint32 NumberOfHours;
-    uint32 NumberOfMinutes;
-    uint32 NumberOfSeconds;
-    uint32 NumberOfMicros;
-    uint32 DaysInThisYear;
-
-    bool StillCountingYears = true;
-
-    if (PrintBuffer == NULL)
-    {
-        CFE_ES_WriteToSysLog("%s: Failed invalid arguments\n", __func__);
-        return;
-    }
-
-    /*
-    ** Convert the cFE time (offset from epoch) into calendar time...
-    */
-    NumberOfMicros = CFE_TIME_Sub2MicroSecs(TimeToPrint.Subseconds) + CFE_MISSION_TIME_EPOCH_MICROS;
-
-    NumberOfMinutes = (NumberOfMicros / 60000000) + (TimeToPrint.Seconds / 60) + CFE_MISSION_TIME_EPOCH_MINUTE;
-    NumberOfMicros  = NumberOfMicros % 60000000;
-
-    NumberOfSeconds = (NumberOfMicros / 1000000) + (TimeToPrint.Seconds % 60) + CFE_MISSION_TIME_EPOCH_SECOND;
-    NumberOfMicros  = NumberOfMicros % 1000000;
-    /*
-    ** Adding the epoch "seconds" after computing the minutes avoids
-    **    overflow problems when the input time value (seconds) is
-    **    at, or near, 0xFFFFFFFF...
-    */
-    while (NumberOfSeconds >= 60)
-    {
-        NumberOfMinutes++;
-        NumberOfSeconds -= 60;
-    }
-
-    /*
-    ** Compute the years/days/hours/minutes...
-    */
-    NumberOfHours   = (NumberOfMinutes / 60) + CFE_MISSION_TIME_EPOCH_HOUR;
-    NumberOfMinutes = (NumberOfMinutes % 60);
-
-    /*
-    ** Unlike hours and minutes, epoch days are counted as Jan 1 = day 1...
-    */
-    NumberOfDays  = (NumberOfHours / 24) + (CFE_MISSION_TIME_EPOCH_DAY - 1);
-    NumberOfHours = (NumberOfHours % 24);
-
-    NumberOfYears = CFE_MISSION_TIME_EPOCH_YEAR;
-
-    /*
-    ** Convert total number of days into years and remainder days...
-    */
-    while (StillCountingYears)
-    {
-        /*
-        ** Set number of days in this year (leap year?)...
-        */
-        DaysInThisYear = 365;
-
-        if ((NumberOfYears % 4) == 0)
-        {
-            if ((NumberOfYears % 100) != 0)
-            {
-                DaysInThisYear = 366;
-            }
-            else if ((NumberOfYears % 400) == 0)
-            {
-                DaysInThisYear = 366;
-            }
-            else
-            {
-                /* Do Nothing. Non-leap year. */
-            }
-        }
-
-        /*
-        ** When we have less than a years worth of days, we're done...
-        */
-        if (NumberOfDays < DaysInThisYear)
-        {
-            StillCountingYears = false;
-        }
-        else
-        {
-            /*
-            ** Add a year and remove the number of days in that year...
-            */
-            NumberOfYears++;
-            NumberOfDays -= DaysInThisYear;
-        }
-    }
-
-    /*
-    ** Unlike hours and minutes, days are displayed as Jan 1 = day 1...
-    */
-    NumberOfDays++;
-
-    /*
-    ** After computing microseconds, convert to 5 digits from 6 digits...
-    */
-    NumberOfMicros = NumberOfMicros / 10;
-
-    /*
-    ** Build formatted output string (yyyy-ddd-hh:mm:ss.xxxxx)...
-    */
-    *PrintBuffer++ = '0' + (char)(NumberOfYears / 1000);
-    NumberOfYears  = NumberOfYears % 1000;
-    *PrintBuffer++ = '0' + (char)(NumberOfYears / 100);
-    NumberOfYears  = NumberOfYears % 100;
-    *PrintBuffer++ = '0' + (char)(NumberOfYears / 10);
-    *PrintBuffer++ = '0' + (char)(NumberOfYears % 10);
-    *PrintBuffer++ = '-';
-
-    *PrintBuffer++ = '0' + (char)(NumberOfDays / 100);
-    NumberOfDays   = NumberOfDays % 100;
-    *PrintBuffer++ = '0' + (char)(NumberOfDays / 10);
-    *PrintBuffer++ = '0' + (char)(NumberOfDays % 10);
-    *PrintBuffer++ = '-';
-
-    *PrintBuffer++ = '0' + (char)(NumberOfHours / 10);
-    *PrintBuffer++ = '0' + (char)(NumberOfHours % 10);
-    *PrintBuffer++ = ':';
-
-    *PrintBuffer++ = '0' + (char)(NumberOfMinutes / 10);
-    *PrintBuffer++ = '0' + (char)(NumberOfMinutes % 10);
-    *PrintBuffer++ = ':';
-
-    *PrintBuffer++ = '0' + (char)(NumberOfSeconds / 10);
-    *PrintBuffer++ = '0' + (char)(NumberOfSeconds % 10);
-    *PrintBuffer++ = '.';
-
-    *PrintBuffer++ = '0' + (char)(NumberOfMicros / 10000);
-    NumberOfMicros = NumberOfMicros % 10000;
-    *PrintBuffer++ = '0' + (char)(NumberOfMicros / 1000);
-    NumberOfMicros = NumberOfMicros % 1000;
-    *PrintBuffer++ = '0' + (char)(NumberOfMicros / 100);
-    NumberOfMicros = NumberOfMicros % 100;
-    *PrintBuffer++ = '0' + (char)(NumberOfMicros / 10);
-    *PrintBuffer++ = '0' + (char)(NumberOfMicros % 10);
-    *PrintBuffer++ = '\0';
-}
+CFE_Status_t CFE_TIME_Print(char *PrintBuffer, CFE_TIME_SysTime_t TimeToPrint) 
+ { 
+     size_t    FmtLen = 0; 
+     uint32    Micros = (CFE_TIME_Sub2MicroSecs(TimeToPrint.Subseconds) + CFE_MISSION_TIME_EPOCH_MICROS) / 10; 
+     struct tm tm; 
+  
+     if (PrintBuffer == NULL) 
+     { 
+        return CFE_TIME_BAD_ARGUMENT; 
+     } 
+  
+     time_t sec = TimeToPrint.Seconds + CFE_MISSION_TIME_EPOCH_SECONDS; // epoch is Jan 1, 1980 
+     gmtime_r(&sec, &tm); 
+     FmtLen = strftime(PrintBuffer, CFE_TIME_PRINTED_STRING_SIZE - 6, "%Y-%j-%H:%M:%S", &tm); 
+     PrintBuffer += FmtLen; 
+     *(PrintBuffer++) = '.'; 
+  
+     *(PrintBuffer++) = '0' + (char)((Micros % 100000) / 10000); 
+     *(PrintBuffer++) = '0' + (char)((Micros % 10000) / 1000); 
+     *(PrintBuffer++) = '0' + (char)((Micros % 1000) / 100); 
+     *(PrintBuffer++) = '0' + (char)((Micros % 100) / 10); 
+     *(PrintBuffer++) = '0' + (char)(Micros % 10); 
+     *PrintBuffer     = '\0'; 
+     return CFE_SUCCESS; 
+ } 
 
 /*----------------------------------------------------------------
  *

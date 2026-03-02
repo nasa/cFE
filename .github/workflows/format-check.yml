@@ -1,9 +1,11 @@
 name: Format Check
 
-# Run on all push and pull requests
 on:
-  push:
   pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
   workflow_dispatch:
   schedule:
     # 11:30 PM UTC every Sunday

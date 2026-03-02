@@ -1,7 +1,7 @@
 /************************************************************************
- * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ * NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
  *
- * Copyright (c) 2020 United States Government as represented by the
+ * Copyright (c) 2023 United States Government as represented by the
  * Administrator of the National Aeronautics and Space Administration.
  * All Rights Reserved.
  *
@@ -77,10 +77,10 @@ void UT_DefaultHandler_CFE_ResourceId_GetSerial(void *UserObj, UT_EntryKey_t Fun
 
 /*------------------------------------------------------------
  *
- * Default handler for CFE_ResourceId_FindNext coverage stub function
+ * Default handler for CFE_ResourceId_FindNextEx coverage stub function
  *
  *------------------------------------------------------------*/
-void UT_DefaultHandler_CFE_ResourceId_FindNext(void *UserObj, UT_EntryKey_t FuncKey, const UT_StubContext_t *Context)
+void UT_DefaultHandler_CFE_ResourceId_FindNextEx(void *UserObj, UT_EntryKey_t FuncKey, const UT_StubContext_t *Context)
 {
     CFE_ResourceId_t StartId = UT_Hook_GetArgValueByName(Context, "StartId", CFE_ResourceId_t);
     CFE_ResourceId_t NextId;
@@ -105,6 +105,16 @@ void UT_DefaultHandler_CFE_ResourceId_FindNext(void *UserObj, UT_EntryKey_t Func
     }
 
     UT_Stub_SetReturnValue(FuncKey, NextId);
+}
+
+/*------------------------------------------------------------
+ *
+ * Default handler for CFE_ResourceId_FindNext coverage stub function
+ *
+ *------------------------------------------------------------*/
+void UT_DefaultHandler_CFE_ResourceId_FindNext(void *UserObj, UT_EntryKey_t FuncKey, const UT_StubContext_t *Context)
+{
+    UT_DefaultHandler_CFE_ResourceId_FindNextEx(UserObj, FuncKey, Context);
 }
 
 /*------------------------------------------------------------

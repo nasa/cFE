@@ -29,7 +29,7 @@ foreach(SBR_TEST ${SBR_TEST_SET})
 
     # Unit test object library sources, options, and includes
     add_library(ut_${SBR_TEST}_objs OBJECT ${${SBR_TEST}_SRC} ${CFE_SBR_SOURCE_DIR}/fsw/src/cfe_${SBR_TEST}.c)
-    target_compile_options(ut_${SBR_TEST}_objs PRIVATE ${UT_COVERAGE_COMPILE_FLAGS})
+    target_link_libraries(ut_${SBR_TEST}_objs PRIVATE ut_coverage_compile)
     target_include_directories(ut_${SBR_TEST}_objs PRIVATE
          $<TARGET_PROPERTY:${DEP},INCLUDE_DIRECTORIES>)
 
@@ -46,14 +46,14 @@ foreach(SBR_TEST ${SBR_TEST_SET})
     # Also add the UT_COVERAGE_LINK_FLAGS to the link command
     # This should enable coverage analysis on platforms that support this
     target_link_libraries(${SBR_TEST}_UT
-        ${UT_COVERAGE_LINK_FLAGS}
+        ut_coverage_link
         ut_core_private_stubs
         ut_core_api_stubs
         ut_assert)
 
     add_test(${SBR_TEST}_UT ${SBR_TEST}_UT)
     foreach(TGT ${INSTALL_TARGET_LIST})
-        install(TARGETS ${SBR_TEST}_UT DESTINATION ${TGT}/${UT_INSTALL_SUBDIR})
+        install(TARGETS ${SBR_TEST}_UT DESTINATION ${TGT})
     endforeach()
 
 endforeach(SBR_TEST ${SBR_TEST_SET})

@@ -12,8 +12,16 @@ set(time_SOURCES
     fsw/src/cfe_time_task.c
     fsw/src/cfe_time_tone.c
     fsw/src/cfe_time_utils.c
-    fsw/src/cfe_time_dispatch.c
 )
+
+if (CFE_EDS_ENABLED)
+  # Use EDS-based message dispatch
+  list(APPEND time_SOURCES fsw/src/cfe_time_eds_dispatch.c)
+else()
+  # Use hardcoded message dispatch
+  list(APPEND time_SOURCES fsw/src/cfe_time_dispatch.c)
+endif()
+
 add_library(time STATIC ${time_SOURCES})
 
 target_include_directories(time PUBLIC fsw/inc)

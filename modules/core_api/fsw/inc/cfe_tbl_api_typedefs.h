@@ -1,7 +1,7 @@
 /************************************************************************
- * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ * NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
  *
- * Copyright (c) 2020 United States Government as represented by the
+ * Copyright (c) 2023 United States Government as represented by the
  * Administrator of the National Aeronautics and Space Administration.
  * All Rights Reserved.
  *
@@ -41,6 +41,7 @@
 #include "cfe_mission_cfg.h"
 #include "cfe_tbl_extern_typedefs.h"
 #include "cfe_time_extern_typedefs.h"
+#include "cfe_resourceid_api_typedefs.h"
 
 /** @defgroup CFETBLTypeOptions cFE Table Type Defines
  * @{
@@ -75,16 +76,10 @@
  */
 #define CFE_TBL_MAX_FULL_NAME_LEN (CFE_MISSION_TBL_MAX_FULL_NAME_LEN)
 
-/** \brief Bad table handle */
-#define CFE_TBL_BAD_TABLE_HANDLE (CFE_TBL_Handle_t)0xFFFF
-
 /******************  Data Type Definitions *********************/
 
 /** \brief Table Callback Function */
 typedef int32 (*CFE_TBL_CallbackFuncPtr_t)(void *TblPtr);
-
-/** \brief Table Handle primitive */
-typedef int16 CFE_TBL_Handle_t;
 
 /** \brief Table Source */
 typedef enum CFE_TBL_SrcEnum
@@ -120,5 +115,67 @@ typedef struct CFE_TBL_Info
     bool               Critical;         /**< \brief Flag indicating Table contents are maintained in a CDS */
     char               LastFileLoaded[CFE_MISSION_MAX_PATH_LEN]; /**< \brief Filename of last file loaded into table */
 } CFE_TBL_Info_t;
+
+/*
+ * NOTE: CFE_TBL_HandleId_t and CFE_TBL_RegId_t types are now defined in
+ * the cfe_tbl_extern_typedefs.h file which is included above.  This file
+ * provides the constands and macros to work with those types.
+ */
+
+/** \name Constants for table registry IDs, using the CFE_TBL_RegId_t type */
+/** \{ */
+
+#define CFE_TBL_REGID_C(x)      ((CFE_TBL_RegId_t)CFE_RESOURCEID_WRAP(x))
+#define CFE_TBL_REGID_UNDEFINED CFE_TBL_REGID_C(CFE_RESOURCEID_UNDEFINED)
+
+/** \} */
+
+/** \name Constants for table handle IDs, using the CFE_TBL_HandleId_t type */
+/** \{ */
+
+#define CFE_TBL_HANDLEID_C(x)      ((CFE_TBL_HandleId_t)CFE_RESOURCEID_WRAP(x))
+#define CFE_TBL_HANDLEID_UNDEFINED CFE_TBL_HANDLEID_C(CFE_RESOURCEID_UNDEFINED)
+
+/** \} */
+
+/*
+ * The historical name of the external table handle type was "CFE_TBL_Handle_t" and it was a simple int16
+ * To facilitate migration of apps to use the macros, provide the old type behind the OMIT_DEPRECATED switch
+ */
+#ifdef CFE_OMIT_DEPRECATED_6_8
+
+/*
+ * The preferred way is to use handle IDs which are type-safe.
+ *
+ * In this mode CFE_TBL_Handle_t and CFE_TBL_HandleId_t are the same thing
+ * (a future version can remove the duplicate name)
+ */
+typedef CFE_TBL_HandleId_t CFE_TBL_Handle_t;
+
+/** \brief Bad table handle */
+#define CFE_TBL_BAD_TABLE_HANDLE CFE_TBL_HANDLEID_UNDEFINED
+
+#define CFE_TBL_HANDLE_EQ(x, y)    CFE_TBL_HandleID_IsEqual(x, y)
+#define CFE_TBL_HANDLE_INT(x)      CFE_TBL_HandleID_AsInt(x)
+#define CFE_TBL_HANDLE_IS_VALID(x) CFE_TBL_HandleID_IsDefined(x)
+
+#else
+
+/*
+ * The historical way is to use handle IDs which are simply an integer.
+ *
+ * In this mode CFE_TBL_Handle_t is a truncated form of CFE_TBL_HandleId_t that only has
+ * the lower 16 bits.  It is not type safe.
+ */
+typedef int16 CFE_TBL_Handle_t;
+
+/** \brief Bad table handle */
+#define CFE_TBL_BAD_TABLE_HANDLE ((CFE_TBL_Handle_t)(-1))
+
+#define CFE_TBL_HANDLE_EQ(x, y)    ((x) == (y))
+#define CFE_TBL_HANDLE_INT(x)      ((unsigned long)(x))
+#define CFE_TBL_HANDLE_IS_VALID(x) ((x) != CFE_TBL_BAD_TABLE_HANDLE)
+
+#endif
 
 #endif /* CFE_TBL_API_TYPEDEFS_H */

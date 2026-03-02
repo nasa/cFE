@@ -1,7 +1,7 @@
 /************************************************************************
- * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ * NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
  *
- * Copyright (c) 2020 United States Government as represented by the
+ * Copyright (c) 2023 United States Government as represented by the
  * Administrator of the National Aeronautics and Space Administration.
  * All Rights Reserved.
  *
@@ -30,6 +30,7 @@
 #include "cfe_msg.h"
 #include "test_cfe_msg_fc.h"
 #include "cfe_error.h"
+#include "cfe_msg_defaults.h"
 #include <string.h>
 
 /*
@@ -73,17 +74,30 @@ void Test_MSG_FcnCode(void)
     UtAssert_INT32_EQ(CFE_MSG_SetFcnCode(msgptr, 0), CFE_MSG_WRONG_MSG_TYPE);
     UtAssert_INT32_EQ(Test_MSG_NotZero(msgptr), MSG_HASSEC_FLAG);
 
+    UtPrintf("Bad message, wrong header version");
+    memset(&cmd, 0, sizeof(cmd));
+    actual = TEST_FCNCODE_MAX;
+    CFE_UtAssert_SUCCESS(CFE_MSG_SetHasSecondaryHeader(msgptr, true));
+    CFE_UtAssert_SUCCESS(CFE_MSG_SetType(msgptr, CFE_MSG_Type_Cmd));
+    CFE_UtAssert_SUCCESS(CFE_MSG_SetHeaderVersion(msgptr, CFE_MISSION_CCSDSVER + 1));
+    UtAssert_INT32_EQ(CFE_MSG_GetFcnCode(msgptr, &actual), CFE_MSG_WRONG_MSG_TYPE);
+    UtAssert_INT32_EQ(actual, 0);
+    UtAssert_INT32_EQ(CFE_MSG_SetFcnCode(msgptr, 0), CFE_MSG_WRONG_MSG_TYPE);
+    UtAssert_INT32_EQ(Test_MSG_NotZero(msgptr), MSG_HASSEC_FLAG | MSG_TYPE_FLAG | MSG_HDRVER_FLAG);
+
+
     UtPrintf("Set to all F's, various valid inputs");
     for (i = 0; i < sizeof(input) / sizeof(input[0]); i++)
     {
         memset(&cmd, 0xFF, sizeof(cmd));
+        CFE_UtAssert_SUCCESS(CFE_MSG_SetHeaderVersion(msgptr, CFE_MISSION_CCSDSVER));
         CFE_UtAssert_SUCCESS(CFE_MSG_GetFcnCode(msgptr, &actual));
         UtAssert_INT32_EQ(actual, TEST_FCNCODE_MAX);
         CFE_UtAssert_SUCCESS(CFE_MSG_SetFcnCode(msgptr, input[i]));
         UT_DisplayPkt(msgptr, sizeof(cmd));
         CFE_UtAssert_SUCCESS(CFE_MSG_GetFcnCode(msgptr, &actual));
         UtAssert_INT32_EQ(actual, input[i]);
-        UtAssert_INT32_EQ(Test_MSG_NotF(msgptr), 0);
+        UtAssert_INT32_EQ(Test_MSG_NotF(msgptr), MSG_HDRVER_FLAG);
     }
 
     UtPrintf("Set to all 0, various valid inputs");
@@ -92,6 +106,7 @@ void Test_MSG_FcnCode(void)
         memset(&cmd, 0, sizeof(cmd));
         CFE_UtAssert_SUCCESS(CFE_MSG_SetType(msgptr, CFE_MSG_Type_Cmd));
         CFE_UtAssert_SUCCESS(CFE_MSG_SetHasSecondaryHeader(msgptr, true));
+        CFE_UtAssert_SUCCESS(CFE_MSG_SetHeaderVersion(msgptr, CFE_MISSION_CCSDSVER));
         CFE_UtAssert_SUCCESS(CFE_MSG_GetFcnCode(msgptr, &actual));
         UtAssert_INT32_EQ(actual, 0);
         CFE_UtAssert_SUCCESS(CFE_MSG_SetFcnCode(msgptr, input[i]));

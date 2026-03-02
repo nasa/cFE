@@ -1,7 +1,7 @@
 /************************************************************************
- * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ * NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
  *
- * Copyright (c) 2020 United States Government as represented by the
+ * Copyright (c) 2023 United States Government as represented by the
  * Administrator of the National Aeronautics and Space Administration.
  * All Rights Reserved.
  *
@@ -20,20 +20,19 @@
  * @file
  *   CFE Test app (CFE_TEST) Application Message IDs
  */
-#ifndef CFE_TEST_MSGIDS_H
-#define CFE_TEST_MSGIDS_H
+#ifndef DEFAULT_CFE_TEST_MSGIDS_H
+#define DEFAULT_CFE_TEST_MSGIDS_H
 
-#include "cfe_core_api_base_msgids.h"
-#include "cfe_test_topicids.h"
-
-/*
-** cFE Command Message Id's
-*/
-#define CFE_TEST_CMD_MID CFE_PLATFORM_CMD_TOPICID_TO_MIDV(CFE_MISSION_TEST_CMD_TOPICID) /* 0x1802 */
+#include "cfe_test_msgid_values.h"
 
 /*
-** CFE Telemetry Message Id's
+** cFE ES Command Message Id's
 */
-#define CFE_TEST_HK_TLM_MID CFE_PLATFORM_TLM_TOPICID_TO_MIDV(CFE_MISSION_TEST_HK_TLM_TOPICID) /* 0x0802 */
+#define CFE_TEST_CMD_MID CFE_PLATFORM_TESTCASE_CMD_MIDVAL(CMD)
+
+/*
+** CFE ES Telemetry Message Id's
+*/
+#define CFE_TEST_HK_TLM_MID CFE_PLATFORM_TESTCASE_TLM_MIDVAL(HK_TLM)
 
 #endif

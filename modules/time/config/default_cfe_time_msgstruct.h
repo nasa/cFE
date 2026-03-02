@@ -1,7 +1,7 @@
 /************************************************************************
- * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ * NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
  *
- * Copyright (c) 2020 United States Government as represented by the
+ * Copyright (c) 2023 United States Government as represented by the
  * Administrator of the National Aeronautics and Space Administration.
  * All Rights Reserved.
  *
@@ -18,19 +18,10 @@
 
 /**
  * @file
- *
- *  Purpose:
  *  cFE Executive Services (TIME) Command and Telemetry packet definition file.
- *
- *  References:
- *     Flight Software Branch C Coding Standard Version 1.0a
- *     cFE Flight Software Application Developers Guide
- *
- *  Notes:
- *
  */
-#ifndef CFE_TIME_MSGSTRUCT_H
-#define CFE_TIME_MSGSTRUCT_H
+#ifndef DEFAULT_CFE_TIME_MSGSTRUCT_H
+#define DEFAULT_CFE_TIME_MSGSTRUCT_H
 
 /************************************************************************
  * Includes

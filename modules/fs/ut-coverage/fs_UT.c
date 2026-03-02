@@ -1,7 +1,7 @@
 /************************************************************************
- * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ * NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
  *
- * Copyright (c) 2020 United States Government as represented by the
+ * Copyright (c) 2023 United States Government as represented by the
  * Administrator of the National Aeronautics and Space Administration.
  * All Rights Reserved.
  *
@@ -338,7 +338,7 @@ void Test_CFE_FS_ParseInputFileNameEx(void)
     UtAssert_INT32_EQ(
         CFE_FS_ParseInputFileNameEx(OutBuffer, "", sizeof(OutBuffer), 10, NULL, NULL, TEST_DEFAULT_EXTENSION),
         CFE_FS_INVALID_PATH);
-    UtAssert_INT32_EQ(CFE_FS_ParseInputFileNameEx(OutBuffer, "/path/", sizeof(OutBuffer), 10, NULL, TEST_DEFAULT_PATH,
+    UtAssert_INT32_EQ(CFE_FS_ParseInputFileNameEx(OutBuffer, "/path/", sizeof(OutBuffer), 7, NULL, TEST_DEFAULT_PATH,
                                                   TEST_DEFAULT_EXTENSION),
                       CFE_FS_INVALID_PATH);
 

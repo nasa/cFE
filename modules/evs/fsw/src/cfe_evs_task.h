@@ -1,7 +1,7 @@
 /************************************************************************
- * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ * NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
  *
- * Copyright (c) 2020 United States Government as represented by the
+ * Copyright (c) 2023 United States Government as represented by the
  * Administrator of the National Aeronautics and Space Administration.
  * All Rights Reserved.
  *
@@ -61,6 +61,7 @@
 #define CFE_EVS_MAX_SQUELCH_COUNT    255
 #define CFE_EVS_PIPE_NAME            "EVS_CMD_PIPE"
 #define CFE_EVS_MAX_PORT_MSG_LENGTH  (CFE_MISSION_EVS_MAX_MESSAGE_LENGTH + OS_MAX_API_NAME + 19)
+#define CFE_EVS_NUM_EVENT_TYPES      4
 
 /* Since CFE_EVS_MAX_PORT_MSG_LENGTH is the size of the buffer that is sent to
  * print out (using OS_printf), we need to check to make sure that the buffer
@@ -90,23 +91,23 @@ typedef struct
 
     EVS_BinFilter_t BinFilters[CFE_PLATFORM_EVS_MAX_EVENT_FILTERS]; /* Array of binary filters */
 
-    uint8     ActiveFlag;                /* Application event service active flag */
-    uint8     EventTypesActiveFlag;      /* Application event types active flag */
-    uint16    EventCount;                /* Application event counter */
-    OS_time_t LastSquelchCreditableTime; /* Time of last squelch token return */
-    int32     SquelchTokens;             /* Application event squelch token counter */
-    uint8     SquelchedCount;            /* Application events squelched counter */
+    uint8     ActiveFlag;                                       /* Application event service active flag */
+    bool      EventTypesActive[CFE_EVS_NUM_EVENT_TYPES];        /* Application event types active flag array */
+    uint16    EventCount;                                       /* Application event counter */
+    OS_time_t LastSquelchCreditableTime;                        /* Time of last squelch token return */
+    int32     SquelchTokens;                                    /* Application event squelch token counter */
+    uint8     SquelchedCount;                                   /* Application events squelched counter */
 } EVS_AppData_t;
 
 typedef struct
 {
-    char            AppName[OS_MAX_API_NAME]; /* Application name */
-    uint8           ActiveFlag;               /* Application event service active flag */
-    uint8           EventTypesActiveFlag;     /* Application event types active flag */
-    uint16          EventCount;               /* Application event counter */
-    uint8           SquelchedCount;           /* Application events squelched counter */
+    char            AppName[OS_MAX_API_NAME];                       /* Application name */
+    uint8           ActiveFlag;                                     /* Application event service active flag */
+    uint8           EventTypesActiveFlag;                           /* Application event types active flag array */
+    uint16          EventCount;                                     /* Application event counter */
+    uint8           SquelchedCount;                                 /* Application events squelched counter */
     uint8           Spare[3];
-    EVS_BinFilter_t Filters[CFE_PLATFORM_EVS_MAX_EVENT_FILTERS]; /* Application event filters */
+    EVS_BinFilter_t Filters[CFE_PLATFORM_EVS_MAX_EVENT_FILTERS];    /* Application event filters */
 } CFE_EVS_AppDataFile_t;
 
 /* Global data structure */
@@ -325,5 +326,14 @@ int32 CFE_EVS_WriteAppDataFileCmd(const CFE_EVS_WriteAppDataFileCmd_t *data);
  * application identifier
  */
 int32 CFE_EVS_ResetAllFiltersCmd(const CFE_EVS_ResetAllFiltersCmd_t *data);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Converts CFE_EVS_EventType_Enum_t to an array index for ActiveEventTypes in
+ * EVS_Global.
+ * 
+ * @returns size_t array index in ActiveEventTypes
+ */
+size_t CFE_EVS_EventTypeToArrayIndex(CFE_EVS_EventType_Enum_t EventType);
 
 #endif /* CFE_EVS_TASK_H */

@@ -1,7 +1,7 @@
 /************************************************************************
- * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ * NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
  *
- * Copyright (c) 2020 United States Government as represented by the
+ * Copyright (c) 2023 United States Government as represented by the
  * Administrator of the National Aeronautics and Space Administration.
  * All Rights Reserved.
  *
@@ -35,6 +35,8 @@
 #include "utassert.h"
 #include "cfe_assert.h"
 
+#include "cfe_evs_core_internal.h"
+
 typedef struct
 {
     CFE_FS_FileWriteMetaData_t FuncTestState;
@@ -61,7 +63,7 @@ extern CFE_FT_Global_t CFE_FT_Global;
 #define CFE_ASSERT_LOG_FILE_NAME "/cf/cfe_test.log"
 
 /**
- * Name of the shared table used by CFE_TEST_APP for requirements verification
+ * Name of the shared table used by CFE_TEST for requirements verification
  *
  * This filename was made configurable such that projects can replace the
  * sample app table with a project specific table for the purpose of CI/CD.
@@ -72,7 +74,7 @@ void TimeInRange(CFE_TIME_SysTime_t Start, CFE_TIME_SysTime_t Time, CFE_TIME_Sys
 
 void CFE_TestMain(void);
 void ESApplicationControlTestSetup(void);
-void ESBehaviorestSetup(void);
+void ESBehaviorTestSetup(void);
 void ESCDSTestSetup(void);
 void ESCounterTestSetup(void);
 void ESErrorTestSetup(void);

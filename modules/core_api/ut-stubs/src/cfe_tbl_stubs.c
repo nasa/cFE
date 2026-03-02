@@ -1,7 +1,7 @@
 /************************************************************************
- * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ * NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
  *
- * Copyright (c) 2020 United States Government as represented by the
+ * Copyright (c) 2023 United States Government as represented by the
  * Administrator of the National Aeronautics and Space Administration.
  * All Rights Reserved.
  *
@@ -27,6 +27,8 @@
 
 void UT_DefaultHandler_CFE_TBL_GetAddress(void *, UT_EntryKey_t, const UT_StubContext_t *);
 void UT_DefaultHandler_CFE_TBL_GetInfo(void *, UT_EntryKey_t, const UT_StubContext_t *);
+void UT_DefaultHandler_CFE_TBL_HandleFromID(void *, UT_EntryKey_t, const UT_StubContext_t *);
+void UT_DefaultHandler_CFE_TBL_HandleToID(void *, UT_EntryKey_t, const UT_StubContext_t *);
 void UT_DefaultHandler_CFE_TBL_Register(void *, UT_EntryKey_t, const UT_StubContext_t *);
 
 /*
@@ -109,6 +111,38 @@ CFE_Status_t CFE_TBL_GetStatus(CFE_TBL_Handle_t TblHandle)
     UT_GenStub_Execute(CFE_TBL_GetStatus, Basic, NULL);
 
     return UT_GenStub_GetReturnValue(CFE_TBL_GetStatus, CFE_Status_t);
+}
+
+/*
+ * ----------------------------------------------------
+ * Generated stub function for CFE_TBL_HandleFromID()
+ * ----------------------------------------------------
+ */
+CFE_TBL_Handle_t CFE_TBL_HandleFromID(CFE_TBL_HandleId_t TblId)
+{
+    UT_GenStub_SetupReturnBuffer(CFE_TBL_HandleFromID, CFE_TBL_Handle_t);
+
+    UT_GenStub_AddParam(CFE_TBL_HandleFromID, CFE_TBL_HandleId_t, TblId);
+
+    UT_GenStub_Execute(CFE_TBL_HandleFromID, Basic, UT_DefaultHandler_CFE_TBL_HandleFromID);
+
+    return UT_GenStub_GetReturnValue(CFE_TBL_HandleFromID, CFE_TBL_Handle_t);
+}
+
+/*
+ * ----------------------------------------------------
+ * Generated stub function for CFE_TBL_HandleToID()
+ * ----------------------------------------------------
+ */
+CFE_TBL_HandleId_t CFE_TBL_HandleToID(CFE_TBL_Handle_t TblHandle)
+{
+    UT_GenStub_SetupReturnBuffer(CFE_TBL_HandleToID, CFE_TBL_HandleId_t);
+
+    UT_GenStub_AddParam(CFE_TBL_HandleToID, CFE_TBL_Handle_t, TblHandle);
+
+    UT_GenStub_Execute(CFE_TBL_HandleToID, Basic, UT_DefaultHandler_CFE_TBL_HandleToID);
+
+    return UT_GenStub_GetReturnValue(CFE_TBL_HandleToID, CFE_TBL_HandleId_t);
 }
 
 /*

@@ -1,7 +1,7 @@
 /************************************************************************
- * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ * NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
  *
- * Copyright (c) 2020 United States Government as represented by the
+ * Copyright (c) 2023 United States Government as represented by the
  * Administrator of the National Aeronautics and Space Administration.
  * All Rights Reserved.
  *
@@ -39,14 +39,23 @@
 
 #include "cfe_tbl_core_internal.h"
 
+#include "cfe_tbl_resource.h"
+#include "cfe_tbl_accdesc.h"
+#include "cfe_tbl_regrec.h"
+#include "cfe_tbl_loadbuff.h"
+#include "cfe_tbl_dumpctl.h"
+#include "cfe_tbl_valresult.h"
+
 #include "cfe_tbl_eventids.h"
 #include "cfe_tbl_msg.h"
 #include "cfe_tbl_internal.h"
 #include "cfe_tbl_task.h"
 #include "cfe_tbl_task_cmds.h"
 #include "cfe_tbl_dispatch.h"
-#include "cfe_tbl_resource.h"
 #include "cfe_tbl_transaction.h"
+#include "cfe_tbl_registry.h"
+#include "cfe_tbl_load.h"
+#include "cfe_tbl_dump.h"
 
 /*
  * Additionally TBL needs to use special/extra CDS APIs that are not in the normal API

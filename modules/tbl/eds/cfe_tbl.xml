@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-   NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+   NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
 
-   Copyright (c) 2020 United States Government as represented by the
+   Copyright (c) 2023 United States Government as represented by the
    Administrator of the National Aeronautics and Space Administration.
    All Rights Reserved.
 
@@ -29,6 +29,19 @@
   <Package name="CFE_TBL" shortDescription="NASA Core Flight System Table Services">
     <DataTypeSet>
 
+      <ContainerDataType name="HandleId" baseType="CFE_RESOURCEID/BaseType" shortDescription="A type for Handle IDs">
+        <LongDescription>
+          This is the type that is used for any API accepting or returning a table handle ID
+        </LongDescription>
+      </ContainerDataType>
+
+      <ContainerDataType name="RegId" baseType="CFE_RESOURCEID/BaseType" shortDescription="A type for Registry IDs">
+        <LongDescription>
+          This is the type that is used for any API accepting or returning a table registry ID
+        </LongDescription>
+      </ContainerDataType>
+
+
       <EnumeratedDataType name="BufferSelect" shortDescription="Selects the buffer to operate on for validate or dump commands">
         <IntegerDataEncoding sizeInBits="16" encoding="unsigned" />
         <EnumerationList>
@@ -38,7 +51,6 @@
       </EnumeratedDataType>
 
       <StringDataType name="TableName" length="${CFE_MISSION/TBL_MAX_FULL_NAME_LEN}" shortDescription="Name of a table" />
-      <StringDataType name="ObjectName" length="64" shortDescription="Name of an object within a table file" />
 
       <ContainerDataType name="File_Hdr" shortDescription="Header object for CFE table data files">
         <EntryList>
@@ -46,6 +58,20 @@
           <Entry name="Offset" type="BASE_TYPES/uint32" shortDescription="Byte Offset at which load should commence" />
           <Entry name="NumBytes" type="BASE_TYPES/uint32" shortDescription="Number of bytes to load into table" />
           <Entry name="TableName" type="TableName" shortDescription="Fully qualified name of table to load" />
+        </EntryList>
+      </ContainerDataType>
+
+      <!-- NOTE, this should preferably be declared with CFE_FS/Header as a base type, 
+          and set the expected file type as a constraint in that header -->
+      <ContainerDataType name="CombinedFileHdr" shortDescription="CFE_TBL_CombinedFileHdr">
+        <LongDescription>
+          Table files always have a combination of the standard file header
+          and the table-specific file header.  This struct just combines
+          the two and makes for an easier item to pass around, simplifying APIs
+        </LongDescription>
+        <EntryList>
+          <Entry name="Std" type="CFE_FS/Header" shortDescription="Standard CFE FS header" />
+          <Entry name="Tbl" type="File_Hdr" shortDescription="Table Services header" />
         </EntryList>
       </ContainerDataType>
 
@@ -824,7 +850,32 @@
 
     </DataTypeSet>
 
+    <DeclaredInterfaceSet>
+      <Interface name="Table" level="functional" shortDescription="CFE table services registry">
+        <LongDescription>
+        </LongDescription>
+        <GenericTypeSet>
+          <GenericType name="TableDataType" baseType="File_Hdr" />
+        </GenericTypeSet>
+        <CommandSet>
+          <Command name="load" mode="async" shortDescription="Reads table from a disk file">
+            <Argument name="data" type="TableDataType" mode="out" />
+          </Command>
+          <Command name="dump" mode="async" shortDescription="Writes table to a disk file">
+            <Argument name="data" type="TableDataType" mode="in" />
+          </Command>
+        </CommandSet>
+      </Interface>
+    </DeclaredInterfaceSet>
+
     <ComponentSet>
+
+      <Component name="TableService">
+        <ProvidedInterfaceSet>
+          <Interface name="General" type="Table" />
+        </ProvidedInterfaceSet>
+      </Component>
+
       <Component name="Application">
         <RequiredInterfaceSet>
           <Interface name="CMD" shortDescription="Software bus telecommand interface" type="CFE_SB/Telecommand">
@@ -836,7 +887,7 @@
           <Interface name="SEND_HK" shortDescription="Send telemetry command interface" type="CFE_SB/Telecommand">
             <!-- This uses a bare spacepacket with no payload -->
             <GenericTypeMapSet>
-              <GenericTypeMap name="TelecommandDataType" type="CFE_HDR/CommandHeader" />
+              <GenericTypeMap name="TelecommandDataType" type="SendHkCmd" />
             </GenericTypeMapSet>
           </Interface>
           <Interface name="HK_TLM" shortDescription="Software bus housekeeping telemetry interface" type="CFE_SB/Telemetry">

@@ -1,7 +1,7 @@
 /************************************************************************
- * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ * NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
  *
- * Copyright (c) 2020 United States Government as represented by the
+ * Copyright (c) 2023 United States Government as represented by the
  * Administrator of the National Aeronautics and Space Administration.
  * All Rights Reserved.
  *
@@ -22,12 +22,14 @@
  * Declarations and prototypes for cfe_es_extern_typedefs module
  */
 
-#ifndef CFE_ES_EXTERN_TYPEDEFS_H
-#define CFE_ES_EXTERN_TYPEDEFS_H
+#ifndef DEFAULT_CFE_ES_EXTERN_TYPEDEFS_H
+#define DEFAULT_CFE_ES_EXTERN_TYPEDEFS_H
 
 #include "common_types.h"
 #include "cfe_resourceid_typedef.h"
 #include "cfe_mission_cfg.h"
+
+#include "cfe_es_memaddress.h"
 
 /**
  * @brief Label definitions associated with CFE_ES_LogMode_Enum_t
@@ -356,73 +358,6 @@ typedef CFE_RESOURCEID_BASE_TYPE CFE_ES_CDSHandle_t;
  * in binary formats of messages.
  */
 typedef uint16 CFE_ES_TaskPriority_Atom_t;
-
-/**
- * @brief Type used for memory sizes and offsets in commands and telemetry
- *
- * For backward compatibility with existing CFE code this should be uint32,
- * but all telemetry information will be limited to 4GB in size as a result.
- *
- * On 64-bit platforms this can be a 64-bit value which will allow larger
- * memory objects, but this will break compatibility with existing control
- * systems, and may also change the alignment/padding of messages.
- *
- * In either case this must be an unsigned type.
- */
-typedef uint32 CFE_ES_MemOffset_t;
-
-/**
- * @brief Memory Offset initializer wrapper
- *
- * A converter macro to use when initializing a CFE_ES_MemOffset_t
- * from an integer value of a different type.
- */
-#define CFE_ES_MEMOFFSET_C(x) ((CFE_ES_MemOffset_t)(x))
-
-/**
- * @brief Memory Offset to integer value (size_t) wrapper
- *
- * A converter macro to use when interpreting a CFE_ES_MemOffset_t
- * value as a "size_t" type
- */
-#define CFE_ES_MEMOFFSET_TO_SIZET(x) ((size_t)(x))
-
-/**
- * @brief Type used for memory addresses in command and telemetry messages
- *
- * For backward compatibility with existing CFE code this should be uint32,
- * but if running on a 64-bit platform, addresses in telemetry will be
- * truncated to 32 bits and therefore will not be valid.
- *
- * On 64-bit platforms this can be a 64-bit address which will allow the
- * full memory address in commands and telemetry, but this will break
- * compatibility with existing control systems, and may also change
- * the alignment/padding of messages.
- *
- * In either case this must be an unsigned type.
- *
- * FSW code should access this value via the macros provided, which
- * converts to the native "cpuaddr" type provided by OSAL.  This macro
- * provides independence between the message representation and local
- * representation of a memory address.
- */
-typedef uint32 CFE_ES_MemAddress_t;
-
-/**
- * @brief Memory Address initializer wrapper
- *
- * A converter macro to use when initializing a CFE_ES_MemAddress_t
- * from a pointer value of a different type.
- */
-#define CFE_ES_MEMADDRESS_C(x) ((CFE_ES_MemAddress_t)((cpuaddr)(x)&0xFFFFFFFF))
-
-/**
- * @brief Memory Address to pointer wrapper
- *
- * A converter macro to use when interpreting a CFE_ES_MemAddress_t
- * as a pointer value.
- */
-#define CFE_ES_MEMADDRESS_TO_PTR(x) ((void *)(cpuaddr)(x))
 
 /*
  * Data Structures shared between API and Message (CMD/TLM) interfaces

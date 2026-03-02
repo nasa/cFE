@@ -1,7 +1,7 @@
 /************************************************************************
- * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ * NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
  *
- * Copyright (c) 2020 United States Government as represented by the
+ * Copyright (c) 2023 United States Government as represented by the
  * Administrator of the National Aeronautics and Space Administration.
  * All Rights Reserved.
  *
@@ -33,6 +33,7 @@
 ** Includes
 */
 #include "cfe_es_module_all.h"
+#include "cfe_config.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -52,19 +53,6 @@
                      type Align; \
                  } *)0)          \
                      ->Align)
-
-/*****************************************************************************/
-/*
-** Type Definitions
-*/
-
-const size_t CFE_ES_MemPoolDefSize[CFE_PLATFORM_ES_POOL_MAX_BUCKETS] = {
-    CFE_PLATFORM_ES_MAX_BLOCK_SIZE,    CFE_PLATFORM_ES_MEM_BLOCK_SIZE_16, CFE_PLATFORM_ES_MEM_BLOCK_SIZE_15,
-    CFE_PLATFORM_ES_MEM_BLOCK_SIZE_14, CFE_PLATFORM_ES_MEM_BLOCK_SIZE_13, CFE_PLATFORM_ES_MEM_BLOCK_SIZE_12,
-    CFE_PLATFORM_ES_MEM_BLOCK_SIZE_11, CFE_PLATFORM_ES_MEM_BLOCK_SIZE_10, CFE_PLATFORM_ES_MEM_BLOCK_SIZE_09,
-    CFE_PLATFORM_ES_MEM_BLOCK_SIZE_08, CFE_PLATFORM_ES_MEM_BLOCK_SIZE_07, CFE_PLATFORM_ES_MEM_BLOCK_SIZE_06,
-    CFE_PLATFORM_ES_MEM_BLOCK_SIZE_05, CFE_PLATFORM_ES_MEM_BLOCK_SIZE_04, CFE_PLATFORM_ES_MEM_BLOCK_SIZE_03,
-    CFE_PLATFORM_ES_MEM_BLOCK_SIZE_02, CFE_PLATFORM_ES_MEM_BLOCK_SIZE_01};
 
 /*****************************************************************************/
 /*
@@ -158,7 +146,11 @@ CFE_ES_MemPoolRecord_t *CFE_ES_LocateMemPoolRecordByID(CFE_ES_MemHandle_t PoolID
  *-----------------------------------------------------------------*/
 CFE_Status_t CFE_ES_PoolCreateNoSem(CFE_ES_MemHandle_t *PoolID, void *MemPtr, size_t Size)
 {
-    return CFE_ES_PoolCreateEx(PoolID, MemPtr, Size, CFE_PLATFORM_ES_POOL_MAX_BUCKETS, &CFE_ES_MemPoolDefSize[0],
+    CFE_Config_ArrayValue_t MemPoolDefSize;
+
+    MemPoolDefSize = CFE_Config_GetArrayValue(CFE_CONFIGID_PLATFORM_ES_MEM_BLOCK_SIZE);
+
+    return CFE_ES_PoolCreateEx(PoolID, MemPtr, Size, MemPoolDefSize.NumElements, MemPoolDefSize.ElementPtr,
                                CFE_ES_NO_MUTEX);
 }
 
@@ -170,7 +162,11 @@ CFE_Status_t CFE_ES_PoolCreateNoSem(CFE_ES_MemHandle_t *PoolID, void *MemPtr, si
  *-----------------------------------------------------------------*/
 CFE_Status_t CFE_ES_PoolCreate(CFE_ES_MemHandle_t *PoolID, void *MemPtr, size_t Size)
 {
-    return CFE_ES_PoolCreateEx(PoolID, MemPtr, Size, CFE_PLATFORM_ES_POOL_MAX_BUCKETS, &CFE_ES_MemPoolDefSize[0],
+    CFE_Config_ArrayValue_t MemPoolDefSize;
+
+    MemPoolDefSize = CFE_Config_GetArrayValue(CFE_CONFIGID_PLATFORM_ES_MEM_BLOCK_SIZE);
+
+    return CFE_ES_PoolCreateEx(PoolID, MemPtr, Size, MemPoolDefSize.NumElements, MemPoolDefSize.ElementPtr,
                                CFE_ES_USE_MUTEX);
 }
 
@@ -183,13 +179,27 @@ CFE_Status_t CFE_ES_PoolCreate(CFE_ES_MemHandle_t *PoolID, void *MemPtr, size_t 
 CFE_Status_t CFE_ES_PoolCreateEx(CFE_ES_MemHandle_t *PoolID, void *MemPtr, size_t Size, uint16 NumBlockSizes,
                                  const size_t *BlockSizes, bool UseMutex)
 {
+    size_t Alignment = ALIGN_OF(CFE_ES_PoolAlign_t);
+    return CFE_ES_PoolCreateEx_WithAlignment(PoolID, MemPtr, Size, NumBlockSizes, BlockSizes, UseMutex, Alignment);
+}
+
+
+/*----------------------------------------------------------------
+ *
+ * Internal function used to implement CFE_ES_PoolCreateEx with the added
+ * parameter of Alignment
+ *
+ *-----------------------------------------------------------------*/
+CFE_Status_t CFE_ES_PoolCreateEx_WithAlignment(CFE_ES_MemHandle_t *PoolID, void *MemPtr, size_t Size, uint16 NumBlockSizes,
+                                  const size_t *BlockSizes, bool UseMutex, size_t Alignment)
+{
     int32                   OsStatus;
     int32                   Status;
     CFE_ResourceId_t        PendingID;
     CFE_ES_MemPoolRecord_t *PoolRecPtr;
-    size_t                  Alignment;
     size_t                  MinimumSize;
     char                    MutexName[OS_MAX_API_NAME];
+    CFE_Config_ArrayValue_t MemPoolDefSize;
 
     /* Sanity Check inputs */
     if (MemPtr == NULL || PoolID == NULL)
@@ -198,10 +208,10 @@ CFE_Status_t CFE_ES_PoolCreateEx(CFE_ES_MemHandle_t *PoolID, void *MemPtr, size_
     }
 
     /* If too many sizes are specified, return an error */
-    if (NumBlockSizes > CFE_PLATFORM_ES_POOL_MAX_BUCKETS)
+    if (NumBlockSizes > CFE_MISSION_ES_POOL_MAX_BUCKETS)
     {
         CFE_ES_WriteToSysLog("%s: Num Block Sizes (%d) greater than max (%d)\n", __func__, (int)NumBlockSizes,
-                             CFE_PLATFORM_ES_POOL_MAX_BUCKETS);
+                             CFE_MISSION_ES_POOL_MAX_BUCKETS);
         return CFE_ES_BAD_ARGUMENT;
     }
 
@@ -210,10 +220,20 @@ CFE_Status_t CFE_ES_PoolCreateEx(CFE_ES_MemHandle_t *PoolID, void *MemPtr, size_
      */
     if (BlockSizes == NULL)
     {
-        BlockSizes = CFE_ES_MemPoolDefSize;
+        MemPoolDefSize = CFE_Config_GetArrayValue(CFE_CONFIGID_PLATFORM_ES_MEM_BLOCK_SIZE);
+
+        BlockSizes = MemPoolDefSize.ElementPtr;
         if (NumBlockSizes == 0)
         {
-            NumBlockSizes = CFE_PLATFORM_ES_POOL_MAX_BUCKETS;
+            NumBlockSizes = MemPoolDefSize.NumElements;
+        }
+
+        /* If too many sizes are specified, return an error */
+        if (NumBlockSizes > MemPoolDefSize.NumElements)
+        {
+            CFE_ES_WriteToSysLog("%s: Num Block Sizes (%d) greater than max (%lu)\n", __func__, (int)NumBlockSizes,
+                                 (unsigned long)MemPoolDefSize.NumElements);
+            return CFE_ES_BAD_ARGUMENT;
         }
     }
 
@@ -263,7 +283,6 @@ CFE_Status_t CFE_ES_PoolCreateEx(CFE_ES_MemHandle_t *PoolID, void *MemPtr, size_
         return Status;
     }
 
-    Alignment = ALIGN_OF(CFE_ES_PoolAlign_t); /* memory mapped pools should be aligned */
     if (Alignment < CFE_PLATFORM_ES_MEMPOOL_ALIGN_SIZE_MIN)
     {
         /*

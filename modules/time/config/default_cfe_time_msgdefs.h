@@ -1,7 +1,7 @@
 /************************************************************************
- * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ * NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
  *
- * Copyright (c) 2020 United States Government as represented by the
+ * Copyright (c) 2023 United States Government as represented by the
  * Administrator of the National Aeronautics and Space Administration.
  * All Rights Reserved.
  *
@@ -19,12 +19,10 @@
 /**
  * @file
  *   Specification for the CFE Time Services (CFE_TIME) command and telemetry
- *   message constant definitions.
- *
- *  For CFE_TIME this is only the function/command code definitions
+ *   message payloads and constant definitions.
  */
-#ifndef CFE_TIME_MSGDEFS_H
-#define CFE_TIME_MSGDEFS_H
+#ifndef DEFAULT_CFE_TIME_MSGDEFS_H
+#define DEFAULT_CFE_TIME_MSGDEFS_H
 
 #include "common_types.h"
 #include "cfe_mission_cfg.h"
@@ -151,35 +149,22 @@ typedef struct CFE_TIME_HousekeepingTlm_Payload
     /*
     ** Current MET and STCF time values...
     */
-    uint32 SecondsMET; /**< \cfetlmmnemonic \TIME_METSECS
-                            \brief Current MET (seconds) */
-    uint32 SubsecsMET; /**< \cfetlmmnemonic \TIME_METSUBSECS
-                            \brief Current MET (sub-seconds) */
+    CFE_TIME_SysTime_t MET;  /**< \cfetlmmnemonic \TIME_MET \brief Current MET (seconds+subseconds) */
+    CFE_TIME_SysTime_t STCF; /**< \cfetlmmnemonic \TIME_STCF \brief Current STCF (seconds+subseconds) */
 
-    uint32 SecondsSTCF; /**< \cfetlmmnemonic \TIME_STCFSECS
-                             \brief Current STCF (seconds) */
-    uint32 SubsecsSTCF; /**< \cfetlmmnemonic \TIME_STCFSUBSECS
-                             \brief Current STCF (sub-seconds) */
+    /**
+     * \cfetlmmnemonic \TIME_ADJ
+     *
+     * \brief Current Adjustment Factor (seconds+subseconds)
+     *
+     * - In time server mode, the adjustment factor is to compensate for drift over time
+     *   This is known as the "1Hz STCF adjustment value" and is applied continuously during server operation
+     *
+     * - In time client mode, the adjustment factor is a compensation for transit delay from the server
+     *   This is known as the "Time at tone delay" and is applied to every time at tone update
+     */
+    CFE_TIME_SysTime_t AdjustmentFactor;
 
-/*
-** 1Hz STCF adjustment values (server only)...
-*/
-#if (CFE_PLATFORM_TIME_CFG_SERVER == true)
-    uint32 Seconds1HzAdj; /**< \cfetlmmnemonic \TIME_1HZADJSECS
-                               \brief Current 1 Hz SCTF adjustment (seconds) */
-    uint32 Subsecs1HzAdj; /**< \cfetlmmnemonic \TIME_1HZADJSSECS
-                               \brief Current 1 Hz SCTF adjustment (sub-seconds) */
-#endif
-
-/*
-** Time at tone delay values (client only)...
-*/
-#if (CFE_PLATFORM_TIME_CFG_CLIENT == true)
-    uint32 SecondsDelay; /**< \cfetlmmnemonic \TIME_1HZDLYSECS
-                              \brief Current 1 Hz SCTF Delay (seconds) */
-    uint32 SubsecsDelay; /**< \cfetlmmnemonic \TIME_1HZDLYSSECS
-                              \brief Current 1 Hz SCTF Delay (sub-seconds) */
-#endif
 } CFE_TIME_HousekeepingTlm_Payload_t;
 
 /*************************************************************************/

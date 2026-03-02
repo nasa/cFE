@@ -1,7 +1,7 @@
 /************************************************************************
- * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ * NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
  *
- * Copyright (c) 2020 United States Government as represented by the
+ * Copyright (c) 2023 United States Government as represented by the
  * Administrator of the National Aeronautics and Space Administration.
  * All Rights Reserved.
  *
@@ -23,6 +23,8 @@
 #include "cfe_msg_priv.h"
 #include "cfe_msg_defaults.h"
 #include "cfe_error.h"
+
+#include <assert.h>
 
 /* CCSDS Primary Standard definitions */
 #define CFE_MSG_SIZE_OFFSET    7      /**< \brief CCSDS size offset */
@@ -109,6 +111,7 @@ CFE_Status_t CFE_MSG_GetType(const CFE_MSG_Message_t *MsgPtr, CFE_MSG_Type_t *Ty
         return CFE_MSG_BAD_ARGUMENT;
     }
 
+    
     if ((MsgPtr->CCSDS.Pri.StreamId[0] & (CFE_MSG_TYPE_MASK >> 8)) != 0)
     {
         *Type = CFE_MSG_Type_Cmd;

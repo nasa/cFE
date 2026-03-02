@@ -1,7 +1,7 @@
 /************************************************************************
- * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ * NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
  *
- * Copyright (c) 2020 United States Government as represented by the
+ * Copyright (c) 2023 United States Government as represented by the
  * Administrator of the National Aeronautics and Space Administration.
  * All Rights Reserved.
  *
@@ -23,8 +23,8 @@
  *
  *  For CFE_SB this is only the function/command code definitions
  */
-#ifndef CFE_SB_MSGDEFS_H
-#define CFE_SB_MSGDEFS_H
+#ifndef DEFAULT_CFE_SB_MSGDEFS_H
+#define DEFAULT_CFE_SB_MSGDEFS_H
 
 #include "common_types.h"
 #include "cfe_mission_cfg.h"
@@ -276,7 +276,7 @@ typedef struct CFE_SB_AllSubscriptionsTlm_Payload
     uint32              PktSegment;    /**< \brief Pkt number(starts at 1) in the series */
     uint32              TotalSegments; /**< \brief Total number of pkts needed to complete the request */
     uint32              Entries;       /**< \brief Number of entries in the pkt */
-    CFE_SB_SubEntries_t Entry[CFE_SB_SUB_ENTRIES_PER_PKT]; /**< \brief Array of #CFE_SB_SubEntries_t entries */
+    CFE_SB_SubEntries_t Entry[CFE_MISSION_SB_SUB_ENTRIES_PER_PKT]; /**< \brief Array of #CFE_SB_SubEntries_t entries */
 } CFE_SB_AllSubscriptionsTlm_Payload_t;
 
 #endif

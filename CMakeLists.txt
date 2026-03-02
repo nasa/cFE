@@ -54,7 +54,7 @@ set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../psp/cmake/Modules" ${CMAKE
 # The minimum CMake version is chosen because v3.5.1 is what is
 # available by default with Ubuntu 16.04 LTS at the time of development
 # RHEL/CentOS users should install the "cmake3" package from EPEL repo
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.10)
 
 # This top-level file does not define ANY targets directly but we know
 # that the subdirectories will at least use the "C" language, so
@@ -68,13 +68,17 @@ enable_testing()
 
 # This switch determines whether to use EDS framework
 # By default it is set OFF/false as this is a new/experimental feature.
-option(CFE_EDS_ENABLED_BUILD "Use EDS framework" OFF)
+option(CFE_EDS_ENABLED "Use EDS framework" OFF)
+
+# This switch determines whether to build CFE table files
+# By default it is set ON, historically the CFE build has included tables
+option(CFE_BUILD_TABLES "Build tables as part of CFE/CFS" ON)
 
 # Always create directories to hold generated files/wrappers
-# EDS makes signficant use of generated files.  In non-EDS builds 
-# some headers and wrapper files are also generated.  Directories 
+# EDS makes signficant use of generated files.  In non-EDS builds
+# some headers and wrapper files are also generated.  Directories
 # may simply remain empty if not used/needed in the current config.
-file(MAKE_DIRECTORY 
+file(MAKE_DIRECTORY
     "${CMAKE_BINARY_DIR}/eds"
     "${CMAKE_BINARY_DIR}/obj"
     "${CMAKE_BINARY_DIR}/inc"

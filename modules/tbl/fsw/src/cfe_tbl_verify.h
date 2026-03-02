@@ -1,7 +1,7 @@
 /************************************************************************
- * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ * NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
  *
- * Copyright (c) 2020 United States Government as represented by the
+ * Copyright (c) 2023 United States Government as represented by the
  * Administrator of the National Aeronautics and Space Administration.
  * All Rights Reserved.
  *
@@ -45,23 +45,6 @@
 
 #if CFE_PLATFORM_TBL_MAX_CRITICAL_TABLES > CFE_PLATFORM_ES_CDS_MAX_NUM_ENTRIES
 #error CFE_PLATFORM_TBL_MAX_CRITICAL_TABLES cannot be greater than CFE_PLATFORM_ES_CDS_MAX_NUM_ENTRIES!
-#endif
-
-/*
-** Any modifications to the "_VALID_" limits defined below must match
-** source code changes made to the function CFE_TBL_ReadHeaders() in
-** the file "cfe_tbl_internal.c".
-*/
-#if CFE_PLATFORM_TBL_VALID_SCID_COUNT < 0
-#error CFE_PLATFORM_TBL_VALID_SCID_COUNT must be greater than or equal to zero
-#elif CFE_PLATFORM_TBL_VALID_SCID_COUNT > 2
-#error CFE_PLATFORM_TBL_VALID_SCID_COUNT must be less than or equal to 2
-#endif
-
-#if CFE_PLATFORM_TBL_VALID_PRID_COUNT < 0
-#error CFE_PLATFORM_TBL_VALID_PRID_COUNT must be greater than or equal to zero
-#elif CFE_PLATFORM_TBL_VALID_PRID_COUNT > 4
-#error CFE_PLATFORM_TBL_VALID_PRID_COUNT must be less than or equal to 4
 #endif
 
 /*

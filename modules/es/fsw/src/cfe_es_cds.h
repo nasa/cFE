@@ -1,7 +1,7 @@
 /************************************************************************
- * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ * NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
  *
- * Copyright (c) 2020 United States Government as represented by the
+ * Copyright (c) 2023 United States Government as represented by the
  * Administrator of the National Aeronautics and Space Administration.
  * All Rights Reserved.
  *
@@ -474,22 +474,6 @@ int32 CFE_ES_ValidateCDS(void);
 
 /*---------------------------------------------------------------------------------------*/
 /**
-** \brief Initializes the CDS Registry
-**
-** \par Description
-**        Initializes the data structure used to keep track of CDS blocks and
-**        who they belong to.
-**
-** \par Assumptions, External Events, and Notes:
-**          None
-**
-** \retval #CFE_SUCCESS         \copydoc CFE_SUCCESS
-**
-******************************************************************************/
-int32 CFE_ES_InitCDSRegistry(void);
-
-/*---------------------------------------------------------------------------------------*/
-/**
 ** \brief Rebuilds memory pool for CDS and recovers existing registry
 **
 ** \par Description
@@ -599,23 +583,6 @@ int32 CFE_ES_UnlockCDS(void);
 
 /*---------------------------------------------------------------------------------------*/
 /**
-** \brief Rebuilds memory pool for CDS and recovers existing registry
-**
-** \par Description
-**        Scans memory for existing CDS and initializes memory pool and registry
-**        settings accordingly
-**
-** \par Assumptions, External Events, and Notes:
-**        -# Assumes the validity of the CDS has already been determined
-**
-** \return #CFE_SUCCESS         \copydoc CFE_SUCCESS
-** \return Any of the return values from #CFE_PSP_ReadFromCDS
-**
-******************************************************************************/
-int32 CFE_ES_RebuildCDS(void);
-
-/*---------------------------------------------------------------------------------------*/
-/**
 ** \brief Initializes the CDS Registry
 **
 ** \par Description
@@ -629,25 +596,6 @@ int32 CFE_ES_RebuildCDS(void);
 **
 ******************************************************************************/
 int32 CFE_ES_InitCDSRegistry(void);
-
-/*---------------------------------------------------------------------------------------*/
-/**
-** \brief Determines whether a CDS currently exists
-**
-** \par Description
-**        Reads a set of bytes from the beginning and end of the CDS memory
-**        area and determines if a fixed pattern is present, thus determining
-**        whether the CDS still likely contains valid data or not.
-**
-** \par Assumptions, External Events, and Notes:
-**          None
-**
-** \return #CFE_SUCCESS         \copydoc CFE_SUCCESS
-** \return #CFE_ES_CDS_INVALID  \copydoc CFE_ES_CDS_INVALID
-** \return Any of the return values from #CFE_PSP_ReadFromCDS
-**
-******************************************************************************/
-int32 CFE_ES_ValidateCDS(void);
 
 /*---------------------------------------------------------------------------------------*/
 /**

@@ -14,7 +14,6 @@ set(es_SOURCES
     fsw/src/cfe_es_cds.c
     fsw/src/cfe_es_cds_mempool.c
     fsw/src/cfe_es_crc.c
-    fsw/src/cfe_es_dispatch.c
     fsw/src/cfe_es_erlog.c
     fsw/src/cfe_es_generic_pool.c
     fsw/src/cfe_es_mempool.c
@@ -25,6 +24,15 @@ set(es_SOURCES
     fsw/src/cfe_es_syslog.c
     fsw/src/cfe_es_task.c
 )
+
+if (CFE_EDS_ENABLED)
+  # Use EDS-based message dispatch
+  list(APPEND es_SOURCES fsw/src/cfe_es_eds_dispatch.c)
+else()
+  # Use hardcoded message dispatch
+  list(APPEND es_SOURCES fsw/src/cfe_es_dispatch.c)
+endif()
+
 add_library(es STATIC ${es_SOURCES})
 
 target_include_directories(es PUBLIC fsw/inc)

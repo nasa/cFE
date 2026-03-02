@@ -14,14 +14,14 @@ include(CMakeParseArguments)
 # ALL code on ALL targets, including host-side tools.  Ideally, this should
 # only be necessary on the core_api interface, but it does not fully propagate
 # to all unit test targets.  If/when that issue is resolved, this can be removed.
-if (CFE_EDS_ENABLED_BUILD)
+if (CFE_EDS_ENABLED)
 
     # Propagate the setting to a C preprocessor define of the same name
-    # The CFE_EDS_ENABLED_BUILD switch indicates that any
+    # The CFE_EDS_ENABLED switch indicates that any
     # compile-time preprocessor blocks should be enabled in this build
-    add_definitions(-DCFE_EDS_ENABLED_BUILD)
+    add_definitions(-DCFE_EDS_ENABLED)
 
-endif(CFE_EDS_ENABLED_BUILD)
+endif(CFE_EDS_ENABLED)
 
 
 ##################################################################
@@ -154,6 +154,56 @@ function(generate_c_headerfile FILE_NAME)
         @ONLY)
 
 endfunction(generate_c_headerfile)
+
+##################################################################
+#
+# FUNCTION: generate_configfile_set
+#
+# A function to create safe include file wrappers
+#
+# Rather than symlinking to the include file (which might not work the same on all platforms)
+# we can create a build-specific include file that just #include's the real file
+#
+# This also supports "stacking" multiple component files together by specifying more than one
+# source file for the wrapper.
+#
+# This function now accepts named parameters:
+#
+function(generate_configfile_set)
+  set(CFGFILE_PREFIX)
+
+  if (CFE_EDS_ENABLED)
+    list(APPEND CFGFILE_PREFIX "eds")
+  endif(CFE_EDS_ENABLED)
+
+  list(APPEND CFGFILE_PREFIX "default")
+
+  # Create wrappers around the all the config header files
+  # This makes them individually overridable by the missions, without modifying
+  # the distribution default copies
+  foreach(CFGFILE ${ARGN})
+    # Locate the correct fallback file
+    set(DEFAULT_SOURCE)
+    foreach (FBPREFIX ${CFGFILE_PREFIX})
+      set(CHECK_FILE "${CMAKE_CURRENT_LIST_DIR}/config/${FBPREFIX}_${CFGFILE}")
+      if (EXISTS ${CHECK_FILE})
+        set(DEFAULT_SOURCE FALLBACK_FILE "${CHECK_FILE}")
+        break()
+      endif()
+    endforeach()
+
+    if (VERBOSE)
+      message(STATUS "Generating ${CFGFILE} with options: ${DEFAULT_SOURCE}")
+    endif(VERBOSE)
+
+    generate_config_includefile(
+      FILE_NAME           "${CFGFILE}"
+      ${DEFAULT_SOURCE}
+    )
+  endforeach()
+
+endfunction(generate_configfile_set)
+
 
 ##################################################################
 #

@@ -1,0 +1,122 @@
+name: Set up CFE build dependencies
+description: 'Adds CFE dependencies into the workflow filesystem'
+
+inputs:
+  preferred-ref:
+    description: 'Upstream ref to check out'
+    default: ''
+  source-dir:
+    description: 'Directory to stage sources'
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Create Dirs
+      shell: bash
+      run: mkdir -p ${{ inputs.source-dir }}/apps ${{ inputs.source-dir }}/libs
+
+    - name: Checkout PSP
+      uses: actions/checkout@v4
+      with:
+        repository: cFS/PSP
+        path: ${{ inputs.source-dir }}/psp
+
+    - name: Checkout OSAL
+      uses: actions/checkout@v4
+      with:
+        repository: cFS/osal
+        path: ${{ inputs.source-dir }}/osal
+
+    - name: Checkout CI_LAB
+      uses: actions/checkout@v4
+      with:
+        repository: cFS/ci_lab
+        path: ${{ inputs.source-dir }}/apps/ci_lab
+
+    - name: Checkout TO_LAB
+      uses: actions/checkout@v4
+      with:
+        repository: cFS/to_lab
+        path: ${{ inputs.source-dir }}/apps/to_lab
+
+    - name: Checkout SCH_LAB
+      uses: actions/checkout@v4
+      with:
+        repository: cFS/sch_lab
+        path: ${{ inputs.source-dir }}/apps/sch_lab
+
+    - name: Checkout SAMPLE_APP
+      uses: actions/checkout@v4
+      with:
+        repository: cFS/sample_app
+        path: ${{ inputs.source-dir }}/apps/sample_app
+
+    - name: Checkout SAMPLE_LIB
+      uses: actions/checkout@v4
+      with:
+        repository: cFS/sample_lib
+        path: ${{ inputs.source-dir }}/libs/sample_lib
+
+    - name: Checkout elf2cfetbl
+      if: ${{ !env.CFE_EDS_ENABLED }}
+      uses: actions/checkout@v4
+      with:
+        repository: cFS/elf2cfetbl
+        path: ${{ inputs.source-dir }}/tools/elf2cfetbl
+
+    - name: Add elf2cfetbl subdir
+      if: ${{ !env.CFE_EDS_ENABLED }}
+      shell: bash
+      working-directory: ${{ inputs.source-dir }}
+      run: echo "add_subdirectory(elf2cfetbl)" >> ./tools/CMakeLists.txt
+
+    - name: Checkout edslib
+      if: ${{ env.CFE_EDS_ENABLED }}
+      uses: actions/checkout@v4
+      with:
+        repository: cFS/EdsLib
+        path: ${{ inputs.source-dir }}/tools/eds
+
+    - name: Add edslib subdir
+      if: ${{ env.CFE_EDS_ENABLED }}
+      shell: bash
+      working-directory: ${{ inputs.source-dir }}
+      run: |
+        echo "add_subdirectory(eds/edslib)" >> ./tools/CMakeLists.txt
+        echo "add_subdirectory(eds/tool)" >> ./tools/CMakeLists.txt
+        echo "add_subdirectory(eds/cfecfs)" >> ./tools/CMakeLists.txt
+
+    - name: Checkout commandline-tools
+      uses: actions/checkout@v4
+      with:
+        repository: cFS/commandline-tools
+        path: ${{ inputs.source-dir }}/tools/commandline-tools
+
+    - name: Add commandline-tools subdir
+      shell: bash
+      working-directory: ${{ inputs.source-dir }}
+      run: echo "add_subdirectory(commandline-tools)" >> ./tools/CMakeLists.txt
+
+    - name: Checkout Preferred Ref
+      if: ${{ inputs.preferred-ref != '' }}
+      shell: bash
+      working-directory: ${{ inputs.source-dir }}
+      run: |
+        for d in ./libs/* ./apps/* ./cfe ./osal ./psp ./tools/*
+        do
+          if [ -d "$d" ]
+          then
+            echo "$d"
+            (cd "$d" && git fetch origin refs/heads/${{ inputs.preferred-ref }}:${{ inputs.preferred-ref }} && git checkout ${{ inputs.preferred-ref }} || /bin/true)
+          fi
+        done
+
+    - name: Configure CFE
+      shell: bash
+      working-directory: ${{ inputs.source-dir }}
+      run: |
+        pwd
+        ls -la .
+        cp -r ./cfe/cmake/sample_defs ./sample_defs
+        cp ./cfe/cmake/Makefile.sample ./Makefile

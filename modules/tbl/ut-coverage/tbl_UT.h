@@ -1,7 +1,7 @@
 /************************************************************************
- * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ * NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
  *
- * Copyright (c) 2020 United States Government as represented by the
+ * Copyright (c) 2023 United States Government as represented by the
  * Administrator of the National Aeronautics and Space Administration.
  * All Rights Reserved.
  *
@@ -40,6 +40,7 @@
 */
 #include <string.h>
 #include "cfe_tbl_module_all.h"
+#include "cfe_tbl_codec.h"
 #include "ut_support.h"
 
 typedef struct
@@ -55,11 +56,11 @@ typedef struct
     uint32 TblElement3;
 } UT_Table2_t;
 
-typedef struct
-{
-    CFE_TBL_File_Hdr_t TblHeader;
-    UT_Table1_t        TblData;
-} UT_TempFile_t;
+/*
+** External global variables
+*/
+
+extern CFE_TBL_Global_t CFE_TBL_Global;
 
 /* TBL unit test functions */
 
@@ -118,23 +119,6 @@ void Test_CFE_TBL_TaskInit(void);
 **        This function does not return a value.
 ******************************************************************************/
 void Test_CFE_TBL_InitData(void);
-
-/*****************************************************************************/
-/**
-** \brief Test command handler table message ID (or command code) search
-**        function
-**
-** \par Description
-**        This function tests the command handler table message ID (or command
-**        code) search function.
-**
-** \par Assumptions, External Events, and Notes:
-**        None
-**
-** \returns
-**        This function does not return a value.
-******************************************************************************/
-void Test_CFE_TBL_SearchCmdHndlrTbl(void);
 
 /*****************************************************************************/
 /**
@@ -460,7 +444,10 @@ void Test_CFE_TBL_NotifyByMessage(void);
 ** \returns
 **        This function does not return a value.
 ******************************************************************************/
-void Test_CFE_TBL_Load(void);
+void Test_CFE_TBL_Load1(void);
+void Test_CFE_TBL_Load2(void);
+void Test_CFE_TBL_Load3(void);
+void Test_CFE_TBL_Load4(void);
 
 /*****************************************************************************/
 /**
@@ -659,7 +646,9 @@ void Test_CFE_TBL_TblMod(void);
 ** \returns
 **        This function does not return a value.
 ******************************************************************************/
-void Test_CFE_TBL_Internal(void);
+void Test_CFE_TBL_Internal1(void);
+void Test_CFE_TBL_Internal2(void);
+void Test_CFE_TBL_Internal3(void);
 
 /*****************************************************************************/
 /**
@@ -685,5 +674,18 @@ void Test_CFE_TBL_ResourceID_ValidationResult(void);
 void Test_CFE_TBL_ResourceID_RegistryRecord(void);
 void Test_CFE_TBL_ResourceID_AccessDescriptor(void);
 void Test_CFE_TBL_ResourceID_DumpControl(void);
+void Test_CFE_TBL_ResourceID_LoadBuff(void);
+
+/* Test cases for transaction state objects (sanity checks and error coverage) */
+void Test_CFE_TBL_TxnState(void);
+void Test_CFE_TBL_TxnEvents(void);
+
+/* Test cases for unified load/dump implementation */
+void Test_CFE_TBL_TableLoadCommon(void);
+void Test_CFE_TBL_TableLoadCodec(void);
+void Test_CFE_TBL_TableDumpCommon(void);
+
+/* Handle conversion tests */
+void Test_CFE_TBL_HandleConversions(void);
 
 #endif /* TBL_UT_H */

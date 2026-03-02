@@ -1,7 +1,7 @@
 /************************************************************************
- * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ * NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
  *
- * Copyright (c) 2020 United States Government as represented by the
+ * Copyright (c) 2023 United States Government as represented by the
  * Administrator of the National Aeronautics and Space Administration.
  * All Rights Reserved.
  *
@@ -74,7 +74,9 @@ enum
     /* TBL managed resources */
     CFE_RESOURCEID_TBL_VALRESULTID_BASE_OFFSET = OS_OBJECT_TYPE_USER + 8,
     CFE_RESOURCEID_TBL_DUMPCTRLID_BASE_OFFSET  = OS_OBJECT_TYPE_USER + 9,
-
+    CFE_RESOURCEID_TBL_LOADBUFFID_BASE_OFFSET  = OS_OBJECT_TYPE_USER + 10,
+    CFE_RESOURCEID_TBL_ACCESSID_BASE_OFFSET    = OS_OBJECT_TYPE_USER + 11,
+    CFE_RESOURCEID_TBL_REGID_BASE_OFFSET       = OS_OBJECT_TYPE_USER + 12,
 };
 
 /*
@@ -101,7 +103,9 @@ enum
     /* TBL managed resources */
     CFE_TBL_VALRESULTID_BASE = CFE_RESOURCEID_MAKE_BASE(CFE_RESOURCEID_TBL_VALRESULTID_BASE_OFFSET),
     CFE_TBL_DUMPCTRLID_BASE  = CFE_RESOURCEID_MAKE_BASE(CFE_RESOURCEID_TBL_DUMPCTRLID_BASE_OFFSET),
-
+    CFE_TBL_LOADBUFFID_BASE  = CFE_RESOURCEID_MAKE_BASE(CFE_RESOURCEID_TBL_LOADBUFFID_BASE_OFFSET),
+    CFE_TBL_HANDLE_BASE      = CFE_RESOURCEID_MAKE_BASE(CFE_RESOURCEID_TBL_ACCESSID_BASE_OFFSET),
+    CFE_TBL_REGID_BASE       = CFE_RESOURCEID_MAKE_BASE(CFE_RESOURCEID_TBL_REGID_BASE_OFFSET),
 };
 
 /** @} */

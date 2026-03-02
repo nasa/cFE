@@ -1,7 +1,7 @@
 /************************************************************************
- * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ * NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
  *
- * Copyright (c) 2020 United States Government as represented by the
+ * Copyright (c) 2023 United States Government as represented by the
  * Administrator of the National Aeronautics and Space Administration.
  * All Rights Reserved.
  *
@@ -68,8 +68,8 @@ CFE_Status_t CFE_EVS_Register(const void *Filters, uint16 NumEventFilters, uint1
         {
             /* Initialize application event data */
             AppDataPtr->ActiveFlag           = true;
-            AppDataPtr->EventTypesActiveFlag = CFE_PLATFORM_EVS_DEFAULT_TYPE_FLAG;
             AppDataPtr->SquelchTokens        = CFE_PLATFORM_EVS_MAX_APP_EVENT_BURST * 1000;
+            EVS_SetTypes(AppDataPtr, CFE_PLATFORM_EVS_DEFAULT_TYPE_FLAG, true);
 
             /* Set limit for number of provided filters */
             if (NumEventFilters < CFE_PLATFORM_EVS_MAX_EVENT_FILTERS)
@@ -116,7 +116,7 @@ CFE_Status_t CFE_EVS_Register(const void *Filters, uint16 NumEventFilters, uint1
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-CFE_Status_t CFE_EVS_SendEvent(uint16 EventID, uint16 EventType, const char *Spec, ...)
+CFE_Status_t CFE_EVS_SendEvent(uint16 EventID, CFE_EVS_EventType_Enum_t EventType, const char *Spec, ...)
 {
     int32              Status;
     CFE_ES_AppId_t     AppID;
@@ -166,7 +166,8 @@ CFE_Status_t CFE_EVS_SendEvent(uint16 EventID, uint16 EventType, const char *Spe
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-CFE_Status_t CFE_EVS_SendEventWithAppID(uint16 EventID, uint16 EventType, CFE_ES_AppId_t AppID, const char *Spec, ...)
+CFE_Status_t CFE_EVS_SendEventWithAppID(uint16 EventID, CFE_EVS_EventType_Enum_t EventType, CFE_ES_AppId_t AppID,
+                                        const char *Spec, ...)
 {
     int32              Status = CFE_SUCCESS;
     CFE_TIME_SysTime_t Time;
@@ -215,7 +216,8 @@ CFE_Status_t CFE_EVS_SendEventWithAppID(uint16 EventID, uint16 EventType, CFE_ES
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-CFE_Status_t CFE_EVS_SendTimedEvent(CFE_TIME_SysTime_t Time, uint16 EventID, uint16 EventType, const char *Spec, ...)
+CFE_Status_t CFE_EVS_SendTimedEvent(CFE_TIME_SysTime_t Time, uint16 EventID, CFE_EVS_EventType_Enum_t EventType,
+                                    const char *Spec, ...)
 {
     int32          Status;
     CFE_ES_AppId_t AppID;

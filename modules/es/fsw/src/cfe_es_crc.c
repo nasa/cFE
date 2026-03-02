@@ -1,7 +1,7 @@
 /************************************************************************
- * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ * NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
  *
- * Copyright (c) 2020 United States Government as represented by the
+ * Copyright (c) 2023 United States Government as represented by the
  * Administrator of the National Aeronautics and Space Administration.
  * All Rights Reserved.
  *
@@ -102,6 +102,12 @@ CFE_ES_ComputeCRC_Params_t *CFE_ES_ComputeCRC_GetParams(CFE_ES_CrcType_Enum_t Cr
 
     /* Lookup table for types that are implemented in this version of CFE */
     static CFE_ES_ComputeCRC_Params_t CRC_PARAM_TABLE[CFE_ES_CrcType_MAX] = {
+        /* This allows us to simulate what happens when an unimplemented algo is selected
+         * which is done for testing coverage purposes. Would be better to add new enum
+         * that matches the case where ParamPtr != NULL and ParamPtr->Algorithm == NULL
+         * since technically CFE_ES_CrcType_NONE has a defined algorithm that just returns
+         * 0 so this is a bit misleading in that sense */
+        [CFE_ES_CrcType_NONE]   = {0, 0, NULL},
         [CFE_ES_CrcType_16_ARC] = {0, 0, CFE_ES_ComputeCRC_Algo_16_ARC},
     };
 

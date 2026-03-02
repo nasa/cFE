@@ -1,7 +1,7 @@
 /************************************************************************
- * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ * NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
  *
- * Copyright (c) 2020 United States Government as represented by the
+ * Copyright (c) 2023 United States Government as represented by the
  * Administrator of the National Aeronautics and Space Administration.
  * All Rights Reserved.
  *
@@ -53,6 +53,60 @@
 #include "cfe_version.h"
 #include "ut_support.h"
 #include "ut_osprintf_stubs.h"
+
+/* Hook functions for es_UT.c */
+/*****************************************************************************/
+/**
+** \brief Replaces behavior of OS_TaskDelay with exiting behavior in order to 
+**        terminate while(1) loop in cfe_es_api.c in function CFE_ES_ExitApp().
+**
+** \par Description
+**        Previously, condition coverage was missing in cfe_es_api.c for the 
+**        CFE_ES_ExitApp() function due to the while(1) loop. This hook 
+**        function replaces the regular OS_TaskDelay() with a simulation of 
+**        ES terminating the app. This simulation is done with a combination of
+**        setjmp and longjmp in es_UT.c to ensure that the while loop is 
+**        exited. An alternative method can be done by creating a child process
+**        using fork() to call CFE_ES_ExitApp() and the terminating the child
+**        process with exit(0).
+**
+** \par Assumptions, External Events, and Notes:
+**        Exits control flow of CFE_ES_ExitApp() by calling longjmp().
+**
+** \returns
+**        This function does not return a value.
+******************************************************************************/
+void ES_UT_TaskDelay_Hook(void *UserObj);
+
+/*****************************************************************************/
+/**
+** \brief Simulates error in OS_TaskCreate for purposes of coverage testing
+**
+** \par Description
+**        This is used in es_UT.c in testing function CFE_ES_AppCreate
+**
+** \par Assumptions, External Events, and Notes:
+**        None
+**
+** \returns
+**        This function does not return a value.
+******************************************************************************/
+int32 ES_UT_TaskCreate_Hook(void *UserObj);
+
+/*****************************************************************************/
+/**
+** \brief Simulates error in OS_ModuleUnload for purposes of coverage testing
+**
+** \par Description
+**        This is used in es_UT.c in testing function CFE_ES_AppCreate
+**
+** \par Assumptions, External Events, and Notes:
+**        None
+**
+** \returns
+**        This function does not return a value.
+******************************************************************************/
+int32 ES_UT_ModuleUnload_Hook(void *UserObj);
 
 /* ES unit test functions */
 /*****************************************************************************/

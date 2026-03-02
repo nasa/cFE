@@ -1,7 +1,7 @@
 /************************************************************************
- * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ * NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
  *
- * Copyright (c) 2020 United States Government as represented by the
+ * Copyright (c) 2023 United States Government as represented by the
  * Administrator of the National Aeronautics and Space Administration.
  * All Rights Reserved.
  *
@@ -82,7 +82,7 @@ void TestWaitBehavior(void)
     UtAssert_UINT32_EQ(CFE_TIME_Compare(TimePassed, TimeExpected), CFE_TIME_A_LT_B);
 }
 
-void ESBehaviorestSetup(void)
+void ESBehaviorTestSetup(void)
 {
     UtTest_Add(TestRunCounter, NULL, NULL, "Test Run Counter");
     UtTest_Add(TestWaitBehavior, NULL, NULL, "Test Wait Behavior");

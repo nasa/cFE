@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-   NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+   NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
 
-   Copyright (c) 2020 United States Government as represented by the
+   Copyright (c) 2023 United States Government as represented by the
    Administrator of the National Aeronautics and Space Administration.
    All Rights Reserved.
 
@@ -218,27 +218,29 @@
               \cfetlmmnemonic  \TIME_LEAPSECS
             </LongDescription>
           </Entry>
-          <Entry name="SecondsMET" type="BASE_TYPES/uint32" shortDescription="Current MET (seconds)">
+          <Entry name="MET" type="SysTime" shortDescription="Current MET">
             <LongDescription>
-              \cfetlmmnemonic  \TIME_METSECS
+              \cfetlmmnemonic  \TIME_MET
             </LongDescription>
           </Entry>
-          <Entry name="SubsecsMET" type="BASE_TYPES/uint32" shortDescription="Current MET (sub-seconds)">
+          <Entry name="STCF" type="SysTime" shortDescription="Current STCF">
             <LongDescription>
-              \cfetlmmnemonic  \TIME_METSUBSECS
+              \cfetlmmnemonic  \TIME_STCF
             </LongDescription>
           </Entry>
-          <Entry name="SecondsSTCF" type="BASE_TYPES/uint32" shortDescription="Current STCF (seconds)">
+          <Entry name="AdjustmentFactor" type="SysTime" shortDescription="Time Delay (client) or 1Hz Adjustment (server)">
             <LongDescription>
-              \cfetlmmnemonic  \TIME_STCFSECS
+              \cfetlmmnemonic \TIME_ADJ 
+              
+              \brief Current Adjustment Factor (seconds+subseconds) 
+              
+              - In time server mode, the adjustment factor is to compensate for drift over time
+                This is known as the "1Hz STCF adjustment value" and is applied continuously during server operation
+              
+              - In time client mode, the adjustment factor is a compensation for transit delay from the server
+                This is known as the "Time at tone delay" and is applied to every time at tone update
             </LongDescription>
           </Entry>
-          <Entry name="SubsecsSTCF" type="BASE_TYPES/uint32">
-            <LongDescription>
-              \cfetlmmnemonic  \TIME_STCFSUBSECS
-            </LongDescription>
-          </Entry>
-          <Entry name="AdjustmentFactor" type="SysTime" shortDescription="Time Delay (client) or 1Hz Adjustment (server)" />
         </EntryList>
       </ContainerDataType>
 
@@ -843,8 +845,7 @@
           Successful execution of this command may be verified with the
           following telemetry:
           - \b \c \TIME_CMDPC - command execution counter will increment
-          - \b \c \TIME_STCFSECS - Housekeeping Telemetry point indicating newly calculated STCF seconds value
-          - \b \c \TIME_STCFSUBSECS - Housekeeping Telemetry point indicating newly calculated STCF subseconds value
+          - \b \c \TIME_STCF - Housekeeping Telemetry point indicating newly calculated STCF value
           - The #CFE_TIME_TIME_EID informational event message will be generated
 
           \par  Error Conditions
@@ -939,8 +940,7 @@
           Successful execution of this command may be verified with the
           following telemetry:
           - \b \c \TIME_CMDPC - command execution counter will increment
-          - \b \c \TIME_STCFSECS - Housekeeping Telemetry point indicating new  STCF seconds value
-          - \b \c \TIME_STCFSUBSECS - Housekeeping Telemetry point indicating new  STCF subseconds value
+          - \b \c \TIME_STCF - Housekeeping Telemetry point indicating new STCF value
           - The #CFE_TIME_STCF_EID informational event message will be generated
 
           \par  Error Conditions
@@ -1025,8 +1025,7 @@
           Successful execution of this command may be verified with the
           following telemetry:
           - \b \c \TIME_CMDPC - command execution counter will increment
-          - \b \c \TIME_STCFSECS - Housekeeping Telemetry point indicating new STCF seconds value
-          - \b \c \TIME_STCFSUBSECS - Housekeeping Telemetry point indicating new STCF subseconds value
+          - \b \c \TIME_STCF - Housekeeping Telemetry point indicating new STCF value
           - The #CFE_TIME_DELTA_EID informational event message will be generated
 
           \par  Error Conditions
@@ -1067,8 +1066,7 @@
           Successful execution of this command may be verified with the
           following telemetry:
           - \b \c \TIME_CMDPC - command execution counter will increment
-          - \b \c \TIME_STCFSECS - Housekeeping Telemetry point indicating new STCF seconds value
-          - \b \c \TIME_STCFSUBSECS - Housekeeping Telemetry point indicating new STCF subseconds value
+          - \b \c \TIME_STCF - Housekeeping Telemetry point indicating new STCF value
           - The #CFE_TIME_DELTA_EID informational event message will be generated
 
           \par  Error Conditions
@@ -1124,8 +1122,7 @@
           Successful execution of this command may be verified with the
           following telemetry:
           - \b \c \TIME_CMDPC - command execution counter will increment
-          - \b \c \TIME_STCFSECS - Housekeeping Telemetry point indicating new STCF seconds value
-          - \b \c \TIME_STCFSUBSECS - Housekeeping Telemetry point indicating new STCF subseconds value
+          - \b \c \TIME_STCF - Housekeeping Telemetry point indicating new STCF value
           - The #CFE_TIME_ONEHZ_EID informational event message will be generated
 
           \par  Error Conditions
@@ -1180,8 +1177,7 @@
           Successful execution of this command may be verified with the
           following telemetry:
           - \b \c \TIME_CMDPC - command execution counter will increment
-          - \b \c \TIME_STCFSECS - Housekeeping Telemetry point indicating new STCF seconds value
-          - \b \c \TIME_STCFSUBSECS - Housekeeping Telemetry point indicating new STCF subseconds value
+          - \b \c \TIME_STCF - Housekeeping Telemetry point indicating new STCF value
           - The #CFE_TIME_ONEHZ_EID informational event message will be generated
 
           \par  Error Conditions

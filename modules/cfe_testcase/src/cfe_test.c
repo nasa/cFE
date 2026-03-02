@@ -1,7 +1,7 @@
 /************************************************************************
- * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ * NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
  *
- * Copyright (c) 2020 United States Government as represented by the
+ * Copyright (c) 2023 United States Government as represented by the
  * Administrator of the National Aeronautics and Space Administration.
  * All Rights Reserved.
  *
@@ -42,7 +42,7 @@ void CFE_TestMain(void)
 
     /* Constant Table information used by all table tests */
     CFE_FT_Global.TblName           = "TestTable";
-    CFE_FT_Global.RegisteredTblName = "CFE_TEST_APP.TestTable";
+    CFE_FT_Global.RegisteredTblName = "CFE_TEST.TestTable";
     CFE_FT_Global.TblFilename       = "test_tbl.tbl";
 
     /*
@@ -54,11 +54,14 @@ void CFE_TestMain(void)
     CFE_Assert_RegisterTest(TestName);
     CFE_Assert_OpenLogFile(CFE_ASSERT_LOG_FILE_NAME);
 
+    /*Enable Debug Events*/
+    CFE_EVS_SetTypeEnable(CFE_EVS_EventType_DEBUG, true);
+
     /*
      * Register test cases in UtAssert
      */
     ESApplicationControlTestSetup();
-    ESBehaviorestSetup();
+    ESBehaviorTestSetup();
     ESCDSTestSetup();
     ESCounterTestSetup();
     ESErrorTestSetup();

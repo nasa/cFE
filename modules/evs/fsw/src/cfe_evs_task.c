@@ -1,7 +1,7 @@
 /************************************************************************
- * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ * NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
  *
- * Copyright (c) 2020 United States Government as represented by the
+ * Copyright (c) 2023 United States Government as represented by the
  * Administrator of the National Aeronautics and Space Administration.
  * All Rights Reserved.
  *
@@ -298,8 +298,8 @@ int32 CFE_EVS_TaskInit(void)
 
     /* Write the AppID to the global location, now that the rest of initialization is done */
     CFE_EVS_Global.EVS_AppID = AppID;
-    CFE_Config_GetVersionString(VersionString, CFE_CFG_MAX_VERSION_STR_LEN, "cFE", CFE_SRC_VERSION, CFE_BUILD_CODENAME,
-                                CFE_LAST_OFFICIAL);
+    CFE_Config_GetVersionString(VersionString, CFE_CFG_MAX_VERSION_STR_LEN, "CFE_EVS", CFE_SRC_VERSION,
+                                CFE_BUILD_CODENAME, CFE_LAST_OFFICIAL);
     EVS_SendEvent(CFE_EVS_STARTUP_EID, CFE_EVS_EventType_INFORMATION, "cFE EVS Initialized: %s", VersionString);
 
     return CFE_SUCCESS;
@@ -314,8 +314,8 @@ int32 CFE_EVS_TaskInit(void)
 int32 CFE_EVS_NoopCmd(const CFE_EVS_NoopCmd_t *data)
 {
     char VersionString[CFE_CFG_MAX_VERSION_STR_LEN];
-    CFE_Config_GetVersionString(VersionString, CFE_CFG_MAX_VERSION_STR_LEN, "cFE", CFE_SRC_VERSION, CFE_BUILD_CODENAME,
-                                CFE_LAST_OFFICIAL);
+    CFE_Config_GetVersionString(VersionString, CFE_CFG_MAX_VERSION_STR_LEN, "CFE_EVS", CFE_SRC_VERSION,
+                                CFE_BUILD_CODENAME, CFE_LAST_OFFICIAL);
     EVS_SendEvent(CFE_EVS_NOOP_EID, CFE_EVS_EventType_INFORMATION, "No-op Cmd Rcvd: %s", VersionString);
     return CFE_SUCCESS;
 }
@@ -479,14 +479,11 @@ int32 CFE_EVS_SetFilterCmd(const CFE_EVS_SetFilterCmd_t *data)
 int32 CFE_EVS_EnablePortsCmd(const CFE_EVS_EnablePortsCmd_t *data)
 {
     const CFE_EVS_BitMaskCmd_Payload_t *CmdPtr = &data->Payload;
-    int32                               ReturnCode;
+    int32                               ReturnCode = CFE_SUCCESS;
 
     /* Need to check for an out of range bitmask, since oue bit masks are only 4 bits */
-    if (CmdPtr->BitMask == 0x0 || CmdPtr->BitMask > 0x0F)
+    if (EVS_IsInvalidBitMask(CmdPtr->BitMask, CFE_EVS_ENABLE_PORTS_CC))
     {
-        EVS_SendEvent(CFE_EVS_ERR_INVALID_BITMASK_EID, CFE_EVS_EventType_ERROR,
-                      "Bit Mask = 0x%08x out of range: CC = %lu", (unsigned int)CmdPtr->BitMask,
-                      (long unsigned int)CFE_EVS_ENABLE_PORTS_CC);
         ReturnCode = CFE_EVS_INVALID_PARAMETER;
     }
     else
@@ -496,7 +493,6 @@ int32 CFE_EVS_EnablePortsCmd(const CFE_EVS_EnablePortsCmd_t *data)
 
         EVS_SendEvent(CFE_EVS_ENAPORT_EID, CFE_EVS_EventType_DEBUG,
                       "Enable Ports Command Received with Port Bit Mask = 0x%02x", (unsigned int)CmdPtr->BitMask);
-        ReturnCode = CFE_SUCCESS;
     }
 
     return ReturnCode;
@@ -511,14 +507,11 @@ int32 CFE_EVS_EnablePortsCmd(const CFE_EVS_EnablePortsCmd_t *data)
 int32 CFE_EVS_DisablePortsCmd(const CFE_EVS_DisablePortsCmd_t *data)
 {
     const CFE_EVS_BitMaskCmd_Payload_t *CmdPtr = &data->Payload;
-    int32                               ReturnCode;
+    int32                               ReturnCode = CFE_SUCCESS;
 
     /* Need to check for an out of range bitmask, since oue bit masks are only 4 bits */
-    if (CmdPtr->BitMask == 0x0 || CmdPtr->BitMask > 0x0F)
+    if (EVS_IsInvalidBitMask(CmdPtr->BitMask, CFE_EVS_DISABLE_PORTS_CC))
     {
-        EVS_SendEvent(CFE_EVS_ERR_INVALID_BITMASK_EID, CFE_EVS_EventType_ERROR,
-                      "Bit Mask = 0x%08x out of range: CC = %lu", (unsigned int)CmdPtr->BitMask,
-                      (long unsigned int)CFE_EVS_DISABLE_PORTS_CC);
         ReturnCode = CFE_EVS_INVALID_PARAMETER;
     }
     else
@@ -528,8 +521,6 @@ int32 CFE_EVS_DisablePortsCmd(const CFE_EVS_DisablePortsCmd_t *data)
 
         EVS_SendEvent(CFE_EVS_DISPORT_EID, CFE_EVS_EventType_DEBUG,
                       "Disable Ports Command Received with Port Bit Mask = 0x%02x", (unsigned int)CmdPtr->BitMask);
-
-        ReturnCode = CFE_SUCCESS;
     }
 
     return ReturnCode;
@@ -545,15 +536,12 @@ int32 CFE_EVS_EnableEventTypeCmd(const CFE_EVS_EnableEventTypeCmd_t *data)
 {
     uint32                              i;
     const CFE_EVS_BitMaskCmd_Payload_t *CmdPtr = &data->Payload;
-    int32                               ReturnCode;
+    int32                               ReturnCode = CFE_SUCCESS;
     EVS_AppData_t *                     AppDataPtr;
 
     /* Need to check for an out of range bitmask, since our bit masks are only 4 bits */
-    if (CmdPtr->BitMask == 0x0 || CmdPtr->BitMask > 0x0F)
+    if (EVS_IsInvalidBitMask(CmdPtr->BitMask, CFE_EVS_ENABLE_EVENT_TYPE_CC))
     {
-        EVS_SendEvent(CFE_EVS_ERR_INVALID_BITMASK_EID, CFE_EVS_EventType_ERROR,
-                      "Bit Mask = 0x%08x out of range: CC = %lu", (unsigned int)CmdPtr->BitMask,
-                      (long unsigned int)CFE_EVS_ENABLE_EVENT_TYPE_CC);
         ReturnCode = CFE_EVS_INVALID_PARAMETER;
     }
     else
@@ -564,7 +552,7 @@ int32 CFE_EVS_EnableEventTypeCmd(const CFE_EVS_EnableEventTypeCmd_t *data)
             /* Make sure application is registered for event services */
             if (EVS_AppDataIsUsed(AppDataPtr))
             {
-                EVS_EnableTypes(AppDataPtr, CmdPtr->BitMask);
+                EVS_SetTypes(AppDataPtr, CmdPtr->BitMask, true);
             }
             ++AppDataPtr;
         }
@@ -572,8 +560,6 @@ int32 CFE_EVS_EnableEventTypeCmd(const CFE_EVS_EnableEventTypeCmd_t *data)
         EVS_SendEvent(CFE_EVS_ENAEVTTYPE_EID, CFE_EVS_EventType_DEBUG,
                       "Enable Event Type Command Received with Event Type Bit Mask = 0x%02x",
                       (unsigned int)CmdPtr->BitMask);
-
-        ReturnCode = CFE_SUCCESS;
     }
 
     return ReturnCode;
@@ -589,18 +575,14 @@ int32 CFE_EVS_DisableEventTypeCmd(const CFE_EVS_DisableEventTypeCmd_t *data)
 {
     uint32                              i;
     const CFE_EVS_BitMaskCmd_Payload_t *CmdPtr = &data->Payload;
-    int32                               ReturnCode;
-    EVS_AppData_t *                     AppDataPtr;
+    int32                               ReturnCode = CFE_SUCCESS;
+    EVS_AppData_t                      *AppDataPtr;
 
     /* Need to check for an out of range bitmask, since our bit masks are only 4 bits */
-    if (CmdPtr->BitMask == 0x0 || CmdPtr->BitMask > 0x0F)
+    if (EVS_IsInvalidBitMask(CmdPtr->BitMask, CFE_EVS_DISABLE_EVENT_TYPE_CC))
     {
-        EVS_SendEvent(CFE_EVS_ERR_INVALID_BITMASK_EID, CFE_EVS_EventType_ERROR,
-                      "Bit Mask = 0x%08x out of range: CC = %lu", (unsigned int)CmdPtr->BitMask,
-                      (long unsigned int)CFE_EVS_DISABLE_EVENT_TYPE_CC);
         ReturnCode = CFE_EVS_INVALID_PARAMETER;
     }
-
     else
     {
         AppDataPtr = CFE_EVS_Global.AppData;
@@ -609,7 +591,7 @@ int32 CFE_EVS_DisableEventTypeCmd(const CFE_EVS_DisableEventTypeCmd_t *data)
             /* Make sure application is registered for event services */
             if (EVS_AppDataIsUsed(AppDataPtr))
             {
-                EVS_DisableTypes(AppDataPtr, CmdPtr->BitMask);
+                EVS_SetTypes(AppDataPtr, CmdPtr->BitMask, false);
             }
             ++AppDataPtr;
         }
@@ -617,8 +599,6 @@ int32 CFE_EVS_DisableEventTypeCmd(const CFE_EVS_DisableEventTypeCmd_t *data)
         EVS_SendEvent(CFE_EVS_DISEVTTYPE_EID, CFE_EVS_EventType_DEBUG,
                       "Disable Event Type Command Received with Event Type Bit Mask = 0x%02x",
                       (unsigned int)CmdPtr->BitMask);
-
-        ReturnCode = CFE_SUCCESS;
     }
 
     return ReturnCode;
@@ -676,16 +656,13 @@ int32 CFE_EVS_EnableAppEventTypeCmd(const CFE_EVS_EnableAppEventTypeCmd_t *data)
     if (Status == CFE_SUCCESS)
     {
         /* Need to check for an out of range bitmask, since our bit masks are only 4 bits */
-        if (CmdPtr->BitMask == 0x0 || CmdPtr->BitMask > 0x0F)
+        if (EVS_IsInvalidBitMask(CmdPtr->BitMask, CFE_EVS_ENABLE_APP_EVENT_TYPE_CC))
         {
-            EVS_SendEvent(CFE_EVS_ERR_INVALID_BITMASK_EID, CFE_EVS_EventType_ERROR,
-                          "Bit Mask = 0x%08x out of range: CC = %lu", (unsigned int)CmdPtr->BitMask,
-                          (long unsigned int)CFE_EVS_ENABLE_APP_EVENT_TYPE_CC);
             Status = CFE_EVS_INVALID_PARAMETER;
         }
         else
         {
-            EVS_EnableTypes(AppDataPtr, CmdPtr->BitMask);
+            EVS_SetTypes(AppDataPtr, CmdPtr->BitMask, true);
         }
     }
     else if (Status == CFE_EVS_APP_NOT_REGISTERED)
@@ -738,16 +715,13 @@ int32 CFE_EVS_DisableAppEventTypeCmd(const CFE_EVS_DisableAppEventTypeCmd_t *dat
     if (Status == CFE_SUCCESS)
     {
         /* Need to check for an out of range bitmask, since our bit masks are only 4 bits */
-        if (CmdPtr->BitMask == 0x0 || CmdPtr->BitMask > 0x0F)
+        if (EVS_IsInvalidBitMask(CmdPtr->BitMask, CFE_EVS_DISABLE_APP_EVENT_TYPE_CC))
         {
-            EVS_SendEvent(CFE_EVS_ERR_INVALID_BITMASK_EID, CFE_EVS_EventType_ERROR,
-                          "Bit Mask = 0x%08x out of range: CC = %lu", (unsigned int)CmdPtr->BitMask,
-                          (long unsigned int)CFE_EVS_DISABLE_APP_EVENT_TYPE_CC);
             Status = CFE_EVS_INVALID_PARAMETER;
         }
         else
         {
-            EVS_DisableTypes(AppDataPtr, CmdPtr->BitMask);
+            EVS_SetTypes(AppDataPtr, CmdPtr->BitMask, false);
         }
     }
     else if (Status == CFE_EVS_APP_NOT_REGISTERED)
@@ -1252,7 +1226,7 @@ int32 CFE_EVS_WriteAppDataFileCmd(const CFE_EVS_WriteAppDataFileCmd_t *data)
                     CFE_ES_GetAppName(AppDataFile.AppName, EVS_AppDataGetID(AppDataPtr), sizeof(AppDataFile.AppName));
                     AppDataFile.ActiveFlag           = AppDataPtr->ActiveFlag;
                     AppDataFile.EventCount           = AppDataPtr->EventCount;
-                    AppDataFile.EventTypesActiveFlag = AppDataPtr->EventTypesActiveFlag;
+                    AppDataFile.EventTypesActiveFlag = EVS_EventArrayToBitMask(AppDataPtr);
                     AppDataFile.SquelchedCount       = AppDataPtr->SquelchedCount;
 
                     /* Copy application filter data to application file data record */
@@ -1291,4 +1265,75 @@ int32 CFE_EVS_WriteAppDataFileCmd(const CFE_EVS_WriteAppDataFileCmd_t *data)
     }
 
     return Result;
+}
+
+/*----------------------------------------------------------------
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+size_t CFE_EVS_EventTypeToArrayIndex(CFE_EVS_EventType_Enum_t EventType)
+{
+    return (EventType - 1);
+}
+
+/*----------------------------------------------------------------
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+void CFE_EVS_SetTypeEnable(CFE_EVS_EventType_Enum_t EventType, bool State)
+{
+    CFE_ES_AppId_t AppId;
+    EVS_AppData_t *AppDataPtr;
+    size_t         Index;
+
+    /*Get App ID*/
+    CFE_ES_GetAppID(&AppId);
+
+    /*Use App ID to get AppDataPtr*/
+    AppDataPtr = EVS_GetAppDataByID(AppId);
+
+    /*Convert to an array index*/
+    Index = CFE_EVS_EventTypeToArrayIndex(EventType);
+
+    /*Bounds and null check*/
+    if (AppDataPtr != NULL && Index < sizeof(AppDataPtr->EventTypesActive))
+    {
+        /*Reset event squelch counter*/
+        AppDataPtr->SquelchTokens           = CFE_PLATFORM_EVS_MAX_APP_EVENT_BURST * 1000;
+        AppDataPtr->EventTypesActive[Index] = State;
+    }
+}
+
+/*----------------------------------------------------------------
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+bool CFE_EVS_GetTypeEnable(CFE_EVS_EventType_Enum_t EventType)
+{
+    CFE_ES_AppId_t AppId;
+    EVS_AppData_t *AppDataPtr;
+    size_t         Index;
+
+    /*Get App ID*/
+    CFE_ES_GetAppID(&AppId);
+
+    /*Use App ID to get AppDataPtr*/
+    AppDataPtr = EVS_GetAppDataByID(AppId);
+
+    /*Convert to an array index*/
+    Index = CFE_EVS_EventTypeToArrayIndex(EventType);
+
+    /*Bounds and null check*/
+    if (AppDataPtr != NULL && Index < sizeof(AppDataPtr->EventTypesActive))
+    {
+        return AppDataPtr->EventTypesActive[Index];
+    }
+
+    return false;
 }

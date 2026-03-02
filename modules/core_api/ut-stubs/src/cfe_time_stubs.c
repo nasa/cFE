@@ -1,7 +1,7 @@
 /************************************************************************
- * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ * NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
  *
- * Copyright (c) 2020 United States Government as represented by the
+ * Copyright (c) 2023 United States Government as represented by the
  * Administrator of the National Aeronautics and Space Administration.
  * All Rights Reserved.
  *
@@ -305,12 +305,16 @@ uint32 CFE_TIME_Micro2SubSecs(uint32 MicroSeconds)
  * Generated stub function for CFE_TIME_Print()
  * ----------------------------------------------------
  */
-void CFE_TIME_Print(char *PrintBuffer, CFE_TIME_SysTime_t TimeToPrint)
+CFE_Status_t CFE_TIME_Print(char *PrintBuffer, CFE_TIME_SysTime_t TimeToPrint)
 {
+    UT_GenStub_SetupReturnBuffer(CFE_TIME_Print, CFE_Status_t);
+
     UT_GenStub_AddParam(CFE_TIME_Print, char *, PrintBuffer);
     UT_GenStub_AddParam(CFE_TIME_Print, CFE_TIME_SysTime_t, TimeToPrint);
 
     UT_GenStub_Execute(CFE_TIME_Print, Basic, UT_DefaultHandler_CFE_TIME_Print);
+
+    return UT_GenStub_GetReturnValue(CFE_TIME_Print, CFE_Status_t);
 }
 
 /*

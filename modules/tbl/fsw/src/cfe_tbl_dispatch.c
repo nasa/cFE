@@ -1,7 +1,7 @@
 /************************************************************************
- * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ * NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
  *
- * Copyright (c) 2020 United States Government as represented by the
+ * Copyright (c) 2023 United States Government as represented by the
  * Administrator of the National Aeronautics and Space Administration.
  * All Rights Reserved.
  *
@@ -34,12 +34,33 @@
 
 #include <string.h>
 
+/*********************  Macro and Constant Type Definitions   ***************************/
+
+typedef CFE_Status_t (*CFE_TBL_MsgProcFuncPtr_t)(const void *MsgPtr);
+
+CFE_Status_t CFE_TBL_SearchCmdHandlerTbl(uint16 *TableIdxOut, CFE_SB_MsgId_t MessageID, uint16 CommandCode);
+
+/*
+** Table task const data
+*/
+
+typedef enum
+{
+    CFE_TBL_TERM_MSGTYPE = 0, /**< \brief Command Handler Table Terminator Type */
+    CFE_TBL_MSG_MSGTYPE  = 1, /**< \brief Message Type (requires Message ID match) */
+    CFE_TBL_CMD_MSGTYPE  = 2  /**< \brief Command Type (requires Message ID and Command Code match) */
+} CFE_TBL_MsgType_t;
+
+/* local cache of runtime MsgIDs for TBL */
+static CFE_SB_MsgId_t CFE_TBL_SEND_HK_MID_CACHE = CFE_SB_MSGID_RESERVED;
+static CFE_SB_MsgId_t CFE_TBL_CMD_MID_CACHE     = CFE_SB_MSGID_RESERVED;
+
 /**
 ** Data structure of a single record in #CFE_TBL_CmdHandlerTbl
 */
 typedef struct
 {
-    CFE_SB_MsgId_t           MsgId;          /**< \brief Acceptable Message ID */
+    const CFE_SB_MsgId_t *   MsgId;
     CFE_MSG_FcnCode_t        CmdCode;        /**< \brief Acceptable Command Code (if necessary) */
     size_t                   ExpectedLength; /**< \brief Expected Message Length (in bytes) including message header */
     CFE_TBL_MsgProcFuncPtr_t MsgProcFuncPtr; /**< \brief Pointer to function to handle message  */
@@ -50,9 +71,9 @@ typedef struct
  * Macros to assist in building the CFE_TBL_CmdHandlerTbl -
  *  For command handler entries, which have a command code, payload type, and a handler function
  */
-#define CFE_TBL_ENTRY(mid, ccode, paramtype, handlerfunc, msgtype)                                             \
-    {                                                                                                          \
-        CFE_SB_MSGID_WRAP_VALUE(mid), ccode, sizeof(paramtype), (CFE_TBL_MsgProcFuncPtr_t)handlerfunc, msgtype \
+#define CFE_TBL_ENTRY(id, ccode, paramtype, handlerfunc, msgtype)                             \
+    {                                                                                         \
+        &id##_CACHE, ccode, sizeof(paramtype), (CFE_TBL_MsgProcFuncPtr_t)handlerfunc, msgtype \
     }
 
 /* Constant Data */
@@ -81,7 +102,7 @@ const CFE_TBL_CmdHandlerTblRec_t CFE_TBL_CmdHandlerTbl[] = {
                   CFE_TBL_CMD_MSGTYPE),
 
     /* list terminator (keep last) */
-    {CFE_SB_MSGID_RESERVED, 0, 0, NULL, CFE_TBL_TERM_MSGTYPE}};
+    {0, 0, 0, NULL, CFE_TBL_TERM_MSGTYPE}};
 
 /******************************************************************************/
 
@@ -93,54 +114,51 @@ const CFE_TBL_CmdHandlerTblRec_t CFE_TBL_CmdHandlerTbl[] = {
  *-----------------------------------------------------------------*/
 void CFE_TBL_TaskPipe(const CFE_SB_Buffer_t *SBBufPtr)
 {
-    CFE_SB_MsgId_t       MessageID   = CFE_SB_INVALID_MSG_ID;
-    CFE_MSG_FcnCode_t    CommandCode = 0;
-    int16                CmdIndx;
-    CFE_MSG_Size_t       ActualLength = 0;
-    CFE_TBL_CmdProcRet_t CmdStatus    = CFE_TBL_INC_ERR_CTR; /* Assume a failed command */
+    CFE_SB_MsgId_t    MessageID;
+    CFE_MSG_FcnCode_t CommandCode;
+    uint16            CmdIndx;
+    CFE_MSG_Size_t    ActualLength;
+    CFE_MSG_Size_t    ExpectedLength;
+    CFE_Status_t      CmdStatus;
+
+    MessageID      = CFE_SB_INVALID_MSG_ID;
+    CommandCode    = 0;
+    ActualLength   = 0;
 
     CFE_MSG_GetMsgId(&SBBufPtr->Msg, &MessageID);
     CFE_MSG_GetFcnCode(&SBBufPtr->Msg, &CommandCode);
 
     /* Search the Command Handler Table for a matching message */
-    CmdIndx = CFE_TBL_SearchCmdHndlrTbl(MessageID, CommandCode);
+    CmdStatus = CFE_TBL_SearchCmdHandlerTbl(&CmdIndx, MessageID, CommandCode);
 
     /* Check to see if a matching command was found */
-    if (CmdIndx >= 0)
+    if (CmdStatus == CFE_SUCCESS)
     {
         /* Verify Message Length before processing */
         CFE_MSG_GetSize(&SBBufPtr->Msg, &ActualLength);
-        if (ActualLength == CFE_TBL_CmdHandlerTbl[CmdIndx].ExpectedLength)
+        ExpectedLength = CFE_TBL_CmdHandlerTbl[CmdIndx].ExpectedLength;
+
+        if (ActualLength == ExpectedLength)
         {
             /* All checks have passed, call the appropriate message handler */
             CmdStatus = (CFE_TBL_CmdHandlerTbl[CmdIndx].MsgProcFuncPtr)(SBBufPtr);
         }
         else /* Bad Message Length */
         {
+            CmdStatus = CFE_STATUS_WRONG_MSG_LENGTH;
+        }
+    }
+
+    if (CmdStatus != CFE_SUCCESS)
+    {
+        if (CmdStatus == CFE_STATUS_WRONG_MSG_LENGTH)
+        {
             CFE_EVS_SendEvent(CFE_TBL_LEN_ERR_EID, CFE_EVS_EventType_ERROR,
                               "Invalid msg length -- ID = 0x%X, CC = %u, Len = %u, Expected = %u",
                               (unsigned int)CFE_SB_MsgIdToValue(MessageID), (unsigned int)CommandCode,
                               (unsigned int)ActualLength, (unsigned int)CFE_TBL_CmdHandlerTbl[CmdIndx].ExpectedLength);
         }
-
-        /* Only update command counters when message has a command code */
-        if (CFE_TBL_CmdHandlerTbl[CmdIndx].MsgTypes == CFE_TBL_CMD_MSGTYPE)
-        {
-            if (CmdStatus == CFE_TBL_INC_CMD_CTR)
-            {
-                CFE_TBL_Global.CommandCounter++;
-            }
-            else if (CmdStatus == CFE_TBL_INC_ERR_CTR)
-            {
-                CFE_TBL_Global.CommandErrorCounter++;
-            }
-        }
-    }
-    else
-    {
-        /* Determine whether event message should be */
-        /* "Bad Command Code" or "Bad Message ID"    */
-        if (CmdIndx == CFE_TBL_BAD_CMD_CODE)
+        else if (CmdStatus == CFE_STATUS_BAD_COMMAND_CODE)
         {
             CFE_EVS_SendEvent(CFE_TBL_CC1_ERR_EID, CFE_EVS_EventType_ERROR,
                               "Invalid command code -- ID = 0x%X, CC = %u",
@@ -149,14 +167,10 @@ void CFE_TBL_TaskPipe(const CFE_SB_Buffer_t *SBBufPtr)
             /* Update the command error counter */
             CFE_TBL_Global.CommandErrorCounter++;
         }
-        else /* CmdIndx == CFE_TBL_BAD_MSG_ID */
+        else
         {
             CFE_EVS_SendEvent(CFE_TBL_MID_ERR_EID, CFE_EVS_EventType_ERROR, "Invalid message ID -- ID = 0x%X",
                               (unsigned int)CFE_SB_MsgIdToValue(MessageID));
-            /*
-            ** Note: we only increment the command error counter when
-            **    processing messages with command codes
-            */
         }
     }
 }
@@ -167,20 +181,27 @@ void CFE_TBL_TaskPipe(const CFE_SB_Buffer_t *SBBufPtr)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int16 CFE_TBL_SearchCmdHndlrTbl(CFE_SB_MsgId_t MessageID, uint16 CommandCode)
+CFE_Status_t CFE_TBL_SearchCmdHandlerTbl(uint16 *TableIdxOut, CFE_SB_MsgId_t MessageID, uint16 CommandCode)
 {
-    int16 TblIndx    = CFE_TBL_BAD_CMD_CODE;
-    bool  FoundMsg   = false;
-    bool  FoundMatch = false;
+    int16        TblIndx;
+    CFE_Status_t Status;
+    bool         FoundMsg;
+    bool         FoundMatch;
 
-    do
+    FoundMsg   = false;
+    FoundMatch = false;
+
+    /* cache the local MID Values here, this avoids repeat lookups */
+    if (!CFE_SB_IsValidMsgId(CFE_TBL_CMD_MID_CACHE))
     {
-        /* Point to next entry in Command Handler Table */
-        TblIndx++;
+        CFE_TBL_CMD_MID_CACHE     = CFE_SB_ValueToMsgId(CFE_TBL_CMD_MID);
+        CFE_TBL_SEND_HK_MID_CACHE = CFE_SB_ValueToMsgId(CFE_TBL_SEND_HK_MID);
+    }
 
+    for (TblIndx = 0; CFE_TBL_CmdHandlerTbl[TblIndx].MsgId != NULL; ++TblIndx)
+    {
         /* Check to see if we found a matching Message ID */
-        if (CFE_SB_MsgId_Equal(CFE_TBL_CmdHandlerTbl[TblIndx].MsgId, MessageID) &&
-            (CFE_TBL_CmdHandlerTbl[TblIndx].MsgTypes != CFE_TBL_TERM_MSGTYPE))
+        if (CFE_SB_MsgId_Equal(*CFE_TBL_CmdHandlerTbl[TblIndx].MsgId, MessageID))
         {
             /* Flag any found message IDs so that if there is an error,        */
             /* we can determine if it was a bad message ID or bad command code */
@@ -194,6 +215,7 @@ int16 CFE_TBL_SearchCmdHndlrTbl(CFE_SB_MsgId_t MessageID, uint16 CommandCode)
                 {
                     /* Found matching message ID and Command Code */
                     FoundMatch = true;
+                    break;
                 }
             }
             else /* Message is not a command message with specific command code */
@@ -201,24 +223,26 @@ int16 CFE_TBL_SearchCmdHndlrTbl(CFE_SB_MsgId_t MessageID, uint16 CommandCode)
                 /* Automatically assume a match when legit */
                 /* Message ID is all that is required      */
                 FoundMatch = true;
+                break;
             }
-        }
-    } while ((!FoundMatch) && (CFE_TBL_CmdHandlerTbl[TblIndx].MsgTypes != CFE_TBL_TERM_MSGTYPE));
-
-    /* If we failed to find a match, return a negative index */
-    if (!FoundMatch)
-    {
-        /* Determine if the message ID was bad or the command code */
-        if (FoundMsg)
-        {
-            /* A matching message ID was found, so the command code must be bad */
-            TblIndx = CFE_TBL_BAD_CMD_CODE;
-        }
-        else /* No matching message ID was found */
-        {
-            TblIndx = CFE_TBL_BAD_MSG_ID;
         }
     }
 
-    return TblIndx;
+    /* If we failed to find a match, return a negative index */
+    if (FoundMatch)
+    {
+        Status       = CFE_SUCCESS;
+        *TableIdxOut = TblIndx;
+    }
+    else if (FoundMsg)
+    {
+        /* A matching message ID was found, so the command code must be bad */
+        Status = CFE_STATUS_BAD_COMMAND_CODE;
+    }
+    else /* No matching message ID was found */
+    {
+        Status = CFE_STATUS_UNKNOWN_MSG_ID;
+    }
+
+    return Status;
 }

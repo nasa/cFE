@@ -1,7 +1,7 @@
 /************************************************************************
- * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ * NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
  *
- * Copyright (c) 2020 United States Government as represented by the
+ * Copyright (c) 2023 United States Government as represented by the
  * Administrator of the National Aeronautics and Space Administration.
  * All Rights Reserved.
  *
@@ -22,14 +22,12 @@
  * Declarations and prototypes for cfe_sb_extern_typedefs module
  */
 
-#ifndef CFE_SB_EXTERN_TYPEDEFS_H
-#define CFE_SB_EXTERN_TYPEDEFS_H
+#ifndef DEFAULT_CFE_SB_EXTERN_TYPEDEFS_H
+#define DEFAULT_CFE_SB_EXTERN_TYPEDEFS_H
 
 #include "common_types.h"
 #include "cfe_mission_cfg.h"
 #include "cfe_resourceid_typedef.h"
-
-#define CFE_SB_SUB_ENTRIES_PER_PKT 20 /**< \brief Configuration parameter used by SBN App */
 
 /**
  * @brief Label definitions associated with CFE_SB_QosPriority_Enum_t

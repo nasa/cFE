@@ -1,7 +1,7 @@
 /************************************************************************
- * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ * NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
  *
- * Copyright (c) 2020 United States Government as represented by the
+ * Copyright (c) 2023 United States Government as represented by the
  * Administrator of the National Aeronautics and Space Administration.
  * All Rights Reserved.
  *
@@ -22,6 +22,7 @@
 #include "cfe_config.h"
 #include "cfe_config_priv.h"
 #include "cfe_config_nametable.h"
+#include "cfe_config_eds.h"
 
 #include "utassert.h"
 #include "utstubs.h"
@@ -63,6 +64,18 @@ CFE_ConfigName_t            UT_StaticModuleSet[3]  = {{"staticmodule1"}, {"stati
 CFE_ConfigName_t            UT_CoreModuleSet[3]    = {{"coremodule1"}, {"coremodule2"}, {NULL}};
 CFE_ConfigName_t *          UT_ModuleListSet[2]    = {UT_CoreModuleSet, UT_StaticModuleSet};
 CFE_ConfigKeyValue_t        UT_ActiveList[3]       = {{"coremodule1", "ut1"}, {"staticmodule2", "ut2"}, {NULL, NULL}};
+
+/* Tune the check for EDS state depending on whether is globally enabled or disabled */
+#ifdef CFE_EDS_ENABLED
+#include "edslib_global.h"
+UT_EntryKey_t UT_EDS_CHECK_FUNC         = UT_KEY(EdsLib_FindPackageIdxByName);
+const char    UT_EDS_EXPECTED_SUCCESS[] = "active";
+const char    UT_EDS_EXPECTED_FAIL[]    = "inactive";
+#else
+UT_EntryKey_t UT_EDS_CHECK_FUNC         = 0;
+const char    UT_EDS_EXPECTED_SUCCESS[] = "disabled";
+const char    UT_EDS_EXPECTED_FAIL[]    = "disabled";
+#endif
 
 void Test_CFE_Config_GetValue(void)
 {
@@ -332,6 +345,13 @@ void Test_CFE_Config_Setup(void)
     /* NOTE: Leaves last entry unset */
 }
 
+void Test_CFE_Config_EdsState(void)
+{
+    UtAssert_STRINGBUF_EQ(CFE_Config_EdsState("UT"), -1, UT_EDS_EXPECTED_SUCCESS, -1);
+    UT_SetDeferredRetcode(UT_EDS_CHECK_FUNC, 1, -1);
+    UtAssert_STRINGBUF_EQ(CFE_Config_EdsState("UT"), -1, UT_EDS_EXPECTED_FAIL, -1);
+}
+
 void UtTest_Setup(void)
 {
     UtTest_Add(Test_CFE_Config_GetValue, Test_CFE_Config_Setup, NULL, "Test CFE_Config_GetValue()");
@@ -353,4 +373,5 @@ void UtTest_Setup(void)
     UtTest_Add(Test_CFE_Config_SetupModuleVersions, Test_CFE_Config_Setup, NULL,
                "Test CFE_Config_SetupModuleVersions()");
     UtTest_Add(Test_CFE_Config_Init, Test_CFE_Config_Setup, NULL, "Test CFE_Config_Init()");
+    UtTest_Add(Test_CFE_Config_EdsState, Test_CFE_Config_Setup, NULL, "Test CFE_Config_EdsState()");
 }

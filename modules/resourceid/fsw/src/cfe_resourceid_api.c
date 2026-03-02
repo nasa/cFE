@@ -1,7 +1,7 @@
 /************************************************************************
- * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ * NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
  *
- * Copyright (c) 2020 United States Government as represented by the
+ * Copyright (c) 2023 United States Government as represented by the
  * Administrator of the National Aeronautics and Space Administration.
  * All Rights Reserved.
  *
@@ -47,6 +47,50 @@
  * works as a mask and the logic in this file works as expected.
  */
 CompileTimeAssert(((CFE_RESOURCEID_MAX + 1) & CFE_RESOURCEID_MAX) == 0, CFE_RESOURCEID_MAX_BITMASK);
+
+/**
+ * State structure for use with CFE_ResourceId_DefaultIncrementSerial
+ */
+typedef struct
+{
+    uint32 ResourceType;
+    uint32 TableSize;
+    uint32 RemainingCount;
+} CFE_ResourceId_DefaultIncrementState_t;
+
+/*----------------------------------------------------------------
+ *
+ * Local helper routine, not invoked outside of this unit
+ * Default implementation of serial increment, treats all as equal
+ *
+ *-----------------------------------------------------------------*/
+static CFE_ResourceId_t CFE_ResourceId_DefaultIncrementSerial(CFE_ResourceId_t Id, void *Arg)
+{
+    CFE_ResourceId_DefaultIncrementState_t *State = Arg;
+    CFE_ResourceId_t                        Result;
+    uint32                                  Serial;
+
+    if (State->RemainingCount == 0)
+    {
+        Result = CFE_RESOURCEID_UNDEFINED;
+    }
+    else
+    {
+        Serial = CFE_ResourceId_GetSerial(Id);
+
+        ++Serial;
+        if (Serial >= CFE_RESOURCEID_MAX)
+        {
+            Serial %= State->TableSize;
+        }
+
+        Result = CFE_ResourceId_FromInteger(State->ResourceType + Serial);
+
+        --State->RemainingCount;
+    }
+
+    return Result;
+}
 
 /*----------------------------------------------------------------
  *
@@ -102,44 +146,48 @@ int32 CFE_ResourceId_ToIndex(CFE_ResourceId_t Id, uint32 BaseValue, uint32 Table
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-CFE_ResourceId_t CFE_ResourceId_FindNext(CFE_ResourceId_t StartId, uint32 TableSize,
-                                         bool (*CheckFunc)(CFE_ResourceId_t))
+CFE_ResourceId_t CFE_ResourceId_FindNextEx(CFE_ResourceId_t StartId, CFE_ResourceId_IncrementFunc_t IncrFunc,
+                                           void *IncrArg, CFE_ResourceId_CheckFunc_t CheckFunc)
 {
-    uint32           Serial;
-    uint32           Count;
-    uint32           ResourceType;
     CFE_ResourceId_t CheckId;
-    bool             IsTaken;
 
-    if (CheckFunc == NULL)
+    if (CheckFunc == NULL || IncrFunc == NULL)
     {
-        return CFE_RESOURCEID_UNDEFINED;
+        CheckId = CFE_RESOURCEID_UNDEFINED;
+    }
+    else
+    {
+        CheckId = StartId;
+        do
+        {
+            CheckId = IncrFunc(CheckId, IncrArg);
+            if (!CFE_ResourceId_IsDefined(CheckId))
+            {
+                break;
+            }
+
+        } while (CheckFunc(CheckId));
     }
 
-    ResourceType = CFE_ResourceId_GetBase(StartId);
-    Serial       = CFE_ResourceId_GetSerial(StartId);
-
-    Count   = TableSize;
-    IsTaken = true;
-
-    do
-    {
-        if (Count == 0)
-        {
-            CheckId = CFE_RESOURCEID_UNDEFINED;
-            break;
-        }
-
-        --Count;
-        ++Serial;
-        if (Serial >= CFE_RESOURCEID_MAX)
-        {
-            Serial %= TableSize;
-        }
-
-        CheckId = CFE_ResourceId_FromInteger(ResourceType + Serial);
-        IsTaken = CheckFunc(CheckId);
-    } while (IsTaken);
-
     return CheckId;
+}
+
+/*----------------------------------------------------------------
+ *
+ * Implemented per public API
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+CFE_ResourceId_t CFE_ResourceId_FindNext(CFE_ResourceId_t StartId, uint32 TableSize,
+                                         CFE_ResourceId_CheckFunc_t CheckFunc)
+{
+    CFE_ResourceId_DefaultIncrementState_t State;
+
+    memset(&State, 0, sizeof(State));
+
+    State.ResourceType   = CFE_ResourceId_GetBase(StartId);
+    State.TableSize      = TableSize;
+    State.RemainingCount = TableSize;
+
+    return CFE_ResourceId_FindNextEx(StartId, CFE_ResourceId_DefaultIncrementSerial, &State, CheckFunc);
 }

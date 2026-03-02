@@ -1,7 +1,7 @@
 /************************************************************************
- * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ * NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
  *
- * Copyright (c) 2020 United States Government as represented by the
+ * Copyright (c) 2023 United States Government as represented by the
  * Administrator of the National Aeronautics and Space Administration.
  * All Rights Reserved.
  *
@@ -19,17 +19,16 @@
 /**
  * @file
  *   Specification for the CFE Event Services (CFE_TBL) command and telemetry
- *   message constant definitions.
- *
- *  For CFE_TBL this is only the function/command code definitions
+ *   message payload and constant definitions.
  */
-#ifndef CFE_TBL_MSGDEFS_H
-#define CFE_TBL_MSGDEFS_H
+#ifndef DEFAULT_CFE_TBL_MSGDEFS_H
+#define DEFAULT_CFE_TBL_MSGDEFS_H
 
 #include "common_types.h"
 #include "cfe_mission_cfg.h"
 #include "cfe_es_extern_typedefs.h"
 #include "cfe_time_extern_typedefs.h"
+#include "cfe_tbl_extern_typedefs.h"
 #include "cfe_tbl_fcncodes.h"
 
 /********************************/
@@ -54,8 +53,8 @@ typedef struct CFE_TBL_LoadCmd_Payload
 */
 typedef struct CFE_TBL_DumpCmd_Payload
 {
-    uint16 ActiveTableFlag;                            /**< \brief #CFE_TBL_BufferSelect_INACTIVE=Inactive Table,
-                                                                 #CFE_TBL_BufferSelect_ACTIVE=Active Table */
+    CFE_TBL_BufferSelect_Enum_t ActiveTableFlag;       /**< \brief #CFE_TBL_BufferSelect_INACTIVE=Inactive Table,
+                                                            #CFE_TBL_BufferSelect_ACTIVE=Active Table */
                                                        /**< Selects either the "Inactive"
                                                             (#CFE_TBL_BufferSelect_INACTIVE) buffer or the
                                                             "Active" (#CFE_TBL_BufferSelect_ACTIVE) buffer
@@ -75,8 +74,8 @@ typedef struct CFE_TBL_DumpCmd_Payload
 */
 typedef struct CFE_TBL_ValidateCmd_Payload
 {
-    uint16 ActiveTableFlag;                            /**< \brief #CFE_TBL_BufferSelect_INACTIVE=Inactive Table,
-                                                                 #CFE_TBL_BufferSelect_ACTIVE=Active Table */
+    CFE_TBL_BufferSelect_Enum_t ActiveTableFlag;       /**< \brief #CFE_TBL_BufferSelect_INACTIVE=Inactive Table,
+                                                            #CFE_TBL_BufferSelect_ACTIVE=Active Table */
                                                        /**< Selects either the "Inactive"
                                                             (#CFE_TBL_BufferSelect_INACTIVE) buffer or the
                                                             "Active" (#CFE_TBL_BufferSelect_ACTIVE) buffer

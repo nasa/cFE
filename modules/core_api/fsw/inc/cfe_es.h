@@ -1,7 +1,7 @@
 /************************************************************************
- * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ * NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
  *
- * Copyright (c) 2020 United States Government as represented by the
+ * Copyright (c) 2023 United States Government as represented by the
  * Administrator of the National Aeronautics and Space Administration.
  * All Rights Reserved.
  *
@@ -49,15 +49,6 @@
 #ifndef OS_PRINTF
 #define OS_PRINTF(m, n)
 #endif
-
-/*
-** Macro Definitions
-*/
-
-#define CFE_ES_DBIT(x)     (1L << (x))                 /* Places a one at bit positions 0 thru 31 */
-#define CFE_ES_DTEST(i, x) (((i)&CFE_ES_DBIT(x)) != 0) /* true iff bit x of i is set */
-#define CFE_ES_TEST_LONG_MASK(m, s) \
-    (CFE_ES_DTEST(m[(s) / 32], (s) % 32)) /* Test a bit within an array of 32-bit integers. */
 
 /*****************************************************************************/
 /*
@@ -1307,6 +1298,59 @@ CFE_Status_t CFE_ES_PoolCreate(CFE_ES_MemHandle_t *PoolID, void *MemPtr, size_t 
 ******************************************************************************/
 CFE_Status_t CFE_ES_PoolCreateEx(CFE_ES_MemHandle_t *PoolID, void *MemPtr, size_t Size, uint16 NumBlockSizes,
                                  const size_t *BlockSizes, bool UseMutex);
+
+/*****************************************************************************/
+/**
+** \brief Implements CFE_ES_PoolCreateEx with added param for alignment added
+**        for coverage purposes)
+**
+** \par Description
+**        This routine initializes a pool of memory supplied by the calling application.
+**
+** \par Assumptions, External Events, and Notes:
+**        -# The size of the pool must be an integral number of 32-bit words
+**        -# The start address of the pool must be 32-bit aligned
+**        -# 168 bytes are used for internal bookkeeping, therefore, they will not be available for allocation.
+**
+** \param[out]   PoolID        A pointer to the variable the caller wishes to have the memory pool handle kept in
+*@nonnull.
+**                             PoolID is the memory pool handle.
+**
+** \param[in]   MemPtr         A Pointer to the pool of memory created by the calling application @nonnull. This address
+*must
+**                             be aligned suitably for the processor architecture.  The #CFE_ES_STATIC_POOL_TYPE
+**                             macro may be used to assist in creating properly aligned memory pools.
+**
+** \param[in]   Size           The size of the pool of memory @nonzero.  Note that this must be an integral multiple of
+*the
+**                             memory alignment of the processor architecture.
+**
+** \param[in]   NumBlockSizes  The number of different block sizes specified in the \c BlockSizes array. If set
+**                             larger than #CFE_PLATFORM_ES_POOL_MAX_BUCKETS, #CFE_ES_BAD_ARGUMENT will be returned.
+**                             If BlockSizes is null and NumBlockSizes is 0, NubBlockSizes will be set to
+**                             #CFE_PLATFORM_ES_POOL_MAX_BUCKETS.
+**
+** \param[in]   BlockSizes     Pointer to an array of sizes to be used instead of the default block sizes specified by
+**                             #CFE_PLATFORM_ES_MEM_BLOCK_SIZE_01 through #CFE_PLATFORM_ES_MAX_BLOCK_SIZE.  If the
+**                             pointer is equal to NULL, the default block sizes are used.
+**
+** \param[in]   UseMutex       Flag indicating whether the new memory pool will be processing with mutex handling or
+**                             not. Valid parameter values are #CFE_ES_USE_MUTEX and #CFE_ES_NO_MUTEX
+**
+** \param[out]  Alignment      Size of struct alignment
+**
+** \return Execution status, see \ref CFEReturnCodes
+** \retval #CFE_SUCCESS                       \copybrief CFE_SUCCESS
+** \retval #CFE_ES_BAD_ARGUMENT               \copybrief CFE_ES_BAD_ARGUMENT
+** \retval #CFE_ES_NO_RESOURCE_IDS_AVAILABLE  \copybrief CFE_ES_NO_RESOURCE_IDS_AVAILABLE
+** \retval #CFE_STATUS_EXTERNAL_RESOURCE_FAIL \covtest \copybrief CFE_STATUS_EXTERNAL_RESOURCE_FAIL
+**
+** \sa #CFE_ES_PoolCreate, #CFE_ES_PoolCreateNoSem, #CFE_ES_GetPoolBuf, #CFE_ES_PutPoolBuf, #CFE_ES_GetMemPoolStats
+**
+******************************************************************************/
+CFE_Status_t CFE_ES_PoolCreateEx_WithAlignment(CFE_ES_MemHandle_t *PoolID, void *MemPtr, size_t Size,
+                                               uint16 NumBlockSizes, const size_t *BlockSizes, bool UseMutex,
+                                               size_t Alignment);
 
 /*****************************************************************************/
 /**

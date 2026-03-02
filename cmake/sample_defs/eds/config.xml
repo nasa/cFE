@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    GSC-18128-1, "Core Flight Executive Version 6.7"
+    NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
 
-    Copyright (c) 2006-2019 United States Government as represented by
+    Copyright (c) 2023 United States Government as represented by
     the Administrator of the National Aeronautics and Space Administration.
     All Rights Reserved.
 
@@ -27,12 +27,65 @@
 -->
 <DesignParameters>
 
+  <Package name="CF" shortDescription="CF configurable items">
+    <Define name="NUM_CHANNELS" value="2" />
+    <Define name="NAK_MAX_SEGMENTS" value="58" />
+    <Define name="MAX_POLLING_DIR_PER_CHAN" value="5" />
+    <Define name="MAX_PDU_SIZE" value="512" />
+    <Define name="FILENAME_MAX_NAME" value="20" />
+    <Define name="FILENAME_MAX_LEN" value="64" />
+    <Define name="PDU_ENCAPSULATION_EXTRA_TRAILING_BYTES" value="0" />
+  </Package>
+
+  <Package name="FM">
+    <Define name="TABLE_ENTRY_COUNT" value="8" />
+    <Define name="DIR_LIST_PKT_ENTRIES" value="16" />
+  </Package>
+
+  <Package name="HS">
+    <Define name="MAX_EXEC_CNT_SLOTS" value="32" />
+    <Define name="MAX_MONITORED_APPS" value="32" />
+    <Define name="MAX_MONITORED_EVENTS" value="16" />
+    <Define name="MAX_MSG_ACT_SIZE" value="16" />
+    <Define name="MAX_MSG_ACT_TYPES" value="8" />
+  </Package>
+
+  <Package name="LC">
+    <Define name="MAX_ACTIONPOINTS" value="176" />
+    <Define name="MAX_WATCHPOINTS" value="176" />
+    <Define name="MAX_ACTION_TEXT" value="32" />
+    <Define name="MAX_RPN_EQU_SIZE" value="20" />
+    <Define name="RTS_REQ_MID" value="0x18A9" />
+    <Define name="RTS_REQ_CC" value="4" />
+  </Package>
+
   <Package name="SAMPLE_APP">
     <Define name="STRING_VAL_LEN" value="10" />
   </Package>
 
   <Package name="CI_LAB">
     <Define name="BASE_UDP_PORT" value="1234" />
+  </Package>
+
+  <Package name="IOLib">
+    <Define name="PORT_CONFIG_STRING_SIZE" value="64" />
+    <Define name="PORT_NAME_SIZE" value="32" />
+    <Define name="MAX_ADDR_SIZE" value="32" />
+    <Define name="TCP_RECONNECT_DELAY" value="4" />
+  </Package>
+
+  <Package name="CI">
+    <Define name="PORT_CONFIG_STRING_SIZE" value="64" />
+    <Define name="PORT_NAME_SIZE" value="32" />
+    <Define name="MAX_ADDR_LEN" value="20" />
+  </Package>
+
+  <Package name="TO">
+    <Define name="TLM_PORT" value="1235" />
+    <Define name="MAX_SUBSCRIPTIONS" value="32" />
+    <Define name="PORT_CONFIG_STRING_SIZE" value="64" />
+    <Define name="PORT_NAME_SIZE" value="20" />
+    <Define name="MAX_ADDR_LEN" value="20" />
   </Package>
 
   <Package name="TO_LAB">
@@ -63,7 +116,6 @@
   </Package>
 
   <Package name="CFE_SB" shortDescription="Software Bus Configuration">
-     <Define name="SUB_ENTRIES_PER_PKT" value="20" />
      <Define name="MSGID_BIT_SIZE" value="32" />
   </Package>
 
@@ -210,7 +262,7 @@
     </LongDescription>
     </Define>
 
-    <Define name="TBL_MAX_FULL_NAME_LEN" value="${CFE_MISSION/TBL_MAX_NAME_LENGTH} + ${CFE_MISSION/MAX_API_LEN} + 4">
+    <Define name="TBL_MAX_FULL_NAME_LEN" value="${CFE_MISSION/TBL_MAX_NAME_LENGTH} + ${CFE_MISSION/CORE_API_MAX_API_LEN} + 4">
       <LongDescription>
         \cfetblcfg Maximum Length of Full Table Name in messages
 
@@ -236,7 +288,7 @@
         \cfesbcfg Maximum Number of pipes that SB command/telemetry messages may hold
 
         \par Description:
-            Dictates the maximum number of unique Pipes the SB message defintions will hold.
+            Dictates the maximum number of unique Pipes the SB message definitions will hold.
 
             This affects the layout of command/telemetry messages but does not affect run
             time behavior or internal allocation.
@@ -248,33 +300,17 @@
       </LongDescription>
     </Define>
 
-    <Define name="MAX_PATH_LEN" value="64">
-      <LongDescription>
-        \cfemissioncfg cFE Maximum length for pathnames within data exchange structures
+     <Define name="SB_SUB_ENTRIES_PER_PKT" value="20">
+       <LongDescription>
+          \cfesbcfg Maximum Number of subscription entries per subscription report packet
 
-        \par Description:
-            The value of this constant dictates the size of pathnames within all structures
-            used for external data exchange, such as Software bus messages and table definitions.
-            This is typically the same as OS_MAX_PATH_LEN but that is OSAL dependent --
-            and as such it definable on a per-processor/OS basis and hence may be different
-            across multiple processors.  It is recommended to set this to the value of the
-            largest OS_MAX_PATH_LEN in use on any CPU on the mission.
+          \par Description:
+               The subscription report will group up to this number of entries into each TLM packet
 
-            This affects only the layout of command/telemetry messages and table definitions;
-            internal allocation may use the platform-specific OS_MAX_PATH_LEN value.
-
-            This length must include an extra character for NULL termination.
-
-        \par Limits
-            All CPUs within the same SB domain (mission) and ground tools must share the
-            same definition.
-            Note this affects the size of messages, so it must not cause any message
-            to exceed the max length.
-
-            This value should be kept as a multiple of 4, to maintain alignment of
-            any possible neighboring fields without implicit padding.
-      </LongDescription>
-    </Define>
+          \par Limits
+               Must not cause the size of the subscription report telemetry packet to exceed mission limits
+       </LongDescription>
+     </Define>
 
     <Define name="SB_MAX_SB_MSG_SIZE" value="32768">
       <LongDescription>
@@ -294,6 +330,7 @@
       </LongDescription>
     </Define>
 
+    <Define name="TIME_EPOCH_SECONDS" value="315532800" />
 
     <Define name="TIME_CFG_DEFAULT_TAI" value="true">
       <LongDescription>
@@ -502,7 +539,7 @@
     </Define>
 
 
-    <Define name="MAX_FILE_LEN" value="20">
+    <Define name="CORE_API_MAX_FILE_LEN" value="20">
     <LongDescription>
       \cfemissioncfg cFE Maximum length for filenames within data exchange structures
 
@@ -530,7 +567,35 @@
     </LongDescription>
     </Define>
 
-    <Define name="MAX_API_LEN" value="20">
+    <Define name="CORE_API_MAX_PATH_LEN" value="64">
+      <LongDescription>
+        \cfemissioncfg cFE Maximum length for pathnames within data exchange structures
+
+        \par Description:
+            The value of this constant dictates the size of pathnames within all structures
+            used for external data exchange, such as Software bus messages and table definitions.
+            This is typically the same as OS_MAX_PATH_LEN but that is OSAL dependent --
+            and as such it definable on a per-processor/OS basis and hence may be different
+            across multiple processors.  It is recommended to set this to the value of the
+            largest OS_MAX_PATH_LEN in use on any CPU on the mission.
+
+            This affects only the layout of command/telemetry messages and table definitions;
+            internal allocation may use the platform-specific OS_MAX_PATH_LEN value.
+
+            This length must include an extra character for NULL termination.
+
+        \par Limits
+            All CPUs within the same SB domain (mission) and ground tools must share the
+            same definition.
+            Note this affects the size of messages, so it must not cause any message
+            to exceed the max length.
+
+            This value should be kept as a multiple of 4, to maintain alignment of
+            any possible neighboring fields without implicit padding.
+      </LongDescription>
+    </Define>
+
+    <Define name="CORE_API_MAX_API_LEN" value="20">
       <LongDescription>
         \cfemissioncfg cFE Maximum length for API names within data exchange structures
 
@@ -557,7 +622,7 @@
       </LongDescription>
     </Define>
 
-    <Define name="ES_CDS_MAX_FULL_NAME_LEN" value="${CFE_MISSION/ES_CDS_MAX_NAME_LENGTH} + ${CFE_MISSION/MAX_API_LEN} + 4">
+    <Define name="ES_CDS_MAX_FULL_NAME_LEN" value="${CFE_MISSION/ES_CDS_MAX_NAME_LENGTH} + ${CFE_MISSION/CORE_API_MAX_API_LEN} + 4">
       <LongDescription>
         \cfeescfg Maximum Length of Full CDS Name in messages
 

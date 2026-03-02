@@ -1,7 +1,7 @@
 /************************************************************************
- * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ * NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
  *
- * Copyright (c) 2020 United States Government as represented by the
+ * Copyright (c) 2023 United States Government as represented by the
  * Administrator of the National Aeronautics and Space Administration.
  * All Rights Reserved.
  *
@@ -41,6 +41,33 @@
  * The basic resource ID API definitions
  */
 #include "cfe_resourceid_api_typedefs.h"
+
+/**
+ * \brief Serial number increment function
+ *
+ * A helper function responsible for incrementing the serial number when iterating
+ * over all available resource slots.  The default implementation of this function
+ * will treat all slots as equal, and simply increment to the next serial number.
+ *
+ * An alternative function can be used with CFE_ResourceId_FindNextEx() if there
+ * are special requirements for slot assignments/relationships.
+ *
+ * @returns Next serial number to check/test
+ * @retval  CFE_RESOURCEID_UNDEFINED if no more IDs are available to test
+ */
+typedef CFE_ResourceId_t (*CFE_ResourceId_IncrementFunc_t)(CFE_ResourceId_t, void *);
+
+/**
+ * \brief Serial number availability check function
+ *
+ * Checks if the slot associated with a pending serial number is
+ * in use or not.  Used with CFE_ResourceId_FindNext() to find the
+ * next available serial number.
+ *
+ * @retval true if the slot is already in use (unavailable)
+ * @retval false if the slot is not in use (available)
+ */
+typedef bool (*CFE_ResourceId_CheckFunc_t)(CFE_ResourceId_t);
 
 /** \name Resource ID test/conversion macros and inline functions */
 /** \{ */
@@ -184,12 +211,15 @@ uint32 CFE_ResourceId_GetBase(CFE_ResourceId_t ResourceId);
 uint32 CFE_ResourceId_GetSerial(CFE_ResourceId_t ResourceId);
 
 /**
- * @brief Locate the next resource ID which does not map to an in-use table entry
+ * @brief Locate the next resource ID that maps to an available table entry
  *
  * This begins searching from StartId which should be the most recently issued ID
- * for the resource category.  This will then search for the next ID which does
- * _not_ map to a table entry that is in use.  That is, it does not alias any
- * valid ID when converted to an array index.
+ * for the resource category.  This will then search for the next ID that maps to
+ * a table entry that is available for use.  That is, it does not alias any
+ * valid/in-use ID when converted to an array index.
+ *
+ * This is the simple form of the API that iterates over all slots equally in
+ * a round-robin fashion, and works for most use cases.
  *
  * returns an undefined ID value if no open slots are available
  *
@@ -201,7 +231,28 @@ uint32 CFE_ResourceId_GetSerial(CFE_ResourceId_t ResourceId);
  *
  */
 CFE_ResourceId_t CFE_ResourceId_FindNext(CFE_ResourceId_t StartId, uint32 TableSize,
-                                         bool (*CheckFunc)(CFE_ResourceId_t));
+                                         CFE_ResourceId_CheckFunc_t CheckFunc);
+
+/**
+ * @brief Locate the next resource ID that maps to an available table entry
+ *
+ * An extended form of CFE_ResourceId_FindNext() that allows more control over
+ * the slots that are checked.  This can be used if slots are not all equivalent
+ * and thus the simple round-robin approach is insufficient.  The additional
+ * increment function should return the next ID to test/check, given the previous ID.
+ *
+ * returns an undefined ID value if no open slots are available
+ *
+ * @param[in]   StartId   the last issued ID for the resource category (app, lib, etc).
+ * @param[in]   IncrFunc  function to increment the id to the next value
+ * @param[in]   IncrArg   opaque argument that is passed through to the increment function
+ * @param[in]   CheckFunc a function to check if the given ID is available
+ * @returns     Next ID value which does not map to a valid entry
+ * @retval      #CFE_RESOURCEID_UNDEFINED if no open slots or bad arguments.
+ *
+ */
+CFE_ResourceId_t CFE_ResourceId_FindNextEx(CFE_ResourceId_t StartId, CFE_ResourceId_IncrementFunc_t IncrFunc,
+                                           void *IncrArg, CFE_ResourceId_CheckFunc_t CheckFunc);
 
 /**
  * @brief Internal routine to aid in converting an ES resource ID to an array index

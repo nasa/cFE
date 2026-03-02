@@ -1,7 +1,7 @@
 /************************************************************************
- * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ * NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
  *
- * Copyright (c) 2020 United States Government as represented by the
+ * Copyright (c) 2023 United States Government as represented by the
  * Administrator of the National Aeronautics and Space Administration.
  * All Rights Reserved.
  *
@@ -30,6 +30,7 @@
 #include "cfe_msg.h"
 #include "test_cfe_msg_checksum.h"
 #include "cfe_error.h"
+#include "cfe_msg_defaults.h"
 #include <string.h>
 
 void Test_MSG_Checksum(void)
@@ -65,18 +66,20 @@ void Test_MSG_Checksum(void)
     UtPrintf("Set to all F's, validate/generate/validate");
     memset(&cmd, 0xFF, sizeof(cmd));
     CFE_UtAssert_SUCCESS(CFE_MSG_SetSize(msgptr, sizeof(cmd)));
+    CFE_UtAssert_SUCCESS(CFE_MSG_SetHeaderVersion(msgptr, CFE_MISSION_CCSDSVER));
     CFE_UtAssert_SUCCESS(CFE_MSG_ValidateChecksum(msgptr, &actual));
     UtAssert_BOOL_FALSE(actual);
     CFE_UtAssert_SUCCESS(CFE_MSG_GenerateChecksum(msgptr));
     UT_DisplayPkt(msgptr, sizeof(cmd));
     CFE_UtAssert_SUCCESS(CFE_MSG_ValidateChecksum(msgptr, &actual));
     UtAssert_BOOL_TRUE(actual);
-    UtAssert_INT32_EQ(Test_MSG_NotF(msgptr), MSG_LENGTH_FLAG);
+    UtAssert_INT32_EQ(Test_MSG_NotF(msgptr), MSG_LENGTH_FLAG | MSG_HDRVER_FLAG);
 
     UtPrintf("Set to all 0 except secheader and type, validate/generate/validate");
     memset(&cmd, 0, sizeof(cmd));
     CFE_UtAssert_SUCCESS(CFE_MSG_SetSize(msgptr, sizeof(cmd)));
     CFE_UtAssert_SUCCESS(CFE_MSG_SetType(msgptr, CFE_MSG_Type_Cmd));
+    CFE_UtAssert_SUCCESS(CFE_MSG_SetHeaderVersion(msgptr, CFE_MISSION_CCSDSVER));
     CFE_UtAssert_SUCCESS(CFE_MSG_SetHasSecondaryHeader(msgptr, true));
     CFE_UtAssert_SUCCESS(CFE_MSG_ValidateChecksum(msgptr, &actual));
     UtAssert_BOOL_FALSE(actual);
@@ -85,4 +88,18 @@ void Test_MSG_Checksum(void)
     CFE_UtAssert_SUCCESS(CFE_MSG_ValidateChecksum(msgptr, &actual));
     UtAssert_BOOL_TRUE(actual);
     UtAssert_INT32_EQ(Test_MSG_NotZero(msgptr), MSG_LENGTH_FLAG | MSG_HASSEC_FLAG | MSG_TYPE_FLAG);
+
+    UtPrintf("Input wrong CCSDS version number, generate/validate");
+    memset(&cmd, 0, sizeof(cmd));
+    CFE_UtAssert_SUCCESS(CFE_MSG_SetSize(msgptr, sizeof(cmd)));
+    CFE_UtAssert_SUCCESS(CFE_MSG_SetType(msgptr, CFE_MSG_Type_Cmd));
+    CFE_UtAssert_SUCCESS(CFE_MSG_SetHasSecondaryHeader(msgptr, true));
+    /* Insert wrong version number (typically should be CFE_MISSION_CCSDSVER which is 0) */
+    CFE_UtAssert_SUCCESS(CFE_MSG_SetHeaderVersion(msgptr, CFE_MISSION_CCSDSVER + 1));
+    UtAssert_BOOL_TRUE(CFE_MSG_GenerateChecksum(msgptr) == CFE_MSG_WRONG_MSG_TYPE);
+    UtAssert_BOOL_TRUE(CFE_MSG_ValidateChecksum(msgptr, &actual) == CFE_MSG_WRONG_MSG_TYPE);
+    /* call to ValidateChecksum terminated early so actual wasn't changed */
+    UtAssert_BOOL_TRUE(actual);
+    /* Still complete packet even though version is incorrect + version in header */
+    UtAssert_INT32_EQ(Test_MSG_NotZero(msgptr), MSG_LENGTH_FLAG | MSG_HASSEC_FLAG | MSG_TYPE_FLAG | MSG_HDRVER_FLAG);
 }

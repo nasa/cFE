@@ -1,7 +1,7 @@
 /************************************************************************
- * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ * NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
  *
- * Copyright (c) 2020 United States Government as represented by the
+ * Copyright (c) 2023 United States Government as represented by the
  * Administrator of the National Aeronautics and Space Administration.
  * All Rights Reserved.
  *
@@ -166,7 +166,12 @@ void TestBulkTransferSingle(void)
 
     /* Note that in this test, each iteration sends and recvs TWO messages */
     AvgRate = OS_TimeGetTotalMilliseconds(ElapsedTime);
-    AvgRate = ((int64)SendCount * 20000) / AvgRate;
+
+    /* If ElapsedTime is 0, then something is probably wrong - but do not divide by 0 */
+    if (AvgRate != 0)
+    {
+        AvgRate = ((int64)SendCount * 20000) / AvgRate;
+    }
 
     UtAssert_MIR("Message Rate: %ld.%01ld messages/sec", (long)(AvgRate / 10), (long)(AvgRate % 10));
 

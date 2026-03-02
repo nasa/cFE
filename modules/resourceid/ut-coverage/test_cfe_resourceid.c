@@ -1,7 +1,7 @@
 /************************************************************************
- * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ * NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
  *
- * Copyright (c) 2020 United States Government as represented by the
+ * Copyright (c) 2023 United States Government as represented by the
  * Administrator of the National Aeronautics and Space Administration.
  * All Rights Reserved.
  *
@@ -34,7 +34,80 @@ static bool UT_ResourceId_CheckIdSlotUsed(CFE_ResourceId_t Id)
     return UT_DEFAULT_IMPL(UT_ResourceId_CheckIdSlotUsed) != 0;
 }
 
-void TestResourceID(void)
+/* A custom increment function */
+static CFE_ResourceId_t UT_ResourceId_IncrementSerial(CFE_ResourceId_t Id, void *Arg)
+{
+    return CFE_ResourceId_FromInteger(UT_DEFAULT_IMPL(UT_ResourceId_IncrementSerial));
+}
+
+void TestResourceID_Conversions(void)
+{
+    CFE_ResourceId_t Id;
+    uint32           RefBase;
+    uint32           RefIndex;
+    uint32           TestIndex;
+
+    RefIndex = 4;
+    RefBase  = CFE_RESOURCEID_MAKE_BASE(UT_RESOURCEID_BASE_OFFSET);
+    Id       = CFE_ResourceId_FromInteger(RefBase + RefIndex);
+
+    UtAssert_UINT32_EQ(CFE_ResourceId_GetBase(Id), RefBase);
+    UtAssert_UINT32_EQ(CFE_ResourceId_GetSerial(Id), RefIndex);
+
+    UtAssert_INT32_EQ(CFE_ResourceId_ToIndex(Id, RefBase, UT_RESOURCEID_TEST_SLOTS, &TestIndex), CFE_SUCCESS);
+    UtAssert_UINT32_EQ(TestIndex, RefIndex);
+
+    /* For valid Id check other invalid inputs */
+    UtAssert_INT32_EQ(CFE_ResourceId_ToIndex(Id, RefBase, 1, NULL), CFE_ES_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_ResourceId_ToIndex(Id, RefBase, 0, &TestIndex), CFE_ES_ERR_RESOURCEID_NOT_VALID);
+    UtAssert_INT32_EQ(CFE_ResourceId_ToIndex(Id, ~RefBase, 1, &TestIndex), CFE_ES_ERR_RESOURCEID_NOT_VALID);
+}
+
+void TestResourceID_FindNextEx(void)
+{
+    /*
+     * Test cases for generic resource ID functions which are
+     * not sufficiently covered by other app/lib tests.
+     */
+    CFE_ResourceId_t Id;
+    CFE_ResourceId_t LastId;
+    uint32           RefBase;
+    uint32           RefIndex;
+
+    RefIndex = 7;
+    RefBase  = CFE_RESOURCEID_MAKE_BASE(UT_RESOURCEID_BASE_OFFSET);
+    LastId   = CFE_ResourceId_FromInteger(RefBase);
+
+    /* Test CFE_ResourceId_FindNextEx() error conditions */
+    Id = CFE_ResourceId_FindNextEx(CFE_RESOURCEID_UNDEFINED, UT_ResourceId_IncrementSerial, NULL,
+                                   UT_ResourceId_CheckIdSlotUsed);
+    UtAssert_BOOL_FALSE(CFE_ResourceId_IsDefined(Id));
+
+    Id = CFE_ResourceId_FindNextEx(LastId, NULL, NULL, UT_ResourceId_CheckIdSlotUsed);
+    UtAssert_BOOL_FALSE(CFE_ResourceId_IsDefined(Id));
+
+    Id = CFE_ResourceId_FindNextEx(LastId, UT_ResourceId_IncrementSerial, NULL, NULL);
+    UtAssert_BOOL_FALSE(CFE_ResourceId_IsDefined(Id));
+
+    /* Nominal invocation of CFE_ResourceId_FindNextEx - should check a subset of the total slots */
+    UT_ResetState(0);
+    UT_SetDefaultReturnValue(UT_KEY(UT_ResourceId_CheckIdSlotUsed), 0);
+    UT_SetDeferredRetcode(UT_KEY(UT_ResourceId_IncrementSerial), 1, RefBase + RefIndex);
+    Id = CFE_ResourceId_FindNextEx(LastId, UT_ResourceId_IncrementSerial, NULL, UT_ResourceId_CheckIdSlotUsed);
+    UtAssert_BOOL_TRUE(CFE_ResourceId_IsDefined(Id));
+    UtAssert_INT32_EQ(CFE_ResourceId_ToInteger(Id), RefBase + RefIndex);
+    UtAssert_STUB_COUNT(UT_ResourceId_IncrementSerial, 1);
+
+    ++RefIndex;
+    UT_ResetState(0);
+    UT_SetDefaultReturnValue(UT_KEY(UT_ResourceId_CheckIdSlotUsed), 1);
+    UT_SetDeferredRetcode(UT_KEY(UT_ResourceId_IncrementSerial), 1, RefBase + RefIndex);
+    Id = CFE_ResourceId_FindNextEx(LastId, UT_ResourceId_IncrementSerial, NULL, UT_ResourceId_CheckIdSlotUsed);
+    UtAssert_BOOL_FALSE(CFE_ResourceId_IsDefined(Id));
+    UtAssert_STUB_COUNT(UT_ResourceId_IncrementSerial, 2);
+}
+
+void TestResourceID_FindNext(void)
 {
     /*
      * Test cases for generic resource ID functions which are
@@ -48,8 +121,11 @@ void TestResourceID(void)
     uint32           TestBase;
     uint32           TestSerial;
     uint32           RefSerial;
-    uint32           TestIndex;
     uint32           RefIndex;
+    uint32           TestIndex;
+
+    RefBase = CFE_RESOURCEID_MAKE_BASE(UT_RESOURCEID_BASE_OFFSET);
+    LastId  = CFE_ResourceId_FromInteger(RefBase);
 
     /* Call CFE_ResourceId_FindNext() using an invalid resource type */
     UT_SetDefaultReturnValue(UT_KEY(UT_ResourceId_CheckIdSlotUsed), 1);
@@ -58,8 +134,6 @@ void TestResourceID(void)
 
     /* Verify that CFE_ResourceId_FindNext() does not repeat until CFE_RESOURCEID_MAX is reached */
     UT_SetDefaultReturnValue(UT_KEY(UT_ResourceId_CheckIdSlotUsed), 0);
-    RefBase   = CFE_RESOURCEID_MAKE_BASE(UT_RESOURCEID_BASE_OFFSET);
-    LastId    = CFE_ResourceId_FromInteger(RefBase);
     RefIndex  = 1;
     RefSerial = 1;
 
@@ -161,11 +235,6 @@ void TestResourceID(void)
     UtAssert_True(TestIndex == RefIndex, "ID index after search: id=%lx, expected=%lu, got=%lu",
                   CFE_ResourceId_ToInteger(Id), (unsigned long)RefIndex, (unsigned long)TestIndex);
 
-    /* For valid Id check other invalid inputs */
-    UtAssert_INT32_EQ(CFE_ResourceId_ToIndex(Id, RefBase, 1, NULL), CFE_ES_BAD_ARGUMENT);
-    UtAssert_INT32_EQ(CFE_ResourceId_ToIndex(Id, RefBase, 0, &TestIndex), CFE_ES_ERR_RESOURCEID_NOT_VALID);
-    UtAssert_INT32_EQ(CFE_ResourceId_ToIndex(Id, ~RefBase, 1, &TestIndex), CFE_ES_ERR_RESOURCEID_NOT_VALID);
-
     /* Validate off-nominal inputs */
     Id = CFE_ResourceId_FindNext(CFE_RESOURCEID_UNDEFINED, 0, UT_ResourceId_CheckIdSlotUsed);
     UtAssert_True(CFE_ResourceId_Equal(Id, CFE_RESOURCEID_UNDEFINED), "CFE_ResourceId_FindNext() bad input: id=%lx",
@@ -178,5 +247,7 @@ void TestResourceID(void)
 
 void UtTest_Setup(void)
 {
-    UtTest_Add(TestResourceID, NULL, NULL, "Resource ID");
+    UtTest_Add(TestResourceID_Conversions, NULL, NULL, "Resource ID Conversions");
+    UtTest_Add(TestResourceID_FindNextEx, NULL, NULL, "Resource ID FindNextEx");
+    UtTest_Add(TestResourceID_FindNext, NULL, NULL, "Resource ID FindNext");
 }

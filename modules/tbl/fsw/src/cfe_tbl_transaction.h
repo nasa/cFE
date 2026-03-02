@@ -1,7 +1,7 @@
 /************************************************************************
- * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ * NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
  *
- * Copyright (c) 2020 United States Government as represented by the
+ * Copyright (c) 2023 United States Government as represented by the
  * Administrator of the National Aeronautics and Space Administration.
  * All Rights Reserved.
  *
@@ -19,12 +19,7 @@
 /**
  * @file
  *
- * Purpose:  cFE Table Services (TBL) utility function interface file
- *
- * Author:   D. Kobe/the Hammers Company, Inc.
- *
- * Notes:
- *
+ * Header definining the table services transaction methods
  */
 
 #ifndef CFE_TBL_TRANSACTION_H
@@ -33,6 +28,7 @@
 /*
  * Required header files...
  */
+#include "cfe_error.h"
 #include "cfe_es_api_typedefs.h"
 #include "cfe_tbl_api_typedefs.h"
 #include "cfe_platform_cfg.h"
@@ -40,6 +36,8 @@
 #include "cfe_tbl_eventids.h"
 
 /*********************  Type Definitions   ***************************/
+
+#define CFE_TBL_MAX_EVENTS_PER_TXN 8
 
 /**
  * Bit mask values for context of a table services transaction
@@ -71,6 +69,31 @@ typedef enum CFE_TBL_TxnContext
 
 } CFE_TBL_TxnContext_Enum_t;
 
+typedef struct CFE_TBL_TxnEvent
+{
+    /* The ID that should be broadcast via EVS */
+    uint16 EventId;
+
+    /*
+     * Two general-purpose integer values to further identify the cause - these are
+     * context dependent as to what they mean.  These may be status codes.
+     *
+     * As a general rule of thumb, if the event was triggered from a comparison
+     * between two values, then register the actual observed value (or status code)
+     * as event data 1, and the expected value as event data 2, if applicable.
+     *
+     * These are only used when assembling the event message.
+     */
+    int32 EventData1; /**< Actual value observed */
+    int32 EventData2; /**< Expected value, if applicable, or other relevant value */
+
+} CFE_TBL_TxnEvent_t;
+
+/**
+ * Callback function for event processing
+ */
+typedef bool (*CFE_TBL_TxnEventProcFunc_t)(const CFE_TBL_TxnEvent_t *, void *);
+
 /**
  * The table transaction object
  *
@@ -94,16 +117,20 @@ typedef enum CFE_TBL_TxnContext
  */
 typedef struct CFE_TBL_TxnState
 {
-    CFE_ES_AppId_t   AppId;
-    CFE_TBL_Handle_t Handle;
-    CFE_TBL_RegId_t  RegId;
+    CFE_ES_AppId_t     AppId;
+    CFE_TBL_HandleId_t Handle;
+    CFE_TBL_RegId_t    RegId;
 
+    uint32 RegLockCount;
     uint32 CallContext;
-    uint16 PendingEventId;
-    bool   RegIsLocked;
 
-    CFE_TBL_AccessDescriptor_t *AccessDescPtr;
+    char AppNameBuffer[CFE_MISSION_MAX_API_LEN];
+
+    CFE_TBL_AccessDescriptor_t *AccDescPtr;
     CFE_TBL_RegistryRec_t *     RegRecPtr;
+
+    uint32             NumPendingEvents;
+    CFE_TBL_TxnEvent_t PendingEvents[CFE_TBL_MAX_EVENTS_PER_TXN];
 
 } CFE_TBL_TxnState_t;
 
@@ -114,27 +141,36 @@ typedef struct CFE_TBL_TxnState
  * is to (eventually) replace individual local stack variables with these accessors.
  */
 
+/*---------------------------------------------------------------------------------------*/
 /**
- * Gets the table handle
+ * Gets the table handle.
+ *
+ * This is internal (preferred) form of the table handle which is unique and type safe.
  */
-static inline CFE_TBL_Handle_t CFE_TBL_TxnHandle(const CFE_TBL_TxnState_t *Txn)
+static inline CFE_TBL_HandleId_t CFE_TBL_TxnHandle(const CFE_TBL_TxnState_t *Txn)
 {
     return Txn->Handle;
 }
 
+/*---------------------------------------------------------------------------------------*/
+/**
+ * Gets the table handle as an unsigned long (for logging/events)
+ */
 static inline unsigned long CFE_TBL_TxnHandleAsULong(const CFE_TBL_TxnState_t *Txn)
 {
-    return (unsigned long)CFE_TBL_TxnHandle(Txn);
+    return CFE_RESOURCEID_TO_ULONG(CFE_TBL_TxnHandle(Txn));
 }
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * Gets the access descriptor object
  */
 static inline CFE_TBL_AccessDescriptor_t *CFE_TBL_TxnAccDesc(const CFE_TBL_TxnState_t *Txn)
 {
-    return Txn->AccessDescPtr;
+    return Txn->AccDescPtr;
 }
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * Gets the registry entry ID
  */
@@ -143,11 +179,16 @@ static inline CFE_TBL_RegId_t CFE_TBL_TxnRegId(const CFE_TBL_TxnState_t *Txn)
     return Txn->RegId;
 }
 
+/*---------------------------------------------------------------------------------------*/
+/**
+ * Gets the table registry entry ID as an unsigned long (for logging/events)
+ */
 static inline unsigned long CFE_TBL_TxnRegIdAsULong(const CFE_TBL_TxnState_t *Txn)
 {
-    return (unsigned long)CFE_TBL_TxnRegId(Txn);
+    return CFE_TBL_REGID_INT(CFE_TBL_TxnRegId(Txn));
 }
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * Gets the registry record object
  */
@@ -156,6 +197,7 @@ static inline CFE_TBL_RegistryRec_t *CFE_TBL_TxnRegRec(const CFE_TBL_TxnState_t 
     return Txn->RegRecPtr;
 }
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * Gets the calling context AppID
  *
@@ -166,12 +208,29 @@ static inline CFE_ES_AppId_t CFE_TBL_TxnAppId(const CFE_TBL_TxnState_t *Txn)
     return Txn->AppId;
 }
 
+/*---------------------------------------------------------------------------------------*/
+/**
+ * Gets the calling context application ID as an unsigned long (for logging/events)
+ */
 static inline unsigned long CFE_TBL_TxnAppIdAsULong(const CFE_TBL_TxnState_t *Txn)
 {
     return CFE_RESOURCEID_TO_ULONG(CFE_TBL_TxnAppId(Txn));
 }
 
-/*****************************  Function Prototypes   **********************************/
+/*---------------------------------------------------------------------------------------*/
+/**
+ * \brief Returns the calling application name
+ *
+ * \par Description
+ *        Returns a pointer to a buffer containing the name of the currently-running application
+ *        The buffer is local to the transaction object and is initialized on the first invocation.
+ *
+ * \par Assumptions, External Events, and Notes:
+ *        None
+ *
+ * \param[inout] Txn The transaction object to operate on
+ */
+const char *CFE_TBL_TxnAppNameCaller(CFE_TBL_TxnState_t *Txn);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -268,7 +327,7 @@ CFE_Status_t CFE_TBL_TxnInit(CFE_TBL_TxnState_t *Txn, bool CheckContext);
  * \returns CFE_SUCCESS normally, or relevent CFE status code
  * \retval #CFE_SUCCESS \copydoc CFE_SUCCESS
  */
-CFE_Status_t CFE_TBL_TxnStartFromHandle(CFE_TBL_TxnState_t *Txn, CFE_TBL_Handle_t TblHandle, uint32 AllowedContext);
+CFE_Status_t CFE_TBL_TxnStartFromHandle(CFE_TBL_TxnState_t *Txn, CFE_TBL_HandleId_t TblHandle, uint32 AllowedContext);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -329,23 +388,6 @@ void CFE_TBL_TxnFinish(CFE_TBL_TxnState_t *Txn);
 
 /*---------------------------------------------------------------------------------------*/
 /**
- * \brief Gets the table status associated with a transaction
- *
- * \par Description
- *        Returns the current status of the table being referred to in the transaction object
- *
- * \par Assumptions, External Events, and Notes:
- *        None
- *
- * \param[inout] Txn The transaction object to operate on
- *
- * \returns CFE_SUCCESS if nothing is pending, or relevent CFE status code ("info" status)
- * \retval #CFE_SUCCESS \copydoc CFE_SUCCESS
- */
-CFE_Status_t CFE_TBL_TxnGetTableStatus(CFE_TBL_TxnState_t *Txn);
-
-/*---------------------------------------------------------------------------------------*/
-/**
  * \brief Finds the access descriptor associated with the current registry entry, if any
  *
  * \par Description
@@ -369,46 +411,6 @@ CFE_Status_t CFE_TBL_FindAccessDescriptorForSelf(CFE_TBL_TxnState_t *Txn);
 
 /*---------------------------------------------------------------------------------------*/
 /**
- * \brief Removes Access Descriptor from Table's linked list of Access Descriptors
- *
- * \par Description
- *        Removes the given Access Descriptor from the Linked List
- *        of Access Descriptors associated with the table specified
- *        in the Access Descriptor itself.
- *
- * \par Assumptions, External Events, and Notes:
- *
- * \param[inout] Txn The transaction object to operate on
- *
- * \returns CFE_SUCCESS normally, or relevent CFE status code
- * \retval #CFE_SUCCESS \copydoc CFE_SUCCESS
- */
-CFE_Status_t CFE_TBL_TxnRemoveAccessLink(CFE_TBL_TxnState_t *Txn);
-
-/*---------------------------------------------------------------------------------------*/
-/**
- * \brief Obtains the data address for the specified table
- *
- * \par Description
- *        Validates the given TblHandle, finds the location of the
- *        Table data and returns the address to the data to the caller.
- *
- * \par Assumptions, External Events, and Notes:
- *        -# It is possible that an Application that was sharing a table
- *           would discover, upon making this call, that the table has
- *           been unregistered by another Application.  In this situation,
- *           this function would return #CFE_TBL_ERR_UNREGISTERED.
- *
- * \param[inout] Txn The transaction object to operate on
- * \param[out]   TblPtr    Pointer to pointer that will hold address of data upon return.
- *
- * \returns CFE_SUCCESS normally, or relevent CFE status code
- * \retval #CFE_SUCCESS \copydoc CFE_SUCCESS
- */
-CFE_Status_t CFE_TBL_TxnGetTableAddress(CFE_TBL_TxnState_t *Txn, void **TblPtr);
-
-/*---------------------------------------------------------------------------------------*/
-/**
  * \brief Returns any pending non-error status code for the specified table.
  *
  * \par Description
@@ -426,110 +428,81 @@ CFE_Status_t CFE_TBL_TxnGetNextNotification(CFE_TBL_TxnState_t *Txn);
 
 /*---------------------------------------------------------------------------------------*/
 /**
- * \brief Returns the Registry Index for the specified Table Name
+ * \brief Adds an event to the transaction for deferred reporting
  *
  * \par Description
- *        Locates given Table Name in the Table Registry and
- *        returns the appropriate Registry Index.
+ *        Adds an event to the list of events that need to be reported as part of this transaction
+ *        Events will be handled in a future call to CFE_TBL_TxnProcessEvents() once everything
+ *        is completed and nothing is in a locked or intermediate state.
  *
  * \par Assumptions, External Events, and Notes:
- *          None
+ *        EventData1 and EventData2 are aribitrary integers to capture any relevant detail about
+ *        the event that occurred.  If the event is the result of a status code from CFE, PSP, OSAL,
+ *        or any other library that uses integer status codes, it should be passed as EventData1.  If
+ *        the event was triggered as the result of a comparison, then the reference/expected value
+ *        should be passed as EventData2.  If there is no relevant detail, pass 0 for these values.
  *
- * \param[inout] Txn The transaction object to operate on
- * \param[in]  TblName - Pointer to character string containing complete
- *                       Table Name (of the format "AppName.TblName").
+ *        The suggestions above are just guidelines for consistency -- the ultimate meaning/use of the
+ *        event context data is governed by the callback function provided to CFE_TBL_TxnProcessEvents().
  *
- * \returns CFE_SUCCESS normally, or relevent CFE status code
- * \retval #CFE_SUCCESS \copydoc CFE_SUCCESS
+ * \param[inout] Txn     The transaction object to operate on
+ * \param[in]    EventId The transaction object to operate on
+ * \param[in]    EventData1 Arbitrary integer context data, may be a status code or actual value observed
+ * \param[in]    EventData2 Second integer context data, may be the expected/needed value in comparison
  */
-CFE_Status_t CFE_TBL_TxnFindRegByName(CFE_TBL_TxnState_t *Txn, const char *TblName);
+void CFE_TBL_TxnAddEvent(CFE_TBL_TxnState_t *Txn, uint16 EventId, int32 EventData1, int32 EventData2);
 
 /*---------------------------------------------------------------------------------------*/
 /**
- * \brief Locates a free slot in the Table Registry.
+ * \brief Gets the number of events pending in the transaction
  *
  * \par Description
- *        Locates a free slot in the Table Registry.
- *
- *        If successful, the internal pointer will be set to the newly allocated
- *        registry record.  The accessor functions CFE_TBL_TxnRegRec() and
- *        CFE_TBL_TxnRegId() may be used to retrieve the pointer and handle,
- *        respectively.
- *
- * \par Assumptions, External Events, and Notes:
- *        Note: This function assumes the registry has been locked.
- *
- * \param[inout] Txn The transaction object to operate on
- *
- * \returns CFE_SUCCESS normally, or relevent CFE status code
- * \retval #CFE_SUCCESS \copydoc CFE_SUCCESS
- */
-CFE_Status_t CFE_TBL_TxnAllocateRegistryEntry(CFE_TBL_TxnState_t *Txn);
-
-/*---------------------------------------------------------------------------------------*/
-/**
- * \brief Locates a free Access Descriptor in the Table Handles Array.
- *
- * \par Description
- *        Locates a free Access Descriptor in the Table Handles Array.
- *
- *        If successful, the internal pointer will be set to the newly allocated
- *        access descriptor.  The accessor functions CFE_TBL_TxnAccDesc() and
- *        CFE_TBL_TxnHandle() may be used to retrieve the pointer and handle,
- *        respectively.
- *
- * \par Assumptions, External Events, and Notes:
- *        Note: This function assumes the registry has been locked.
- *        No association is made between the accessor and the registry object here.  The
- *        association is made via a separate call.  This simply finds an open entry.
- *
- * \param[inout] Txn The transaction object to operate on
- *
- * \returns CFE_SUCCESS normally, or relevent CFE status code
- * \retval #CFE_SUCCESS \copydoc CFE_SUCCESS
- */
-CFE_Status_t CFE_TBL_TxnAllocateHandle(CFE_TBL_TxnState_t *Txn);
-
-/*---------------------------------------------------------------------------------------*/
-/**
- * \brief Checks if a table is already registered in the Table Registry
- *
- * \par Description
- *         This routine searches the Table Registry for a table with the specified name,
- *         owning app and size. If a match is found, the same handle is returned. If a
- *         match is not found, the function will locate a free slot in the table registry
- *         (unless it's already full).
- *
- * \par Assumptions, External Events, and Notes:
- *         A return value of CFE_SUCCESS indicates that this is NOT a duplicate registration,
- *         meaning it is OK to proceed with creating a new table entry.  If this is a duplicate,
- *         this may return one of the "warning" status codes indicating the nature of duplication.
- *
- * \param[inout] Txn The transaction object to operate on
- * \param[in]    TblName The name of the table that is the pending in a registration request
- * \param[in]    Size The size of th table that is pending in a registration request
- *
- * \returns CFE_SUCCESS or relevent CFE status code
- * \retval #CFE_SUCCESS \copydoc CFE_SUCCESS
- */
-CFE_Status_t CFE_TBL_TxnCheckDuplicateRegistration(CFE_TBL_TxnState_t *Txn, const char *TblName, size_t Size);
-
-/*---------------------------------------------------------------------------------------*/
-/**
- * \brief Connects a Table Access Descriptor to the current Registry record
- *
- * \par Description
- *        As part of setting up a new table, the transaction should have selected a
- *        (pending) access descriptor/handle and a registry record to use for the table.
- *
- *        This call will make the necessary connections to associate the access descriptor
- *        with the registry record selected in the transaction object
+ *        Gets the number of events currently pending for deferred reporting
  *
  * \par Assumptions, External Events, and Notes:
  *        None
  *
- * \param[inout] Txn The transaction object to operate on
+ * \param[in] Txn       The transaction object to operate on
+ *
+ * \returns the number of events that were successfully processed
  */
-void CFE_TBL_TxnConnectAccessDescriptor(CFE_TBL_TxnState_t *Txn);
+uint32 CFE_TBL_TxnGetEventCount(const CFE_TBL_TxnState_t *Txn);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * \brief Process the list of events for deferred reporting
+ *
+ * \par Description
+ *        Iterates over the set of deferred events, invoking the given routine for each event.
+ *        The passed-in EventProc routine will be called for each event, which in turn should
+ *        propagate the event detail to the user via the appropriate call to CFE_EVS or sys log.
+ *
+ * \par Assumptions, External Events, and Notes:
+ *        The opaque argument is not modified or used directly, it is passed through to EventProc.
+ *
+ * \param[in]  Txn       The transaction object to operate on
+ * \param[in]  EventProc User-defined routine to call for each event, which does the reporting
+ * \param[in]  Arg       Opaque argument to pass to EventProc
+ *
+ * \returns the number of events that were successfully processed
+ */
+uint32 CFE_TBL_TxnProcessEvents(const CFE_TBL_TxnState_t *Txn, CFE_TBL_TxnEventProcFunc_t EventProc, void *Arg);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * \brief Clear the list of events in the transaction
+ *
+ * \par Description
+ *        Resets the transaction deferred event list to an empty state, as it is in a newly
+ *        initialized transaction object.
+ *
+ * \par Assumptions, External Events, and Notes:
+ *        This is only needed if events are reported in multiple sets or stages in a transaction,
+ *        allowing the list to be reset after each stage.  For simple transactions this is not
+ *        necessary.
+ *
+ * \param[inout] Txn       The transaction object to operate on
+ */
+void CFE_TBL_TxnClearEvents(CFE_TBL_TxnState_t *Txn);
 
 #endif /* CFE_TBL_TRANSACTION_H */

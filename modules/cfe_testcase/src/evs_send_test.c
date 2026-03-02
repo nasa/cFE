@@ -1,7 +1,7 @@
 /************************************************************************
- * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ * NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
  *
- * Copyright (c) 2020 United States Government as represented by the
+ * Copyright (c) 2023 United States Government as represented by the
  * Administrator of the National Aeronautics and Space Administration.
  * All Rights Reserved.
  *
@@ -41,6 +41,9 @@ void TestSendEvent(void)
     }
 
     UtPrintf("Testing: CFE_EVS_SendEvent");
+
+    /*Turn off debug events because of rate limiting configuration*/
+    CFE_EVS_SetTypeEnable(CFE_EVS_EventType_DEBUG, false);
 
     UtAssert_INT32_EQ(CFE_EVS_SendEvent(0, CFE_EVS_EventType_INFORMATION, "OK Send"), CFE_SUCCESS);
     UtAssert_INT32_EQ(CFE_EVS_SendEvent(0, CFE_EVS_EventType_INFORMATION, NULL), CFE_EVS_INVALID_PARAMETER);
@@ -121,6 +124,9 @@ void TestSendTimedEvent(void)
 
     UtAssert_INT32_EQ(CFE_EVS_SendTimedEvent(Time, 0, CFE_EVS_EventType_CRITICAL, "Ok (Critical) Time"), CFE_SUCCESS);
     UtAssert_INT32_EQ(CFE_EVS_SendTimedEvent(Time, 0, CFE_EVS_EventType_CRITICAL, NULL), CFE_EVS_INVALID_PARAMETER);
+
+    /*Turn debug events back on*/
+    CFE_EVS_SetTypeEnable(CFE_EVS_EventType_DEBUG, true);
 }
 
 void EVSSendTestSetup(void)

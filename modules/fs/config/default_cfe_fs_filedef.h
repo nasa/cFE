@@ -1,7 +1,7 @@
 /************************************************************************
- * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ * NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
  *
- * Copyright (c) 2020 United States Government as represented by the
+ * Copyright (c) 2023 United States Government as represented by the
  * Administrator of the National Aeronautics and Space Administration.
  * All Rights Reserved.
  *
@@ -19,14 +19,14 @@
 /**
  * @file
  *
- * Declarations and prototypes for cfe_fs_extern_typedefs module
+ * Public type definitions for the CFE FS module
  */
 
-#ifndef CFE_FS_FILEHDR_H
-#define CFE_FS_FILEHDR_H
+#ifndef DEFAULT_CFE_FS_FILEHDR_H
+#define DEFAULT_CFE_FS_FILEHDR_H
 
 #include "common_types.h"
-#include "cfe_fs_interface_cfg.h" /* to define CFE_FS_HDR_DESC_MAX_LEN */
+#include "cfe_mission_cfg.h" /* to define CFE_FS_HDR_DESC_MAX_LEN */
 
 /**
  * @brief File subtypes used within cFE
@@ -195,4 +195,4 @@ typedef struct CFE_FS_Header
     char Description[CFE_FS_HDR_DESC_MAX_LEN]; /**< \brief File description */
 } CFE_FS_Header_t;
 
-#endif /* CFE_FS_EXTERN_TYPEDEFS_H */
+#endif /* DEFAULT_CFE_FS_FILEHDR_H */

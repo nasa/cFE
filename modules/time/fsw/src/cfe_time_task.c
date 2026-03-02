@@ -1,7 +1,7 @@
 /************************************************************************
- * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ * NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
  *
- * Copyright (c) 2020 United States Government as represented by the
+ * Copyright (c) 2023 United States Government as represented by the
  * Administrator of the National Aeronautics and Space Administration.
  * All Rights Reserved.
  *
@@ -261,8 +261,8 @@ int32 CFE_TIME_TaskInit(void)
         return Status;
     }
 
-    CFE_Config_GetVersionString(VersionString, CFE_CFG_MAX_VERSION_STR_LEN, "cFE", CFE_SRC_VERSION, CFE_BUILD_CODENAME,
-                                CFE_LAST_OFFICIAL);
+    CFE_Config_GetVersionString(VersionString, CFE_CFG_MAX_VERSION_STR_LEN, "CFE_TIME", CFE_SRC_VERSION,
+                                CFE_BUILD_CODENAME, CFE_LAST_OFFICIAL);
     Status =
         CFE_EVS_SendEvent(CFE_TIME_INIT_EID, CFE_EVS_EventType_INFORMATION, "cFE TIME Initialized: %s", VersionString);
     if (Status != CFE_SUCCESS)
@@ -451,8 +451,8 @@ int32 CFE_TIME_NoopCmd(const CFE_TIME_NoopCmd_t *data)
 
     CFE_TIME_Global.CommandCounter++;
 
-    CFE_Config_GetVersionString(VersionString, CFE_CFG_MAX_VERSION_STR_LEN, "cFE", CFE_SRC_VERSION, CFE_BUILD_CODENAME,
-                                CFE_LAST_OFFICIAL);
+    CFE_Config_GetVersionString(VersionString, CFE_CFG_MAX_VERSION_STR_LEN, "CFE_TIME", CFE_SRC_VERSION,
+                                CFE_BUILD_CODENAME, CFE_LAST_OFFICIAL);
     CFE_EVS_SendEvent(CFE_TIME_NOOP_EID, CFE_EVS_EventType_INFORMATION, "No-op Cmd Rcvd: %s", VersionString);
 
     return CFE_SUCCESS;

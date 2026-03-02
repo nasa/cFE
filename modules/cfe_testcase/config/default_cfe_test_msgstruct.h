@@ -1,7 +1,7 @@
 /************************************************************************
- * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ * NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
  *
- * Copyright (c) 2020 United States Government as represented by the
+ * Copyright (c) 2023 United States Government as represented by the
  * Administrator of the National Aeronautics and Space Administration.
  * All Rights Reserved.
  *
@@ -20,8 +20,8 @@
  * @file
  *   CFE Test app (CFE_TEST) Application Message Definitions
  */
-#ifndef CFE_TEST_MSGSTRUCT_H
-#define CFE_TEST_MSGSTRUCT_H
+#ifndef DEFAULT_CFE_TEST_MSGSTRUCT_H
+#define DEFAULT_CFE_TEST_MSGSTRUCT_H
 
 #include "cfe_msg_hdr.h"
 #include "cfe_test_msgdefs.h"

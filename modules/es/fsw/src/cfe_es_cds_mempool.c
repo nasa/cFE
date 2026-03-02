@@ -1,7 +1,7 @@
 /************************************************************************
- * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ * NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
  *
- * Copyright (c) 2020 United States Government as represented by the
+ * Copyright (c) 2023 United States Government as represented by the
  * Administrator of the National Aeronautics and Space Administration.
  * All Rights Reserved.
  *
@@ -38,23 +38,7 @@
 
 #include "cfe_es_module_all.h"
 
-/*****************************************************************************/
-/*
-** Type Definitions
-*/
-
-/*****************************************************************************/
-/*
-** File Global Data
-*/
-
-const size_t CFE_ES_CDSMemPoolDefSize[CFE_ES_CDS_NUM_BLOCK_SIZES] = {
-    CFE_PLATFORM_ES_CDS_MAX_BLOCK_SIZE,    CFE_PLATFORM_ES_CDS_MEM_BLOCK_SIZE_16, CFE_PLATFORM_ES_CDS_MEM_BLOCK_SIZE_15,
-    CFE_PLATFORM_ES_CDS_MEM_BLOCK_SIZE_14, CFE_PLATFORM_ES_CDS_MEM_BLOCK_SIZE_13, CFE_PLATFORM_ES_CDS_MEM_BLOCK_SIZE_12,
-    CFE_PLATFORM_ES_CDS_MEM_BLOCK_SIZE_11, CFE_PLATFORM_ES_CDS_MEM_BLOCK_SIZE_10, CFE_PLATFORM_ES_CDS_MEM_BLOCK_SIZE_09,
-    CFE_PLATFORM_ES_CDS_MEM_BLOCK_SIZE_08, CFE_PLATFORM_ES_CDS_MEM_BLOCK_SIZE_07, CFE_PLATFORM_ES_CDS_MEM_BLOCK_SIZE_06,
-    CFE_PLATFORM_ES_CDS_MEM_BLOCK_SIZE_05, CFE_PLATFORM_ES_CDS_MEM_BLOCK_SIZE_04, CFE_PLATFORM_ES_CDS_MEM_BLOCK_SIZE_03,
-    CFE_PLATFORM_ES_CDS_MEM_BLOCK_SIZE_02, CFE_PLATFORM_ES_CDS_MEM_BLOCK_SIZE_01};
+#include "cfe_config.h"
 
 /*****************************************************************************/
 /*
@@ -103,27 +87,27 @@ int32 CFE_ES_CDS_PoolCommit(CFE_ES_GenPoolRecord_t *GenPoolRecPtr, size_t Offset
  *-----------------------------------------------------------------*/
 int32 CFE_ES_CreateCDSPool(size_t CDSPoolSize, size_t StartOffset)
 {
-    CFE_ES_CDS_Instance_t *CDS = &CFE_ES_Global.CDSVars;
-    int32                  Status;
-    size_t                 SizeCheck;
-    size_t                 ActualSize;
+    CFE_ES_CDS_Instance_t * CDS = &CFE_ES_Global.CDSVars;
+    int32                   Status;
+    size_t                  SizeCheck;
+    CFE_Config_ArrayValue_t CDSMemPoolDefSize;
 
-    SizeCheck  = CFE_ES_GenPoolCalcMinSize(CFE_ES_CDS_NUM_BLOCK_SIZES, CFE_ES_CDSMemPoolDefSize, 1);
-    ActualSize = CDSPoolSize;
+    CDSMemPoolDefSize = CFE_Config_GetArrayValue(CFE_CONFIGID_PLATFORM_ES_CDS_MEM_BLOCK_SIZE);
+    SizeCheck         = CFE_ES_GenPoolCalcMinSize(CDSMemPoolDefSize.NumElements, CDSMemPoolDefSize.ElementPtr, 1);
 
-    if (ActualSize < SizeCheck)
+    if (CDSPoolSize < SizeCheck)
     {
         /* Must be able make Pool verification, block descriptor and at least one of the smallest blocks  */
         CFE_ES_SysLogWrite_Unsync("%s: Pool size(%lu) too small for one CDS Block, need >=%lu\n", __func__,
-                                  (unsigned long)ActualSize, (unsigned long)SizeCheck);
+                                  (unsigned long)CDSPoolSize, (unsigned long)SizeCheck);
         return CFE_ES_CDS_INVALID_SIZE;
     }
 
     Status = CFE_ES_GenPoolInitialize(&CDS->Pool, StartOffset, /* starting offset */
-                                      ActualSize,              /* total size */
+                                      CDSPoolSize,             /* total size */
                                       4,                       /* alignment */
-                                      CFE_ES_CDS_NUM_BLOCK_SIZES, CFE_ES_CDSMemPoolDefSize, CFE_ES_CDS_PoolRetrieve,
-                                      CFE_ES_CDS_PoolCommit);
+                                      CDSMemPoolDefSize.NumElements, CDSMemPoolDefSize.ElementPtr,
+                                      CFE_ES_CDS_PoolRetrieve, CFE_ES_CDS_PoolCommit);
 
     return Status;
 }
@@ -351,9 +335,10 @@ int32 CFE_ES_CDSBlockRead(void *DataRead, CFE_ES_CDSHandle_t Handle)
  *-----------------------------------------------------------------*/
 size_t CFE_ES_CDSReqdMinSize(uint32 MaxNumBlocksToSupport)
 {
-    size_t ReqSize;
+    CFE_Config_ArrayValue_t CDSMemPoolDefSize;
 
-    ReqSize = CFE_ES_GenPoolCalcMinSize(CFE_ES_CDS_NUM_BLOCK_SIZES, CFE_ES_CDSMemPoolDefSize, MaxNumBlocksToSupport);
+    CDSMemPoolDefSize = CFE_Config_GetArrayValue(CFE_CONFIGID_PLATFORM_ES_CDS_MEM_BLOCK_SIZE);
 
-    return ReqSize;
+    return CFE_ES_GenPoolCalcMinSize(CDSMemPoolDefSize.NumElements, CDSMemPoolDefSize.ElementPtr,
+                                     MaxNumBlocksToSupport);
 }

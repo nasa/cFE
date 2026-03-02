@@ -1,7 +1,7 @@
 /************************************************************************
- * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ * NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
  *
- * Copyright (c) 2020 United States Government as represented by the
+ * Copyright (c) 2023 United States Government as represented by the
  * Administrator of the National Aeronautics and Space Administration.
  * All Rights Reserved.
  *
@@ -26,29 +26,29 @@
 #define CFE_VERSION_H
 
 /* Development Build Macro Definitions */
-#define CFE_BUILD_NUMBER    199 /**< @brief Development: Number of development git commits since CFE_BUILD_BASELINE */
-#define CFE_BUILD_BASELINE  "equuleus-rc1" /**< @brief Development: Reference git tag for build number */
-#define CFE_BUILD_DEV_CYCLE "equuleus-rc2" /**< @brief Development: Release name for current development cycle */
-#define CFE_BUILD_CODENAME  "Equuleus"     /**< @brief: Development: Code name for the current build */
+#define CFE_BUILD_NUMBER    0 /**< @brief Development: Number of development git commits since CFE_BUILD_BASELINE */
+#define CFE_BUILD_BASELINE  "v7.0.0" /**< @brief Development: Reference git tag for build number */
+#define CFE_BUILD_DEV_CYCLE "v7.0.0" /**< @brief Development: Release name for current development cycle */
+#define CFE_BUILD_CODENAME  "Draco"     /**< @brief: Development: Code name for the current build */
 
 /* See \ref cfsversions for definitions */
-#define CFE_MAJOR_VERSION 6 /*!< @brief Major version number */
-#define CFE_MINOR_VERSION 7 /*!< @brief Minor version number */
-#define CFE_REVISION      0 /*!< @brief Revision version number. Value of 0 indicates a development version.*/
+#define CFE_MAJOR_VERSION 7 /*!< @brief Major version number */
+#define CFE_MINOR_VERSION 0 /*!< @brief Minor version number */
+#define CFE_REVISION      0 /*!< @brief Revision version number. */
 
 /**
  * @brief Last official release.
  */
-#define CFE_LAST_OFFICIAL "v6.7.0"
+#define CFE_LAST_OFFICIAL "v7.0.0"
 
 /*!
  * @brief Mission revision.
  *
- * Values 1-254 are reserved for mission use to denote patches/customizations as needed. NOTE: Reserving 0 and 0xFF for
- * cFS open-source development use (pending resolution of nasa/cFS#440)
- *
+ * Values 1-254 are reserved for mission use to denote patches/customizations as needed.
+ * Value of 0 is reserved for official releases only
+ * Value of 255 (0xFF) is reserved for development and testing versions
  */
-#define CFE_MISSION_REV 0xFF
+#define CFE_MISSION_REV 0x0
 
 #define CFE_STR_HELPER(x) #x                /**< @brief Convert argument to string */
 #define CFE_STR(x)        CFE_STR_HELPER(x) /**< @brief Expand macro before conversion */

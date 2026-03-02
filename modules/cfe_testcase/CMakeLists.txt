@@ -38,6 +38,8 @@ add_cfe_app(cfe_testcase
     src/time_misc_test.c
 )
 
+target_link_libraries(cfe_testcase core_private)
+
 # register the dependency on cfe_assert
 add_cfe_app_dependency(cfe_testcase cfe_assert)
 add_cfe_tables(cfeTestAppTable tables/cfe_test_tbl.c)

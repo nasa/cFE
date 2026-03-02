@@ -1,7 +1,7 @@
 /************************************************************************
- * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ * NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
  *
- * Copyright (c) 2020 United States Government as represented by the
+ * Copyright (c) 2023 United States Government as represented by the
  * Administrator of the National Aeronautics and Space Administration.
  * All Rights Reserved.
  *
@@ -174,7 +174,7 @@ void TestMemPoolPutBuf(void)
 
 void TestMemPoolDelete(void)
 {
-    CFE_ES_MemHandle_t    PoolID = CFE_ES_MEMHANDLE_UNDEFINED; /* Poo1 1 handle, no mutex */
+    CFE_ES_MemHandle_t    PoolID = CFE_ES_MEMHANDLE_UNDEFINED; /* Pool 1 handle, no mutex */
     uint8                 Buffer[1024];
     CFE_ES_MemPoolStats_t Stats;
 

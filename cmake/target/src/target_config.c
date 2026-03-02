@@ -1,7 +1,7 @@
 /************************************************************************
- * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ * NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
  *
- * Copyright (c) 2020 United States Government as represented by the
+ * Copyright (c) 2023 United States Government as represented by the
  * Administrator of the National Aeronautics and Space Administration.
  * All Rights Reserved.
  *
@@ -126,14 +126,14 @@ extern CFE_ConfigKeyValue_t CFE_MODULE_VERSION_TABLE[];
  */
 extern CFE_StaticModuleLoadEntry_t CFE_PSP_MODULE_LIST[];
 
-#ifdef CFE_EDS_ENABLED_BUILD
+#ifdef CFE_EDS_ENABLED
 
 #include "cfe_mission_eds_parameters.h"
 #include "cfe_mission_eds_interface_parameters.h"
 
 #define CFE_SB_INTF_DB_PTR &CFE_SOFTWAREBUS_INTERFACE
 
-#endif /* CFE_EDS_ENABLED_BUILD */
+#endif /* CFE_EDS_ENABLED */
 
 /*
  * Determine the proper values for populating the EDS-related

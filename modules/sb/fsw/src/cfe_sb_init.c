@@ -1,7 +1,7 @@
 /************************************************************************
- * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ * NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
  *
- * Copyright (c) 2020 United States Government as represented by the
+ * Copyright (c) 2023 United States Government as represented by the
  * Administrator of the National Aeronautics and Space Administration.
  * All Rights Reserved.
  *
@@ -31,20 +31,9 @@
 */
 
 #include "cfe_sb_module_all.h"
+#include "cfe_config.h"
 
 #include <string.h>
-
-/*
-**  External Declarations
-*/
-
-const size_t CFE_SB_MemPoolDefSize[CFE_PLATFORM_ES_POOL_MAX_BUCKETS] = {
-    CFE_PLATFORM_SB_MAX_BLOCK_SIZE,    CFE_PLATFORM_SB_MEM_BLOCK_SIZE_16, CFE_PLATFORM_SB_MEM_BLOCK_SIZE_15,
-    CFE_PLATFORM_SB_MEM_BLOCK_SIZE_14, CFE_PLATFORM_SB_MEM_BLOCK_SIZE_13, CFE_PLATFORM_SB_MEM_BLOCK_SIZE_12,
-    CFE_PLATFORM_SB_MEM_BLOCK_SIZE_11, CFE_PLATFORM_SB_MEM_BLOCK_SIZE_10, CFE_PLATFORM_SB_MEM_BLOCK_SIZE_09,
-    CFE_PLATFORM_SB_MEM_BLOCK_SIZE_08, CFE_PLATFORM_SB_MEM_BLOCK_SIZE_07, CFE_PLATFORM_SB_MEM_BLOCK_SIZE_06,
-    CFE_PLATFORM_SB_MEM_BLOCK_SIZE_05, CFE_PLATFORM_SB_MEM_BLOCK_SIZE_04, CFE_PLATFORM_SB_MEM_BLOCK_SIZE_03,
-    CFE_PLATFORM_SB_MEM_BLOCK_SIZE_02, CFE_PLATFORM_SB_MEM_BLOCK_SIZE_01};
 
 /*----------------------------------------------------------------
  *
@@ -99,11 +88,14 @@ int32 CFE_SB_EarlyInit(void)
  *-----------------------------------------------------------------*/
 int32 CFE_SB_InitBuffers(void)
 {
-    int32 Stat = 0;
+    int32                   Stat = 0;
+    CFE_Config_ArrayValue_t MemPoolDefSize;
+
+    MemPoolDefSize = CFE_Config_GetArrayValue(CFE_CONFIGID_PLATFORM_SB_MEM_BLOCK_SIZE);
 
     Stat = CFE_ES_PoolCreateEx(&CFE_SB_Global.Mem.PoolHdl, CFE_SB_Global.Mem.Partition.Data,
-                               CFE_PLATFORM_SB_BUF_MEMORY_BYTES, CFE_PLATFORM_ES_POOL_MAX_BUCKETS,
-                               &CFE_SB_MemPoolDefSize[0], CFE_ES_NO_MUTEX);
+                               CFE_PLATFORM_SB_BUF_MEMORY_BYTES, MemPoolDefSize.NumElements, MemPoolDefSize.ElementPtr,
+                               CFE_ES_NO_MUTEX);
 
     if (Stat != CFE_SUCCESS)
     {

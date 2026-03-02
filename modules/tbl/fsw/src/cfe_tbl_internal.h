@@ -1,7 +1,7 @@
 /************************************************************************
- * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ * NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
  *
- * Copyright (c) 2020 United States Government as represented by the
+ * Copyright (c) 2023 United States Government as represented by the
  * Administrator of the National Aeronautics and Space Administration.
  * All Rights Reserved.
  *
@@ -44,20 +44,33 @@
 
 /*********************  Macro and Constant Type Definitions   ***************************/
 
-#define CFE_TBL_NOT_OWNED   CFE_ES_APPID_UNDEFINED
-#define CFE_TBL_NOT_FOUND   (-1)
-#define CFE_TBL_END_OF_LIST (CFE_TBL_Handle_t)0xFFFF
+#define CFE_TBL_NOT_FOUND CFE_TBL_REGID_UNDEFINED
+#define CFE_TBL_NOT_OWNED CFE_ES_APPID_UNDEFINED
 
-/**
- * Function type used with access descriptor iterator
+/*
+ * Compatibility helpers: provide a bridge from the traditional table handles to the safer definition
  *
- * The access descriptor iterator will invoke the supplied function
- * for every descriptor associated with the table registry entry
+ * The external handle type (CFE_TBL_Handle_t) still exists only for the public API.  These wrappers
+ * are intended to provide a conversion to facilitate transition of apps to use the improved typedef.
  *
- * \param AccDescPtr Pointer to the current access descriptor
- * \param Arg Opaque argument from caller (passed through)
+ * In the preferred mode, CFE_TBL_Handle_t (external) and CFE_TBL_HandleId_t (internal) are a direct
+ * typedef - so they are simply two different names for the same thing. (in the future this may be
+ * consolidated again back to a single typedef once transition in CFS apps has been accomplished).
+ *
+ * In backward-compatible mode, the CFE_TBL_Handle_t (external) type is a simple int16 as it has always
+ * been.  This will contain only the lower 16 bits of the full handle ID.  It is not as safe but
+ * this is fully transparent to apps because it is still a simple 16 bit integer.
  */
-typedef void (*const CFE_TBL_AccessDescFunc_t)(CFE_TBL_AccessDescriptor_t *AccDescPtr, void *Arg);
+
+#ifdef CFE_OMIT_DEPRECATED_6_8
+/* Preferred versions (passthru/noop) */
+#define CFE_TBL_HANDLE_EXPORT(x) (x)
+#define CFE_TBL_HANDLE_IMPORT(x) (x)
+#else
+/* Backward compatible versions */
+#define CFE_TBL_HANDLE_EXPORT(x) ((CFE_TBL_Handle_t)(CFE_TBL_HandleID_AsInt(x) - CFE_TBL_HANDLE_BASE))
+#define CFE_TBL_HANDLE_IMPORT(x) CFE_TBL_HANDLEID_C(CFE_ResourceId_FromInteger((unsigned long)x + CFE_TBL_HANDLE_BASE))
+#endif
 
 /*****************************  Function Prototypes   **********************************/
 
@@ -78,7 +91,7 @@ typedef void (*const CFE_TBL_AccessDescFunc_t)(CFE_TBL_AccessDescriptor_t *AccDe
 ** \retval #CFE_TBL_NOT_FOUND or the Index into Registry for Table with specified name
 **
 */
-int16 CFE_TBL_FindTableInRegistry(const char *TblName);
+CFE_TBL_RegId_t CFE_TBL_FindTableInRegistry(const char *TblName);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -89,16 +102,16 @@ int16 CFE_TBL_FindTableInRegistry(const char *TblName);
 **        Application's name to make the application specific name of the
 **        form: "AppName.RawTableName"
 **
+**        The resulting string will be stored into the "Name" of the supplied table config
+**
 ** \par Assumptions, External Events, and Notes:
 **        AppName portion will be truncated to OS_MAX_API_NAME.
 **
-** \param[in, out] FullTblName  Pointer to character buffer of #CFE_TBL_MAX_FULL_NAME_LEN
-**                              size that will be filled with the application specific name
-**                              of the form "AppName.RawTableName"
-** \param[in] TblName           Pointer to character string containing the raw table name.
-** \param[in] ThisAppId         Application ID of the Application making the call.
+** \param[in, out] ReqCfg  Pointer to table configuration structure
+** \param[in] TblName           Pointer to character string containing the table name.
+** \param[in] AppName           Name of the application that owns the table
 */
-void CFE_TBL_FormTableName(char *FullTblName, const char *TblName, CFE_ES_AppId_t ThisAppId);
+CFE_Status_t CFE_TBL_ValidateTableName(CFE_TBL_TableConfig_t *ReqCfg, const char *TblName, const char *AppName);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -154,59 +167,11 @@ int32 CFE_TBL_UnlockRegistry(void);
 ** \param[in]  RegRecPtr         Pointer to Table Registry Entry for Table for whom
 **                               a working buffer is to be obtained
 **
-** \param[in]  CalledByApp       Boolean that identifies whether this internal API
-**                               function is being called by a user Application (true)
-**                               or by the Table Services Application (false)
-**
 ** \retval #CFE_SUCCESS                     \copydoc CFE_SUCCESS
 ** \retval #CFE_TBL_ERR_NO_BUFFER_AVAIL     \copydoc CFE_TBL_ERR_NO_BUFFER_AVAIL
 **
 */
-int32 CFE_TBL_GetWorkingBuffer(CFE_TBL_LoadBuff_t **WorkingBufferPtr, CFE_TBL_RegistryRec_t *RegRecPtr,
-                               bool CalledByApp);
-
-/*---------------------------------------------------------------------------------------*/
-/**
-** \brief Loads a table buffer with data from a specified file
-**
-** \par Description
-**        Locates the specified filename in the onboard filesystem
-**        and loads its contents into the specified working buffer.
-**
-** \par Assumptions, External Events, and Notes:
-**        -# This function assumes parameters have been verified.
-**
-** \param[in]  AppName          The name of the application loading the table.
-**
-** \param[in]  WorkingBufferPtr Pointer to a working buffer that is to be loaded
-**                              with the contents of the specified file
-**
-** \param[in]  RegRecPtr        Pointer to Table Registry record for table whose
-**                              buffer is to filled with data from the specified file
-**
-** \param[in]  Filename         Pointer to ASCII string containing full path and filename
-**                              of table image file to be loaded
-**
-** \retval #CFE_SUCCESS                      \copydoc CFE_SUCCESS
-** \retval #OS_INVALID_POINTER               \copydoc OS_INVALID_POINTER
-** \retval #OS_FS_ERR_PATH_TOO_LONG          \copydoc OS_FS_ERR_PATH_TOO_LONG
-** \retval #OS_FS_ERR_PATH_INVALID           \copydoc OS_FS_ERR_PATH_INVALID
-** \retval #OS_FS_ERR_NAME_TOO_LONG          \copydoc OS_FS_ERR_NAME_TOO_LONG
-** \retval #OS_ERR_NO_FREE_IDS               \copydoc OS_ERR_NO_FREE_IDS
-** \retval #OS_ERROR                         \copydoc OS_ERROR
-** \retval #CFE_TBL_ERR_FILE_TOO_LARGE       \copydoc CFE_TBL_ERR_FILE_TOO_LARGE
-** \retval #CFE_TBL_WARN_SHORT_FILE          \copydoc CFE_TBL_WARN_SHORT_FILE
-** \retval #CFE_TBL_WARN_PARTIAL_LOAD        \copydoc CFE_TBL_WARN_PARTIAL_LOAD
-** \retval #CFE_TBL_ERR_FILENAME_TOO_LONG    \copydoc CFE_TBL_ERR_FILENAME_TOO_LONG
-** \retval #CFE_TBL_ERR_FILE_FOR_WRONG_TABLE \copydoc CFE_TBL_ERR_FILE_FOR_WRONG_TABLE
-** \retval #CFE_TBL_ERR_NO_STD_HEADER        \copydoc CFE_TBL_ERR_NO_STD_HEADER
-** \retval #CFE_TBL_ERR_NO_TBL_HEADER        \copydoc CFE_TBL_ERR_NO_TBL_HEADER
-** \retval #CFE_TBL_ERR_BAD_CONTENT_ID       \copydoc CFE_TBL_ERR_BAD_CONTENT_ID
-** \retval #CFE_TBL_ERR_BAD_SUBTYPE_ID       \copydoc CFE_TBL_ERR_BAD_SUBTYPE_ID
-**
-*/
-int32 CFE_TBL_LoadFromFile(const char *AppName, CFE_TBL_LoadBuff_t *WorkingBufferPtr, CFE_TBL_RegistryRec_t *RegRecPtr,
-                           const char *Filename);
+int32 CFE_TBL_GetWorkingBuffer(CFE_TBL_LoadBuff_t **WorkingBufferPtr, CFE_TBL_RegistryRec_t *RegRecPtr);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -230,7 +195,7 @@ int32 CFE_TBL_LoadFromFile(const char *AppName, CFE_TBL_LoadBuff_t *WorkingBuffe
 **
 ** \retval #CFE_SUCCESS                     \copydoc CFE_SUCCESS
 */
-int32 CFE_TBL_UpdateInternal(CFE_TBL_Handle_t TblHandle, CFE_TBL_RegistryRec_t *RegRecPtr,
+int32 CFE_TBL_UpdateInternal(CFE_TBL_HandleId_t TblHandle, CFE_TBL_RegistryRec_t *RegRecPtr,
                              CFE_TBL_AccessDescriptor_t *AccessDescPtr);
 
 /*---------------------------------------------------------------------------------------*/
@@ -248,72 +213,6 @@ int32 CFE_TBL_UpdateInternal(CFE_TBL_Handle_t TblHandle, CFE_TBL_RegistryRec_t *
 ** \param[in]  RegRecPtr      Pointer to Table Registry Entry for table to be updated
 */
 void CFE_TBL_NotifyTblUsersOfUpdate(CFE_TBL_RegistryRec_t *RegRecPtr);
-
-/*---------------------------------------------------------------------------------------*/
-/**
-** \brief Reads Table File Headers
-**
-** \par Description
-**        Reads Table File Headers and performs rudimentary checks
-**        on header contents to ensure the acceptability of the
-**        file format.
-**
-** \par Assumptions, External Events, and Notes:
-**        -# FileDescriptor is assumed to be valid
-**
-** \param[in]  FileDescriptor    File Descriptor, as provided by OS_fopen
-**
-** \param[in, out]  StdFileHeaderPtr  Pointer to buffer to be filled with the contents
-**                                    of the file's standard cFE Header. *StdFileHeaderPtr is the contents of the
-**                                    standard cFE File Header
-**
-** \param[in, out]  TblFileHeaderPtr  Pointer to buffer to be filled with the contents
-**                                    of the file's standard cFE Table Header. *TblFileHeaderPtr is the contents of the
-**                                    standard cFE Table File Header
-**
-** \param[in]  LoadFilename      Pointer to character string containing full path
-**                               and filename of table image to be loaded
-**
-** \retval #CFE_SUCCESS                     \copydoc CFE_SUCCESS
-** \retval #CFE_TBL_ERR_NO_STD_HEADER       \copydoc CFE_TBL_ERR_NO_STD_HEADER
-** \retval #CFE_TBL_ERR_NO_TBL_HEADER       \copydoc CFE_TBL_ERR_NO_TBL_HEADER
-** \retval #CFE_TBL_ERR_BAD_CONTENT_ID      \copydoc CFE_TBL_ERR_BAD_CONTENT_ID
-** \retval #CFE_TBL_ERR_BAD_SUBTYPE_ID      \copydoc CFE_TBL_ERR_BAD_SUBTYPE_ID
-** \retval #CFE_TBL_ERR_BAD_SPACECRAFT_ID   \copydoc CFE_TBL_ERR_BAD_SPACECRAFT_ID
-** \retval #CFE_TBL_ERR_BAD_PROCESSOR_ID    \copydoc CFE_TBL_ERR_BAD_PROCESSOR_ID
-**
-*/
-int32 CFE_TBL_ReadHeaders(osal_id_t FileDescriptor, CFE_FS_Header_t *StdFileHeaderPtr,
-                          CFE_TBL_File_Hdr_t *TblFileHeaderPtr, const char *LoadFilename);
-
-/*---------------------------------------------------------------------------------------*/
-/**
-** \brief Initializes the entries of a single Table Registry Record
-**
-** \par Description
-**        Initializes the contents of a single Table Registry Record to default values
-**
-** \par Assumptions, External Events, and Notes:
-**        -# This function is intended to be called before populating a table registry record
-**
-*/
-void CFE_TBL_InitRegistryRecord(CFE_TBL_RegistryRec_t *RegRecPtr);
-
-/*---------------------------------------------------------------------------------------*/
-/**
-** \brief Byte swaps a CFE_TBL_File_Hdr_t structure
-**
-** \par Description
-**        Converts a big-endian version of a CFE_TBL_File_Hdr_t structure to
-**        a little-endian version and vice-versa.
-**
-** \par Assumptions, External Events, and Notes:
-**          None
-**
-** \param[in, out]  HdrPtr   Pointer to table header that needs to be swapped. *HdrPtr provides the swapped header
-**
-*/
-void CFE_TBL_ByteSwapTblHeader(CFE_TBL_File_Hdr_t *HdrPtr);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -377,22 +276,6 @@ void CFE_TBL_UpdateCriticalTblCDS(CFE_TBL_RegistryRec_t *RegRecPtr);
 */
 int32 CFE_TBL_SendNotificationMsg(CFE_TBL_RegistryRec_t *RegRecPtr);
 
-/*---------------------------------------------------------------------------------------*/
-/**
-** \brief Performs a byte swap on a uint32 integer
-**
-** \par Description
-**        Converts a big-endian uint32 integer to a little-endian uint32 integer
-**        and vice-versa.
-**
-** \par Assumptions, External Events, and Notes:
-**          None
-**
-** \param[in, out]  Uint32ToSwapPtr Pointer to uint32 value to be swapped. *Uint32ToSwapPtr is the swapped uint32 value
-**
-*/
-void CFE_TBL_ByteSwapUint32(uint32 *Uint32ToSwapPtr);
-
 /*
  * Internal helper functions for Table Registry dump
  *
@@ -413,24 +296,6 @@ bool CFE_TBL_DumpRegistryGetter(void *Meta, uint32 RecordNum, void **Buffer, siz
 
 /*---------------------------------------------------------------------------------------*/
 /**
-** \brief Validates the table name of a table to be registered
-**
-** \par Description
-**         Validates the length of a table name for a table that is being registered. It
-**         checks that the length of the name is not zero, nor too long (longer than
-**         CFE_MISSION_TBL_MAX_NAME_LENGTH).
-**
-** \par Assumptions, External Events, and Notes:
-**          None
-**
-** \retval #CFE_SUCCESS                     \copydoc CFE_SUCCESS
-** \retval #CFE_TBL_ERR_INVALID_NAME        \copydoc CFE_TBL_ERR_INVALID_NAME
-**
-*/
-CFE_Status_t CFE_TBL_ValidateTableName(const char *Name);
-
-/*---------------------------------------------------------------------------------------*/
-/**
 ** \brief Validates the size of the table to be registered
 **
 ** \par Description
@@ -446,7 +311,7 @@ CFE_Status_t CFE_TBL_ValidateTableName(const char *Name);
 ** \retval #CFE_TBL_ERR_INVALID_SIZE        \copydoc CFE_TBL_ERR_INVALID_SIZE
 **
 */
-CFE_Status_t CFE_TBL_ValidateTableSize(const char *Name, size_t Size, uint16 TblOptionFlags);
+CFE_Status_t CFE_TBL_ValidateTableSize(CFE_TBL_TableConfig_t *TableCfg, size_t Size);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -464,15 +329,17 @@ CFE_Status_t CFE_TBL_ValidateTableSize(const char *Name, size_t Size, uint16 Tbl
 ** \retval #CFE_TBL_ERR_INVALID_OPTIONS     \copydoc CFE_TBL_ERR_INVALID_OPTIONS
 **
 */
-CFE_Status_t CFE_TBL_ValidateTableOptions(const char *Name, uint16 TblOptionFlags);
+CFE_Status_t CFE_TBL_ValidateTableOptions(CFE_TBL_TableConfig_t *TableCfg, uint16 TblOptionFlags);
 
 /*---------------------------------------------------------------------------------------*/
 /**
-** \brief Allocates memory for the table buffer
+** \brief Allocates memory for a table buffer
 **
 ** \par Description
 **         Allocates a memory buffer for the table buffer of a table that is being registered.
-**         If successful, the buffer is zeroed out.
+**         If successful, the buffer is zeroed out.  This is a helper routine that is applicable
+**         to any table buffer including temporary working/load buffers, primary or secondary buffers
+**         of double-buffered tables.
 **
 ** \par Assumptions, External Events, and Notes:
 **          None
@@ -480,24 +347,7 @@ CFE_Status_t CFE_TBL_ValidateTableOptions(const char *Name, uint16 TblOptionFlag
 ** \retval #CFE_SUCCESS                     \copydoc CFE_SUCCESS
 **
 */
-CFE_Status_t CFE_TBL_AllocateTableBuffer(CFE_TBL_RegistryRec_t *RegRecPtr, size_t Size);
-
-/*---------------------------------------------------------------------------------------*/
-/**
-** \brief Allocates the secondary memory buffer for a double-buffered table
-**
-** \par Description
-**         Allocates the secondary memory buffer for a double-buffered table that is
-**         being registered. If successful, the buffer is zeroed out, and the
-**         DoubleBuffered flag is set to true.
-**
-** \par Assumptions, External Events, and Notes:
-**          None
-**
-** \retval #CFE_SUCCESS                     \copydoc CFE_SUCCESS
-**
-*/
-CFE_Status_t CFE_TBL_AllocateSecondaryBuffer(CFE_TBL_RegistryRec_t *RegRecPtr, size_t Size);
+CFE_Status_t CFE_TBL_AllocateTableLoadBuffer(CFE_TBL_LoadBuff_t *LoadBuffPtr, size_t Size);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -506,13 +356,21 @@ CFE_Status_t CFE_TBL_AllocateSecondaryBuffer(CFE_TBL_RegistryRec_t *RegRecPtr, s
 ** \par Description
 **         Initializes a Table Registry Entry for a table that is being registered
 **
+**         Specifically this handles the following aspects of the registration, which
+**         are propagated to the table registry.
+**           - Table buffer size
+**           - User defined address flag (indicates there are NO local buffers if set)
+**           - Double buffer flag (indicates there are TWO local buffers if set)
+
+**         This also takes care of allocating the buffers as indicated
+**
 ** \par Assumptions, External Events, and Notes:
 **          None
 **
+** \retval #CFE_SUCCESS                     \copydoc CFE_SUCCESS
+**
 */
-void CFE_TBL_InitTableRegistryEntry(CFE_TBL_RegistryRec_t *RegRecPtr, size_t Size,
-                                    CFE_TBL_CallbackFuncPtr_t TblValidationFuncPtr, const char *TblName,
-                                    uint16 TblOptionFlags);
+CFE_Status_t CFE_TBL_SetupTableBuffers(CFE_TBL_RegistryRec_t *RegRecPtr, const CFE_TBL_TableConfig_t *ReqCfg);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -529,8 +387,7 @@ void CFE_TBL_InitTableRegistryEntry(CFE_TBL_RegistryRec_t *RegRecPtr, size_t Siz
 ** \retval #CFE_TBL_INFO_RECOVERED_TBL      \copydoc CFE_TBL_INFO_RECOVERED_TBL
 **
 */
-CFE_Status_t CFE_TBL_RestoreTableDataFromCDS(CFE_TBL_RegistryRec_t *RegRecPtr, const char *AppName, const char *Name,
-                                             CFE_TBL_CritRegRec_t *CritRegRecPtr);
+CFE_Status_t CFE_TBL_RestoreTableDataFromCDS(CFE_TBL_RegistryRec_t *RegRecPtr);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -584,39 +441,6 @@ void CFE_TBL_CountAccessDescHelper(CFE_TBL_AccessDescriptor_t *AccDescPtr, void 
 
 /*---------------------------------------------------------------------------------------*/
 /**
-** \brief Initializes a handle link
-**
-** \par Description
-**        Sets the handle link to initial condition, where it is not a member of any list
-**        After this call, CFE_TBL_HandleLinkIsAttached() on this link will always return false
-**
-** \par Assumptions, External Events, and Notes:
-**        None
-**
-** \param LinkPtr Pointer to link entry to initialize
-*/
-void CFE_TBL_HandleLinkInit(CFE_TBL_HandleLink_t *LinkPtr);
-
-/*---------------------------------------------------------------------------------------*/
-/**
-** \brief Checks if a handle link is attached to another entry
-**
-** \par Description
-**        This will return true if the passed-in link is attached to another list node,
-**        indicating it is part of a list.  Conversely, this will return false if the
-**        link is not attached to another node, indicating a singleton or empty list.
-**
-** \par Assumptions, External Events, and Notes:
-**        None
-**
-** \param LinkPtr Pointer to link entry to check
-** \retval true if the link node is part of a list (attached)
-** \retval false if the link node is not part of a list (detached)
-*/
-bool CFE_TBL_HandleLinkIsAttached(CFE_TBL_HandleLink_t *LinkPtr);
-
-/*---------------------------------------------------------------------------------------*/
-/**
 ** \brief Removes the given access descriptor from the registry list
 **
 ** \par Description
@@ -649,79 +473,6 @@ void CFE_TBL_HandleListInsertLink(CFE_TBL_RegistryRec_t *RegRecPtr, CFE_TBL_Acce
 
 /*---------------------------------------------------------------------------------------*/
 /**
-** \brief Gets the ID of the next buffer to use on a double-buffered table
-**
-** \par Description
-**        This returns the identifier for the local table buffer that should be
-**        loaded next.
-**
-** \par Assumptions, External Events, and Notes:
-**        This is not applicable to single-buffered tables.
-**
-** \param RegRecPtr The table registry record
-** \returns Identifier of next buffer to use
-*/
-int32 CFE_TBL_GetNextLocalBufferId(CFE_TBL_RegistryRec_t *RegRecPtr);
-
-/*---------------------------------------------------------------------------------------*/
-/**
-** \brief Gets the currently-active buffer pointer for a table
-**
-** \par Description
-**        This returns a pointer to the currently active table buffer.  On a single-buffered
-**        table, this is always the first/only buffer.  This function never returns NULL, as
-**        all tables have at least one buffer.
-**
-** \par Assumptions, External Events, and Notes:
-**        None
-**
-** \param RegRecPtr The table registry record
-** \returns Pointer to the active table buffer
-*/
-CFE_TBL_LoadBuff_t *CFE_TBL_GetActiveBuffer(CFE_TBL_RegistryRec_t *RegRecPtr);
-
-/*---------------------------------------------------------------------------------------*/
-/**
-** \brief Gets the inactive buffer pointer for a table
-**
-** \par Description
-**        This returns a pointer to inactive table buffer.  On a double-buffered table
-**        this refers to whichever buffer is _not_ currently active (that is, the opposite
-**        buffer from what is returned by CFE_TBL_GetActiveBuffer()).
-**
-**        On a single-buffered, if there is a load in progress that is utilizing one of the
-**        global/shared load buffers, then this returns a pointer to that buffer.  If there
-**        is no load in progress, this returns NULL to indicate there is no inactive buffer.
-**
-** \par Assumptions, External Events, and Notes:
-**        This funtion may return NULL if there is no inactive buffer associated with the table
-**
-** \param RegRecPtr The table registry record
-** \returns Pointer to the inactive table buffer
-*/
-CFE_TBL_LoadBuff_t *CFE_TBL_GetInactiveBuffer(CFE_TBL_RegistryRec_t *RegRecPtr);
-
-/*---------------------------------------------------------------------------------------*/
-/**
-** \brief Gets the buffer pointer for a table based on the selection enum
-**
-** \par Description
-**        Gets either the active buffer (see CFE_TBL_GetActiveBuffer()) or the inactive
-**        buffer (see CFE_TBL_GetInactiveBuffer()) based on the BufferSelect parameter.
-**
-** \par Assumptions, External Events, and Notes:
-**        This funtion may return NULL if there is no buffer associated with the table
-**        This will send an event if the BufferSelect parameter is not valid
-**
-** \param RegRecPtr The table registry record
-** \param BufferSelect The buffer to obtain (active or inactive)
-** \returns Pointer to the selected table buffer
-*/
-CFE_TBL_LoadBuff_t *CFE_TBL_GetSelectedBuffer(CFE_TBL_RegistryRec_t *     RegRecPtr,
-                                              CFE_TBL_BufferSelect_Enum_t BufferSelect);
-
-/*---------------------------------------------------------------------------------------*/
-/**
 ** \brief Checks if a validation request is pending and clears the request
 **
 ** \par Description
@@ -744,6 +495,98 @@ CFE_TBL_LoadBuff_t *CFE_TBL_GetSelectedBuffer(CFE_TBL_RegistryRec_t *     RegRec
 ** \retval NULL if no request was pending
 */
 CFE_TBL_ValidationResult_t *CFE_TBL_CheckValidationRequest(CFE_TBL_ValidationResultId_t *ValIdPtr);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+** \brief Drops the working buffer associated with this registry entry
+**
+** \par Description
+**        If the registry entry had a working (i.e. load in progress) buffer associated with it,
+**        this drops the association and returns the buffer to the pool (if applicable).
+**
+**        On a single-buffered table, the working buffers come from a small set of shared/global
+**        temporary buffers.  This function will reset the temporary buffer back to the available state.
+**
+**        On a double-buffered table, the working buffer is the inactive buffer, and it does not get
+**        deleted.  This function only marks the inactive buffer as _not_ being used for loading.
+**
+** \par Assumptions, External Events, and Notes:
+**        This always clears the "load in progress" status, if it was set.
+**
+** \param[inout] RegRecPtr Pointer to the registry entry to operate on
+*/
+void CFE_TBL_DiscardWorkingBuffer(CFE_TBL_RegistryRec_t *RegRecPtr);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+** \brief Acquires a temporary working buffer from the shared pool
+**
+** \par Description
+**        This finds an unused buffer within the set of shared buffers intended to facilitate loading tables
+**
+**        This type of buffer is used as a temporary holding location for table data, so it can be validated
+**        before copying it into the actual table buffer.  The buffer must be returned to the pool when the
+**        loading is complete.
+**
+** \par Assumptions, External Events, and Notes:
+**        These temporary buffers are a limited resource, constrained by #CFE_PLATFORM_TBL_MAX_SIMULTANEOUS_LOADS
+**
+** \returns Pointer to working buffer
+** \retval NULL if no working buffers are available
+*/
+CFE_TBL_LoadBuff_t *CFE_TBL_AcquireGlobalLoadBuff(CFE_TBL_RegId_t PendingOwnerId);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+** \brief Deallocates a single table buffer
+**
+** \par Description
+**        Returns the block of memory associated with the table load buffer into the TBL memory pool.
+**        This is only intended to be used when un-registering a table.
+**
+** \par Assumptions, External Events, and Notes:
+**        This function de-allocates the buffer completely, and should only be used when un-registering
+**        a table completely from the system.
+**
+**        In normal usage, where tables remain registered, buffers are marked as unused but remain
+**        allocated for future use.
+**
+** \param[inout] BuffPtr Pointer to the buffer to deallocate
+*/
+void CFE_TBL_DeallocateBuffer(CFE_TBL_LoadBuff_t *BuffPtr);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+** \brief Deallocates all table buffers assocated with a table registry entry
+**
+** \par Description
+**        Returns all the block of memory associated with the table buffers into the TBL memory pool.
+**        This is only intended to be used when un-registering a table.
+**
+**        If the table is single-buffered, this de-allocates the first (and only) buffer
+**        If the table is double-buffered, this de-allocates both buffers.
+**
+** \par Assumptions, External Events, and Notes:
+**        This function de-allocates the buffers completely, and should only be used when un-registering
+**        a table completely from the system.
+**
+** \param[inout] RegRecPtr Pointer to the registry entry to operate on
+*/
+void CFE_TBL_DeallocateAllBuffers(CFE_TBL_RegistryRec_t *RegRecPtr);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Marks the given string buffer with a modified tag
+ *
+ * Adds an indicator -- traditionally "(*)" -- at the end of the string
+ * that conveys the table has been modified since it was last loaded.  This
+ * indicator shows the operator that the contents in memory are not identical to
+ * what was in the file that was loaded.
+ *
+ * @param[inout]   NameBufPtr   pointer to table name buffer
+ * @param[in] NameBufSize Size if name buffer
+ */
+void CFE_TBL_MarkNameAsModified(char *NameBufPtr, size_t NameBufSize);
 
 /*
 ** Globals specific to the TBL module

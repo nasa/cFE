@@ -1,7 +1,7 @@
 /************************************************************************
- * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ * NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
  *
- * Copyright (c) 2020 United States Government as represented by the
+ * Copyright (c) 2023 United States Government as represented by the
  * Administrator of the National Aeronautics and Space Administration.
  * All Rights Reserved.
  *
@@ -132,7 +132,7 @@ void TestPipeOptions(void)
 
     UtAssert_INT32_EQ(CFE_SB_SetPipeOpts(PipeId, Opts), CFE_SUCCESS);
     UtAssert_INT32_EQ(CFE_SB_GetPipeOpts(PipeId, &OptsBuff), CFE_SUCCESS);
-    UtAssert_UINT32_EQ(Opts, OptsBuff);
+    UtAssert_UINT8_EQ(Opts, OptsBuff);
 
     UtAssert_INT32_EQ(CFE_SB_SetPipeOpts(CFE_SB_INVALID_PIPE, Opts), CFE_SB_BAD_ARGUMENT);
 

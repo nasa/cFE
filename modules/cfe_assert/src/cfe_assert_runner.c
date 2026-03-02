@@ -1,7 +1,7 @@
 /************************************************************************
- * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ * NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
  *
- * Copyright (c) 2020 United States Government as represented by the
+ * Copyright (c) 2023 United States Government as represented by the
  * Administrator of the National Aeronautics and Space Administration.
  * All Rights Reserved.
  *
@@ -138,7 +138,7 @@ bool CFE_Assert_Status_DeferredCheck(CFE_Status_t Status, UtAssert_CaseType_t Ca
         }
         else
         {
-            /* if condition was false add an exta marker so user does not necessarily need to decode the string */
+            /* if condition was false, add an extra marker so user does not necessarily need to decode the string */
             ExtraTag = " [false]";
         }
 
@@ -154,7 +154,7 @@ bool CFE_Assert_Status_DeferredCheck(CFE_Status_t Status, UtAssert_CaseType_t Ca
 
 void CFE_Assert_StatusReport(uint8 MessageType, const char *Prefix, const char *OutputMessage)
 {
-    uint16 EventType;
+    CFE_EVS_EventType_Enum_t EventType;
 
     switch (MessageType)
     {

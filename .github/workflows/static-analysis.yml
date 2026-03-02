@@ -3,7 +3,14 @@ name: Static Analysis
 # Run on all push and pull requests
 on:
   push:
+    branches:
+      - dev
+      - main
   pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
   workflow_dispatch:
   schedule:
     # 11:59 PM UTC every Sunday

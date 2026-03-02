@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-   NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+   NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
 
-   Copyright (c) 2020 United States Government as represented by the
+   Copyright (c) 2023 United States Government as represented by the
    Administrator of the National Aeronautics and Space Administration.
    All Rights Reserved.
 
@@ -21,12 +21,23 @@
       This describes all interface objects for the File Services (CFE_FS)
       core application
 
+    Note that all fields in the FS header are always in network byte order
+    (big endian) regardless of how the DATA_BYTE_ORDER config is set
+
 -->
 <PackageFile xmlns="http://www.ccsds.org/schema/sois/seds">
   <Package name="CFE_FS" shortDescription="NASA Core Flight System File Services">
     <DataTypeSet>
+
+      <IntegerDataType name="header_uint32" shortDescription="Unsigned 32 bit integer">
+        <IntegerDataEncoding sizeInBits="32" encoding="unsigned" byteOrder="bigEndian" />
+        <Range>
+          <MinMaxRange max="4294967295" min="0" rangeType="inclusiveMinInclusiveMax"/>
+        </Range>
+      </IntegerDataType>
+
       <EnumeratedDataType name="SubType" shortDescription="Content descriptor for File Headers">
-        <IntegerDataEncoding sizeInBits="32" encoding="unsigned" />
+        <IntegerDataEncoding sizeInBits="32" encoding="unsigned" byteOrder="bigEndian" />
         <EnumerationList>
             <Enumeration label="ES_ERLOG" value="1" shortDescription="Executive Services Exception/Reset Log Type">
               <LongDescription>
@@ -132,19 +143,19 @@
 
       <ContainerDataType name="Header" shortDescription="Standard cFE File header structure definition">
         <EntryList>
-          <Entry name="ContentType" type="BASE_TYPES/uint32" shortDescription="Identifies the content type" />
+          <Entry name="ContentType" type="header_uint32" shortDescription="Identifies the content type" />
           <Entry name="SubType" type="SubType" shortDescription="Type of ContentType, if necessary" />
-          <LengthEntry name="Length" type="BASE_TYPES/uint32" shortDescription="Length of object">
+          <LengthEntry name="Length" type="header_uint32" shortDescription="Length of object">
                 <PolynomialCalibrator>
                     <Term coefficient="1" exponent="1" />
                     <Term coefficient="0" exponent="0" />
                 </PolynomialCalibrator>
           </LengthEntry>
-          <FixedValueEntry name="SpacecraftID" type="BASE_TYPES/uint32" shortDescription="Spacecraft that generated the file" fixedValue="${CFE_MISSION/SPACECRAFT_ID}" />
-          <Entry name="ProcessorID" type="BASE_TYPES/uint32" shortDescription="Processor that generated the file" />
-          <Entry name="ApplicationID" type="BASE_TYPES/uint32" shortDescription="Application that generated the file" />
-          <Entry name="TimeSeconds" type="BASE_TYPES/uint32" shortDescription="File creation timestamp (seconds)" />
-          <Entry name="TimeSubSeconds" type="BASE_TYPES/uint32" shortDescription="File creation timestamp (sub-seconds)" />
+          <FixedValueEntry name="SpacecraftID" type="header_uint32" shortDescription="Spacecraft that generated the file" fixedValue="${CFE_MISSION/SPACECRAFT_ID}" />
+          <Entry name="ProcessorID" type="header_uint32" shortDescription="Processor that generated the file" />
+          <Entry name="ApplicationID" type="header_uint32" shortDescription="Application that generated the file" />
+          <Entry name="TimeSeconds" type="header_uint32" shortDescription="File creation timestamp (seconds)" />
+          <Entry name="TimeSubSeconds" type="header_uint32" shortDescription="File creation timestamp (sub-seconds)" />
           <Entry name="Description" type="FileDescription" shortDescription="File description" />
         </EntryList>
       </ContainerDataType>

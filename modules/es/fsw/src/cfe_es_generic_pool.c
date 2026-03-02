@@ -1,7 +1,7 @@
 /************************************************************************
- * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ * NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
  *
- * Copyright (c) 2020 United States Government as represented by the
+ * Copyright (c) 2023 United States Government as represented by the
  * Administrator of the National Aeronautics and Space Administration.
  * All Rights Reserved.
  *
@@ -239,6 +239,12 @@ int32 CFE_ES_GenPoolInitialize(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t StartO
     uint32                  i;
     uint32                  j;
     CFE_ES_GenPoolBucket_t *BucketPtr;
+
+    if (NumBlockSizes == 0)
+    {
+        CFE_ES_WriteToSysLog("%s: cannot create pool with 0 block sizes\n", __func__);
+        return CFE_ES_BAD_ARGUMENT;
+    }
 
     /*
      * Note - being an internal/non-public API this does not need to

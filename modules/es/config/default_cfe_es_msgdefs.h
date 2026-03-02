@@ -1,7 +1,7 @@
 /************************************************************************
- * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ * NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
  *
- * Copyright (c) 2020 United States Government as represented by the
+ * Copyright (c) 2023 United States Government as represented by the
  * Administrator of the National Aeronautics and Space Administration.
  * All Rights Reserved.
  *
@@ -23,8 +23,8 @@
  *
  *  For CFE_ES this is only the function/command code definitions
  */
-#ifndef CFE_ES_MSGDEFS_H
-#define CFE_ES_MSGDEFS_H
+#ifndef DEFAULT_CFE_ES_MSGDEFS_H
+#define DEFAULT_CFE_ES_MSGDEFS_H
 
 #include "common_types.h"
 #include "cfe_mission_cfg.h"

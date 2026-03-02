@@ -1,7 +1,7 @@
 /************************************************************************
- * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ * NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
  *
- * Copyright (c) 2020 United States Government as represented by the
+ * Copyright (c) 2023 United States Government as represented by the
  * Administrator of the National Aeronautics and Space Administration.
  * All Rights Reserved.
  *
@@ -77,7 +77,7 @@ void TestGetAddress(void)
 
 void TestReleaseAddress(void)
 {
-    UtPrintf("Testing: CFE_TBL_GetAddress");
+    UtPrintf("Testing: CFE_TBL_ReleaseAddress");
     void *               TblPtr;
     CFE_TEST_TestTable_t TestTable = {1, 2};
     /* Never loaded */
@@ -106,7 +106,7 @@ void TestReleaseAddress(void)
 
 void TestGetReleaseAddresses(void)
 {
-    int                  numValidTbls = 5;
+    int                  numValidTbls = 3;
     char                 TblName[10];
     CFE_TBL_Handle_t     TblHandles[numValidTbls + 1];
     void *               TblPtrs[numValidTbls + 1];
@@ -118,7 +118,7 @@ void TestGetReleaseAddresses(void)
     TblPtrs[0]    = TblPtrsList;
     for (int i = 1; i < numValidTbls + 1; i++)
     {
-        sprintf(TblName, "%d", i);
+        sprintf(TblName, "Test%d", i);
         UtAssert_INT32_EQ(
             CFE_TBL_Register(&TblHandles[i], TblName, sizeof(CFE_TEST_TestTable_t), CFE_TBL_OPT_DEFAULT, NULL),
             CFE_SUCCESS);

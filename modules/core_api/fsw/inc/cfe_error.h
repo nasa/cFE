@@ -1,7 +1,7 @@
 /************************************************************************
- * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ * NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
  *
- * Copyright (c) 2020 United States Government as represented by the
+ * Copyright (c) 2023 United States Government as represented by the
  * Administrator of the National Aeronautics and Space Administration.
  * All Rights Reserved.
  *
@@ -1279,6 +1279,15 @@ char *CFE_ES_StatusToString(CFE_Status_t status, CFE_StatusString_t *status_stri
  *
  */
 #define CFE_TBL_BAD_ARGUMENT ((CFE_Status_t)0xcc00002d)
+
+/**
+ * @brief No Dump Pending
+ *
+ *  The calling Application invoked CFE_TBL_DumpToBuffer on a table
+ *  that did not have a pending dump request
+ *
+ */
+#define CFE_TBL_INFO_NO_DUMP_PENDING ((CFE_Status_t)0x4c00002e)
 
 /**
  * @brief Not Implemented

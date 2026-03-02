@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    GSC-18128-1, "Core Flight Executive Version 6.7"
+    NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
 
-    Copyright (c) 2006-2019 United States Government as represented by
+    Copyright (c) 2023 United States Government as represented by
     the Administrator of the National Aeronautics and Space Administration.
     All Rights Reserved.
 
@@ -99,7 +99,38 @@
     <Define name="CI_LAB_CMD_TOPICID"           value="${CFE_MISSION/TELECOMMAND_BASE_TOPICID} + 132"    />
     <Define name="CI_LAB_SEND_HK_TOPICID"       value="${CFE_MISSION/TELECOMMAND_BASE_TOPICID} + 133"    />
     <Define name="CI_LAB_READ_UPLINK_TOPICID"   value="${CFE_MISSION/TELECOMMAND_BASE_TOPICID} + 134"    />
+    <Define name="SAMPLE_APP_WAKEUP_TOPICID"   value="${CFE_MISSION/TELECOMMAND_BASE_TOPICID} + 135"    />
+    <Define name="CI_CMD_TOPICID"           value="${CFE_MISSION/TELECOMMAND_BASE_TOPICID} + 136"    />
+    <Define name="CI_SEND_HK_TOPICID"       value="${CFE_MISSION/TELECOMMAND_BASE_TOPICID} + 137"    />
+    <Define name="CI_READ_UPLINK_TOPICID"   value="${CFE_MISSION/TELECOMMAND_BASE_TOPICID} + 138"    />
+    <Define name="TO_CMD_TOPICID"           value="${CFE_MISSION/TELECOMMAND_BASE_TOPICID} + 139"    />
+    <Define name="TO_SEND_HK_TOPICID"       value="${CFE_MISSION/TELECOMMAND_BASE_TOPICID} + 140"    />
 
+    <Define name="FM_CMD_TOPICID"           value="${CFE_MISSION/TELECOMMAND_BASE_TOPICID} + 32" />
+    <Define name="FM_SEND_HK_TOPICID"       value="${CFE_MISSION/TELECOMMAND_BASE_TOPICID} + 33" />
+
+    <Define name="LC_CMD_TOPICID"           value="${CFE_MISSION/TELECOMMAND_BASE_TOPICID} + 36" />
+    <Define name="LC_SAMPLE_AP_TOPICID"     value="${CFE_MISSION/TELECOMMAND_BASE_TOPICID} + 37" />
+    <Define name="LC_SEND_HK_TOPICID"       value="${CFE_MISSION/TELECOMMAND_BASE_TOPICID} + 38" />
+
+    <Define name="DS_CMD_TOPICID"           value="${CFE_MISSION/TELECOMMAND_BASE_TOPICID} + 40" />
+    <Define name="DS_SEND_HK_TOPICID"       value="${CFE_MISSION/TELECOMMAND_BASE_TOPICID} + 41" />
+
+    <Define name="HK_CMD_TOPICID"               value="${CFE_MISSION/TELECOMMAND_BASE_TOPICID} + 44" />
+    <Define name="HK_SEND_HK_TOPICID"           value="${CFE_MISSION/TELECOMMAND_BASE_TOPICID} + 45" />
+    <Define name="HK_SEND_COMBINED_PKT_TOPICID" value="${CFE_MISSION/TELECOMMAND_BASE_TOPICID} + 46" />
+
+    <Define name="HS_CMD_TOPICID"           value="${CFE_MISSION/TELECOMMAND_BASE_TOPICID} + 48"    />
+    <Define name="HS_SEND_HK_TOPICID"       value="${CFE_MISSION/TELECOMMAND_BASE_TOPICID} + 49"    />
+    <Define name="HS_WAKEUP_TOPICID"        value="${CFE_MISSION/TELECOMMAND_BASE_TOPICID} + 50"    />
+
+    <Define name="SC_CMD_TOPICID"           value="${CFE_MISSION/TELECOMMAND_BASE_TOPICID} + 52"    />
+    <Define name="SC_SEND_HK_TOPICID"       value="${CFE_MISSION/TELECOMMAND_BASE_TOPICID} + 53"    />
+    <Define name="SC_ONEHZ_WAKEUP_TOPICID"  value="${CFE_MISSION/TELECOMMAND_BASE_TOPICID} + 54"    />
+
+    <Define name="CF_CMD_TOPICID" value="${CFE_MISSION/TELECOMMAND_BASE_TOPICID} + 60" />
+    <Define name="CF_SEND_HK_TOPICID" value="${CFE_MISSION/TELECOMMAND_BASE_TOPICID} + 61" />
+    <Define name="CF_WAKE_UP_TOPICID" value="${CFE_MISSION/TELECOMMAND_BASE_TOPICID} + 62" />
 
     <!-- Executive Services (ES) Telemetry Topics -->
     <Define name="ES_HK_TLM_TOPICID"        value="${CFE_MISSION/TELEMETRY_BASE_TOPICID} + 0"   />
@@ -128,6 +159,38 @@
     <Define name="TO_LAB_DATA_TYPES_TOPICID"  value="${CFE_MISSION/TELEMETRY_BASE_TOPICID} + 129"  />
     <Define name="SAMPLE_APP_HK_TLM_TOPICID"  value="${CFE_MISSION/TELEMETRY_BASE_TOPICID} + 131"  />
     <Define name="CI_LAB_HK_TLM_TOPICID"      value="${CFE_MISSION/TELEMETRY_BASE_TOPICID} + 132"  />
+
+    <Define name="FM_HK_TLM_TOPICID"          value="${CFE_MISSION/TELEMETRY_BASE_TOPICID} + 30" />
+    <Define name="FM_FILE_INFO_TLM_TOPICID"   value="${CFE_MISSION/TELEMETRY_BASE_TOPICID} + 31" />
+    <Define name="FM_DIR_LIST_TLM_TOPICID"    value="${CFE_MISSION/TELEMETRY_BASE_TOPICID} + 32" />
+    <Define name="FM_OPEN_FILES_TLM_TOPICID"  value="${CFE_MISSION/TELEMETRY_BASE_TOPICID} + 33" />
+    <Define name="FM_MONITOR_TLM_TOPICID"     value="${CFE_MISSION/TELEMETRY_BASE_TOPICID} + 34" />
+
+    <Define name="LC_HK_TLM_TOPICID"          value="${CFE_MISSION/TELEMETRY_BASE_TOPICID} + 36" />
+    <Define name="LC_RTS_REQ_TOPICID"         value="${CFE_MISSION/TELEMETRY_BASE_TOPICID} + 37" />
+
+    <Define name="DS_HK_TLM_TOPICID"          value="${CFE_MISSION/TELEMETRY_BASE_TOPICID} + 40"  />
+    <Define name="DS_DIAG_TLM_TOPICID"        value="${CFE_MISSION/TELEMETRY_BASE_TOPICID} + 41"  />
+    <Define name="DS_COMP_TLM_TOPICID"        value="${CFE_MISSION/TELEMETRY_BASE_TOPICID} + 42"  />
+
+    <Define name="HK_HK_TLM_TOPICID"            value="${CFE_MISSION/TELEMETRY_BASE_TOPICID} + 43" />
+    <Define name="HK_COMBINED_PKT1_TLM_TOPICID" value="${CFE_MISSION/TELEMETRY_BASE_TOPICID} + 44" />
+    <Define name="HK_COMBINED_PKT2_TLM_TOPICID" value="${CFE_MISSION/TELEMETRY_BASE_TOPICID} + 45" />
+    <Define name="HK_COMBINED_PKT3_TLM_TOPICID" value="${CFE_MISSION/TELEMETRY_BASE_TOPICID} + 46" />
+    <Define name="HK_COMBINED_PKT4_TLM_TOPICID" value="${CFE_MISSION/TELEMETRY_BASE_TOPICID} + 47" />
+
+    <Define name="HS_HK_TLM_TOPICID"            value="${CFE_MISSION/TELEMETRY_BASE_TOPICID} + 48" />
+    <Define name="HS_DIAG_TLM_TOPICID"          value="${CFE_MISSION/TELEMETRY_BASE_TOPICID} + 49" />
+    <Define name="HS_COMP_TLM_TOPICID"          value="${CFE_MISSION/TELEMETRY_BASE_TOPICID} + 50" />
+
+    <Define name="SC_HK_TLM_TOPICID"            value="${CFE_MISSION/TELEMETRY_BASE_TOPICID} + 52" />
+
+    <Define name="CF_HK_TLM_TOPICID" value="${CFE_MISSION/TELEMETRY_BASE_TOPICID} + 60" />
+    <Define name="CF_EOT_TLM_TOPICID" value="${CFE_MISSION/TELEMETRY_BASE_TOPICID} + 61" />
+
+    <Define name="TO_HK_TLM_TOPICID"      value="${CFE_MISSION/TELEMETRY_BASE_TOPICID} + 62"  />
+    <Define name="TO_DATA_TYPES_TOPICID"  value="${CFE_MISSION/TELEMETRY_BASE_TOPICID} + 63"  />
+    <Define name="CI_HK_TLM_TOPICID"      value="${CFE_MISSION/TELEMETRY_BASE_TOPICID} + 64"  />
 
 </Package>
 </DesignParameters>

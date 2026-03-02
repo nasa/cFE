@@ -1,7 +1,7 @@
 /************************************************************************
- * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ * NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
  *
- * Copyright (c) 2020 United States Government as represented by the
+ * Copyright (c) 2023 United States Government as represented by the
  * Administrator of the National Aeronautics and Space Administration.
  * All Rights Reserved.
  *
@@ -26,6 +26,7 @@
 #include "utgenstub.h"
 
 void UT_DefaultHandler_CFE_ResourceId_FindNext(void *, UT_EntryKey_t, const UT_StubContext_t *);
+void UT_DefaultHandler_CFE_ResourceId_FindNextEx(void *, UT_EntryKey_t, const UT_StubContext_t *);
 void UT_DefaultHandler_CFE_ResourceId_GetBase(void *, UT_EntryKey_t, const UT_StubContext_t *);
 void UT_DefaultHandler_CFE_ResourceId_GetSerial(void *, UT_EntryKey_t, const UT_StubContext_t *);
 void UT_DefaultHandler_CFE_ResourceId_ToIndex(void *, UT_EntryKey_t, const UT_StubContext_t *);
@@ -36,16 +37,37 @@ void UT_DefaultHandler_CFE_ResourceId_ToIndex(void *, UT_EntryKey_t, const UT_St
  * ----------------------------------------------------
  */
 CFE_ResourceId_t CFE_ResourceId_FindNext(CFE_ResourceId_t StartId, uint32 TableSize,
-                                         bool (*CheckFunc)(CFE_ResourceId_t))
+                                         CFE_ResourceId_CheckFunc_t CheckFunc)
 {
     UT_GenStub_SetupReturnBuffer(CFE_ResourceId_FindNext, CFE_ResourceId_t);
 
     UT_GenStub_AddParam(CFE_ResourceId_FindNext, CFE_ResourceId_t, StartId);
     UT_GenStub_AddParam(CFE_ResourceId_FindNext, uint32, TableSize);
+    UT_GenStub_AddParam(CFE_ResourceId_FindNext, CFE_ResourceId_CheckFunc_t, CheckFunc);
 
     UT_GenStub_Execute(CFE_ResourceId_FindNext, Basic, UT_DefaultHandler_CFE_ResourceId_FindNext);
 
     return UT_GenStub_GetReturnValue(CFE_ResourceId_FindNext, CFE_ResourceId_t);
+}
+
+/*
+ * ----------------------------------------------------
+ * Generated stub function for CFE_ResourceId_FindNextEx()
+ * ----------------------------------------------------
+ */
+CFE_ResourceId_t CFE_ResourceId_FindNextEx(CFE_ResourceId_t StartId, CFE_ResourceId_IncrementFunc_t IncrFunc,
+                                           void *IncrArg, CFE_ResourceId_CheckFunc_t CheckFunc)
+{
+    UT_GenStub_SetupReturnBuffer(CFE_ResourceId_FindNextEx, CFE_ResourceId_t);
+
+    UT_GenStub_AddParam(CFE_ResourceId_FindNextEx, CFE_ResourceId_t, StartId);
+    UT_GenStub_AddParam(CFE_ResourceId_FindNextEx, CFE_ResourceId_IncrementFunc_t, IncrFunc);
+    UT_GenStub_AddParam(CFE_ResourceId_FindNextEx, void *, IncrArg);
+    UT_GenStub_AddParam(CFE_ResourceId_FindNextEx, CFE_ResourceId_CheckFunc_t, CheckFunc);
+
+    UT_GenStub_Execute(CFE_ResourceId_FindNextEx, Basic, UT_DefaultHandler_CFE_ResourceId_FindNextEx);
+
+    return UT_GenStub_GetReturnValue(CFE_ResourceId_FindNextEx, CFE_ResourceId_t);
 }
 
 /*

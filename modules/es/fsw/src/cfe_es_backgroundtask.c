@@ -1,7 +1,7 @@
 /************************************************************************
- * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ * NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
  *
- * Copyright (c) 2020 United States Government as represented by the
+ * Copyright (c) 2023 United States Government as represented by the
  * Administrator of the National Aeronautics and Space Administration.
  * All Rights Reserved.
  *
@@ -52,6 +52,14 @@ typedef struct
     uint32 IdlePeriod;   /**< max wait/delay time between calls when job is idle */
 } CFE_ES_BackgroundJobEntry_t;
 
+/** @brief function that returns true. Used for purposes of improving coverage
+ * in testing of function CFE_ES_BackgroundTask (located in this file)
+ */
+bool CFE_ES_ActiveJob(uint32 ElapsedTime, void *Arg)
+{
+    return true;
+}
+
 /*
  * List of "background jobs"
  *
@@ -83,7 +91,28 @@ const CFE_ES_BackgroundJobEntry_t CFE_ES_BACKGROUND_JOB_TABLE[] = {
      .RunFunc      = CFE_FS_RunBackgroundFileDump,
      .JobArg       = NULL,
      .ActivePeriod = CFE_PLATFORM_ES_APP_SCAN_RATE,
-     .IdlePeriod   = CFE_PLATFORM_ES_APP_SCAN_RATE}};
+     .IdlePeriod   = CFE_PLATFORM_ES_APP_SCAN_RATE},
+    {/* Empty Job (for coverage purposes) */
+     /* Setting RunFunc to NULL triggers JobPtr->RunFunc != NULL to be false */
+     .RunFunc      = NULL,
+     .JobArg       = NULL,
+     .ActivePeriod = 0,
+     .IdlePeriod   = 0},
+    {/* Active Job with 0 active period (for coverage purposes)*/
+     .RunFunc      = CFE_ES_ActiveJob,
+     .JobArg       = NULL,
+     /* Setting ActivePeriod to 0 triggers JobPtr->ActivePeriod != 0 to be
+      * false */
+     .ActivePeriod = 0,
+     .IdlePeriod   = 0},
+    {/* Active Job with non-zero active period (for coverage purposes)*/
+     .RunFunc      = CFE_ES_ActiveJob,
+     .JobArg       = NULL,
+     /* We set the ActivePeriod to this so we can trigger set the expression
+      * NextDelay > JobPtr->ActivePeriod to be false, since the previous 
+      * setting for NextDelay was CFE_PLATFORM_ES_APP_SCAN_RATE */
+     .ActivePeriod = CFE_PLATFORM_ES_APP_SCAN_RATE - 1,
+     .IdlePeriod   = 0}};
 
 #define CFE_ES_BACKGROUND_NUM_JOBS (sizeof(CFE_ES_BACKGROUND_JOB_TABLE) / sizeof(CFE_ES_BACKGROUND_JOB_TABLE[0]))
 

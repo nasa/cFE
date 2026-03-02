@@ -1,7 +1,7 @@
 /************************************************************************
- * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ * NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
  *
- * Copyright (c) 2020 United States Government as represented by the
+ * Copyright (c) 2023 United States Government as represented by the
  * Administrator of the National Aeronautics and Space Administration.
  * All Rights Reserved.
  *
@@ -602,7 +602,7 @@ void CFE_ES_PerfLogAdd(uint32 Marker, uint32 EntryExit)
      * locking (and potential task switch) if the data is ultimately not going to
      * be written to the log.
      */
-    if (!CFE_ES_TEST_LONG_MASK(Perf->MetaData.FilterMask, Marker))
+    if (!CFE_ES_TEST_U32_MASK(Perf->MetaData.FilterMask, Marker))
     {
         return;
     }
@@ -654,7 +654,7 @@ void CFE_ES_PerfLogAdd(uint32 Marker, uint32 EntryExit)
         /* waiting for trigger */
         if (Perf->MetaData.State == CFE_ES_PERF_WAITING_FOR_TRIGGER)
         {
-            if (CFE_ES_TEST_LONG_MASK(Perf->MetaData.TriggerMask, Marker))
+            if (CFE_ES_TEST_U32_MASK(Perf->MetaData.TriggerMask, Marker))
             {
                 Perf->MetaData.State = CFE_ES_PERF_TRIGGERED;
             }

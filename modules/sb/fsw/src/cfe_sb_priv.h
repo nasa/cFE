@@ -1,7 +1,7 @@
 /************************************************************************
- * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ * NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
  *
- * Copyright (c) 2020 United States Government as represented by the
+ * Copyright (c) 2023 United States Government as represented by the
  * Administrator of the National Aeronautics and Space Administration.
  * All Rights Reserved.
  *
@@ -1461,6 +1461,24 @@ static inline bool CFE_SB_PipeDescIsMatch(const CFE_SB_PipeD_t *PipeDscPtr, CFE_
  * @returns true if slot is currently in use/unavailable
  */
 bool CFE_SB_CheckPipeDescSlotUsed(CFE_ResourceId_t CheckId);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Internal version of CFE_SB_GetPipeName with deffered event reporting
+ * 
+ * Get the pipe name for a given id.
+ * 
+ * @returns CFE_SB_PipeName_State_t to pass necessary variables to CFE_SB_GetPipeName. 
+ * Contains State variable for deffered event reporting.
+ * 
+ * \param[in] PipeId        The PipeId for that name.
+ * 
+ * \param[out] PipeNameBuf  The buffer to receive the pipe name @nonnull.
+ *
+ * \param[in] PipeNameSize  The size (in chars) of the PipeName buffer @nonzero.
+ *
+ */
+CFE_Status_t CFE_SB_GetPipeNamePriv(CFE_SB_PipeId_t PipeId, char *PipeNameBuf, size_t PipeNameSize);
 
 /*
  * Helper functions for background file write requests (callbacks)

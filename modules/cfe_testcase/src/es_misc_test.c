@@ -1,7 +1,7 @@
 /************************************************************************
- * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ * NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
  *
- * Copyright (c) 2020 United States Government as represented by the
+ * Copyright (c) 2023 United States Government as represented by the
  * Administrator of the National Aeronautics and Space Administration.
  * All Rights Reserved.
  *
@@ -60,7 +60,7 @@ void TestCalculateCRC(void)
     UtAssert_UINT32_EQ(CFE_ES_CalculateCRC(CRC_OTHER_INPUT, sizeof(CRC_OTHER_INPUT) - 1, 0, CFE_ES_CrcType_16_ARC),
                        0x11E3);
 
-    /* Test of nonzero initial value, this is used for checking CRC in across non-contiguous chunks or across multiple
+    /* Test of nonzero initial value, this is used for checking CRC across non-contiguous chunks or across multiple
      * cycles */
     UtAssert_UINT32_EQ(CFE_ES_CalculateCRC(CRC_CHECK_INPUT, sizeof(CRC_CHECK_INPUT) - 1, 345353, CFE_ES_CrcType_16_ARC),
                        0xE493);

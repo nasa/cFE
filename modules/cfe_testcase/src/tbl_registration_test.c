@@ -1,7 +1,7 @@
 /************************************************************************
- * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ * NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
  *
- * Copyright (c) 2020 United States Government as represented by the
+ * Copyright (c) 2023 United States Government as represented by the
  * Administrator of the National Aeronautics and Space Administration.
  * All Rights Reserved.
  *
@@ -62,12 +62,18 @@ void TestTableRegistration(void)
                                        CFE_TBL_OPT_DEFAULT, &CallbackFunc),
                       CFE_TBL_WARN_DUPLICATE);
 
-    UtAssert_INT32_EQ(OtherHandle, CFE_FT_Global.TblHandle);
+    UtAssert_BOOL_TRUE(CFE_TBL_HANDLE_EQ(OtherHandle, CFE_FT_Global.TblHandle));
 
     /* Duplicate table with different size */
-    UtAssert_INT32_EQ(CFE_TBL_Register(&OtherHandle, CFE_FT_Global.TblName, sizeof(CFE_TEST_TestTable_t) / 2,
-                                       CFE_TBL_OPT_DEFAULT, &CallbackFunc),
-                      CFE_TBL_ERR_DUPLICATE_DIFF_SIZE);
+    CFE_Assert_STATUS_STORE(CFE_TBL_Register(&OtherHandle, CFE_FT_Global.TblName, sizeof(CFE_TEST_TestTable_t) / 2,
+                                             CFE_TBL_OPT_DEFAULT, &CallbackFunc));
+
+    /* In an EDS build, table services knows what size the table is supposed to be and
+     * it will error on this rather than the duplicate */
+    if (!CFE_Assert_STATUS_MAY_BE(CFE_TBL_ERR_INVALID_SIZE))
+    {
+        CFE_Assert_STATUS_MUST_BE(CFE_TBL_ERR_DUPLICATE_DIFF_SIZE);
+    }
 
     /* Unregister the table */
     UtAssert_INT32_EQ(CFE_TBL_Unregister(CFE_TBL_BAD_TABLE_HANDLE), CFE_TBL_ERR_INVALID_HANDLE);
@@ -118,11 +124,17 @@ void TestTableMaxLimits(void)
      */
     while (numTblsCreated <= CFE_PLATFORM_TBL_MAX_NUM_HANDLES)
     {
-        snprintf(TblName, sizeof(TblName), "Tbl%u", (unsigned int)numTblsCreated);
+        snprintf(TblName, sizeof(TblName), "Test%u", (unsigned int)numTblsCreated + 1);
         CFE_Assert_STATUS_STORE(CFE_TBL_Register(&Handles[numTblsCreated], TblName, sizeof(CFE_TEST_TestTable_t),
                                                  CFE_TBL_OPT_DEFAULT, NULL));
         if (CFE_Assert_STATUS_MAY_BE(CFE_TBL_ERR_REGISTRY_FULL))
         {
+            break;
+        }
+        if (CFE_Assert_STATUS_MAY_BE(CFE_STATUS_EXTERNAL_RESOURCE_FAIL))
+        {
+            /* In an EDS build an attempt to register a table that is not
+             * defined in EDS will return this code.  */
             break;
         }
         if (!CFE_Assert_STATUS_MUST_BE(CFE_SUCCESS))
@@ -155,7 +167,7 @@ void TestTableMaxLimits(void)
      * A shared table has a unique handle but not a unique entry in the registry.
      * By calling CFE_TBL_Share it should consume handles but not registry entries
      */
-    snprintf(TblName, sizeof(TblName), "CFE_TEST_APP.Tbl%u", (unsigned int)0);
+    snprintf(TblName, sizeof(TblName), "CFE_TEST.Test%u", (unsigned int)1);
     while (numTblsCreated <= CFE_PLATFORM_TBL_MAX_NUM_HANDLES)
     {
         CFE_Assert_STATUS_STORE(CFE_TBL_Share(&Handles[numTblsCreated], TblName));
@@ -173,10 +185,9 @@ void TestTableMaxLimits(void)
     UtAssert_UINT32_LT(numTblsCreated, CFE_PLATFORM_TBL_MAX_NUM_HANDLES);
 
     /* also confirm not able to register a new table, either */
-    snprintf(TblName, sizeof(TblName), "Tbl%u", (unsigned int)numTblsCreated);
-    UtAssert_INT32_EQ(
-        CFE_TBL_Register(&Handles[numTblsCreated], TblName, sizeof(CFE_TEST_TestTable_t), CFE_TBL_OPT_DEFAULT, NULL),
-        CFE_TBL_ERR_HANDLES_FULL);
+    UtAssert_INT32_EQ(CFE_TBL_Register(&Handles[numTblsCreated], "TestTable", sizeof(CFE_TEST_TestTable_t),
+                                       CFE_TBL_OPT_DEFAULT, NULL),
+                      CFE_TBL_ERR_HANDLES_FULL);
 
     /* Unregister all table handles */
     while (numTblsCreated > 0)

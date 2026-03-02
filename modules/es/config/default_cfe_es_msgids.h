@@ -1,7 +1,7 @@
 /************************************************************************
- * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ * NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
  *
- * Copyright (c) 2020 United States Government as represented by the
+ * Copyright (c) 2023 United States Government as represented by the
  * Administrator of the National Aeronautics and Space Administration.
  * All Rights Reserved.
  *
@@ -20,23 +20,22 @@
  * @file
  *   CFE Executive Services (CFE_ES) Application Message IDs
  */
-#ifndef CFE_ES_MSGIDS_H
-#define CFE_ES_MSGIDS_H
+#ifndef DEFAULT_CFE_ES_MSGIDS_H
+#define DEFAULT_CFE_ES_MSGIDS_H
 
-#include "cfe_core_api_base_msgids.h"
-#include "cfe_es_topicids.h"
+#include "cfe_es_msgid_values.h"
 
 /*
 ** cFE ES Command Message Id's
 */
-#define CFE_ES_CMD_MID     CFE_PLATFORM_CMD_TOPICID_TO_MIDV(CFE_MISSION_ES_CMD_TOPICID)     /* 0x1806 */
-#define CFE_ES_SEND_HK_MID CFE_PLATFORM_CMD_TOPICID_TO_MIDV(CFE_MISSION_ES_SEND_HK_TOPICID) /* 0x1808 */
+#define CFE_ES_CMD_MID     CFE_PLATFORM_ES_CMD_MIDVAL(CMD)
+#define CFE_ES_SEND_HK_MID CFE_PLATFORM_ES_CMD_MIDVAL(SEND_HK)
 
 /*
 ** CFE ES Telemetry Message Id's
 */
-#define CFE_ES_HK_TLM_MID       CFE_PLATFORM_TLM_TOPICID_TO_MIDV(CFE_MISSION_ES_HK_TLM_TOPICID)       /* 0x0800 */
-#define CFE_ES_APP_TLM_MID      CFE_PLATFORM_TLM_TOPICID_TO_MIDV(CFE_MISSION_ES_APP_TLM_TOPICID)      /* 0x080B */
-#define CFE_ES_MEMSTATS_TLM_MID CFE_PLATFORM_TLM_TOPICID_TO_MIDV(CFE_MISSION_ES_MEMSTATS_TLM_TOPICID) /* 0x0810 */
+#define CFE_ES_HK_TLM_MID       CFE_PLATFORM_ES_TLM_MIDVAL(HK_TLM)
+#define CFE_ES_APP_TLM_MID      CFE_PLATFORM_ES_TLM_MIDVAL(APP_TLM)
+#define CFE_ES_MEMSTATS_TLM_MID CFE_PLATFORM_ES_TLM_MIDVAL(MEMSTATS_TLM)
 
 #endif

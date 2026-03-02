@@ -1,7 +1,7 @@
 /************************************************************************
- * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ * NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
  *
- * Copyright (c) 2020 United States Government as represented by the
+ * Copyright (c) 2023 United States Government as represented by the
  * Administrator of the National Aeronautics and Space Administration.
  * All Rights Reserved.
  *
@@ -61,6 +61,49 @@
 ** Functions
 ***************************************************************************
 */
+
+/*----------------------------------------------------------------
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+CFE_ES_AppRecord_t *CFE_ES_LockUserAppRecord(CFE_ES_AppId_t AppID, const char *LogMsgAction)
+{
+    CFE_ES_AppRecord_t *AppRecPtr;
+    bool                IsValid;
+
+    IsValid   = false;
+    AppRecPtr = CFE_ES_LocateAppRecordByID(AppID);
+    CFE_ES_LockSharedData(__func__, __LINE__);
+    if (!CFE_ES_AppRecordIsMatch(AppRecPtr, AppID))
+    {
+        CFE_ES_WriteToSysLog("%s: Invalid Application ID received for %s, AppID = %lu\n", __func__, LogMsgAction,
+                             CFE_RESOURCEID_TO_ULONG(AppID));
+    }
+    else if (AppRecPtr->Type == CFE_ES_AppType_CORE)
+    {
+        CFE_ES_SysLogWrite_Unsync("%s: Cannot %s a CORE Application: %s.\n", __func__, LogMsgAction,
+                                  CFE_ES_AppRecordGetName(AppRecPtr));
+    }
+    else if (AppRecPtr->AppState != CFE_ES_AppState_RUNNING)
+    {
+        CFE_ES_SysLogWrite_Unsync("%s: Cannot %s Application %s, It is not running.\n", __func__, LogMsgAction,
+                                  CFE_ES_AppRecordGetName(AppRecPtr));
+    }
+    else
+    {
+        IsValid = true;
+    }
+
+    if (!IsValid)
+    {
+        CFE_ES_UnlockSharedData(__func__, __LINE__);
+        AppRecPtr = NULL;
+    }
+
+    return AppRecPtr;
+}
 
 /*----------------------------------------------------------------
  *
@@ -551,7 +594,15 @@ void CFE_ES_TaskEntryPoint(void)
 {
     CFE_ES_TaskEntryFuncPtr_t RealEntryFunc;
 
-    if (CFE_ES_GetTaskFunction(&RealEntryFunc) == CFE_SUCCESS && RealEntryFunc != NULL)
+    /* When CFE_ES_GetTaskFunction returns CFE_SUCCESS, RealEntryFunc != NULL
+     * is implicit and therefore does not need to be checked here. This is 
+     * because in CFE_ES_GetTaskFunction, ReturnCode is set to CFE_SUCCESS only
+     * if EntryFunc != 0, and *FuncPtr which is RealEntryFunc is set to 
+     * EntryFunc. Since FuncPtr != NULL is also implicitly true since FuncPtr =
+     * &RealEntryFunc, FuncPtr != NULL will always evaluate to true. The 
+     * condition RealEntryFunc != NUL was therefore removed for coverage 
+     * purposes.*/
+    if (CFE_ES_GetTaskFunction(&RealEntryFunc) == CFE_SUCCESS)
     {
         /*
          * Set the default exception environment, which should
@@ -656,6 +707,7 @@ int32 CFE_ES_StartAppTask(CFE_ES_TaskId_t *TaskIdPtr, const char *TaskName, CFE_
 int32 CFE_ES_AppCreate(CFE_ES_AppId_t *ApplicationIdPtr, const char *AppName, const CFE_ES_AppStartParams_t *Params)
 {
     CFE_Status_t        Status;
+    CFE_Status_t        CleanupStatus;
     CFE_ES_AppRecord_t *AppRecPtr;
     CFE_ResourceId_t    PendingResourceId = CFE_RESOURCEID_UNDEFINED;
 
@@ -799,6 +851,16 @@ int32 CFE_ES_AppCreate(CFE_ES_AppId_t *ApplicationIdPtr, const char *AppName, co
         /*
          * Set the table entry back to free
          */
+        if (OS_ObjectIdDefined(AppRecPtr->LoadStatus.ModuleId))
+        {
+            CleanupStatus = OS_ModuleUnload(AppRecPtr->LoadStatus.ModuleId);
+            if (CleanupStatus != OS_SUCCESS)
+            {
+                CFE_ES_WriteToSysLog("%s: Module (ID:0x%08lX) Unload failed. RC=%ld\n", __func__,
+                                     OS_ObjectIdToInteger(AppRecPtr->LoadStatus.ModuleId), (long)CleanupStatus);
+            }
+        }
+
         CFE_ES_AppRecordSetFree(AppRecPtr);
         PendingResourceId = CFE_RESOURCEID_UNDEFINED;
     }
@@ -1565,6 +1627,7 @@ void CFE_ES_CleanupObjectCallback(osal_id_t ObjectId, void *arg)
     int32                  OsStatus;
     osal_objtype_t         ObjType;
     bool                   ObjIsValid;
+    CFE_Status_t           ErrorStatus = CFE_ES_APP_CLEANUP_ERR; // Set default cFE error status
 
     CleanState = (CFE_ES_CleanupState_t *)arg;
     ObjIsValid = true;
@@ -1573,22 +1636,28 @@ void CFE_ES_CleanupObjectCallback(osal_id_t ObjectId, void *arg)
     switch (ObjType)
     {
         case OS_OBJECT_TYPE_OS_TASK:
-            OsStatus = OS_TaskDelete(ObjectId);
+            OsStatus    = OS_TaskDelete(ObjectId);
+            ErrorStatus = CFE_ES_ERR_CHILD_TASK_DELETE;
             break;
         case OS_OBJECT_TYPE_OS_QUEUE:
-            OsStatus = OS_QueueDelete(ObjectId);
+            OsStatus    = OS_QueueDelete(ObjectId);
+            ErrorStatus = CFE_ES_QUEUE_DELETE_ERR;
             break;
         case OS_OBJECT_TYPE_OS_BINSEM:
-            OsStatus = OS_BinSemDelete(ObjectId);
+            OsStatus    = OS_BinSemDelete(ObjectId);
+            ErrorStatus = CFE_ES_BIN_SEM_DELETE_ERR;
             break;
         case OS_OBJECT_TYPE_OS_COUNTSEM:
-            OsStatus = OS_CountSemDelete(ObjectId);
+            OsStatus    = OS_CountSemDelete(ObjectId);
+            ErrorStatus = CFE_ES_COUNT_SEM_DELETE_ERR;
             break;
         case OS_OBJECT_TYPE_OS_MUTEX:
-            OsStatus = OS_MutSemDelete(ObjectId);
+            OsStatus    = OS_MutSemDelete(ObjectId);
+            ErrorStatus = CFE_ES_MUT_SEM_DELETE_ERR;
             break;
         case OS_OBJECT_TYPE_OS_TIMECB:
-            OsStatus = OS_TimerDelete(ObjectId);
+            OsStatus    = OS_TimerDelete(ObjectId);
+            ErrorStatus = CFE_ES_TIMER_DELETE_ERR;
             break;
         case OS_OBJECT_TYPE_OS_STREAM:
             OsStatus = OS_close(ObjectId);
@@ -1615,36 +1684,8 @@ void CFE_ES_CleanupObjectCallback(osal_id_t ObjectId, void *arg)
                                       OS_ObjectIdToInteger(ObjectId), (long)OsStatus);
             if (CleanState->OverallStatus == CFE_SUCCESS)
             {
-                /*
-                 * Translate any OS failures into the appropriate CFE_ES return codes
-                 * (Some object types have special return codes, depending on what type
-                 * of object failed to delete)
-                 */
-                switch (ObjType)
-                {
-                    case OS_OBJECT_TYPE_OS_TASK:
-                        CleanState->OverallStatus = CFE_ES_ERR_CHILD_TASK_DELETE;
-                        break;
-                    case OS_OBJECT_TYPE_OS_QUEUE:
-                        CleanState->OverallStatus = CFE_ES_QUEUE_DELETE_ERR;
-                        break;
-                    case OS_OBJECT_TYPE_OS_BINSEM:
-                        CleanState->OverallStatus = CFE_ES_BIN_SEM_DELETE_ERR;
-                        break;
-                    case OS_OBJECT_TYPE_OS_COUNTSEM:
-                        CleanState->OverallStatus = CFE_ES_COUNT_SEM_DELETE_ERR;
-                        break;
-                    case OS_OBJECT_TYPE_OS_MUTEX:
-                        CleanState->OverallStatus = CFE_ES_MUT_SEM_DELETE_ERR;
-                        break;
-                    case OS_OBJECT_TYPE_OS_TIMECB:
-                        CleanState->OverallStatus = CFE_ES_TIMER_DELETE_ERR;
-                        break;
-                    default:
-                        /* generic failure */
-                        CleanState->OverallStatus = CFE_ES_APP_CLEANUP_ERR;
-                        break;
-                }
+                // Save the object-type-specific error status that was set earlier in the switch statement
+                CleanState->OverallStatus = ErrorStatus;
             }
         }
     }

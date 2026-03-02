@@ -1,7 +1,7 @@
 /************************************************************************
- * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ * NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
  *
- * Copyright (c) 2020 United States Government as represented by the
+ * Copyright (c) 2023 United States Government as represented by the
  * Administrator of the National Aeronautics and Space Administration.
  * All Rights Reserved.
  *
@@ -42,6 +42,7 @@
 #include "cfe_config.h"
 
 #include <string.h>
+#include <assert.h>
 
 /*
 ** Defines
@@ -56,6 +57,29 @@
     CFE_ES_PERF_MASK_ARRAY_SIZE(CFE_ES_Global.ResetDataPtr->Perf.MetaData.FilterMask)
 #define CFE_ES_PERF_FILTERMASK_EXT_SIZE \
     CFE_ES_PERF_MASK_ARRAY_SIZE(CFE_ES_Global.TaskData.HkPacket.Payload.PerfFilterMask)
+
+enum
+{
+    CFE_ES_PERF_BITS_PER_RESETDATA_OCTET =
+        CFE_MISSION_ES_PERF_MAX_IDS / (sizeof(CFE_ES_Global.ResetDataPtr->Perf.MetaData.TriggerMask)),
+    CFE_ES_PERF_BITS_PER_HKTLM_OCTET =
+        CFE_MISSION_ES_PERF_MAX_IDS / (sizeof(CFE_ES_Global.TaskData.HkPacket.Payload.PerfTriggerMask)),
+    CFE_ES_PERF_BITS_PER_RESETDATA_WORD =
+        (sizeof(CFE_ES_Global.ResetDataPtr->Perf.MetaData.TriggerMask[0])) * CFE_ES_PERF_BITS_PER_RESETDATA_OCTET,
+    CFE_ES_PERF_BITS_PER_HKTLM_WORD =
+        (sizeof(CFE_ES_Global.TaskData.HkPacket.Payload.PerfTriggerMask[0])) * CFE_ES_PERF_BITS_PER_HKTLM_OCTET,
+};
+
+#define CFE_ES_SET_HKTLM_PERF_MASK(f, s, v)                                                   \
+    do                                                                                        \
+    {                                                                                         \
+        if (v)                                                                                \
+            CFE_ES_Global.TaskData.HkPacket.Payload.f[s / CFE_ES_PERF_BITS_PER_HKTLM_WORD] |= \
+                CFE_ES_DBIT(s % CFE_ES_PERF_BITS_PER_HKTLM_WORD);                             \
+        else                                                                                  \
+            CFE_ES_Global.TaskData.HkPacket.Payload.f[s / CFE_ES_PERF_BITS_PER_HKTLM_WORD] &= \
+                ~CFE_ES_DBIT(s % CFE_ES_PERF_BITS_PER_HKTLM_WORD);                            \
+    } while (0)
 
 /*
 ** This define should be put in the OS API headers -- Right now it matches what the OS API uses
@@ -395,8 +419,8 @@ int32 CFE_ES_TaskInit(void)
     /*
     ** Task startup event message.
     */
-    CFE_Config_GetVersionString(VersionString, CFE_CFG_MAX_VERSION_STR_LEN, "cFE", CFE_SRC_VERSION, CFE_BUILD_CODENAME,
-                                CFE_LAST_OFFICIAL);
+    CFE_Config_GetVersionString(VersionString, CFE_CFG_MAX_VERSION_STR_LEN, "CFE_ES", CFE_SRC_VERSION,
+                                CFE_BUILD_CODENAME, CFE_LAST_OFFICIAL);
     Status =
         CFE_EVS_SendEvent(CFE_ES_INIT_INF_EID, CFE_EVS_EventType_INFORMATION, "cFE ES Initialized: %s", VersionString);
     if (Status != CFE_SUCCESS)
@@ -496,30 +520,23 @@ int32 CFE_ES_SendHkCmd(const CFE_ES_SendHkCmd_t *data)
      *
      * If it is smaller than what the platform supports, then truncate.
      */
+
+    /* COVERAGE NOTICE: If the following static_assert fails, that means the
+     * macros below were redifined such that they are no longer equal. Be sure
+     * to adjust the code below in the for loop according to the comment
+     * directly above. */
     for (PerfIdx = 0; PerfIdx < CFE_ES_PERF_TRIGGERMASK_EXT_SIZE; ++PerfIdx)
     {
-        if (PerfIdx < CFE_ES_PERF_TRIGGERMASK_INT_SIZE)
-        {
-            CFE_ES_Global.TaskData.HkPacket.Payload.PerfTriggerMask[PerfIdx] =
-                CFE_ES_Global.ResetDataPtr->Perf.MetaData.TriggerMask[PerfIdx];
-        }
-        else
-        {
-            CFE_ES_Global.TaskData.HkPacket.Payload.PerfTriggerMask[PerfIdx] = 0;
-        }
+        CFE_ES_SET_HKTLM_PERF_MASK(
+            PerfTriggerMask, PerfIdx,
+            CFE_ES_TEST_U32_MASK(CFE_ES_Global.ResetDataPtr->Perf.MetaData.TriggerMask, PerfIdx));
     }
 
+    /* See comment "COVERAGE NOTICE" */
     for (PerfIdx = 0; PerfIdx < CFE_ES_PERF_FILTERMASK_EXT_SIZE; ++PerfIdx)
     {
-        if (PerfIdx < CFE_ES_PERF_FILTERMASK_INT_SIZE)
-        {
-            CFE_ES_Global.TaskData.HkPacket.Payload.PerfFilterMask[PerfIdx] =
-                CFE_ES_Global.ResetDataPtr->Perf.MetaData.FilterMask[PerfIdx];
-        }
-        else
-        {
-            CFE_ES_Global.TaskData.HkPacket.Payload.PerfFilterMask[PerfIdx] = 0;
-        }
+        CFE_ES_SET_HKTLM_PERF_MASK(PerfFilterMask, PerfIdx,
+                                   CFE_ES_TEST_U32_MASK(CFE_ES_Global.ResetDataPtr->Perf.MetaData.FilterMask, PerfIdx));
     }
 
     /* Fill in heap info if get successful/supported */
@@ -976,7 +993,7 @@ int32 CFE_ES_QueryAllCmd(const CFE_ES_QueryAllCmd_t *data)
     CFE_ES_LockSharedData(__func__, __LINE__);
     NumResources = 0;
     AppRecPtr    = CFE_ES_Global.AppTable;
-    for (i = 0; i < CFE_PLATFORM_ES_MAX_APPLICATIONS && NumResources < CFE_ES_QUERY_ALL_MAX_ENTRIES; ++i)
+    for (i = 0; i < CFE_PLATFORM_ES_MAX_APPLICATIONS; ++i)
     {
         if (CFE_ES_AppRecordIsUsed(AppRecPtr))
         {
@@ -986,7 +1003,7 @@ int32 CFE_ES_QueryAllCmd(const CFE_ES_QueryAllCmd_t *data)
         ++AppRecPtr;
     }
     LibRecPtr = CFE_ES_Global.LibTable;
-    for (i = 0; i < CFE_PLATFORM_ES_MAX_LIBRARIES && NumResources < CFE_ES_QUERY_ALL_MAX_ENTRIES; ++i)
+    for (i = 0; i < CFE_PLATFORM_ES_MAX_LIBRARIES; ++i)
     {
         if (CFE_ES_LibRecordIsUsed(LibRecPtr))
         {

@@ -1,5 +1,66 @@
 # Changelog
 
+## Development Build: equuleus-rc1+dev275
+- 'Fix #1143, SB_UT corrections and clear event count history after setup'
+- See: <https://github.com/nasa/cFE/pull/2347>
+
+
+## Development Build: equuleus-rc1+dev259
+- 'Fix #2641, improve validation in app control API'
+- See: <https://github.com/nasa/cFE/pull/2666>
+
+
+## Development Build: equuleus-rc1+dev251
+- 'Fix #2651, initialize pipename buffer'
+- See: <https://github.com/nasa/cFE/pull/2652>
+
+
+## Development Build: equuleus-rc1+dev247
+- 'Fix nasa/cFS#839, Update Workflows to Ubuntu 22.04'
+- See: <https://github.com/nasa/cfe/pull/2648>
+
+
+## Development Build: equuleus-rc1+dev243
+- 'Fix #2645, fix warning error in evs_ut'
+- See: <https://github.com/nasa/cFE/pull/2646>
+
+
+## Development Build: equuleus-rc1+dev239
+- address sanitizer issue in coverage-evs-ALL
+- See <https://github.com/nasa/cFE/pull/2643>
+
+## Development Build: equuleus-rc1+dev235
+- add initialization of table indices
+- See <https://github.com/nasa/cFE/pull/2633>
+
+## Development Build: equuleus-rc1+dev231
+- Update Upload Artifact Version
+- See <https://github.com/nasa/cFE/pull/2631>
+
+## Development Build: equuleus-rc1+dev227
+- Add CFE_TBL_BufferSelect_Enum_t Type Name
+- See <https://github.com/nasa/cFE/pull/2629>
+
+## Development Build: equuleus-rc1+dev223
+- Correct type of ActiveTableFlag variable
+- See <https://github.com/nasa/cFE/pull/2459>
+
+## Development Build: equuleus-rc1+dev219
+- Consistent use of CFE_EVS_EventType_Enum_t for EventType
+- Combine redundant switch blocks to simplify CFE_ES_CleanupObjectCallback
+- Unloading module after failed app start
+- Simplify and clarify EVS_AddLog logic
+- See <https://github.com/nasa/cFE/pull/2308>, <https://github.com/nasa/cFE/pull/2612>, <https://github.com/nasa/cFE/pull/2616>, and <https://github.com/nasa/cFE/pull/2309>
+
+## Development Build: equuleus-rc1+dev209
+- Remove redundant status check in CFE_ES_RegisterCDSEx()
+- See <https://github.com/nasa/cFE/pull/2329>
+
+## Development Build: equuleus-rc1+dev205
+- fix sb coverage test failure
+- Pass the CMAKE_PREFIX_PATH to targets
+- See <https://github.com/nasa/cFE/pull/2602> and <https://github.com/nasa/cFE/pull/2606>
+
 ## Development Build: equuleus-rc1+dev199
 - Bump actions/download-artifact from 3 to 4.1.7 in /.github/workflows
 - See <https://github.com/nasa/cFE/pull/2599>

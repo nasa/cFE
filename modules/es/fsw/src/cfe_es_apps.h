@@ -1,7 +1,7 @@
 /************************************************************************
- * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ * NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
  *
- * Copyright (c) 2020 United States Government as represented by the
+ * Copyright (c) 2023 United States Government as represented by the
  * Administrator of the National Aeronautics and Space Administration.
  * All Rights Reserved.
  *
@@ -221,6 +221,24 @@ int32 CFE_ES_GetTaskFunction(CFE_ES_TaskEntryFuncPtr_t *FuncPtr);
  * and verified, then the actual entry point will be determined.
  */
 void CFE_ES_TaskEntryPoint(void);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * Helper function to find a matching app record for an operation
+ *
+ * Returns a pointer to the matching app record after verifying:
+ * 1. The appID is valid and matches
+ * 2. The app is a user defined app, not a CORE app
+ * 3. The app is running
+ *
+ * If successful, the pointer to the record is returned with the ES lock
+ * still held from the check, ready for the actual operation.  The lock must
+ * be released by the caller.
+ *
+ * If any check failed, writes to syslog, releases the lock, and returns NULL.
+ * There is no additional action to be taken by the caller in this case.
+ */
+CFE_ES_AppRecord_t *CFE_ES_LockUserAppRecord(CFE_ES_AppId_t AppID, const char *LogMsgAction);
 
 /*---------------------------------------------------------------------------------------*/
 /**
