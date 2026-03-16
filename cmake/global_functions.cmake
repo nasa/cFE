@@ -9,6 +9,7 @@
 ##################################################################
 
 include(CMakeParseArguments)
+include(CheckCCompilerFlag)
 
 # This is done here at the global level so this definition is used for
 # ALL code on ALL targets, including host-side tools.  Ideally, this should
@@ -414,3 +415,31 @@ function(read_targetconfig)
   endforeach(SYSVAR ${TGTSYS_LIST})
 
 endfunction(read_targetconfig)
+
+# Add compilation options only if supported by the compiler of a known language.
+#
+# PRE: Only the C language is currently supported.
+function(add_compile_options_if_available LANG)
+
+  if(NOT "${LANG}" STREQUAL "C")
+    message(WARNING
+      "Call to add_compile_options_if_available with unsupported language ${LANG}. Options will be ignored."
+    )
+  endif()
+
+  set(AVAILABLE_OPTIONS "")
+
+  # Add flags to AVAILABLE_OPTIONS only if supported by the compiler.
+  foreach(OPTION IN LISTS ARGN)
+    unset(IS_OPTION_SUPPORTED CACHE)
+    if("${LANG}" STREQUAL "C")
+      CHECK_C_COMPILER_FLAG("${OPTION}" IS_OPTION_SUPPORTED)
+    endif()
+    if (${IS_OPTION_SUPPORTED})
+      list(APPEND AVAILABLE_OPTIONS ${OPTION})
+    endif (${IS_OPTION_SUPPORTED})
+  endforeach()
+
+  add_compile_options("$<$<COMPILE_LANGUAGE:${LANG}>:${AVAILABLE_OPTIONS}>")
+
+endfunction(add_compile_options_if_available)
