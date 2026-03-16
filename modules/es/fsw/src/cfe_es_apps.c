@@ -756,44 +756,84 @@ int32 CFE_ES_AppCreate(CFE_ES_AppId_t *ApplicationIdPtr, const char *AppName, co
     }
     else
     {
-        /* scan for a free slot */
-        PendingResourceId = CFE_ResourceId_FindNext(CFE_ES_Global.LastAppId, CFE_PLATFORM_ES_MAX_APPLICATIONS,
-                                                    CFE_ES_CheckAppIdSlotUsed);
-        AppRecPtr         = CFE_ES_LocateAppRecordByID(CFE_ES_APPID_C(PendingResourceId));
+        /* ** Entry Point Validation
+        ** Prevents system instability by ensuring the requested Entry Point is not 
+        ** a reserved Core symbol and is not already in use by another application.
+        */
+        uint32 i;
+        Status = CFE_SUCCESS; 
 
-        if (AppRecPtr == NULL)
+        /* ** 1. Pre-emptive Protection: Check for reserved Core/OSAL namespaces.
+        ** Since Core services (ES, EVS, etc.) are not in the AppTable, we filter
+        ** by their mandatory prefixes (CFE_ and OS_).
+        */
+        if (strncmp(Params->BasicInfo.InitSymbolName, "CFE_", 4) == 0 ||
+            strncmp(Params->BasicInfo.InitSymbolName, "OS_", 3) == 0)
         {
-            CFE_ES_SysLogWrite_Unsync("%s: No free application slots available\n", __func__);
-            Status = CFE_ES_NO_RESOURCE_IDS_AVAILABLE;
+            CFE_ES_SysLogWrite_Unsync("%s: Rejected reserved entry point '%s' (Core reuse attempt)\n", 
+                                      __func__, Params->BasicInfo.InitSymbolName);
+            Status = CFE_ES_ERR_DUPLICATE_NAME;
         }
         else
         {
-            /* Fully clear the entry, just in case of stale data */
-            memset(AppRecPtr, 0, sizeof(*AppRecPtr));
+            /* ** 2. Redundancy Check: Scan the AppTable for external application symbols.
+            ** Ensures that no two applications attempt to use the same entry point address.
+            */
+            for (i = 0; i < CFE_PLATFORM_ES_MAX_APPLICATIONS; i++)
+            {
+                if (CFE_ES_Global.AppTable[i].AppState != CFE_ES_AppState_UNDEFINED &&
+                    strcmp(Params->BasicInfo.InitSymbolName, 
+                           CFE_ES_Global.AppTable[i].StartParams.BasicInfo.InitSymbolName) == 0)
+                {
+                    CFE_ES_SysLogWrite_Unsync("%s: Symbol '%s' is already in use by AppID %u. Start aborted.\n", 
+                                              __func__, Params->BasicInfo.InitSymbolName, (unsigned int)i);
+                    
+                    Status = CFE_ES_ERR_DUPLICATE_NAME; 
+                    break;
+                }
+            }
+        }
 
-            /* Store the app name from passed-in value */
-            strncpy(AppRecPtr->AppName, AppName, sizeof(AppRecPtr->AppName) - 1);
+        if (Status == CFE_SUCCESS)
+        {
+            /* scan for a free slot */
+            PendingResourceId = CFE_ResourceId_FindNext(CFE_ES_Global.LastAppId, CFE_PLATFORM_ES_MAX_APPLICATIONS,
+                                                        CFE_ES_CheckAppIdSlotUsed);
+            AppRecPtr         = CFE_ES_LocateAppRecordByID(CFE_ES_APPID_C(PendingResourceId));
 
-            AppRecPtr->Type = CFE_ES_AppType_EXTERNAL;
+            if (AppRecPtr == NULL)
+            {
+                CFE_ES_SysLogWrite_Unsync("%s: No free application slots available\n", __func__);
+                Status = CFE_ES_NO_RESOURCE_IDS_AVAILABLE;
+            }
+            else
+            {
+                /* Fully clear the entry, just in case of stale data */
+                memset(AppRecPtr, 0, sizeof(*AppRecPtr));
 
-            /*
-             * Fill out the parameters in the StartParams sub-structure
-             *
-             * This contains all relevant info, including file name, entry point,
-             * main task info, etc. which is required to start the app now
-             * or in a future restart/reload request.
-             */
-            AppRecPtr->StartParams = *Params;
+                /* Store the app name from passed-in value */
+                strncpy(AppRecPtr->AppName, AppName, sizeof(AppRecPtr->AppName) - 1);
 
-            /*
-             * Fill out the Task State info
-             */
-            AppRecPtr->ControlReq.AppControlRequest = CFE_ES_RunStatus_APP_RUN;
-            AppRecPtr->ControlReq.AppTimerMsec      = 0;
+                AppRecPtr->Type = CFE_ES_AppType_EXTERNAL;
 
-            CFE_ES_AppRecordSetUsed(AppRecPtr, CFE_RESOURCEID_RESERVED);
-            CFE_ES_Global.LastAppId = PendingResourceId;
-            Status                  = CFE_SUCCESS;
+                /*
+                * Fill out the parameters in the StartParams sub-structure
+                *
+                * This contains all relevant info, including file name, entry point,
+                * main task info, etc. which is required to start the app now
+                * or in a future restart/reload request.
+                */
+                AppRecPtr->StartParams = *Params;
+
+                /*
+                * Fill out the Task State info
+                */
+                AppRecPtr->ControlReq.AppControlRequest = CFE_ES_RunStatus_APP_RUN;
+                AppRecPtr->ControlReq.AppTimerMsec      = 0;
+
+                CFE_ES_AppRecordSetUsed(AppRecPtr, CFE_RESOURCEID_RESERVED);
+                CFE_ES_Global.LastAppId = PendingResourceId;
+            }
         }
     }
 
