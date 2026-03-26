@@ -2685,7 +2685,7 @@ void Test_CleanUpApp(void)
     /* Clean up an app which did not have a callback */
     AppIndex = 4;
     UT_SetDataBuffer(UT_KEY(CFE_ES_AppID_ToIndex), &AppIndex, sizeof(AppIndex), false);
-    CFE_UtAssert_SUCCESS(CFE_TIME_CleanUpApp(TestAppId));
+    CFE_UtAssert_SUCCESS(CFE_TIME_CleanUpApp(CFE_RESOURCEID_TO_ULONG(TestAppId)));
 
     Count = 0;
     for (i = 0; i < (sizeof(CFE_TIME_Global.SynchCallback) / sizeof(CFE_TIME_Global.SynchCallback[0])); i++)
@@ -2702,7 +2702,7 @@ void Test_CleanUpApp(void)
     /* Clean up an app which did have a callback */
     AppIndex = 2;
     UT_SetDataBuffer(UT_KEY(CFE_ES_AppID_ToIndex), &AppIndex, sizeof(AppIndex), false);
-    CFE_UtAssert_SUCCESS(CFE_TIME_CleanUpApp(TestAppId));
+    CFE_UtAssert_SUCCESS(CFE_TIME_CleanUpApp(CFE_RESOURCEID_TO_ULONG(TestAppId)));
 
     Count = 0;
     for (i = 0; i < (sizeof(CFE_TIME_Global.SynchCallback) / sizeof(CFE_TIME_Global.SynchCallback[0])); i++)
@@ -2719,10 +2719,11 @@ void Test_CleanUpApp(void)
      * This is effectively a no-op but here for coverage */
     AppIndex = 99999;
     UT_SetDataBuffer(UT_KEY(CFE_ES_AppID_ToIndex), &AppIndex, sizeof(AppIndex), false);
-    UtAssert_INT32_EQ(CFE_TIME_CleanUpApp(CFE_ES_APPID_UNDEFINED), CFE_TIME_CALLBACK_NOT_REGISTERED);
+    UtAssert_INT32_EQ(CFE_TIME_CleanUpApp(CFE_RESOURCEID_TO_ULONG(CFE_ES_APPID_UNDEFINED)),
+                      CFE_TIME_CALLBACK_NOT_REGISTERED);
 
     /* CFE_ES_AppID_ToIndex failure */
     UT_InitData();
     UT_SetDeferredRetcode(UT_KEY(CFE_ES_AppID_ToIndex), 1, -2);
-    UtAssert_INT32_EQ(CFE_TIME_CleanUpApp(CFE_ES_APPID_UNDEFINED), -2);
+    UtAssert_INT32_EQ(CFE_TIME_CleanUpApp(CFE_RESOURCEID_TO_ULONG(CFE_ES_APPID_UNDEFINED)), -2);
 }

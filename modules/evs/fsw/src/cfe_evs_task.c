@@ -175,10 +175,13 @@ int32 CFE_EVS_EarlyInit(void)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_EVS_CleanUpApp(CFE_ES_AppId_t AppID)
+int32 CFE_EVS_CleanUpApp(uint32 Id)
 {
     int32          Status = CFE_SUCCESS;
     EVS_AppData_t *AppDataPtr;
+    CFE_ES_AppId_t AppID;
+
+    AppID = CFE_ES_APPID_C(CFE_ResourceId_FromInteger(Id));
 
     /* Query and verify the caller's AppID */
     AppDataPtr = EVS_GetAppDataByID(AppID);

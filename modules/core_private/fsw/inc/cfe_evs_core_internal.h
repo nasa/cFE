@@ -83,7 +83,7 @@ int32 CFE_EVS_EarlyInit(void);
 **        that have been allocated to the specified Application.
 **
 ******************************************************************************/
-int32 CFE_EVS_CleanUpApp(CFE_ES_AppId_t AppId);
+int32 CFE_EVS_CleanUpApp(uint32 Id);
 
 /*****************************************************************************/
 /**

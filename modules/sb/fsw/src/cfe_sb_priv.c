@@ -84,12 +84,15 @@
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_SB_CleanUpApp(CFE_ES_AppId_t AppId)
+int32 CFE_SB_CleanUpApp(uint32 Id)
 {
     uint32          i;
     uint32          DelCount;
     CFE_SB_PipeD_t *PipeDscPtr;
     CFE_SB_PipeId_t DelList[CFE_PLATFORM_SB_MAX_PIPES];
+    CFE_ES_AppId_t  AppId;
+
+    AppId = CFE_ES_APPID_C(CFE_ResourceId_FromInteger(Id));
 
     PipeDscPtr = CFE_SB_Global.PipeTbl;
     DelCount   = 0;

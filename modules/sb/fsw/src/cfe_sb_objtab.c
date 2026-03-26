@@ -16,27 +16,23 @@
  * limitations under the License.
  ************************************************************************/
 
-/*
+/**
  * File:
- *  cfe_es_objtab.c
+ *   cfe_sb_objtab.c
  *
- * CFE ES core module object table entry.
+ * CFE SB core module object table entry.
  *
- * ES is a task module. It does not have a separate EarlyInit because
- * the ES startup sequence itself serves that role. ES also does not
- * have a Cleanup function - it is the last module standing during
- * shutdown.
+ * SB is a task module with both EarlyInit and Cleanup functions.
  */
 
 #include "target_objtab.h"
-#include "cfe_es_core_internal.h"
-#include "cfe_platform_cfg.h"
+#include "cfe_sb_core_internal.h"
+#include "cfe_es_internal_cfg.h"
+#include "cfe_sb_platform_cfg.h"
 
-const Target_ObjectTable_t CFE_ES_ModuleEntry = {
-    .Name      = "CFE_ES",
-    .EarlyInit = CFE_ES_CDS_EarlyInit, /* ES drives its own startup, this is for CDS*/
-    .TaskMain  = CFE_ES_TaskMain,
-    .Cleanup   = NULL, /* ES does not clean up - it owns shutdown */
-    .Priority  = CFE_PLATFORM_ES_START_TASK_PRIORITY,
-    .StackSize = CFE_PLATFORM_ES_START_TASK_STACK_SIZE
-};
+const Target_ObjectTable_t CFE_SB_ModuleEntry = { .Name      = "CFE_SB",
+                                                  .EarlyInit = CFE_SB_EarlyInit,
+                                                  .TaskMain  = CFE_SB_TaskMain,
+                                                  .Cleanup   = CFE_SB_CleanUpApp,
+                                                  .Priority  = CFE_PLATFORM_SB_START_TASK_PRIORITY,
+                                                  .StackSize = CFE_PLATFORM_SB_START_TASK_STACK_SIZE };

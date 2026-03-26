@@ -585,7 +585,7 @@ void CFE_TBL_NotifyTblUsersOfUpdate(CFE_TBL_RegistryRec_t *RegRecPtr)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_TBL_CleanUpApp(CFE_ES_AppId_t AppId)
+int32 CFE_TBL_CleanUpApp(uint32 Id)
 {
     uint32                      i;
     CFE_TBL_TxnState_t          Txn;
@@ -593,6 +593,9 @@ int32 CFE_TBL_CleanUpApp(CFE_ES_AppId_t AppId)
     CFE_TBL_AccessDescriptor_t *AccessDescPtr;
     CFE_TBL_RegistryRec_t      *RegRecPtr;
     CFE_Status_t                Status;
+    CFE_ES_AppId_t              AppId;
+
+    AppId = CFE_ES_APPID_C(CFE_ResourceId_FromInteger(Id));
 
     CFE_TBL_TxnInit(&Txn, false);
 

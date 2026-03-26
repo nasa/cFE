@@ -12,6 +12,7 @@ set(fs_SOURCES
     fsw/src/cfe_fs_priv.c
     fsw/src/cfe_fs_api.c
     fsw/src/cfe_fs_priv.c
+    fsw/src/cfe_fs_objtab.c
 )
 add_library(fs STATIC ${fs_SOURCES})
 

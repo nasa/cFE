@@ -4434,20 +4434,20 @@ void Test_CleanupApp_API(void)
     /* Attempt with a bad application ID first in order to get full branch path
      * coverage in CFE_SB_ZeroCopyReleaseAppId
      */
-    CFE_SB_CleanUpApp(CFE_ES_APPID_UNDEFINED);
+    CFE_SB_CleanUpApp(CFE_RESOURCEID_TO_ULONG(CFE_ES_APPID_UNDEFINED));
 
     /* This should have freed no buffers  */
     UtAssert_STUB_COUNT(CFE_ES_PutPoolBuf, 0);
 
     /* Attempt again with a valid application ID */
-    CFE_SB_CleanUpApp(AppID);
+    CFE_SB_CleanUpApp(CFE_RESOURCEID_TO_ULONG(AppID));
 
     /* This should have freed 2 out of the 3 buffers -
      * the ones which were gotten by this app. */
     UtAssert_STUB_COUNT(CFE_ES_PutPoolBuf, 2);
 
     /* Clean up the second App */
-    CFE_SB_CleanUpApp(AppID2);
+    CFE_SB_CleanUpApp(CFE_RESOURCEID_TO_ULONG(AppID2));
 
     /* This should have freed the last buffer */
     UtAssert_STUB_COUNT(CFE_ES_PutPoolBuf, 3);

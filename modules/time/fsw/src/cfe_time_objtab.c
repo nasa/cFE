@@ -16,27 +16,23 @@
  * limitations under the License.
  ************************************************************************/
 
-/*
+/**
  * File:
- *  cfe_es_objtab.c
+ *   cfe_time_objtab.c
  *
- * CFE ES core module object table entry.
+ * CFE TIME core module object table entry.
  *
- * ES is a task module. It does not have a separate EarlyInit because
- * the ES startup sequence itself serves that role. ES also does not
- * have a Cleanup function - it is the last module standing during
- * shutdown.
+ * TIME is a task module with both EarlyInit and Cleanup functions.
  */
 
 #include "target_objtab.h"
-#include "cfe_es_core_internal.h"
-#include "cfe_platform_cfg.h"
+#include "cfe_time_core_internal.h"
+#include "cfe_es_internal_cfg.h"
+#include "cfe_time_platform_cfg.h"
 
-const Target_ObjectTable_t CFE_ES_ModuleEntry = {
-    .Name      = "CFE_ES",
-    .EarlyInit = CFE_ES_CDS_EarlyInit, /* ES drives its own startup, this is for CDS*/
-    .TaskMain  = CFE_ES_TaskMain,
-    .Cleanup   = NULL, /* ES does not clean up - it owns shutdown */
-    .Priority  = CFE_PLATFORM_ES_START_TASK_PRIORITY,
-    .StackSize = CFE_PLATFORM_ES_START_TASK_STACK_SIZE
-};
+const Target_ObjectTable_t CFE_TIME_ModuleEntry = { .Name      = "CFE_TIME",
+                                                    .EarlyInit = CFE_TIME_EarlyInit,
+                                                    .TaskMain  = CFE_TIME_TaskMain,
+                                                    .Cleanup   = CFE_TIME_CleanUpApp,
+                                                    .Priority  = CFE_PLATFORM_TIME_START_TASK_PRIORITY,
+                                                    .StackSize = CFE_PLATFORM_TIME_START_TASK_STACK_SIZE };

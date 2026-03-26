@@ -40,6 +40,7 @@
 #include "es_ut_helpers.h"
 #include "target_config.h"
 #include "cfe_config.h"
+#include "target_objtab.h"
 
 /* Note this is defined in ut_support, part of core_private */
 int32 dummy_function(void);
@@ -372,37 +373,38 @@ void TestStartupErrorPaths(void)
     CFE_UtAssert_PRINTF(UT_OSP_MESSAGES[UT_OSP_RECORD_USED]);
     CFE_UtAssert_PRINTF(UT_OSP_MESSAGES[UT_OSP_EARLYINIT]);
 
-    /* Test reading the object table where an error occurs when
-     * creating a core app
-     */
+    /*
+    ** Test successful object creation - nominal case
+    */
     ES_ResetUnitTest();
-    UT_SetDefaultReturnValue(UT_KEY(OS_TaskCreate), OS_ERROR);
-    UT_SetDefaultReturnValue(UT_KEY(OS_BinSemCreate), OS_ERROR);
+    CFE_ES_CreateObjects();
+    CFE_UtAssert_PRINTF(UT_OSP_MESSAGES[UT_OSP_FINISHED_ES_CREATE]);
+
+    /*
+    ** Test EarlyInit failure
+    */
+
+    ES_ResetUnitTest();
+    UT_SetDeferredRetcode(UT_KEY(CFE_TBL_EarlyInit), 1, -1);
     UT_SetHookFunction(UT_KEY(OS_TaskCreate), ES_UT_SetAppStateHook, NULL);
     CFE_ES_CreateObjects();
+    CFE_UtAssert_PRINTF(UT_OSP_MESSAGES[UT_OSP_CORE_APP_EARLYINIT]);
+
+    /*
+    ** Test no free app slots
+    */
+    ES_ResetUnitTest();
+    UT_SetDefaultReturnValue(UT_KEY(CFE_ResourceId_FindNext), OS_ERROR);
+    CFE_ES_CreateObjects();
+    CFE_UtAssert_PRINTF(UT_OSP_MESSAGES[UT_OSP_NO_FREE_CORE_APP_SLOTS]);
+
+    /*
+    ** Test OS_TaskCreate failure
+    */
+    ES_ResetUnitTest();
+    UT_SetDefaultReturnValue(UT_KEY(OS_TaskCreate), OS_ERROR);
+    CFE_ES_CreateObjects();
     CFE_UtAssert_PRINTF(UT_OSP_MESSAGES[UT_OSP_CORE_APP_CREATE]);
-
-    /* Test reading the object table where all app slots are taken */
-    ES_ResetUnitTest();
-
-    UT_SetDefaultReturnValue(UT_KEY(CFE_ResourceId_FindNext), OS_ERROR);
-    CFE_ES_CreateObjects();
-    CFE_UtAssert_PRINTF(UT_OSP_MESSAGES[UT_OSP_NO_FREE_CORE_APP_SLOTS]);
-
-    /* Test reading the object table with a NULL function pointer */
-    ES_ResetUnitTest();
-    UT_SetDefaultReturnValue(UT_KEY(CFE_ResourceId_FindNext), OS_ERROR);
-    CFE_ES_ObjectTable[1].ObjectType = CFE_ES_FUNCTION_CALL;
-    CFE_ES_CreateObjects();
-    CFE_UtAssert_PRINTF(UT_OSP_MESSAGES[UT_OSP_NO_FREE_CORE_APP_SLOTS]);
-    CFE_UtAssert_PRINTF(UT_OSP_MESSAGES[UT_OSP_FUNCTION_POINTER]);
-
-    /* Test reading the object table with unknown object type */
-    ES_ResetUnitTest();
-    UT_SetDefaultReturnValue(UT_KEY(CFE_ResourceId_FindNext), OS_ERROR);
-    CFE_ES_ObjectTable[CFE_PLATFORM_ES_OBJECT_TABLE_SIZE - 1].ObjectType = -1;
-    CFE_ES_CreateObjects();
-    CFE_UtAssert_PRINTF(UT_OSP_MESSAGES[UT_OSP_NO_FREE_CORE_APP_SLOTS]);
 
     /* Test response to an invalid startup type */
     ES_ResetUnitTest();
@@ -1055,6 +1057,13 @@ void TestApps(void)
     UT_SetDeferredRetcode(UT_KEY(CFE_EVS_CleanUpApp), 1, -1);
     AppId = CFE_ES_AppRecordGetID(UtAppRecPtr);
     UtAssert_INT32_EQ(CFE_ES_CleanUpApp(AppId), CFE_ES_APP_CLEANUP_ERR);
+
+    /*
+    ** Test CleanUpApp with a NULL entry in the module table
+    */
+    ES_ResetUnitTest();
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
+    AppId = CFE_ES_AppRecordGetID(UtAppRecPtr);
 
     /* Test cleaning up the OS resources for a task with a failure
      *  deleting mutexes

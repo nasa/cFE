@@ -8,6 +8,8 @@
 set(TESTCASE_SOURCES 
     "es_ut_helpers.c" # Useful helper functions for everything 
     "es_UT.c"         # The traditional "es_UT.c" has most of the test cases
+    "es_UT_objtab.c"  # Replace the real module entries from other CFE modules not linked in
+    "es_UT_static_module_list.c" # UT replacement for the generated cfe_static_module_list.c
 )
 
 # The final bit of support/helper code varies depending on whether EDS is enabled

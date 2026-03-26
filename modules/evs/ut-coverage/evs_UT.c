@@ -322,7 +322,7 @@ void Test_IllegalAppID(void)
     /* Test application cleanup using an illegal application ID */
     UT_InitData_EVS();
     UT_SetDefaultReturnValue(UT_KEY(CFE_ES_AppID_ToIndex), CFE_ES_ERR_RESOURCEID_NOT_VALID);
-    UtAssert_INT32_EQ(CFE_EVS_CleanUpApp(CFE_ES_APPID_UNDEFINED), CFE_EVS_APP_ILLEGAL_APP_ID);
+    UtAssert_INT32_EQ(CFE_EVS_CleanUpApp(CFE_RESOURCEID_TO_ULONG(CFE_ES_APPID_UNDEFINED)), CFE_EVS_APP_ILLEGAL_APP_ID);
 
     /* Test with out of range AppID */
     UT_InitData_EVS();
@@ -347,7 +347,7 @@ void Test_UnregisteredApp(void)
     UT_InitData_EVS();
 
     /* Unregister the application (it was registered in CFE_EVS_TaskInit) */
-    CFE_EVS_CleanUpApp(AppID);
+    CFE_EVS_CleanUpApp(CFE_RESOURCEID_TO_ULONG(AppID));
 
     /* Test sending an event to an unregistered application */
     UT_InitData_EVS();
@@ -373,7 +373,7 @@ void Test_UnregisteredApp(void)
 
     /* Test application cleanup using an unregistered application */
     UT_InitData_EVS();
-    CFE_UtAssert_SUCCESS(CFE_EVS_CleanUpApp(AppID));
+    CFE_UtAssert_SUCCESS(CFE_EVS_CleanUpApp(CFE_RESOURCEID_TO_ULONG(AppID)));
 
     /* Re-register the application for subsequent tests */
     UT_InitData_EVS();
@@ -415,7 +415,7 @@ void Test_FilterRegistration(void)
 
     /* Test successful app cleanup */
     UT_InitData_EVS();
-    CFE_UtAssert_SUCCESS(CFE_EVS_CleanUpApp(AppID));
+    CFE_UtAssert_SUCCESS(CFE_EVS_CleanUpApp(CFE_RESOURCEID_TO_ULONG(AppID)));
 
     /* Test successful filter registration with a valid filter */
     UT_InitData_EVS();
@@ -2087,7 +2087,7 @@ void Test_Misc(void)
 
     /* Test successful application cleanup */
     UT_InitData_EVS();
-    CFE_UtAssert_SUCCESS(CFE_EVS_CleanUpApp(CFE_ES_APPID_UNDEFINED));
+    CFE_UtAssert_SUCCESS(CFE_EVS_CleanUpApp(CFE_RESOURCEID_TO_ULONG(CFE_ES_APPID_UNDEFINED)));
 
     /* Test registering an application with invalid filter argument */
     UT_InitData_EVS();

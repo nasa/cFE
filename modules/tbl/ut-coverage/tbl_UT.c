@@ -3552,7 +3552,7 @@ void Test_CFE_TBL_Internal3(void)
     UT_TBL_SetLoadBuffTaken(WorkingBufferPtr, RegRecPtr, CFE_RESOURCEID_UNDEFINED);
     UT_TBL_SetupPendingDump(3, WorkingBufferPtr, RegRecPtr, &DumpCtrlPtr);
 
-    CFE_UtAssert_SUCCESS(CFE_TBL_CleanUpApp(UT_TBL_APPID_1));
+    CFE_UtAssert_SUCCESS(CFE_TBL_CleanUpApp(CFE_RESOURCEID_TO_ULONG(UT_TBL_APPID_1)));
     UtAssert_INT32_EQ(DumpCtrlPtr->State, CFE_TBL_DUMP_FREE);
     CFE_UtAssert_RESOURCEID_EQ(RegRecPtr->OwnerAppId, CFE_TBL_NOT_OWNED);
     UtAssert_BOOL_FALSE(CFE_TBL_LoadBuffIsUsed(WorkingBufferPtr));
@@ -3683,7 +3683,7 @@ void Test_CFE_TBL_Internal3(void)
     AccessDescPtr->AppId = UT_TBL_APPID_2;
     UT_TBL_SetHandleUsed(AccessDescPtr);
 
-    CFE_UtAssert_SUCCESS(CFE_TBL_CleanUpApp(UT_TBL_APPID_1));
+    CFE_UtAssert_SUCCESS(CFE_TBL_CleanUpApp(CFE_RESOURCEID_TO_ULONG(UT_TBL_APPID_1)));
     UtAssert_INT32_EQ(DumpCtrlPtr->State, CFE_TBL_DUMP_PENDING);
     CFE_UtAssert_RESOURCEID_EQ(RegRecPtr->OwnerAppId, UT_TBL_APPID_2);
 

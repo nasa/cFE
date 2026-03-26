@@ -36,15 +36,10 @@
 */
 #include "cfe_es_module_all.h"
 
-#include "cfe_evs_core_internal.h"
-#include "cfe_sb_core_internal.h"
-#include "cfe_tbl_core_internal.h"
-#include "cfe_time_core_internal.h"
-
 #include <stdio.h>
 #include <string.h> /* memset() */
 #include <fcntl.h>
-
+#include "target_config.h"
 /*
 ** Defines
 */
@@ -1526,29 +1521,34 @@ int32 CFE_ES_CleanUpApp(CFE_ES_AppId_t AppId)
      * than one lock at a time.
      */
 
-    /*
-     ** Call the Table Clean up function
-     */
-    CFE_TBL_CleanUpApp(AppId);
+    int32 CleanupStatus = CFE_SUCCESS;
 
-    /*
-     ** Call the Software Bus clean up function
-     */
-    CFE_SB_CleanUpApp(AppId);
-
-    /*
-     ** Call the TIME Clean up function
-     */
-    CFE_TIME_CleanUpApp(AppId);
-
-    /*
-     ** Call the EVS Clean up function
-     */
-    Status = CFE_EVS_CleanUpApp(AppId);
-    if (Status != CFE_SUCCESS)
+    const Target_ObjectTable_t *Entry;
+    for (i = 0;; i++)
     {
-        CFE_ES_WriteToSysLog("%s: Call to CFE_EVS_CleanUpApp returned Error: 0x%08X\n", __func__, (unsigned int)Status);
-        ReturnCode = CFE_ES_APP_CLEANUP_ERR;
+        Entry = GLOBAL_CONFIGDATA.CoreObjectTable[i];
+        if (Entry == NULL)
+        {
+            break;
+        }
+        if (Entry->Cleanup != NULL)
+        {
+            ReturnCode = Entry->Cleanup(CFE_RESOURCEID_TO_ULONG(AppId));
+            if (ReturnCode != CFE_SUCCESS)
+            {
+                CFE_ES_WriteToSysLog("%s: Error returned from app Cleanup for %s: EC = 0x%08X\n",
+                                     __func__,
+                                     Entry->Name,
+                                     (unsigned int)ReturnCode);
+                CleanupStatus = CFE_ES_APP_CLEANUP_ERR; /* remember failure but keep going */
+            }
+        }
+    }
+
+    /* Use CleanupStatus as the final result */
+    if (CleanupStatus != CFE_SUCCESS)
+    {
+        ReturnCode = CleanupStatus;
     }
 
     /*

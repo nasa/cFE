@@ -30,6 +30,7 @@
 #define TARGET_CONFIG_H
 
 #include "common_types.h"
+#include "target_objtab.h"
 
 /**
  * Prototype for the main system entry function implemented in CFE ES
@@ -200,6 +201,7 @@ typedef const struct
         *BuildEnvironment; /**< Environment details of build system at the last time CFE core was built */
     CFE_ConfigKeyValue_t *ModuleVersionList; /**< List of module versions at the last time CFE core was built */
     CFE_ConfigName_t     *CoreModuleList;    /**< List of CFE core support module names that are statically linked */
+    const Target_ObjectTable_t *const *CoreObjectTable;
     CFE_ConfigName_t
         *StaticAppList; /**< List of additional CFS Applications that are statically linked into this binary */
 

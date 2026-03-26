@@ -16,27 +16,23 @@
  * limitations under the License.
  ************************************************************************/
 
-/*
+/**
  * File:
- *  cfe_es_objtab.c
+ *   cfe_config_objtab.c
  *
- * CFE ES core module object table entry.
+ * CFE CONFIG core module object table entry.
  *
- * ES is a task module. It does not have a separate EarlyInit because
- * the ES startup sequence itself serves that role. ES also does not
- * have a Cleanup function - it is the last module standing during
- * shutdown.
+ * CONFIG is a library-only module (no task). Its EarlyInit is called
+ * first, before all other modules, so that the configuration registry
+ * is available during the rest of the startup sequence.
  */
 
 #include "target_objtab.h"
-#include "cfe_es_core_internal.h"
-#include "cfe_platform_cfg.h"
+#include "cfe_config_core_internal.h"
 
-const Target_ObjectTable_t CFE_ES_ModuleEntry = {
-    .Name      = "CFE_ES",
-    .EarlyInit = CFE_ES_CDS_EarlyInit, /* ES drives its own startup, this is for CDS*/
-    .TaskMain  = CFE_ES_TaskMain,
-    .Cleanup   = NULL, /* ES does not clean up - it owns shutdown */
-    .Priority  = CFE_PLATFORM_ES_START_TASK_PRIORITY,
-    .StackSize = CFE_PLATFORM_ES_START_TASK_STACK_SIZE
-};
+const Target_ObjectTable_t CFE_CONFIG_ModuleEntry = { .Name      = "CFE_CONFIG",
+                                                      .EarlyInit = CFE_Config_Init,
+                                                      .TaskMain  = NULL, /* library module - no task */
+                                                      .Cleanup   = NULL,
+                                                      .Priority  = 0,
+                                                      .StackSize = 0 };

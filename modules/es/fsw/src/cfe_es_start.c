@@ -36,6 +36,7 @@
 */
 
 #include "cfe_es_module_all.h"
+#include "target_config.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -739,171 +740,110 @@ void CFE_ES_InitializeFileSystems(uint32 StartType)
  *-----------------------------------------------------------------*/
 void CFE_ES_CreateObjects(void)
 {
-    int32               ReturnCode;
-    uint16              i;
-    CFE_ES_AppRecord_t *AppRecPtr;
-    CFE_ResourceId_t    PendingAppId;
+    int32                       ReturnCode;
+    size_t                      i;
+    CFE_ES_AppRecord_t         *AppRecPtr;
+    CFE_ResourceId_t            PendingAppId;
+    const Target_ObjectTable_t *Entry;
 
     CFE_ES_WriteToSysLog("%s: Starting Object Creation calls.\n", __func__);
 
-    for (i = 0; i < CFE_PLATFORM_ES_OBJECT_TABLE_SIZE; i++)
+    /* Phase 1: EarlyInit */
+    for (i = 0;; i++)
     {
-        switch (CFE_ES_ObjectTable[i].ObjectType)
+        Entry = GLOBAL_CONFIGDATA.CoreObjectTable[i];
+        if (Entry == NULL)
         {
-            case CFE_ES_DRIVER_TASK:
-            case CFE_ES_CORE_TASK:
+            break;
+        }
+        if (Entry->EarlyInit != NULL)
+        {
+            CFE_ES_WriteToSysLog("%s: Calling EarlyInit for %s\n", __func__, Entry->Name);
+            ReturnCode = Entry->EarlyInit();
+            if (ReturnCode != CFE_SUCCESS)
+            {
+                CFE_ES_WriteToSysLog("%s: Error returned from EarlyInit for %s: EC = 0x%08X\n",
+                                     __func__,
+                                     Entry->Name,
+                                     (unsigned int)ReturnCode);
+                OS_TaskDelay(CFE_ES_PANIC_DELAY);
+                CFE_PSP_Panic(CFE_PSP_PANIC_CORE_APP);
+            }
+        }
+    }
 
-                /*
-                ** Allocate an ES AppTable entry
-                */
-                CFE_ES_LockSharedData(__func__, __LINE__);
+    /* Phase 2: TaskMain */
+    for (i = 0;; i++)
+    {
+        Entry = GLOBAL_CONFIGDATA.CoreObjectTable[i];
+        if (Entry == NULL)
+        {
+            break;
+        }
+        if (Entry->TaskMain == NULL)
+        {
+            continue;
+        }
 
-                PendingAppId = CFE_ResourceId_FindNext(CFE_ES_Global.LastAppId,
-                                                       CFE_PLATFORM_ES_MAX_APPLICATIONS,
-                                                       CFE_ES_CheckAppIdSlotUsed);
-                AppRecPtr    = CFE_ES_LocateAppRecordByID(CFE_ES_APPID_C(PendingAppId));
-                if (AppRecPtr != NULL)
-                {
-                    /*
-                    ** Fill out the parameters in the AppStartParams sub-structure
-                    */
-                    AppRecPtr->Type = CFE_ES_AppType_CORE;
+        CFE_ES_LockSharedData(__func__, __LINE__);
+        PendingAppId = CFE_ResourceId_FindNext(CFE_ES_Global.LastAppId,
+                                               CFE_PLATFORM_ES_MAX_APPLICATIONS,
+                                               CFE_ES_CheckAppIdSlotUsed);
+        AppRecPtr    = CFE_ES_LocateAppRecordByID(CFE_ES_APPID_C(PendingAppId));
+        if (AppRecPtr != NULL)
+        {
+            AppRecPtr->Type = CFE_ES_AppType_CORE;
+            strncpy(AppRecPtr->AppName, Entry->Name, sizeof(AppRecPtr->AppName) - 1);
+            AppRecPtr->AppName[sizeof(AppRecPtr->AppName) - 1] = '\0';
+            AppRecPtr->StartParams.MainTaskInfo.StackSize      = Entry->StackSize;
+            AppRecPtr->StartParams.MainTaskInfo.Priority       = Entry->Priority;
+            AppRecPtr->StartParams.ExceptionAction             = CFE_ES_ExceptionAction_PROC_RESTART;
+            AppRecPtr->ControlReq.AppControlRequest            = CFE_ES_RunStatus_APP_RUN;
+            AppRecPtr->ControlReq.AppTimerMsec                 = 0;
+            CFE_ES_AppRecordSetUsed(AppRecPtr, CFE_RESOURCEID_RESERVED);
+            CFE_ES_Global.LastAppId = PendingAppId;
+        }
+        CFE_ES_UnlockSharedData(__func__, __LINE__);
 
-                    strncpy(AppRecPtr->AppName, CFE_ES_ObjectTable[i].ObjectName, sizeof(AppRecPtr->AppName) - 1);
-                    AppRecPtr->AppName[sizeof(AppRecPtr->AppName) - 1] = '\0';
+        if (AppRecPtr != NULL)
+        {
+            ReturnCode = CFE_ES_StartAppTask(&AppRecPtr->MainTaskId,
+                                             AppRecPtr->AppName,
+                                             Entry->TaskMain,
+                                             &AppRecPtr->StartParams.MainTaskInfo,
+                                             CFE_ES_APPID_C(PendingAppId));
+            CFE_ES_LockSharedData(__func__, __LINE__);
+            if (ReturnCode == CFE_SUCCESS)
+            {
+                CFE_ES_AppRecordSetUsed(AppRecPtr, PendingAppId);
+                CFE_ES_Global.RegisteredCoreApps++;
+            }
+            else
+            {
+                memset(AppRecPtr, 0, sizeof(*AppRecPtr));
+            }
+            CFE_ES_UnlockSharedData(__func__, __LINE__);
+        }
+        else
+        {
+            CFE_ES_WriteToSysLog("%s: Error, No free application slots available for CORE App!\n", __func__);
+            ReturnCode = CFE_ES_ERR_APP_CREATE;
+        }
 
-                    /* FileName and EntryPoint is not valid for core apps */
-                    AppRecPtr->StartParams.MainTaskInfo.StackSize = CFE_ES_ObjectTable[i].ObjectSize;
-                    AppRecPtr->StartParams.MainTaskInfo.Priority  = CFE_ES_ObjectTable[i].ObjectPriority;
-                    AppRecPtr->StartParams.ExceptionAction        = CFE_ES_ExceptionAction_PROC_RESTART;
+        if (ReturnCode == CFE_SUCCESS)
+        {
+            ReturnCode = CFE_ES_MainTaskSyncDelay(CFE_ES_AppState_RUNNING, CFE_PLATFORM_CORE_MAX_STARTUP_MSEC);
+        }
 
-                    /*
-                    ** Fill out the Task State info
-                    */
-                    AppRecPtr->ControlReq.AppControlRequest = CFE_ES_RunStatus_APP_RUN;
-                    AppRecPtr->ControlReq.AppTimerMsec      = 0;
-
-                    CFE_ES_AppRecordSetUsed(AppRecPtr, CFE_RESOURCEID_RESERVED);
-                    CFE_ES_Global.LastAppId = PendingAppId;
-                }
-
-                CFE_ES_UnlockSharedData(__func__, __LINE__);
-
-                /*
-                ** If a slot was found, create the application
-                */
-                if (AppRecPtr != NULL)
-                {
-                    /*
-                    ** Start the core app main task
-                    ** (core apps are already in memory - no loading needed)
-                    */
-                    ReturnCode = CFE_ES_StartAppTask(&AppRecPtr->MainTaskId,
-                                                     AppRecPtr->AppName,
-                                                     CFE_ES_ObjectTable[i].FuncPtrUnion.MainTaskPtr,
-                                                     &AppRecPtr->StartParams.MainTaskInfo,
-                                                     CFE_ES_APPID_C(PendingAppId));
-
-                    /*
-                     * Finalize data in the app table entry, which must be done under lock.
-                     * This transitions the entry from being RESERVED to the real type,
-                     * either MAIN_TASK (success) or returning to INVALID (failure).
-                     */
-                    CFE_ES_LockSharedData(__func__, __LINE__);
-
-                    if (ReturnCode == CFE_SUCCESS)
-                    {
-                        CFE_ES_AppRecordSetUsed(AppRecPtr, PendingAppId);
-
-                        /*
-                        ** Increment the Core App counter.
-                        */
-                        CFE_ES_Global.RegisteredCoreApps++;
-                    }
-                    else
-                    {
-                        /* failure mode - just clear the whole app table entry.
-                         * This will set the AppType back to CFE_ES_ResourceType_INVALID (0),
-                         * as well as clearing any other data that had been written */
-                        memset(AppRecPtr, 0, sizeof(*AppRecPtr));
-                    }
-
-                    CFE_ES_UnlockSharedData(__func__, __LINE__);
-                }
-                else
-                {
-                    /* appSlot not found -- This should never happen!*/
-                    CFE_ES_WriteToSysLog("%s: Error, No free application slots available for CORE App!\n", __func__);
-                    ReturnCode = CFE_ES_ERR_APP_CREATE;
-                }
-
-                if (ReturnCode == CFE_SUCCESS)
-                {
-                    /*
-                     * CFE_ES_MainTaskSyncDelay() will delay this thread until the
-                     * newly-started thread calls CFE_ES_WaitForSystemState()
-                     */
-                    ReturnCode = CFE_ES_MainTaskSyncDelay(CFE_ES_AppState_RUNNING, CFE_PLATFORM_CORE_MAX_STARTUP_MSEC);
-                }
-
-                if (ReturnCode != CFE_SUCCESS)
-                {
-                    CFE_ES_WriteToSysLog("%s: OS_TaskCreate error creating core App: %s: EC = 0x%08X\n",
-                                         __func__,
-                                         CFE_ES_ObjectTable[i].ObjectName,
-                                         (unsigned int)ReturnCode);
-
-                    /*
-                    ** Delay to allow the message to be read
-                    */
-                    OS_TaskDelay(CFE_ES_PANIC_DELAY);
-
-                    /*
-                    ** cFE Cannot continue to start up.
-                    */
-                    CFE_PSP_Panic(CFE_PSP_PANIC_CORE_APP);
-                }
-                break;
-
-            case CFE_ES_FUNCTION_CALL: /*----------------------------------------------------------*/
-
-                if (CFE_ES_ObjectTable[i].FuncPtrUnion.FunctionPtr != NULL)
-                {
-                    CFE_ES_WriteToSysLog("%s: Calling %s\n", __func__, CFE_ES_ObjectTable[i].ObjectName);
-                    /*
-                    ** Call the function
-                    */
-                    ReturnCode = (*CFE_ES_ObjectTable[i].FuncPtrUnion.FunctionPtr)();
-                    if (ReturnCode != CFE_SUCCESS)
-                    {
-                        CFE_ES_WriteToSysLog("%s: Error returned when calling function: %s: EC = 0x%08X\n",
-                                             __func__,
-                                             CFE_ES_ObjectTable[i].ObjectName,
-                                             (unsigned int)ReturnCode);
-
-                        /*
-                        ** Delay to allow the message to be read
-                        */
-                        OS_TaskDelay(CFE_ES_PANIC_DELAY);
-
-                        /*
-                        ** cFE Cannot continue to start up.
-                        */
-                        CFE_PSP_Panic(CFE_PSP_PANIC_CORE_APP);
-                    }
-                }
-                else
-                {
-                    CFE_ES_WriteToSysLog("%s: bad function pointer ( table entry = %d).\n", __func__, i);
-                }
-                break;
-
-            case CFE_ES_NULL_ENTRY: /*-------------------------------------------------------*/
-                break;
-            default:
-                break;
-        } /* end switch */
-
+        if (ReturnCode != CFE_SUCCESS)
+        {
+            CFE_ES_WriteToSysLog("%s: OS_TaskCreate error creating core App: %s: EC = 0x%08X\n",
+                                 __func__,
+                                 Entry->Name,
+                                 (unsigned int)ReturnCode);
+            OS_TaskDelay(CFE_ES_PANIC_DELAY);
+            CFE_PSP_Panic(CFE_PSP_PANIC_CORE_APP);
+        }
     } /* end for */
 
     CFE_ES_WriteToSysLog("%s: Finished ES CreateObject table entries.\n", __func__);

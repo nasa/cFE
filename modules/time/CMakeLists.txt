@@ -12,6 +12,7 @@ set(time_SOURCES
     fsw/src/cfe_time_task.c
     fsw/src/cfe_time_tone.c
     fsw/src/cfe_time_utils.c
+    fsw/src/cfe_time_objtab.c
 )
 
 if (CFE_EDS_ENABLED)

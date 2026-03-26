@@ -167,21 +167,6 @@
 #define DEFAULT_CFE_PLATFORM_ES_SYSTEM_LOG_SIZE 3072
 
 /**
-**  \cfeescfg Define Number of entries in the ES Object table
-**
-**  \par Description:
-**       Defines the number of entries in the ES Object table. This table controls
-**       the core cFE startup.
-**
-**  \par Limits
-**       There is a lower limit of 15.  There are no restrictions on the upper limit
-**       however, the maximum object table size is system dependent and should be
-**       verified.
-*/
-#define CFE_PLATFORM_ES_OBJECT_TABLE_SIZE         CFE_PLATFORM_ES_CFGVAL(OBJECT_TABLE_SIZE)
-#define DEFAULT_CFE_PLATFORM_ES_OBJECT_TABLE_SIZE 30
-
-/**
 **  \cfeescfg Define Max Number of Generic Counters
 **
 **  \par Description:

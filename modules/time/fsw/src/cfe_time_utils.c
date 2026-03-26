@@ -1015,10 +1015,13 @@ void CFE_TIME_Set1HzAdj(CFE_TIME_SysTime_t NewAdjust, int16 Direction)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_TIME_CleanUpApp(CFE_ES_AppId_t AppId)
+int32 CFE_TIME_CleanUpApp(uint32 Id)
 {
-    int32  Status;
-    uint32 AppIndex;
+    int32          Status;
+    uint32         AppIndex;
+    CFE_ES_AppId_t AppId;
+
+    AppId = CFE_ES_APPID_C(CFE_ResourceId_FromInteger(Id));
 
     Status = CFE_ES_AppID_ToIndex(AppId, &AppIndex);
     if (Status != CFE_SUCCESS)

@@ -89,6 +89,14 @@ extern CFE_ConfigName_t CFE_CORE_MODULE_LIST[];
 extern CFE_ConfigName_t CFE_STATIC_APP_LIST[];
 
 /**
+ * A NULL terminated list of CFS core modules and their
+ * associated early init, entry point, and cleanup routines
+ *
+ * This replaces the former hardcoded objtab list in ES
+ */
+extern const Target_ObjectTable_t *const CFE_CORE_MODULE_OBJTAB[];
+
+/**
  * A NULL terminated key-value table containing certain environment information
  * from the build system at the time CFE core was built.
  *
@@ -249,9 +257,9 @@ Target_ConfigData GLOBAL_CONFIGDATA = {
     .BuildEnvironment        = CFE_BUILD_ENV_TABLE,
     .ModuleVersionList       = CFE_MODULE_VERSION_TABLE,
     .CoreModuleList          = CFE_CORE_MODULE_LIST,
+    .CoreObjectTable         = CFE_CORE_MODULE_OBJTAB,
     .StaticAppList           = CFE_STATIC_APP_LIST,
     .EdsDb                   = CFE_CONST_EDS_DB_PTR,
     .DynamicEdsDb            = CFE_NONCONST_EDS_DB_PTR,
     .SbIntfDb                = CFE_SB_INTF_DB_PTR
 };
-
