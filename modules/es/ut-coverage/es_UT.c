@@ -574,6 +574,19 @@ void TestApps(void)
     CFE_UtAssert_PRINTF(UT_OSP_MESSAGES[UT_OSP_FILE_LINE_TOO_LONG]);
     CFE_UtAssert_PRINTF(UT_OSP_MESSAGES[UT_OSP_ES_APP_STARTUP_OPEN]);
 
+    /* Test starting an application where the startup script exactly fills the line buffer */
+    ES_ResetUnitTest();
+    memset(StartupScript, 'A', 128);
+    StartupScript[128] = ';';
+    StartupScript[129] = ' ';
+    StartupScript[130] = '!';
+    StartupScript[131] = '\0';
+    NumBytes           = strlen(StartupScript);
+    UT_SetReadBuffer(StartupScript, NumBytes);
+    CFE_ES_StartApplications(CFE_PSP_RST_TYPE_PROCESSOR, "ut_startup");
+    CFE_UtAssert_PRINTF(UT_OSP_MESSAGES[UT_OSP_FILE_LINE_TOO_LONG]);
+    CFE_UtAssert_PRINTF(UT_OSP_MESSAGES[UT_OSP_ES_APP_STARTUP_OPEN]);
+
     /* Test starting an application where the startup script has extra tokens */
     ES_ResetUnitTest();
     strncpy(StartupScript, "A,B,C,D,E,F,G,H,I,J,K; !", sizeof(StartupScript) - 1);

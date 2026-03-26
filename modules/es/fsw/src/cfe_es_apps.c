@@ -296,7 +296,7 @@ void CFE_ES_StartApplications(uint32 ResetType, const char *StartFilePath)
                 {
                     ++NumLines;
 
-                    if (LineTooLong == true)
+                    if (LineTooLong == true || BuffLen >= ES_START_BUFF_SIZE)
                     {
                         /*
                         ** The line was not formed correctly
