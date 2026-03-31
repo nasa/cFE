@@ -289,7 +289,9 @@ void UT_TBL_ValidateCodecConfig_Test(void)
 
     CFE_TBL_TableConfig_t               ReqCfg;
     UT_TBL_GenericOutput_t              Cb;
+    UT_TBL_GenericOutput_t              Cb2;
     EdsLib_DataTypeDB_DerivedTypeInfo_t DerivInfo;
+    EdsLib_Id_t                         IntfId;
 
     memset(&ReqCfg, 0, sizeof(ReqCfg));
     memset(&Cb, 0, sizeof(Cb));
@@ -322,9 +324,16 @@ void UT_TBL_ValidateCodecConfig_Test(void)
     Cb.ContentPtr           = &DerivInfo;
     Cb.ContentSize          = sizeof(DerivInfo);
     Cb.ParamName            = "DerivInfo";
+    Cb2.ContentPtr          = &IntfId;
+    Cb2.ContentSize         = sizeof(EdsLib_Id_t);
+    Cb2.ParamName           = "IdBuffer";
     DerivInfo.MaxSize.Bytes = 1000;
     ReqCfg.Size             = 100;
+    IntfId                  = EDSLIB_INTF_ID(EDS_INDEX(CFE_TBL), 1);
     UT_SetHandlerFunction(UT_KEY(EdsLib_DataTypeDB_GetDerivedInfo), UT_TBL_AltHandler_GenericOutput, &Cb);
+    UT_SetHandlerFunction(UT_KEY(EdsLib_IntfDB_FindComponentInterfaceByLocalName),
+                          UT_TBL_AltHandler_GenericOutput,
+                          &Cb2);
     UT_SetHandlerFunction(UT_KEY(EdsLib_IntfDB_FindAllArgumentTypes), UT_TBL_GetArgumentTypeHandler, NULL);
 
     UtAssert_INT32_EQ(CFE_TBL_ValidateCodecConfig(&ReqCfg), CFE_TBL_ERR_INVALID_SIZE);
