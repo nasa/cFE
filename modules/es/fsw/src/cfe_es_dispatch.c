@@ -58,9 +58,12 @@ bool CFE_ES_VerifyCmdLength(const CFE_MSG_Message_t *MsgPtr, size_t ExpectedLeng
         CFE_MSG_GetMsgId(MsgPtr, &MsgId);
         CFE_MSG_GetFcnCode(MsgPtr, &FcnCode);
 
-        CFE_EVS_SendEvent(CFE_ES_LEN_ERR_EID, CFE_EVS_EventType_ERROR,
+        CFE_EVS_SendEvent(CFE_ES_LEN_ERR_EID,
+                          CFE_EVS_EventType_ERROR,
                           "Invalid msg length: ID = 0x%X,  CC = %u, Len = %u, Expected = %u",
-                          (unsigned int)CFE_SB_MsgIdToValue(MsgId), (unsigned int)FcnCode, (unsigned int)ActualLength,
+                          (unsigned int)CFE_SB_MsgIdToValue(MsgId),
+                          (unsigned int)FcnCode,
+                          (unsigned int)ActualLength,
                           (unsigned int)ExpectedLength);
         result = false;
         CFE_ES_Global.TaskData.CommandErrorCounter++;
@@ -250,8 +253,10 @@ void CFE_ES_ProcessGroundCmd(const CFE_SB_Buffer_t *SBBufPtr)
             break;
 
         default:
-            CFE_EVS_SendEvent(CFE_ES_CC1_ERR_EID, CFE_EVS_EventType_ERROR,
-                              "Invalid ground command code: ID = 0x%X, CC = %d", (unsigned int)CFE_ES_CMD_MID,
+            CFE_EVS_SendEvent(CFE_ES_CC1_ERR_EID,
+                              CFE_EVS_EventType_ERROR,
+                              "Invalid ground command code: ID = 0x%X, CC = %d",
+                              (unsigned int)CFE_ES_CMD_MID,
                               (int)CommandCode);
             CFE_ES_Global.TaskData.CommandErrorCounter++;
             break;
@@ -296,7 +301,9 @@ void CFE_ES_TaskPipe(const CFE_SB_Buffer_t *SBBufPtr)
     }
     else
     {
-        CFE_EVS_SendEvent(CFE_ES_MID_ERR_EID, CFE_EVS_EventType_ERROR, "Invalid command pipe message ID: 0x%X",
+        CFE_EVS_SendEvent(CFE_ES_MID_ERR_EID,
+                          CFE_EVS_EventType_ERROR,
+                          "Invalid command pipe message ID: 0x%X",
                           (unsigned int)CFE_SB_MsgIdToValue(MessageID));
         CFE_ES_Global.TaskData.CommandErrorCounter++;
     }

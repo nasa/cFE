@@ -51,7 +51,7 @@
  * can be used as a general purpose initializer for instantiations
  * of the CFE_TIME_SysTime_t type.
  */
-#define CFE_TIME_ZERO_VALUE ((CFE_TIME_SysTime_t) {0, 0})
+#define CFE_TIME_ZERO_VALUE ((CFE_TIME_SysTime_t) { 0, 0 })
 
 /*****************************************************************************/
 /*

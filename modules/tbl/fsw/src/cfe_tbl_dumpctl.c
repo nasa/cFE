@@ -38,8 +38,10 @@
  *-----------------------------------------------------------------*/
 CFE_Status_t CFE_TBL_DumpCtrlId_ToIndex(CFE_TBL_DumpCtrlId_t DumpCtrlId, uint32 *Idx)
 {
-    return CFE_ResourceId_ToIndex(CFE_RESOURCEID_UNWRAP(DumpCtrlId), CFE_TBL_DUMPCTRLID_BASE,
-                                  CFE_PLATFORM_TBL_MAX_SIMULTANEOUS_LOADS, Idx);
+    return CFE_ResourceId_ToIndex(CFE_RESOURCEID_UNWRAP(DumpCtrlId),
+                                  CFE_TBL_DUMPCTRLID_BASE,
+                                  CFE_PLATFORM_TBL_MAX_SIMULTANEOUS_LOADS,
+                                  Idx);
 }
 
 /*----------------------------------------------------------------
@@ -92,6 +94,7 @@ bool CFE_TBL_CheckDumpCtrlSlotUsed(CFE_ResourceId_t CheckId)
  *-----------------------------------------------------------------*/
 CFE_ResourceId_t CFE_TBL_GetNextDumpCtrlBlock(void)
 {
-    return CFE_ResourceId_FindNext(CFE_TBL_Global.LastDumpCtrlBlockId, CFE_PLATFORM_TBL_MAX_SIMULTANEOUS_LOADS,
+    return CFE_ResourceId_FindNext(CFE_TBL_Global.LastDumpCtrlBlockId,
+                                   CFE_PLATFORM_TBL_MAX_SIMULTANEOUS_LOADS,
                                    CFE_TBL_CheckDumpCtrlSlotUsed);
 }

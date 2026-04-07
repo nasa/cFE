@@ -32,13 +32,14 @@
 #include "cfe_error.h"
 #include "cfe_tbl_api_typedefs.h"
 #include "cfe_tbl_resource.h"
+#include "cfe_tbl_transaction.h"
 
 /*************************************************************************/
 
 /** \brief Value indicating when no Validation is Pending */
 /**
 **  This macro is used to indicate no Validation is Pending by assigning it to
-**  #CFE_TBL_RegistryRec_t::ValidateActiveId or #CFE_TBL_RegistryRec_t::ValidateInactiveId
+**  #CFE_TBL_RegistryRec_t::PendingValId
 */
 #define CFE_TBL_NO_VALIDATION_PENDING CFE_TBL_VALRESULTID_UNDEFINED
 
@@ -64,11 +65,11 @@ struct CFE_TBL_ValidationResult
 {
     CFE_TBL_ValidationResultId_t ValId;
 
-    CFE_TBL_ValidationState_t State;      /**< \brief Current state of this block of data */
-    int32                     Result;     /**< \brief Result returned by Application's Validation function */
-    uint32                    CrcOfTable; /**< \brief Data Integrity Value computed on Table Buffer */
-    bool ActiveBuffer;                    /**< \brief Flag indicating whether Validation is on Active/Inactive Buffer */
-    char TableName[CFE_TBL_MAX_FULL_NAME_LEN]; /**< \brief Name of Table being Validated */
+    CFE_TBL_ValidationState_t   State;        /**< \brief Current state of this block of data */
+    int32                       Result;       /**< \brief Result returned by Application's Validation function */
+    uint32                      CrcOfTable;   /**< \brief Data Integrity Value computed on Table Buffer */
+    CFE_TBL_BufferSelect_Enum_t BufferSelect; /**< \brief Indicates Active/Inactive Buffer */
+    char                        TableName[CFE_TBL_MAX_FULL_NAME_LEN]; /**< \brief Name of Table being Validated */
 };
 
 /*
@@ -245,5 +246,57 @@ CFE_ResourceId_t CFE_TBL_GetNextValResultBlock(void);
  * @returns True if used, False if available
  */
 bool CFE_TBL_CheckValidationResultSlotUsed(CFE_ResourceId_t CheckId);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * \brief Checks for existing a table validation request
+ *
+ * \par Description
+ *        Checks for an existing validation request.  If a request is pending, returns
+ *        a pointer to the validation block.  If no request is pending, returns NULL.
+ *
+ * \par Assumptions, External Events, and Notes:
+ *        None
+ *
+ * \param[inout] Txn          The transaction object to operate on
+ * \returns Pointer to validation result block, if present
+ */
+CFE_TBL_ValidationResult_t *CFE_TBL_TxnCheckValidationRequest(CFE_TBL_TxnState_t *Txn);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * \brief Initiates a table validation
+ *
+ * \par Description
+ *        Allocates a slot to hold a validation result and populates it
+ *        with the table information for the given transaction.  If the
+ *        table has no validation function registered, this immediately
+ *        validates it with a successful result.  If there is a validation
+ *        function, this makes a pending validation that will occur at the
+ *        next time the application calls CFE_TBL_Manage()
+ *
+ * \par Assumptions, External Events, and Notes:
+ *        None
+ *
+ * \param[inout] Txn          The transaction object to operate on
+ * \param[in]    BufferSelect Whether to validate the active or inactive buffer
+ * \returns Pointer to validation result block, if present
+ */
+CFE_TBL_ValidationResult_t *CFE_TBL_TxnSetupValidationRequest(CFE_TBL_TxnState_t         *Txn,
+                                                              CFE_TBL_BufferSelect_Enum_t BufferSelect);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * \brief Send events associated with a validation transaction
+ *
+ * \par Description
+ *        Event processing function for validation actions
+ *
+ * \par Assumptions, External Events, and Notes:
+ *        None
+ *
+ * \param[inout] Txn          The transaction object to operate on
+ */
+void CFE_TBL_SendValidationEvents(CFE_TBL_TxnState_t *Txn);
 
 #endif /* CFE_TBL_VALRESULT_H */

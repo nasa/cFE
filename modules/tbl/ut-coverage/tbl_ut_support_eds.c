@@ -84,7 +84,7 @@ static const EdsLib_Id_t UT_TBL_StubEdsId = EDSLIB_MAKE_ID(EDS_INDEX(CFE_TBL), U
 typedef struct
 {
     const char *ParamName;
-    void *      ContentPtr;
+    void       *ContentPtr;
     size_t      ContentSize;
     int32       Retval;
 
@@ -93,7 +93,7 @@ typedef struct
 static void UT_TBL_AltHandler_GenericOutput(void *UserObj, UT_EntryKey_t FuncKey, const UT_StubContext_t *Context)
 {
     UT_TBL_GenericOutput_t *Cb = UserObj;
-    void *                  Dest;
+    void                   *Dest;
 
     Dest = UT_Hook_GetArgValueByName(Context, Cb->ParamName, void *);
     if (Cb->ContentSize != 0 && Cb->ContentPtr != NULL && Dest != NULL)
@@ -107,7 +107,7 @@ static void UT_TBL_AltHandler_GenericOutput(void *UserObj, UT_EntryKey_t FuncKey
 static void UT_TBL_SetEdsLibUnpackData(void *UserObj, UT_EntryKey_t FuncKey, const UT_StubContext_t *Context)
 {
     EdsLib_Id_t *EdsId      = UT_Hook_GetArgValueByName(Context, "EdsId", EdsLib_Id_t *);
-    void *       DestBuffer = UT_Hook_GetArgValueByName(Context, "DestBuffer", void *);
+    void        *DestBuffer = UT_Hook_GetArgValueByName(Context, "DestBuffer", void *);
     uint32       DestSize   = UT_Hook_GetArgValueByName(Context, "MaxNativeByteSize", uint32);
     int32        Status;
 
@@ -126,7 +126,7 @@ static void UT_TBL_SetEdsLibTypeInfo(void *UserObj, UT_EntryKey_t FuncKey, const
 {
     const EdsLib_DataTypeDB_DerivedTypeInfo_t *RefInfo = UserObj;
     EdsLib_Id_t                                EdsId   = UT_Hook_GetArgValueByName(Context, "EdsId", EdsLib_Id_t);
-    EdsLib_DataTypeDB_DerivedTypeInfo_t *      DerivInfo =
+    EdsLib_DataTypeDB_DerivedTypeInfo_t       *DerivInfo =
         UT_Hook_GetArgValueByName(Context, "DerivInfo", EdsLib_DataTypeDB_DerivedTypeInfo_t *);
     int32 Status;
 
@@ -149,8 +149,8 @@ static void UT_TBL_SetEdsLibTypeInfo(void *UserObj, UT_EntryKey_t FuncKey, const
             if (EdsId == UT_TBL_StubEdsId)
             {
                 /* If its is one of the UT tables, almost all tests use the UT_Table1_t struct */
-                if (strncmp(UT_TBL_StubIntfNameStash, "UT.ut", 5) == 0 ||
-                    strncmp(UT_TBL_StubIntfNameStash, "ut_cfe_tbl.", 11) == 0)
+                if (strncmp(UT_TBL_StubIntfNameStash, "UT.ut", 5) == 0
+                    || strncmp(UT_TBL_StubIntfNameStash, "ut_cfe_tbl.", 11) == 0)
                 {
                     DerivInfo->MaxSize.Bytes = sizeof(UT_Table1_t);
                 }
@@ -201,7 +201,9 @@ void UT_TBL_SetupHeader(CFE_TBL_File_Hdr_t *TblFileHeader, size_t Offset, size_t
 
     /* The subject code should call EdsLib_DataTypeDB_UnpackCompleteObject, at which point it will get
      * the data that the test case set up for the table header */
-    UT_SetDataBuffer(UT_KEY(EdsLib_DataTypeDB_UnpackCompleteObject) ^ EdsId, TblFileHeader, sizeof(*TblFileHeader),
+    UT_SetDataBuffer(UT_KEY(EdsLib_DataTypeDB_UnpackCompleteObject) ^ EdsId,
+                     TblFileHeader,
+                     sizeof(*TblFileHeader),
                      true);
     UT_SetHandlerFunction(UT_KEY(EdsLib_DataTypeDB_UnpackCompleteObject), UT_TBL_SetEdsLibUnpackData, NULL);
 
@@ -219,7 +221,7 @@ static void UT_TBL_FindIntfNameHandler(void *UserObj, UT_EntryKey_t FuncKey, con
      * int32_t EdsLib_IntfDB_FindComponentInterfaceByLocalName(const EdsLib_DatabaseObject_t *GD, EdsLib_Id_t
      * ComponentId, const char *IntfName, EdsLib_Id_t *IdBuffer)
      */
-    const char * IntfName = UT_Hook_GetArgValueByName(Context, "IntfName", const char *);
+    const char  *IntfName = UT_Hook_GetArgValueByName(Context, "IntfName", const char *);
     EdsLib_Id_t *IdBuffer = UT_Hook_GetArgValueByName(Context, "IdBuffer", EdsLib_Id_t *);
 
     if (IntfName != NULL)
@@ -266,7 +268,8 @@ void UT_TBL_SetupCodec(size_t ByteSize)
         memset(&UT_TBL_StubDerivInfo, 0, sizeof(UT_TBL_StubDerivInfo));
         UT_TBL_StubDerivInfo.MaxSize.Bytes = ByteSize;
 
-        UT_SetHandlerFunction(UT_KEY(EdsLib_DataTypeDB_GetDerivedInfo), UT_TBL_SetEdsLibTypeInfo,
+        UT_SetHandlerFunction(UT_KEY(EdsLib_DataTypeDB_GetDerivedInfo),
+                              UT_TBL_SetEdsLibTypeInfo,
                               &UT_TBL_StubDerivInfo);
     }
     else

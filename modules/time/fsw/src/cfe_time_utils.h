@@ -282,8 +282,8 @@ typedef struct
     /*
     ** Interrupt task semaphores...
     */
-    osal_id_t LocalSemaphore;
-    osal_id_t ToneSemaphore;
+    osal_id_t       LocalSemaphore;
+    osal_id_t       ToneSemaphore;
     /*
     ** Interrupt task ID's...
     */

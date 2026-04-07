@@ -32,8 +32,11 @@
 /* Setup function to register a table */
 void RegisterTestTable(void)
 {
-    UtAssert_INT32_EQ(CFE_TBL_Register(&CFE_FT_Global.TblHandle, CFE_FT_Global.TblName, sizeof(CFE_TEST_TestTable_t),
-                                       CFE_TBL_OPT_DEFAULT, NULL),
+    UtAssert_INT32_EQ(CFE_TBL_Register(&CFE_FT_Global.TblHandle,
+                                       CFE_FT_Global.TblName,
+                                       sizeof(CFE_TEST_TestTable_t),
+                                       CFE_TBL_OPT_DEFAULT,
+                                       NULL),
                       CFE_SUCCESS);
 }
 

@@ -34,6 +34,11 @@ else()
     message(ERROR "Invalid software bus routing implementation selected:" MISSION_MSGMAP_IMPLEMENTATION)
 endif()
 
+# objtab.c is independent of routing implementation
+list(APPEND ${DEP}_SRC
+    ${CMAKE_CURRENT_SOURCE_DIR}/fsw/src/cfe_sbr_objtab.c
+)
+
 # Module library
 add_library(${DEP} STATIC ${${DEP}_SRC})
 

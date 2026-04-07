@@ -184,7 +184,8 @@ void UT_SB_Handler_Get_PubSub_Parameters(void *UserObj, UT_EntryKey_t FuncKey, c
     }
 }
 
-void UT_SB_Handler_EdsLib_DataTypeDB_GetMemberByIndex(void *UserObj, UT_EntryKey_t FuncKey,
+void UT_SB_Handler_EdsLib_DataTypeDB_GetMemberByIndex(void                   *UserObj,
+                                                      UT_EntryKey_t           FuncKey,
                                                       const UT_StubContext_t *Context)
 {
     EdsLib_DataTypeDB_EntityInfo_t *MemberInfo =
@@ -235,6 +236,7 @@ void UT_SB_Setup_MsgHdrSize(bool HasSec, CFE_MSG_Type_t MsgType, CFE_MSG_Size_t 
     MemberInfo.Offset.Bytes  = ExpectedPayloadOffset;
     MemberInfo.MaxSize.Bytes = TotalSize - ExpectedPayloadOffset;
 
-    UT_SetHandlerFunction(UT_KEY(EdsLib_DataTypeDB_GetMemberByIndex), UT_SB_Handler_EdsLib_DataTypeDB_GetMemberByIndex,
+    UT_SetHandlerFunction(UT_KEY(EdsLib_DataTypeDB_GetMemberByIndex),
+                          UT_SB_Handler_EdsLib_DataTypeDB_GetMemberByIndex,
                           &MemberInfo);
 }

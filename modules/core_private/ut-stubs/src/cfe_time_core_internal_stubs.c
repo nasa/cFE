@@ -30,7 +30,7 @@
  * Generated stub function for CFE_TIME_CleanUpApp()
  * ----------------------------------------------------
  */
-int32 CFE_TIME_CleanUpApp(CFE_ES_AppId_t AppId)
+int32 CFE_TIME_CleanUpApp(uint32 AppId)
 {
     UT_GenStub_SetupReturnBuffer(CFE_TIME_CleanUpApp, int32);
 

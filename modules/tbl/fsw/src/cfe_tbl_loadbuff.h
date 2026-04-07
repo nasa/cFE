@@ -33,6 +33,7 @@
 #include "cfe_platform_cfg.h"
 
 #include "cfe_tbl_resource.h"
+#include "cfe_tbl_transaction.h"
 
 #include "cfe_tbl_api_typedefs.h"
 #include "cfe_time_api_typedefs.h"
@@ -51,12 +52,14 @@ struct CFE_TBL_LoadBuff
     CFE_TBL_LoadBuffId_t LoadBufferId;
     CFE_TBL_RegId_t      OwnerRegId;
 
-    void *             BufferPtr;      /**< \brief Pointer to Load Buffer */
+    void              *BufferPtr;      /**< \brief Pointer to Load Buffer */
     size_t             AllocationSize; /**< \brief Allocated size of the memory to which BufferPtr points */
     size_t             ContentSize;    /**< \brief Current content size */
     CFE_TIME_SysTime_t FileTime;       /**< \brief Time stamp from last file loaded into table */
     uint32             Crc;            /**< \brief Last calculated CRC for this buffer's contents */
-    bool               Validated;      /**< \brief Flag indicating whether the buffer has been successfully validated */
+
+    bool IsValid;     /**< \brief Flag indicating whether the buffer has been successfully validated */
+    bool ActivateReq; /**< \brief Flag indicating whether activation is requested on this buffer */
 
     char DataSource[OS_MAX_PATH_LEN]; /**< \brief Source of data put into buffer (filename or memory address) */
 };
@@ -173,8 +176,8 @@ static inline bool CFE_TBL_LoadBuffIsUsed(const CFE_TBL_LoadBuff_t *BuffPtr)
  * @param[in]   PendingId   the ID of this entry that will be set
  * @param[in]   OwnerRegId  the ID of the registry entry that owns this buffer
  */
-static inline void CFE_TBL_LoadBuffSetUsed(CFE_TBL_LoadBuff_t *BuffPtr, CFE_ResourceId_t PendingId,
-                                           CFE_TBL_RegId_t OwnerRegId)
+static inline void
+CFE_TBL_LoadBuffSetUsed(CFE_TBL_LoadBuff_t *BuffPtr, CFE_ResourceId_t PendingId, CFE_TBL_RegId_t OwnerRegId)
 {
     BuffPtr->OwnerRegId   = OwnerRegId;
     BuffPtr->LoadBufferId = CFE_TBL_LOADBUFFID_C(PendingId);
@@ -537,5 +540,35 @@ bool CFE_TBL_LoadBuffIsPrivate(CFE_TBL_LoadBuffId_t BuffId, CFE_TBL_RegId_t RegI
  * @retval  false if that buffer is not from the shared pool
  */
 bool CFE_TBL_LoadBuffIsShared(CFE_TBL_LoadBuffId_t BuffId);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * \brief Initiates a table activation
+ *
+ * \par Description
+ *        This sets a pending activation that will occur at the
+ *        next time the application calls CFE_TBL_Manage()
+ *
+ * \par Assumptions, External Events, and Notes:
+ *        None
+ *
+ * \param[inout] Txn          The transaction object to operate on
+ * \retval  Pointer to buffer that was set to activate, or NULL if error
+ */
+CFE_TBL_LoadBuff_t *CFE_TBL_TxnSetupActivationRequest(CFE_TBL_TxnState_t *Txn);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * \brief Send events associated with a activation transaction
+ *
+ * \par Description
+ *        Event processing function for activation actions
+ *
+ * \par Assumptions, External Events, and Notes:
+ *        None
+ *
+ * \param[inout] Txn          The transaction object to operate on
+ */
+void CFE_TBL_SendActivationEvents(CFE_TBL_TxnState_t *Txn);
 
 #endif /* CFE_TBL_LOADBUFF_H */

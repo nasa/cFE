@@ -46,7 +46,7 @@ CFE_Status_t CFE_EVS_Register(const void *Filters, uint16 NumEventFilters, uint1
     int32                Status;
     CFE_ES_AppId_t       AppID;
     CFE_EVS_BinFilter_t *AppFilters;
-    EVS_AppData_t *      AppDataPtr;
+    EVS_AppData_t       *AppDataPtr;
 
     /* Query and verify the caller's AppID */
     Status = EVS_GetCurrentContext(&AppDataPtr, &AppID);
@@ -67,8 +67,8 @@ CFE_Status_t CFE_EVS_Register(const void *Filters, uint16 NumEventFilters, uint1
         else
         {
             /* Initialize application event data */
-            AppDataPtr->ActiveFlag           = true;
-            AppDataPtr->SquelchTokens        = CFE_PLATFORM_EVS_MAX_APP_EVENT_BURST * 1000;
+            AppDataPtr->ActiveFlag    = true;
+            AppDataPtr->SquelchTokens = CFE_PLATFORM_EVS_MAX_APP_EVENT_BURST * 1000;
             EVS_SetTypes(AppDataPtr, CFE_PLATFORM_EVS_DEFAULT_TYPE_FLAG, true);
 
             /* Set limit for number of provided filters */
@@ -122,7 +122,7 @@ CFE_Status_t CFE_EVS_SendEvent(uint16 EventID, CFE_EVS_EventType_Enum_t EventTyp
     CFE_ES_AppId_t     AppID;
     CFE_TIME_SysTime_t Time;
     va_list            Ptr;
-    EVS_AppData_t *    AppDataPtr;
+    EVS_AppData_t     *AppDataPtr;
 
     if (Spec == NULL)
     {
@@ -166,13 +166,16 @@ CFE_Status_t CFE_EVS_SendEvent(uint16 EventID, CFE_EVS_EventType_Enum_t EventTyp
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-CFE_Status_t CFE_EVS_SendEventWithAppID(uint16 EventID, CFE_EVS_EventType_Enum_t EventType, CFE_ES_AppId_t AppID,
-                                        const char *Spec, ...)
+CFE_Status_t CFE_EVS_SendEventWithAppID(uint16                   EventID,
+                                        CFE_EVS_EventType_Enum_t EventType,
+                                        CFE_ES_AppId_t           AppID,
+                                        const char              *Spec,
+                                        ...)
 {
     int32              Status = CFE_SUCCESS;
     CFE_TIME_SysTime_t Time;
     va_list            Ptr;
-    EVS_AppData_t *    AppDataPtr;
+    EVS_AppData_t     *AppDataPtr;
 
     if (Spec == NULL)
     {
@@ -216,8 +219,11 @@ CFE_Status_t CFE_EVS_SendEventWithAppID(uint16 EventID, CFE_EVS_EventType_Enum_t
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-CFE_Status_t CFE_EVS_SendTimedEvent(CFE_TIME_SysTime_t Time, uint16 EventID, CFE_EVS_EventType_Enum_t EventType,
-                                    const char *Spec, ...)
+CFE_Status_t CFE_EVS_SendTimedEvent(CFE_TIME_SysTime_t       Time,
+                                    uint16                   EventID,
+                                    CFE_EVS_EventType_Enum_t EventType,
+                                    const char              *Spec,
+                                    ...)
 {
     int32          Status;
     CFE_ES_AppId_t AppID;
@@ -268,7 +274,7 @@ int32 CFE_EVS_ResetFilter(uint16 EventID)
     int32            Status;
     EVS_BinFilter_t *FilterPtr = NULL;
     CFE_ES_AppId_t   AppID;
-    EVS_AppData_t *  AppDataPtr;
+    EVS_AppData_t   *AppDataPtr;
 
     /* Query and verify the caller's AppID */
     Status = EVS_GetCurrentContext(&AppDataPtr, &AppID);

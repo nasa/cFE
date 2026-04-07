@@ -146,8 +146,10 @@ int32 CFE_ResourceId_ToIndex(CFE_ResourceId_t Id, uint32 BaseValue, uint32 Table
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-CFE_ResourceId_t CFE_ResourceId_FindNextEx(CFE_ResourceId_t StartId, CFE_ResourceId_IncrementFunc_t IncrFunc,
-                                           void *IncrArg, CFE_ResourceId_CheckFunc_t CheckFunc)
+CFE_ResourceId_t CFE_ResourceId_FindNextEx(CFE_ResourceId_t               StartId,
+                                           CFE_ResourceId_IncrementFunc_t IncrFunc,
+                                           void                          *IncrArg,
+                                           CFE_ResourceId_CheckFunc_t     CheckFunc)
 {
     CFE_ResourceId_t CheckId;
 
@@ -178,8 +180,8 @@ CFE_ResourceId_t CFE_ResourceId_FindNextEx(CFE_ResourceId_t StartId, CFE_Resourc
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-CFE_ResourceId_t CFE_ResourceId_FindNext(CFE_ResourceId_t StartId, uint32 TableSize,
-                                         CFE_ResourceId_CheckFunc_t CheckFunc)
+CFE_ResourceId_t
+CFE_ResourceId_FindNext(CFE_ResourceId_t StartId, uint32 TableSize, CFE_ResourceId_CheckFunc_t CheckFunc)
 {
     CFE_ResourceId_DefaultIncrementState_t State;
 

@@ -45,7 +45,7 @@ void TestCreateHeader(void)
 {
     CFE_FS_Header_t Header;
     CFE_FS_Header_t HeaderFail;
-    const char *    TestDescription = "TEST_HEADER";
+    const char     *TestDescription = "TEST_HEADER";
     osal_id_t       fd              = setup_file();
 
     UtPrintf("Testing: CFE_FS_InitHeader, CFE_FS_WriteHeader");
@@ -69,7 +69,7 @@ void TestReadHeader(void)
 {
     CFE_FS_Header_t Header;
     CFE_FS_Header_t ReadHeader;
-    const char *    TestDescription = "TEST_HEADER";
+    const char     *TestDescription = "TEST_HEADER";
     osal_id_t       fd              = setup_file();
 
     memset(&ReadHeader, 0, sizeof(ReadHeader));
@@ -96,8 +96,8 @@ void TestTimeStamp(void)
 {
     CFE_FS_Header_t    Header;
     CFE_FS_Header_t    ReadHeader;
-    const char *       TestDescription = "TEST_HEADER";
-    CFE_TIME_SysTime_t NewTimestamp    = {0xFFFFFFFF, 0xFFFFFFFF};
+    const char        *TestDescription = "TEST_HEADER";
+    CFE_TIME_SysTime_t NewTimestamp    = { 0xFFFFFFFF, 0xFFFFFFFF };
     osal_id_t          fd              = setup_file();
 
     memset(&ReadHeader, 0, sizeof(ReadHeader));

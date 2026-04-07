@@ -401,18 +401,15 @@
  */
 #define CFE_TBL_WRITE_TBL_IMG_ERR_EID 65
 
-/**
- * \brief TBL Validate Or Write Table Command No Inactive Buffer Event ID
+/*
+ * NOTE:
+ * Event ID CFE_TBL_NO_INACTIVE_BUFFER_ERR_EID (66) has been removed, as it
+ * is superceded by CFE_TBL_ILLEGAL_BUFF_PARAM_ERR_EID (80).
  *
- *  \par Type: ERROR
- *
- *  \par Cause:
- *
- *  \link #CFE_TBL_VALIDATE_CC TBL Validate Table Command \endlink or
- *  \link #CFE_TBL_DUMP_CC TBL Write Table Command \endlink failure due
- *  to requesting non-existent inactive buffer. OVERLOADED
+ * When requesting a dump or validation on a buffer that does not exist the
+ * FSW will generate the CFE_TBL_ILLEGAL_BUFF_PARAM_ERR_EID regardless of whether
+ * it was referred to as active or inactive.
  */
-#define CFE_TBL_NO_INACTIVE_BUFFER_ERR_EID 66
 
 /**
  * \brief TBL Validate Table Command Result Storage Exceeded Event ID
@@ -816,6 +813,18 @@
  *  #CFE_TBL_Load API failure due to the application not owning the table.
  */
 #define CFE_TBL_HANDLE_ACCESS_ERR_EID 103
+
+/**
+ * \brief TBL Validation Already In Progress Event ID
+ *
+ *  \par Type: ERROR
+ *
+ *  \par Cause:
+ *
+ *  Validation failure due to existing request already pending.
+ */
+#define CFE_TBL_VALIDATION_IN_PROGRESS_ERR_EID 104
+
 /**\}*/
 
 #endif /* CFE_TBL_EVENTS_H */

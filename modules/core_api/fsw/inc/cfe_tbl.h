@@ -231,7 +231,10 @@ CFE_TBL_Handle_t CFE_TBL_HandleFromID(CFE_TBL_HandleId_t TblId);
 **
 ** \sa #CFE_TBL_Unregister, #CFE_TBL_Share
 **/
-CFE_Status_t CFE_TBL_Register(CFE_TBL_Handle_t *TblHandlePtr, const char *Name, size_t Size, uint16 TblOptionFlags,
+CFE_Status_t CFE_TBL_Register(CFE_TBL_Handle_t         *TblHandlePtr,
+                              const char               *Name,
+                              size_t                    Size,
+                              uint16                    TblOptionFlags,
                               CFE_TBL_CallbackFuncPtr_t TblValidationFuncPtr);
 
 /*****************************************************************************/
@@ -787,8 +790,10 @@ CFE_Status_t CFE_TBL_GetInfo(CFE_TBL_Info_t *TblInfoPtr, const char *TblName);
 ** \sa #CFE_TBL_Register
 **
 ******************************************************************************/
-CFE_Status_t CFE_TBL_NotifyByMessage(CFE_TBL_Handle_t TblHandle, CFE_SB_MsgId_t MsgId, CFE_MSG_FcnCode_t CommandCode,
-                                     uint32 Parameter);
+CFE_Status_t CFE_TBL_NotifyByMessage(CFE_TBL_Handle_t  TblHandle,
+                                     CFE_SB_MsgId_t    MsgId,
+                                     CFE_MSG_FcnCode_t CommandCode,
+                                     uint32            Parameter);
 /**@}*/
 
 #endif /* CFE_TBL_H */

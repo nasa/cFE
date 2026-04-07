@@ -33,16 +33,11 @@
 #include <stdio.h>
 #include <string.h>
 
-typedef struct CFE_TBL_LoadContext
+typedef struct CFE_TBL_LoadFileContext
 {
-    const char *Operation;
-    const char *Tablename;
-    const char *LoadFilename;
-    const char *CallerName;
-
+    const char                      *LoadFilename;
     const CFE_TBL_CombinedFileHdr_t *FileHdr;
-    const CFE_TBL_RegistryRec_t *    RegRecPtr;
-} CFE_TBL_LoadContext_t;
+} CFE_TBL_LoadFileContext_t;
 
 /*----------------------------------------------------------------
  *
@@ -50,7 +45,9 @@ typedef struct CFE_TBL_LoadContext
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-CFE_Status_t CFE_TBL_TxnOpenTableLoadFile(CFE_TBL_TxnState_t *Txn, const char *Filename, osal_id_t *FileDescOut,
+CFE_Status_t CFE_TBL_TxnOpenTableLoadFile(CFE_TBL_TxnState_t        *Txn,
+                                          const char                *Filename,
+                                          osal_id_t                 *FileDescOut,
                                           CFE_TBL_CombinedFileHdr_t *TblFileHeader)
 {
     CFE_Status_t Status;
@@ -102,7 +99,7 @@ CFE_Status_t CFE_TBL_TxnOpenTableLoadFile(CFE_TBL_TxnState_t *Txn, const char *F
 bool CFE_TBL_ValidateTableHeaderId(CFE_ConfigId_t ConfigId, uint32 RefId)
 {
     CFE_Config_ArrayValue_t AcceptList;
-    const uint32 *          ListPtr;
+    const uint32           *ListPtr;
     uint32                  Idx;
 
     AcceptList = CFE_Config_GetArrayValue(ConfigId);
@@ -128,8 +125,8 @@ bool CFE_TBL_ValidateTableHeaderId(CFE_ConfigId_t ConfigId, uint32 RefId)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-CFE_Status_t CFE_TBL_ReadHeaders(CFE_TBL_TxnState_t *Txn, osal_id_t FileDescriptor,
-                                 CFE_TBL_CombinedFileHdr_t *FileHeader)
+CFE_Status_t
+CFE_TBL_ReadHeaders(CFE_TBL_TxnState_t *Txn, osal_id_t FileDescriptor, CFE_TBL_CombinedFileHdr_t *FileHeader)
 {
     CFE_Status_t Status;
 
@@ -226,16 +223,16 @@ CFE_Status_t CFE_TBL_ValidateFileIsLoadable(CFE_TBL_TxnState_t *Txn, const CFE_T
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-CFE_Status_t CFE_TBL_LoadContentFromFile(CFE_TBL_TxnState_t *Txn, osal_id_t FileDescriptor, size_t Offset,
-                                         size_t NumBytes)
+CFE_Status_t
+CFE_TBL_LoadContentFromFile(CFE_TBL_TxnState_t *Txn, osal_id_t FileDescriptor, size_t Offset, size_t NumBytes)
 {
     size_t                 ActualBytes;
     uint8                  ExtraByte;
-    uint8 *                DestPtr;
+    uint8                 *DestPtr;
     int32                  OsStatus;
     CFE_Status_t           Status;
     CFE_TBL_RegistryRec_t *RegRecPtr;
-    CFE_TBL_LoadBuff_t *   WorkingBufferPtr;
+    CFE_TBL_LoadBuff_t    *WorkingBufferPtr;
     size_t                 LoadTailSize;
 
     RegRecPtr = CFE_TBL_TxnRegRec(Txn);
@@ -253,13 +250,15 @@ CFE_Status_t CFE_TBL_LoadContentFromFile(CFE_TBL_TxnState_t *Txn, osal_id_t File
     if (LoadTailSize > CFE_TBL_LoadBuffGetAllocSize(WorkingBufferPtr))
     {
         Status = CFE_TBL_ERR_FILE_TOO_LARGE;
-        CFE_TBL_TxnAddEvent(Txn, CFE_TBL_FILE_TOO_BIG_ERR_EID, LoadTailSize,
+        CFE_TBL_TxnAddEvent(Txn,
+                            CFE_TBL_FILE_TOO_BIG_ERR_EID,
+                            LoadTailSize,
                             CFE_TBL_LoadBuffGetAllocSize(WorkingBufferPtr));
     }
     else
     {
         /* Find where this goes in the memory buffer */
-        DestPtr = CFE_TBL_LoadBuffGetWritePointer(WorkingBufferPtr);
+        DestPtr  = CFE_TBL_LoadBuffGetWritePointer(WorkingBufferPtr);
         DestPtr += Offset;
 
         /* Now actually read the data, and confirm that the end of the file data lines up as expected */
@@ -318,7 +317,7 @@ CFE_Status_t CFE_TBL_LoadContentFromFile(CFE_TBL_TxnState_t *Txn, osal_id_t File
  *-----------------------------------------------------------------*/
 void CFE_TBL_SetMetaDataFromFileHeader(CFE_TBL_TxnState_t *Txn, const char *Filename, const CFE_FS_Header_t *StdHeader)
 {
-    CFE_TBL_LoadBuff_t *   WorkingBufferPtr;
+    CFE_TBL_LoadBuff_t    *WorkingBufferPtr;
     CFE_TBL_RegistryRec_t *RegRecPtr;
 
     RegRecPtr        = CFE_TBL_TxnRegRec(Txn);
@@ -340,7 +339,10 @@ void CFE_TBL_SetMetaDataFromFileHeader(CFE_TBL_TxnState_t *Txn, const char *File
 
         /* Initialize validation flag with true if no Validation Function is required to be
          * called */
-        WorkingBufferPtr->Validated = (CFE_TBL_RegRecGetValidationFunc(RegRecPtr) == NULL);
+        WorkingBufferPtr->IsValid = (CFE_TBL_RegRecGetValidationFunc(RegRecPtr) == NULL);
+
+        /* It is not ready to be activated until the Activate command is issued */
+        WorkingBufferPtr->ActivateReq = false;
     }
 }
 
@@ -350,13 +352,10 @@ void CFE_TBL_SetMetaDataFromFileHeader(CFE_TBL_TxnState_t *Txn, const char *File
  * This function handles general events that are _not_ related to a file header
  *
  *-----------------------------------------------------------------*/
-bool CFE_TBL_SendLoadBasicEventHelper(const CFE_TBL_TxnEvent_t *Event, void *Arg)
+bool CFE_TBL_SendLoadBasicEventHelper(const CFE_TBL_TxnEvent_t *Event, CFE_TBL_TxnEventContext_t *Ctxt)
 {
-    const CFE_TBL_LoadContext_t *Ctxt;
-    uint16                       EventType;
-    char                         EventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
-
-    Ctxt = Arg;
+    uint16 EventType;
+    char   EventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     /* The majority of the events are errors, but this can be reset later to demote to info/debug */
     EventType      = CFE_EVS_EventType_ERROR;
@@ -376,7 +375,9 @@ bool CFE_TBL_SendLoadBasicEventHelper(const CFE_TBL_TxnEvent_t *Event, void *Arg
         }
         case CFE_TBL_NO_WORK_BUFFERS_ERR_EID:
         {
-            snprintf(EventString, sizeof(EventString), "No working buffers available, stat=0x%lx",
+            snprintf(EventString,
+                     sizeof(EventString),
+                     "No working buffers available, stat=0x%lx",
                      (unsigned long)Event->EventData1);
             break;
         }
@@ -392,19 +393,25 @@ bool CFE_TBL_SendLoadBasicEventHelper(const CFE_TBL_TxnEvent_t *Event, void *Arg
         }
         case CFE_TBL_LOAD_TYPE_ERR_EID:
         {
-            snprintf(EventString, sizeof(EventString), "Attempted to load from illegal source type=%d",
+            snprintf(EventString,
+                     sizeof(EventString),
+                     "Attempted to load from illegal source type=%d",
                      (int)Event->EventData2);
             break;
         }
         case CFE_TBL_LOAD_VAL_ERR_EID:
         {
-            snprintf(EventString, sizeof(EventString), "Validation func return code invalid (Stat=%lx)",
+            snprintf(EventString,
+                     sizeof(EventString),
+                     "Validation func return code invalid (Stat=%lx)",
                      (unsigned long)Event->EventData1);
             break;
         }
         case CFE_TBL_VALIDATION_ERR_EID:
         {
-            snprintf(EventString, sizeof(EventString), "Validation func reports table invalid (Stat=%lx)",
+            snprintf(EventString,
+                     sizeof(EventString),
+                     "Validation func reports table invalid (Stat=%lx)",
                      (unsigned long)Event->EventData1);
             break;
         }
@@ -416,8 +423,14 @@ bool CFE_TBL_SendLoadBasicEventHelper(const CFE_TBL_TxnEvent_t *Event, void *Arg
     }
 
     /* Finally send the actual event by appending all the info we have */
-    CFE_EVS_SendEventWithAppID(Event->EventId, EventType, CFE_TBL_Global.TableTaskAppId, "%s,app=%s,tbl=%s:%s",
-                               Ctxt->Operation, Ctxt->CallerName, Ctxt->Tablename, EventString);
+    CFE_EVS_SendEventWithAppID(Event->EventId,
+                               EventType,
+                               CFE_TBL_Global.TableTaskAppId,
+                               "%s,app=%s,tbl=%s:%s",
+                               Ctxt->Operation,
+                               Ctxt->CallerName,
+                               Ctxt->TableName,
+                               EventString);
 
     return true;
 }
@@ -430,26 +443,7 @@ bool CFE_TBL_SendLoadBasicEventHelper(const CFE_TBL_TxnEvent_t *Event, void *Arg
  *-----------------------------------------------------------------*/
 void CFE_TBL_SendTableLoadEvents(CFE_TBL_TxnState_t *Txn)
 {
-    CFE_TBL_LoadContext_t Ctxt;
-
-    memset(&Ctxt, 0, sizeof(Ctxt));
-
-    Ctxt.Operation  = "Load";
-    Ctxt.CallerName = CFE_TBL_TxnAppNameCaller(Txn);
-    Ctxt.RegRecPtr  = CFE_TBL_TxnRegRec(Txn);
-
-    if (Ctxt.RegRecPtr != NULL)
-    {
-        Ctxt.Tablename = CFE_TBL_RegRecGetName(Ctxt.RegRecPtr);
-    }
-    else
-    {
-        /* do not leave it null/blank */
-        Ctxt.Tablename = "[unknown]";
-    }
-
-    CFE_TBL_TxnProcessEvents(Txn, CFE_TBL_SendLoadBasicEventHelper, &Ctxt);
-    CFE_TBL_TxnClearEvents(Txn);
+    CFE_TBL_SendTransactionEvents(Txn, "Load", CFE_TBL_SendLoadBasicEventHelper, NULL);
 }
 
 /*----------------------------------------------------------------
@@ -458,20 +452,20 @@ void CFE_TBL_SendTableLoadEvents(CFE_TBL_TxnState_t *Txn)
  * This function handles events that may be related to a file header
  *
  *-----------------------------------------------------------------*/
-bool CFE_TBL_SendLoadFileEventHelper(const CFE_TBL_TxnEvent_t *Event, void *Arg)
+bool CFE_TBL_SendLoadFileEventHelper(const CFE_TBL_TxnEvent_t *Event, CFE_TBL_TxnEventContext_t *Ctxt)
 {
-    const CFE_TBL_LoadContext_t *Ctxt;
-    uint16                       EventType;
-    char                         EventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    const CFE_TBL_LoadFileContext_t *LoadFileCtxt;
+    uint16                           EventType;
+    char                             EventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     /* A file load can generate some of the basic events too */
-    if (CFE_TBL_SendLoadBasicEventHelper(Event, Arg))
+    if (CFE_TBL_SendLoadBasicEventHelper(Event, Ctxt))
     {
         /* Handled -- Nothing else to do here */
         return true;
     }
 
-    Ctxt = Arg;
+    LoadFileCtxt = Ctxt->OperationDataPtr;
 
     /* The majority of the events are errors, but this can be reset later to demote to info/debug */
     EventType      = CFE_EVS_EventType_ERROR;
@@ -481,8 +475,10 @@ bool CFE_TBL_SendLoadFileEventHelper(const CFE_TBL_TxnEvent_t *Event, void *Arg)
     {
         case CFE_TBL_FILE_TOO_BIG_ERR_EID:
         {
-            snprintf(EventString, sizeof(EventString), "File has more data than Tbl Hdr indicates (%d)",
-                     (int)Ctxt->FileHdr->Tbl.NumBytes);
+            snprintf(EventString,
+                     sizeof(EventString),
+                     "File has more data than Tbl Hdr indicates (%d)",
+                     (int)LoadFileCtxt->FileHdr->Tbl.NumBytes);
             break;
         }
         case CFE_TBL_FILE_INCOMPLETE_ERR_EID:
@@ -494,13 +490,19 @@ bool CFE_TBL_SendLoadFileEventHelper(const CFE_TBL_TxnEvent_t *Event, void *Arg)
         }
         case CFE_TBL_LOAD_TBLNAME_MISMATCH_ERR_EID:
         {
-            snprintf(EventString, sizeof(EventString), "File for wrong table '%s'", Ctxt->FileHdr->Tbl.TableName);
+            snprintf(EventString,
+                     sizeof(EventString),
+                     "File for wrong table '%s'",
+                     LoadFileCtxt->FileHdr->Tbl.TableName);
             break;
         }
         case CFE_TBL_LOAD_EXCEEDS_SIZE_ERR_EID:
         {
-            snprintf(EventString, sizeof(EventString), "Cannot load %u at off %u",
-                     (unsigned int)Ctxt->FileHdr->Tbl.NumBytes, (unsigned int)Ctxt->FileHdr->Tbl.Offset);
+            snprintf(EventString,
+                     sizeof(EventString),
+                     "Cannot load %u at off %u",
+                     (unsigned int)LoadFileCtxt->FileHdr->Tbl.NumBytes,
+                     (unsigned int)LoadFileCtxt->FileHdr->Tbl.Offset);
             break;
         }
         case CFE_TBL_ZERO_LENGTH_LOAD_ERR_EID:
@@ -516,42 +518,54 @@ bool CFE_TBL_SendLoadFileEventHelper(const CFE_TBL_TxnEvent_t *Event, void *Arg)
         case CFE_TBL_FILE_STD_HDR_ERR_EID:
         {
             /* unsuccessful read of standard cFE File Header */
-            snprintf(EventString, sizeof(EventString), "Unable to read std header, Status = 0x%08x",
+            snprintf(EventString,
+                     sizeof(EventString),
+                     "Unable to read std header, Status = 0x%08x",
                      (unsigned int)Event->EventData1);
             break;
         }
         case CFE_TBL_FILE_TBL_HDR_ERR_EID:
         {
-            snprintf(EventString, sizeof(EventString), "Unable to read tbl header, Status = 0x%08x",
+            snprintf(EventString,
+                     sizeof(EventString),
+                     "Unable to read tbl header, Status = 0x%08x",
                      (unsigned int)Event->EventData1);
             break;
         }
         case CFE_TBL_FILE_TYPE_ERR_EID:
         {
             /* file type is not a cFE compatible file */
-            snprintf(EventString, sizeof(EventString), "not a cFE file type, ContentType = 0x%08x",
-                     (unsigned int)Ctxt->FileHdr->Std.ContentType);
+            snprintf(EventString,
+                     sizeof(EventString),
+                     "not a cFE file type, ContentType = 0x%08x",
+                     (unsigned int)LoadFileCtxt->FileHdr->Std.ContentType);
             break;
         }
         case CFE_TBL_FILE_SUBTYPE_ERR_EID:
         {
             /* The SubType is not a Table Image File */
-            snprintf(EventString, sizeof(EventString), "File subtype is wrong. Subtype = 0x%08x",
-                     (unsigned int)Ctxt->FileHdr->Std.SubType);
+            snprintf(EventString,
+                     sizeof(EventString),
+                     "File subtype is wrong. Subtype = 0x%08x",
+                     (unsigned int)LoadFileCtxt->FileHdr->Std.SubType);
 
             break;
         }
         case CFE_TBL_SPACECRAFT_ID_ERR_EID:
         {
-            snprintf(EventString, sizeof(EventString), "Invalid Spacecraft ID (0x%08X)",
-                     (unsigned int)Ctxt->FileHdr->Std.SpacecraftID);
+            snprintf(EventString,
+                     sizeof(EventString),
+                     "Invalid Spacecraft ID (0x%08X)",
+                     (unsigned int)LoadFileCtxt->FileHdr->Std.SpacecraftID);
             break;
         }
 
         case CFE_TBL_PROCESSOR_ID_ERR_EID:
         {
-            snprintf(EventString, sizeof(EventString), "Invalid Processor ID (0x%08X)",
-                     (unsigned int)Ctxt->FileHdr->Std.ProcessorID);
+            snprintf(EventString,
+                     sizeof(EventString),
+                     "Invalid Processor ID (0x%08X)",
+                     (unsigned int)LoadFileCtxt->FileHdr->Std.ProcessorID);
             break;
         }
 
@@ -566,7 +580,13 @@ bool CFE_TBL_SendLoadFileEventHelper(const CFE_TBL_TxnEvent_t *Event, void *Arg)
         {
             /* This one is success, not an error */
             EventType = CFE_EVS_EventType_INFORMATION;
-            snprintf(EventString, sizeof(EventString), "Successful load into '%s' working buffer", Ctxt->Tablename);
+            snprintf(EventString, sizeof(EventString), "Successful load into working buffer");
+            break;
+        }
+
+        case CFE_TBL_LOAD_FILENAME_LONG_ERR_EID:
+        {
+            snprintf(EventString, sizeof(EventString), "Filename invalid");
             break;
         }
     }
@@ -577,8 +597,15 @@ bool CFE_TBL_SendLoadFileEventHelper(const CFE_TBL_TxnEvent_t *Event, void *Arg)
     }
 
     /* Finally send the actual event by appending all the info we have */
-    CFE_EVS_SendEventWithAppID(Event->EventId, EventType, CFE_TBL_Global.TableTaskAppId, "%s,app=%s,file=%s,tbl=%s:%s",
-                               Ctxt->Operation, Ctxt->CallerName, Ctxt->LoadFilename, Ctxt->Tablename, EventString);
+    CFE_EVS_SendEventWithAppID(Event->EventId,
+                               EventType,
+                               CFE_TBL_Global.TableTaskAppId,
+                               "%s,app=%s,file=%s,tbl=%s:%s",
+                               Ctxt->Operation,
+                               Ctxt->CallerName,
+                               LoadFileCtxt->LoadFilename,
+                               Ctxt->TableName,
+                               EventString);
 
     return true;
 }
@@ -589,28 +616,15 @@ bool CFE_TBL_SendLoadFileEventHelper(const CFE_TBL_TxnEvent_t *Event, void *Arg)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-void CFE_TBL_SendTableLoadFileEvents(CFE_TBL_TxnState_t *Txn, const char *Filename, const CFE_TBL_CombinedFileHdr_t *FileHdr)
+void CFE_TBL_SendTableLoadFileEvents(CFE_TBL_TxnState_t              *Txn,
+                                     const char                      *Filename,
+                                     const CFE_TBL_CombinedFileHdr_t *FileHdr)
 {
-    CFE_TBL_LoadContext_t Ctxt;
+    CFE_TBL_LoadFileContext_t Ctxt;
 
     memset(&Ctxt, 0, sizeof(Ctxt));
 
-    Ctxt.Operation  = "LoadFile";
-    Ctxt.FileHdr    = FileHdr;
-    Ctxt.CallerName = CFE_TBL_TxnAppNameCaller(Txn);
-    Ctxt.RegRecPtr  = CFE_TBL_TxnRegRec(Txn);
-
-    /* In command context, the table name comes from the file */
-    if (Ctxt.FileHdr->Tbl.TableName[0])
-    {
-        Ctxt.Tablename = Ctxt.FileHdr->Tbl.TableName;
-    }
-    else
-    {
-        /* do not leave it null/blank */
-        Ctxt.Tablename = "[unknown]";
-    }
-
+    Ctxt.FileHdr = FileHdr;
     if (Filename != NULL)
     {
         Ctxt.LoadFilename = Filename;
@@ -620,7 +634,7 @@ void CFE_TBL_SendTableLoadFileEvents(CFE_TBL_TxnState_t *Txn, const char *Filena
         Ctxt.LoadFilename = "[none]";
     }
 
-    CFE_TBL_TxnProcessEvents(Txn, CFE_TBL_SendLoadFileEventHelper, &Ctxt);
+    CFE_TBL_SendTransactionEvents(Txn, "LoadFile", CFE_TBL_SendLoadFileEventHelper, &Ctxt);
 }
 
 /*----------------------------------------------------------------
@@ -686,7 +700,7 @@ CFE_Status_t CFE_TBL_TxnLoadFromFile(CFE_TBL_TxnState_t *Txn, const char *Filena
 CFE_Status_t CFE_TBL_TxnLoadFromSourceAddr(CFE_TBL_TxnState_t *Txn, const void *Address)
 {
     CFE_TBL_RegistryRec_t *RegRecPtr;
-    CFE_TBL_LoadBuff_t *   WorkingBufferPtr;
+    CFE_TBL_LoadBuff_t    *WorkingBufferPtr;
 
     RegRecPtr        = CFE_TBL_TxnRegRec(Txn);
     WorkingBufferPtr = CFE_TBL_GetLoadInProgressBuffer(RegRecPtr);
@@ -709,7 +723,9 @@ CFE_Status_t CFE_TBL_TxnLoadFromSourceAddr(CFE_TBL_TxnState_t *Txn, const void *
     }
 
     /* If success, then initialize the rest of the pending buffer info */
-    snprintf(WorkingBufferPtr->DataSource, sizeof(WorkingBufferPtr->DataSource), "Addr 0x%08lX",
+    snprintf(WorkingBufferPtr->DataSource,
+             sizeof(WorkingBufferPtr->DataSource),
+             "Addr 0x%08lX",
              (unsigned long)Address);
 
     WorkingBufferPtr->FileTime = CFE_TIME_ZERO_VALUE;
@@ -731,7 +747,9 @@ void CFE_TBL_AbortLoad(CFE_TBL_RegistryRec_t *RegRecPtr)
     /* The ground has aborted the load, free the working buffer for another attempt */
     CFE_TBL_DiscardWorkingBuffer(RegRecPtr);
 
-    CFE_EVS_SendEvent(CFE_TBL_LOAD_ABORT_INF_EID, CFE_EVS_EventType_INFORMATION, "Table Load Aborted for '%s'",
+    CFE_EVS_SendEvent(CFE_TBL_LOAD_ABORT_INF_EID,
+                      CFE_EVS_EventType_INFORMATION,
+                      "Table Load Aborted for '%s'",
                       CFE_TBL_RegRecGetName(RegRecPtr));
 }
 
@@ -749,9 +767,15 @@ CFE_Status_t CFE_TBL_ValidateLoadRequest(CFE_TBL_TxnState_t *Txn, CFE_TBL_SrcEnu
     Status    = CFE_SUCCESS;
     RegRecPtr = CFE_TBL_TxnRegRec(Txn);
 
-    /* Loads by an Application are not allowed if a table load is already in progress */
-    if (CFE_TBL_RegRecIsLoadInProgress(RegRecPtr))
+    if (RegRecPtr == NULL)
     {
+        /* it should not be possible to get here in FSW, but UT can trigger this, so handle it */
+        Status = CFE_TBL_ERR_INVALID_HANDLE;
+        CFE_TBL_TxnAddEvent(Txn, CFE_TBL_NO_SUCH_TABLE_ERR_EID, Status, 0);
+    }
+    else if (CFE_TBL_RegRecIsLoadInProgress(RegRecPtr))
+    {
+        /* Loads by an Application are not allowed if a table load is already in progress */
         Status = CFE_TBL_ERR_LOAD_IN_PROGRESS;
         CFE_TBL_TxnAddEvent(Txn, CFE_TBL_LOAD_IN_PROGRESS_ERR_EID, Status, 0);
     }
@@ -804,8 +828,8 @@ CFE_Status_t CFE_TBL_ValidateLoadInProgress(CFE_TBL_TxnState_t *Txn, CFE_Status_
 {
     CFE_Status_t              Status;
     CFE_TBL_CallbackFuncPtr_t ValidationFunc;
-    CFE_TBL_RegistryRec_t *   RegRecPtr;
-    CFE_TBL_LoadBuff_t *      WorkingBufferPtr;
+    CFE_TBL_RegistryRec_t    *RegRecPtr;
+    CFE_TBL_LoadBuff_t       *WorkingBufferPtr;
 
     RegRecPtr        = CFE_TBL_TxnRegRec(Txn);
     WorkingBufferPtr = CFE_TBL_GetLoadInProgressBuffer(RegRecPtr);
@@ -817,9 +841,17 @@ CFE_Status_t CFE_TBL_ValidateLoadInProgress(CFE_TBL_TxnState_t *Txn, CFE_Status_
         /* Not expected -- this is a problem */
         LoadStatus = CFE_TBL_ERR_NEVER_LOADED;
     }
-    else if (ValidationFunc != NULL)
+    else
     {
-        Status = ValidationFunc((void *)CFE_TBL_LoadBuffGetReadPointer(WorkingBufferPtr));
+        if (ValidationFunc == NULL)
+        {
+            /* no validation is assumed success */
+            Status = CFE_SUCCESS;
+        }
+        else
+        {
+            Status = ValidationFunc((void *)CFE_TBL_LoadBuffGetReadPointer(WorkingBufferPtr));
+        }
 
         /*
          * Anything other than CFE_SUCCESS (0) is considered a failure to validate
@@ -840,18 +872,12 @@ CFE_Status_t CFE_TBL_ValidateLoadInProgress(CFE_TBL_TxnState_t *Txn, CFE_Status_
 
             /* Zero out the buffer to remove any bad data */
             CFE_TBL_LoadBuffClearData(WorkingBufferPtr);
-            LoadStatus                  = Status;
-            WorkingBufferPtr->Validated = false;
+            LoadStatus = Status;
         }
-        else
-        {
-            WorkingBufferPtr->Validated = true;
-        }
-    }
-    else
-    {
-        /* tables without a validation function are considered valid */
-        WorkingBufferPtr->Validated = true;
+
+        /* Validation status implies ready to activate */
+        WorkingBufferPtr->IsValid     = (Status == CFE_SUCCESS);
+        WorkingBufferPtr->ActivateReq = WorkingBufferPtr->IsValid;
     }
 
     return LoadStatus;
@@ -892,9 +918,12 @@ CFE_Status_t CFE_TBL_LoadFinish(CFE_TBL_TxnState_t *Txn, CFE_Status_t LoadStatus
 
             if (Status != CFE_SUCCESS)
             {
-                CFE_EVS_SendEventWithAppID(CFE_TBL_UPDATE_ERR_EID, CFE_EVS_EventType_ERROR,
-                                           CFE_TBL_Global.TableTaskAppId, "%s: Failed to update '%s' (Stat=%u)",
-                                           CFE_TBL_TxnAppNameCaller(Txn), CFE_TBL_RegRecGetName(RegRecPtr),
+                CFE_EVS_SendEventWithAppID(CFE_TBL_UPDATE_ERR_EID,
+                                           CFE_EVS_EventType_ERROR,
+                                           CFE_TBL_Global.TableTaskAppId,
+                                           "%s: Failed to update '%s' (Stat=%u)",
+                                           CFE_TBL_TxnAppNameCaller(Txn),
+                                           CFE_TBL_RegRecGetName(RegRecPtr),
                                            (unsigned int)Status);
 
                 /* Something went wrong - Use this status code */
@@ -904,10 +933,12 @@ CFE_Status_t CFE_TBL_LoadFinish(CFE_TBL_TxnState_t *Txn, CFE_Status_t LoadStatus
             {
                 /* The first time a table is loaded, the event message is DEBUG */
                 /* to help eliminate a flood of events during a startup         */
-                CFE_EVS_SendEventWithAppID(
-                    CFE_TBL_LOAD_SUCCESS_INF_EID, FirstTime ? CFE_EVS_EventType_DEBUG : CFE_EVS_EventType_INFORMATION,
-                    CFE_TBL_Global.TableTaskAppId, "Successfully loaded '%s' from '%s'",
-                    CFE_TBL_RegRecGetName(RegRecPtr), CFE_TBL_RegRecGetLastFileLoaded(RegRecPtr));
+                CFE_EVS_SendEventWithAppID(CFE_TBL_LOAD_SUCCESS_INF_EID,
+                                           FirstTime ? CFE_EVS_EventType_DEBUG : CFE_EVS_EventType_INFORMATION,
+                                           CFE_TBL_Global.TableTaskAppId,
+                                           "Successfully loaded '%s' from '%s'",
+                                           CFE_TBL_RegRecGetName(RegRecPtr),
+                                           CFE_TBL_RegRecGetLastFileLoaded(RegRecPtr));
 
                 /* Save the index of the table for housekeeping telemetry */
                 CFE_TBL_Global.LastTblUpdated = CFE_TBL_TxnRegId(Txn);

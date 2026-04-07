@@ -86,7 +86,7 @@ const void *CFE_Config_GetObjPointer(CFE_ConfigId_t ConfigId)
 CFE_Config_ArrayValue_t CFE_Config_GetArrayValue(CFE_ConfigId_t ConfigId)
 {
     const CFE_Config_ValueEntry_t *Entry;
-    static CFE_Config_ArrayValue_t NULL_ARRAY = {0, NULL};
+    static CFE_Config_ArrayValue_t NULL_ARRAY = { 0, NULL };
 
     Entry = CFE_Config_LocateConfigRecordByID(ConfigId);
     if (Entry == NULL || Entry->ActualType != CFE_ConfigType_ARRAY)
@@ -228,13 +228,23 @@ void CFE_Config_GetMissionRevString(char *Buf, size_t Size, uint8 MissionRev, co
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-void CFE_Config_GetVersionString(char *Buf, size_t Size, const char *Component, const char *SrcVersion,
-                                 const char *CodeName, const char *LastOffcRel)
+void CFE_Config_GetVersionString(char       *Buf,
+                                 size_t      Size,
+                                 const char *Component,
+                                 const char *SrcVersion,
+                                 const char *CodeName,
+                                 const char *LastOffcRel)
 {
     char RevInfo[32];
 
     CFE_Config_GetMissionRevString(RevInfo, sizeof(RevInfo), CFE_MISSION_REV, LastOffcRel);
 
-    snprintf(Buf, Size, "%s %s (%s) %s, EDS %s", Component, SrcVersion, CodeName, RevInfo,
+    snprintf(Buf,
+             Size,
+             "%s %s (%s) %s, EDS %s",
+             Component,
+             SrcVersion,
+             CodeName,
+             RevInfo,
              CFE_Config_EdsState(Component));
 }

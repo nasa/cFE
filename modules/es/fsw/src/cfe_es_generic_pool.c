@@ -97,14 +97,16 @@ CFE_ES_GenPoolBucket_t *CFE_ES_GenPoolGetBucketState(CFE_ES_GenPoolRecord_t *Poo
  * Find and re-allocate a previously returned block
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_GenPoolRecyclePoolBlock(CFE_ES_GenPoolRecord_t *PoolRecPtr, uint16 BucketId, size_t NewSize,
-                                     size_t *BlockOffsetPtr)
+int32 CFE_ES_GenPoolRecyclePoolBlock(CFE_ES_GenPoolRecord_t *PoolRecPtr,
+                                     uint16                  BucketId,
+                                     size_t                  NewSize,
+                                     size_t                 *BlockOffsetPtr)
 {
     CFE_ES_GenPoolBucket_t *BucketPtr;
     size_t                  DescOffset;
     size_t                  BlockOffset;
     size_t                  NextOffset;
-    CFE_ES_GenPoolBD_t *    BdPtr;
+    CFE_ES_GenPoolBD_t     *BdPtr;
     uint16                  RecycleBucketId;
     int32                   Status;
 
@@ -157,14 +159,16 @@ int32 CFE_ES_GenPoolRecyclePoolBlock(CFE_ES_GenPoolRecord_t *PoolRecPtr, uint16 
  * Create a new block of the given size
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_GenPoolCreatePoolBlock(CFE_ES_GenPoolRecord_t *PoolRecPtr, uint16 BucketId, size_t NewSize,
-                                    size_t *BlockOffsetPtr)
+int32 CFE_ES_GenPoolCreatePoolBlock(CFE_ES_GenPoolRecord_t *PoolRecPtr,
+                                    uint16                  BucketId,
+                                    size_t                  NewSize,
+                                    size_t                 *BlockOffsetPtr)
 {
     CFE_ES_GenPoolBucket_t *BucketPtr;
     size_t                  DescOffset;
     size_t                  BlockOffset;
     size_t                  NextTailPosition;
-    CFE_ES_GenPoolBD_t *    BdPtr;
+    CFE_ES_GenPoolBD_t     *BdPtr;
     int32                   Status;
 
     BucketPtr = CFE_ES_GenPoolGetBucketState(PoolRecPtr, BucketId);
@@ -180,7 +184,7 @@ int32 CFE_ES_GenPoolCreatePoolBlock(CFE_ES_GenPoolRecord_t *PoolRecPtr, uint16 B
      *
      * Note - just pre-calculating offsets here, nothing is committed yet.
      */
-    BlockOffset = PoolRecPtr->TailPosition + CFE_ES_GENERIC_POOL_DESCRIPTOR_SIZE;
+    BlockOffset  = PoolRecPtr->TailPosition + CFE_ES_GENERIC_POOL_DESCRIPTOR_SIZE;
     BlockOffset += PoolRecPtr->AlignMask;
     BlockOffset &= ~PoolRecPtr->AlignMask;
 
@@ -231,9 +235,14 @@ int32 CFE_ES_GenPoolCreatePoolBlock(CFE_ES_GenPoolRecord_t *PoolRecPtr, uint16 B
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_GenPoolInitialize(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t StartOffset, size_t PoolSize,
-                               size_t AlignSize, uint16 NumBlockSizes, const size_t *BlockSizeList,
-                               CFE_ES_PoolRetrieve_Func_t RetrieveFunc, CFE_ES_PoolCommit_Func_t CommitFunc)
+int32 CFE_ES_GenPoolInitialize(CFE_ES_GenPoolRecord_t    *PoolRecPtr,
+                               size_t                     StartOffset,
+                               size_t                     PoolSize,
+                               size_t                     AlignSize,
+                               uint16                     NumBlockSizes,
+                               const size_t              *BlockSizeList,
+                               CFE_ES_PoolRetrieve_Func_t RetrieveFunc,
+                               CFE_ES_PoolCommit_Func_t   CommitFunc)
 {
     cpuaddr                 AlignMask;
     uint32                  i;
@@ -370,7 +379,9 @@ int32 CFE_ES_GenPoolGetBlock(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t *BlockOf
     BucketId = CFE_ES_GenPoolFindBucket(PoolRecPtr, ReqSize);
     if (BucketId == 0)
     {
-        CFE_ES_WriteToSysLog("%s: Err:size(%lu) > max(%lu)\n", __func__, (unsigned long)ReqSize,
+        CFE_ES_WriteToSysLog("%s: Err:size(%lu) > max(%lu)\n",
+                             __func__,
+                             (unsigned long)ReqSize,
                              (unsigned long)PoolRecPtr->Buckets[PoolRecPtr->NumBuckets - 1].BlockSize);
         return CFE_ES_ERR_MEM_BLOCK_SIZE;
     }
@@ -396,7 +407,7 @@ int32 CFE_ES_GenPoolGetBlockSize(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t *Blo
 {
     size_t                  DescOffset;
     CFE_ES_GenPoolBucket_t *BucketPtr;
-    CFE_ES_GenPoolBD_t *    BdPtr;
+    CFE_ES_GenPoolBD_t     *BdPtr;
     int32                   Status;
     uint16                  BucketId;
 
@@ -414,8 +425,8 @@ int32 CFE_ES_GenPoolGetBlockSize(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t *Blo
         BucketId  = BdPtr->Allocated - CFE_ES_MEMORY_ALLOCATED;
         BucketPtr = CFE_ES_GenPoolGetBucketState(PoolRecPtr, BucketId);
 
-        if (BdPtr->CheckBits != CFE_ES_CHECK_PATTERN || BucketPtr == NULL || BdPtr->ActualSize == 0 ||
-            BucketPtr->BlockSize < BdPtr->ActualSize)
+        if (BdPtr->CheckBits != CFE_ES_CHECK_PATTERN || BucketPtr == NULL || BdPtr->ActualSize == 0
+            || BucketPtr->BlockSize < BdPtr->ActualSize)
         {
             /* This does not appear to be a valid data buffer */
             Status = CFE_ES_POOL_BLOCK_INVALID;
@@ -439,7 +450,7 @@ int32 CFE_ES_GenPoolPutBlock(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t *BlockSi
 {
     size_t                  DescOffset;
     CFE_ES_GenPoolBucket_t *BucketPtr;
-    CFE_ES_GenPoolBD_t *    BdPtr;
+    CFE_ES_GenPoolBD_t     *BdPtr;
     int32                   Status;
     uint16                  BucketId;
 
@@ -457,8 +468,8 @@ int32 CFE_ES_GenPoolPutBlock(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t *BlockSi
         BucketId  = BdPtr->Allocated - CFE_ES_MEMORY_ALLOCATED;
         BucketPtr = CFE_ES_GenPoolGetBucketState(PoolRecPtr, BucketId);
 
-        if (BdPtr->CheckBits != CFE_ES_CHECK_PATTERN || BucketPtr == NULL || BdPtr->ActualSize == 0 ||
-            BucketPtr->BlockSize < BdPtr->ActualSize)
+        if (BdPtr->CheckBits != CFE_ES_CHECK_PATTERN || BucketPtr == NULL || BdPtr->ActualSize == 0
+            || BucketPtr->BlockSize < BdPtr->ActualSize)
         {
             /* This does not appear to be a valid data buffer */
             ++PoolRecPtr->ValidationErrorCount;
@@ -494,7 +505,7 @@ int32 CFE_ES_GenPoolRebuild(CFE_ES_GenPoolRecord_t *PoolRecPtr)
     size_t                  DescOffset;
     size_t                  BlockOffset;
     CFE_ES_GenPoolBucket_t *BucketPtr;
-    CFE_ES_GenPoolBD_t *    BdPtr;
+    CFE_ES_GenPoolBD_t     *BdPtr;
     uint16                  BucketId;
     bool                    IsDeallocatedBlock;
 
@@ -511,7 +522,7 @@ int32 CFE_ES_GenPoolRebuild(CFE_ES_GenPoolRecord_t *PoolRecPtr)
          * Determine the offsets of the next user block,
          * which must be aligned according to the AlignMask member.
          */
-        BlockOffset = PoolRecPtr->TailPosition + CFE_ES_GENERIC_POOL_DESCRIPTOR_SIZE;
+        BlockOffset  = PoolRecPtr->TailPosition + CFE_ES_GENERIC_POOL_DESCRIPTOR_SIZE;
         BlockOffset += PoolRecPtr->AlignMask;
         BlockOffset &= ~PoolRecPtr->AlignMask;
 
@@ -600,8 +611,8 @@ int32 CFE_ES_GenPoolRebuild(CFE_ES_GenPoolRecord_t *PoolRecPtr)
  *-----------------------------------------------------------------*/
 bool CFE_ES_GenPoolValidateState(const CFE_ES_GenPoolRecord_t *PoolRecPtr)
 {
-    return (PoolRecPtr->PoolTotalSize > 0 && PoolRecPtr->TailPosition <= PoolRecPtr->PoolMaxOffset &&
-            PoolRecPtr->NumBuckets > 0 && PoolRecPtr->NumBuckets <= CFE_PLATFORM_ES_POOL_MAX_BUCKETS);
+    return (PoolRecPtr->PoolTotalSize > 0 && PoolRecPtr->TailPosition <= PoolRecPtr->PoolMaxOffset
+            && PoolRecPtr->NumBuckets > 0 && PoolRecPtr->NumBuckets <= CFE_PLATFORM_ES_POOL_MAX_BUCKETS);
 }
 
 /*----------------------------------------------------------------
@@ -610,8 +621,9 @@ bool CFE_ES_GenPoolValidateState(const CFE_ES_GenPoolRecord_t *PoolRecPtr)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-void CFE_ES_GenPoolGetUsage(CFE_ES_GenPoolRecord_t *PoolRecPtr, CFE_ES_MemOffset_t *FreeSizeBuf,
-                            CFE_ES_MemOffset_t *TotalSizeBuf)
+void CFE_ES_GenPoolGetUsage(CFE_ES_GenPoolRecord_t *PoolRecPtr,
+                            CFE_ES_MemOffset_t     *FreeSizeBuf,
+                            CFE_ES_MemOffset_t     *TotalSizeBuf)
 {
     if (TotalSizeBuf != NULL)
     {
@@ -629,8 +641,10 @@ void CFE_ES_GenPoolGetUsage(CFE_ES_GenPoolRecord_t *PoolRecPtr, CFE_ES_MemOffset
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-void CFE_ES_GenPoolGetCounts(CFE_ES_GenPoolRecord_t *PoolRecPtr, uint16 *NumBucketsBuf, uint32 *AllocCountBuf,
-                             uint32 *ValidationErrorCountBuf)
+void CFE_ES_GenPoolGetCounts(CFE_ES_GenPoolRecord_t *PoolRecPtr,
+                             uint16                 *NumBucketsBuf,
+                             uint32                 *AllocCountBuf,
+                             uint32                 *ValidationErrorCountBuf)
 {
     if (NumBucketsBuf != NULL)
     {
@@ -652,11 +666,12 @@ void CFE_ES_GenPoolGetCounts(CFE_ES_GenPoolRecord_t *PoolRecPtr, uint16 *NumBuck
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-void CFE_ES_GenPoolGetBucketUsage(CFE_ES_GenPoolRecord_t *PoolRecPtr, uint16 BucketId,
-                                  CFE_ES_BlockStats_t *BlockStatsBuf)
+void CFE_ES_GenPoolGetBucketUsage(CFE_ES_GenPoolRecord_t *PoolRecPtr,
+                                  uint16                  BucketId,
+                                  CFE_ES_BlockStats_t    *BlockStatsBuf)
 {
-    const CFE_ES_GenPoolBucket_t *      BucketPtr;
-    static const CFE_ES_GenPoolBucket_t ZeroBucket = {0};
+    const CFE_ES_GenPoolBucket_t       *BucketPtr;
+    static const CFE_ES_GenPoolBucket_t ZeroBucket = { 0 };
 
     BucketPtr = CFE_ES_GenPoolGetBucketState(PoolRecPtr, BucketId);
     if (BucketPtr == NULL)

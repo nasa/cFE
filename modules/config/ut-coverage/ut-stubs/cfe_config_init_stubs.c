@@ -46,6 +46,5 @@ int32 CFE_Config_Init(void)
  */
 void CFE_Config_SetupBasicBuildInfo(void)
 {
-
     UT_GenStub_Execute(CFE_Config_SetupBasicBuildInfo, Basic, NULL);
 }

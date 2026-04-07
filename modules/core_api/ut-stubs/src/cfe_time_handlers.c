@@ -47,10 +47,13 @@
  *------------------------------------------------------------*/
 void UT_DefaultHandler_CFE_TIME_Print(void *UserObj, UT_EntryKey_t FuncKey, const UT_StubContext_t *Context)
 {
-    char *             PrintBuffer = UT_Hook_GetArgValueByName(Context, "PrintBuffer", char *);
+    char              *PrintBuffer = UT_Hook_GetArgValueByName(Context, "PrintBuffer", char *);
     CFE_TIME_SysTime_t TimeToPrint = UT_Hook_GetArgValueByName(Context, "TimeToPrint", CFE_TIME_SysTime_t);
 
-    snprintf(PrintBuffer, CFE_TIME_PRINTED_STRING_SIZE, "UT %u.%u -", (unsigned int)TimeToPrint.Seconds,
+    snprintf(PrintBuffer,
+             CFE_TIME_PRINTED_STRING_SIZE,
+             "UT %u.%u -",
+             (unsigned int)TimeToPrint.Seconds,
              (unsigned int)TimeToPrint.Subseconds);
 }
 
@@ -61,8 +64,8 @@ void UT_DefaultHandler_CFE_TIME_Print(void *UserObj, UT_EntryKey_t FuncKey, cons
  *------------------------------------------------------------*/
 void UT_DefaultHandler_CFE_TIME_GetTime(void *UserObj, UT_EntryKey_t FuncKey, const UT_StubContext_t *Context)
 {
-    static CFE_TIME_SysTime_t SimTime = {0};
-    CFE_TIME_SysTime_t        Result  = {0};
+    static CFE_TIME_SysTime_t SimTime = { 0 };
+    CFE_TIME_SysTime_t        Result  = { 0 };
     int32                     status;
 
     UT_Stub_GetInt32StatusCode(Context, &status);
@@ -87,8 +90,8 @@ void UT_DefaultHandler_CFE_TIME_GetTime(void *UserObj, UT_EntryKey_t FuncKey, co
  *------------------------------------------------------------*/
 void UT_DefaultHandler_CFE_TIME_Add(void *UserObj, UT_EntryKey_t FuncKey, const UT_StubContext_t *Context)
 {
-    static CFE_TIME_SysTime_t SimTime = {0};
-    CFE_TIME_SysTime_t        Result  = {0};
+    static CFE_TIME_SysTime_t SimTime = { 0 };
+    CFE_TIME_SysTime_t        Result  = { 0 };
     int32                     status;
 
     UT_Stub_GetInt32StatusCode(Context, &status);
@@ -114,7 +117,7 @@ void UT_DefaultHandler_CFE_TIME_Add(void *UserObj, UT_EntryKey_t FuncKey, const 
 void UT_DefaultHandler_CFE_TIME_GetMET(void *UserObj, UT_EntryKey_t FuncKey, const UT_StubContext_t *Context)
 {
     int32              status;
-    CFE_TIME_SysTime_t Result = {0};
+    CFE_TIME_SysTime_t Result = { 0 };
 
     UT_Stub_GetInt32StatusCode(Context, &status);
     if (status >= 0)
@@ -133,7 +136,7 @@ void UT_DefaultHandler_CFE_TIME_GetMET(void *UserObj, UT_EntryKey_t FuncKey, con
 void UT_DefaultHandler_CFE_TIME_GetSTCF(void *UserObj, UT_EntryKey_t FuncKey, const UT_StubContext_t *Context)
 {
     int32              status;
-    CFE_TIME_SysTime_t Result = {0};
+    CFE_TIME_SysTime_t Result = { 0 };
 
     UT_Stub_GetInt32StatusCode(Context, &status);
     if (status >= 0)
@@ -152,7 +155,7 @@ void UT_DefaultHandler_CFE_TIME_GetSTCF(void *UserObj, UT_EntryKey_t FuncKey, co
 void UT_DefaultHandler_CFE_TIME_GetTAI(void *UserObj, UT_EntryKey_t FuncKey, const UT_StubContext_t *Context)
 {
     int32              status;
-    CFE_TIME_SysTime_t Result = {0};
+    CFE_TIME_SysTime_t Result = { 0 };
 
     UT_Stub_GetInt32StatusCode(Context, &status);
     if (status >= 0)
@@ -171,7 +174,7 @@ void UT_DefaultHandler_CFE_TIME_GetTAI(void *UserObj, UT_EntryKey_t FuncKey, con
 void UT_DefaultHandler_CFE_TIME_GetUTC(void *UserObj, UT_EntryKey_t FuncKey, const UT_StubContext_t *Context)
 {
     int32              status;
-    CFE_TIME_SysTime_t Result = {0};
+    CFE_TIME_SysTime_t Result = { 0 };
 
     UT_Stub_GetInt32StatusCode(Context, &status);
     if (status >= 0)
@@ -190,7 +193,7 @@ void UT_DefaultHandler_CFE_TIME_GetUTC(void *UserObj, UT_EntryKey_t FuncKey, con
 void UT_DefaultHandler_CFE_TIME_MET2SCTime(void *UserObj, UT_EntryKey_t FuncKey, const UT_StubContext_t *Context)
 {
     int32              status;
-    CFE_TIME_SysTime_t Result = {0};
+    CFE_TIME_SysTime_t Result = { 0 };
 
     UT_Stub_GetInt32StatusCode(Context, &status);
     if (status >= 0)
@@ -209,7 +212,7 @@ void UT_DefaultHandler_CFE_TIME_MET2SCTime(void *UserObj, UT_EntryKey_t FuncKey,
 void UT_DefaultHandler_CFE_TIME_Subtract(void *UserObj, UT_EntryKey_t FuncKey, const UT_StubContext_t *Context)
 {
     int32              status;
-    CFE_TIME_SysTime_t Result = {0};
+    CFE_TIME_SysTime_t Result = { 0 };
 
     UT_Stub_GetInt32StatusCode(Context, &status);
     if (status >= 0)

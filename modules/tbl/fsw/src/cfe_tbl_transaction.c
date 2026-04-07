@@ -134,7 +134,7 @@ CFE_Status_t CFE_TBL_TxnStartFromHandle(CFE_TBL_TxnState_t *Txn, CFE_TBL_HandleI
     CFE_Status_t                Status;
     uint32                      AccessAllowed;
     CFE_TBL_AccessDescriptor_t *AccDescPtr;
-    CFE_TBL_RegistryRec_t *     RegRecPtr;
+    CFE_TBL_RegistryRec_t      *RegRecPtr;
 
     AccessAllowed = 0;
 
@@ -159,7 +159,7 @@ CFE_Status_t CFE_TBL_TxnStartFromHandle(CFE_TBL_TxnState_t *Txn, CFE_TBL_HandleI
         if (CFE_RESOURCEID_TEST_EQUAL(Txn->AppId, CFE_TBL_Global.TableTaskAppId))
         {
             Txn->CallContext |= CFE_TBL_TxnContext_TABLE_SERVICES;
-            AccessAllowed |= ~AccessAllowed; /* Set all bits */
+            AccessAllowed    |= ~AccessAllowed; /* Set all bits */
         }
 
         /* Need to lock before actually looking at the descriptor */
@@ -297,7 +297,7 @@ CFE_Status_t CFE_TBL_TxnGetNextNotification(CFE_TBL_TxnState_t *Txn)
 {
     CFE_Status_t                Status     = CFE_SUCCESS;
     CFE_TBL_AccessDescriptor_t *AccDescPtr = CFE_TBL_TxnAccDesc(Txn);
-    CFE_TBL_RegistryRec_t *     RegRecPtr  = CFE_TBL_TxnRegRec(Txn);
+    CFE_TBL_RegistryRec_t      *RegRecPtr  = CFE_TBL_TxnRegRec(Txn);
 
     if (!CFE_TBL_RegRecIsTableLoaded(RegRecPtr))
     {
@@ -353,7 +353,9 @@ uint32 CFE_TBL_TxnGetEventCount(const CFE_TBL_TxnState_t *Txn)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-uint32 CFE_TBL_TxnProcessEvents(const CFE_TBL_TxnState_t *Txn, CFE_TBL_TxnEventProcFunc_t EventProc, void *Arg)
+uint32 CFE_TBL_TxnProcessEvents(const CFE_TBL_TxnState_t  *Txn,
+                                CFE_TBL_TxnEventProcFunc_t EventProc,
+                                CFE_TBL_TxnEventContext_t *Ctxt)
 {
     uint32 i;
     uint32 NumPending;
@@ -371,7 +373,7 @@ uint32 CFE_TBL_TxnProcessEvents(const CFE_TBL_TxnState_t *Txn, CFE_TBL_TxnEventP
     /* Events should be processed in the same order that CFE_TBL_TxnAddEvent() was called */
     for (i = 0; i < NumPending; ++i)
     {
-        if (EventProc(&Txn->PendingEvents[i], Arg))
+        if (EventProc(&Txn->PendingEvents[i], Ctxt))
         {
             ++NumProc;
         }
@@ -389,4 +391,38 @@ uint32 CFE_TBL_TxnProcessEvents(const CFE_TBL_TxnState_t *Txn, CFE_TBL_TxnEventP
 void CFE_TBL_TxnClearEvents(CFE_TBL_TxnState_t *Txn)
 {
     Txn->NumPendingEvents = 0;
+}
+
+/*----------------------------------------------------------------
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+void CFE_TBL_SendTransactionEvents(CFE_TBL_TxnState_t        *Txn,
+                                   const char                *Operation,
+                                   CFE_TBL_TxnEventProcFunc_t EventProc,
+                                   const void                *OperationData)
+{
+    CFE_TBL_TxnEventContext_t Ctxt;
+
+    memset(&Ctxt, 0, sizeof(Ctxt));
+
+    Ctxt.Operation        = Operation;
+    Ctxt.OperationDataPtr = OperationData;
+    Ctxt.CallerName       = CFE_TBL_TxnAppNameCaller(Txn);
+    Ctxt.RegRecPtr        = CFE_TBL_TxnRegRec(Txn);
+
+    if (Ctxt.RegRecPtr != NULL)
+    {
+        Ctxt.TableName = CFE_TBL_RegRecGetName(Ctxt.RegRecPtr);
+    }
+    else
+    {
+        /* do not leave it null/blank */
+        Ctxt.TableName = "[unknown]";
+    }
+
+    CFE_TBL_TxnProcessEvents(Txn, EventProc, &Ctxt);
+    CFE_TBL_TxnClearEvents(Txn);
 }

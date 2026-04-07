@@ -152,7 +152,11 @@ void CFE_Config_IterateAll(void *Arg, CFE_Config_Callback_t Callback);
  * @param[in]   CodeName    Code name for the build (i.e. "equuleus")
  * @param[in]   LastOffcRel Last official release (i.e. "6.7.0")
  */
-void CFE_Config_GetVersionString(char *Buf, size_t Size, const char *Component, const char *SrcVersion,
-                                 const char *CodeName, const char *LastOffcRel);
+void CFE_Config_GetVersionString(char       *Buf,
+                                 size_t      Size,
+                                 const char *Component,
+                                 const char *SrcVersion,
+                                 const char *CodeName,
+                                 const char *LastOffcRel);
 
 #endif /* CFE_CONFIG_H */

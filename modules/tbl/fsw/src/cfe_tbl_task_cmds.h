@@ -47,9 +47,9 @@
 typedef enum
 {
     /** Error detected in (or while processing) message, increment command error counter */
-    CFE_TBL_CmdProcRet_INC_ERR_CTR = -1,
+    CFE_TBL_CmdProcRet_INC_ERR_CTR  = -1,
     /** No errors detected, increment command counter */
-    CFE_TBL_CmdProcRet_INC_CMD_CTR = 0,
+    CFE_TBL_CmdProcRet_INC_CMD_CTR  = 0,
     /** No errors detected but don't increment command counter */
     CFE_TBL_CmdProcRet_DONT_INC_CTR = 1
 } CFE_TBL_CmdProcRet_t;

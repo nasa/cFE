@@ -23,7 +23,9 @@ set(MISSION_CORE_INTERFACES
 # or override parts of the CFE core on a mission-specific basis.
 # NOTE: Everything in this list becomes part of the "core_api" interface above.
 # Missions may add/remove/replace components in this list as needed.
+# For the CFE core, the order of this list is the order in which they will be initialized
 set(MISSION_CORE_MODULES
+    "config"
     "es"
     "evs"
     "fs"
@@ -35,7 +37,6 @@ set(MISSION_CORE_MODULES
     "msg"
     "sbr"
     "resourceid"
-    "config"
 )
 
 # The "MISSION_GLOBAL_APPLIST" is a set of apps/libs that will be built

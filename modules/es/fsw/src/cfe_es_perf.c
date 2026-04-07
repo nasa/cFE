@@ -47,7 +47,7 @@ void CFE_ES_SetupPerfVariables(uint32 ResetType)
     {
         uint16 Word;
         uint8  Endian;
-    } EndianCheck = {.Word = 0x0100};
+    } EndianCheck = { .Word = 0x0100 };
 
     uint32             i;
     CFE_ES_PerfData_t *Perf;
@@ -101,7 +101,7 @@ uint32 CFE_ES_GetPerfLogDumpRemaining(void)
     CFE_ES_PerfDumpGlobal_t *PerfDumpState = &CFE_ES_Global.BackgroundPerfDumpState;
     CFE_ES_PerfDumpState_t   CurrentState  = PerfDumpState->CurrentState;
     uint32                   Result;
-    CFE_ES_PerfData_t *      Perf;
+    CFE_ES_PerfData_t       *Perf;
 
     /*
     ** Set the pointer to the data area
@@ -142,8 +142,8 @@ uint32 CFE_ES_GetPerfLogDumpRemaining(void)
 int32 CFE_ES_StartPerfDataCmd(const CFE_ES_StartPerfDataCmd_t *data)
 {
     const CFE_ES_StartPerfCmd_Payload_t *CmdPtr        = &data->Payload;
-    CFE_ES_PerfDumpGlobal_t *            PerfDumpState = &CFE_ES_Global.BackgroundPerfDumpState;
-    CFE_ES_PerfData_t *                  Perf;
+    CFE_ES_PerfDumpGlobal_t             *PerfDumpState = &CFE_ES_Global.BackgroundPerfDumpState;
+    CFE_ES_PerfData_t                   *Perf;
 
     /*
     ** Set the pointer to the data area
@@ -151,8 +151,8 @@ int32 CFE_ES_StartPerfDataCmd(const CFE_ES_StartPerfDataCmd_t *data)
     Perf = &CFE_ES_Global.ResetDataPtr->Perf;
 
     /* Ensure there is no file write in progress before proceeding */
-    if (PerfDumpState->CurrentState == CFE_ES_PerfDumpState_IDLE &&
-        PerfDumpState->PendingState == CFE_ES_PerfDumpState_IDLE)
+    if (PerfDumpState->CurrentState == CFE_ES_PerfDumpState_IDLE
+        && PerfDumpState->PendingState == CFE_ES_PerfDumpState_IDLE)
     {
         /* Make sure Trigger Mode is valid */
         if (CmdPtr->TriggerMode <= CFE_ES_PerfTrigger_END)
@@ -171,22 +171,27 @@ int32 CFE_ES_StartPerfDataCmd(const CFE_ES_StartPerfDataCmd_t *data)
             Perf->MetaData.State                 = CFE_ES_PERF_WAITING_FOR_TRIGGER; /* this must be done last */
             OS_MutSemGive(CFE_ES_Global.PerfDataMutex);
 
-            CFE_EVS_SendEvent(CFE_ES_PERF_STARTCMD_EID, CFE_EVS_EventType_DEBUG,
+            CFE_EVS_SendEvent(CFE_ES_PERF_STARTCMD_EID,
+                              CFE_EVS_EventType_DEBUG,
                               "Start collecting performance data cmd received, trigger mode = %d",
                               (int)CmdPtr->TriggerMode);
         }
         else
         {
             CFE_ES_Global.TaskData.CommandErrorCounter++;
-            CFE_EVS_SendEvent(CFE_ES_PERF_STARTCMD_TRIG_ERR_EID, CFE_EVS_EventType_ERROR,
+            CFE_EVS_SendEvent(CFE_ES_PERF_STARTCMD_TRIG_ERR_EID,
+                              CFE_EVS_EventType_ERROR,
                               "Cannot start collecting performance data, trigger mode (%d) out of range (%d to %d)",
-                              (int)CmdPtr->TriggerMode, (int)CFE_ES_PerfTrigger_START, (int)CFE_ES_PerfTrigger_END);
+                              (int)CmdPtr->TriggerMode,
+                              (int)CFE_ES_PerfTrigger_START,
+                              (int)CFE_ES_PerfTrigger_END);
         }
     }
     else
     {
         CFE_ES_Global.TaskData.CommandErrorCounter++;
-        CFE_EVS_SendEvent(CFE_ES_PERF_STARTCMD_ERR_EID, CFE_EVS_EventType_ERROR,
+        CFE_EVS_SendEvent(CFE_ES_PERF_STARTCMD_ERR_EID,
+                          CFE_EVS_EventType_ERROR,
                           "Cannot start collecting performance data,perf data write in progress");
     }
 
@@ -202,8 +207,8 @@ int32 CFE_ES_StartPerfDataCmd(const CFE_ES_StartPerfDataCmd_t *data)
 int32 CFE_ES_StopPerfDataCmd(const CFE_ES_StopPerfDataCmd_t *data)
 {
     const CFE_ES_StopPerfCmd_Payload_t *CmdPtr        = &data->Payload;
-    CFE_ES_PerfDumpGlobal_t *           PerfDumpState = &CFE_ES_Global.BackgroundPerfDumpState;
-    CFE_ES_PerfData_t *                 Perf;
+    CFE_ES_PerfDumpGlobal_t            *PerfDumpState = &CFE_ES_Global.BackgroundPerfDumpState;
+    CFE_ES_PerfData_t                  *Perf;
     int32                               Status;
 
     /*
@@ -214,14 +219,16 @@ int32 CFE_ES_StopPerfDataCmd(const CFE_ES_StopPerfDataCmd_t *data)
     /* Ensure there is no file write in progress before proceeding */
     /* note - also need to check the PendingState here, in case this command
      * was sent twice in succession and the background task has not awakened yet */
-    if (PerfDumpState->CurrentState == CFE_ES_PerfDumpState_IDLE &&
-        PerfDumpState->PendingState == CFE_ES_PerfDumpState_IDLE)
+    if (PerfDumpState->CurrentState == CFE_ES_PerfDumpState_IDLE
+        && PerfDumpState->PendingState == CFE_ES_PerfDumpState_IDLE)
     {
         Perf->MetaData.State = CFE_ES_PERF_IDLE;
 
         /* Copy out the string, using default if unspecified */
-        Status = CFE_FS_ParseInputFileNameEx(PerfDumpState->DataFileName, CmdPtr->DataFileName,
-                                             sizeof(PerfDumpState->DataFileName), sizeof(CmdPtr->DataFileName),
+        Status = CFE_FS_ParseInputFileNameEx(PerfDumpState->DataFileName,
+                                             CmdPtr->DataFileName,
+                                             sizeof(PerfDumpState->DataFileName),
+                                             sizeof(CmdPtr->DataFileName),
                                              CFE_PLATFORM_ES_DEFAULT_PERF_DUMP_FILENAME,
                                              CFE_FS_GetDefaultMountPoint(CFE_FS_FileCategory_BINARY_DATA_DUMP),
                                              CFE_FS_GetDefaultExtension(CFE_FS_FileCategory_BINARY_DATA_DUMP));
@@ -233,15 +240,19 @@ int32 CFE_ES_StopPerfDataCmd(const CFE_ES_StopPerfDataCmd_t *data)
 
             CFE_ES_Global.TaskData.CommandCounter++;
 
-            CFE_EVS_SendEvent(CFE_ES_PERF_STOPCMD_EID, CFE_EVS_EventType_DEBUG,
+            CFE_EVS_SendEvent(CFE_ES_PERF_STOPCMD_EID,
+                              CFE_EVS_EventType_DEBUG,
                               "Perf Stop Cmd Rcvd, will write %d entries.%dmS dly every %d entries",
-                              (int)Perf->MetaData.DataCount, (int)CFE_PLATFORM_ES_PERF_CHILD_MS_DELAY,
+                              (int)Perf->MetaData.DataCount,
+                              (int)CFE_PLATFORM_ES_PERF_CHILD_MS_DELAY,
                               (int)CFE_PLATFORM_ES_PERF_ENTRIES_BTWN_DLYS);
         }
         else
         {
             CFE_ES_Global.TaskData.CommandErrorCounter++;
-            CFE_EVS_SendEvent(CFE_ES_PERF_LOG_ERR_EID, CFE_EVS_EventType_ERROR, "Error parsing filename, RC = %d",
+            CFE_EVS_SendEvent(CFE_ES_PERF_LOG_ERR_EID,
+                              CFE_EVS_EventType_ERROR,
+                              "Error parsing filename, RC = %d",
                               (int)Status);
         }
 
@@ -249,7 +260,8 @@ int32 CFE_ES_StopPerfDataCmd(const CFE_ES_StopPerfDataCmd_t *data)
     else
     {
         CFE_ES_Global.TaskData.CommandErrorCounter++;
-        CFE_EVS_SendEvent(CFE_ES_PERF_STOPCMD_ERR2_EID, CFE_EVS_EventType_ERROR,
+        CFE_EVS_SendEvent(CFE_ES_PERF_STOPCMD_ERR2_EID,
+                          CFE_EVS_EventType_ERROR,
                           "Stop performance data cmd ignored,perf data write in progress");
     }
 
@@ -269,7 +281,7 @@ bool CFE_ES_RunPerfLogDump(uint32 ElapsedTime, void *Arg)
     int32                    Status;
     CFE_FS_Header_t          FileHdr;
     size_t                   BlockSize;
-    CFE_ES_PerfData_t *      Perf;
+    CFE_ES_PerfData_t       *Perf;
 
     /*
     ** Set the pointer to the data area
@@ -310,13 +322,18 @@ bool CFE_ES_RunPerfLogDump(uint32 ElapsedTime, void *Arg)
             {
                 case CFE_ES_PerfDumpState_OPEN_FILE:
                     /* Create the file to dump to */
-                    OsStatus = OS_OpenCreate(&State->FileDesc, State->DataFileName,
-                                             OS_FILE_FLAG_CREATE | OS_FILE_FLAG_TRUNCATE, OS_WRITE_ONLY);
+                    OsStatus = OS_OpenCreate(&State->FileDesc,
+                                             State->DataFileName,
+                                             OS_FILE_FLAG_CREATE | OS_FILE_FLAG_TRUNCATE,
+                                             OS_WRITE_ONLY);
                     if (OsStatus != OS_SUCCESS)
                     {
                         State->FileDesc = OS_OBJECT_ID_UNDEFINED;
-                        CFE_EVS_SendEvent(CFE_ES_PERF_LOG_ERR_EID, CFE_EVS_EventType_ERROR,
-                                          "Error creating file %s, RC = %ld", State->DataFileName, (long)OsStatus);
+                        CFE_EVS_SendEvent(CFE_ES_PERF_LOG_ERR_EID,
+                                          CFE_EVS_EventType_ERROR,
+                                          "Error creating file %s, RC = %ld",
+                                          State->DataFileName,
+                                          (long)OsStatus);
                     }
                     State->FileSize = 0;
                     break;
@@ -403,9 +420,12 @@ bool CFE_ES_RunPerfLogDump(uint32 ElapsedTime, void *Arg)
                     break;
 
                 case CFE_ES_PerfDumpState_WRITE_PERF_ENTRIES:
-                    CFE_EVS_SendEvent(CFE_ES_PERF_DATAWRITTEN_EID, CFE_EVS_EventType_DEBUG,
-                                      "%s written:Size=%lu,EntryCount=%lu", State->DataFileName,
-                                      (unsigned long)State->FileSize, (unsigned long)Perf->MetaData.DataCount);
+                    CFE_EVS_SendEvent(CFE_ES_PERF_DATAWRITTEN_EID,
+                                      CFE_EVS_EventType_DEBUG,
+                                      "%s written:Size=%lu,EntryCount=%lu",
+                                      State->DataFileName,
+                                      (unsigned long)State->FileSize,
+                                      (unsigned long)Perf->MetaData.DataCount);
                     break;
 
                 default:
@@ -488,7 +508,7 @@ bool CFE_ES_RunPerfLogDump(uint32 ElapsedTime, void *Arg)
 int32 CFE_ES_SetPerfFilterMaskCmd(const CFE_ES_SetPerfFilterMaskCmd_t *data)
 {
     const CFE_ES_SetPerfFilterMaskCmd_Payload_t *cmd = &data->Payload;
-    CFE_ES_PerfData_t *                          Perf;
+    CFE_ES_PerfData_t                           *Perf;
 
     /*
     ** Set the pointer to the data area
@@ -499,17 +519,21 @@ int32 CFE_ES_SetPerfFilterMaskCmd(const CFE_ES_SetPerfFilterMaskCmd_t *data)
     {
         Perf->MetaData.FilterMask[cmd->FilterMaskNum] = cmd->FilterMask;
 
-        CFE_EVS_SendEvent(CFE_ES_PERF_FILTMSKCMD_EID, CFE_EVS_EventType_DEBUG,
-                          "Set Performance Filter Mask Cmd rcvd, num %u, val 0x%08X", (unsigned int)cmd->FilterMaskNum,
+        CFE_EVS_SendEvent(CFE_ES_PERF_FILTMSKCMD_EID,
+                          CFE_EVS_EventType_DEBUG,
+                          "Set Performance Filter Mask Cmd rcvd, num %u, val 0x%08X",
+                          (unsigned int)cmd->FilterMaskNum,
                           (unsigned int)cmd->FilterMask);
 
         CFE_ES_Global.TaskData.CommandCounter++;
     }
     else
     {
-        CFE_EVS_SendEvent(CFE_ES_PERF_FILTMSKERR_EID, CFE_EVS_EventType_ERROR,
+        CFE_EVS_SendEvent(CFE_ES_PERF_FILTMSKERR_EID,
+                          CFE_EVS_EventType_ERROR,
                           "Performance Filter Mask Cmd Error,Index(%u)out of range(%u)",
-                          (unsigned int)cmd->FilterMaskNum, (unsigned int)CFE_ES_PERF_32BIT_WORDS_IN_MASK);
+                          (unsigned int)cmd->FilterMaskNum,
+                          (unsigned int)CFE_ES_PERF_32BIT_WORDS_IN_MASK);
 
         CFE_ES_Global.TaskData.CommandErrorCounter++;
     }
@@ -526,7 +550,7 @@ int32 CFE_ES_SetPerfFilterMaskCmd(const CFE_ES_SetPerfFilterMaskCmd_t *data)
 int32 CFE_ES_SetPerfTriggerMaskCmd(const CFE_ES_SetPerfTriggerMaskCmd_t *data)
 {
     const CFE_ES_SetPerfTrigMaskCmd_Payload_t *cmd = &data->Payload;
-    CFE_ES_PerfData_t *                        Perf;
+    CFE_ES_PerfData_t                         *Perf;
 
     /*
     ** Set the pointer to the data area
@@ -537,17 +561,21 @@ int32 CFE_ES_SetPerfTriggerMaskCmd(const CFE_ES_SetPerfTriggerMaskCmd_t *data)
     {
         Perf->MetaData.TriggerMask[cmd->TriggerMaskNum] = cmd->TriggerMask;
 
-        CFE_EVS_SendEvent(CFE_ES_PERF_TRIGMSKCMD_EID, CFE_EVS_EventType_DEBUG,
-                          "Set Performance Trigger Mask Cmd rcvd,num %u, val 0x%08X", (unsigned int)cmd->TriggerMaskNum,
+        CFE_EVS_SendEvent(CFE_ES_PERF_TRIGMSKCMD_EID,
+                          CFE_EVS_EventType_DEBUG,
+                          "Set Performance Trigger Mask Cmd rcvd,num %u, val 0x%08X",
+                          (unsigned int)cmd->TriggerMaskNum,
                           (unsigned int)cmd->TriggerMask);
 
         CFE_ES_Global.TaskData.CommandCounter++;
     }
     else
     {
-        CFE_EVS_SendEvent(CFE_ES_PERF_TRIGMSKERR_EID, CFE_EVS_EventType_ERROR,
+        CFE_EVS_SendEvent(CFE_ES_PERF_TRIGMSKERR_EID,
+                          CFE_EVS_EventType_ERROR,
                           "Performance Trigger Mask Cmd Error,Index(%u)out of range(%u)",
-                          (unsigned int)cmd->TriggerMaskNum, (unsigned int)CFE_ES_PERF_32BIT_WORDS_IN_MASK);
+                          (unsigned int)cmd->TriggerMaskNum,
+                          (unsigned int)CFE_ES_PERF_32BIT_WORDS_IN_MASK);
 
         CFE_ES_Global.TaskData.CommandErrorCounter++;
     }
@@ -565,7 +593,7 @@ void CFE_ES_PerfLogAdd(uint32 Marker, uint32 EntryExit)
 {
     CFE_ES_PerfDataEntry_t EntryData;
     uint32                 DataEnd;
-    CFE_ES_PerfData_t *    Perf;
+    CFE_ES_PerfData_t     *Perf;
 
     /*
     ** Set the pointer to the data area
@@ -586,7 +614,9 @@ void CFE_ES_PerfLogAdd(uint32 Marker, uint32 EntryExit)
         /* if marker has not been reported previously ... */
         if (Perf->MetaData.InvalidMarkerReported == false)
         {
-            CFE_ES_WriteToSysLog("%s: Invalid performance marker %d,max is %d\n", __func__, (unsigned int)Marker,
+            CFE_ES_WriteToSysLog("%s: Invalid performance marker %d,max is %d\n",
+                                 __func__,
+                                 (unsigned int)Marker,
                                  (CFE_MISSION_ES_PERF_MAX_IDS - 1));
             Perf->MetaData.InvalidMarkerReported = true;
         }

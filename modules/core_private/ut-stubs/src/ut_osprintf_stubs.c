@@ -42,12 +42,12 @@ const char *UT_OSP_MESSAGES[] = {
     [0]                                 = NULL, /* Message 0 is reserved */
     [UT_OSP_MOUNT_VOLATILE]             = "%s: Error Mounting Volatile(RAM) Volume. EC = %ld\n",
     [UT_OSP_CORE_RUNTIME]               = "%s: CORE Application %s Had a Runtime Error.\n",
-    [UT_OSP_CORE_APP_CREATE]            = "%s: OS_TaskCreate error creating core App: %s: EC = %ld\n",
-    [UT_OSP_EARLYINIT]                  = "%s: Error returned when calling function: %s: EC = 0x%08X\n",
+    [UT_OSP_CORE_APP_CREATE]            = "%s: OS_TaskCreate error creating core App: %s: EC = 0x%08X\n",
+    [UT_OSP_EARLYINIT]                  = "%s: Error returned from EarlyInit for %s: EC = 0x%08X\n",
     [UT_OSP_FIND_LIBRARY]               = "%s: Could not find Library Init symbol:%s. EC = %d\n",
     [UT_OSP_POR_MAX_HW_SPECIAL]         = "%s: POWER ON RESET due to max proc resets (HW Spec Cmd).\n",
     [UT_OSP_CANNOT_CALL_APP_MAIN]       = "%s: Error: Cannot Call from a cFE App Main Task. ID = %d\n",
-    [UT_OSP_FUNCTION_POINTER]           = "%s: bad function pointer ( table entry = %d).\n",
+    [UT_OSP_CORE_APP_EARLYINIT]         = "%s: Error returned from EarlyInit for %s: EC = 0x%08X\n",
     [UT_OSP_STARTUP_READ]               = "%s: Error Reading Startup file. EC = %ld\n",
     [UT_OSP_PROC_RESET_COMMANDED]       = "%s: PROCESSOR RESET called from CFE_ES_ResetCFE (Commanded).\n",
     [UT_OSP_MUTEX_TAKE]                 = "%s: SharedData Mutex Take Err Stat=%ld,Func=%s,Line=%d\n",
@@ -109,4 +109,6 @@ const char *UT_OSP_MESSAGES[] = {
     [UT_OSP_FORMAT_VOLATILE]            = "%s: Formatting Volatile(RAM) Volume.\n",
     [UT_OSP_RELOAD_NO_FILE]             = "%s: Cannot Reload Application %s, File %s does not exist.\n",
     [UT_OSP_EXTERNAL_APP_EXIT]          = "%s: Application %s called CFE_ES_ExitApp\n",
+    [UT_OSP_FINISHED_ES_CREATE]         = "%s: Finished ES CreateObject table entries.\n",
+
 };

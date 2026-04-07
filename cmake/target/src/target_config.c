@@ -89,6 +89,14 @@ extern CFE_ConfigName_t CFE_CORE_MODULE_LIST[];
 extern CFE_ConfigName_t CFE_STATIC_APP_LIST[];
 
 /**
+ * A NULL terminated list of CFS core modules and their
+ * associated early init, entry point, and cleanup routines
+ *
+ * This replaces the former hardcoded objtab list in ES
+ */
+extern const Target_ObjectTable_t *const CFE_CORE_MODULE_OBJTAB[];
+
+/**
  * A NULL terminated key-value table containing certain environment information
  * from the build system at the time CFE core was built.
  *
@@ -160,10 +168,10 @@ extern CFE_StaticModuleLoadEntry_t CFE_PSP_MODULE_LIST[];
  */
 #ifdef CFE_EDS_LINK_MODE_LOCAL
 
-static EdsLib_DataTypeDB_t CFE_DYNAMIC_EDS_TABLE[EDS_MAX_DATASHEETS] = {NULL};
+static EdsLib_DataTypeDB_t CFE_DYNAMIC_EDS_TABLE[EDS_MAX_DATASHEETS] = { NULL };
 
-static EdsLib_DatabaseObject_t CFE_DYNAMIC_EDSDB_OBJECT = {.AppTableSize     = EDS_MAX_DATASHEETS,
-                                                           .DataTypeDB_Table = CFE_DYNAMIC_EDS_TABLE};
+static EdsLib_DatabaseObject_t CFE_DYNAMIC_EDSDB_OBJECT = { .AppTableSize     = EDS_MAX_DATASHEETS,
+                                                            .DataTypeDB_Table = CFE_DYNAMIC_EDS_TABLE };
 
 /* The object registered in config points at the local (empty) object */
 #define CFE_NONCONST_EDS_DB_PTR &CFE_DYNAMIC_EDSDB_OBJECT
@@ -249,9 +257,9 @@ Target_ConfigData GLOBAL_CONFIGDATA = {
     .BuildEnvironment        = CFE_BUILD_ENV_TABLE,
     .ModuleVersionList       = CFE_MODULE_VERSION_TABLE,
     .CoreModuleList          = CFE_CORE_MODULE_LIST,
+    .CoreObjectTable         = CFE_CORE_MODULE_OBJTAB,
     .StaticAppList           = CFE_STATIC_APP_LIST,
     .EdsDb                   = CFE_CONST_EDS_DB_PTR,
     .DynamicEdsDb            = CFE_NONCONST_EDS_DB_PTR,
     .SbIntfDb                = CFE_SB_INTF_DB_PTR
 };
-

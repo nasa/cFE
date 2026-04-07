@@ -84,12 +84,15 @@
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_SB_CleanUpApp(CFE_ES_AppId_t AppId)
+int32 CFE_SB_CleanUpApp(uint32 Id)
 {
     uint32          i;
     uint32          DelCount;
     CFE_SB_PipeD_t *PipeDscPtr;
     CFE_SB_PipeId_t DelList[CFE_PLATFORM_SB_MAX_PIPES];
+    CFE_ES_AppId_t  AppId;
+
+    AppId = CFE_ES_APPID_C(CFE_ResourceId_FromInteger(Id));
 
     PipeDscPtr = CFE_SB_Global.PipeTbl;
     DelCount   = 0;
@@ -135,8 +138,12 @@ void CFE_SB_LockSharedData(const char *FuncName, int32 LineNumber)
     if (OsStatus != OS_SUCCESS)
     {
         CFE_ES_GetAppID(&AppId);
-        CFE_ES_WriteToSysLog("%s: SharedData Mutex Take Err Stat=%ld,App=%lu,Func=%s,Line=%d\n", __func__,
-                             (long)OsStatus, CFE_RESOURCEID_TO_ULONG(AppId), FuncName, (int)LineNumber);
+        CFE_ES_WriteToSysLog("%s: SharedData Mutex Take Err Stat=%ld,App=%lu,Func=%s,Line=%d\n",
+                             __func__,
+                             (long)OsStatus,
+                             CFE_RESOURCEID_TO_ULONG(AppId),
+                             FuncName,
+                             (int)LineNumber);
     }
 }
 
@@ -155,8 +162,12 @@ void CFE_SB_UnlockSharedData(const char *FuncName, int32 LineNumber)
     if (OsStatus != OS_SUCCESS)
     {
         CFE_ES_GetAppID(&AppId);
-        CFE_ES_WriteToSysLog("%s: SharedData Mutex Give Err Stat=%ld,App=%lu,Func=%s,Line=%d\n", __func__,
-                             (long)OsStatus, CFE_RESOURCEID_TO_ULONG(AppId), FuncName, (int)LineNumber);
+        CFE_ES_WriteToSysLog("%s: SharedData Mutex Give Err Stat=%ld,App=%lu,Func=%s,Line=%d\n",
+                             __func__,
+                             (long)OsStatus,
+                             CFE_RESOURCEID_TO_ULONG(AppId),
+                             FuncName,
+                             (int)LineNumber);
     }
 }
 
@@ -444,7 +455,7 @@ void CFE_SB_RemoveDestNode(CFE_SBR_RouteId_t RouteId, CFE_SB_DestinationD_t *Nod
 int32 CFE_SB_ZeroCopyReleaseAppId(CFE_ES_AppId_t AppId)
 {
     CFE_SB_BufferLink_t *NextLink;
-    CFE_SB_BufferD_t *   DscPtr;
+    CFE_SB_BufferD_t    *DscPtr;
 
     /*
      * First go through the "ZeroCopy" tracking list and find all nodes
@@ -522,8 +533,10 @@ int32 CFE_SB_ZeroCopyBufferValidate(CFE_SB_Buffer_t *BufPtr, CFE_SB_BufferD_t **
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-void CFE_SB_MessageTxn_Init(CFE_SB_MessageTxn_State_t *TxnPtr, CFE_SB_PipeSetEntry_t *PipeSet, uint16 MaxPipes,
-                            const void *RefMemPtr)
+void CFE_SB_MessageTxn_Init(CFE_SB_MessageTxn_State_t *TxnPtr,
+                            CFE_SB_PipeSetEntry_t     *PipeSet,
+                            uint16                     MaxPipes,
+                            const void                *RefMemPtr)
 {
     memset(TxnPtr, 0, offsetof(CFE_SB_TransmitTxn_State_t, DestSet));
     TxnPtr->PipeSet  = PipeSet;
@@ -570,9 +583,14 @@ void CFE_SB_MessageTxn_SetTimeout(CFE_SB_MessageTxn_State_t *TxnPtr, int32 Timeo
  * Not invoked outside of this unit
  *
  *-----------------------------------------------------------------*/
-void CFE_SB_MessageTxn_GetEventDetails(const CFE_SB_MessageTxn_State_t *TxnPtr, const CFE_SB_PipeSetEntry_t *ContextPtr,
-                                       uint16 EventId, CFE_ES_TaskId_t TskId, char *EvtMsg, size_t EvtMsgSize,
-                                       CFE_EVS_EventType_Enum_t *EventType, int32 *ReqBit)
+void CFE_SB_MessageTxn_GetEventDetails(const CFE_SB_MessageTxn_State_t *TxnPtr,
+                                       const CFE_SB_PipeSetEntry_t     *ContextPtr,
+                                       uint16                           EventId,
+                                       CFE_ES_TaskId_t                  TskId,
+                                       char                            *EvtMsg,
+                                       size_t                           EvtMsgSize,
+                                       CFE_EVS_EventType_Enum_t        *EventType,
+                                       int32                           *ReqBit)
 {
     char  FullName[(OS_MAX_API_NAME * 2)];
     char  PipeName[OS_MAX_API_NAME];
@@ -603,41 +621,57 @@ void CFE_SB_MessageTxn_GetEventDetails(const CFE_SB_MessageTxn_State_t *TxnPtr, 
             *ReqBit    = CFE_SB_SEND_BAD_ARG_EID_BIT;
             *EventType = CFE_EVS_EventType_ERROR;
 
-            snprintf(EvtMsg, EvtMsgSize, "Send Err:Bad input argument,Arg 0x%lx,App %s",
-                     (unsigned long)TxnPtr->RefMemPtr, CFE_SB_GetAppTskName(TskId, FullName));
+            snprintf(EvtMsg,
+                     EvtMsgSize,
+                     "Send Err:Bad input argument,Arg 0x%lx,App %s",
+                     (unsigned long)TxnPtr->RefMemPtr,
+                     CFE_SB_GetAppTskName(TskId, FullName));
             break;
 
         case CFE_SB_SEND_INV_MSGID_EID:
             *ReqBit    = CFE_SB_SEND_INV_MSGID_EID_BIT;
             *EventType = CFE_EVS_EventType_ERROR;
 
-            snprintf(EvtMsg, EvtMsgSize, "Send Err:Invalid MsgId(0x%x)in msg,App %s",
-                     (unsigned int)CFE_SB_MsgIdToValue(TxnPtr->RoutingMsgId), CFE_SB_GetAppTskName(TskId, FullName));
+            snprintf(EvtMsg,
+                     EvtMsgSize,
+                     "Send Err:Invalid MsgId(0x%x)in msg,App %s",
+                     (unsigned int)CFE_SB_MsgIdToValue(TxnPtr->RoutingMsgId),
+                     CFE_SB_GetAppTskName(TskId, FullName));
             break;
 
         case CFE_SB_MSG_TOO_BIG_EID:
             *ReqBit    = CFE_SB_MSG_TOO_BIG_EID_BIT;
             *EventType = CFE_EVS_EventType_ERROR;
 
-            snprintf(EvtMsg, EvtMsgSize, "Send Err:Msg Too Big MsgId=0x%x,app=%s,size=%d,MaxSz=%d",
-                     (unsigned int)CFE_SB_MsgIdToValue(TxnPtr->RoutingMsgId), CFE_SB_GetAppTskName(TskId, FullName),
-                     (int)TxnPtr->ContentSize, CFE_MISSION_SB_MAX_SB_MSG_SIZE);
+            snprintf(EvtMsg,
+                     EvtMsgSize,
+                     "Send Err:Msg Too Big MsgId=0x%x,app=%s,size=%d,MaxSz=%d",
+                     (unsigned int)CFE_SB_MsgIdToValue(TxnPtr->RoutingMsgId),
+                     CFE_SB_GetAppTskName(TskId, FullName),
+                     (int)TxnPtr->ContentSize,
+                     CFE_MISSION_SB_MAX_SB_MSG_SIZE);
             break;
 
         case CFE_SB_SEND_NO_SUBS_EID:
             *ReqBit    = CFE_SB_SEND_NO_SUBS_EID_BIT;
             *EventType = CFE_EVS_EventType_INFORMATION;
 
-            snprintf(EvtMsg, EvtMsgSize, "No subscribers for MsgId 0x%x,sender %s",
-                     (unsigned int)CFE_SB_MsgIdToValue(TxnPtr->RoutingMsgId), CFE_SB_GetAppTskName(TskId, FullName));
+            snprintf(EvtMsg,
+                     EvtMsgSize,
+                     "No subscribers for MsgId 0x%x,sender %s",
+                     (unsigned int)CFE_SB_MsgIdToValue(TxnPtr->RoutingMsgId),
+                     CFE_SB_GetAppTskName(TskId, FullName));
             break;
 
         case CFE_SB_GET_BUF_ERR_EID:
             *ReqBit    = CFE_SB_GET_BUF_ERR_EID_BIT;
             *EventType = CFE_EVS_EventType_ERROR;
 
-            snprintf(EvtMsg, EvtMsgSize, "Send Err:Request for Buffer Failed. MsgId 0x%x,app %s,size %d",
-                     (unsigned int)CFE_SB_MsgIdToValue(TxnPtr->RoutingMsgId), CFE_SB_GetAppTskName(TskId, FullName),
+            snprintf(EvtMsg,
+                     EvtMsgSize,
+                     "Send Err:Request for Buffer Failed. MsgId 0x%x,app %s,size %d",
+                     (unsigned int)CFE_SB_MsgIdToValue(TxnPtr->RoutingMsgId),
+                     CFE_SB_GetAppTskName(TskId, FullName),
                      (int)TxnPtr->ContentSize);
             break;
 
@@ -645,8 +679,11 @@ void CFE_SB_MessageTxn_GetEventDetails(const CFE_SB_MessageTxn_State_t *TxnPtr, 
             *ReqBit    = CFE_SB_MSGID_LIM_ERR_EID_BIT;
             *EventType = CFE_EVS_EventType_ERROR;
 
-            snprintf(EvtMsg, EvtMsgSize, "Msg Limit Err,MsgId 0x%x,pipe %s,sender %s",
-                     (unsigned int)CFE_SB_MsgIdToValue(TxnPtr->RoutingMsgId), PipeName,
+            snprintf(EvtMsg,
+                     EvtMsgSize,
+                     "Msg Limit Err,MsgId 0x%x,pipe %s,sender %s",
+                     (unsigned int)CFE_SB_MsgIdToValue(TxnPtr->RoutingMsgId),
+                     PipeName,
                      CFE_SB_GetAppTskName(TskId, FullName));
             break;
 
@@ -654,8 +691,11 @@ void CFE_SB_MessageTxn_GetEventDetails(const CFE_SB_MessageTxn_State_t *TxnPtr, 
             *ReqBit    = CFE_SB_Q_FULL_ERR_EID_BIT;
             *EventType = CFE_EVS_EventType_ERROR;
 
-            snprintf(EvtMsg, EvtMsgSize, "Pipe Overflow,MsgId 0x%x,pipe %s,sender %s",
-                     (unsigned int)CFE_SB_MsgIdToValue(TxnPtr->RoutingMsgId), PipeName,
+            snprintf(EvtMsg,
+                     EvtMsgSize,
+                     "Pipe Overflow,MsgId 0x%x,pipe %s,sender %s",
+                     (unsigned int)CFE_SB_MsgIdToValue(TxnPtr->RoutingMsgId),
+                     PipeName,
                      CFE_SB_GetAppTskName(TskId, FullName));
             break;
 
@@ -663,31 +703,46 @@ void CFE_SB_MessageTxn_GetEventDetails(const CFE_SB_MessageTxn_State_t *TxnPtr, 
             *ReqBit    = CFE_SB_Q_WR_ERR_EID_BIT;
             *EventType = CFE_EVS_EventType_ERROR;
 
-            snprintf(EvtMsg, EvtMsgSize, "Pipe Write Err,MsgId 0x%x,pipe %s,sender %s,stat %ld",
-                     (unsigned int)CFE_SB_MsgIdToValue(TxnPtr->RoutingMsgId), PipeName,
-                     CFE_SB_GetAppTskName(TskId, FullName), (long)LocalOsStatus);
+            snprintf(EvtMsg,
+                     EvtMsgSize,
+                     "Pipe Write Err,MsgId 0x%x,pipe %s,sender %s,stat %ld",
+                     (unsigned int)CFE_SB_MsgIdToValue(TxnPtr->RoutingMsgId),
+                     PipeName,
+                     CFE_SB_GetAppTskName(TskId, FullName),
+                     (long)LocalOsStatus);
             break;
 
         case CFE_SB_Q_RD_ERR_EID:
             *ReqBit    = -1;
             *EventType = CFE_EVS_EventType_ERROR;
 
-            snprintf(EvtMsg, EvtMsgSize, "Pipe Read Err,pipe %s,app %s,stat %ld", PipeName,
-                     CFE_SB_GetAppTskName(TskId, FullName), (long)LocalOsStatus);
+            snprintf(EvtMsg,
+                     EvtMsgSize,
+                     "Pipe Read Err,pipe %s,app %s,stat %ld",
+                     PipeName,
+                     CFE_SB_GetAppTskName(TskId, FullName),
+                     (long)LocalOsStatus);
             break;
         case CFE_SB_RCV_BAD_ARG_EID:
             *ReqBit    = -1;
             *EventType = CFE_EVS_EventType_ERROR;
 
-            snprintf(EvtMsg, EvtMsgSize, "Rcv Err:Bad Input Arg:BufPtr 0x%lx,pipe %s,t/o %d,app %s",
-                     (unsigned long)TxnPtr->RefMemPtr, PipeName, (int)TxnPtr->UserTimeoutParam,
+            snprintf(EvtMsg,
+                     EvtMsgSize,
+                     "Rcv Err:Bad Input Arg:BufPtr 0x%lx,pipe %s,t/o %d,app %s",
+                     (unsigned long)TxnPtr->RefMemPtr,
+                     PipeName,
+                     (int)TxnPtr->UserTimeoutParam,
                      CFE_SB_GetAppTskName(TskId, FullName));
             break;
         case CFE_SB_BAD_PIPEID_EID:
             *ReqBit    = -1;
             *EventType = CFE_EVS_EventType_ERROR;
 
-            snprintf(EvtMsg, EvtMsgSize, "Rcv Err:PipeId %s does not exist,app %s", PipeName,
+            snprintf(EvtMsg,
+                     EvtMsgSize,
+                     "Rcv Err:PipeId %s does not exist,app %s",
+                     PipeName,
                      CFE_SB_GetAppTskName(TskId, FullName));
             break;
 
@@ -706,7 +761,8 @@ void CFE_SB_MessageTxn_GetEventDetails(const CFE_SB_MessageTxn_State_t *TxnPtr, 
  *
  *-----------------------------------------------------------------*/
 bool CFE_SB_MessageTxn_ReportSingleEvent(const CFE_SB_MessageTxn_State_t *TxnPtr,
-                                         const CFE_SB_PipeSetEntry_t *ContextPtr, uint16 EventId)
+                                         const CFE_SB_PipeSetEntry_t     *ContextPtr,
+                                         uint16                           EventId)
 {
     CFE_ES_TaskId_t          TskId;
     CFE_EVS_EventType_Enum_t EventType;
@@ -716,7 +772,13 @@ bool CFE_SB_MessageTxn_ReportSingleEvent(const CFE_SB_MessageTxn_State_t *TxnPtr
     /* get task id for events and Sender Info*/
     CFE_ES_GetTaskID(&TskId);
 
-    CFE_SB_MessageTxn_GetEventDetails(TxnPtr, ContextPtr, EventId, TskId, Message, sizeof(Message), &EventType,
+    CFE_SB_MessageTxn_GetEventDetails(TxnPtr,
+                                      ContextPtr,
+                                      EventId,
+                                      TskId,
+                                      Message,
+                                      sizeof(Message),
+                                      &EventType,
                                       &ReqBit);
 
     if (EventType > 0 && CFE_SB_RequestToSendEvent(TskId, ReqBit) == CFE_SB_GRANTED)
@@ -926,7 +988,7 @@ CFE_SB_MessageTxn_State_t *CFE_SB_TransmitTxn_Init(CFE_SB_TransmitTxn_State_t *T
  *-----------------------------------------------------------------*/
 void CFE_SB_TransmitTxn_FindDestinations(CFE_SB_MessageTxn_State_t *TxnPtr, CFE_SB_BufferD_t *BufDscPtr)
 {
-    CFE_SB_PipeD_t *       PipeDscPtr;
+    CFE_SB_PipeD_t        *PipeDscPtr;
     CFE_SB_DestinationD_t *DestPtr;
     CFE_SB_PipeSetEntry_t *ContextPtr;
     CFE_ES_AppId_t         AppId;
@@ -976,8 +1038,8 @@ void CFE_SB_TransmitTxn_FindDestinations(CFE_SB_MessageTxn_State_t *TxnPtr, CFE_
 
             if (CFE_SB_PipeDescIsMatch(PipeDscPtr, DestPtr->PipeId))
             {
-                if ((PipeDscPtr->Opts & CFE_SB_PIPEOPTS_IGNOREMINE) == 0 ||
-                    !CFE_RESOURCEID_TEST_EQUAL(PipeDscPtr->AppId, AppId))
+                if ((PipeDscPtr->Opts & CFE_SB_PIPEOPTS_IGNOREMINE) == 0
+                    || !CFE_RESOURCEID_TEST_EQUAL(PipeDscPtr->AppId, AppId))
                 {
                     ContextPtr = &TxnPtr->PipeSet[TxnPtr->NumPipes];
                     ++TxnPtr->NumPipes;
@@ -1101,8 +1163,8 @@ int32 CFE_SB_MessageTxn_GetOsTimeout(const CFE_SB_MessageTxn_State_t *TxnPtr)
 bool CFE_SB_TransmitTxn_PipeHandler(CFE_SB_MessageTxn_State_t *TxnPtr, CFE_SB_PipeSetEntry_t *ContextPtr, void *Arg)
 {
     CFE_SB_DestinationD_t *DestPtr;
-    CFE_SB_PipeD_t *       PipeDscPtr;
-    CFE_SB_BufferD_t *     BufDscPtr;
+    CFE_SB_PipeD_t        *PipeDscPtr;
+    CFE_SB_BufferD_t      *BufDscPtr;
 
     BufDscPtr = Arg;
 
@@ -1164,8 +1226,9 @@ bool CFE_SB_TransmitTxn_PipeHandler(CFE_SB_MessageTxn_State_t *TxnPtr, CFE_SB_Pi
  * Not invoked outside of this unit
  *
  *-----------------------------------------------------------------*/
-void CFE_SB_MessageTxn_ProcessPipes(CFE_SB_MessageTxn_PipeHandler_t HandlerFunc, CFE_SB_MessageTxn_State_t *TxnPtr,
-                                    void *Arg)
+void CFE_SB_MessageTxn_ProcessPipes(CFE_SB_MessageTxn_PipeHandler_t HandlerFunc,
+                                    CFE_SB_MessageTxn_State_t      *TxnPtr,
+                                    void                           *Arg)
 {
     uint32                 i;
     CFE_SB_PipeSetEntry_t *ContextPtr;
@@ -1269,7 +1332,7 @@ void CFE_SB_MessageTxn_SetEndpoint(CFE_SB_MessageTxn_State_t *TxnPtr, bool IsEnd
  *-----------------------------------------------------------------*/
 void CFE_SB_ReceiveTxn_SetPipeId(CFE_SB_MessageTxn_State_t *TxnPtr, CFE_SB_PipeId_t PipeId)
 {
-    CFE_SB_PipeD_t *       PipeDscPtr;
+    CFE_SB_PipeD_t        *PipeDscPtr;
     CFE_SB_PipeSetEntry_t *ContextPtr;
 
     /* For now, there is just one of these */
@@ -1325,10 +1388,12 @@ void CFE_SB_ReceiveTxn_SetPipeId(CFE_SB_MessageTxn_State_t *TxnPtr, CFE_SB_PipeI
  * Not invoked outside of this unit
  *
  *-----------------------------------------------------------------*/
-void CFE_SB_ReceiveTxn_ExportReference(CFE_SB_MessageTxn_State_t *TxnPtr, CFE_SB_PipeSetEntry_t *ContextPtr,
-                                       CFE_SB_BufferD_t *BufDscPtr, CFE_SB_BufferD_t **ParentBufDscPtrP)
+void CFE_SB_ReceiveTxn_ExportReference(CFE_SB_MessageTxn_State_t *TxnPtr,
+                                       CFE_SB_PipeSetEntry_t     *ContextPtr,
+                                       CFE_SB_BufferD_t          *BufDscPtr,
+                                       CFE_SB_BufferD_t         **ParentBufDscPtrP)
 {
-    CFE_SB_PipeD_t *       PipeDscPtr;
+    CFE_SB_PipeD_t        *PipeDscPtr;
     CFE_SB_DestinationD_t *DestPtr;
 
     PipeDscPtr = CFE_SB_LocatePipeDescByID(ContextPtr->PipeId);
@@ -1400,14 +1465,17 @@ void CFE_SB_ReceiveTxn_ExportReference(CFE_SB_MessageTxn_State_t *TxnPtr, CFE_SB
  *-----------------------------------------------------------------*/
 bool CFE_SB_ReceiveTxn_PipeHandler(CFE_SB_MessageTxn_State_t *TxnPtr, CFE_SB_PipeSetEntry_t *ContextPtr, void *Arg)
 {
-    CFE_SB_BufferD_t * BufDscPtr;
+    CFE_SB_BufferD_t  *BufDscPtr;
     CFE_SB_BufferD_t **ParentBufDscPtrP;
     size_t             BufDscSize;
 
     ParentBufDscPtrP = Arg;
 
     /* Read the buffer descriptor address from the queue.  */
-    ContextPtr->OsStatus = OS_QueueGet(ContextPtr->SysQueueId, &BufDscPtr, sizeof(BufDscPtr), &BufDscSize,
+    ContextPtr->OsStatus = OS_QueueGet(ContextPtr->SysQueueId,
+                                       &BufDscPtr,
+                                       sizeof(BufDscPtr),
+                                       &BufDscSize,
                                        CFE_SB_MessageTxn_GetOsTimeout(TxnPtr));
 
     /*
@@ -1455,7 +1523,7 @@ bool CFE_SB_ReceiveTxn_PipeHandler(CFE_SB_MessageTxn_State_t *TxnPtr, CFE_SB_Pip
  *-----------------------------------------------------------------*/
 const CFE_SB_Buffer_t *CFE_SB_ReceiveTxn_Execute(CFE_SB_MessageTxn_State_t *TxnPtr)
 {
-    CFE_SB_BufferD_t *     BufDscPtr;
+    CFE_SB_BufferD_t      *BufDscPtr;
     const CFE_SB_Buffer_t *Result;
     bool                   IsAcceptable;
     CFE_Status_t           Status;
@@ -1540,8 +1608,8 @@ CFE_Status_t CFE_SB_GetPipeNamePriv(CFE_SB_PipeId_t PipeId, char *PipeNameBuf, s
     osal_id_t       SysQueueId;
     int32           Status;
 
-    Status          = CFE_SUCCESS;
-    SysQueueId      = OS_OBJECT_ID_UNDEFINED;
+    Status     = CFE_SUCCESS;
+    SysQueueId = OS_OBJECT_ID_UNDEFINED;
 
     /* take semaphore to prevent a task switch during this call */
     CFE_SB_LockSharedData(__func__, __LINE__);

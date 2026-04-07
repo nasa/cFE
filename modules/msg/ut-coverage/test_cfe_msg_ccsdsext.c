@@ -96,8 +96,9 @@ void Test_MSG_Init_Ext(void)
 #endif
 
     /* Confirm the rest of the fields not already explicitly checked */
-    UtAssert_INT32_EQ(
-        Test_MSG_Ext_NotZero(&msg) & ~(MSG_EDSVER_FLAG | MSG_ENDIAN_FLAG | MSG_SUBSYS_FLAG | MSG_SYSTEM_FLAG), 0);
+    UtAssert_INT32_EQ(Test_MSG_Ext_NotZero(&msg)
+                          & ~(MSG_EDSVER_FLAG | MSG_ENDIAN_FLAG | MSG_SUBSYS_FLAG | MSG_SYSTEM_FLAG),
+                      0);
 
     UtPrintf("Set to all 0, max msgid value");
     memset(&msg, 0, sizeof(msg));
@@ -129,14 +130,15 @@ void Test_MSG_Init_Ext(void)
         UtAssert_INT32_EQ(subsys, CFE_PLATFORM_DEFAULT_SUBSYS | ((msgidval_exp >> 8) & 0xFF));
 
     /* Confirm the rest of the fields not already explicitly checked */
-    UtAssert_INT32_EQ(
-        Test_MSG_Ext_NotZero(&msg) & ~(MSG_EDSVER_FLAG | MSG_ENDIAN_FLAG | MSG_SUBSYS_FLAG | MSG_SYSTEM_FLAG), 0);
+    UtAssert_INT32_EQ(Test_MSG_Ext_NotZero(&msg)
+                          & ~(MSG_EDSVER_FLAG | MSG_ENDIAN_FLAG | MSG_SUBSYS_FLAG | MSG_SYSTEM_FLAG),
+                      0);
 }
 
 void Test_MSG_EDSVersion(void)
 {
     CFE_MSG_Message_t    msg;
-    CFE_MSG_EDSVersion_t input[] = {0, TEST_EDSVER_MAX / 2, TEST_EDSVER_MAX};
+    CFE_MSG_EDSVersion_t input[] = { 0, TEST_EDSVER_MAX / 2, TEST_EDSVER_MAX };
     CFE_MSG_EDSVersion_t actual  = TEST_EDSVER_MAX;
     int                  i;
 
@@ -196,7 +198,7 @@ void Test_MSG_EDSVersion(void)
 void Test_MSG_Endian(void)
 {
     CFE_MSG_Message_t msg;
-    CFE_MSG_Endian_t  input[] = {CFE_MSG_Endian_Big, CFE_MSG_Endian_Little};
+    CFE_MSG_Endian_t  input[] = { CFE_MSG_Endian_Big, CFE_MSG_Endian_Little };
     CFE_MSG_Endian_t  actual  = 0;
     int               i;
 
@@ -256,7 +258,7 @@ void Test_MSG_Endian(void)
 void Test_MSG_PlaybackFlag(void)
 {
     CFE_MSG_Message_t      msg;
-    CFE_MSG_PlaybackFlag_t input[] = {CFE_MSG_PlayFlag_Original, CFE_MSG_PlayFlag_Playback};
+    CFE_MSG_PlaybackFlag_t input[] = { CFE_MSG_PlayFlag_Original, CFE_MSG_PlayFlag_Playback };
     CFE_MSG_PlaybackFlag_t actual  = 0;
     int                    i;
 
@@ -316,7 +318,7 @@ void Test_MSG_PlaybackFlag(void)
 void Test_MSG_Subsystem(void)
 {
     CFE_MSG_Message_t   msg;
-    CFE_MSG_Subsystem_t input[] = {0, TEST_SUBSYS_MAX / 2, TEST_SUBSYS_MAX};
+    CFE_MSG_Subsystem_t input[] = { 0, TEST_SUBSYS_MAX / 2, TEST_SUBSYS_MAX };
     CFE_MSG_Subsystem_t actual  = TEST_SUBSYS_MAX;
     int                 i;
 
@@ -376,7 +378,7 @@ void Test_MSG_Subsystem(void)
 void Test_MSG_System(void)
 {
     CFE_MSG_Message_t msg;
-    CFE_MSG_ApId_t    input[] = {0, TEST_SYSTEM_MAX / 2, TEST_SYSTEM_MAX};
+    CFE_MSG_ApId_t    input[] = { 0, TEST_SYSTEM_MAX / 2, TEST_SYSTEM_MAX };
     CFE_MSG_ApId_t    actual  = TEST_SYSTEM_MAX;
     int               i;
 

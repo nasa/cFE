@@ -48,7 +48,7 @@ void TestAppIDToIndex(void)
 void TestLibIDToIndex(void)
 {
     UtPrintf("Testing: CFE_ES_LibID_ToIndex");
-    const char *   LibName = "ASSERT_LIB";
+    const char    *LibName = "ASSERT_LIB";
     CFE_ES_LibId_t LibId;
     uint32         LibIdx = 0;
     uint32         idx    = 0;
@@ -84,7 +84,7 @@ void TestTaskIDToIndex(void)
 void TestCounterIDToIndex(void)
 {
     UtPrintf("Testing: CFE_ES_CounterID_ToIndex");
-    const char *       CounterName = "TEST_COUNTER";
+    const char        *CounterName = "TEST_COUNTER";
     CFE_ES_CounterId_t CounterId;
     uint32             CounterIdx;
     uint32             idx;

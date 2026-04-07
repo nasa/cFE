@@ -74,7 +74,8 @@ int32 CFE_SB_EarlyInit(void)
     CFE_SBR_Init();
 
     /* Initialize the SB Statistics Pkt */
-    CFE_MSG_Init(CFE_MSG_PTR(CFE_SB_Global.StatTlmMsg.TelemetryHeader), CFE_SB_ValueToMsgId(CFE_SB_STATS_TLM_MID),
+    CFE_MSG_Init(CFE_MSG_PTR(CFE_SB_Global.StatTlmMsg.TelemetryHeader),
+                 CFE_SB_ValueToMsgId(CFE_SB_STATS_TLM_MID),
                  sizeof(CFE_SB_Global.StatTlmMsg));
 
     return Stat;
@@ -93,14 +94,19 @@ int32 CFE_SB_InitBuffers(void)
 
     MemPoolDefSize = CFE_Config_GetArrayValue(CFE_CONFIGID_PLATFORM_SB_MEM_BLOCK_SIZE);
 
-    Stat = CFE_ES_PoolCreateEx(&CFE_SB_Global.Mem.PoolHdl, CFE_SB_Global.Mem.Partition.Data,
-                               CFE_PLATFORM_SB_BUF_MEMORY_BYTES, MemPoolDefSize.NumElements, MemPoolDefSize.ElementPtr,
+    Stat = CFE_ES_PoolCreateEx(&CFE_SB_Global.Mem.PoolHdl,
+                               CFE_SB_Global.Mem.Partition.Data,
+                               CFE_PLATFORM_SB_BUF_MEMORY_BYTES,
+                               MemPoolDefSize.NumElements,
+                               MemPoolDefSize.ElementPtr,
                                CFE_ES_NO_MUTEX);
 
     if (Stat != CFE_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("%s: PoolCreate failed for SB Buffers, gave adr 0x%lx,size %d,stat=0x%x\n", __func__,
-                             (unsigned long)CFE_SB_Global.Mem.Partition.Data, CFE_PLATFORM_SB_BUF_MEMORY_BYTES,
+        CFE_ES_WriteToSysLog("%s: PoolCreate failed for SB Buffers, gave adr 0x%lx,size %d,stat=0x%x\n",
+                             __func__,
+                             (unsigned long)CFE_SB_Global.Mem.Partition.Data,
+                             CFE_PLATFORM_SB_BUF_MEMORY_BYTES,
                              (unsigned int)Stat);
         return Stat;
     }

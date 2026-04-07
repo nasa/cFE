@@ -127,7 +127,7 @@ void UT_DefaultHandler_CFE_ResourceId_ToIndex(void *UserObj, UT_EntryKey_t FuncK
     CFE_ResourceId_t Id        = UT_Hook_GetArgValueByName(Context, "Id", CFE_ResourceId_t);
     uint32           BaseValue = UT_Hook_GetArgValueByName(Context, "BaseValue", uint32);
     uint32           TableSize = UT_Hook_GetArgValueByName(Context, "TableSize", uint32);
-    uint32 *         Idx       = UT_Hook_GetArgValueByName(Context, "Idx", uint32 *);
+    uint32          *Idx       = UT_Hook_GetArgValueByName(Context, "Idx", uint32 *);
 
     int32 return_code;
 

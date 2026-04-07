@@ -41,8 +41,8 @@
 void Test_MSG_FcnCode(void)
 {
     CFE_MSG_CommandHeader_t cmd;
-    CFE_MSG_Message_t *     msgptr  = CFE_MSG_PTR(cmd);
-    CFE_MSG_FcnCode_t       input[] = {0, TEST_FCNCODE_MAX / 2, TEST_FCNCODE_MAX};
+    CFE_MSG_Message_t      *msgptr  = CFE_MSG_PTR(cmd);
+    CFE_MSG_FcnCode_t       input[] = { 0, TEST_FCNCODE_MAX / 2, TEST_FCNCODE_MAX };
     CFE_MSG_FcnCode_t       actual  = TEST_FCNCODE_MAX;
     int                     i;
 
@@ -84,7 +84,6 @@ void Test_MSG_FcnCode(void)
     UtAssert_INT32_EQ(actual, 0);
     UtAssert_INT32_EQ(CFE_MSG_SetFcnCode(msgptr, 0), CFE_MSG_WRONG_MSG_TYPE);
     UtAssert_INT32_EQ(Test_MSG_NotZero(msgptr), MSG_HASSEC_FLAG | MSG_TYPE_FLAG | MSG_HDRVER_FLAG);
-
 
     UtPrintf("Set to all F's, various valid inputs");
     for (i = 0; i < sizeof(input) / sizeof(input[0]); i++)

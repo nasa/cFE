@@ -60,7 +60,7 @@ size_t CFE_SB_MsgHdrSize(const CFE_MSG_Message_t *MsgPtr)
     CFE_MissionLib_TopicInfo_t               TopicInfo;
     CFE_MSG_Size_t                           MsgSize;
 
-    const EdsLib_DatabaseObject_t *               EDS_DB    = CFE_Config_GetObjPointer(CFE_CONFIGID_MISSION_EDS_DB);
+    const EdsLib_DatabaseObject_t                *EDS_DB    = CFE_Config_GetObjPointer(CFE_CONFIGID_MISSION_EDS_DB);
     const CFE_MissionLib_SoftwareBus_Interface_t *SBINTF_DB = CFE_Config_GetObjPointer(CFE_CONFIGID_MISSION_SBINTF_DB);
 
     /* Value of 0 for IDs is always reserved/invalid */
@@ -170,7 +170,9 @@ size_t CFE_SB_MsgHdrSize(const CFE_MSG_Message_t *MsgPtr)
  *-----------------------------------------------------------------*/
 CFE_SB_MsgId_Atom_t CFE_SB_CmdTopicIdToMsgId(uint16 TopicId, uint16 InstanceNum)
 {
-    const CFE_SB_Listener_Component_t     Params = {{.InstanceNumber = InstanceNum, .TopicId = TopicId}};
+    const CFE_SB_Listener_Component_t Params = {
+        { .InstanceNumber = InstanceNum, .TopicId = TopicId }
+    };
     CFE_SB_SoftwareBus_PubSub_Interface_t Output;
 
     CFE_MissionLib_MapListenerComponent(&Output, &Params);
@@ -186,7 +188,9 @@ CFE_SB_MsgId_Atom_t CFE_SB_CmdTopicIdToMsgId(uint16 TopicId, uint16 InstanceNum)
  *-----------------------------------------------------------------*/
 CFE_SB_MsgId_Atom_t CFE_SB_TlmTopicIdToMsgId(uint16 TopicId, uint16 InstanceNum)
 {
-    const CFE_SB_Publisher_Component_t    Params = {{.InstanceNumber = InstanceNum, .TopicId = TopicId}};
+    const CFE_SB_Publisher_Component_t Params = {
+        { .InstanceNumber = InstanceNum, .TopicId = TopicId }
+    };
     CFE_SB_SoftwareBus_PubSub_Interface_t Output;
 
     CFE_MissionLib_MapPublisherComponent(&Output, &Params);
@@ -250,6 +254,6 @@ CFE_SB_MsgId_Atom_t CFE_SB_LocalTlmTopicIdToMsgId(uint16 TopicId)
  *-----------------------------------------------------------------*/
 bool CFE_SB_IsValidMsgId(CFE_SB_MsgId_t MsgId)
 {
-    return (!CFE_SB_MsgId_Equal(MsgId, CFE_SB_INVALID_MSG_ID) &&
-            CFE_SB_MsgIdToValue(MsgId) <= CFE_PLATFORM_SB_HIGHEST_VALID_MSGID);
+    return (!CFE_SB_MsgId_Equal(MsgId, CFE_SB_INVALID_MSG_ID)
+            && CFE_SB_MsgIdToValue(MsgId) <= CFE_PLATFORM_SB_HIGHEST_VALID_MSGID);
 }

@@ -189,6 +189,7 @@
               \cfetlmmnemonic  \SB_GETPIPEIDBYNAMEEC
             </LongDescription>
           </Entry>
+          <PaddingEntry sizeInBits="8" shortDescription="Spare bytes for alignment"/>
           <Entry name="PipeOverflowErrorCounter" type="BASE_TYPES/uint16" shortDescription="Count of pipe overflow errors">
             <LongDescription>
               \cfetlmmnemonic  \SB_PIPEOVREC

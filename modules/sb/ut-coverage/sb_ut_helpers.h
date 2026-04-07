@@ -133,11 +133,14 @@ CFE_ES_AppId_t   UT_SB_AppID_Modify(CFE_ES_AppId_t InitialID, int32 Modifier);
 void SB_UT_BindDispatchHandlers(void);
 void SB_ResetUnitTest(void);
 
-CFE_Status_t SB_UT_OriginationActionHook(void *UserObj, int32 StubRetcode, uint32 CallCount,
-                                         const UT_StubContext_t *Context);
-void         SB_UT_OriginationActionHandler(void *UserObj, UT_EntryKey_t FuncKey, const UT_StubContext_t *Context);
+CFE_Status_t
+     SB_UT_OriginationActionHook(void *UserObj, int32 StubRetcode, uint32 CallCount, const UT_StubContext_t *Context);
+void SB_UT_OriginationActionHandler(void *UserObj, UT_EntryKey_t FuncKey, const UT_StubContext_t *Context);
 CFE_Status_t SB_UT_RecieveBuffer_FalseEndpoint(CFE_SB_Buffer_t **BufPtr, CFE_SB_PipeId_t PipeId, int32 TimeOut);
 
-void UT_SB_Setup_MsgHdrSize(bool HasSec, CFE_MSG_Type_t MsgType, CFE_MSG_Size_t TotalSize, size_t ExpectedPayloadOffset);
+void UT_SB_Setup_MsgHdrSize(bool           HasSec,
+                            CFE_MSG_Type_t MsgType,
+                            CFE_MSG_Size_t TotalSize,
+                            size_t         ExpectedPayloadOffset);
 
 #endif /* SB_UT_HELPERS_H */

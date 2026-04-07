@@ -9,6 +9,7 @@ project(CFE_RESOURCEID C)
 # Module library
 set(resourceid_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/fsw/src/cfe_resourceid_api.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/fsw/src/cfe_resourceid_objtab.c
 )
 add_library(resourceid STATIC ${resourceid_SOURCES})
 

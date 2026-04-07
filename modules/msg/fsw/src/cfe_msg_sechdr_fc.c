@@ -90,7 +90,6 @@ CFE_Status_t CFE_MSG_SetFcnCode(CFE_MSG_Message_t *MsgPtr, CFE_MSG_FcnCode_t Fcn
     {
         return CFE_MSG_WRONG_MSG_TYPE;
     }
-    
 
     cmd->Sec.FunctionCode = FcnCode;
 

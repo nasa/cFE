@@ -223,7 +223,8 @@ void TestSBMaxSubscriptions(void)
 
     /* The last pass should have returned CFE_SB_MAX_MSGS_MET */
     UtAssert_True(Status == CFE_SB_MAX_MSGS_MET,
-                  "CFE_SB_Subscribe(TestMsgId, PipeId1) (%ld) == CFE_SB_MAX_MSGS_MET (%ld)", (long)Status,
+                  "CFE_SB_Subscribe(TestMsgId, PipeId1) (%ld) == CFE_SB_MAX_MSGS_MET (%ld)",
+                  (long)Status,
                   (long)CFE_SB_MAX_MSGS_MET);
 
     /* Note this should also remove any subscriptions from the above loop */

@@ -42,13 +42,13 @@
 /*
 ** External global variables
 */
-const char *TIME_SYSLOG_MSGS[] = {NULL,
-                                  "%s: Error reading cmd pipe,RC=0x%08X\n",
-                                  "%s: Application Init Failed,RC=0x%08X\n",
-                                  "%s: 1Hz OS_TimerAdd failed:RC=%ld\n",
-                                  "%s: 1Hz OS_TimerSet failed:RC=%ld\n",
-                                  "%s: Application Init Failed,RC=0x%08X\n",
-                                  "%s: Failed invalid arguments\n"};
+const char *TIME_SYSLOG_MSGS[] = { NULL,
+                                   "%s: Error reading cmd pipe,RC=0x%08X\n",
+                                   "%s: Application Init Failed,RC=0x%08X\n",
+                                   "%s: 1Hz OS_TimerAdd failed:RC=%ld\n",
+                                   "%s: 1Hz OS_TimerSet failed:RC=%ld\n",
+                                   "%s: Application Init Failed,RC=0x%08X\n",
+                                   "%s: Failed invalid arguments\n" };
 
 /*
 ** Global variables
@@ -293,17 +293,17 @@ void Test_Init(void)
 */
 void Test_GetTime(void)
 {
-    unsigned int result;
-    uint16       StateFlags;
+    unsigned int                        result;
+    uint16                              StateFlags;
     /* Note: Time is in seconds + microseconds since epoch */
     unsigned int                        seconds   = 1041472984;
     unsigned int                        microsecs = 567890;
     volatile CFE_TIME_ReferenceState_t *RefState;
     CFE_TIME_SysTime_t                  time;
-    CFE_TIME_SysTime_t                  expectedMET  = {.Seconds = 1041472994, .Subseconds = 2439068978};
-    CFE_TIME_SysTime_t                  expectedTAI  = {.Seconds = 1041476594, .Subseconds = 2439068978};
-    CFE_TIME_SysTime_t                  expectedUTC  = {.Seconds = 1041476562, .Subseconds = 2439068978};
-    CFE_TIME_SysTime_t                  expectedSTCF = {.Seconds = 3600, .Subseconds = 0};
+    CFE_TIME_SysTime_t                  expectedMET  = { .Seconds = 1041472994, .Subseconds = 2439068978 };
+    CFE_TIME_SysTime_t                  expectedTAI  = { .Seconds = 1041476594, .Subseconds = 2439068978 };
+    CFE_TIME_SysTime_t                  expectedUTC  = { .Seconds = 1041476562, .Subseconds = 2439068978 };
+    CFE_TIME_SysTime_t                  expectedSTCF = { .Seconds = 3600, .Subseconds = 0 };
 
     UtPrintf("Begin Test Get Time");
 
@@ -426,9 +426,9 @@ void Test_GetTime(void)
     CFE_TIME_Global.IsToneGood       = true;
     CFE_TIME_Global.GetReferenceFail = true;
 
-    StateFlags = CFE_TIME_FLAG_CLKSET | CFE_TIME_FLAG_FLYING | CFE_TIME_FLAG_SRCINT | CFE_TIME_FLAG_SIGPRI |
-                 CFE_TIME_FLAG_SRVFLY | CFE_TIME_FLAG_CMDFLY | CFE_TIME_FLAG_ADD1HZ | CFE_TIME_FLAG_ADDADJ |
-                 CFE_TIME_FLAG_ADDTCL | CFE_TIME_FLAG_GDTONE | CFE_TIME_FLAG_REFERR;
+    StateFlags = CFE_TIME_FLAG_CLKSET | CFE_TIME_FLAG_FLYING | CFE_TIME_FLAG_SRCINT | CFE_TIME_FLAG_SIGPRI
+                 | CFE_TIME_FLAG_SRVFLY | CFE_TIME_FLAG_CMDFLY | CFE_TIME_FLAG_ADD1HZ | CFE_TIME_FLAG_ADDADJ
+                 | CFE_TIME_FLAG_ADDTCL | CFE_TIME_FLAG_GDTONE | CFE_TIME_FLAG_REFERR;
 
 #if (CFE_PLATFORM_TIME_CFG_SERVER == true)
     StateFlags |= CFE_TIME_FLAG_SERVER;
@@ -458,12 +458,16 @@ void Test_TimeOp(void)
 
     /* Test adding with both times equal zero */
     result = CFE_TIME_Add(time1, time2);
-    UtAssert_MemCmp(&result, &exp_result, sizeof(CFE_TIME_SysTime_t),
+    UtAssert_MemCmp(&result,
+                    &exp_result,
+                    sizeof(CFE_TIME_SysTime_t),
                     "CFE_TIME_Add, Time A = time B = 0 seconds/subseconds");
 
     /* Test subtracting with both times equal zero */
     result = CFE_TIME_Subtract(time1, time2);
-    UtAssert_MemCmp(&result, &exp_result, sizeof(CFE_TIME_SysTime_t),
+    UtAssert_MemCmp(&result,
+                    &exp_result,
+                    sizeof(CFE_TIME_SysTime_t),
                     "CFE_TIME_Subtract, Time A = time B = 0 seconds/subseconds");
 
     /* Test comparing with both times equal zero */
@@ -480,7 +484,9 @@ void Test_TimeOp(void)
     exp_result.Seconds    = 0xffffffff;
 
     result = CFE_TIME_Add(time1, time2);
-    UtAssert_MemCmp(&result, &exp_result, sizeof(CFE_TIME_SysTime_t),
+    UtAssert_MemCmp(&result,
+                    &exp_result,
+                    sizeof(CFE_TIME_SysTime_t),
                     "CFE_TIME_Add, Time A = time B = maximum seconds/subseconds (rollover)");
 
     /* Test subtracting two maximum time values (zero result) */
@@ -488,7 +494,9 @@ void Test_TimeOp(void)
     exp_result.Seconds    = 0;
 
     result = CFE_TIME_Subtract(time1, time2);
-    UtAssert_MemCmp(&result, &exp_result, sizeof(CFE_TIME_SysTime_t),
+    UtAssert_MemCmp(&result,
+                    &exp_result,
+                    sizeof(CFE_TIME_SysTime_t),
                     "CFE_TIME_Subtract, Time A = time B = maximum seconds/subseconds (zero result)");
 
     /* Test comparing two maximum time values */
@@ -554,7 +562,9 @@ void Test_TimeOp(void)
     exp_result.Seconds    = 6;
 
     result = CFE_TIME_Add(time1, time2);
-    UtAssert_MemCmp(&result, &exp_result, sizeof(CFE_TIME_SysTime_t),
+    UtAssert_MemCmp(&result,
+                    &exp_result,
+                    sizeof(CFE_TIME_SysTime_t),
                     "CFE_TIME_Add, Time A subseconds > time B subseconds (seconds same)");
 
     /* Test subtracting two time values; time A subseconds > time B
@@ -564,7 +574,9 @@ void Test_TimeOp(void)
     exp_result.Seconds    = 0;
 
     result = CFE_TIME_Subtract(time1, time2);
-    UtAssert_MemCmp(&result, &exp_result, sizeof(CFE_TIME_SysTime_t),
+    UtAssert_MemCmp(&result,
+                    &exp_result,
+                    sizeof(CFE_TIME_SysTime_t),
                     "CFE_TIME_Subtract, Time A subseconds > time B subseconds (seconds same)");
 
     /* Test comparing two time values; time A subseconds > time B subseconds
@@ -579,7 +591,9 @@ void Test_TimeOp(void)
     exp_result.Seconds    = 6;
 
     result = CFE_TIME_Add(time2, time1);
-    UtAssert_MemCmp(&result, &exp_result, sizeof(CFE_TIME_SysTime_t),
+    UtAssert_MemCmp(&result,
+                    &exp_result,
+                    sizeof(CFE_TIME_SysTime_t),
                     "CFE_TIME_Add, Time A subseconds < time B subseconds (seconds same)");
 
     /* Test subtracting two time values; time A subseconds < time B
@@ -589,7 +603,9 @@ void Test_TimeOp(void)
     exp_result.Seconds    = 0xffffffff;
 
     result = CFE_TIME_Subtract(time2, time1);
-    UtAssert_MemCmp(&result, &exp_result, sizeof(CFE_TIME_SysTime_t),
+    UtAssert_MemCmp(&result,
+                    &exp_result,
+                    sizeof(CFE_TIME_SysTime_t),
                     "CFE_TIME_Subtract, Time A subseconds < time B subseconds (seconds same)");
 
     /* Test comparing two time values; time A subseconds < time B subseconds
@@ -612,7 +628,9 @@ void Test_TimeOp(void)
     exp_result.Seconds    = 15;
 
     result = CFE_TIME_Add(time1, time2);
-    UtAssert_MemCmp(&result, &exp_result, sizeof(CFE_TIME_SysTime_t),
+    UtAssert_MemCmp(&result,
+                    &exp_result,
+                    sizeof(CFE_TIME_SysTime_t),
                     "CFE_TIME_Add, Time A seconds > time B seconds (subseconds same)");
 
     /* Test subtracting two time values; time A seconds > time B seconds
@@ -622,7 +640,9 @@ void Test_TimeOp(void)
     exp_result.Seconds    = 1;
 
     result = CFE_TIME_Subtract(time1, time2);
-    UtAssert_MemCmp(&result, &exp_result, sizeof(CFE_TIME_SysTime_t),
+    UtAssert_MemCmp(&result,
+                    &exp_result,
+                    sizeof(CFE_TIME_SysTime_t),
                     "CFE_TIME_Subtract, Time A seconds > time B seconds (subseconds same)");
 
     /* Test comparing two time values; time A seconds > time B seconds
@@ -637,7 +657,9 @@ void Test_TimeOp(void)
     exp_result.Seconds    = 15;
 
     result = CFE_TIME_Add(time2, time1);
-    UtAssert_MemCmp(&result, &exp_result, sizeof(CFE_TIME_SysTime_t),
+    UtAssert_MemCmp(&result,
+                    &exp_result,
+                    sizeof(CFE_TIME_SysTime_t),
                     "CFE_TIME_Add, Time A seconds < time B seconds (subseconds same)");
 
     /* Test subtracting two time values; time A seconds < time B seconds
@@ -647,7 +669,9 @@ void Test_TimeOp(void)
     exp_result.Seconds    = 0xffffffff;
 
     result = CFE_TIME_Subtract(time2, time1);
-    UtAssert_MemCmp(&result, &exp_result, sizeof(CFE_TIME_SysTime_t),
+    UtAssert_MemCmp(&result,
+                    &exp_result,
+                    sizeof(CFE_TIME_SysTime_t),
                     "CFE_TIME_Subtract, Time A seconds < time B seconds (subseconds same)");
 
     /* Test comparing two time values; time A seconds < time B seconds
@@ -736,8 +760,9 @@ void Test_Print(void)
 
     UtPrintf("Begin Test Print");
 
-    if (CFE_MISSION_TIME_EPOCH_YEAR != 1980 || CFE_MISSION_TIME_EPOCH_DAY != 1 || CFE_MISSION_TIME_EPOCH_HOUR != 0 ||
-        CFE_MISSION_TIME_EPOCH_MINUTE != 0 || CFE_MISSION_TIME_EPOCH_SECOND != 0 || CFE_MISSION_TIME_EPOCH_MICROS != 0)
+    if (CFE_MISSION_TIME_EPOCH_YEAR != 1980 || CFE_MISSION_TIME_EPOCH_DAY != 1 || CFE_MISSION_TIME_EPOCH_HOUR != 0
+        || CFE_MISSION_TIME_EPOCH_MINUTE != 0 || CFE_MISSION_TIME_EPOCH_SECOND != 0
+        || CFE_MISSION_TIME_EPOCH_MICROS != 0)
     {
         UtPrintf("Custom epoch time requires manual inspection for CFE_TIME_Print");
         usingDefaultEpoch = false;
@@ -757,7 +782,9 @@ void Test_Print(void)
     else
     {
         UtAssert_MIR("Confirm adding seconds = %u, subseconds = %u to configured EPOCH results in time %s",
-                     (unsigned int)time.Seconds, (unsigned int)time.Subseconds, timeBuf);
+                     (unsigned int)time.Seconds,
+                     (unsigned int)time.Subseconds,
+                     timeBuf);
     }
 
     /* Test with a time value that causes seconds >= 60 when
@@ -775,7 +802,9 @@ void Test_Print(void)
     else
     {
         UtAssert_MIR("Confirm adding seconds = %u, subseconds = %u to configured EPOCH results in time %s",
-                     (unsigned int)time.Seconds, (unsigned int)time.Subseconds, timeBuf);
+                     (unsigned int)time.Seconds,
+                     (unsigned int)time.Subseconds,
+                     timeBuf);
     }
 
     /* Test with mission representative time values */
@@ -791,7 +820,9 @@ void Test_Print(void)
     else
     {
         UtAssert_MIR("Confirm adding seconds = %u, subseconds = %u to configured EPOCH results in time %s",
-                     (unsigned int)time.Seconds, (unsigned int)time.Subseconds, timeBuf);
+                     (unsigned int)time.Seconds,
+                     (unsigned int)time.Subseconds,
+                     timeBuf);
     }
 
     /* Test with sufficiently-large seconds and subseconds values */
@@ -807,7 +838,9 @@ void Test_Print(void)
     else
     {
         UtAssert_MIR("Confirm adding seconds = %u, subseconds = %u to configured EPOCH results in time %s",
-                     (unsigned int)time.Seconds, (unsigned int)time.Subseconds, timeBuf);
+                     (unsigned int)time.Seconds,
+                     (unsigned int)time.Subseconds,
+                     timeBuf);
     }
 }
 
@@ -899,10 +932,10 @@ void Test_ExternalTone(void)
 */
 void Test_External(void)
 {
-#if (CFE_PLATFORM_TIME_CFG_SRC_MET == true || CFE_PLATFORM_TIME_CFG_SRC_GPS == true || \
-     CFE_PLATFORM_TIME_CFG_SRC_TIME == true)
+#if (CFE_PLATFORM_TIME_CFG_SRC_MET == true || CFE_PLATFORM_TIME_CFG_SRC_GPS == true \
+     || CFE_PLATFORM_TIME_CFG_SRC_TIME == true)
 
-    CFE_TIME_SysTime_t settime = {5, 4};
+    CFE_TIME_SysTime_t settime = { 5, 4 };
 #endif
 
     UtPrintf("Begin Test External Time Set");
@@ -1237,7 +1270,7 @@ void Test_PipeCmds(void)
         CFE_TIME_SubOneHzAdjustmentCmd_t sub1hzadjcmd;
     } CmdBuf;
 
-    UT_SoftwareBusSnapshot_Entry_t LocalSnapshotData = {.MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_TIME_HK_TLM_MID)};
+    UT_SoftwareBusSnapshot_Entry_t LocalSnapshotData = { .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_TIME_HK_TLM_MID) };
 
 #if (CFE_PLATFORM_TIME_CFG_SERVER == true)
     uint32 count;
@@ -1321,7 +1354,9 @@ void Test_PipeCmds(void)
     CFE_TIME_Global.LocalIntCounter       = 1;
     CFE_TIME_Global.LocalTaskCounter      = 1;
     memset(&CmdBuf, 0, sizeof(CmdBuf));
-    UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, sizeof(CmdBuf.resetcounterscmd),
+    UT_CallTaskPipe(CFE_TIME_TaskPipe,
+                    &CmdBuf.message,
+                    sizeof(CmdBuf.resetcounterscmd),
                     UT_TPID_CFE_TIME_CMD_RESET_COUNTERS_CC);
     CFE_UtAssert_EVENTSENT(CFE_TIME_RESET_EID);
 
@@ -1349,7 +1384,9 @@ void Test_PipeCmds(void)
     /* Test sending the request diagnostics command */
     UT_InitData();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
-    UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, sizeof(CmdBuf.diagtlmcmd),
+    UT_CallTaskPipe(CFE_TIME_TaskPipe,
+                    &CmdBuf.message,
+                    sizeof(CmdBuf.diagtlmcmd),
                     UT_TPID_CFE_TIME_CMD_SEND_DIAGNOSTIC_TLM_CC);
     CFE_UtAssert_EVENTSENT(CFE_TIME_DIAG_EID);
 
@@ -1699,7 +1736,9 @@ void Test_PipeCmds(void)
     memset(&CmdBuf, 0, sizeof(CmdBuf));
     CFE_TIME_Global.CommandCounter      = 0;
     CFE_TIME_Global.CommandErrorCounter = 0;
-    UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, sizeof(CmdBuf.add1hzadjcmd),
+    UT_CallTaskPipe(CFE_TIME_TaskPipe,
+                    &CmdBuf.message,
+                    sizeof(CmdBuf.add1hzadjcmd),
                     UT_TPID_CFE_TIME_CMD_ADD_ONEHZ_ADJUSTMENT_CC);
 
 #if (CFE_PLATFORM_TIME_CFG_SERVER == true)
@@ -1727,7 +1766,9 @@ void Test_PipeCmds(void)
     memset(&CmdBuf, 0, sizeof(CmdBuf));
     CFE_TIME_Global.CommandCounter      = 0;
     CFE_TIME_Global.CommandErrorCounter = 0;
-    UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, sizeof(CmdBuf.sub1hzadjcmd),
+    UT_CallTaskPipe(CFE_TIME_TaskPipe,
+                    &CmdBuf.message,
+                    sizeof(CmdBuf.sub1hzadjcmd),
                     UT_TPID_CFE_TIME_CMD_SUB_ONEHZ_ADJUSTMENT_CC);
 
 #if (CFE_PLATFORM_TIME_CFG_SERVER == true)
@@ -1791,7 +1832,9 @@ void Test_PipeCmds(void)
     CFE_TIME_Global.CommandCounter      = 0;
     CFE_TIME_Global.CommandErrorCounter = 0;
     CmdBuf.leapscmd.Payload.LeapSeconds = 0;
-    UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, sizeof(CmdBuf.leapscmd),
+    UT_CallTaskPipe(CFE_TIME_TaskPipe,
+                    &CmdBuf.message,
+                    sizeof(CmdBuf.leapscmd),
                     UT_TPID_CFE_TIME_CMD_SET_LEAP_SECONDS_CC);
 
 #if (CFE_PLATFORM_TIME_CFG_SERVER == true)
@@ -2642,7 +2685,7 @@ void Test_CleanUpApp(void)
     /* Clean up an app which did not have a callback */
     AppIndex = 4;
     UT_SetDataBuffer(UT_KEY(CFE_ES_AppID_ToIndex), &AppIndex, sizeof(AppIndex), false);
-    CFE_UtAssert_SUCCESS(CFE_TIME_CleanUpApp(TestAppId));
+    CFE_UtAssert_SUCCESS(CFE_TIME_CleanUpApp(CFE_RESOURCEID_TO_ULONG(TestAppId)));
 
     Count = 0;
     for (i = 0; i < (sizeof(CFE_TIME_Global.SynchCallback) / sizeof(CFE_TIME_Global.SynchCallback[0])); i++)
@@ -2659,7 +2702,7 @@ void Test_CleanUpApp(void)
     /* Clean up an app which did have a callback */
     AppIndex = 2;
     UT_SetDataBuffer(UT_KEY(CFE_ES_AppID_ToIndex), &AppIndex, sizeof(AppIndex), false);
-    CFE_UtAssert_SUCCESS(CFE_TIME_CleanUpApp(TestAppId));
+    CFE_UtAssert_SUCCESS(CFE_TIME_CleanUpApp(CFE_RESOURCEID_TO_ULONG(TestAppId)));
 
     Count = 0;
     for (i = 0; i < (sizeof(CFE_TIME_Global.SynchCallback) / sizeof(CFE_TIME_Global.SynchCallback[0])); i++)
@@ -2676,10 +2719,11 @@ void Test_CleanUpApp(void)
      * This is effectively a no-op but here for coverage */
     AppIndex = 99999;
     UT_SetDataBuffer(UT_KEY(CFE_ES_AppID_ToIndex), &AppIndex, sizeof(AppIndex), false);
-    UtAssert_INT32_EQ(CFE_TIME_CleanUpApp(CFE_ES_APPID_UNDEFINED), CFE_TIME_CALLBACK_NOT_REGISTERED);
+    UtAssert_INT32_EQ(CFE_TIME_CleanUpApp(CFE_RESOURCEID_TO_ULONG(CFE_ES_APPID_UNDEFINED)),
+                      CFE_TIME_CALLBACK_NOT_REGISTERED);
 
     /* CFE_ES_AppID_ToIndex failure */
     UT_InitData();
     UT_SetDeferredRetcode(UT_KEY(CFE_ES_AppID_ToIndex), 1, -2);
-    UtAssert_INT32_EQ(CFE_TIME_CleanUpApp(CFE_ES_APPID_UNDEFINED), -2);
+    UtAssert_INT32_EQ(CFE_TIME_CleanUpApp(CFE_RESOURCEID_TO_ULONG(CFE_ES_APPID_UNDEFINED)), -2);
 }

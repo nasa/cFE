@@ -42,7 +42,7 @@
 void Test_MSG_Size(void)
 {
     CFE_MSG_Message_t msg;
-    CFE_MSG_Size_t    input[] = {TEST_MSG_SIZE_OFFSET, 0x8000, 0xFFFF, 0xFFFF + TEST_MSG_SIZE_OFFSET};
+    CFE_MSG_Size_t    input[] = { TEST_MSG_SIZE_OFFSET, 0x8000, 0xFFFF, 0xFFFF + TEST_MSG_SIZE_OFFSET };
     CFE_MSG_Size_t    actual  = 0;
     int               i;
 
@@ -106,7 +106,7 @@ void Test_MSG_Size(void)
 void Test_MSG_Type(void)
 {
     CFE_MSG_Message_t msg;
-    CFE_MSG_Type_t    input[] = {CFE_MSG_Type_Cmd, CFE_MSG_Type_Tlm};
+    CFE_MSG_Type_t    input[] = { CFE_MSG_Type_Cmd, CFE_MSG_Type_Tlm };
     CFE_MSG_Type_t    actual  = 0;
     int               i;
 
@@ -166,7 +166,7 @@ void Test_MSG_Type(void)
 void Test_MSG_HeaderVersion(void)
 {
     CFE_MSG_Message_t       msg;
-    CFE_MSG_HeaderVersion_t input[] = {0, TEST_CCSDSVER_MAX / 2, TEST_CCSDSVER_MAX};
+    CFE_MSG_HeaderVersion_t input[] = { 0, TEST_CCSDSVER_MAX / 2, TEST_CCSDSVER_MAX };
     CFE_MSG_HeaderVersion_t actual  = TEST_CCSDSVER_MAX;
     int                     i;
 
@@ -274,7 +274,7 @@ void Test_MSG_HasSecondaryHeader(void)
 void Test_MSG_ApId(void)
 {
     CFE_MSG_Message_t msg;
-    CFE_MSG_ApId_t    input[] = {0, TEST_APID_MAX / 2, TEST_APID_MAX};
+    CFE_MSG_ApId_t    input[] = { 0, TEST_APID_MAX / 2, TEST_APID_MAX };
     CFE_MSG_ApId_t    actual  = TEST_APID_MAX;
     int               i;
 
@@ -334,8 +334,10 @@ void Test_MSG_ApId(void)
 void Test_MSG_SegmentationFlag(void)
 {
     CFE_MSG_Message_t          msg;
-    CFE_MSG_SegmentationFlag_t input[] = {CFE_MSG_SegFlag_Continue, CFE_MSG_SegFlag_First, CFE_MSG_SegFlag_Last,
-                                          CFE_MSG_SegFlag_Unsegmented};
+    CFE_MSG_SegmentationFlag_t input[] = { CFE_MSG_SegFlag_Continue,
+                                           CFE_MSG_SegFlag_First,
+                                           CFE_MSG_SegFlag_Last,
+                                           CFE_MSG_SegFlag_Unsegmented };
     CFE_MSG_SegmentationFlag_t actual  = CFE_MSG_SegFlag_Invalid;
     int                        i;
 
@@ -395,7 +397,7 @@ void Test_MSG_SegmentationFlag(void)
 void Test_MSG_SequenceCount(void)
 {
     CFE_MSG_Message_t             msg;
-    const CFE_MSG_SequenceCount_t input[] = {0, TEST_SEQUENCE_MAX / 2, TEST_SEQUENCE_MAX};
+    const CFE_MSG_SequenceCount_t input[] = { 0, TEST_SEQUENCE_MAX / 2, TEST_SEQUENCE_MAX };
     CFE_MSG_SequenceCount_t       actual  = TEST_SEQUENCE_MAX;
     CFE_MSG_SequenceCount_t       maxsc;
     int                           i;

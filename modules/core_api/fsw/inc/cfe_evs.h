@@ -202,8 +202,11 @@ CFE_Status_t CFE_EVS_SendEvent(uint16 EventID, CFE_EVS_EventType_Enum_t EventTyp
 ** \sa #CFE_EVS_SendEvent, #CFE_EVS_SendTimedEvent
 **
 **/
-CFE_Status_t CFE_EVS_SendEventWithAppID(uint16 EventID, CFE_EVS_EventType_Enum_t EventType, CFE_ES_AppId_t AppID,
-                                        const char *Spec, ...) OS_PRINTF(4, 5);
+CFE_Status_t CFE_EVS_SendEventWithAppID(uint16                   EventID,
+                                        CFE_EVS_EventType_Enum_t EventType,
+                                        CFE_ES_AppId_t           AppID,
+                                        const char              *Spec,
+                                        ...) OS_PRINTF(4, 5);
 
 /**
 ** \brief Generate a software event with a specific time tag.
@@ -252,8 +255,11 @@ CFE_Status_t CFE_EVS_SendEventWithAppID(uint16 EventID, CFE_EVS_EventType_Enum_t
 ** \sa #CFE_EVS_SendEvent, #CFE_EVS_SendEventWithAppID
 **
 **/
-CFE_Status_t CFE_EVS_SendTimedEvent(CFE_TIME_SysTime_t Time, uint16 EventID, CFE_EVS_EventType_Enum_t EventType,
-                                    const char *Spec, ...) OS_PRINTF(4, 5);
+CFE_Status_t CFE_EVS_SendTimedEvent(CFE_TIME_SysTime_t       Time,
+                                    uint16                   EventID,
+                                    CFE_EVS_EventType_Enum_t EventType,
+                                    const char              *Spec,
+                                    ...) OS_PRINTF(4, 5);
 /**@}*/
 
 /** @defgroup CFEAPIEVSResetFilter cFE Reset Event Filter APIs

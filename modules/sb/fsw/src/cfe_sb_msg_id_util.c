@@ -199,6 +199,6 @@ CFE_SB_MsgId_Atom_t CFE_SB_LocalTlmTopicIdToMsgId(uint16 TopicId)
  *-----------------------------------------------------------------*/
 bool CFE_SB_IsValidMsgId(CFE_SB_MsgId_t MsgId)
 {
-    return (!CFE_SB_MsgId_Equal(MsgId, CFE_SB_INVALID_MSG_ID) &&
-            CFE_SB_MsgIdToValue(MsgId) <= CFE_PLATFORM_SB_HIGHEST_VALID_MSGID);
+    return (!CFE_SB_MsgId_Equal(MsgId, CFE_SB_INVALID_MSG_ID)
+            && CFE_SB_MsgIdToValue(MsgId) <= CFE_PLATFORM_SB_HIGHEST_VALID_MSGID);
 }

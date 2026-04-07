@@ -91,23 +91,23 @@ typedef struct
 
     EVS_BinFilter_t BinFilters[CFE_PLATFORM_EVS_MAX_EVENT_FILTERS]; /* Array of binary filters */
 
-    uint8     ActiveFlag;                                       /* Application event service active flag */
-    bool      EventTypesActive[CFE_EVS_NUM_EVENT_TYPES];        /* Application event types active flag array */
-    uint16    EventCount;                                       /* Application event counter */
-    OS_time_t LastSquelchCreditableTime;                        /* Time of last squelch token return */
-    int32     SquelchTokens;                                    /* Application event squelch token counter */
-    uint8     SquelchedCount;                                   /* Application events squelched counter */
+    uint8     ActiveFlag;                                /* Application event service active flag */
+    bool      EventTypesActive[CFE_EVS_NUM_EVENT_TYPES]; /* Application event types active flag array */
+    uint16    EventCount;                                /* Application event counter */
+    OS_time_t LastSquelchCreditableTime;                 /* Time of last squelch token return */
+    int32     SquelchTokens;                             /* Application event squelch token counter */
+    uint8     SquelchedCount;                            /* Application events squelched counter */
 } EVS_AppData_t;
 
 typedef struct
 {
-    char            AppName[OS_MAX_API_NAME];                       /* Application name */
-    uint8           ActiveFlag;                                     /* Application event service active flag */
-    uint8           EventTypesActiveFlag;                           /* Application event types active flag array */
-    uint16          EventCount;                                     /* Application event counter */
-    uint8           SquelchedCount;                                 /* Application events squelched counter */
+    char            AppName[OS_MAX_API_NAME]; /* Application name */
+    uint8           ActiveFlag;               /* Application event service active flag */
+    uint8           EventTypesActiveFlag;     /* Application event types active flag array */
+    uint16          EventCount;               /* Application event counter */
+    uint8           SquelchedCount;           /* Application events squelched counter */
     uint8           Spare[3];
-    EVS_BinFilter_t Filters[CFE_PLATFORM_EVS_MAX_EVENT_FILTERS];    /* Application event filters */
+    EVS_BinFilter_t Filters[CFE_PLATFORM_EVS_MAX_EVENT_FILTERS]; /* Application event filters */
 } CFE_EVS_AppDataFile_t;
 
 /* Global data structure */
@@ -331,7 +331,7 @@ int32 CFE_EVS_ResetAllFiltersCmd(const CFE_EVS_ResetAllFiltersCmd_t *data);
 /**
  * @brief Converts CFE_EVS_EventType_Enum_t to an array index for ActiveEventTypes in
  * EVS_Global.
- * 
+ *
  * @returns size_t array index in ActiveEventTypes
  */
 size_t CFE_EVS_EventTypeToArrayIndex(CFE_EVS_EventType_Enum_t EventType);

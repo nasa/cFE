@@ -233,8 +233,8 @@ int32 CFE_TIME_ToneSendMET(CFE_TIME_SysTime_t NewMET)
         /*
         ** Ignore bad external time data only if clock state is valid...
         */
-        if ((Reference.ClockSetState == CFE_TIME_SetState_WAS_SET) &&
-            ((MinResult == CFE_TIME_A_LT_B) || (MaxResult == CFE_TIME_A_GT_B)))
+        if ((Reference.ClockSetState == CFE_TIME_SetState_WAS_SET)
+            && ((MinResult == CFE_TIME_A_LT_B) || (MaxResult == CFE_TIME_A_GT_B)))
         {
             Result = CFE_TIME_OUT_OF_RANGE;
 
@@ -374,8 +374,8 @@ int32 CFE_TIME_ToneSendGPS(CFE_TIME_SysTime_t NewTime, int16 NewLeaps)
         /*
         ** If state is valid then ignore bad external time data...
         */
-        if ((Reference.ClockSetState == CFE_TIME_SetState_WAS_SET) &&
-            ((MinResult == CFE_TIME_A_LT_B) || (MaxResult == CFE_TIME_A_GT_B)))
+        if ((Reference.ClockSetState == CFE_TIME_SetState_WAS_SET)
+            && ((MinResult == CFE_TIME_A_LT_B) || (MaxResult == CFE_TIME_A_GT_B)))
         {
             Result = CFE_TIME_OUT_OF_RANGE;
 
@@ -512,8 +512,8 @@ int32 CFE_TIME_ToneSendTime(CFE_TIME_SysTime_t NewTime)
         /*
         ** If state is valid then ignore bad external time data...
         */
-        if ((Reference.ClockSetState == CFE_TIME_SetState_WAS_SET) &&
-            ((MinResult == CFE_TIME_A_LT_B) || (MaxResult == CFE_TIME_A_GT_B)))
+        if ((Reference.ClockSetState == CFE_TIME_SetState_WAS_SET)
+            && ((MinResult == CFE_TIME_A_LT_B) || (MaxResult == CFE_TIME_A_GT_B)))
         {
             Result = CFE_TIME_OUT_OF_RANGE;
 
@@ -686,8 +686,8 @@ void CFE_TIME_ToneVerify(CFE_TIME_SysTime_t Time1, CFE_TIME_SysTime_t Time2)
     CFE_TIME_Compare_t result;
     CFE_TIME_SysTime_t elapsed;
 
-    static CFE_TIME_SysTime_t PrevTime1 = {0, 0};
-    static CFE_TIME_SysTime_t PrevTime2 = {0, 0};
+    static CFE_TIME_SysTime_t PrevTime1 = { 0, 0 };
+    static CFE_TIME_SysTime_t PrevTime2 = { 0, 0 };
 
     result = CFE_TIME_Compare(PrevTime1, Time1);
     if (result == CFE_TIME_EQUAL)
@@ -726,8 +726,8 @@ void CFE_TIME_ToneVerify(CFE_TIME_SysTime_t Time1, CFE_TIME_SysTime_t Time2)
             /*
             ** Ensure that time between packet and tone is within limits...
             */
-            if ((elapsed.Seconds != 0) || (elapsed.Subseconds < CFE_TIME_Global.MinElapsed) ||
-                (elapsed.Subseconds > CFE_TIME_Global.MaxElapsed))
+            if ((elapsed.Seconds != 0) || (elapsed.Subseconds < CFE_TIME_Global.MinElapsed)
+                || (elapsed.Subseconds > CFE_TIME_Global.MaxElapsed))
             {
                 /*
                 ** Maintain count of tone vs data packet mis-matches...
@@ -998,8 +998,8 @@ void CFE_TIME_Tone1HzISR(void)
     /*
     ** Verify that tone occurred ~1 second after previous tone...
     */
-    if (((Elapsed.Seconds == 1) && (Elapsed.Subseconds < CFE_TIME_Global.ToneOverLimit)) ||
-        ((Elapsed.Seconds == 0) && (Elapsed.Subseconds > CFE_TIME_Global.ToneUnderLimit)))
+    if (((Elapsed.Seconds == 1) && (Elapsed.Subseconds < CFE_TIME_Global.ToneOverLimit))
+        || ((Elapsed.Seconds == 0) && (Elapsed.Subseconds > CFE_TIME_Global.ToneUnderLimit)))
     {
         /*
         ** Maintain count of valid tone signal interrupts...

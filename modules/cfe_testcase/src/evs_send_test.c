@@ -110,7 +110,7 @@ void TestSendEventAppID(void)
 
 void TestSendTimedEvent(void)
 {
-    CFE_TIME_SysTime_t Time = {1000, 1000};
+    CFE_TIME_SysTime_t Time = { 1000, 1000 };
     UtPrintf("Testing: CFE_EVS_SendTimedEvent");
 
     UtAssert_INT32_EQ(CFE_EVS_SendTimedEvent(Time, 0, CFE_EVS_EventType_INFORMATION, "OK Time"), CFE_SUCCESS);

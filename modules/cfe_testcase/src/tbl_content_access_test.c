@@ -40,12 +40,12 @@ void LoadTable(CFE_TEST_TestTable_t *TestTable, CFE_Status_t ExpectedStatus)
 
 void TestGetAddress(void)
 {
-    void *                TblPtr;
+    void                 *TblPtr;
     CFE_TEST_TestTable_t *TestTblPtr;
-    CFE_TEST_TestTable_t  TestTable = {1, 2};
+    CFE_TEST_TestTable_t  TestTable = { 1, 2 };
 
     CFE_TBL_Handle_t SharedTblHandle = CFE_TBL_BAD_TABLE_HANDLE;
-    const char *     SharedTblName   = CFE_ASSERT_SHARED_TBL_NAME;
+    const char      *SharedTblName   = CFE_ASSERT_SHARED_TBL_NAME;
 
     UtPrintf("Testing: CFE_TBL_GetAddress");
 
@@ -78,8 +78,8 @@ void TestGetAddress(void)
 void TestReleaseAddress(void)
 {
     UtPrintf("Testing: CFE_TBL_ReleaseAddress");
-    void *               TblPtr;
-    CFE_TEST_TestTable_t TestTable = {1, 2};
+    void                *TblPtr;
+    CFE_TEST_TestTable_t TestTable = { 1, 2 };
     /* Never loaded */
     UtAssert_INT32_EQ(CFE_TBL_ReleaseAddress(CFE_FT_Global.TblHandle), CFE_TBL_ERR_NEVER_LOADED);
     UtAssert_INT32_EQ(CFE_TBL_ReleaseAddress(CFE_TBL_BAD_TABLE_HANDLE), CFE_TBL_ERR_INVALID_HANDLE);
@@ -109,9 +109,9 @@ void TestGetReleaseAddresses(void)
     int                  numValidTbls = 3;
     char                 TblName[10];
     CFE_TBL_Handle_t     TblHandles[numValidTbls + 1];
-    void *               TblPtrs[numValidTbls + 1];
+    void                *TblPtrs[numValidTbls + 1];
     CFE_TEST_TestTable_t TblPtrsList[numValidTbls + 1];
-    CFE_TEST_TestTable_t TestTable = {1, 2};
+    CFE_TEST_TestTable_t TestTable = { 1, 2 };
 
     /* Put an invalid handle at the start*/
     TblHandles[0] = CFE_TBL_BAD_TABLE_HANDLE;

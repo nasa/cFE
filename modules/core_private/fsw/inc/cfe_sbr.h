@@ -151,7 +151,7 @@ static inline bool CFE_SBR_IsValidRouteId(CFE_SBR_RouteId_t RouteId)
  */
 static inline CFE_SBR_RouteId_t CFE_SBR_ValueToRouteId(CFE_SB_RouteId_Atom_t Value)
 {
-    return ((CFE_SBR_RouteId_t) {.RouteId = 1 + Value});
+    return ((CFE_SBR_RouteId_t) { .RouteId = 1 + Value });
 }
 
 /**

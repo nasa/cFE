@@ -283,8 +283,11 @@ CFE_SB_MsgId_Atom_t CFE_SB_LocalTlmTopicIdToMsgId(uint16 TopicId)
  * Generated stub function for CFE_SB_MessageStringGet()
  * ----------------------------------------------------
  */
-int32 CFE_SB_MessageStringGet(char *DestStringPtr, const char *SourceStringPtr, const char *DefaultString,
-                              size_t DestMaxSize, size_t SourceMaxSize)
+int32 CFE_SB_MessageStringGet(char       *DestStringPtr,
+                              const char *SourceStringPtr,
+                              const char *DefaultString,
+                              size_t      DestMaxSize,
+                              size_t      SourceMaxSize)
 {
     UT_GenStub_SetupReturnBuffer(CFE_SB_MessageStringGet, int32);
 
@@ -304,8 +307,10 @@ int32 CFE_SB_MessageStringGet(char *DestStringPtr, const char *SourceStringPtr, 
  * Generated stub function for CFE_SB_MessageStringSet()
  * ----------------------------------------------------
  */
-int32 CFE_SB_MessageStringSet(char *DestStringPtr, const char *SourceStringPtr, size_t DestMaxSize,
-                              size_t SourceMaxSize)
+int32 CFE_SB_MessageStringSet(char       *DestStringPtr,
+                              const char *SourceStringPtr,
+                              size_t      DestMaxSize,
+                              size_t      SourceMaxSize)
 {
     UT_GenStub_SetupReturnBuffer(CFE_SB_MessageStringSet, int32);
 

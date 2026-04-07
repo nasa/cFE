@@ -62,11 +62,14 @@ void TestGetAppInfo(void)
     UtAssert_StrCmp(TestAppInfo.Name, TEST_EXPECTED_APP_NAME, "Test App Info -> Name = %s", TestAppInfo.Name);
     UtAssert_StrCmp(ESAppInfo.Name, ES_APP_EXPECTED_NAME, "ES App Info -> Name = %s", ESAppInfo.Name);
 
-    UtAssert_StrCmp(TestAppInfo.EntryPoint, TEST_EXPECTED_ENTRYPOINT, "Test App Info -> EntryPt  = %s",
+    UtAssert_StrCmp(TestAppInfo.EntryPoint,
+                    TEST_EXPECTED_ENTRYPOINT,
+                    "Test App Info -> EntryPt  = %s",
                     TestAppInfo.EntryPoint);
     UtAssert_True(strlen(ESAppInfo.EntryPoint) == 0, "ES App Info -> EntryPt  = %s", ESAppInfo.EntryPoint);
 
-    UtAssert_True(strstr(TestAppInfo.FileName, TEST_EXPECTED_FILE_NAME) != NULL, "Test App Info -> FileName = %s",
+    UtAssert_True(strstr(TestAppInfo.FileName, TEST_EXPECTED_FILE_NAME) != NULL,
+                  "Test App Info -> FileName = %s",
                   TestAppInfo.FileName);
     UtAssert_True(strlen(ESAppInfo.FileName) == 0, "ES App Info -> FileName  = %s", ESAppInfo.FileName);
 
@@ -92,7 +95,8 @@ void TestGetAppInfo(void)
         UtAssert_NA("AddressesAreValid is false: BSS Size test skipped");
     }
 
-    UtAssert_True(ESAppInfo.AddressesAreValid == 0, "ES App Info -> AddrsValid?  = %d",
+    UtAssert_True(ESAppInfo.AddressesAreValid == 0,
+                  "ES App Info -> AddrsValid?  = %d",
                   (int)ESAppInfo.AddressesAreValid);
 
     UtAssert_NOT_NULL(CFE_ES_MEMADDRESS_TO_PTR(TestAppInfo.StartAddress));
@@ -104,7 +108,8 @@ void TestGetAppInfo(void)
     UtAssert_True(TestAppInfo.Priority > 0, "Test App Info -> Priority  = %d", (int)TestAppInfo.Priority);
     UtAssert_True(ESAppInfo.Priority > 0, "ES App Info -> Priority  = %d", (int)ESAppInfo.Priority);
 
-    UtAssert_True(TestAppInfo.NumOfChildTasks == 0, "Test App Info -> Child Tasks  = %d",
+    UtAssert_True(TestAppInfo.NumOfChildTasks == 0,
+                  "Test App Info -> Child Tasks  = %d",
                   (int)TestAppInfo.NumOfChildTasks);
     UtAssert_True(ESAppInfo.NumOfChildTasks > 0, "ES App Info -> Child Tasks  = %d", (int)ESAppInfo.NumOfChildTasks);
 
@@ -136,10 +141,16 @@ void TestGetTaskInfo(void)
     UtAssert_INT32_EQ(CFE_ES_GetTaskID(&TaskId), CFE_SUCCESS);
     CFE_Assert_RESOURCEID_EQ(TaskId, AppInfo.MainTaskId);
 
-    UtAssert_StrCmp(TaskInfo.AppName, AppInfo.Name, "TaskInfo.AppName (%s) = AppInfo.name (%s)", TaskInfo.AppName,
+    UtAssert_StrCmp(TaskInfo.AppName,
+                    AppInfo.Name,
+                    "TaskInfo.AppName (%s) = AppInfo.name (%s)",
+                    TaskInfo.AppName,
                     AppInfo.Name);
-    UtAssert_StrCmp(TaskInfo.TaskName, AppInfo.MainTaskName, "TaskInfo.TaskName (%s) = AppInfo.MainTaskName (%s)",
-                    TaskInfo.TaskName, AppInfo.MainTaskName);
+    UtAssert_StrCmp(TaskInfo.TaskName,
+                    AppInfo.MainTaskName,
+                    "TaskInfo.TaskName (%s) = AppInfo.MainTaskName (%s)",
+                    TaskInfo.TaskName,
+                    AppInfo.MainTaskName);
 
     CFE_Assert_RESOURCEID_EQ(TaskInfo.TaskId, AppInfo.MainTaskId);
     CFE_Assert_RESOURCEID_EQ(TaskInfo.AppId, AppId);
@@ -155,9 +166,9 @@ void TestGetLibInfo(void)
     CFE_ES_LibId_t   LibId;
     CFE_ES_LibId_t   CheckId;
     CFE_ES_AppInfo_t LibInfo;
-    const char *     LibName     = "ASSERT_LIB";
-    const char *     FileName    = "cfe_assert";
-    const char *     InvalidName = "INVALID_NAME";
+    const char      *LibName     = "ASSERT_LIB";
+    const char      *FileName    = "cfe_assert";
+    const char      *InvalidName = "INVALID_NAME";
     char             LibNameBuf[OS_MAX_API_NAME + 4];
 
     UtPrintf("Testing: CFE_ES_GetLibIDByName, CFE_ES_GetLibName, CFE_ES_GetLibInfo");
@@ -169,7 +180,9 @@ void TestGetLibInfo(void)
     UtAssert_True(LibInfo.Type == CFE_ES_AppType_LIBRARY, "Lib Info -> Type = %d", (int)LibInfo.Type);
     UtAssert_StrCmp(LibInfo.Name, LibName, "Lib Info -> Name = %s", LibInfo.Name);
     UtAssert_StrCmp(LibInfo.EntryPoint, "CFE_Assert_LibInit", "Lib Info -> EntryPt  = %s", LibInfo.EntryPoint);
-    UtAssert_True(strstr(LibInfo.FileName, FileName) != NULL, "Lib Info -> FileName = %s contains %s", LibInfo.FileName,
+    UtAssert_True(strstr(LibInfo.FileName, FileName) != NULL,
+                  "Lib Info -> FileName = %s contains %s",
+                  LibInfo.FileName,
                   FileName);
 
     UtAssert_ZERO(CFE_ES_MEMOFFSET_TO_SIZET(LibInfo.StackSize));
@@ -221,7 +234,8 @@ void TestResetType(void)
     UtPrintf("Testing: CFE_ES_GetResetType");
 
     rType = CFE_ES_GetResetType(NULL);
-    UtAssert_True((rType == CFE_PSP_RST_TYPE_POWERON) || (rType == CFE_PSP_RST_TYPE_PROCESSOR), "Reset Type = %d",
+    UtAssert_True((rType == CFE_PSP_RST_TYPE_POWERON) || (rType == CFE_PSP_RST_TYPE_PROCESSOR),
+                  "Reset Type = %d",
                   (int)rType);
 
     CFE_ES_GetResetType(&rSubType);
@@ -235,7 +249,7 @@ void TestGetModuleInfo(void)
     CFE_ES_AppId_t   TestAppId;
     CFE_ES_AppInfo_t LibInfo;
     CFE_ES_AppInfo_t TestAppInfo;
-    const char *     LibName = "ASSERT_LIB";
+    const char      *LibName = "ASSERT_LIB";
 
     memset(&ModuleInfo, 0, sizeof(ModuleInfo));
     memset(&LibInfo, 0, sizeof(LibInfo));
@@ -246,13 +260,19 @@ void TestGetModuleInfo(void)
     UtAssert_INT32_EQ(CFE_ES_GetAppID(&TestAppId), CFE_SUCCESS);
     UtAssert_INT32_EQ(CFE_ES_GetAppInfo(&TestAppInfo, TestAppId), CFE_SUCCESS);
     UtAssert_INT32_EQ(CFE_ES_GetModuleInfo(&ModuleInfo, CFE_RESOURCEID_UNWRAP(TestAppId)), CFE_SUCCESS);
-    UtAssert_StrCmp(TestAppInfo.Name, ModuleInfo.Name, "App Info Name (%s) = Module Info Name (%s) ", TestAppInfo.Name,
+    UtAssert_StrCmp(TestAppInfo.Name,
+                    ModuleInfo.Name,
+                    "App Info Name (%s) = Module Info Name (%s) ",
+                    TestAppInfo.Name,
                     ModuleInfo.Name);
 
     UtAssert_INT32_EQ(CFE_ES_GetLibIDByName(&LibIdByName, LibName), CFE_SUCCESS);
     UtAssert_INT32_EQ(CFE_ES_GetLibInfo(&LibInfo, LibIdByName), CFE_SUCCESS);
     UtAssert_INT32_EQ(CFE_ES_GetModuleInfo(&ModuleInfo, CFE_RESOURCEID_UNWRAP(LibIdByName)), CFE_SUCCESS);
-    UtAssert_StrCmp(LibInfo.Name, ModuleInfo.Name, "Lib Info Name (%s) = Module Info Name (%s) ", LibInfo.Name,
+    UtAssert_StrCmp(LibInfo.Name,
+                    ModuleInfo.Name,
+                    "Lib Info Name (%s) = Module Info Name (%s) ",
+                    LibInfo.Name,
                     ModuleInfo.Name);
 
     UtAssert_INT32_EQ(CFE_ES_GetModuleInfo(&ModuleInfo, CFE_RESOURCEID_UNDEFINED), CFE_ES_ERR_RESOURCEID_NOT_VALID);

@@ -167,11 +167,14 @@ int32 EVS_NotRegistered(EVS_AppData_t *AppDataPtr, CFE_ES_AppId_t CallerID)
         CFE_ES_GetAppName(AppName, CallerID, sizeof(AppName));
 
         /* Send the "not registered" event */
-        EVS_SendEvent(CFE_EVS_ERR_UNREGISTERED_EVS_APP, CFE_EVS_EventType_ERROR,
-                      "App %s not registered with Event Services. Unable to send event.", AppName);
+        EVS_SendEvent(CFE_EVS_ERR_UNREGISTERED_EVS_APP,
+                      CFE_EVS_EventType_ERROR,
+                      "App %s not registered with Event Services. Unable to send event.",
+                      AppName);
 
         /* Write the "not registered" info to the system log */
-        CFE_ES_WriteToSysLog("%s: App %s not registered with Event Services. Unable to send event.\n", __func__,
+        CFE_ES_WriteToSysLog("%s: App %s not registered with Event Services. Unable to send event.\n",
+                             __func__,
                              AppName);
     }
 
@@ -186,9 +189,9 @@ int32 EVS_NotRegistered(EVS_AppData_t *AppDataPtr, CFE_ES_AppId_t CallerID)
  *-----------------------------------------------------------------*/
 bool EVS_IsFiltered(EVS_AppData_t *AppDataPtr, uint16 EventID, CFE_EVS_EventType_Enum_t EventType)
 {
-    EVS_BinFilter_t     *FilterPtr;
-    bool                Filtered = false;
-    char                AppName[OS_MAX_API_NAME];
+    EVS_BinFilter_t *FilterPtr;
+    bool             Filtered = false;
+    char             AppName[OS_MAX_API_NAME];
 
     if (AppDataPtr->ActiveFlag == false)
     {
@@ -224,9 +227,11 @@ bool EVS_IsFiltered(EVS_AppData_t *AppDataPtr, uint16 EventID, CFE_EVS_EventType
                 {
                     CFE_ES_GetAppName(AppName, EVS_AppDataGetID(AppDataPtr), sizeof(AppName));
 
-                    EVS_SendEvent(CFE_EVS_FILTER_MAX_EID, CFE_EVS_EventType_INFORMATION,
+                    EVS_SendEvent(CFE_EVS_FILTER_MAX_EID,
+                                  CFE_EVS_EventType_INFORMATION,
                                   "Max filter count reached, AppName = %s, EventID = 0x%08x: Filter locked until reset",
-                                  AppName, (unsigned int)EventID);
+                                  AppName,
+                                  (unsigned int)EventID);
                 }
             }
         }
@@ -245,7 +250,7 @@ bool EVS_CheckAndIncrementSquelchTokens(EVS_AppData_t *AppDataPtr)
 {
     bool      NotSquelched     = true;
     bool      SendSquelchEvent = false;
-    OS_time_t CurrentTime      = {0};
+    OS_time_t CurrentTime      = { 0 };
     int64     DeltaTimeMs;
     int64     CreditCount;
     char      AppName[OS_MAX_API_NAME];
@@ -346,7 +351,9 @@ bool EVS_CheckAndIncrementSquelchTokens(EVS_AppData_t *AppDataPtr)
         if (SendSquelchEvent)
         {
             CFE_ES_GetAppName(AppName, EVS_AppDataGetID(AppDataPtr), sizeof(AppName));
-            EVS_SendEvent(CFE_EVS_SQUELCHED_ERR_EID, CFE_EVS_EventType_ERROR, "Events squelched, AppName = %s",
+            EVS_SendEvent(CFE_EVS_SQUELCHED_ERR_EID,
+                          CFE_EVS_EventType_ERROR,
+                          "Events squelched, AppName = %s",
                           AppName);
         }
     }
@@ -382,11 +389,11 @@ EVS_BinFilter_t *EVS_FindEventID(uint16 EventID, EVS_BinFilter_t *FilterArray)
  *-----------------------------------------------------------------*/
 void EVS_SetTypes(EVS_AppData_t *AppDataPtr, uint8 BitMask, bool State)
 {
-    size_t Index;
+    size_t  Index;
     uint8_t EventBit;
 
     EventBit = 1;
-    Index = 0;
+    Index    = 0;
 
     if (AppDataPtr != NULL)
     {
@@ -401,7 +408,6 @@ void EVS_SetTypes(EVS_AppData_t *AppDataPtr, uint8 BitMask, bool State)
         }
     }
 }
-
 
 uint8 EVS_EventArrayToBitMask(const EVS_AppData_t *AppDataPtr)
 {
@@ -422,15 +428,18 @@ uint8 EVS_EventArrayToBitMask(const EVS_AppData_t *AppDataPtr)
     return BitMask;
 }
 
-
 /*----------------------------------------------------------------
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-void EVS_GenerateEventTelemetry(EVS_AppData_t *AppDataPtr, uint16 EventID, CFE_EVS_EventType_Enum_t EventType,
-                                const CFE_TIME_SysTime_t *TimeStamp, const char *MsgSpec, va_list ArgPtr)
+void EVS_GenerateEventTelemetry(EVS_AppData_t            *AppDataPtr,
+                                uint16                    EventID,
+                                CFE_EVS_EventType_Enum_t  EventType,
+                                const CFE_TIME_SysTime_t *TimeStamp,
+                                const char               *MsgSpec,
+                                va_list                   ArgPtr)
 {
     CFE_EVS_LongEventTlm_t  LongEventTlm;  /* The "long" flavor is always generated, as this is what is logged */
     CFE_EVS_ShortEventTlm_t ShortEventTlm; /* The "short" flavor is only generated if selected */
@@ -441,7 +450,8 @@ void EVS_GenerateEventTelemetry(EVS_AppData_t *AppDataPtr, uint16 EventID, CFE_E
     memset(&ShortEventTlm, 0, sizeof(ShortEventTlm));
 
     /* Initialize EVS event packets */
-    CFE_MSG_Init(CFE_MSG_PTR(LongEventTlm.TelemetryHeader), CFE_SB_ValueToMsgId(CFE_EVS_LONG_EVENT_MSG_MID),
+    CFE_MSG_Init(CFE_MSG_PTR(LongEventTlm.TelemetryHeader),
+                 CFE_SB_ValueToMsgId(CFE_EVS_LONG_EVENT_MSG_MID),
                  sizeof(LongEventTlm));
     LongEventTlm.Payload.PacketID.EventID   = EventID;
     LongEventTlm.Payload.PacketID.EventType = EventType;
@@ -459,7 +469,7 @@ void EVS_GenerateEventTelemetry(EVS_AppData_t *AppDataPtr, uint16 EventID, CFE_E
     {
         /* Mark character before zero terminator to indicate truncation */
         LongEventTlm.Payload.Message[sizeof(LongEventTlm.Payload.Message) - 2] = CFE_EVS_MSG_TRUNCATED;
-        IsTruncated = true;
+        IsTruncated                                                            = true;
     }
     else
     {
@@ -467,7 +477,8 @@ void EVS_GenerateEventTelemetry(EVS_AppData_t *AppDataPtr, uint16 EventID, CFE_E
     }
 
     /* Obtain task and system information */
-    CFE_ES_GetAppName((char *)LongEventTlm.Payload.PacketID.AppName, EVS_AppDataGetID(AppDataPtr),
+    CFE_ES_GetAppName((char *)LongEventTlm.Payload.PacketID.AppName,
+                      EVS_AppDataGetID(AppDataPtr),
                       sizeof(LongEventTlm.Payload.PacketID.AppName));
     LongEventTlm.Payload.PacketID.SpacecraftID = CFE_PSP_GetSpacecraftId();
     LongEventTlm.Payload.PacketID.ProcessorID  = CFE_PSP_GetProcessorId();
@@ -494,7 +505,8 @@ void EVS_GenerateEventTelemetry(EVS_AppData_t *AppDataPtr, uint16 EventID, CFE_E
          *
          * This goes out on a separate message ID.
          */
-        CFE_MSG_Init(CFE_MSG_PTR(ShortEventTlm.TelemetryHeader), CFE_SB_ValueToMsgId(CFE_EVS_SHORT_EVENT_MSG_MID),
+        CFE_MSG_Init(CFE_MSG_PTR(ShortEventTlm.TelemetryHeader),
+                     CFE_SB_ValueToMsgId(CFE_EVS_SHORT_EVENT_MSG_MID),
                      sizeof(ShortEventTlm));
         CFE_MSG_SetMsgTime(CFE_MSG_PTR(ShortEventTlm.TelemetryHeader), *TimeStamp);
         ShortEventTlm.Payload.PacketID = LongEventTlm.Payload.PacketID;
@@ -535,16 +547,21 @@ void EVS_SendViaPorts(CFE_EVS_LongEventTlm_t *EVS_PktPtr)
 {
     char               PortMessage[CFE_EVS_MAX_PORT_MSG_LENGTH];
     char               TimeBuffer[CFE_TIME_PRINTED_STRING_SIZE];
-    CFE_TIME_SysTime_t PktTime = {0};
+    CFE_TIME_SysTime_t PktTime = { 0 };
 
     CFE_MSG_GetMsgTime(CFE_MSG_PTR(EVS_PktPtr->TelemetryHeader), &PktTime);
     CFE_TIME_Print(TimeBuffer, PktTime);
 
     /* SAD: No need to check snprintf return; CFE_EVS_MAX_PORT_MSG_LENGTH is sized to accommodate buffer limits */
-    snprintf(PortMessage, sizeof(PortMessage), "%s %u/%u/%s %u: %s", TimeBuffer,
+    snprintf(PortMessage,
+             sizeof(PortMessage),
+             "%s %u/%u/%s %u: %s",
+             TimeBuffer,
              (unsigned int)EVS_PktPtr->Payload.PacketID.SpacecraftID,
-             (unsigned int)EVS_PktPtr->Payload.PacketID.ProcessorID, EVS_PktPtr->Payload.PacketID.AppName,
-             (unsigned int)EVS_PktPtr->Payload.PacketID.EventID, EVS_PktPtr->Payload.Message);
+             (unsigned int)EVS_PktPtr->Payload.PacketID.ProcessorID,
+             EVS_PktPtr->Payload.PacketID.AppName,
+             (unsigned int)EVS_PktPtr->Payload.PacketID.EventID,
+             EVS_PktPtr->Payload.Message);
 
     if (CFE_EVS_Global.EVS_TlmPkt.Payload.OutputPort & CFE_EVS_PORT1_BIT)
     {
@@ -591,7 +608,7 @@ int32 EVS_SendEvent(uint16 EventID, CFE_EVS_EventType_Enum_t EventType, const ch
 {
     CFE_TIME_SysTime_t Time;
     va_list            Ptr;
-    EVS_AppData_t *    AppDataPtr;
+    EVS_AppData_t     *AppDataPtr;
 
     /*
      * Must check that EVS_AppID is valid, which can happen if this is called
@@ -602,8 +619,8 @@ int32 EVS_SendEvent(uint16 EventID, CFE_EVS_EventType_Enum_t EventType, const ch
     /* Unlikely, but possible that an EVS event filter was added by command */
     /* Note that we do not squelch events coming from EVS to prevent event recursion,
      * and EVS is assumed to be "well-behaved" */
-    if (EVS_AppDataIsMatch(AppDataPtr, CFE_EVS_Global.EVS_AppID) &&
-        EVS_IsFiltered(AppDataPtr, EventID, EventType) == false)
+    if (EVS_AppDataIsMatch(AppDataPtr, CFE_EVS_Global.EVS_AppID)
+        && EVS_IsFiltered(AppDataPtr, EventID, EventType) == false)
     {
         /* Get current spacecraft time */
         Time = CFE_TIME_GetTime();
@@ -621,8 +638,11 @@ bool EVS_IsInvalidBitMask(uint32 BitMask, uint16 CommandCode)
 {
     if ((BitMask) == 0x0 || (BitMask) > CFE_EVS_ALL_EVENT_TYPES_MASK)
     {
-        EVS_SendEvent(CFE_EVS_ERR_INVALID_BITMASK_EID, CFE_EVS_EventType_ERROR,
-                      "Bit Mask = 0x%08x out of range: CC = %u", (unsigned int)BitMask, (unsigned int)CommandCode);
+        EVS_SendEvent(CFE_EVS_ERR_INVALID_BITMASK_EID,
+                      CFE_EVS_EventType_ERROR,
+                      "Bit Mask = 0x%08x out of range: CC = %u",
+                      (unsigned int)BitMask,
+                      (unsigned int)CommandCode);
         return true;
     }
 

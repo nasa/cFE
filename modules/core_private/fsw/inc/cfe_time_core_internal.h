@@ -79,7 +79,7 @@ int32 CFE_TIME_EarlyInit(void);
 **        that have been allocated to the specified Application.
 **
 ******************************************************************************/
-int32 CFE_TIME_CleanUpApp(CFE_ES_AppId_t AppId);
+int32 CFE_TIME_CleanUpApp(uint32 Id);
 
 /**@}*/
 

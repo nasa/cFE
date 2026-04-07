@@ -195,7 +195,8 @@ int32 CFE_TBL_GetWorkingBuffer(CFE_TBL_LoadBuff_t **WorkingBufferPtr, CFE_TBL_Re
 **
 ** \retval #CFE_SUCCESS                     \copydoc CFE_SUCCESS
 */
-int32 CFE_TBL_UpdateInternal(CFE_TBL_HandleId_t TblHandle, CFE_TBL_RegistryRec_t *RegRecPtr,
+int32 CFE_TBL_UpdateInternal(CFE_TBL_HandleId_t          TblHandle,
+                             CFE_TBL_RegistryRec_t      *RegRecPtr,
                              CFE_TBL_AccessDescriptor_t *AccessDescPtr);
 
 /*---------------------------------------------------------------------------------------*/
@@ -282,8 +283,12 @@ int32 CFE_TBL_SendNotificationMsg(CFE_TBL_RegistryRec_t *RegRecPtr);
  * These callbacks are used with the FS background write request API
  * and are implemented per that specification.
  */
-void CFE_TBL_DumpRegistryEventHandler(void *Meta, CFE_FS_FileWriteEvent_t Event, int32 Status, uint32 RecordNum,
-                                      size_t BlockSize, size_t Position);
+void CFE_TBL_DumpRegistryEventHandler(void                   *Meta,
+                                      CFE_FS_FileWriteEvent_t Event,
+                                      int32                   Status,
+                                      uint32                  RecordNum,
+                                      size_t                  BlockSize,
+                                      size_t                  Position);
 bool CFE_TBL_DumpRegistryGetter(void *Meta, uint32 RecordNum, void **Buffer, size_t *BufSize);
 
 /*
@@ -402,8 +407,9 @@ CFE_Status_t CFE_TBL_RestoreTableDataFromCDS(CFE_TBL_RegistryRec_t *RegRecPtr);
 **          None
 **
 */
-void CFE_TBL_RegisterWithCriticalTableRegistry(CFE_TBL_CritRegRec_t *CritRegRecPtr, CFE_TBL_RegistryRec_t *RegRecPtr,
-                                               const char *TblName);
+void CFE_TBL_RegisterWithCriticalTableRegistry(CFE_TBL_CritRegRec_t  *CritRegRecPtr,
+                                               CFE_TBL_RegistryRec_t *RegRecPtr,
+                                               const char            *TblName);
 
 /*---------------------------------------------------------------------------------------*/
 /**

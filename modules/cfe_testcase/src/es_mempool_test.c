@@ -79,8 +79,12 @@ void TestMemPoolCreateMax(void)
     NumPools = 0;
     while (NumPools <= CFE_PLATFORM_ES_MAX_MEMORY_POOLS)
     {
-        CFE_Assert_STATUS_STORE(CFE_ES_PoolCreateEx(&PoolID[NumPools], &CFE_FT_PoolMemBlock[NumPools],
-                                                    sizeof(CFE_FT_PoolMemBlock_t), 0, NULL, CFE_ES_NO_MUTEX));
+        CFE_Assert_STATUS_STORE(CFE_ES_PoolCreateEx(&PoolID[NumPools],
+                                                    &CFE_FT_PoolMemBlock[NumPools],
+                                                    sizeof(CFE_FT_PoolMemBlock_t),
+                                                    0,
+                                                    NULL,
+                                                    CFE_ES_NO_MUTEX));
         if (CFE_Assert_STATUS_MAY_BE(CFE_ES_NO_RESOURCE_IDS_AVAILABLE))
         {
             /* limit reached */

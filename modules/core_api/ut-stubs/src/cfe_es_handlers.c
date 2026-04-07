@@ -123,7 +123,7 @@ void UT_DefaultHandler_CFE_ES_CreateChildTask(void *UserObj, UT_EntryKey_t FuncK
 {
     CFE_ES_TaskId_t *TaskIdPtr = UT_Hook_GetArgValueByName(Context, "TaskIdPtr", CFE_ES_TaskId_t *);
     int32            status;
-    void *           IdBuff;
+    void            *IdBuff;
     size_t           BuffSize;
     size_t           Position;
 
@@ -157,7 +157,7 @@ void UT_DefaultHandler_CFE_ES_GetAppID(void *UserObj, UT_EntryKey_t FuncKey, con
 {
     CFE_ES_AppId_t *AppIdPtr = UT_Hook_GetArgValueByName(Context, "AppIdPtr", CFE_ES_AppId_t *);
     int32           status;
-    void *          IdBuff;
+    void           *IdBuff;
     size_t          BuffSize;
     size_t          Position;
 
@@ -191,7 +191,7 @@ void UT_DefaultHandler_CFE_ES_GetTaskID(void *UserObj, UT_EntryKey_t FuncKey, co
 {
     CFE_ES_TaskId_t *TaskIdPtr = UT_Hook_GetArgValueByName(Context, "TaskIdPtr", CFE_ES_TaskId_t *);
     int32            status;
-    void *           IdBuff;
+    void            *IdBuff;
     size_t           BuffSize;
     size_t           Position;
 
@@ -224,12 +224,12 @@ void UT_DefaultHandler_CFE_ES_GetTaskID(void *UserObj, UT_EntryKey_t FuncKey, co
 void UT_DefaultHandler_CFE_ES_GetAppIDByName(void *UserObj, UT_EntryKey_t FuncKey, const UT_StubContext_t *Context)
 {
     CFE_ES_AppId_t *AppIdPtr = UT_Hook_GetArgValueByName(Context, "AppIdPtr", CFE_ES_AppId_t *);
-    const char *    AppName  = UT_Hook_GetArgValueByName(Context, "AppName", const char *);
+    const char     *AppName  = UT_Hook_GetArgValueByName(Context, "AppName", const char *);
 
     size_t UserBuffSize;
     size_t BuffPosition;
-    void * NameBuff;
-    void * IdBuff;
+    void  *NameBuff;
+    void  *IdBuff;
     int32  status;
 
     UT_Stub_GetInt32StatusCode(Context, &status);
@@ -269,13 +269,13 @@ void UT_DefaultHandler_CFE_ES_GetAppIDByName(void *UserObj, UT_EntryKey_t FuncKe
  *------------------------------------------------------------*/
 void UT_DefaultHandler_CFE_ES_GetAppName(void *UserObj, UT_EntryKey_t FuncKey, const UT_StubContext_t *Context)
 {
-    char * AppName      = UT_Hook_GetArgValueByName(Context, "AppName", char *);
+    char  *AppName      = UT_Hook_GetArgValueByName(Context, "AppName", char *);
     size_t BufferLength = UT_Hook_GetArgValueByName(Context, "BufferLength", size_t);
 
     size_t      UserBuffSize;
     size_t      BuffPosition;
     const char *NameBuff;
-    void *      TempBuff;
+    void       *TempBuff;
     int32       status;
 
     UT_Stub_GetInt32StatusCode(Context, &status);
@@ -312,8 +312,10 @@ void UT_DefaultHandler_CFE_ES_GetAppName(void *UserObj, UT_EntryKey_t FuncKey, c
  * Default handler for CFE_ES_WriteToSysLog coverage stub function
  *
  *------------------------------------------------------------*/
-void UT_DefaultHandler_CFE_ES_WriteToSysLog(void *UserObj, UT_EntryKey_t FuncKey, const UT_StubContext_t *Context,
-                                            va_list va)
+void UT_DefaultHandler_CFE_ES_WriteToSysLog(void                   *UserObj,
+                                            UT_EntryKey_t           FuncKey,
+                                            const UT_StubContext_t *Context,
+                                            va_list                 va)
 {
     const char *SpecStringPtr = UT_Hook_GetArgValueByName(Context, "SpecStringPtr", const char *);
 
@@ -360,7 +362,7 @@ void UT_DefaultHandler_CFE_ES_GetPoolBuf(void *UserObj, UT_EntryKey_t FuncKey, c
     size_t  PoolSize;
     size_t  PositionStart;
     size_t  PositionEnd;
-    void *  PoolPtr;
+    void   *PoolPtr;
     cpuaddr BufAddrStart;
     cpuaddr BufAddrEnd;
     int32   status;
@@ -418,8 +420,10 @@ void UT_DefaultHandler_CFE_ES_GetPoolBuf(void *UserObj, UT_EntryKey_t FuncKey, c
              * use UT_SetDataBuffer() to register a pool buffer that is
              * sufficient for the code under test.
              */
-            UtAssert_Failed("Pool buffer empty in %s: need at least %lu bytes, given %lu", __func__,
-                            (unsigned long)PositionEnd, (unsigned long)PoolSize);
+            UtAssert_Failed("Pool buffer empty in %s: need at least %lu bytes, given %lu",
+                            __func__,
+                            (unsigned long)PositionEnd,
+                            (unsigned long)PoolSize);
 
             UtAssert_Abort("Configuration error, pool buffer too small for test cases");
         }
@@ -596,7 +600,7 @@ void UT_DefaultHandler_CFE_ES_GetResetType(void *UserObj, UT_EntryKey_t FuncKey,
 void UT_DefaultHandler_CFE_ES_AppID_ToIndex(void *UserObj, UT_EntryKey_t FuncKey, const UT_StubContext_t *Context)
 {
     CFE_ES_AppId_t AppID = UT_Hook_GetArgValueByName(Context, "AppID", CFE_ES_AppId_t);
-    uint32 *       Idx   = UT_Hook_GetArgValueByName(Context, "Idx", uint32 *);
+    uint32        *Idx   = UT_Hook_GetArgValueByName(Context, "Idx", uint32 *);
     int32          return_code;
 
     UT_Stub_GetInt32StatusCode(Context, &return_code);
@@ -619,7 +623,7 @@ void UT_DefaultHandler_CFE_ES_AppID_ToIndex(void *UserObj, UT_EntryKey_t FuncKey
 void UT_DefaultHandler_CFE_ES_TaskID_ToIndex(void *UserObj, UT_EntryKey_t FuncKey, const UT_StubContext_t *Context)
 {
     CFE_ES_TaskId_t TaskID = UT_Hook_GetArgValueByName(Context, "TaskID", CFE_ES_TaskId_t);
-    uint32 *        Idx    = UT_Hook_GetArgValueByName(Context, "Idx", uint32 *);
+    uint32         *Idx    = UT_Hook_GetArgValueByName(Context, "Idx", uint32 *);
     int32           return_code;
 
     UT_Stub_GetInt32StatusCode(Context, &return_code);

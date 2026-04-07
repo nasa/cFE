@@ -144,7 +144,7 @@ const char *CFE_ConfigTool_GetNameFromOffset(CFE_ConfigIdOffset_Enum_t offset)
 const CFE_ConfigTool_DetailEntry_t *CFE_ConfigTool_FindDetailByName(const char *name)
 {
     const CFE_ConfigTool_PlatformMapEntry_t *platform_ptr;
-    const CFE_ConfigTool_DetailEntry_t *     result_ptr;
+    const CFE_ConfigTool_DetailEntry_t      *result_ptr;
 
     platform_ptr = CFECONFIG_PLATFORMDATA_TABLE;
     result_ptr   = NULL;
@@ -204,7 +204,7 @@ bool CFE_ConfigTool_WritePlatformCfg(const char *plat_name)
 bool CFE_ConfigTool_WriteValidEntries(const char *plat_name)
 {
     const CFE_ConfigTool_DetailEntry_t *detail_ptr;
-    const char *                        cfgname;
+    const char                         *cfgname;
 
     detail_ptr = CFE_ConfigTool_FindDetailByName(plat_name);
     if (detail_ptr == NULL)

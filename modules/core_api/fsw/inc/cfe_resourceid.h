@@ -230,8 +230,8 @@ uint32 CFE_ResourceId_GetSerial(CFE_ResourceId_t ResourceId);
  * @retval      #CFE_RESOURCEID_UNDEFINED if no open slots or bad arguments.
  *
  */
-CFE_ResourceId_t CFE_ResourceId_FindNext(CFE_ResourceId_t StartId, uint32 TableSize,
-                                         CFE_ResourceId_CheckFunc_t CheckFunc);
+CFE_ResourceId_t
+CFE_ResourceId_FindNext(CFE_ResourceId_t StartId, uint32 TableSize, CFE_ResourceId_CheckFunc_t CheckFunc);
 
 /**
  * @brief Locate the next resource ID that maps to an available table entry
@@ -251,8 +251,10 @@ CFE_ResourceId_t CFE_ResourceId_FindNext(CFE_ResourceId_t StartId, uint32 TableS
  * @retval      #CFE_RESOURCEID_UNDEFINED if no open slots or bad arguments.
  *
  */
-CFE_ResourceId_t CFE_ResourceId_FindNextEx(CFE_ResourceId_t StartId, CFE_ResourceId_IncrementFunc_t IncrFunc,
-                                           void *IncrArg, CFE_ResourceId_CheckFunc_t CheckFunc);
+CFE_ResourceId_t CFE_ResourceId_FindNextEx(CFE_ResourceId_t               StartId,
+                                           CFE_ResourceId_IncrementFunc_t IncrFunc,
+                                           void                          *IncrArg,
+                                           CFE_ResourceId_CheckFunc_t     CheckFunc);
 
 /**
  * @brief Internal routine to aid in converting an ES resource ID to an array index

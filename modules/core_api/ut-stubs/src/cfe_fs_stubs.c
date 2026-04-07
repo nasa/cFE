@@ -135,7 +135,9 @@ void CFE_FS_InitHeader(CFE_FS_Header_t *Hdr, const char *Description, uint32 Sub
  * Generated stub function for CFE_FS_ParseInputFileName()
  * ----------------------------------------------------
  */
-int32 CFE_FS_ParseInputFileName(char *OutputBuffer, const char *InputName, size_t OutputBufSize,
+int32 CFE_FS_ParseInputFileName(char                 *OutputBuffer,
+                                const char           *InputName,
+                                size_t                OutputBufSize,
                                 CFE_FS_FileCategory_t FileCategory)
 {
     UT_GenStub_SetupReturnBuffer(CFE_FS_ParseInputFileName, int32);
@@ -155,8 +157,12 @@ int32 CFE_FS_ParseInputFileName(char *OutputBuffer, const char *InputName, size_
  * Generated stub function for CFE_FS_ParseInputFileNameEx()
  * ----------------------------------------------------
  */
-int32 CFE_FS_ParseInputFileNameEx(char *OutputBuffer, const char *InputBuffer, size_t OutputBufSize,
-                                  size_t InputBufSize, const char *DefaultInput, const char *DefaultPath,
+int32 CFE_FS_ParseInputFileNameEx(char       *OutputBuffer,
+                                  const char *InputBuffer,
+                                  size_t      OutputBufSize,
+                                  size_t      InputBufSize,
+                                  const char *DefaultInput,
+                                  const char *DefaultPath,
                                   const char *DefaultExtension)
 {
     UT_GenStub_SetupReturnBuffer(CFE_FS_ParseInputFileNameEx, int32);

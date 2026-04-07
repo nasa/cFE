@@ -79,7 +79,9 @@ void TestResourceID_FindNextEx(void)
     LastId   = CFE_ResourceId_FromInteger(RefBase);
 
     /* Test CFE_ResourceId_FindNextEx() error conditions */
-    Id = CFE_ResourceId_FindNextEx(CFE_RESOURCEID_UNDEFINED, UT_ResourceId_IncrementSerial, NULL,
+    Id = CFE_ResourceId_FindNextEx(CFE_RESOURCEID_UNDEFINED,
+                                   UT_ResourceId_IncrementSerial,
+                                   NULL,
                                    UT_ResourceId_CheckIdSlotUsed);
     UtAssert_BOOL_FALSE(CFE_ResourceId_IsDefined(Id));
 
@@ -153,7 +155,8 @@ void TestResourceID_FindNext(void)
         if (CFE_ResourceId_ToInteger(Id) - CFE_ResourceId_ToInteger(LastId) != 1)
         {
             /* Numbers should be incrementing by 1 each time, never decreasing */
-            UtAssert_Failed("ID increment error: got=%lx, previous=%lx", CFE_ResourceId_ToInteger(Id),
+            UtAssert_Failed("ID increment error: got=%lx, previous=%lx",
+                            CFE_ResourceId_ToInteger(Id),
                             CFE_ResourceId_ToInteger(LastId));
             break;
         }
@@ -161,27 +164,34 @@ void TestResourceID_FindNext(void)
         TestBase = CFE_ResourceId_GetBase(Id);
         if (TestBase != RefBase)
         {
-            UtAssert_Failed("ID base changed: id=%lx, expected=%lx, got=%lx", CFE_ResourceId_ToInteger(Id),
-                            (unsigned long)RefBase, (unsigned long)TestBase);
+            UtAssert_Failed("ID base changed: id=%lx, expected=%lx, got=%lx",
+                            CFE_ResourceId_ToInteger(Id),
+                            (unsigned long)RefBase,
+                            (unsigned long)TestBase);
         }
         TestSerial = CFE_ResourceId_GetSerial(Id);
         if (TestSerial != RefSerial)
         {
-            UtAssert_Failed("ID serial jump: id=%lx, previous=%lx, got=%lx", CFE_ResourceId_ToInteger(Id),
-                            (unsigned long)RefSerial, (unsigned long)TestSerial);
+            UtAssert_Failed("ID serial jump: id=%lx, previous=%lx, got=%lx",
+                            CFE_ResourceId_ToInteger(Id),
+                            (unsigned long)RefSerial,
+                            (unsigned long)TestSerial);
         }
 
         status = CFE_ResourceId_ToIndex(Id, RefBase, UT_RESOURCEID_TEST_SLOTS, &TestIndex);
         if (status != CFE_SUCCESS)
         {
-            UtAssert_Failed("CFE_ResourceId_ToIndex() failed: id=%lx, rc=%lx", CFE_ResourceId_ToInteger(Id),
+            UtAssert_Failed("CFE_ResourceId_ToIndex() failed: id=%lx, rc=%lx",
+                            CFE_ResourceId_ToInteger(Id),
                             (unsigned long)status);
         }
 
         if (TestIndex != RefIndex)
         {
-            UtAssert_Failed("ID index mismatch: id=%lx, expected=%lu, got=%lu", CFE_ResourceId_ToInteger(Id),
-                            (unsigned long)RefIndex, (unsigned long)TestIndex);
+            UtAssert_Failed("ID index mismatch: id=%lx, expected=%lu, got=%lu",
+                            CFE_ResourceId_ToInteger(Id),
+                            (unsigned long)RefIndex,
+                            (unsigned long)TestIndex);
         }
 
         LastId = Id;
@@ -211,12 +221,18 @@ void TestResourceID_FindNext(void)
     UtAssert_UINT32_EQ(CFE_ResourceId_GetBase(Id), RefBase);
 
     TestSerial = CFE_ResourceId_GetSerial(Id);
-    UtAssert_True(TestSerial < UT_RESOURCEID_TEST_SLOTS, "ID serial after wrap: id=%lx, previous=%lx, got=%lx",
-                  CFE_ResourceId_ToInteger(Id), (unsigned long)RefSerial, (unsigned long)TestSerial);
+    UtAssert_True(TestSerial < UT_RESOURCEID_TEST_SLOTS,
+                  "ID serial after wrap: id=%lx, previous=%lx, got=%lx",
+                  CFE_ResourceId_ToInteger(Id),
+                  (unsigned long)RefSerial,
+                  (unsigned long)TestSerial);
 
     UtAssert_INT32_EQ(CFE_ResourceId_ToIndex(Id, RefBase, UT_RESOURCEID_TEST_SLOTS, &TestIndex), CFE_SUCCESS);
-    UtAssert_True(TestIndex == RefIndex, "ID index after wrap: id=%lx, expected=%lu, got=%lu",
-                  CFE_ResourceId_ToInteger(Id), (unsigned long)RefIndex, (unsigned long)TestIndex);
+    UtAssert_True(TestIndex == RefIndex,
+                  "ID index after wrap: id=%lx, expected=%lu, got=%lu",
+                  CFE_ResourceId_ToInteger(Id),
+                  (unsigned long)RefIndex,
+                  (unsigned long)TestIndex);
 
     /*
      * Now check that CFE_ResourceId_FindNext() adheres to the CheckFunc.
@@ -229,19 +245,27 @@ void TestResourceID_FindNext(void)
 
     Id         = CFE_ResourceId_FindNext(LastId, UT_RESOURCEID_TEST_SLOTS, UT_ResourceId_CheckIdSlotUsed);
     TestSerial = CFE_ResourceId_GetSerial(Id);
-    UtAssert_True(TestSerial == RefSerial, "ID serial after search: id=%lx, previous=%lx, got=%lx",
-                  CFE_ResourceId_ToInteger(Id), (unsigned long)RefSerial, (unsigned long)TestSerial);
+    UtAssert_True(TestSerial == RefSerial,
+                  "ID serial after search: id=%lx, previous=%lx, got=%lx",
+                  CFE_ResourceId_ToInteger(Id),
+                  (unsigned long)RefSerial,
+                  (unsigned long)TestSerial);
     UtAssert_INT32_EQ(CFE_ResourceId_ToIndex(Id, RefBase, UT_RESOURCEID_TEST_SLOTS, &TestIndex), CFE_SUCCESS);
-    UtAssert_True(TestIndex == RefIndex, "ID index after search: id=%lx, expected=%lu, got=%lu",
-                  CFE_ResourceId_ToInteger(Id), (unsigned long)RefIndex, (unsigned long)TestIndex);
+    UtAssert_True(TestIndex == RefIndex,
+                  "ID index after search: id=%lx, expected=%lu, got=%lu",
+                  CFE_ResourceId_ToInteger(Id),
+                  (unsigned long)RefIndex,
+                  (unsigned long)TestIndex);
 
     /* Validate off-nominal inputs */
     Id = CFE_ResourceId_FindNext(CFE_RESOURCEID_UNDEFINED, 0, UT_ResourceId_CheckIdSlotUsed);
-    UtAssert_True(CFE_ResourceId_Equal(Id, CFE_RESOURCEID_UNDEFINED), "CFE_ResourceId_FindNext() bad input: id=%lx",
+    UtAssert_True(CFE_ResourceId_Equal(Id, CFE_RESOURCEID_UNDEFINED),
+                  "CFE_ResourceId_FindNext() bad input: id=%lx",
                   CFE_ResourceId_ToInteger(Id));
 
     Id = CFE_ResourceId_FindNext(LastId, 0, NULL);
-    UtAssert_True(CFE_ResourceId_Equal(Id, CFE_RESOURCEID_UNDEFINED), "CFE_ResourceId_FindNext() bad input: id=%lx",
+    UtAssert_True(CFE_ResourceId_Equal(Id, CFE_RESOURCEID_UNDEFINED),
+                  "CFE_ResourceId_FindNext() bad input: id=%lx",
                   CFE_ResourceId_ToInteger(Id));
 }
 

@@ -92,7 +92,7 @@ typedef struct CFE_ES_StartAppCmd_Payload
                                                        restart Application,
                                                        #CFE_ES_ExceptionAction_PROC_RESTART=On exception,
                                                        perform a Processor Reset */
-    CFE_ES_TaskPriority_Atom_t Priority;           /**< \brief The new Applications runtime priority. */
+    CFE_ES_TaskPriority_Atom_t    Priority;        /**< \brief The new Applications runtime priority. */
 } CFE_ES_StartAppCmd_Payload_t;
 
 /**
@@ -250,9 +250,9 @@ typedef struct CFE_ES_OneAppTlm_Payload
 **/
 typedef struct CFE_ES_PoolStatsTlm_Payload
 {
-    CFE_ES_MemHandle_t PoolHandle;   /**< \cfetlmmnemonic \ES_POOLHANDLE
-                                          \brief Handle of memory pool whose stats are being telemetered */
-    CFE_ES_MemPoolStats_t PoolStats; /**< \brief For more info, see #CFE_ES_MemPoolStats_t */
+    CFE_ES_MemHandle_t    PoolHandle; /**< \cfetlmmnemonic \ES_POOLHANDLE
+                                           \brief Handle of memory pool whose stats are being telemetered */
+    CFE_ES_MemPoolStats_t PoolStats;  /**< \brief For more info, see #CFE_ES_MemPoolStats_t */
 } CFE_ES_PoolStatsTlm_Payload_t;
 
 /*************************************************************************/
@@ -267,24 +267,24 @@ typedef struct CFE_ES_HousekeepingTlm_Payload
     uint8 CommandErrorCounter; /**< \cfetlmmnemonic \ES_CMDEC
                            \brief The ES Application Command Error Counter */
 
-    uint16 CFECoreChecksum;    /**< \cfetlmmnemonic \ES_CKSUM
-                                    \brief Checksum of cFE Core Code */
-    uint8 CFEMajorVersion;     /**< \cfetlmmnemonic \ES_CFEMAJORVER
-                                    \brief Major Version Number of cFE */
-    uint8 CFEMinorVersion;     /**< \cfetlmmnemonic \ES_CFEMINORVER
-                                    \brief Minor Version Number of cFE */
-    uint8 CFERevision;         /**< \cfetlmmnemonic \ES_CFEREVISION
-                                    \brief Sub-Minor Version Number of cFE */
-    uint8 CFEMissionRevision;  /**< \cfetlmmnemonic \ES_CFEMISSIONREV
-                                    \brief Mission Version Number of cFE */
-    uint8 OSALMajorVersion;    /**< \cfetlmmnemonic \ES_OSMAJORVER
-                                    \brief OS Abstraction Layer Major Version Number */
-    uint8 OSALMinorVersion;    /**< \cfetlmmnemonic \ES_OSMINORVER
-                                    \brief OS Abstraction Layer Minor Version Number */
-    uint8 OSALRevision;        /**< \cfetlmmnemonic \ES_OSREVISION
-                                    \brief OS Abstraction Layer Revision Number */
-    uint8 OSALMissionRevision; /**< \cfetlmmnemonic \ES_OSMISSIONREV
-                                    \brief OS Abstraction Layer MissionRevision Number */
+    uint16 CFECoreChecksum;     /**< \cfetlmmnemonic \ES_CKSUM
+                                     \brief Checksum of cFE Core Code */
+    uint8  CFEMajorVersion;     /**< \cfetlmmnemonic \ES_CFEMAJORVER
+                                     \brief Major Version Number of cFE */
+    uint8  CFEMinorVersion;     /**< \cfetlmmnemonic \ES_CFEMINORVER
+                                     \brief Minor Version Number of cFE */
+    uint8  CFERevision;         /**< \cfetlmmnemonic \ES_CFEREVISION
+                                     \brief Sub-Minor Version Number of cFE */
+    uint8  CFEMissionRevision;  /**< \cfetlmmnemonic \ES_CFEMISSIONREV
+                                     \brief Mission Version Number of cFE */
+    uint8  OSALMajorVersion;    /**< \cfetlmmnemonic \ES_OSMAJORVER
+                                     \brief OS Abstraction Layer Major Version Number */
+    uint8  OSALMinorVersion;    /**< \cfetlmmnemonic \ES_OSMINORVER
+                                     \brief OS Abstraction Layer Minor Version Number */
+    uint8  OSALRevision;        /**< \cfetlmmnemonic \ES_OSREVISION
+                                     \brief OS Abstraction Layer Revision Number */
+    uint8  OSALMissionRevision; /**< \cfetlmmnemonic \ES_OSMISSIONREV
+                                     \brief OS Abstraction Layer MissionRevision Number */
 
     uint8 PSPMajorVersion;    /**< \cfetlmmnemonic \ES_PSPMAJORVER
                                    \brief Platform Support Package Major Version Number */
@@ -299,9 +299,9 @@ typedef struct CFE_ES_HousekeepingTlm_Payload
                                              \brief Total number of bytes used in system log */
     CFE_ES_MemOffset_t SysLogSize;      /**< \cfetlmmnemonic \ES_SYSLOGSIZE
                                              \brief Total size of the system log */
-    uint32 SysLogEntries;               /**< \cfetlmmnemonic \ES_SYSLOGENTRIES
+    uint32             SysLogEntries;   /**< \cfetlmmnemonic \ES_SYSLOGENTRIES
                                              \brief Number of entries in the system log */
-    uint32 SysLogMode;                  /**< \cfetlmmnemonic \ES_SYSLOGMODE
+    uint32             SysLogMode;      /**< \cfetlmmnemonic \ES_SYSLOGMODE
                                              \brief Write/Overwrite Mode */
 
     uint32 ERLogIndex;   /**< \cfetlmmnemonic \ES_ERLOGINDEX
@@ -338,16 +338,16 @@ typedef struct CFE_ES_HousekeepingTlm_Payload
     uint32 PerfFilterMask[CFE_MISSION_ES_PERF_MAX_IDS / 32]; /**< \cfetlmmnemonic \ES_PERFFLTRMASK
                                                           \brief Current Setting of Performance Analyzer Filter Masks */
     uint32
-        PerfTriggerMask[CFE_MISSION_ES_PERF_MAX_IDS / 32]; /**< \cfetlmmnemonic \ES_PERFTRIGMASK
-                                                        \brief Current Setting of Performance Analyzer Trigger Masks */
-    uint32 PerfDataStart;                                  /**< \cfetlmmnemonic \ES_PERFDATASTART
-                                                                \brief Identifies First Stored Entry in Performance Analyzer Log */
-    uint32 PerfDataEnd;                                    /**< \cfetlmmnemonic \ES_PERFDATAEND
-                                                                \brief Identifies Last Stored Entry in Performance Analyzer Log */
-    uint32 PerfDataCount;                                  /**< \cfetlmmnemonic \ES_PERFDATACNT
-                                                                \brief Number of Entries Put Into the Performance Analyzer Log */
+           PerfTriggerMask[CFE_MISSION_ES_PERF_MAX_IDS / 32]; /**< \cfetlmmnemonic \ES_PERFTRIGMASK
+                                                           \brief Current Setting of Performance Analyzer Trigger Masks */
+    uint32 PerfDataStart;                                     /**< \cfetlmmnemonic \ES_PERFDATASTART
+                                                                   \brief Identifies First Stored Entry in Performance Analyzer Log */
+    uint32 PerfDataEnd;                                       /**< \cfetlmmnemonic \ES_PERFDATAEND
+                                                                   \brief Identifies Last Stored Entry in Performance Analyzer Log */
+    uint32 PerfDataCount;                                     /**< \cfetlmmnemonic \ES_PERFDATACNT
+                                                                   \brief Number of Entries Put Into the Performance Analyzer Log */
     uint32
-        PerfDataToWrite;                 /**< \cfetlmmnemonic \ES_PERFDATA2WRITE
+                       PerfDataToWrite;  /**< \cfetlmmnemonic \ES_PERFDATA2WRITE
                                               \brief Number of Performance Analyzer Log Entries Left to be Written to Log Dump File */
     CFE_ES_MemOffset_t HeapBytesFree;    /**< \cfetlmmnemonic \ES_HEAPBYTESFREE
                                             \brief Number of free bytes remaining in the OS heap */

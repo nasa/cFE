@@ -47,7 +47,7 @@ typedef struct CFE_TBL_CheckInactiveBuffer
 static void CFE_TBL_CheckInactiveBufferHelper(CFE_TBL_AccessDescriptor_t *AccDescPtr, void *Arg)
 {
     CFE_TBL_CheckInactiveBuffer_t *StatPtr = Arg;
-    CFE_TBL_LoadBuff_t *           AccBuffPtr;
+    CFE_TBL_LoadBuff_t            *AccBuffPtr;
 
     AccBuffPtr = CFE_TBL_LocateLoadBufferByID(AccDescPtr->BufferIndex);
 
@@ -70,11 +70,10 @@ void CFE_TBL_InitRegistryRecord(CFE_TBL_RegistryRec_t *RegRecPtr)
 
     CFE_TBL_RegRecClearLoadInProgress(RegRecPtr);
 
-    RegRecPtr->OwnerAppId         = CFE_TBL_NOT_OWNED;
-    RegRecPtr->ValidateActiveId   = CFE_TBL_NO_VALIDATION_PENDING;
-    RegRecPtr->ValidateInactiveId = CFE_TBL_NO_VALIDATION_PENDING;
-    RegRecPtr->CDSHandle          = CFE_ES_CDS_BAD_HANDLE;
-    RegRecPtr->DumpControlId      = CFE_TBL_NO_DUMP_PENDING;
+    RegRecPtr->OwnerAppId    = CFE_TBL_NOT_OWNED;
+    RegRecPtr->PendingValId  = CFE_TBL_NO_VALIDATION_PENDING;
+    RegRecPtr->CDSHandle     = CFE_ES_CDS_BAD_HANDLE;
+    RegRecPtr->DumpControlId = CFE_TBL_NO_DUMP_PENDING;
 
     CFE_TBL_HandleLinkInit(&RegRecPtr->AccessList);
 }
@@ -87,7 +86,8 @@ void CFE_TBL_InitRegistryRecord(CFE_TBL_RegistryRec_t *RegRecPtr)
  *-----------------------------------------------------------------*/
 CFE_ResourceId_t CFE_TBL_GetNextRegId(void)
 {
-    return CFE_ResourceId_FindNext(CFE_TBL_Global.LastRegId, CFE_PLATFORM_TBL_MAX_NUM_HANDLES,
+    return CFE_ResourceId_FindNext(CFE_TBL_Global.LastRegId,
+                                   CFE_PLATFORM_TBL_MAX_NUM_HANDLES,
                                    CFE_TBL_CheckRegistrySlotUsed);
 }
 
@@ -118,7 +118,9 @@ bool CFE_TBL_CheckRegistrySlotUsed(CFE_ResourceId_t CheckId)
  *-----------------------------------------------------------------*/
 CFE_Status_t CFE_TBL_RegId_ToIndex(CFE_TBL_RegId_t RegId, uint32 *Idx)
 {
-    return CFE_ResourceId_ToIndex(CFE_RESOURCEID_UNWRAP(RegId), CFE_TBL_REGID_BASE, CFE_PLATFORM_TBL_MAX_NUM_TABLES,
+    return CFE_ResourceId_ToIndex(CFE_RESOURCEID_UNWRAP(RegId),
+                                  CFE_TBL_REGID_BASE,
+                                  CFE_PLATFORM_TBL_MAX_NUM_TABLES,
                                   Idx);
 }
 
@@ -206,7 +208,7 @@ CFE_TBL_LoadBuff_t *CFE_TBL_GetInactiveBuffer(CFE_TBL_RegistryRec_t *RegRecPtr)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-CFE_TBL_LoadBuff_t *CFE_TBL_GetSelectedBuffer(CFE_TBL_RegistryRec_t *     RegRecPtr,
+CFE_TBL_LoadBuff_t *CFE_TBL_GetSelectedBuffer(CFE_TBL_RegistryRec_t      *RegRecPtr,
                                               CFE_TBL_BufferSelect_Enum_t BufferSelect)
 {
     CFE_TBL_LoadBuff_t *Result;
@@ -220,10 +222,7 @@ CFE_TBL_LoadBuff_t *CFE_TBL_GetSelectedBuffer(CFE_TBL_RegistryRec_t *     RegRec
             Result = CFE_TBL_GetActiveBuffer(RegRecPtr);
             break;
         default:
-            CFE_EVS_SendEvent(CFE_TBL_ILLEGAL_BUFF_PARAM_ERR_EID, CFE_EVS_EventType_ERROR,
-                              "Cmd for Table '%s' had illegal buffer parameter (0x%08X)",
-                              CFE_TBL_RegRecGetName(RegRecPtr), (unsigned int)BufferSelect);
-
+            /* Event is not sent here, it should be sent by the caller */
             Result = NULL;
             break;
     }
@@ -240,7 +239,7 @@ CFE_TBL_LoadBuff_t *CFE_TBL_GetSelectedBuffer(CFE_TBL_RegistryRec_t *     RegRec
 CFE_TBL_LoadBuff_t *CFE_TBL_GetLoadInProgressBuffer(CFE_TBL_RegistryRec_t *RegRecPtr)
 {
     CFE_TBL_LoadBuffId_t BuffId;
-    CFE_TBL_LoadBuff_t * LoadBuffPtr;
+    CFE_TBL_LoadBuff_t  *LoadBuffPtr;
 
     BuffId      = CFE_TBL_RegRecGetLoadInProgress(RegRecPtr);
     LoadBuffPtr = CFE_TBL_LocateLoadBufferByID(BuffId);
@@ -278,7 +277,7 @@ CFE_TBL_LoadBuff_t *CFE_TBL_GetLoadInProgressBuffer(CFE_TBL_RegistryRec_t *RegRe
  *-----------------------------------------------------------------*/
 CFE_TBL_LoadBuff_t *CFE_TBL_GetInactiveBufferExclusive(CFE_TBL_RegistryRec_t *RegRecPtr)
 {
-    CFE_TBL_LoadBuff_t *          LoadBuffPtr;
+    CFE_TBL_LoadBuff_t           *LoadBuffPtr;
     CFE_TBL_CheckInactiveBuffer_t CheckStat;
     CFE_ResourceId_t              PendingId;
 
@@ -302,8 +301,10 @@ CFE_TBL_LoadBuff_t *CFE_TBL_GetInactiveBufferExclusive(CFE_TBL_RegistryRec_t *Re
         if (CFE_RESOURCEID_TEST_DEFINED(CheckStat.LockingAppId))
         {
             LoadBuffPtr = NULL;
-            CFE_ES_WriteToSysLog("%s: Inactive Buff Locked for '%s' by AppId=%lu\n", __func__,
-                                 CFE_TBL_RegRecGetName(RegRecPtr), CFE_RESOURCEID_TO_ULONG(CheckStat.LockingAppId));
+            CFE_ES_WriteToSysLog("%s: Inactive Buff Locked for '%s' by AppId=%lu\n",
+                                 __func__,
+                                 CFE_TBL_RegRecGetName(RegRecPtr),
+                                 CFE_RESOURCEID_TO_ULONG(CheckStat.LockingAppId));
         }
         else
         {
@@ -321,8 +322,9 @@ CFE_TBL_LoadBuff_t *CFE_TBL_GetInactiveBufferExclusive(CFE_TBL_RegistryRec_t *Re
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-void CFE_TBL_RegRecResetLoadInfo(CFE_TBL_RegistryRec_t *RegRecPtr, const char *DataSource,
-                                 CFE_TIME_SysTime_t UpdateTime)
+void CFE_TBL_RegRecResetLoadInfo(CFE_TBL_RegistryRec_t *RegRecPtr,
+                                 const char            *DataSource,
+                                 CFE_TIME_SysTime_t     UpdateTime)
 {
     strncpy(RegRecPtr->Status.LastFileLoaded, DataSource, sizeof(RegRecPtr->Status.LastFileLoaded) - 1);
     RegRecPtr->Status.LastFileLoaded[sizeof(RegRecPtr->Status.LastFileLoaded) - 1] = 0;
@@ -349,7 +351,8 @@ void CFE_TBL_RegRecSetModifiedFlag(CFE_TBL_RegistryRec_t *RegRecPtr)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-void CFE_TBL_SetupTableRegistryRecord(CFE_TBL_RegistryRec_t *RegRecPtr, CFE_ES_AppId_t OwnerAppId,
+void CFE_TBL_SetupTableRegistryRecord(CFE_TBL_RegistryRec_t       *RegRecPtr,
+                                      CFE_ES_AppId_t               OwnerAppId,
                                       const CFE_TBL_TableConfig_t *ReqCfg)
 {
     CFE_TBL_LoadBuff_t *InitialBuffPtr;
@@ -367,7 +370,7 @@ void CFE_TBL_SetupTableRegistryRecord(CFE_TBL_RegistryRec_t *RegRecPtr, CFE_ES_A
     RegRecPtr->Config.EdsId = ReqCfg->EdsId;
 
     /* Set the initial active buffer.  This is only applicable if it is a dump only table
-     * that is using an internal buffer - otherwise it needs to be loaded and the 
+     * that is using an internal buffer - otherwise it needs to be loaded and the
      * active buffer will be set at that time. */
     if (ReqCfg->DumpOnly && !ReqCfg->UserDefAddr)
     {
@@ -402,7 +405,7 @@ bool CFE_TBL_RegRecIsPendingActivation(const CFE_TBL_RegistryRec_t *RegRecPtr)
     if (CFE_TBL_LoadBuffIsMatch(LoadBuffPtr, RegRecPtr->Status.NextBufferId))
     {
         /* it is only pending activation if it is validated */
-        Result = LoadBuffPtr->Validated;
+        Result = LoadBuffPtr->IsValid && LoadBuffPtr->ActivateReq;
     }
 
     return Result;

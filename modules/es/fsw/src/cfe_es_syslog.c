@@ -320,9 +320,9 @@ void CFE_ES_SysLogReadData(CFE_ES_SysLogReadBuffer_t *Buffer)
 
         memcpy(&Buffer->Data[Buffer->BlockSize], &CFE_ES_Global.ResetDataPtr->SystemLog[Buffer->LastOffset], BlockSize);
 
-        Buffer->BlockSize += BlockSize;
+        Buffer->BlockSize  += BlockSize;
         Buffer->LastOffset += BlockSize;
-        Buffer->SizeLeft -= BlockSize;
+        Buffer->SizeLeft   -= BlockSize;
     }
 }
 
@@ -449,7 +449,10 @@ int32 CFE_ES_SysLogDump(const char *Filename)
     OsStatus = OS_OpenCreate(&fd, Filename, OS_FILE_FLAG_CREATE | OS_FILE_FLAG_TRUNCATE, OS_WRITE_ONLY);
     if (OsStatus != OS_SUCCESS)
     {
-        CFE_EVS_SendEvent(CFE_ES_SYSLOG2_ERR_EID, CFE_EVS_EventType_ERROR, "Error creating file %s, RC = %ld", Filename,
+        CFE_EVS_SendEvent(CFE_ES_SYSLOG2_ERR_EID,
+                          CFE_EVS_EventType_ERROR,
+                          "Error creating file %s, RC = %ld",
+                          Filename,
                           (long)OsStatus);
         return CFE_ES_FILE_IO_ERR;
     }
@@ -487,7 +490,7 @@ int32 CFE_ES_SysLogDump(const char *Filename)
                     break;
                 }
 
-                WritePos += (long)OsStatus;
+                WritePos  += (long)OsStatus;
                 TotalSize += (long)OsStatus;
             }
 
@@ -525,7 +528,10 @@ int32 CFE_ES_SysLogDump(const char *Filename)
     }
     else
     {
-        CFE_EVS_SendEvent(CFE_ES_SYSLOG2_EID, CFE_EVS_EventType_DEBUG, "%s written:Size=%lu,Entries=%u", Filename,
+        CFE_EVS_SendEvent(CFE_ES_SYSLOG2_EID,
+                          CFE_EVS_EventType_DEBUG,
+                          "%s written:Size=%lu,Entries=%u",
+                          Filename,
                           (unsigned long)TotalSize,
                           (unsigned int)CFE_ES_Global.TaskData.HkPacket.Payload.SysLogEntries);
         Status = CFE_SUCCESS;

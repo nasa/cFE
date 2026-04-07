@@ -29,7 +29,7 @@
 #define CFE_BUILD_NUMBER    0 /**< @brief Development: Number of development git commits since CFE_BUILD_BASELINE */
 #define CFE_BUILD_BASELINE  "v7.0.0" /**< @brief Development: Reference git tag for build number */
 #define CFE_BUILD_DEV_CYCLE "v7.0.0" /**< @brief Development: Release name for current development cycle */
-#define CFE_BUILD_CODENAME  "Draco"     /**< @brief: Development: Code name for the current build */
+#define CFE_BUILD_CODENAME  "Draco"  /**< @brief: Development: Code name for the current build */
 
 /* See \ref cfsversions for definitions */
 #define CFE_MAJOR_VERSION 7 /*!< @brief Major version number */
