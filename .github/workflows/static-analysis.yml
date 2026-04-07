@@ -1,6 +1,5 @@
 name: Static Analysis
 
-# Run on all push and pull requests
 on:
   push:
     branches:
@@ -18,7 +17,36 @@ on:
 
 jobs:
   static-analysis:
-    name: Run cppcheck
-    uses: nasa/cFS/.github/workflows/static-analysis.yml@main
-    with:
-      strict-dir-list: './modules/core_api/fsw ./modules/core_private/fsw ./modules/es/fsw ./modules/evs/fsw ./modules/fs/fsw ./modules/msg/fsw ./modules/resourceid/fsw ./modules/sb/fsw ./modules/sbr/fsw ./modules/tbl/fsw ./modules/time/fsw -UCFE_PLATFORM_TIME_CFG_CLIENT -DCFE_PLATFORM_TIME_CFG_SERVER'
+    name: Run Static Analysis
+    runs-on: ubuntu-22.04
+    container: ghcr.io/core-flight-system/cfsbuildenv-linux:latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout CFE
+        uses: actions/checkout@v4
+        with:
+          path: cfe
+
+      - name: Set up Dependencies
+        uses: ./cfe/.github/actions/setup-cfe
+        with:
+          source-dir: .
+          preferred-ref: ${{ github.head_ref }}
+          org: 'nasa'
+
+      # Setup the build system
+      - name: Create build tree
+        run: cmake -DCMAKE_INSTALL_PREFIX=/exe -DCMAKE_BUILD_TYPE=debug -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DSIMULATION=native -S cfe -B build
+
+      - name: List Files
+        run: ls -la build/native/*
+
+      - name: Run cppcheck
+        uses: nasa/cFS/actions/cppcheck@dev
+        id: run-cppcheck
+        with:
+          strict-dir-list: './cfe/modules/core_api/fsw ./cfe/modules/core_private/fsw ./cfe/modules/es/fsw ./cfe/modules/evs/fsw ./cfe/modules/fs/fsw ./cfe/modules/msg/fsw ./cfe/modules/resourceid/fsw ./cfe/modules/sb/fsw ./modules/cfe/sbr/fsw ./modules/cfe/tbl/fsw ./cfe/modules/time/fsw -UCFE_PLATFORM_TIME_CFG_CLIENT -DCFE_PLATFORM_TIME_CFG_SERVER'
+          compile-commands-json: ./build/compile_commands.json ./build/native/default_cpu1/compile_commands.json
+          module-path: cfe
+          cppcheck-xslt-path: 'nasa/cFS/raw/refs/heads/dev/.github/scripts'
