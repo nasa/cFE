@@ -298,6 +298,7 @@
               \cfetlmmnemonic  \TBL_CRC
             </LongDescription>
           </Entry>
+          <PaddingEntry sizeInBits="32" shortDescription="Padding for alignment"/>
           <Entry name="ActiveBufferAddr" type="CFE_ES/MemAddress" shortDescription="Address of Active Buffer">
             <LongDescription>
               \cfetlmmnemonic  \TBL_ACTBUFADD
@@ -363,7 +364,7 @@
               \cfetlmmnemonic  \TBL_CRITICAL
             </LongDescription>
           </Entry>
-          <Entry name="ByteAlign4" type="BASE_TYPES/uint8" shortDescription="Spare byte to maintain byte alignment" />
+          <PaddingEntry sizeInBits="56" shortDescription="Padding for 64-bit packet alignment"/>
         </EntryList>
       </ContainerDataType>
 

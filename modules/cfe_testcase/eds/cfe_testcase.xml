@@ -114,8 +114,8 @@
         </RequiredInterfaceSet>
         <Implementation>
           <VariableSet>
-            <Variable type="BASE_TYPES/uint16" readOnly="true" name="CmdTopicId" initialValue="${CFE_MISSION/TEST_CMD_TOPICID}" />
-            <Variable type="BASE_TYPES/uint16" readOnly="true" name="TlmTopicId" initialValue="${CFE_MISSION/TEST_HK_TLM_TOPICID}" />
+            <Variable type="BASE_TYPES/uint16" readOnly="true" name="CmdTopicId" initialValue="${CFE_MISSION/TESTCASE_CMD_TOPICID}" />
+            <Variable type="BASE_TYPES/uint16" readOnly="true" name="TlmTopicId" initialValue="${CFE_MISSION/TESTCASE_HK_TLM_TOPICID}" />
           </VariableSet>
           <ParameterMapSet>
             <ParameterMap interface="CMD" parameter="TopicId" variableRef="CmdTopicId" />

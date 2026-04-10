@@ -238,10 +238,11 @@ typedef struct CFE_TBL_HousekeepingTlm_Payload
 **/
 typedef struct CFE_TBL_TblRegPacket_Payload
 {
-    CFE_ES_MemOffset_t  Size;                                     /**< \cfetlmmnemonic \TBL_SIZE
-                                                                       \brief Size, in bytes, of Table */
-    uint32              Crc;                                      /**< \cfetlmmnemonic \TBL_CRC
-                                                                       \brief Most recently calculated CRC of Table */
+    CFE_ES_MemOffset_t  Size; /**< \cfetlmmnemonic \TBL_SIZE
+                                   \brief Size, in bytes, of Table */
+    uint32              Crc;  /**< \cfetlmmnemonic \TBL_CRC
+                                   \brief Most recently calculated CRC of Table */
+    uint8               Padding1[4];
     CFE_ES_MemAddress_t ActiveBufferAddr;                         /**< \cfetlmmnemonic \TBL_ACTBUFADD
                                                                        \brief Address of Active Buffer */
     CFE_ES_MemAddress_t InactiveBufferAddr;                       /**< \cfetlmmnemonic \TBL_IACTBUFADD
@@ -261,15 +262,14 @@ typedef struct CFE_TBL_TblRegPacket_Payload
     bool                DoubleBuffered;                           /**< \cfetlmmnemonic \TBL_DBLBUFFERED
                                                                     \brief Flag indicating Table has a dedicated inactive buffer */
     char                Name[CFE_MISSION_TBL_MAX_FULL_NAME_LEN];  /**< \cfetlmmnemonic \TBL_NAME
-                                                               \brief Processor specific table name */
+                                                                       \brief Processor specific table name */
     char                LastFileLoaded[CFE_MISSION_MAX_PATH_LEN]; /**< \cfetlmmnemonic \TBL_LASTFILEUPD
-                                                              \brief Filename of last file loaded into table */
+                                                                       \brief Filename of last file loaded into table */
     char                OwnerAppName[CFE_MISSION_MAX_API_LEN];    /**< \cfetlmmnemonic \TBL_OWNERAPP
-                                                               \brief Name of owning application */
+                                                                       \brief Name of owning application */
     bool                Critical;                                 /**< \cfetlmmnemonic \TBL_CRITICAL
                                                                        \brief Indicates whether table is Critical or not */
-    uint8               ByteAlign4;                               /**< \cfetlmmnemonic \TBL_SPARE4
-                                                                       \brief Spare byte to maintain byte alignment */
+    uint8               Padding2[7];
 } CFE_TBL_TblRegPacket_Payload_t;
 
 #endif
