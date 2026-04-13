@@ -421,7 +421,7 @@ CFE_Status_t CFE_TBL_ValidateCodecLoadSize(CFE_TBL_TxnState_t *Txn, const CFE_TB
     if (Status == CFE_SUCCESS)
     {
         ProjectedSize = HeaderPtr->Offset + HeaderPtr->NumBytes;
-        if (ProjectedSize > ActualSize)
+        if (ProjectedSize < HeaderPtr->Offset || ProjectedSize > ActualSize)
         {
             Status = CFE_TBL_ERR_FILE_TOO_LARGE;
             CFE_TBL_TxnAddEvent(Txn, CFE_TBL_LOAD_EXCEEDS_SIZE_ERR_EID, ProjectedSize, ActualSize);
