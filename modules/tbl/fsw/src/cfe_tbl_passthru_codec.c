@@ -161,7 +161,7 @@ CFE_Status_t CFE_TBL_ValidateCodecLoadSize(CFE_TBL_TxnState_t *Txn, const CFE_TB
     /* Because the file sizes and in-memory size is the same, this check is simple */
     ActualSize    = CFE_TBL_RegRecGetSize(CFE_TBL_TxnRegRec(Txn));
     ProjectedSize = HeaderPtr->Offset + HeaderPtr->NumBytes;
-    if (ProjectedSize > ActualSize)
+    if (ProjectedSize < HeaderPtr->Offset || ProjectedSize > ActualSize)
     {
         Status = CFE_TBL_ERR_FILE_TOO_LARGE;
         CFE_TBL_TxnAddEvent(Txn, CFE_TBL_LOAD_EXCEEDS_SIZE_ERR_EID, ProjectedSize, ActualSize);
