@@ -458,13 +458,6 @@ bool CFE_TBL_SendLoadFileEventHelper(const CFE_TBL_TxnEvent_t *Event, CFE_TBL_Tx
     uint16                           EventType;
     char                             EventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
-    /* A file load can generate some of the basic events too */
-    if (CFE_TBL_SendLoadBasicEventHelper(Event, Ctxt))
-    {
-        /* Handled -- Nothing else to do here */
-        return true;
-    }
-
     LoadFileCtxt = Ctxt->OperationDataPtr;
 
     /* The majority of the events are errors, but this can be reset later to demote to info/debug */
@@ -473,6 +466,14 @@ bool CFE_TBL_SendLoadFileEventHelper(const CFE_TBL_TxnEvent_t *Event, CFE_TBL_Tx
 
     switch (Event->EventId)
     {
+        case CFE_TBL_NO_SUCH_TABLE_ERR_EID:
+        {
+            snprintf(EventString,
+                     sizeof(EventString),
+                     "Tbl Hdr has invalid name: \'%s\'",
+                     LoadFileCtxt->FileHdr->Tbl.TableName);
+            break;
+        }
         case CFE_TBL_FILE_TOO_BIG_ERR_EID:
         {
             snprintf(EventString,
@@ -593,7 +594,8 @@ bool CFE_TBL_SendLoadFileEventHelper(const CFE_TBL_TxnEvent_t *Event, CFE_TBL_Tx
 
     if (EventString[0] == 0)
     {
-        return false;
+        /* A file load can generate some of the basic events too */
+        return (CFE_TBL_SendLoadBasicEventHelper(Event, Ctxt));
     }
 
     /* Finally send the actual event by appending all the info we have */

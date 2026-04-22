@@ -75,6 +75,7 @@ void UT_TBL_Load_Error_Suite(CFE_TBL_Handle_t SubjectHandle, bool WasModified, b
     UT_InitData_TBL();
     UtAssert_INT32_EQ(CFE_TBL_Load(CFE_TBL_BAD_TABLE_HANDLE, CFE_TBL_SRC_ADDRESS, &UT_TBL_TableData),
                       CFE_TBL_ERR_INVALID_HANDLE);
+    CFE_UtAssert_EVENTSENT(CFE_TBL_NO_SUCH_TABLE_ERR_EID);
 
     /* Test response to a table with no access (mimic the request coming from a different App) */
     UT_InitData_TBL();
@@ -422,6 +423,16 @@ void Test_CFE_TBL_LoadCmd(void)
     UtAssert_INT32_EQ(CFE_TBL_LoadCmd(&LoadCmd), CFE_SUCCESS);
     CFE_UtAssert_COUNTER_INCR(CFE_TBL_Global.CommandErrorCounter);
     CFE_UtAssert_EVENTSENT(CFE_TBL_PARTIAL_LOAD_ERR_EID);
+
+    /* Test where file has the wrong name in the header */
+    UT_InitData_TBL();
+    UT_TBL_ClearLoadPending(RegRec0Ptr);
+    UT_TBL_SetupHeader(&TblFileHeader, 0, 1, "wrong");
+    UT_TBL_Config(RegRec0Ptr)->Size = sizeof(UT_Table1_t);
+    UT_SetReadHeader(&StdFileHeader, sizeof(StdFileHeader));
+    UtAssert_INT32_EQ(CFE_TBL_LoadCmd(&LoadCmd), CFE_SUCCESS);
+    CFE_UtAssert_COUNTER_INCR(CFE_TBL_Global.CommandErrorCounter);
+    CFE_UtAssert_EVENTSENT(CFE_TBL_NO_SUCH_TABLE_ERR_EID);
 
     /* Test where file has partial load for uninitialized table and offset
      * is zero

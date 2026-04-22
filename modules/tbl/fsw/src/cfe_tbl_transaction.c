@@ -170,6 +170,7 @@ CFE_Status_t CFE_TBL_TxnStartFromHandle(CFE_TBL_TxnState_t *Txn, CFE_TBL_HandleI
         {
             /* Access descriptor is not good */
             Status = CFE_TBL_ERR_INVALID_HANDLE;
+            CFE_TBL_TxnAddEvent(Txn, CFE_TBL_NO_SUCH_TABLE_ERR_EID, Status, 0);
         }
         else
         {

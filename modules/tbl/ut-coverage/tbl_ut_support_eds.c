@@ -295,6 +295,7 @@ void UT_TBL_ValidateCodecConfig_Test(void)
 
     memset(&ReqCfg, 0, sizeof(ReqCfg));
     memset(&Cb, 0, sizeof(Cb));
+    memset(&Cb2, 0, sizeof(Cb2));
     memset(&DerivInfo, 0, sizeof(DerivInfo));
     memset(ReqCfg.Name, 'x', sizeof(ReqCfg.Name) - 3);
     ReqCfg.Name[sizeof(ReqCfg.Name) - 3] = '.';
