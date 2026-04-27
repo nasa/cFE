@@ -985,13 +985,16 @@ void Test_External(void)
     CFE_TIME_ExternalMET(settime);
     UtAssert_UINT32_EQ(CFE_TIME_Global.InternalCount, 1);
 
-    /* Test setting time data from MET (external source, state set) */
+    /* Test setting time data from MET using an external source with the clock
+     * state set and time in range
+     */
     UT_InitData();
     CFE_TIME_Global.ClockSource                              = CFE_TIME_SourceSelect_EXTERNAL;
-    CFE_TIME_Global.ReferenceState[0].ClockSetState          = CFE_TIME_SetState_NOT_SET;
+    CFE_TIME_Global.ReferenceState[0].ClockSetState          = CFE_TIME_SetState_WAS_SET;
     settime.Seconds                                          = 10;
     settime.Subseconds                                       = 0;
     CFE_TIME_Global.ExternalCount                            = 0;
+    CFE_TIME_Global.InternalCount                            = 0;
     CFE_TIME_Global.ReferenceState[0].AtToneMET.Seconds      = 10;
     CFE_TIME_Global.ReferenceState[0].AtToneMET.Subseconds   = 0;
     CFE_TIME_Global.ReferenceState[0].AtToneDelay.Seconds    = 0;
@@ -1005,6 +1008,7 @@ void Test_External(void)
     UT_SetBSP_Time(0, 0);
     CFE_TIME_ExternalMET(settime);
     UtAssert_UINT32_EQ(CFE_TIME_Global.ExternalCount, 1);
+    UtAssert_UINT32_EQ(CFE_TIME_Global.InternalCount, 0);
 
     /* Test setting time data from MET (internal source) */
     UT_InitData();
