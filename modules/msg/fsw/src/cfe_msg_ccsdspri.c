@@ -48,9 +48,6 @@
  *-----------------------------------------------------------------*/
 void CFE_MSG_SetDefaultCCSDSPri(CFE_MSG_Message_t *MsgPtr)
 {
-    /* cFS standard is for secondary header to be present */
-    CFE_MSG_SetHasSecondaryHeader(MsgPtr, true);
-
     /* cFS standard for CCSDS Version */
     CFE_MSG_SetHeaderVersion(MsgPtr, CFE_MISSION_CCSDSVER);
 

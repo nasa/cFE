@@ -23,6 +23,7 @@
 #include "cfe_msg_priv.h"
 #include "cfe_msg_defaults.h"
 #include "cfe_time.h"
+#include "cfe_sb.h"
 #include "string.h"
 
 /*----------------------------------------------------------------
@@ -45,7 +46,17 @@ CFE_Status_t CFE_MSG_Init(CFE_MSG_Message_t *MsgPtr, CFE_SB_MsgId_t MsgId, CFE_M
     CFE_MSG_InitDefaultHdr(MsgPtr);
 
     /* Set values input */
-    status = CFE_MSG_SetMsgId(MsgPtr, MsgId);
+    /* Allow "CFE_SB_INVALID_MSG_ID" here - in some cases the real msgid is filled in later */
+    /* however the size should always be a valid value */
+    if (CFE_SB_MsgIdToValue(MsgId) == CFE_SB_MsgIdToValue(CFE_SB_INVALID_MSG_ID))
+    {
+        status = CFE_SUCCESS;
+    }
+    else
+    {
+        status = CFE_MSG_SetMsgId(MsgPtr, MsgId);
+    }
+
     if (status == CFE_SUCCESS)
     {
         status = CFE_MSG_SetSize(MsgPtr, Size);
