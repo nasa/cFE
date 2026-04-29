@@ -367,8 +367,40 @@ void UT_TBL_ValidateCodecLoadSize_Test(void)
     UtAssert_ZERO(Txn.NumPendingEvents);
 
     Txn.RegRecPtr = &RegRec;
+
+    /* Case where the load exactly will fill the buffer */
+    RegRec.Config.Size = 100;
+    Header.NumBytes    = RegRec.Config.Size;
     UtAssert_INT32_EQ(CFE_TBL_ValidateCodecLoadSize(&Txn, &Header), CFE_SUCCESS);
     UtAssert_ZERO(Txn.NumPendingEvents);
+
+    /* Case where the numbytes is OK but offset is too large */
+    Header.NumBytes = RegRec.Config.Size / 2;
+    Header.Offset   = RegRec.Config.Size * 2;
+    UtAssert_INT32_EQ(CFE_TBL_ValidateCodecLoadSize(&Txn, &Header), CFE_TBL_ERR_FILE_TOO_LARGE);
+    UT_TBL_EVENT_PENDING(&Txn, CFE_TBL_LOAD_EXCEEDS_SIZE_ERR_EID);
+    CFE_TBL_TxnClearEvents(&Txn);
+
+    /* Case where the offset is OK but numbytes is too large */
+    Header.NumBytes = RegRec.Config.Size * 2;
+    Header.Offset   = RegRec.Config.Size / 2;
+    UtAssert_INT32_EQ(CFE_TBL_ValidateCodecLoadSize(&Txn, &Header), CFE_TBL_ERR_FILE_TOO_LARGE);
+    UT_TBL_EVENT_PENDING(&Txn, CFE_TBL_LOAD_EXCEEDS_SIZE_ERR_EID);
+    CFE_TBL_TxnClearEvents(&Txn);
+
+    /* Case where the offset is OK but numbytes causes uint32 overflow */
+    Header.NumBytes = UINT32_MAX - (RegRec.Config.Size / 2);
+    Header.Offset   = RegRec.Config.Size - 1;
+    UtAssert_INT32_EQ(CFE_TBL_ValidateCodecLoadSize(&Txn, &Header), CFE_TBL_ERR_FILE_TOO_LARGE);
+    UT_TBL_EVENT_PENDING(&Txn, CFE_TBL_LOAD_EXCEEDS_SIZE_ERR_EID);
+    CFE_TBL_TxnClearEvents(&Txn);
+
+    /* Case where the offset and numbytes are individually OK but sum is too large */
+    Header.NumBytes = RegRec.Config.Size - 1;
+    Header.Offset   = RegRec.Config.Size - 1;
+    UtAssert_INT32_EQ(CFE_TBL_ValidateCodecLoadSize(&Txn, &Header), CFE_TBL_ERR_FILE_TOO_LARGE);
+    UT_TBL_EVENT_PENDING(&Txn, CFE_TBL_LOAD_EXCEEDS_SIZE_ERR_EID);
+    CFE_TBL_TxnClearEvents(&Txn);
 }
 
 void UT_TBL_CodecGetFinalStatus_Test(void)

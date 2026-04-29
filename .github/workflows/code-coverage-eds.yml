@@ -1,4 +1,4 @@
-name: "Code Coverage Analysis"
+name: "Code Coverage Analysis, EDS enabled"
 
 on:
   push:
@@ -19,20 +19,19 @@ env:
   SIMULATION: native
   ENABLE_UNIT_TESTS: true
   OMIT_DEPRECATED: false
+  CFE_EDS_ENABLED: true
   BUILDTYPE: debug
 
 jobs:
- Execute-Unit-Tests:
+
+  Execute-Unit-Tests:
     name: Build and Execute CFE unit tests
     runs-on: ubuntu-22.04
     container: ghcr.io/core-flight-system/cfsbuildenv-linux:latest
     timeout-minutes: 15
 
     steps:
-      - name: Install coverage tools
-        run: sudo apt-get install lcov -y
-
-      - name: Checkout cFE
+      - name: Checkout CFE
         uses: actions/checkout@v4
         with:
           path: cfe
@@ -42,12 +41,12 @@ jobs:
         with:
           source-dir: .
           preferred-ref: ${{ github.head_ref }}
-          org: 'nasa'
+          org: nasa
 
       - name: Execute coverage testing
         uses: ./cfe/.github/actions/code-coverage
         with:
-          module-list: config core_api core_private es evs fs msg resourceid sb sbr tbl time
-          allowed-missed-branches: 14
-          allowed-missed-lines: 8
+          module-list: config core_api core_private es evs fs resourceid sb sbr tbl time
+          allowed-missed-branches: 22
+          allowed-missed-lines: 14
           allowed-missed-functions: 0

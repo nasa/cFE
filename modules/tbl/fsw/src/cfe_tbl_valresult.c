@@ -149,7 +149,6 @@ CFE_TBL_ValidationResult_t *CFE_TBL_TxnSetupValidationRequest(CFE_TBL_TxnState_t
 
     RegRecPtr         = CFE_TBL_TxnRegRec(Txn);
     ValResultPtr      = NULL;
-    NextValId         = CFE_RESOURCEID_UNDEFINED;
     SelectedBufferPtr = CFE_TBL_GetSelectedBuffer(RegRecPtr, BufferSelect);
 
     if (SelectedBufferPtr == NULL)

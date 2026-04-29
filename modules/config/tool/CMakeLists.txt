@@ -39,12 +39,11 @@ foreach(SYSVAR ${TGTSYS_LIST})
   )
   target_compile_definitions(${OBJLIB_NAME} PRIVATE
     MAP_ENTRY_LIST=${OBJECT_NAME}
+    $<TARGET_PROPERTY:core_api,INTERFACE_COMPILE_DEFINITIONS>
   )
   target_include_directories(${OBJLIB_NAME} PRIVATE
     ${TEMP_ARCH_BINARY_DIR}/inc
-  )
-  target_link_libraries(${OBJLIB_NAME} PRIVATE
-    core_api
+    $<TARGET_PROPERTY:core_api,INTERFACE_INCLUDE_DIRECTORIES>
   )
 
   # If this is an EDS build, this needs to be built after the EDS tool runs
