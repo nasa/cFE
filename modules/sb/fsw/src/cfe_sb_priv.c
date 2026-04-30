@@ -842,7 +842,7 @@ void CFE_SB_MessageTxn_SetRoutingMsgId(CFE_SB_MessageTxn_State_t *TxnPtr, CFE_SB
  *-----------------------------------------------------------------*/
 void CFE_SB_MessageTxn_SetContentSize(CFE_SB_MessageTxn_State_t *TxnPtr, size_t ContentSize)
 {
-    if (ContentSize > CFE_MISSION_SB_MAX_SB_MSG_SIZE)
+    if (ContentSize < sizeof(CFE_MSG_Message_t) || ContentSize > CFE_MISSION_SB_MAX_SB_MSG_SIZE)
     {
         CFE_SB_MessageTxn_SetEventAndStatus(TxnPtr, CFE_SB_MSG_TOO_BIG_EID, CFE_SB_MSG_TOO_BIG);
     }
