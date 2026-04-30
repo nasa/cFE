@@ -1009,6 +1009,7 @@ int32 CFE_ES_QueryOneCmd(const CFE_ES_QueryOneCmd_t *data)
         /*
         ** Send application status telemetry packet.
         */
+
         CFE_SB_TimeStampMsg(CFE_MSG_PTR(CFE_ES_Global.TaskData.OneAppPacket.TelemetryHeader));
         Result = CFE_SB_TransmitMsg(CFE_MSG_PTR(CFE_ES_Global.TaskData.OneAppPacket.TelemetryHeader), true);
         if (Result == CFE_SUCCESS)

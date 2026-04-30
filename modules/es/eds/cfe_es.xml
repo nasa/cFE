@@ -38,7 +38,7 @@
       </EnumeratedDataType>
 
       <EnumeratedDataType name="ExceptionAction" shortDescription="Identifies action to take if exception occurs" >
-        <IntegerDataEncoding sizeInBits="16" encoding="unsigned" />
+        <IntegerDataEncoding sizeInBits="8" encoding="unsigned" />
         <EnumerationList>
           <Enumeration label="RESTART_APP" value="0" shortDescription="Restart application if exception occurs" />
           <Enumeration label="PROC_RESTART"  value="1" shortDescription="Restart processor if exception occurs" />
@@ -252,6 +252,7 @@
                \cfetlmmnemonic  \ES_ADDRVALID
             </LongDescription>
           </Entry>
+          <PaddingEntry sizeInBits="32" shortDescription="Padding for alignment"/>
           <Entry name="CodeAddress" type="MemAddress" shortDescription="The Address of the Application Code Segment">
             <LongDescription>
                \cfetlmmnemonic  \ES_CODEADDR
@@ -292,6 +293,7 @@
                \cfetlmmnemonic  \ES_EXCEPTNACTN
             </LongDescription>
           </Entry>
+          <PaddingEntry sizeInBits="8" shortDescription="Padding for alignment"/>
           <Entry name="Priority" type="TaskPriority" shortDescription="The Priority of the Application">
             <LongDescription>
                \cfetlmmnemonic  \ES_PRIORITY
@@ -317,6 +319,7 @@
                \cfetlmmnemonic  \ES_CHILDTASKS
             </LongDescription>
           </Entry>
+          <PaddingEntry sizeInBits="32" shortDescription="Padding for 64-bit packet alignment"/>
         </EntryList>
       </ContainerDataType>
 
@@ -430,7 +433,9 @@
               #CFE_ES_ExceptionAction_PROC_RESTART=On exception, perform a Processor Reset
             </LongDescription>
           </Entry>
+          <PaddingEntry sizeInBits="8" shortDescription="32-bit alignment padding"/>
           <Entry name="Priority" type="BASE_TYPES/uint16" shortDescription="The new Applications runtime priority." />
+          <PaddingEntry sizeInBits="32" shortDescription="Padding for 64-bit alignment"/>
         </EntryList>
       </ContainerDataType>
 
@@ -542,6 +547,7 @@
                \cfetlmmnemonic  \ES_POOLHANDLE
             </LongDescription>
           </Entry>
+          <PaddingEntry sizeInBits="32" shortDescription="Padding for alignment"/>
           <Entry name="PoolStats" type="MemPoolStats" shortDescription="For more info, see #CFE_ES_MemPoolStats_t" />
         </EntryList>
       </ContainerDataType>

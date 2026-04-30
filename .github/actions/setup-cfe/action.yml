@@ -69,35 +69,18 @@ runs:
         ref: dev
 
     - name: Checkout elf2cfetbl
-      if: ${{ !env.CFE_EDS_ENABLED }}
       uses: actions/checkout@v4
       with:
         repository: ${{ inputs.org }}/elf2cfetbl
         path: ${{ inputs.source-dir }}/tools/elf2cfetbl
         ref: dev
 
-    - name: Add elf2cfetbl subdir
-      if: ${{ !env.CFE_EDS_ENABLED }}
-      shell: bash
-      working-directory: ${{ inputs.source-dir }}
-      run: echo "add_subdirectory(elf2cfetbl)" >> ./tools/CMakeLists.txt
-
     - name: Checkout edslib
-      if: ${{ env.CFE_EDS_ENABLED }}
       uses: actions/checkout@v4
       with:
         repository: ${{ inputs.org }}/EdsLib
         path: ${{ inputs.source-dir }}/tools/eds
         ref: dev
-
-    - name: Add edslib subdir
-      if: ${{ env.CFE_EDS_ENABLED }}
-      shell: bash
-      working-directory: ${{ inputs.source-dir }}
-      run: |
-        echo "add_subdirectory(eds/edslib)" >> ./tools/CMakeLists.txt
-        echo "add_subdirectory(eds/tool)" >> ./tools/CMakeLists.txt
-        echo "add_subdirectory(eds/cfecfs)" >> ./tools/CMakeLists.txt
 
     - name: Checkout commandline-tools
       uses: actions/checkout@v4
@@ -106,10 +89,21 @@ runs:
         path: ${{ inputs.source-dir }}/tools/commandline-tools
         ref: dev
 
-    - name: Add commandline-tools subdir
+    - name: Configure tools
       shell: bash
       working-directory: ${{ inputs.source-dir }}
-      run: echo "add_subdirectory(commandline-tools)" >> ./tools/CMakeLists.txt
+      run: |
+        cat > ./tools/CMakeLists.txt << 'EOF'
+        if (CFE_EDS_ENABLED)
+          add_subdirectory(eds/edslib)
+          add_subdirectory(eds/tool)
+          add_subdirectory(eds/cfecfs)
+        else ()
+          add_subdirectory(elf2cfetbl)
+        endif()
+        add_subdirectory(commandline-tools)
+        EOF
+        cat ./tools/CMakeLists.txt
 
     - name: Checkout Preferred Ref
       if: ${{ inputs.preferred-ref != '' }}
@@ -125,11 +119,9 @@ runs:
           fi
         done
 
-    - name: Configure CFE
+    - name: Create config
       shell: bash
       working-directory: ${{ inputs.source-dir }}
       run: |
-        pwd
-        ls -la .
-        cp -r ./cfe/cmake/sample_defs ./sample_defs
+        cp -r cfe/cmake/sample_defs ./${CONFIG_NAME:-sample}_defs
         cp ./cfe/cmake/Makefile.sample ./Makefile

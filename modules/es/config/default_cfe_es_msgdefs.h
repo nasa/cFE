@@ -83,16 +83,19 @@ typedef struct CFE_ES_StartAppCmd_Payload
 {
     char Application[CFE_MISSION_MAX_API_LEN];   /**< \brief Name of Application to be started */
     char AppEntryPoint[CFE_MISSION_MAX_API_LEN]; /**< \brief Symbolic name of Application's entry point */
-    char AppFileName[CFE_MISSION_MAX_PATH_LEN];  /**< \brief Full path and filename of Application's
-                                                    executable image */
 
-    CFE_ES_MemOffset_t StackSize; /**< \brief Desired stack size for the new application */
+    char AppFileName[CFE_MISSION_MAX_PATH_LEN]; /**< \brief Full path and filename of Application's
+                                                   executable image */
 
+    CFE_ES_MemOffset_t            StackSize;       /**< \brief Desired stack size for the new application */
     CFE_ES_ExceptionAction_Enum_t ExceptionAction; /**< \brief #CFE_ES_ExceptionAction_RESTART_APP=On exception,
                                                        restart Application,
                                                        #CFE_ES_ExceptionAction_PROC_RESTART=On exception,
                                                        perform a Processor Reset */
-    CFE_ES_TaskPriority_Atom_t    Priority;        /**< \brief The new Applications runtime priority. */
+
+    uint8                      Padding1;    /** \brief Padding for alignment */
+    CFE_ES_TaskPriority_Atom_t Priority;    /**< \brief The new Applications runtime priority. */
+    uint8                      Padding2[4]; /** \brief Padding for 64-bit alignment */
 } CFE_ES_StartAppCmd_Payload_t;
 
 /**
@@ -234,9 +237,6 @@ typedef struct CFE_ES_DumpCDSRegistryCmd_Payload
 /* Telemetry Interface Data Formats */
 /************************************/
 
-/**********************************/
-/* Telemetry Message Data Formats */
-/**********************************/
 /**
 **  \cfeestlm Single Application Information Packet
 **/
@@ -252,7 +252,8 @@ typedef struct CFE_ES_PoolStatsTlm_Payload
 {
     CFE_ES_MemHandle_t    PoolHandle; /**< \cfetlmmnemonic \ES_POOLHANDLE
                                            \brief Handle of memory pool whose stats are being telemetered */
-    CFE_ES_MemPoolStats_t PoolStats;  /**< \brief For more info, see #CFE_ES_MemPoolStats_t */
+    uint8                 Padding[4];
+    CFE_ES_MemPoolStats_t PoolStats; /**< \brief For more info, see #CFE_ES_MemPoolStats_t */
 } CFE_ES_PoolStatsTlm_Payload_t;
 
 /*************************************************************************/

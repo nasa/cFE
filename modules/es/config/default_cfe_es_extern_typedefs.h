@@ -387,27 +387,29 @@ typedef struct CFE_ES_AppInfo
     char FileName[CFE_MISSION_MAX_PATH_LEN];  /**< \cfetlmmnemonic \ES_APPFILENAME
                                                    \brief The Filename of the file containing the Application */
 
-    CFE_ES_MemOffset_t            StackSize;                             /**< \cfetlmmnemonic \ES_STACKSIZE
-                                                                              \brief The Stack Size of the Application */
-    uint32                        AddressesAreValid;                     /**< \cfetlmmnemonic \ES_ADDRVALID
-                                                                              \brief Indicates that the Code, Data, and BSS addresses/sizes are valid */
-    CFE_ES_MemAddress_t           CodeAddress;                           /**< \cfetlmmnemonic \ES_CODEADDR
-                                                                              \brief The Address of the Application Code Segment*/
-    CFE_ES_MemOffset_t            CodeSize;                              /**< \cfetlmmnemonic \ES_CODESIZE
-                                                                              \brief The Code Size of the Application */
-    CFE_ES_MemAddress_t           DataAddress;                           /**< \cfetlmmnemonic \ES_DATAADDR
-                                                                              \brief The Address of the Application Data Segment*/
-    CFE_ES_MemOffset_t            DataSize;                              /**< \cfetlmmnemonic \ES_DATASIZE
-                                                                              \brief The Data Size of the Application */
-    CFE_ES_MemAddress_t           BSSAddress;                            /**< \cfetlmmnemonic \ES_BSSADDR
-                                                                              \brief The Address of the Application BSS Segment*/
-    CFE_ES_MemOffset_t            BSSSize;                               /**< \cfetlmmnemonic \ES_BSSSIZE
-                                                                              \brief The BSS Size of the Application */
-    CFE_ES_MemAddress_t           StartAddress;                          /**< \cfetlmmnemonic \ES_STARTADDR
-                                                                              \brief The Start Address of the Application */
-    CFE_ES_ExceptionAction_Enum_t ExceptionAction;                       /**< \cfetlmmnemonic \ES_EXCEPTNACTN
-                                                                         \brief What should occur if Application has an exception
-                                                                         (Restart Application OR Restart Processor) */
+    CFE_ES_MemOffset_t            StackSize;         /**< \cfetlmmnemonic \ES_STACKSIZE
+                                                          \brief The Stack Size of the Application */
+    uint32                        AddressesAreValid; /**< \cfetlmmnemonic \ES_ADDRVALID
+                                                          \brief Indicates that the Code, Data, and BSS addresses/sizes are valid */
+    uint8                         Padding1[4];
+    CFE_ES_MemAddress_t           CodeAddress;     /**< \cfetlmmnemonic \ES_CODEADDR
+                                                        \brief The Address of the Application Code Segment*/
+    CFE_ES_MemOffset_t            CodeSize;        /**< \cfetlmmnemonic \ES_CODESIZE
+                                                        \brief The Code Size of the Application */
+    CFE_ES_MemAddress_t           DataAddress;     /**< \cfetlmmnemonic \ES_DATAADDR
+                                                        \brief The Address of the Application Data Segment*/
+    CFE_ES_MemOffset_t            DataSize;        /**< \cfetlmmnemonic \ES_DATASIZE
+                                                        \brief The Data Size of the Application */
+    CFE_ES_MemAddress_t           BSSAddress;      /**< \cfetlmmnemonic \ES_BSSADDR
+                                                        \brief The Address of the Application BSS Segment*/
+    CFE_ES_MemOffset_t            BSSSize;         /**< \cfetlmmnemonic \ES_BSSSIZE
+                                                        \brief The BSS Size of the Application */
+    CFE_ES_MemAddress_t           StartAddress;    /**< \cfetlmmnemonic \ES_STARTADDR
+                                                        \brief The Start Address of the Application */
+    CFE_ES_ExceptionAction_Enum_t ExceptionAction; /**< \cfetlmmnemonic \ES_EXCEPTNACTN
+                                                   \brief What should occur if Application has an exception
+                                                   (Restart Application OR Restart Processor) */
+    uint8                         Padding2;
     CFE_ES_TaskPriority_Atom_t    Priority;                              /**< \cfetlmmnemonic \ES_PRIORITY
                                                                             \brief The Priority of the Application */
     CFE_ES_TaskId_t               MainTaskId;                            /**< \cfetlmmnemonic \ES_MAINTASKID
@@ -418,6 +420,7 @@ typedef struct CFE_ES_AppInfo
                                                                               \brief The Application's Main Task ID */
     uint32                        NumOfChildTasks;                       /**< \cfetlmmnemonic \ES_CHILDTASKS
                                                                               \brief Number of Child tasks for an App */
+    uint8                         Padding3[4];
 } CFE_ES_AppInfo_t;
 
 /**

@@ -204,12 +204,7 @@ typedef struct CFE_EVS_HousekeepingTlm_Payload
 
     uint8 LogEnabled; /**< \cfetlmmnemonic \EVS_LOGENABLED
                            \brief Current event log enable/disable state */
-    uint8 Spare1;     /**< \cfetlmmnemonic \EVS_HK_SPARE1
-                           \brief Padding for 32 bit boundary */
-    uint8 Spare2;     /**< \cfetlmmnemonic \EVS_HK_SPARE2
-                           \brief Padding for 32 bit boundary */
-    uint8 Spare3;     /**< \cfetlmmnemonic \EVS_HK_SPARE3
-                           \brief Padding for 32 bit boundary */
+    uint8 Padding[3]; /** \brief Padding for 32 bit boundary */
 
     CFE_EVS_AppTlmData_t AppData[CFE_MISSION_ES_MAX_APPLICATIONS]; /**< \cfetlmmnemonic \EVS_APP
                                                                 \brief Array of registered application table data */
@@ -239,10 +234,7 @@ typedef struct CFE_EVS_LongEventTlm_Payload
     CFE_EVS_PacketID_t PacketID;                                    /**< \brief Event packet information */
     char               Message[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH]; /**< \cfetlmmnemonic \EVS_EVENT
                                                                  \brief Event message string */
-    uint8              Spare1;                                      /**< \cfetlmmnemonic \EVS_SPARE1
-                                                                         \brief Structure padding */
-    uint8              Spare2;                                      /**< \cfetlmmnemonic \EVS_SPARE2
-                                                                     \brief Structure padding */
+    uint8              Padding[2];                                  /** \brief Structure padding */
 } CFE_EVS_LongEventTlm_Payload_t;
 
 /**

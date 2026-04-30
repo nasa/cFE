@@ -59,6 +59,7 @@ void Test_MSG_Init(void)
     UtAssert_INT32_EQ(CFE_MSG_Init(CFE_MSG_PTR(cmd), msgid_act, 0), CFE_MSG_BAD_ARGUMENT);
     UT_SetDefaultReturnValue(UT_KEY(CFE_SB_IsValidMsgId), false);
     UtAssert_INT32_EQ(CFE_MSG_Init(CFE_MSG_PTR(cmd), msgid_act, sizeof(cmd)), CFE_MSG_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_MSG_Init(CFE_MSG_PTR(cmd), CFE_SB_INVALID_MSG_ID, sizeof(cmd)), CFE_SUCCESS);
 
     UtPrintf("Set to all F's, msgid value = 0");
     UT_SetDefaultReturnValue(UT_KEY(CFE_SB_IsValidMsgId), true);

@@ -16,6 +16,15 @@
 #
 ##################################################################
 
+# define a custom property to track CFS app functional test scripts
+# users should not typically manipulate this directly
+define_property(GLOBAL PROPERTY CFS_APP_TESTS
+    BRIEF_DOCS
+        "A set of CFS application test scripts"
+    FULL_DOCS
+        "This is a list of app test scripts for the entire CFS project"
+)
+
 
 ##################################################################
 #
@@ -279,6 +288,29 @@ function(export_variable_cache USER_VARLIST)
   file(WRITE "${CMAKE_BINARY_DIR}/mission_vars.cache" "${MISSION_VARCACHE}")
 
 endfunction(export_variable_cache)
+
+
+##################################################################
+#
+# FUNCTION: export_cfs_app_tests
+#
+function(export_cfs_app_tests)
+  set(TEST_DEP_LIST)
+  get_property(CFS_GLOBAL_TEST_LIST GLOBAL PROPERTY CFS_APP_TESTS)
+  foreach (TEST_FILE ${CFS_GLOBAL_TEST_LIST})
+    get_filename_component(TEST_NAME ${TEST_FILE} NAME)
+    get_filename_component(TEST_REALPATH ${TEST_FILE} REALPATH)
+    list(APPEND TEST_DEP_LIST 
+      "${TEST_NAME}: ${TEST_REALPATH}\n"
+      "ALL_CFS_APP_TESTS += ${TEST_NAME}\n\n"
+    )
+  endforeach ()
+  file(WRITE ${MISSION_BINARY_DIR}/cfs_app_tests.mk
+    "# Generated list of CFS application test scripts\n\n"
+    ${TEST_DEP_LIST} 
+  )
+endfunction(export_cfs_app_tests)
+
 
 ##################################################################
 #
@@ -562,9 +594,7 @@ function(prepare)
   add_dependencies(mission-prebuild mission-version)
 
   # Install the functional test code into the host directory
-  if (IS_DIRECTORY ${MISSION_DEFS}/functional-test AND DEFINED FT_INSTALL_SUBDIR)
-    install(DIRECTORY ${MISSION_DEFS}/functional-test/ DESTINATION ${FT_INSTALL_SUBDIR})
-  endif()
+  export_cfs_app_tests()
 
   # Export the important state variables collected during this function.
   # This is done last such that everything should have its correct value
@@ -670,3 +700,16 @@ function(process_arch TARGETSYSTEM)
   add_dependencies(mission-cfetables ${TARGETSYSTEM}-cfetables)
 
 endfunction(process_arch TARGETSYSTEM)
+
+##################################################################
+#
+# FUNCTION: add_cfe_app_test
+#
+#
+function(add_cfe_app_test)
+
+  get_property(CFS_GLOBAL_TEST_LIST GLOBAL PROPERTY CFS_APP_TESTS)
+  list(APPEND CFS_GLOBAL_TEST_LIST ${ARGN})
+  set_property(GLOBAL PROPERTY CFS_APP_TESTS ${CFS_GLOBAL_TEST_LIST})
+
+endfunction(add_cfe_app_test)

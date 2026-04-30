@@ -89,8 +89,7 @@ typedef struct CFE_SB_HousekeepingTlm_Payload
                                     \brief Count of duplicate subscriptions */
     uint8 GetPipeIdByNameErrorCounter;   /**< \cfetlmmnemonic \SB_GETPIPEIDBYNAMEEC
                                 \brief Count of errors in get pipe id by name API */
-    uint8 Spare2Align[1];                /**< \cfetlmmnemonic \SB_SPARE2ALIGN
-                                              \brief Spare bytes to ensure alignment */
+    uint8 Padding;                       /** \brief Spare bytes to ensure alignment */
 
     uint16 PipeOverflowErrorCounter; /**< \cfetlmmnemonic \SB_PIPEOVREC
                                     \brief Count of pipe overflow errors */
