@@ -1352,7 +1352,7 @@ CFE_SB_Buffer_t *CFE_SB_AllocateMessageBuffer(size_t MsgSize)
 
     Status = CFE_ES_GetAppID(&AppId);
 
-    if (MsgSize > CFE_MISSION_SB_MAX_SB_MSG_SIZE)
+    if (MsgSize < sizeof(CFE_MSG_Message_t) || MsgSize > CFE_MISSION_SB_MAX_SB_MSG_SIZE)
     {
         CFE_ES_GetAppName(AppName, AppId, sizeof(AppName));
         CFE_ES_WriteToSysLog("%s %s: Failed, requested size %zu larger than allowed %d\n",
