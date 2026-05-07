@@ -20,70 +20,70 @@ runs:
       run: mkdir -p ${{ inputs.source-dir }}/apps ${{ inputs.source-dir }}/libs
 
     - name: Checkout PSP
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
       with:
         repository: ${{ inputs.org }}/PSP
         path: ${{ inputs.source-dir }}/psp
         ref: dev
 
     - name: Checkout OSAL
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
       with:
         repository: ${{ inputs.org }}/osal
         path: ${{ inputs.source-dir }}/osal
         ref: dev
 
     - name: Checkout CI_LAB
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
       with:
         repository: ${{ inputs.org }}/ci_lab
         path: ${{ inputs.source-dir }}/apps/ci_lab
         ref: dev
 
     - name: Checkout TO_LAB
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
       with:
         repository: ${{ inputs.org }}/to_lab
         path: ${{ inputs.source-dir }}/apps/to_lab
         ref: dev
 
     - name: Checkout SCH_LAB
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
       with:
         repository: ${{ inputs.org }}/sch_lab
         path: ${{ inputs.source-dir }}/apps/sch_lab
         ref: dev
 
     - name: Checkout SAMPLE_APP
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
       with:
         repository: ${{ inputs.org }}/sample_app
         path: ${{ inputs.source-dir }}/apps/sample_app
         ref: dev
 
     - name: Checkout SAMPLE_LIB
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
       with:
         repository: ${{ inputs.org }}/sample_lib
         path: ${{ inputs.source-dir }}/libs/sample_lib
         ref: dev
 
     - name: Checkout elf2cfetbl
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
       with:
         repository: ${{ inputs.org }}/elf2cfetbl
         path: ${{ inputs.source-dir }}/tools/elf2cfetbl
         ref: dev
 
     - name: Checkout edslib
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
       with:
         repository: ${{ inputs.org }}/EdsLib
         path: ${{ inputs.source-dir }}/tools/eds
         ref: dev
 
     - name: Checkout commandline-tools
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
       with:
         repository: ${{ inputs.org }}/cfs-commandline-tools
         path: ${{ inputs.source-dir }}/tools/commandline-tools

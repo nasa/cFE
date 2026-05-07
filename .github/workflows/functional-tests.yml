@@ -30,7 +30,7 @@ jobs:
 
     steps:
       - name: Checkout cFE
-        uses: actions/checkout@v3
+        uses: actions/checkout@v6
         with:
           path: cfe
 
@@ -64,7 +64,7 @@ jobs:
           done
 
       - name: Upload all artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: functional-test-bin
           path: ./*.tar.xz
@@ -84,7 +84,7 @@ jobs:
 
     steps:
       - name: Download artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: functional-test-bin
           path: functional-test-bin
@@ -170,7 +170,7 @@ jobs:
 
       - name: Archive cFS Startup Artifacts
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: cFS-startup-log-deprecate-true-release
           path: cpu1/cf/cfe_test.log

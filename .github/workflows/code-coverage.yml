@@ -33,7 +33,7 @@ jobs:
         run: sudo apt-get install lcov -y
 
       - name: Checkout cFE
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           path: cfe
 
