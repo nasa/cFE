@@ -17,8 +17,11 @@ on:
 
 jobs:
   codeql:
-    uses: nasa/cFS/.github/workflows/codeql-reusable.yml@main
-    with: 
+    uses: nasa/cFS/.github/workflows/codeql-reusable.yml@dev
+    with:
       component-path: cfe
-      make: make -j8
+      prep: |
+        make prep
+        make -C build mission-prebuild
+      make: make -C build/native/default_cpu1 config core_api core_private es evs fs msg resourceid sb sbr tbl time
       test: true
