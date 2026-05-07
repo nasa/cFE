@@ -931,7 +931,6 @@ int32 CFE_ES_LoadLibrary(CFE_ES_LibId_t *LibraryIdPtr, const char *LibName, cons
     /*
     ** Allocate an ES_LibTable entry
     */
-    FunctionPointer   = NULL;
     PendingResourceId = CFE_RESOURCEID_UNDEFINED;
 
     /*
