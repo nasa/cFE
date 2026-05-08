@@ -159,8 +159,20 @@ CFE_Status_t CFE_TBL_ValidateCodecLoadSize(CFE_TBL_TxnState_t *Txn, const CFE_TB
     uint32       ProjectedSize;
 
     /* Because the file sizes and in-memory size is the same, this check is simple */
-    ActualSize    = CFE_TBL_RegRecGetSize(CFE_TBL_TxnRegRec(Txn));
-    ProjectedSize = HeaderPtr->Offset + HeaderPtr->NumBytes;
+    ActualSize = CFE_TBL_RegRecGetSize(CFE_TBL_TxnRegRec(Txn));
+
+    /* Check Offset+NumBytes for unsigned overflow before performing the addition.
+     * Both fields originate from a (potentially attacker-controlled) file header,
+     * so a wrapped sum could otherwise bypass the size check below. */
+    if (HeaderPtr->NumBytes > (UINT32_MAX - HeaderPtr->Offset))
+    {
+        ProjectedSize = UINT32_MAX;
+    }
+    else
+    {
+        ProjectedSize = HeaderPtr->Offset + HeaderPtr->NumBytes;
+    }
+
     if (ProjectedSize > ActualSize)
     {
         Status = CFE_TBL_ERR_FILE_TOO_LARGE;
