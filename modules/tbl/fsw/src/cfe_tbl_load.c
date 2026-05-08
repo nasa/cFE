@@ -248,8 +248,22 @@ CFE_Status_t CFE_TBL_LoadContentFromFile(CFE_TBL_TxnState_t *Txn, osal_id_t File
         return Status;
     }
 
+    /* Compute the tail of the load region. Both Offset and NumBytes originate from
+     * a (potentially attacker-controlled) file header, so guard against unsigned
+     * overflow before the addition.  On 32-bit targets size_t is 32 bits and the
+     * sum can wrap; on wider hosts this guard is still cheap and preserves identical
+     * behavior for valid input. If overflow would occur, force LoadTailSize to
+     * SIZE_MAX so the existing oversize check below rejects the load. */
+    if (NumBytes > (SIZE_MAX - Offset))
+    {
+        LoadTailSize = SIZE_MAX;
+    }
+    else
+    {
+        LoadTailSize = Offset + NumBytes;
+    }
+
     /* Confirm that the data about to be loaded will fit */
-    LoadTailSize = Offset + NumBytes;
     if (LoadTailSize > CFE_TBL_LoadBuffGetAllocSize(WorkingBufferPtr))
     {
         Status = CFE_TBL_ERR_FILE_TOO_LARGE;

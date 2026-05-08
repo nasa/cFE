@@ -672,8 +672,11 @@ void CFE_ES_FormCDSName(char *FullCDSName, const char *CDSName, CFE_ES_AppId_t T
     /* Ensure that AppName is null terminated */
     AppName[OS_MAX_API_NAME - 1] = '\0';
 
-    /* Complete formation of processor specific table name */
-    sprintf(FullCDSName, "%s.%s", AppName, CDSName);
+    /* Complete formation of processor specific table name.
+     * Use snprintf with the documented full-name length so that any future
+     * widening of OS_MAX_API_NAME or CFE_MISSION_ES_CDS_MAX_NAME_LENGTH
+     * cannot silently overflow the caller-supplied buffer. */
+    snprintf(FullCDSName, CFE_MISSION_ES_CDS_MAX_FULL_NAME_LEN, "%s.%s", AppName, CDSName);
 }
 
 /*----------------------------------------------------------------
