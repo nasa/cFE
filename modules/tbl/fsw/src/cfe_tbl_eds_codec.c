@@ -411,18 +411,7 @@ CFE_Status_t CFE_TBL_ValidateCodecLoadSize(CFE_TBL_TxnState_t *Txn, const CFE_TB
 
     if (Status == CFE_SUCCESS)
     {
-        /* Check Offset+NumBytes for unsigned overflow before performing the addition.
-         * Both fields originate from a (potentially attacker-controlled) file header,
-         * so a wrapped sum could otherwise bypass the size check below. */
-        if (HeaderPtr->NumBytes > (UINT32_MAX - HeaderPtr->Offset))
-        {
-            ProjectedSize = UINT32_MAX;
-        }
-        else
-        {
-            ProjectedSize = HeaderPtr->Offset + HeaderPtr->NumBytes;
-        }
-
+        ProjectedSize = HeaderPtr->Offset + HeaderPtr->NumBytes;
         if (ProjectedSize > ActualSize)
         {
             Status = CFE_TBL_ERR_FILE_TOO_LARGE;
