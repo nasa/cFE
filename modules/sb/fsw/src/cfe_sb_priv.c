@@ -279,11 +279,7 @@ char *CFE_SB_GetAppTskName(CFE_ES_TaskId_t TaskId, char *FullName)
         strncpy(TskName, (char *)ptr->TaskName, sizeof(TskName) - 1);
         TskName[sizeof(TskName) - 1] = '\0';
 
-        /* Use snprintf with the caller-documented buffer width.  All callers
-         * declare FullName as char[OS_MAX_API_NAME * 2], so the cap below
-         * matches that contract and protects against any future widening of
-         * OS_MAX_API_NAME or change in the AppName/TskName field sizes. */
-        snprintf(FullName, OS_MAX_API_NAME * 2, "%s.%s", AppName, TskName);
+        sprintf(FullName, "%s.%s", AppName, TskName);
     }
 
     return FullName;

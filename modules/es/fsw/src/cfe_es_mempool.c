@@ -61,49 +61,6 @@
 
 /*----------------------------------------------------------------
  *
- * Internal helper — take a pool mutex if defined, log and proceed on failure.
- * Matches the "log and continue" convention used by CFE_SB_LockSharedData /
- * CFE_FS_LockSharedData / CFE_TBL_LockRegistry so a transient OSAL error does
- * not silently mask an unprotected critical section.
- *
- *-----------------------------------------------------------------*/
-static inline void CFE_ES_PoolLock(const CFE_ES_MemPoolRecord_t *PoolRecPtr, const char *FuncName)
-{
-    int32 OsStatus;
-
-    if (OS_ObjectIdDefined(PoolRecPtr->MutexId))
-    {
-        OsStatus = OS_MutSemTake(PoolRecPtr->MutexId);
-        if (OsStatus != OS_SUCCESS)
-        {
-            CFE_ES_WriteToSysLog("%s: PoolMutex Take Err Stat=%ld,Pool=%lu\n", FuncName, (long)OsStatus,
-                                 OS_ObjectIdToInteger(PoolRecPtr->MutexId));
-        }
-    }
-}
-
-/*----------------------------------------------------------------
- *
- * Internal helper — release a pool mutex if defined, log on failure.
- *
- *-----------------------------------------------------------------*/
-static inline void CFE_ES_PoolUnlock(const CFE_ES_MemPoolRecord_t *PoolRecPtr, const char *FuncName)
-{
-    int32 OsStatus;
-
-    if (OS_ObjectIdDefined(PoolRecPtr->MutexId))
-    {
-        OsStatus = OS_MutSemGive(PoolRecPtr->MutexId);
-        if (OsStatus != OS_SUCCESS)
-        {
-            CFE_ES_WriteToSysLog("%s: PoolMutex Give Err Stat=%ld,Pool=%lu\n", FuncName, (long)OsStatus,
-                                 OS_ObjectIdToInteger(PoolRecPtr->MutexId));
-        }
-    }
-}
-
-/*----------------------------------------------------------------
- *
  * Internal helper routine only, not part of API.
  *
  *-----------------------------------------------------------------*/
@@ -490,7 +447,10 @@ int32 CFE_ES_GetPoolBuf(CFE_ES_MemPoolBuf_t *BufPtr, CFE_ES_MemHandle_t Handle, 
      * Real work begins here.
      * If pool is mutex-protected, take the mutex now.
      */
-    CFE_ES_PoolLock(PoolRecPtr, __func__);
+    if (OS_ObjectIdDefined(PoolRecPtr->MutexId))
+    {
+        OS_MutSemTake(PoolRecPtr->MutexId);
+    }
 
     /*
      * Fundamental work is done as a generic routine.
@@ -504,7 +464,10 @@ int32 CFE_ES_GetPoolBuf(CFE_ES_MemPoolBuf_t *BufPtr, CFE_ES_MemHandle_t Handle, 
      * Real work ends here.
      * If pool is mutex-protected, release the mutex now.
      */
-    CFE_ES_PoolUnlock(PoolRecPtr, __func__);
+    if (OS_ObjectIdDefined(PoolRecPtr->MutexId))
+    {
+        OS_MutSemGive(PoolRecPtr->MutexId);
+    }
 
     /* If not successful, return error now */
     if (Status != CFE_SUCCESS)
@@ -548,7 +511,10 @@ CFE_Status_t CFE_ES_GetPoolBufInfo(CFE_ES_MemHandle_t Handle, CFE_ES_MemPoolBuf_
      * Real work begins here.
      * If pool is mutex-protected, take the mutex now.
      */
-    CFE_ES_PoolLock(PoolRecPtr, __func__);
+    if (OS_ObjectIdDefined(PoolRecPtr->MutexId))
+    {
+        OS_MutSemTake(PoolRecPtr->MutexId);
+    }
 
     DataOffset = (cpuaddr)BufPtr - PoolRecPtr->BaseAddr;
 
@@ -558,7 +524,10 @@ CFE_Status_t CFE_ES_GetPoolBufInfo(CFE_ES_MemHandle_t Handle, CFE_ES_MemPoolBuf_
      * Real work ends here.
      * If pool is mutex-protected, release the mutex now.
      */
-    CFE_ES_PoolUnlock(PoolRecPtr, __func__);
+    if (OS_ObjectIdDefined(PoolRecPtr->MutexId))
+    {
+        OS_MutSemGive(PoolRecPtr->MutexId);
+    }
 
     if (Status == CFE_SUCCESS)
     {
@@ -604,7 +573,10 @@ int32 CFE_ES_PutPoolBuf(CFE_ES_MemHandle_t Handle, CFE_ES_MemPoolBuf_t BufPtr)
      * Real work begins here.
      * If pool is mutex-protected, take the mutex now.
      */
-    CFE_ES_PoolLock(PoolRecPtr, __func__);
+    if (OS_ObjectIdDefined(PoolRecPtr->MutexId))
+    {
+        OS_MutSemTake(PoolRecPtr->MutexId);
+    }
 
     DataOffset = (cpuaddr)BufPtr - PoolRecPtr->BaseAddr;
 
@@ -620,7 +592,10 @@ int32 CFE_ES_PutPoolBuf(CFE_ES_MemHandle_t Handle, CFE_ES_MemPoolBuf_t BufPtr)
      * Real work ends here.
      * If pool is mutex-protected, release the mutex now.
      */
-    CFE_ES_PoolUnlock(PoolRecPtr, __func__);
+    if (OS_ObjectIdDefined(PoolRecPtr->MutexId))
+    {
+        OS_MutSemGive(PoolRecPtr->MutexId);
+    }
 
     /*
      * If successful then modify return code to be
@@ -678,7 +653,10 @@ CFE_Status_t CFE_ES_GetMemPoolStats(CFE_ES_MemPoolStats_t *BufPtr, CFE_ES_MemHan
      * Real work begins here.
      * If pool is mutex-protected, take the mutex now.
      */
-    CFE_ES_PoolLock(PoolRecPtr, __func__);
+    if (OS_ObjectIdDefined(PoolRecPtr->MutexId))
+    {
+        OS_MutSemTake(PoolRecPtr->MutexId);
+    }
 
     /*
      * Obtain the free and total byte count
@@ -704,7 +682,10 @@ CFE_Status_t CFE_ES_GetMemPoolStats(CFE_ES_MemPoolStats_t *BufPtr, CFE_ES_MemHan
      * Real work ends here.
      * If pool is mutex-protected, release the mutex now.
      */
-    CFE_ES_PoolUnlock(PoolRecPtr, __func__);
+    if (OS_ObjectIdDefined(PoolRecPtr->MutexId))
+    {
+        OS_MutSemGive(PoolRecPtr->MutexId);
+    }
 
     return CFE_SUCCESS;
 }

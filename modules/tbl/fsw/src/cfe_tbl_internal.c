@@ -867,39 +867,15 @@ CFE_Status_t CFE_TBL_AllocateTableLoadBuffer(CFE_TBL_LoadBuff_t *LoadBuffPtr, si
  *-----------------------------------------------------------------*/
 void CFE_TBL_MarkNameAsModified(char *NameBufPtr, size_t NameBufSize)
 {
-    static const char Suffix[]  = "(*)";
-    const size_t      SuffixLen = sizeof(Suffix) - 1; /* 3, excludes NUL */
-    char *            EndPtr;
-    size_t            EndOffset;
+    char *EndPtr;
 
-    /* Buffer must hold suffix + NUL.  Anything smaller is a programming error;
-     * silently doing nothing is safer than truncation that would not actually
-     * mark the name. */
-    if (NameBufPtr == NULL || NameBufSize <= SuffixLen)
+    EndPtr = memchr(NameBufPtr, 0, NameBufSize);
+    if ((EndPtr - NameBufPtr) > (NameBufSize - 4))
     {
-        return;
+        EndPtr = &NameBufPtr[NameBufSize - 4];
     }
 
-    /* Find the existing NUL terminator.  If none is present within NameBufSize
-     * (caller error / corrupted name), append the suffix at a position that
-     * leaves room for it plus a final NUL. */
-    EndPtr = memchr(NameBufPtr, '\0', NameBufSize);
-    if (EndPtr == NULL)
-    {
-        EndOffset = NameBufSize - SuffixLen - 1;
-    }
-    else
-    {
-        EndOffset = (size_t)(EndPtr - NameBufPtr);
-        if (EndOffset > NameBufSize - SuffixLen - 1)
-        {
-            EndOffset = NameBufSize - SuffixLen - 1;
-        }
-    }
-
-    /* memcpy suffix + explicit NUL — avoids strcpy and any string.h length scan. */
-    memcpy(&NameBufPtr[EndOffset], Suffix, SuffixLen);
-    NameBufPtr[EndOffset + SuffixLen] = '\0';
+    strcpy(EndPtr, "(*)");
 }
 
 /*----------------------------------------------------------------
