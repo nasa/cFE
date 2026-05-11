@@ -74,7 +74,9 @@ int32 ut_time_CallbackCalled;
 **        This function does not return a value.
 **
 ******************************************************************************/
-void OS_SelectTone(int16 Signal) {}
+void OS_SelectTone(int16 Signal)
+{
+}
 #endif
 
 void UtTest_Setup(void)
