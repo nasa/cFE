@@ -290,7 +290,7 @@ char *CFE_SB_GetAppTskName(CFE_ES_TaskId_t TaskId, char *FullName)
         strncpy(TskName, (char *)ptr->TaskName, sizeof(TskName) - 1);
         TskName[sizeof(TskName) - 1] = '\0';
 
-        sprintf(FullName, "%s.%s", AppName, TskName);
+        snprintf(FullName, OS_MAX_API_NAME * 2, "%s.%s", AppName, TskName);
     }
 
     return FullName;

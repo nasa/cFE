@@ -685,7 +685,7 @@ void CFE_ES_FormCDSName(char *FullCDSName, const char *CDSName, CFE_ES_AppId_t T
     AppName[OS_MAX_API_NAME - 1] = '\0';
 
     /* Complete formation of processor specific table name */
-    sprintf(FullCDSName, "%s.%s", AppName, CDSName);
+    snprintf(FullCDSName, CFE_MISSION_ES_CDS_MAX_FULL_NAME_LEN, "%s.%s", AppName, CDSName);
 }
 
 /*----------------------------------------------------------------
