@@ -94,8 +94,8 @@ void CFE_TIME_TaskPipe(const CFE_SB_Buffer_t *SBBufPtr)
     Status = EdsDispatch_EdsComponent_CFE_TIME_Application_Telecommand(SBBufPtr, &CFE_TIME_TC_DISPATCH_TABLE);
 
     /* These specific status codes require sending an event with the details */
-    if (Status == CFE_STATUS_BAD_COMMAND_CODE || Status == CFE_STATUS_WRONG_MSG_LENGTH ||
-        Status == CFE_STATUS_UNKNOWN_MSG_ID)
+    if (Status == CFE_STATUS_BAD_COMMAND_CODE || Status == CFE_STATUS_WRONG_MSG_LENGTH
+        || Status == CFE_STATUS_UNKNOWN_MSG_ID)
     {
         CFE_MSG_GetMsgId(&SBBufPtr->Msg, &MsgId);
         CFE_MSG_GetFcnCode(&SBBufPtr->Msg, &MsgFc);
@@ -103,15 +103,20 @@ void CFE_TIME_TaskPipe(const CFE_SB_Buffer_t *SBBufPtr)
         if (Status == CFE_STATUS_BAD_COMMAND_CODE)
         {
             CFE_TIME_Global.CommandErrorCounter++;
-            CFE_EVS_SendEvent(CFE_TIME_CC_ERR_EID, CFE_EVS_EventType_ERROR,
-                              "Invalid command code -- ID = 0x%X, CC = %u", (unsigned int)CFE_SB_MsgIdToValue(MsgId),
+            CFE_EVS_SendEvent(CFE_TIME_CC_ERR_EID,
+                              CFE_EVS_EventType_ERROR,
+                              "Invalid command code -- ID = 0x%X, CC = %u",
+                              (unsigned int)CFE_SB_MsgIdToValue(MsgId),
                               (unsigned int)MsgFc);
         }
         else if (Status == CFE_STATUS_WRONG_MSG_LENGTH)
         {
             ++CFE_TIME_Global.CommandErrorCounter;
-            CFE_EVS_SendEvent(CFE_TIME_LEN_ERR_EID, CFE_EVS_EventType_ERROR, "Invalid cmd length: ID = 0x%X, CC = %u",
-                              (unsigned int)CFE_SB_MsgIdToValue(MsgId), (unsigned int)MsgFc);
+            CFE_EVS_SendEvent(CFE_TIME_LEN_ERR_EID,
+                              CFE_EVS_EventType_ERROR,
+                              "Invalid cmd length: ID = 0x%X, CC = %u",
+                              (unsigned int)CFE_SB_MsgIdToValue(MsgId),
+                              (unsigned int)MsgFc);
         }
         else
         {

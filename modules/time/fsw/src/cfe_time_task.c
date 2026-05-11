@@ -137,7 +137,9 @@ int32 CFE_TIME_TaskInit(void)
         return Status;
     }
 
-    OsStatus = OS_BinSemCreate(&CFE_TIME_Global.ToneSemaphore, CFE_TIME_SEM_TONE_NAME, CFE_TIME_SEM_VALUE,
+    OsStatus = OS_BinSemCreate(&CFE_TIME_Global.ToneSemaphore,
+                               CFE_TIME_SEM_TONE_NAME,
+                               CFE_TIME_SEM_VALUE,
                                CFE_TIME_SEM_OPTIONS);
     if (OsStatus != OS_SUCCESS)
     {
@@ -145,7 +147,9 @@ int32 CFE_TIME_TaskInit(void)
         return CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
     }
 
-    OsStatus = OS_BinSemCreate(&CFE_TIME_Global.LocalSemaphore, CFE_TIME_SEM_ONEHZ_NAME, CFE_TIME_SEM_VALUE,
+    OsStatus = OS_BinSemCreate(&CFE_TIME_Global.LocalSemaphore,
+                               CFE_TIME_SEM_ONEHZ_NAME,
+                               CFE_TIME_SEM_VALUE,
                                CFE_TIME_SEM_OPTIONS);
     if (OsStatus != OS_SUCCESS)
     {
@@ -153,18 +157,26 @@ int32 CFE_TIME_TaskInit(void)
         return CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
     }
 
-    Status = CFE_ES_CreateChildTask(&CFE_TIME_Global.ToneTaskID, CFE_TIME_TASK_TONE_NAME, CFE_TIME_Tone1HzTask,
-                                    CFE_TIME_TASK_STACK_PTR, CFE_PLATFORM_TIME_TONE_TASK_STACK_SIZE,
-                                    CFE_PLATFORM_TIME_TONE_TASK_PRIORITY, CFE_TIME_TASK_FLAGS);
+    Status = CFE_ES_CreateChildTask(&CFE_TIME_Global.ToneTaskID,
+                                    CFE_TIME_TASK_TONE_NAME,
+                                    CFE_TIME_Tone1HzTask,
+                                    CFE_TIME_TASK_STACK_PTR,
+                                    CFE_PLATFORM_TIME_TONE_TASK_STACK_SIZE,
+                                    CFE_PLATFORM_TIME_TONE_TASK_PRIORITY,
+                                    CFE_TIME_TASK_FLAGS);
     if (Status != CFE_SUCCESS)
     {
         CFE_ES_WriteToSysLog("%s: Error creating tone 1Hz child task:RC=0x%08X\n", __func__, (unsigned int)Status);
         return Status;
     }
 
-    Status = CFE_ES_CreateChildTask(&CFE_TIME_Global.LocalTaskID, CFE_TIME_TASK_ONEHZ_NAME, CFE_TIME_Local1HzTask,
-                                    CFE_TIME_TASK_STACK_PTR, CFE_PLATFORM_TIME_ONEHZ_TASK_STACK_SIZE,
-                                    CFE_PLATFORM_TIME_ONEHZ_TASK_PRIORITY, CFE_TIME_TASK_FLAGS);
+    Status = CFE_ES_CreateChildTask(&CFE_TIME_Global.LocalTaskID,
+                                    CFE_TIME_TASK_ONEHZ_NAME,
+                                    CFE_TIME_Local1HzTask,
+                                    CFE_TIME_TASK_STACK_PTR,
+                                    CFE_PLATFORM_TIME_ONEHZ_TASK_STACK_SIZE,
+                                    CFE_PLATFORM_TIME_ONEHZ_TASK_PRIORITY,
+                                    CFE_TIME_TASK_FLAGS);
     if (Status != CFE_SUCCESS)
     {
         CFE_ES_WriteToSysLog("%s: Error creating local 1Hz child task:RC=0x%08X\n", __func__, (unsigned int)Status);
@@ -193,7 +205,8 @@ int32 CFE_TIME_TaskInit(void)
 #endif
 
 #if (CFE_PLATFORM_TIME_CFG_SERVER == true)
-    Status = CFE_SB_SubscribeLocal(CFE_SB_ValueToMsgId(CFE_TIME_TONE_CMD_MID), CFE_TIME_Global.CmdPipe,
+    Status = CFE_SB_SubscribeLocal(CFE_SB_ValueToMsgId(CFE_TIME_TONE_CMD_MID),
+                                   CFE_TIME_Global.CmdPipe,
                                    CFE_PLATFORM_SB_DEFAULT_MSG_LIMIT);
 #endif
     if (Status != CFE_SUCCESS)
@@ -210,7 +223,8 @@ int32 CFE_TIME_TaskInit(void)
 #endif
 
 #if (CFE_PLATFORM_TIME_CFG_SERVER == true)
-    Status = CFE_SB_SubscribeLocal(CFE_SB_ValueToMsgId(CFE_TIME_DATA_CMD_MID), CFE_TIME_Global.CmdPipe,
+    Status = CFE_SB_SubscribeLocal(CFE_SB_ValueToMsgId(CFE_TIME_DATA_CMD_MID),
+                                   CFE_TIME_Global.CmdPipe,
                                    CFE_PLATFORM_SB_DEFAULT_MSG_LIMIT);
 #endif
     if (Status != CFE_SUCCESS)
@@ -227,13 +241,15 @@ int32 CFE_TIME_TaskInit(void)
 #endif
 
 #if (CFE_PLATFORM_TIME_CFG_SERVER == true)
-    Status = CFE_SB_SubscribeLocal(CFE_SB_ValueToMsgId(CFE_TIME_ONEHZ_CMD_MID), CFE_TIME_Global.CmdPipe,
+    Status = CFE_SB_SubscribeLocal(CFE_SB_ValueToMsgId(CFE_TIME_ONEHZ_CMD_MID),
+                                   CFE_TIME_Global.CmdPipe,
                                    CFE_PLATFORM_SB_DEFAULT_MSG_LIMIT);
 #endif
 
     if (Status != CFE_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("%s: Error subscribing to fake tone signal cmds:RC=0x%08X\n", __func__,
+        CFE_ES_WriteToSysLog("%s: Error subscribing to fake tone signal cmds:RC=0x%08X\n",
+                             __func__,
                              (unsigned int)Status);
         return Status;
     }
@@ -245,7 +261,8 @@ int32 CFE_TIME_TaskInit(void)
     Status = CFE_SB_Subscribe(CFE_SB_ValueToMsgId(CFE_TIME_SEND_CMD_MID), CFE_TIME_Global.CmdPipe);
     if (Status != CFE_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("%s: Error subscribing to time at the tone request data cmds:RC=0x%08X\n", __func__,
+        CFE_ES_WriteToSysLog("%s: Error subscribing to time at the tone request data cmds:RC=0x%08X\n",
+                             __func__,
                              (unsigned int)Status);
         return Status;
     }
@@ -261,8 +278,12 @@ int32 CFE_TIME_TaskInit(void)
         return Status;
     }
 
-    CFE_Config_GetVersionString(VersionString, CFE_CFG_MAX_VERSION_STR_LEN, "CFE_TIME", CFE_SRC_VERSION,
-                                CFE_BUILD_CODENAME, CFE_LAST_OFFICIAL);
+    CFE_Config_GetVersionString(VersionString,
+                                CFE_CFG_MAX_VERSION_STR_LEN,
+                                "CFE_TIME",
+                                CFE_SRC_VERSION,
+                                CFE_BUILD_CODENAME,
+                                CFE_LAST_OFFICIAL);
     Status =
         CFE_EVS_SendEvent(CFE_TIME_INIT_EID, CFE_EVS_EventType_INFORMATION, "cFE TIME Initialized: %s", VersionString);
     if (Status != CFE_SUCCESS)
@@ -451,8 +472,12 @@ int32 CFE_TIME_NoopCmd(const CFE_TIME_NoopCmd_t *data)
 
     CFE_TIME_Global.CommandCounter++;
 
-    CFE_Config_GetVersionString(VersionString, CFE_CFG_MAX_VERSION_STR_LEN, "CFE_TIME", CFE_SRC_VERSION,
-                                CFE_BUILD_CODENAME, CFE_LAST_OFFICIAL);
+    CFE_Config_GetVersionString(VersionString,
+                                CFE_CFG_MAX_VERSION_STR_LEN,
+                                "CFE_TIME",
+                                CFE_SRC_VERSION,
+                                CFE_BUILD_CODENAME,
+                                CFE_LAST_OFFICIAL);
     CFE_EVS_SendEvent(CFE_TIME_NOOP_EID, CFE_EVS_EventType_INFORMATION, "No-op Cmd Rcvd: %s", VersionString);
 
     return CFE_SUCCESS;
@@ -531,14 +556,13 @@ int32 CFE_TIME_SendDiagnosticTlm(const CFE_TIME_SendDiagnosticCmd_t *data)
 int32 CFE_TIME_SetStateCmd(const CFE_TIME_SetStateCmd_t *data)
 {
     const CFE_TIME_StateCmd_Payload_t *CommandPtr = &data->Payload;
-    const char *                       ClockStateText;
+    const char                        *ClockStateText;
 
     /*
     ** Verify command argument value (clock state)...
     */
-    if ((CommandPtr->ClockState == CFE_TIME_ClockState_INVALID) ||
-        (CommandPtr->ClockState == CFE_TIME_ClockState_VALID) ||
-        (CommandPtr->ClockState == CFE_TIME_ClockState_FLYWHEEL))
+    if ((CommandPtr->ClockState == CFE_TIME_ClockState_INVALID) || (CommandPtr->ClockState == CFE_TIME_ClockState_VALID)
+        || (CommandPtr->ClockState == CFE_TIME_ClockState_FLYWHEEL))
     {
         CFE_TIME_SetState(CommandPtr->ClockState);
 
@@ -564,7 +588,9 @@ int32 CFE_TIME_SetStateCmd(const CFE_TIME_SetStateCmd_t *data)
     else
     {
         CFE_TIME_Global.CommandErrorCounter++;
-        CFE_EVS_SendEvent(CFE_TIME_STATE_ERR_EID, CFE_EVS_EventType_ERROR, "Invalid Clock State = 0x%X",
+        CFE_EVS_SendEvent(CFE_TIME_STATE_ERR_EID,
+                          CFE_EVS_EventType_ERROR,
+                          "Invalid Clock State = 0x%X",
                           (unsigned int)CommandPtr->ClockState);
     }
 
@@ -588,8 +614,8 @@ int32 CFE_TIME_SetSourceCmd(const CFE_TIME_SetSourceCmd_t *data)
     /*
     ** Verify command argument value (time data source)...
     */
-    if ((CommandPtr->TimeSource == CFE_TIME_SourceSelect_INTERNAL) ||
-        (CommandPtr->TimeSource == CFE_TIME_SourceSelect_EXTERNAL))
+    if ((CommandPtr->TimeSource == CFE_TIME_SourceSelect_INTERNAL)
+        || (CommandPtr->TimeSource == CFE_TIME_SourceSelect_EXTERNAL))
     {
 #if (CFE_PLATFORM_TIME_CFG_SOURCE == true)
         /*
@@ -619,7 +645,8 @@ int32 CFE_TIME_SetSourceCmd(const CFE_TIME_SetSourceCmd_t *data)
         */
         CFE_TIME_Global.CommandErrorCounter++;
 
-        CFE_EVS_SendEvent(CFE_TIME_SOURCE_CFG_EID, CFE_EVS_EventType_ERROR,
+        CFE_EVS_SendEvent(CFE_TIME_SOURCE_CFG_EID,
+                          CFE_EVS_EventType_ERROR,
                           "Set Source commands invalid without CFE_PLATFORM_TIME_CFG_SOURCE set to TRUE");
 
 #endif /* CFE_PLATFORM_TIME_CFG_SOURCE */
@@ -631,7 +658,9 @@ int32 CFE_TIME_SetSourceCmd(const CFE_TIME_SetSourceCmd_t *data)
         */
         CFE_TIME_Global.CommandErrorCounter++;
 
-        CFE_EVS_SendEvent(CFE_TIME_SOURCE_ERR_EID, CFE_EVS_EventType_ERROR, "Invalid Time Source = 0x%X",
+        CFE_EVS_SendEvent(CFE_TIME_SOURCE_ERR_EID,
+                          CFE_EVS_EventType_ERROR,
+                          "Invalid Time Source = 0x%X",
                           (unsigned int)CommandPtr->TimeSource);
     }
 
@@ -655,8 +684,8 @@ int32 CFE_TIME_SetSignalCmd(const CFE_TIME_SetSignalCmd_t *data)
     /*
     ** Verify command argument value (tone source)...
     */
-    if ((CommandPtr->ToneSource == CFE_TIME_ToneSignalSelect_PRIMARY) ||
-        (CommandPtr->ToneSource == CFE_TIME_ToneSignalSelect_REDUNDANT))
+    if ((CommandPtr->ToneSource == CFE_TIME_ToneSignalSelect_PRIMARY)
+        || (CommandPtr->ToneSource == CFE_TIME_ToneSignalSelect_REDUNDANT))
     {
 #if (CFE_PLATFORM_TIME_CFG_SIGNAL == true)
         /*
@@ -686,7 +715,8 @@ int32 CFE_TIME_SetSignalCmd(const CFE_TIME_SetSignalCmd_t *data)
         */
         CFE_TIME_Global.CommandErrorCounter++;
 
-        CFE_EVS_SendEvent(CFE_TIME_SIGNAL_CFG_EID, CFE_EVS_EventType_ERROR,
+        CFE_EVS_SendEvent(CFE_TIME_SIGNAL_CFG_EID,
+                          CFE_EVS_EventType_ERROR,
                           "Set Signal commands invalid without CFE_PLATFORM_TIME_CFG_SIGNAL set to TRUE");
 
 #endif /* CFE_PLATFORM_TIME_CFG_SIGNAL */
@@ -698,7 +728,9 @@ int32 CFE_TIME_SetSignalCmd(const CFE_TIME_SetSignalCmd_t *data)
         */
         CFE_TIME_Global.CommandErrorCounter++;
 
-        CFE_EVS_SendEvent(CFE_TIME_SIGNAL_ERR_EID, CFE_EVS_EventType_ERROR, "Invalid Tone Source = 0x%X",
+        CFE_EVS_SendEvent(CFE_TIME_SIGNAL_ERR_EID,
+                          CFE_EVS_EventType_ERROR,
+                          "Invalid Tone Source = 0x%X",
                           (unsigned int)CommandPtr->ToneSource);
     }
 
@@ -728,10 +760,13 @@ void CFE_TIME_SetDelayImpl(const CFE_TIME_TimeCmd_Payload_t *CommandPtr, CFE_TIM
         CFE_TIME_SetDelay(Delay, Direction);
 
         CFE_TIME_Global.CommandCounter++;
-        CFE_EVS_SendEvent(CFE_TIME_DELAY_EID, CFE_EVS_EventType_INFORMATION,
+        CFE_EVS_SendEvent(CFE_TIME_DELAY_EID,
+                          CFE_EVS_EventType_INFORMATION,
                           "Set Tone Delay -- secs = %u, usecs = %u, ssecs = 0x%X, dir = %d",
-                          (unsigned int)CommandPtr->Seconds, (unsigned int)CommandPtr->MicroSeconds,
-                          (unsigned int)CFE_TIME_Micro2SubSecs(CommandPtr->MicroSeconds), (int)Direction);
+                          (unsigned int)CommandPtr->Seconds,
+                          (unsigned int)CommandPtr->MicroSeconds,
+                          (unsigned int)CFE_TIME_Micro2SubSecs(CommandPtr->MicroSeconds),
+                          (int)Direction);
 
 #else /* not CFE_PLATFORM_TIME_CFG_CLIENT */
         /*
@@ -739,7 +774,8 @@ void CFE_TIME_SetDelayImpl(const CFE_TIME_TimeCmd_Payload_t *CommandPtr, CFE_TIM
         */
         CFE_TIME_Global.CommandErrorCounter++;
 
-        CFE_EVS_SendEvent(CFE_TIME_DELAY_CFG_EID, CFE_EVS_EventType_ERROR,
+        CFE_EVS_SendEvent(CFE_TIME_DELAY_CFG_EID,
+                          CFE_EVS_EventType_ERROR,
                           "Set Delay commands invalid without CFE_PLATFORM_TIME_CFG_CLIENT set to TRUE");
 
 #endif /* CFE_PLATFORM_TIME_CFG_CLIENT */
@@ -747,8 +783,10 @@ void CFE_TIME_SetDelayImpl(const CFE_TIME_TimeCmd_Payload_t *CommandPtr, CFE_TIM
     else
     {
         CFE_TIME_Global.CommandErrorCounter++;
-        CFE_EVS_SendEvent(CFE_TIME_DELAY_ERR_EID, CFE_EVS_EventType_ERROR,
-                          "Invalid Tone Delay -- secs = %u, usecs = %u", (unsigned int)CommandPtr->Seconds,
+        CFE_EVS_SendEvent(CFE_TIME_DELAY_ERR_EID,
+                          CFE_EVS_EventType_ERROR,
+                          "Invalid Tone Delay -- secs = %u, usecs = %u",
+                          (unsigned int)CommandPtr->Seconds,
                           (unsigned int)CommandPtr->MicroSeconds);
     }
 }
@@ -802,8 +840,10 @@ int32 CFE_TIME_SetTimeCmd(const CFE_TIME_SetTimeCmd_t *data)
         CFE_TIME_SetTime(NewTime);
 
         CFE_TIME_Global.CommandCounter++;
-        CFE_EVS_SendEvent(CFE_TIME_TIME_EID, CFE_EVS_EventType_INFORMATION,
-                          "Set Time -- secs = %u, usecs = %u, ssecs = 0x%X", (unsigned int)CommandPtr->Seconds,
+        CFE_EVS_SendEvent(CFE_TIME_TIME_EID,
+                          CFE_EVS_EventType_INFORMATION,
+                          "Set Time -- secs = %u, usecs = %u, ssecs = 0x%X",
+                          (unsigned int)CommandPtr->Seconds,
                           (unsigned int)CommandPtr->MicroSeconds,
                           (unsigned int)CFE_TIME_Micro2SubSecs(CommandPtr->MicroSeconds));
 
@@ -813,7 +853,8 @@ int32 CFE_TIME_SetTimeCmd(const CFE_TIME_SetTimeCmd_t *data)
         */
         CFE_TIME_Global.CommandErrorCounter++;
 
-        CFE_EVS_SendEvent(CFE_TIME_TIME_CFG_EID, CFE_EVS_EventType_ERROR,
+        CFE_EVS_SendEvent(CFE_TIME_TIME_CFG_EID,
+                          CFE_EVS_EventType_ERROR,
                           "Set Time commands invalid without CFE_PLATFORM_TIME_CFG_SERVER set to TRUE");
 
 #endif /* CFE_PLATFORM_TIME_CFG_SERVER */
@@ -821,8 +862,11 @@ int32 CFE_TIME_SetTimeCmd(const CFE_TIME_SetTimeCmd_t *data)
     else
     {
         CFE_TIME_Global.CommandErrorCounter++;
-        CFE_EVS_SendEvent(CFE_TIME_TIME_ERR_EID, CFE_EVS_EventType_ERROR, "Invalid Time -- secs = %u, usecs = %u",
-                          (unsigned int)CommandPtr->Seconds, (unsigned int)CommandPtr->MicroSeconds);
+        CFE_EVS_SendEvent(CFE_TIME_TIME_ERR_EID,
+                          CFE_EVS_EventType_ERROR,
+                          "Invalid Time -- secs = %u, usecs = %u",
+                          (unsigned int)CommandPtr->Seconds,
+                          (unsigned int)CommandPtr->MicroSeconds);
     }
 
     return CFE_SUCCESS;
@@ -853,8 +897,10 @@ int32 CFE_TIME_SetMETCmd(const CFE_TIME_SetMETCmd_t *data)
         CFE_TIME_SetMET(NewMET);
 
         CFE_TIME_Global.CommandCounter++;
-        CFE_EVS_SendEvent(CFE_TIME_MET_EID, CFE_EVS_EventType_INFORMATION,
-                          "Set MET -- secs = %u, usecs = %u, ssecs = 0x%X", (unsigned int)CommandPtr->Seconds,
+        CFE_EVS_SendEvent(CFE_TIME_MET_EID,
+                          CFE_EVS_EventType_INFORMATION,
+                          "Set MET -- secs = %u, usecs = %u, ssecs = 0x%X",
+                          (unsigned int)CommandPtr->Seconds,
                           (unsigned int)CommandPtr->MicroSeconds,
                           (unsigned int)CFE_TIME_Micro2SubSecs(CommandPtr->MicroSeconds));
 
@@ -864,7 +910,8 @@ int32 CFE_TIME_SetMETCmd(const CFE_TIME_SetMETCmd_t *data)
         */
         CFE_TIME_Global.CommandErrorCounter++;
 
-        CFE_EVS_SendEvent(CFE_TIME_MET_CFG_EID, CFE_EVS_EventType_ERROR,
+        CFE_EVS_SendEvent(CFE_TIME_MET_CFG_EID,
+                          CFE_EVS_EventType_ERROR,
                           "Set MET commands invalid without CFE_PLATFORM_TIME_CFG_SERVER set to TRUE");
 
 #endif /* CFE_PLATFORM_TIME_CFG_SERVER */
@@ -872,8 +919,11 @@ int32 CFE_TIME_SetMETCmd(const CFE_TIME_SetMETCmd_t *data)
     else
     {
         CFE_TIME_Global.CommandErrorCounter++;
-        CFE_EVS_SendEvent(CFE_TIME_MET_ERR_EID, CFE_EVS_EventType_ERROR, "Invalid MET -- secs = %u, usecs = %u",
-                          (unsigned int)CommandPtr->Seconds, (unsigned int)CommandPtr->MicroSeconds);
+        CFE_EVS_SendEvent(CFE_TIME_MET_ERR_EID,
+                          CFE_EVS_EventType_ERROR,
+                          "Invalid MET -- secs = %u, usecs = %u",
+                          (unsigned int)CommandPtr->Seconds,
+                          (unsigned int)CommandPtr->MicroSeconds);
     }
 
     return CFE_SUCCESS;
@@ -904,8 +954,10 @@ int32 CFE_TIME_SetSTCFCmd(const CFE_TIME_SetSTCFCmd_t *data)
         CFE_TIME_SetSTCF(NewSTCF);
 
         CFE_TIME_Global.CommandCounter++;
-        CFE_EVS_SendEvent(CFE_TIME_STCF_EID, CFE_EVS_EventType_INFORMATION,
-                          "Set STCF -- secs = %u, usecs = %u, ssecs = 0x%X", (unsigned int)CommandPtr->Seconds,
+        CFE_EVS_SendEvent(CFE_TIME_STCF_EID,
+                          CFE_EVS_EventType_INFORMATION,
+                          "Set STCF -- secs = %u, usecs = %u, ssecs = 0x%X",
+                          (unsigned int)CommandPtr->Seconds,
                           (unsigned int)CommandPtr->MicroSeconds,
                           (unsigned int)CFE_TIME_Micro2SubSecs(CommandPtr->MicroSeconds));
 
@@ -915,7 +967,8 @@ int32 CFE_TIME_SetSTCFCmd(const CFE_TIME_SetSTCFCmd_t *data)
         */
         CFE_TIME_Global.CommandErrorCounter++;
 
-        CFE_EVS_SendEvent(CFE_TIME_STCF_CFG_EID, CFE_EVS_EventType_ERROR,
+        CFE_EVS_SendEvent(CFE_TIME_STCF_CFG_EID,
+                          CFE_EVS_EventType_ERROR,
                           "Set STCF commands invalid without CFE_PLATFORM_TIME_CFG_SERVER set to TRUE");
 
 #endif /* CFE_PLATFORM_TIME_CFG_SERVER */
@@ -923,8 +976,11 @@ int32 CFE_TIME_SetSTCFCmd(const CFE_TIME_SetSTCFCmd_t *data)
     else
     {
         CFE_TIME_Global.CommandErrorCounter++;
-        CFE_EVS_SendEvent(CFE_TIME_STCF_ERR_EID, CFE_EVS_EventType_ERROR, "Invalid STCF -- secs = %u, usecs = %u",
-                          (unsigned int)CommandPtr->Seconds, (unsigned int)CommandPtr->MicroSeconds);
+        CFE_EVS_SendEvent(CFE_TIME_STCF_ERR_EID,
+                          CFE_EVS_EventType_ERROR,
+                          "Invalid STCF -- secs = %u, usecs = %u",
+                          (unsigned int)CommandPtr->Seconds,
+                          (unsigned int)CommandPtr->MicroSeconds);
     }
 
     return CFE_SUCCESS;
@@ -949,7 +1005,9 @@ int32 CFE_TIME_SetLeapSecondsCmd(const CFE_TIME_SetLeapSecondsCmd_t *data)
 
     CFE_TIME_Global.CommandCounter++;
 
-    CFE_EVS_SendEvent(CFE_TIME_LEAPS_EID, CFE_EVS_EventType_INFORMATION, "Set Leap Seconds = %d",
+    CFE_EVS_SendEvent(CFE_TIME_LEAPS_EID,
+                      CFE_EVS_EventType_INFORMATION,
+                      "Set Leap Seconds = %d",
                       (int)CommandPtr->LeapSeconds);
 
 #else /* not CFE_PLATFORM_TIME_CFG_SERVER */
@@ -958,7 +1016,8 @@ int32 CFE_TIME_SetLeapSecondsCmd(const CFE_TIME_SetLeapSecondsCmd_t *data)
     */
     CFE_TIME_Global.CommandErrorCounter++;
 
-    CFE_EVS_SendEvent(CFE_TIME_LEAPS_CFG_EID, CFE_EVS_EventType_ERROR,
+    CFE_EVS_SendEvent(CFE_TIME_LEAPS_CFG_EID,
+                      CFE_EVS_EventType_ERROR,
                       "Set Leaps commands invalid without CFE_PLATFORM_TIME_CFG_SERVER set to TRUE");
 
 #endif /* CFE_PLATFORM_TIME_CFG_SERVER */
@@ -989,10 +1048,13 @@ void CFE_TIME_AdjustImpl(const CFE_TIME_TimeCmd_Payload_t *CommandPtr, CFE_TIME_
         CFE_TIME_SetAdjust(Adjust, Direction);
 
         CFE_TIME_Global.CommandCounter++;
-        CFE_EVS_SendEvent(CFE_TIME_DELTA_EID, CFE_EVS_EventType_INFORMATION,
+        CFE_EVS_SendEvent(CFE_TIME_DELTA_EID,
+                          CFE_EVS_EventType_INFORMATION,
                           "STCF Adjust -- secs = %u, usecs = %u, ssecs = 0x%X, dir[1=Pos, 2=Neg] = %d",
-                          (unsigned int)CommandPtr->Seconds, (unsigned int)CommandPtr->MicroSeconds,
-                          (unsigned int)CFE_TIME_Micro2SubSecs(CommandPtr->MicroSeconds), (int)Direction);
+                          (unsigned int)CommandPtr->Seconds,
+                          (unsigned int)CommandPtr->MicroSeconds,
+                          (unsigned int)CFE_TIME_Micro2SubSecs(CommandPtr->MicroSeconds),
+                          (int)Direction);
 
 #else /* not CFE_PLATFORM_TIME_CFG_SERVER */
         /*
@@ -1000,7 +1062,8 @@ void CFE_TIME_AdjustImpl(const CFE_TIME_TimeCmd_Payload_t *CommandPtr, CFE_TIME_
         */
         CFE_TIME_Global.CommandErrorCounter++;
 
-        CFE_EVS_SendEvent(CFE_TIME_DELTA_CFG_EID, CFE_EVS_EventType_ERROR,
+        CFE_EVS_SendEvent(CFE_TIME_DELTA_CFG_EID,
+                          CFE_EVS_EventType_ERROR,
                           "STCF Adjust commands invalid without CFE_PLATFORM_TIME_CFG_SERVER set to TRUE");
 
 #endif /* CFE_PLATFORM_TIME_CFG_SERVER */
@@ -1008,9 +1071,12 @@ void CFE_TIME_AdjustImpl(const CFE_TIME_TimeCmd_Payload_t *CommandPtr, CFE_TIME_
     else
     {
         CFE_TIME_Global.CommandErrorCounter++;
-        CFE_EVS_SendEvent(CFE_TIME_DELTA_ERR_EID, CFE_EVS_EventType_ERROR,
+        CFE_EVS_SendEvent(CFE_TIME_DELTA_ERR_EID,
+                          CFE_EVS_EventType_ERROR,
                           "Invalid STCF Adjust -- secs = %u, usecs = %u, dir[1=Pos, 2=Neg] = %d",
-                          (unsigned int)CommandPtr->Seconds, (unsigned int)CommandPtr->MicroSeconds, (int)Direction);
+                          (unsigned int)CommandPtr->Seconds,
+                          (unsigned int)CommandPtr->MicroSeconds,
+                          (int)Direction);
     }
 }
 
@@ -1059,9 +1125,12 @@ void CFE_TIME_1HzAdjImpl(const CFE_TIME_OneHzAdjustmentCmd_Payload_t *CommandPtr
     CFE_TIME_Set1HzAdj(Adjust, Direction);
 
     CFE_TIME_Global.CommandCounter++;
-    CFE_EVS_SendEvent(CFE_TIME_ONEHZ_EID, CFE_EVS_EventType_INFORMATION,
-                      "STCF 1Hz Adjust -- secs = %d, ssecs = 0x%X, dir[1=Pos, 2=Neg] = %d", (int)CommandPtr->Seconds,
-                      (unsigned int)CommandPtr->Subseconds, (int)Direction);
+    CFE_EVS_SendEvent(CFE_TIME_ONEHZ_EID,
+                      CFE_EVS_EventType_INFORMATION,
+                      "STCF 1Hz Adjust -- secs = %d, ssecs = 0x%X, dir[1=Pos, 2=Neg] = %d",
+                      (int)CommandPtr->Seconds,
+                      (unsigned int)CommandPtr->Subseconds,
+                      (int)Direction);
 
 #else /* not CFE_PLATFORM_TIME_CFG_SERVER */
     /*
@@ -1069,7 +1138,8 @@ void CFE_TIME_1HzAdjImpl(const CFE_TIME_OneHzAdjustmentCmd_Payload_t *CommandPtr
     */
     CFE_TIME_Global.CommandErrorCounter++;
 
-    CFE_EVS_SendEvent(CFE_TIME_ONEHZ_CFG_EID, CFE_EVS_EventType_ERROR,
+    CFE_EVS_SendEvent(CFE_TIME_ONEHZ_CFG_EID,
+                      CFE_EVS_EventType_ERROR,
                       "1Hz Adjust commands invalid without CFE_PLATFORM_TIME_CFG_SERVER set to TRUE");
 
 #endif /* CFE_PLATFORM_TIME_CFG_SERVER */

@@ -17,120 +17,26 @@
  ************************************************************************/
 
 /*
-**   File:
-**    cfe_es_objtab.c
-**
-**   Purpose:
-**     This file contains the OS_object_table for system initialization/startup.
-**
-**  References:
-**     Flight Software Branch C Coding Standard Version 1.0a
-**     cFE Flight Software Application Developers Guide
-**
-**  Notes:
-**
-*/
+ * File:
+ *  cfe_es_objtab.c
+ *
+ * CFE ES core module object table entry.
+ *
+ * ES is a task module. It does not have a separate EarlyInit because
+ * the ES startup sequence itself serves that role. ES also does not
+ * have a Cleanup function - it is the last module standing during
+ * shutdown.
+ */
 
-/*
-** Include files
-*/
-#include "cfe_es_module_all.h"
+#include "target_objtab.h"
+#include "cfe_es_core_internal.h"
+#include "cfe_platform_cfg.h"
 
-/* Init functions from other modules are in separate headers */
-#include "cfe_evs_core_internal.h"
-#include "cfe_fs_core_internal.h"
-#include "cfe_sb_core_internal.h"
-#include "cfe_tbl_core_internal.h"
-#include "cfe_time_core_internal.h"
-#include "cfe_config_core_internal.h"
-
-/*
-**
-** ES_object_table
-** Note: The name field in this table should be no more than OS_MAX_API_NAME -1 characters.
-**
-*/
-CFE_ES_ObjectTable_t CFE_ES_ObjectTable[CFE_PLATFORM_ES_OBJECT_TABLE_SIZE] = {
-    /*
-    ** Spare entries -- The spares should be distributed evenly through this table
-    */
-    {.ObjectType = CFE_ES_NULL_ENTRY},
-    {.ObjectType = CFE_ES_NULL_ENTRY},
-    {.ObjectType = CFE_ES_NULL_ENTRY},
-
-    /* Initialize the configuration registry early, so it can be used by core apps */
-    {.ObjectType = CFE_ES_FUNCTION_CALL, .ObjectName = "CFE_Config_Init", .FuncPtrUnion.FunctionPtr = CFE_Config_Init},
-
-    /*
-    ** cFE core early initialization calls. These must be done before the tasks start
-    */
-    {.ObjectType               = CFE_ES_FUNCTION_CALL,
-     .ObjectName               = "CFE_ES_CDSEarlyInit",
-     .FuncPtrUnion.FunctionPtr = CFE_ES_CDS_EarlyInit},
-    {.ObjectType = CFE_ES_NULL_ENTRY},
-    {.ObjectType               = CFE_ES_FUNCTION_CALL,
-     .ObjectName               = "CFE_EVS_EarlyInit",
-     .FuncPtrUnion.FunctionPtr = CFE_EVS_EarlyInit},
-    {.ObjectType = CFE_ES_NULL_ENTRY},
-    {.ObjectType               = CFE_ES_FUNCTION_CALL,
-     .ObjectName               = "CFE_SB_EarlyInit",
-     .FuncPtrUnion.FunctionPtr = CFE_SB_EarlyInit},
-    {.ObjectType = CFE_ES_NULL_ENTRY},
-    {.ObjectType               = CFE_ES_FUNCTION_CALL,
-     .ObjectName               = "CFE_TIME_EarlyInit",
-     .FuncPtrUnion.FunctionPtr = CFE_TIME_EarlyInit},
-    {.ObjectType = CFE_ES_NULL_ENTRY},
-    {.ObjectType               = CFE_ES_FUNCTION_CALL,
-     .ObjectName               = "CFE_TBL_EarlyInit",
-     .FuncPtrUnion.FunctionPtr = CFE_TBL_EarlyInit},
-    {.ObjectType = CFE_ES_NULL_ENTRY},
-    {.ObjectType               = CFE_ES_FUNCTION_CALL,
-     .ObjectName               = "CFE_FS_EarlyInit",
-     .FuncPtrUnion.FunctionPtr = CFE_FS_EarlyInit},
-
-    /*
-    ** Spare entries
-    */
-    {.ObjectType = CFE_ES_NULL_ENTRY},
-    {.ObjectType = CFE_ES_NULL_ENTRY},
-
-    /*
-    ** cFE core tasks
-    */
-    {.ObjectType               = CFE_ES_CORE_TASK,
-     .ObjectName               = "CFE_EVS",
-     .FuncPtrUnion.MainTaskPtr = CFE_EVS_TaskMain,
-     .ObjectPriority           = CFE_PLATFORM_EVS_START_TASK_PRIORITY,
-     .ObjectSize               = CFE_PLATFORM_EVS_START_TASK_STACK_SIZE},
-    {.ObjectType = CFE_ES_NULL_ENTRY},
-    {.ObjectType               = CFE_ES_CORE_TASK,
-     .ObjectName               = "CFE_SB",
-     .FuncPtrUnion.MainTaskPtr = CFE_SB_TaskMain,
-     .ObjectPriority           = CFE_PLATFORM_SB_START_TASK_PRIORITY,
-     .ObjectSize               = CFE_PLATFORM_SB_START_TASK_STACK_SIZE},
-    {.ObjectType = CFE_ES_NULL_ENTRY},
-    {.ObjectType               = CFE_ES_CORE_TASK,
-     .ObjectName               = "CFE_ES",
-     .FuncPtrUnion.MainTaskPtr = CFE_ES_TaskMain,
-     .ObjectPriority           = CFE_PLATFORM_ES_START_TASK_PRIORITY,
-     .ObjectSize               = CFE_PLATFORM_ES_START_TASK_STACK_SIZE},
-    {.ObjectType = CFE_ES_NULL_ENTRY},
-    {.ObjectType               = CFE_ES_CORE_TASK,
-     .ObjectName               = "CFE_TIME",
-     .FuncPtrUnion.MainTaskPtr = CFE_TIME_TaskMain,
-     .ObjectPriority           = CFE_PLATFORM_TIME_START_TASK_PRIORITY,
-     .ObjectSize               = CFE_PLATFORM_TIME_START_TASK_STACK_SIZE},
-    {.ObjectType = CFE_ES_NULL_ENTRY},
-    {.ObjectType               = CFE_ES_CORE_TASK,
-     .ObjectName               = "CFE_TBL",
-     .FuncPtrUnion.MainTaskPtr = CFE_TBL_TaskMain,
-     .ObjectPriority           = CFE_PLATFORM_TBL_START_TASK_PRIORITY,
-     .ObjectSize               = CFE_PLATFORM_TBL_START_TASK_STACK_SIZE},
-
-    /*
-    ** Spare entries
-    */
-    {.ObjectType = CFE_ES_NULL_ENTRY},
-    {.ObjectType = CFE_ES_NULL_ENTRY},
-    {.ObjectType = CFE_ES_NULL_ENTRY},
-    {.ObjectType = CFE_ES_NULL_ENTRY}};
+const Target_ObjectTable_t CFE_ES_ModuleEntry = {
+    .Name      = "CFE_ES",
+    .EarlyInit = CFE_ES_CDS_EarlyInit, /* ES drives its own startup, this is for CDS*/
+    .TaskMain  = CFE_ES_TaskMain,
+    .Cleanup   = NULL, /* ES does not clean up - it owns shutdown */
+    .Priority  = CFE_PLATFORM_ES_START_TASK_PRIORITY,
+    .StackSize = CFE_PLATFORM_ES_START_TASK_STACK_SIZE
+};

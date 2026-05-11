@@ -1,0 +1,38 @@
+/************************************************************************
+ * NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
+ *
+ * Copyright (c) 2023 United States Government as represented by the
+ * Administrator of the National Aeronautics and Space Administration.
+ * All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License. You may obtain
+ * a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ************************************************************************/
+
+/**
+ * File:
+ *   cfe_config_objtab.c
+ *
+ * CFE CONFIG core module object table entry.
+ *
+ * CONFIG is a library-only module (no task). Its EarlyInit is called
+ * first, before all other modules, so that the configuration registry
+ * is available during the rest of the startup sequence.
+ */
+
+#include "target_objtab.h"
+#include "cfe_config_core_internal.h"
+
+const Target_ObjectTable_t CFE_CONFIG_ModuleEntry = { .Name      = "CFE_CONFIG",
+                                                      .EarlyInit = CFE_Config_Init,
+                                                      .TaskMain  = NULL, /* library module - no task */
+                                                      .Cleanup   = NULL,
+                                                      .Priority  = 0,
+                                                      .StackSize = 0 };

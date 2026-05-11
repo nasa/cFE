@@ -164,9 +164,15 @@ int32 CFE_TBL_TaskInit(void)
     /*
     ** Task startup event message
     */
-    CFE_Config_GetVersionString(VersionString, CFE_CFG_MAX_VERSION_STR_LEN, "CFE_TBL", CFE_SRC_VERSION,
-                                CFE_BUILD_CODENAME, CFE_LAST_OFFICIAL);
-    Status = CFE_EVS_SendEvent(CFE_TBL_INIT_INF_EID, CFE_EVS_EventType_INFORMATION, "cFE TBL Initialized: %s",
+    CFE_Config_GetVersionString(VersionString,
+                                CFE_CFG_MAX_VERSION_STR_LEN,
+                                "CFE_TBL",
+                                CFE_SRC_VERSION,
+                                CFE_BUILD_CODENAME,
+                                CFE_LAST_OFFICIAL);
+    Status = CFE_EVS_SendEvent(CFE_TBL_INIT_INF_EID,
+                               CFE_EVS_EventType_INFORMATION,
+                               "cFE TBL Initialized: %s",
                                VersionString);
 
     if (Status != CFE_SUCCESS)
@@ -190,14 +196,17 @@ void CFE_TBL_InitData(void)
     CFE_ES_GetAppID(&CFE_TBL_Global.TableTaskAppId);
 
     /* Initialize Packet Headers */
-    CFE_MSG_Init(CFE_MSG_PTR(CFE_TBL_Global.HkPacket.TelemetryHeader), CFE_SB_ValueToMsgId(CFE_TBL_HK_TLM_MID),
+    CFE_MSG_Init(CFE_MSG_PTR(CFE_TBL_Global.HkPacket.TelemetryHeader),
+                 CFE_SB_ValueToMsgId(CFE_TBL_HK_TLM_MID),
                  sizeof(CFE_TBL_Global.HkPacket));
 
-    CFE_MSG_Init(CFE_MSG_PTR(CFE_TBL_Global.TblRegPacket.TelemetryHeader), CFE_SB_ValueToMsgId(CFE_TBL_REG_TLM_MID),
+    CFE_MSG_Init(CFE_MSG_PTR(CFE_TBL_Global.TblRegPacket.TelemetryHeader),
+                 CFE_SB_ValueToMsgId(CFE_TBL_REG_TLM_MID),
                  sizeof(CFE_TBL_Global.TblRegPacket));
 
     /* Message ID is set when sent, so OK as 0 here */
-    CFE_MSG_Init(CFE_MSG_PTR(CFE_TBL_Global.NotifyMsg.CommandHeader), CFE_SB_INVALID_MSG_ID,
+    CFE_MSG_Init(CFE_MSG_PTR(CFE_TBL_Global.NotifyMsg.CommandHeader),
+                 CFE_SB_INVALID_MSG_ID,
                  sizeof(CFE_TBL_Global.NotifyMsg));
 
     CFE_TBL_Global.LastLoadBuffId         = CFE_ResourceId_FromInteger(CFE_TBL_LOADBUFFID_BASE);

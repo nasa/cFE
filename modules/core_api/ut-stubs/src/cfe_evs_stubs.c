@@ -106,8 +106,11 @@ CFE_Status_t CFE_EVS_SendEvent(uint16 EventID, CFE_EVS_EventType_Enum_t EventTyp
  * Generated stub function for CFE_EVS_SendEventWithAppID()
  * ----------------------------------------------------
  */
-CFE_Status_t CFE_EVS_SendEventWithAppID(uint16 EventID, CFE_EVS_EventType_Enum_t EventType, CFE_ES_AppId_t AppID,
-                                        const char *Spec, ...)
+CFE_Status_t CFE_EVS_SendEventWithAppID(uint16                   EventID,
+                                        CFE_EVS_EventType_Enum_t EventType,
+                                        CFE_ES_AppId_t           AppID,
+                                        const char              *Spec,
+                                        ...)
 {
     va_list UtStub_ArgList;
 
@@ -130,8 +133,11 @@ CFE_Status_t CFE_EVS_SendEventWithAppID(uint16 EventID, CFE_EVS_EventType_Enum_t
  * Generated stub function for CFE_EVS_SendTimedEvent()
  * ----------------------------------------------------
  */
-CFE_Status_t CFE_EVS_SendTimedEvent(CFE_TIME_SysTime_t Time, uint16 EventID, CFE_EVS_EventType_Enum_t EventType,
-                                    const char *Spec, ...)
+CFE_Status_t CFE_EVS_SendTimedEvent(CFE_TIME_SysTime_t       Time,
+                                    uint16                   EventID,
+                                    CFE_EVS_EventType_Enum_t EventType,
+                                    const char              *Spec,
+                                    ...)
 {
     va_list UtStub_ArgList;
 

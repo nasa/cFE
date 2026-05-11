@@ -94,7 +94,7 @@ void UT_BSP_WriteLogFile(osal_id_t FileDesc, uint8 MessageType, const char *Pref
 
 void UT_BSP_DoText(uint8 MessageType, const char *OutputMessage)
 {
-    const char *                Prefix;
+    const char                 *Prefix;
     CFE_Assert_StatusCallback_t StatusCallback;
 
     Prefix = UtAssert_GetCaseTypeAbbrev(MessageType);
@@ -126,7 +126,6 @@ void UT_BSP_DoText(uint8 MessageType, const char *OutputMessage)
 
 void UT_BSP_EndTest(const UtAssert_TestCounter_t *TestCounters)
 {
-
     CFE_ES_WriteToSysLog("TEST COMPLETE: %u tests Segment(s) executed\n\n",
                          (unsigned int)TestCounters->TestSegmentCount);
 

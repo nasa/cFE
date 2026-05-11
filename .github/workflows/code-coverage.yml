@@ -18,160 +18,36 @@ on:
 env:
   SIMULATION: native
   ENABLE_UNIT_TESTS: true
-  OMIT_DEPRECATED: true
+  OMIT_DEPRECATED: false
   BUILDTYPE: debug
-  ALLOWED_MISSED_BRANCHES: 14
-  ALLOWED_MISSED_LINES: 8
-  ALLOWED_MISSED_FUNCTIONS: 0
+
 jobs:
-
-  #Check for duplicate actions. Skips push actions if there is a matching or duplicate pull-request action.
-  check-for-duplicates:
-    runs-on: ubuntu-latest
-    # Map a step output to a job output
-    outputs:
-      should_skip: ${{ steps.skip_check.outputs.should_skip }}
-    steps:
-      - id: skip_check
-        uses: fkirc/skip-duplicate-actions@master
-        with:
-          concurrent_skipping: 'same_content'
-          skip_after_successful_duplicate: 'true'
-          do_not_skip: '["pull_request", "workflow_dispatch", "schedule"]'
-
-  Local-Test-Build:
-    #Continue if check-for-duplicates found no duplicates. Always runs for pull-requests.
-    needs: check-for-duplicates
-    if: ${{ needs.check-for-duplicates.outputs.should_skip != 'true' }}
+ Execute-Unit-Tests:
+    name: Build and Execute CFE unit tests
     runs-on: ubuntu-22.04
+    container: ghcr.io/core-flight-system/cfsbuildenv-linux:latest
     timeout-minutes: 15
 
     steps:
       - name: Install coverage tools
         run: sudo apt-get install lcov -y
 
-      # Checks out a copy of your repository on the ubuntu-latest machine
-      - name: Checkout bundle
-        uses: actions/checkout@v3
-        with:
-          repository: nasa/cFS
-          submodules: true
-
-      - name: Checkout submodule
-        uses: actions/checkout@v3
+      - name: Checkout cFE
+        uses: actions/checkout@v6
         with:
           path: cfe
 
-      - name: Check versions
-        run: git submodule
+      - name: Set up Dependencies
+        uses: ./cfe/.github/actions/setup-cfe
+        with:
+          source-dir: .
+          preferred-ref: ${{ github.head_ref }}
+          org: 'nasa'
 
-      # Setup the build system
-      - name: Set up for build
-        run: |
-          cp ./cfe/cmake/Makefile.sample Makefile
-          cp -r ./cfe/cmake/sample_defs sample_defs
-          make prep
-          make -C build mission-prebuild
-
-      # Build the code
-      - name: Build
-        run: |
-          make -C build/native/default_cpu1/config
-          make -C build/native/default_cpu1/core_api
-          make -C build/native/default_cpu1/core_private
-          make -C build/native/default_cpu1/es
-          make -C build/native/default_cpu1/evs
-          make -C build/native/default_cpu1/fs
-          make -C build/native/default_cpu1/msg
-          make -C build/native/default_cpu1/resourceid
-          make -C build/native/default_cpu1/sb
-          make -C build/native/default_cpu1/sbr
-          make -C build/native/default_cpu1/tbl
-          make -C build/native/default_cpu1/time
-
-      # Initialize lcov and test the code
-      - name: Test
-        run: |
-          lcov --capture --initial --directory build --output-file coverage_base.info
-          (cd build/native/default_cpu1/config && ctest --output-on-failure)
-          (cd build/native/default_cpu1/core_api && ctest --output-on-failure)
-          (cd build/native/default_cpu1/core_private && ctest --output-on-failure)
-          (cd build/native/default_cpu1/es && ctest --output-on-failure)
-          (cd build/native/default_cpu1/evs && ctest --output-on-failure)
-          (cd build/native/default_cpu1/fs && ctest --output-on-failure)
-          (cd build/native/default_cpu1/msg && ctest --output-on-failure)
-          (cd build/native/default_cpu1/resourceid && ctest --output-on-failure)
-          (cd build/native/default_cpu1/sb && ctest --output-on-failure)
-          (cd build/native/default_cpu1/sbr && ctest --output-on-failure)
-          (cd build/native/default_cpu1/tbl && ctest --output-on-failure)
-          (cd build/native/default_cpu1/time && ctest --output-on-failure)
-
-      - name: Calculate Coverage
-        run: |
-          lcov --capture --rc lcov_branch_coverage=1 --directory build --output-file coverage_test.info
-          lcov --rc lcov_branch_coverage=1 --add-tracefile coverage_base.info --add-tracefile coverage_test.info --output-file coverage_total.info
-          genhtml coverage_total.info --branch-coverage --output-directory lcov | tee lcov_out.txt
-
-      - name: Confirm Minimum Coverage
-        run: |
-          branch_nums=$(grep -A 3 "Overall coverage rate" lcov_out.txt | grep branches | grep -oP "[0-9]+[0-9]*")
-          line_nums=$(grep -A 3 "Overall coverage rate" lcov_out.txt | grep lines | grep -oP "[0-9]+[0-9]*")
-          function_nums=$(grep -A 3 "Overall coverage rate" lcov_out.txt | grep functions | grep -oP "[0-9]+[0-9]*")
-
-          branch_diff=$(echo $branch_nums | awk '{ print $4 - $3 }')
-          echo "branch_diff=$branch_diff" >> $GITHUB_ENV
-          line_diff=$(echo $line_nums | awk '{ print $4 - $3 }')
-          echo "line_diff=$line_diff" >> $GITHUB_ENV
-          function_diff=$(echo $function_nums | awk '{ print $4 - $3 }')
-          echo "function_diff=$function_diff" >> $GITHUB_ENV
-
-          if [ $branch_diff -gt ${{ env.ALLOWED_MISSED_BRANCHES }} ]
-          then
-            grep -A 3 "Overall coverage rate" lcov_out.txt
-            echo "::error::$branch_diff uncovered branch$([ $branch_diff -ne 1 ] && echo 'es') reported, but only ${{ env.ALLOWED_MISSED_BRANCHES }} ${{ env.ALLOWED_MISSED_BRANCHES == 1 && 'is' || 'are' }} allowed."
-            exit -1
-          fi
-
-          if [ $line_diff -gt ${{ env.ALLOWED_MISSED_LINES }} ]
-          then
-            grep -A 3 "Overall coverage rate" lcov_out.txt
-            echo "::error::$line_diff uncovered line$([ $line_diff -ne 1 ] && echo 's') reported, but only ${{ env.ALLOWED_MISSED_LINES }} ${{ env.ALLOWED_MISSED_LINES == 1 && 'is' || 'are' }} allowed."
-            exit -1
-          fi
-
-          if [ $function_diff -gt ${{ env.ALLOWED_MISSED_FUNCTIONS }} ]
-          then
-            grep -A 3 "Overall coverage rate" lcov_out.txt
-            echo "::error::$function_diff uncovered function$([ $function_diff -ne 1 ] && echo 's') reported, but only ${{ env.ALLOWED_MISSED_FUNCTIONS }} ${{ env.ALLOWED_MISSED_FUNCTIONS == 1 && 'is' || 'are' }} allowed."
-            exit -1
-          fi
-
-      - name: Enforce Keeping Branch Coverage Minimum Up-To-Date
-        run: |
-          if [ $branch_diff -lt ${{ env.ALLOWED_MISSED_BRANCHES }} ]
-          then
-            grep -A 3 "Overall coverage rate" lcov_out.txt
-            echo "::error::$branch_diff uncovered branch$([ $branch_diff -ne 1 ] && echo 'es') reported, but ${{ env.ALLOWED_MISSED_BRANCHES }} ${{ env.ALLOWED_MISSED_BRANCHES == 1 && 'is' || 'are' }} allowed."
-            echo "::error::Please update (lower) the 'ALLOWED_MISSED_BRANCHES' variable to $branch_diff in order to match the new coverage level."
-            exit -1
-          fi
-
-      - name: Enforce Keeping Line Coverage Minimum Up-To-Date
-        run: |
-          if [ $line_diff -lt ${{ env.ALLOWED_MISSED_LINES }} ]
-          then
-            grep -A 3 "Overall coverage rate" lcov_out.txt
-            echo "::error::$line_diff uncovered line$([ $line_diff -ne 1 ] && echo 's') reported, but ${{ env.ALLOWED_MISSED_LINES }} ${{ env.ALLOWED_MISSED_LINES == 1 && 'is' || 'are' }} allowed."
-            echo "::error::Please update (lower) the 'ALLOWED_MISSED_LINES' variable to $line_diff in order to match the new coverage level."
-            exit -1
-          fi
-
-      - name: Enforce Keeping Function Coverage Minimum Up-To-Date
-        run: |
-          if [ $function_diff -lt ${{ env.ALLOWED_MISSED_FUNCTIONS }} ]
-          then
-            grep -A 3 "Overall coverage rate" lcov_out.txt
-            echo "::error::$function_diff uncovered function$([ $function_diff -ne 1 ] && echo 's') reported, but ${{ env.ALLOWED_MISSED_FUNCTIONS }} ${{ env.ALLOWED_MISSED_FUNCTIONS == 1 && 'is' || 'are' }} allowed."
-            echo "::error::Please update (lower) the 'ALLOWED_MISSED_FUNCTIONS' variable to $function_diff in order to match the new coverage level."
-            exit -1
-          fi
+      - name: Execute coverage testing
+        uses: ./cfe/.github/actions/code-coverage
+        with:
+          module-list: config core_api core_private es evs fs msg resourceid sb sbr tbl time
+          allowed-missed-branches: 14
+          allowed-missed-lines: 8
+          allowed-missed-functions: 0

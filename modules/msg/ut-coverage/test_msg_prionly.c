@@ -37,4 +37,6 @@ unsigned int Test_MSG_Ext_NotF(const CFE_MSG_Message_t *MsgPtr)
     return 0;
 }
 
-void Test_MSG_CCSDSExt(void) {}
+void Test_MSG_CCSDSExt(void)
+{
+}

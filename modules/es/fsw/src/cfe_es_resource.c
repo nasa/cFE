@@ -307,7 +307,7 @@ CFE_ES_TaskRecord_t *CFE_ES_GetTaskRecordByContext(void)
  *-----------------------------------------------------------------*/
 CFE_ES_AppRecord_t *CFE_ES_GetAppRecordByContext(void)
 {
-    CFE_ES_AppRecord_t * AppRecPtr;
+    CFE_ES_AppRecord_t  *AppRecPtr;
     CFE_ES_TaskRecord_t *TaskRecPtr;
 
     /*

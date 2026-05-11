@@ -139,7 +139,7 @@ CFE_Status_t CFE_FS_ReadHeader(CFE_FS_Header_t *Hdr, osal_id_t FileDes)
         OsStatus = OS_read(FileDes, Hdr, sizeof(CFE_FS_Header_t));
 
         /* Check if the read was successful */
-        if (OsStatus != sizeof(CFE_FS_Header_t)) 
+        if (OsStatus != sizeof(CFE_FS_Header_t))
         {
             return CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
         }
@@ -369,8 +369,12 @@ void CFE_FS_ByteSwapUint32(uint32 *Uint32ToSwapPtr)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_FS_ParseInputFileNameEx(char *OutputBuffer, const char *InputBuffer, size_t OutputBufSize,
-                                  size_t InputBufSize, const char *DefaultInput, const char *DefaultPath,
+int32 CFE_FS_ParseInputFileNameEx(char       *OutputBuffer,
+                                  const char *InputBuffer,
+                                  size_t      OutputBufSize,
+                                  size_t      InputBufSize,
+                                  const char *DefaultInput,
+                                  const char *DefaultPath,
                                   const char *DefaultExtension)
 {
     int32       Status;
@@ -447,10 +451,10 @@ int32 CFE_FS_ParseInputFileNameEx(char *OutputBuffer, const char *InputBuffer, s
                 if (ComponentPtr != NULL)
                 {
                     /* has path: use pathname from input, advance InputPtr to next part (filename) */
-                    ComponentLen = ComponentPtr - InputPtr;
-                    ComponentPtr = InputPtr;
-                    InputPtr += ComponentLen;
-                    InputLen -= ComponentLen;
+                    ComponentLen  = ComponentPtr - InputPtr;
+                    ComponentPtr  = InputPtr;
+                    InputPtr     += ComponentLen;
+                    InputLen     -= ComponentLen;
                 }
                 else
                 {
@@ -478,10 +482,10 @@ int32 CFE_FS_ParseInputFileNameEx(char *OutputBuffer, const char *InputBuffer, s
                 if (ComponentPtr != NULL)
                 {
                     /* has ext: use pathname from input, advance InputPtr to next part (extension) */
-                    ComponentLen = ComponentPtr - InputPtr;
-                    ComponentPtr = InputPtr;
-                    InputPtr += ComponentLen;
-                    InputLen -= ComponentLen;
+                    ComponentLen  = ComponentPtr - InputPtr;
+                    ComponentPtr  = InputPtr;
+                    InputPtr     += ComponentLen;
+                    InputLen     -= ComponentLen;
                 }
                 else
                 {
@@ -497,7 +501,7 @@ int32 CFE_FS_ParseInputFileNameEx(char *OutputBuffer, const char *InputBuffer, s
                     {
                         /* Use no extension */
                         Component = END_COMPONENT;
-                        InputLen = 0;
+                        InputLen  = 0;
                     }
                 }
 
@@ -582,10 +586,16 @@ int32 CFE_FS_ParseInputFileNameEx(char *OutputBuffer, const char *InputBuffer, s
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_FS_ParseInputFileName(char *OutputBuffer, const char *InputName, size_t OutputBufSize,
+int32 CFE_FS_ParseInputFileName(char                 *OutputBuffer,
+                                const char           *InputName,
+                                size_t                OutputBufSize,
                                 CFE_FS_FileCategory_t FileCategory)
 {
-    return CFE_FS_ParseInputFileNameEx(OutputBuffer, NULL, OutputBufSize, 0, InputName,
+    return CFE_FS_ParseInputFileNameEx(OutputBuffer,
+                                       NULL,
+                                       OutputBufSize,
+                                       0,
+                                       InputName,
                                        CFE_FS_GetDefaultMountPoint(FileCategory),
                                        CFE_FS_GetDefaultExtension(FileCategory));
 }
@@ -675,13 +685,13 @@ CFE_Status_t CFE_FS_ExtractFilenameFromPath(const char *OriginalPath, char *File
  *-----------------------------------------------------------------*/
 bool CFE_FS_RunBackgroundFileDump(uint32 ElapsedTime, void *Arg)
 {
-    CFE_FS_CurrentFileState_t *       State;
+    CFE_FS_CurrentFileState_t        *State;
     CFE_FS_BackgroundFileDumpEntry_t *Curr;
-    CFE_FS_FileWriteMetaData_t *      Meta;
+    CFE_FS_FileWriteMetaData_t       *Meta;
     int32                             OsStatus;
     int32                             Status;
     CFE_FS_Header_t                   FileHdr;
-    void *                            RecordPtr;
+    void                             *RecordPtr;
     size_t                            RecordSize;
     bool                              IsEOF;
 
@@ -740,14 +750,18 @@ bool CFE_FS_RunBackgroundFileDump(uint32 ElapsedTime, void *Arg)
             {
                 OS_close(State->Fd);
                 State->Fd = OS_OBJECT_ID_UNDEFINED;
-                Meta->OnEvent(Meta, CFE_FS_FileWriteEvent_HEADER_WRITE_ERROR, Status, State->RecordNum,
-                              sizeof(CFE_FS_Header_t), State->FileSize);
+                Meta->OnEvent(Meta,
+                              CFE_FS_FileWriteEvent_HEADER_WRITE_ERROR,
+                              Status,
+                              State->RecordNum,
+                              sizeof(CFE_FS_Header_t),
+                              State->FileSize);
             }
             else
             {
-                State->FileSize = sizeof(CFE_FS_Header_t);
-                State->Credit -= sizeof(CFE_FS_Header_t);
-                State->RecordNum = 0;
+                State->FileSize   = sizeof(CFE_FS_Header_t);
+                State->Credit    -= sizeof(CFE_FS_Header_t);
+                State->RecordNum  = 0;
             }
         }
     }
@@ -781,8 +795,12 @@ bool CFE_FS_RunBackgroundFileDump(uint32 ElapsedTime, void *Arg)
 
                 /* generate write error event */
                 /* NOTE: This converts the OSAL status directly into a CFE status for logging */
-                Meta->OnEvent(Meta, CFE_FS_FileWriteEvent_RECORD_WRITE_ERROR, (long)OsStatus, State->RecordNum,
-                              RecordSize, State->FileSize);
+                Meta->OnEvent(Meta,
+                              CFE_FS_FileWriteEvent_RECORD_WRITE_ERROR,
+                              (long)OsStatus,
+                              State->RecordNum,
+                              RecordSize,
+                              State->FileSize);
                 break;
             }
             else

@@ -74,12 +74,14 @@ void TestGetTypeFromMsgId(void)
      */
 
     status = CFE_MSG_GetTypeFromMsgId(msgid, &msgtype);
-    UtAssert_True(status == CFE_SUCCESS || status == CFE_MSG_BAD_ARGUMENT, "CFE_MSG_GetTypeFromMsgId() == (%ld)",
+    UtAssert_True(status == CFE_SUCCESS || status == CFE_MSG_BAD_ARGUMENT,
+                  "CFE_MSG_GetTypeFromMsgId() == (%ld)",
                   (long)status);
 
     memset(&msgid, 0xFF, sizeof(msgid));
     status = CFE_MSG_GetTypeFromMsgId(msgid, &msgtype);
-    UtAssert_True(status == CFE_SUCCESS || status == CFE_MSG_BAD_ARGUMENT, "CFE_MSG_GetTypeFromMsgId() == (%ld)",
+    UtAssert_True(status == CFE_SUCCESS || status == CFE_MSG_BAD_ARGUMENT,
+                  "CFE_MSG_GetTypeFromMsgId() == (%ld)",
                   (long)status);
 
     UtAssert_INT32_EQ(CFE_MSG_GetTypeFromMsgId(msgid, NULL), CFE_MSG_BAD_ARGUMENT);

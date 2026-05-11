@@ -30,7 +30,7 @@
  * Generated stub function for CFE_EVS_CleanUpApp()
  * ----------------------------------------------------
  */
-int32 CFE_EVS_CleanUpApp(CFE_ES_AppId_t AppId)
+int32 CFE_EVS_CleanUpApp(uint32 AppId)
 {
     UT_GenStub_SetupReturnBuffer(CFE_EVS_CleanUpApp, int32);
 

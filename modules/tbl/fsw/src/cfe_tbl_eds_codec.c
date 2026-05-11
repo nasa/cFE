@@ -43,14 +43,14 @@
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-CFE_Status_t CFE_TBL_DecodeHeadersFromFile(CFE_TBL_TxnState_t *Txn, osal_id_t FileDescriptor,
-                                           CFE_TBL_File_Hdr_t *HeaderPtr)
+CFE_Status_t
+CFE_TBL_DecodeHeadersFromFile(CFE_TBL_TxnState_t *Txn, osal_id_t FileDescriptor, CFE_TBL_File_Hdr_t *HeaderPtr)
 {
     CFE_Status_t                       ReturnCode;
     EdsLib_Id_t                        EdsId;
     int32                              EdsStatus;
     int32                              OsStatus;
-    const EdsLib_DatabaseObject_t *    EDS_DB;
+    const EdsLib_DatabaseObject_t     *EDS_DB;
     EdsPackedBuffer_CFE_TBL_File_Hdr_t Buffer;
 
     EDS_DB = CFE_Config_GetObjPointer(CFE_CONFIGID_MISSION_EDS_DB);
@@ -66,7 +66,11 @@ CFE_Status_t CFE_TBL_DecodeHeadersFromFile(CFE_TBL_TxnState_t *Txn, osal_id_t Fi
     }
     else
     {
-        EdsStatus = EdsLib_DataTypeDB_UnpackCompleteObject(EDS_DB, &EdsId, HeaderPtr, &Buffer, sizeof(*HeaderPtr),
+        EdsStatus = EdsLib_DataTypeDB_UnpackCompleteObject(EDS_DB,
+                                                           &EdsId,
+                                                           HeaderPtr,
+                                                           &Buffer,
+                                                           sizeof(*HeaderPtr),
                                                            8 * sizeof(Buffer));
         if (EdsStatus == EDSLIB_SUCCESS)
         {
@@ -88,21 +92,26 @@ CFE_Status_t CFE_TBL_DecodeHeadersFromFile(CFE_TBL_TxnState_t *Txn, osal_id_t Fi
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-CFE_Status_t CFE_TBL_EncodeHeadersToFile(CFE_TBL_TxnState_t *Txn, osal_id_t FileDescriptor,
-                                         const CFE_TBL_File_Hdr_t *HeaderPtr)
+CFE_Status_t
+CFE_TBL_EncodeHeadersToFile(CFE_TBL_TxnState_t *Txn, osal_id_t FileDescriptor, const CFE_TBL_File_Hdr_t *HeaderPtr)
 {
     CFE_Status_t                       ReturnCode;
     EdsLib_Id_t                        EdsId;
     int32                              EdsStatus;
     int32                              OsStatus;
-    const EdsLib_DatabaseObject_t *    EDS_DB;
+    const EdsLib_DatabaseObject_t     *EDS_DB;
     EdsPackedBuffer_CFE_TBL_File_Hdr_t Buffer;
 
     EDS_DB = CFE_Config_GetObjPointer(CFE_CONFIGID_MISSION_EDS_DB);
     EdsId  = EDSLIB_MAKE_ID(EDS_INDEX(CFE_TBL), EdsContainer_CFE_TBL_File_Hdr_DATADICTIONARY);
 
-    EdsStatus = EdsLib_DataTypeDB_PackPartialObject(EDS_DB, &EdsId, &Buffer, HeaderPtr, 8 * sizeof(Buffer),
-                                                    sizeof(*HeaderPtr), 0);
+    EdsStatus = EdsLib_DataTypeDB_PackPartialObject(EDS_DB,
+                                                    &EdsId,
+                                                    &Buffer,
+                                                    HeaderPtr,
+                                                    8 * sizeof(Buffer),
+                                                    sizeof(*HeaderPtr),
+                                                    0);
     if (EdsStatus == EDSLIB_SUCCESS)
     {
         OsStatus = OS_write(FileDescriptor, &Buffer, sizeof(Buffer));
@@ -140,8 +149,8 @@ CFE_Status_t CFE_TBL_FindAppTableInterface(const char *TableFullName, EdsLib_Id_
     uint8_t      AppIdx;
     char         AppNameBuffer[OS_MAX_API_NAME];
     char         TableNameBuffer[CFE_MISSION_TBL_MAX_NAME_LENGTH];
-    const char * TableNamePtr;
-    char *       TempPtr;
+    const char  *TableNamePtr;
+    char        *TempPtr;
     size_t       AppNameLen;
 
     const EdsLib_DatabaseObject_t *EDS_DB;
@@ -344,12 +353,12 @@ CFE_Status_t CFE_TBL_ValidateCodecConfig(CFE_TBL_TableConfig_t *ReqCfg)
 CFE_Status_t CFE_TBL_GetEncodedTableSize(CFE_TBL_TxnState_t *Txn, uint32 *NumBytes)
 {
     EdsLib_DataTypeDB_DerivedTypeInfo_t DerivInfo;
-    const EdsLib_DatabaseObject_t *     EDS_DB;
+    const EdsLib_DatabaseObject_t      *EDS_DB;
     EdsLib_Id_t                         EdsId;
     int32                               EdsStatus;
     CFE_Status_t                        Status;
-    CFE_TBL_RegistryRec_t *             RegRecPtr;
-    const CFE_TBL_TableConfig_t *       Config;
+    CFE_TBL_RegistryRec_t              *RegRecPtr;
+    const CFE_TBL_TableConfig_t        *Config;
 
     EDS_DB    = CFE_Config_GetObjPointer(CFE_CONFIGID_MISSION_EDS_DB);
     RegRecPtr = CFE_TBL_TxnRegRec(Txn);
@@ -412,7 +421,7 @@ CFE_Status_t CFE_TBL_ValidateCodecLoadSize(CFE_TBL_TxnState_t *Txn, const CFE_TB
     if (Status == CFE_SUCCESS)
     {
         ProjectedSize = HeaderPtr->Offset + HeaderPtr->NumBytes;
-        if (ProjectedSize > ActualSize)
+        if (ProjectedSize < HeaderPtr->Offset || ProjectedSize > ActualSize)
         {
             Status = CFE_TBL_ERR_FILE_TOO_LARGE;
             CFE_TBL_TxnAddEvent(Txn, CFE_TBL_LOAD_EXCEEDS_SIZE_ERR_EID, ProjectedSize, ActualSize);
@@ -485,14 +494,15 @@ void CFE_TBL_ReleaseCodecBuffer(CFE_TBL_LoadBuff_t *BufferPtr)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-CFE_Status_t CFE_TBL_EncodeOutputData(CFE_TBL_TxnState_t *Txn, const CFE_TBL_LoadBuff_t *SourceBuffer,
-                                      CFE_TBL_LoadBuff_t *DestBuffer)
+CFE_Status_t CFE_TBL_EncodeOutputData(CFE_TBL_TxnState_t       *Txn,
+                                      const CFE_TBL_LoadBuff_t *SourceBuffer,
+                                      CFE_TBL_LoadBuff_t       *DestBuffer)
 {
     CFE_Status_t                 ReturnCode;
     EdsLib_Id_t                  EdsId;
     int32                        EdsStatus;
     EdsLib_DataTypeDB_TypeInfo_t TypeInfo;
-    CFE_TBL_RegistryRec_t *      RegRecPtr;
+    CFE_TBL_RegistryRec_t       *RegRecPtr;
 
     const EdsLib_DatabaseObject_t *EDS_DB;
 
@@ -501,7 +511,10 @@ CFE_Status_t CFE_TBL_EncodeOutputData(CFE_TBL_TxnState_t *Txn, const CFE_TBL_Loa
 
     EdsId = CFE_TBL_RegRecGetConfig(RegRecPtr)->EdsId;
 
-    EdsStatus = EdsLib_DataTypeDB_PackCompleteObject(EDS_DB, &EdsId, DestBuffer, SourceBuffer->BufferPtr,
+    EdsStatus = EdsLib_DataTypeDB_PackCompleteObject(EDS_DB,
+                                                     &EdsId,
+                                                     DestBuffer,
+                                                     SourceBuffer->BufferPtr,
                                                      8 * CFE_PLATFORM_TBL_MAX_SNGL_TABLE_SIZE,
                                                      CFE_TBL_RegRecGetSize(RegRecPtr));
 
@@ -534,14 +547,14 @@ CFE_Status_t CFE_TBL_EncodeOutputData(CFE_TBL_TxnState_t *Txn, const CFE_TBL_Loa
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-CFE_Status_t CFE_TBL_DecodeInputData(CFE_TBL_TxnState_t *Txn, const CFE_TBL_LoadBuff_t *SourceBuffer,
-                                     CFE_TBL_LoadBuff_t *DestBuffer)
+CFE_Status_t
+CFE_TBL_DecodeInputData(CFE_TBL_TxnState_t *Txn, const CFE_TBL_LoadBuff_t *SourceBuffer, CFE_TBL_LoadBuff_t *DestBuffer)
 {
     CFE_Status_t                 ReturnCode;
     EdsLib_Id_t                  EdsId;
     int32                        EdsStatus;
     EdsLib_DataTypeDB_TypeInfo_t TypeInfo;
-    CFE_TBL_RegistryRec_t *      RegRecPtr;
+    CFE_TBL_RegistryRec_t       *RegRecPtr;
 
     const EdsLib_DatabaseObject_t *EDS_DB;
 
@@ -559,8 +572,11 @@ CFE_Status_t CFE_TBL_DecodeInputData(CFE_TBL_TxnState_t *Txn, const CFE_TBL_Load
     }
     else
     {
-        EdsStatus = EdsLib_DataTypeDB_UnpackCompleteObject(EDS_DB, &EdsId, DestBuffer->BufferPtr,
-                                                           SourceBuffer->BufferPtr, CFE_TBL_RegRecGetSize(RegRecPtr),
+        EdsStatus = EdsLib_DataTypeDB_UnpackCompleteObject(EDS_DB,
+                                                           &EdsId,
+                                                           DestBuffer->BufferPtr,
+                                                           SourceBuffer->BufferPtr,
+                                                           CFE_TBL_RegRecGetSize(RegRecPtr),
                                                            8 * CFE_PLATFORM_TBL_MAX_SNGL_TABLE_SIZE);
 
         if (EdsStatus == EDSLIB_SUCCESS)

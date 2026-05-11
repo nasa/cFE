@@ -58,13 +58,6 @@
 #endif
 
 /*
-** Number of entries in the ES Object table ( The table that controls core cFE startup )
-*/
-#if CFE_PLATFORM_ES_OBJECT_TABLE_SIZE < 15
-#error CFE_PLATFORM_ES_OBJECT_TABLE_SIZE cannot be less than 15!
-#endif
-
-/*
 ** ES Application Control Scan Rate.
 */
 #if CFE_PLATFORM_ES_APP_SCAN_RATE < 100

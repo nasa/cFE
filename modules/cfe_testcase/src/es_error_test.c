@@ -30,7 +30,7 @@
 void TestStatusToString_Helper(CFE_Status_t status)
 {
     CFE_StatusString_t status_string;
-    char *             rtn_addr;
+    char              *rtn_addr;
     char               expected[CFE_STATUS_STRING_LENGTH + 1];
 
     /* Used oversized string to test for truncation */

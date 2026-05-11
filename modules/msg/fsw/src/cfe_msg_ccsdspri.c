@@ -48,9 +48,6 @@
  *-----------------------------------------------------------------*/
 void CFE_MSG_SetDefaultCCSDSPri(CFE_MSG_Message_t *MsgPtr)
 {
-    /* cFS standard is for secondary header to be present */
-    CFE_MSG_SetHasSecondaryHeader(MsgPtr, true);
-
     /* cFS standard for CCSDS Version */
     CFE_MSG_SetHeaderVersion(MsgPtr, CFE_MISSION_CCSDSVER);
 
@@ -111,7 +108,6 @@ CFE_Status_t CFE_MSG_GetType(const CFE_MSG_Message_t *MsgPtr, CFE_MSG_Type_t *Ty
         return CFE_MSG_BAD_ARGUMENT;
     }
 
-    
     if ((MsgPtr->CCSDS.Pri.StreamId[0] & (CFE_MSG_TYPE_MASK >> 8)) != 0)
     {
         *Type = CFE_MSG_Type_Cmd;

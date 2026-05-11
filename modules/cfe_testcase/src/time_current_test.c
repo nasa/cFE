@@ -41,14 +41,24 @@ void TimeInRange(CFE_TIME_SysTime_t Start, CFE_TIME_SysTime_t Time, CFE_TIME_Sys
     CFE_TIME_Print(TimeStr, Time);
 
     Compare = CFE_TIME_Compare(Start, Time);
-    UtAssert_True((Compare == CFE_TIME_EQUAL) || (Compare == CFE_TIME_A_LT_B), "%s: %lu %lu (%s) <= %lu %lu (%s)", Str,
-                  (long unsigned)Start.Seconds, (long unsigned)Start.Subseconds, StartStr, (long unsigned)Time.Seconds,
-                  (long unsigned)Time.Subseconds, TimeStr);
+    UtAssert_True((Compare == CFE_TIME_EQUAL) || (Compare == CFE_TIME_A_LT_B),
+                  "%s: %lu %lu (%s) <= %lu %lu (%s)",
+                  Str,
+                  (long unsigned)Start.Seconds,
+                  (long unsigned)Start.Subseconds,
+                  StartStr,
+                  (long unsigned)Time.Seconds,
+                  (long unsigned)Time.Subseconds,
+                  TimeStr);
 
     Delta   = CFE_TIME_Subtract(Time, Start);
     Compare = CFE_TIME_Compare(Delta, Range);
-    UtAssert_True((Compare == CFE_TIME_EQUAL) || (Compare == CFE_TIME_A_LT_B), "%s: Delta %lu %lu <= Range %lu %lu",
-                  Str, (long unsigned)Delta.Seconds, (long unsigned)Delta.Subseconds, (long unsigned)Range.Seconds,
+    UtAssert_True((Compare == CFE_TIME_EQUAL) || (Compare == CFE_TIME_A_LT_B),
+                  "%s: Delta %lu %lu <= Range %lu %lu",
+                  Str,
+                  (long unsigned)Delta.Seconds,
+                  (long unsigned)Delta.Subseconds,
+                  (long unsigned)Range.Seconds,
                   (long unsigned)Range.Subseconds);
 }
 
@@ -103,8 +113,11 @@ void TestGetTime(void)
     }
     UtAssert_UINT32_LTEQ(METSubSeconds - MET.Subseconds, Range.Subseconds);
     UtPrintf("MET = %lu, %lu, METSeconds = %lu, METSubSeconds = %lu, Range.Subseconds = %lu",
-             (long unsigned)MET.Seconds, (long unsigned)MET.Subseconds, (long unsigned)METSeconds,
-             (long unsigned)METSubSeconds, (long unsigned)Range.Subseconds);
+             (long unsigned)MET.Seconds,
+             (long unsigned)MET.Subseconds,
+             (long unsigned)METSeconds,
+             (long unsigned)METSubSeconds,
+             (long unsigned)Range.Subseconds);
 }
 
 void TestClock(void)

@@ -57,16 +57,25 @@
  * sequential integers, and there is no need to redefine - this app has no other events.
  */
 static CFE_EVS_BinFilter_t CFE_TR_EventFilters[] = {
-    {UTASSERT_CASETYPE_ABORT, CFE_EVS_NO_FILTER}, {UTASSERT_CASETYPE_FAILURE, CFE_EVS_NO_FILTER},
-    {UTASSERT_CASETYPE_TSF, CFE_EVS_NO_FILTER},   {UTASSERT_CASETYPE_TTF, CFE_EVS_NO_FILTER},
-    {UTASSERT_CASETYPE_MIR, CFE_EVS_NO_FILTER},   {UTASSERT_CASETYPE_NA, CFE_EVS_NO_FILTER},
-    {UTASSERT_CASETYPE_BEGIN, CFE_EVS_NO_FILTER}, {UTASSERT_CASETYPE_END, CFE_EVS_NO_FILTER},
-    {UTASSERT_CASETYPE_INFO, CFE_EVS_NO_FILTER},  {UTASSERT_CASETYPE_PASS, CFE_EVS_NO_FILTER},
-    {UTASSERT_CASETYPE_DEBUG, CFE_EVS_NO_FILTER},
+    { UTASSERT_CASETYPE_ABORT,   CFE_EVS_NO_FILTER },
+    { UTASSERT_CASETYPE_FAILURE, CFE_EVS_NO_FILTER },
+    { UTASSERT_CASETYPE_TSF,     CFE_EVS_NO_FILTER },
+    { UTASSERT_CASETYPE_TTF,     CFE_EVS_NO_FILTER },
+    { UTASSERT_CASETYPE_MIR,     CFE_EVS_NO_FILTER },
+    { UTASSERT_CASETYPE_NA,      CFE_EVS_NO_FILTER },
+    { UTASSERT_CASETYPE_BEGIN,   CFE_EVS_NO_FILTER },
+    { UTASSERT_CASETYPE_END,     CFE_EVS_NO_FILTER },
+    { UTASSERT_CASETYPE_INFO,    CFE_EVS_NO_FILTER },
+    { UTASSERT_CASETYPE_PASS,    CFE_EVS_NO_FILTER },
+    { UTASSERT_CASETYPE_DEBUG,   CFE_EVS_NO_FILTER },
 };
 
-bool CFE_Assert_StatusCheck(CFE_Status_t Status, bool ExpectSuccess, UtAssert_CaseType_t CaseType, const char *File,
-                            uint32 Line, const char *Text)
+bool CFE_Assert_StatusCheck(CFE_Status_t        Status,
+                            bool                ExpectSuccess,
+                            UtAssert_CaseType_t CaseType,
+                            const char         *File,
+                            uint32              Line,
+                            const char         *Text)
 {
     bool        Result = (Status >= CFE_SUCCESS);
     const char *MatchText;
@@ -116,8 +125,11 @@ bool CFE_Assert_Status_SilentCheck(CFE_Status_t Status)
     return (Status == CFE_Assert_Global.StoredStatus);
 }
 
-bool CFE_Assert_Status_DeferredCheck(CFE_Status_t Status, UtAssert_CaseType_t CaseType, const char *File, uint32 Line,
-                                     const char *Text)
+bool CFE_Assert_Status_DeferredCheck(CFE_Status_t        Status,
+                                     UtAssert_CaseType_t CaseType,
+                                     const char         *File,
+                                     uint32              Line,
+                                     const char         *Text)
 {
     bool        Result;
     const char *ExtraTag;
@@ -144,9 +156,16 @@ bool CFE_Assert_Status_DeferredCheck(CFE_Status_t Status, UtAssert_CaseType_t Ca
 
         /* This produces a log message similar to what UtAssert_INT32_EQ would produce.
          * Note the file/line will reflect where the call was made, not where this assertion was done */
-        Result = UtAssertEx(Result, CaseType, CFE_Assert_Global.StoredFile, CFE_Assert_Global.StoredLine,
-                            "%s (%ld) == %s (%ld)%s", CFE_Assert_Global.StoredText,
-                            (long)CFE_Assert_Global.StoredStatus, Text, (long)Status, ExtraTag);
+        Result = UtAssertEx(Result,
+                            CaseType,
+                            CFE_Assert_Global.StoredFile,
+                            CFE_Assert_Global.StoredLine,
+                            "%s (%ld) == %s (%ld)%s",
+                            CFE_Assert_Global.StoredText,
+                            (long)CFE_Assert_Global.StoredStatus,
+                            Text,
+                            (long)Status,
+                            ExtraTag);
     }
 
     return Result;
@@ -189,7 +208,8 @@ int32 CFE_Assert_RegisterTest(const char *TestName)
     char           SetupSegmentName[64];
     CFE_ES_AppId_t SelfId;
 
-    rc = CFE_EVS_Register(CFE_TR_EventFilters, sizeof(CFE_TR_EventFilters) / sizeof(CFE_EVS_BinFilter_t),
+    rc = CFE_EVS_Register(CFE_TR_EventFilters,
+                          sizeof(CFE_TR_EventFilters) / sizeof(CFE_EVS_BinFilter_t),
                           CFE_EVS_EventFilter_BINARY);
     if (rc != CFE_SUCCESS)
     {
@@ -290,7 +310,9 @@ void CFE_Assert_ExecuteTest(void)
     if (rc != CFE_SUCCESS || !CFE_RESOURCEID_TEST_EQUAL(AppId, CFE_Assert_Global.OwnerAppId))
     {
         CFE_ES_WriteToSysLog("%s: Invalid calling context, CFE_ES_GetAppId() rc=%08x AppId=%lx, OwnerAppId=%lx\n",
-                             __func__, (unsigned int)rc, CFE_RESOURCEID_TO_ULONG(AppId),
+                             __func__,
+                             (unsigned int)rc,
+                             CFE_RESOURCEID_TO_ULONG(AppId),
                              CFE_RESOURCEID_TO_ULONG(CFE_Assert_Global.OwnerAppId));
         return;
     }

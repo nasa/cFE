@@ -90,11 +90,6 @@ typedef struct CFE_TBL_TxnEvent
 } CFE_TBL_TxnEvent_t;
 
 /**
- * Callback function for event processing
- */
-typedef bool (*CFE_TBL_TxnEventProcFunc_t)(const CFE_TBL_TxnEvent_t *, void *);
-
-/**
  * The table transaction object
  *
  * This tracks all the relevant information from the current API request,
@@ -127,12 +122,39 @@ typedef struct CFE_TBL_TxnState
     char AppNameBuffer[CFE_MISSION_MAX_API_LEN];
 
     CFE_TBL_AccessDescriptor_t *AccDescPtr;
-    CFE_TBL_RegistryRec_t *     RegRecPtr;
+    CFE_TBL_RegistryRec_t      *RegRecPtr;
 
     uint32             NumPendingEvents;
     CFE_TBL_TxnEvent_t PendingEvents[CFE_TBL_MAX_EVENTS_PER_TXN];
 
 } CFE_TBL_TxnState_t;
+
+/**
+ * Transaction event context
+ *
+ * This is the basic context for all events, indicating what the attempted operation
+ * was, the name of the table, and the name of the caller.
+ *
+ * The "OperationDataPtr" element contains additional information that is specific
+ * to the operation type.  It may be NULL if no additional information is available,
+ * otherwise it is a pointer to the additional information struct.
+ */
+typedef struct CFE_TBL_TxnEventContext_t
+{
+    const char *Operation;
+    const void *OperationDataPtr;
+
+    const char *TableName;
+    const char *CallerName;
+
+    const CFE_TBL_RegistryRec_t *RegRecPtr;
+
+} CFE_TBL_TxnEventContext_t;
+
+/**
+ * Callback function for event processing
+ */
+typedef bool (*CFE_TBL_TxnEventProcFunc_t)(const CFE_TBL_TxnEvent_t *, CFE_TBL_TxnEventContext_t *);
 
 /*****************************  Simple Accessors   **********************************/
 
@@ -482,11 +504,13 @@ uint32 CFE_TBL_TxnGetEventCount(const CFE_TBL_TxnState_t *Txn);
  *
  * \param[in]  Txn       The transaction object to operate on
  * \param[in]  EventProc User-defined routine to call for each event, which does the reporting
- * \param[in]  Arg       Opaque argument to pass to EventProc
+ * \param[in]  Ctxt      Context argument to pass to EventProc
  *
  * \returns the number of events that were successfully processed
  */
-uint32 CFE_TBL_TxnProcessEvents(const CFE_TBL_TxnState_t *Txn, CFE_TBL_TxnEventProcFunc_t EventProc, void *Arg);
+uint32 CFE_TBL_TxnProcessEvents(const CFE_TBL_TxnState_t  *Txn,
+                                CFE_TBL_TxnEventProcFunc_t EventProc,
+                                CFE_TBL_TxnEventContext_t *Ctxt);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -504,5 +528,26 @@ uint32 CFE_TBL_TxnProcessEvents(const CFE_TBL_TxnState_t *Txn, CFE_TBL_TxnEventP
  * \param[inout] Txn       The transaction object to operate on
  */
 void CFE_TBL_TxnClearEvents(CFE_TBL_TxnState_t *Txn);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * \brief Send events associated with the transaction
+ *
+ * \par Description
+ *        Calls the user-supplied event processing function for every event
+ *        stored in the transaction object.
+ *
+ * \par Assumptions, External Events, and Notes:
+ *        The event list is cleared at the end of this function
+ *
+ * \param[inout] Txn       The transaction object to operate on
+ * \param[in]    Operation A simple word to include in the event strings
+ * \param[in]    EventProc Context-specific event processing function
+ * \param[in]    OperationData Opaque Context-specific argument
+ */
+void CFE_TBL_SendTransactionEvents(CFE_TBL_TxnState_t        *Txn,
+                                   const char                *Operation,
+                                   CFE_TBL_TxnEventProcFunc_t EventProc,
+                                   const void                *OperationData);
 
 #endif /* CFE_TBL_TRANSACTION_H */

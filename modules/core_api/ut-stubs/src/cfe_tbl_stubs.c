@@ -200,8 +200,10 @@ CFE_Status_t CFE_TBL_Modified(CFE_TBL_Handle_t TblHandle)
  * Generated stub function for CFE_TBL_NotifyByMessage()
  * ----------------------------------------------------
  */
-CFE_Status_t CFE_TBL_NotifyByMessage(CFE_TBL_Handle_t TblHandle, CFE_SB_MsgId_t MsgId, CFE_MSG_FcnCode_t CommandCode,
-                                     uint32 Parameter)
+CFE_Status_t CFE_TBL_NotifyByMessage(CFE_TBL_Handle_t  TblHandle,
+                                     CFE_SB_MsgId_t    MsgId,
+                                     CFE_MSG_FcnCode_t CommandCode,
+                                     uint32            Parameter)
 {
     UT_GenStub_SetupReturnBuffer(CFE_TBL_NotifyByMessage, CFE_Status_t);
 
@@ -220,7 +222,10 @@ CFE_Status_t CFE_TBL_NotifyByMessage(CFE_TBL_Handle_t TblHandle, CFE_SB_MsgId_t 
  * Generated stub function for CFE_TBL_Register()
  * ----------------------------------------------------
  */
-CFE_Status_t CFE_TBL_Register(CFE_TBL_Handle_t *TblHandlePtr, const char *Name, size_t Size, uint16 TblOptionFlags,
+CFE_Status_t CFE_TBL_Register(CFE_TBL_Handle_t         *TblHandlePtr,
+                              const char               *Name,
+                              size_t                    Size,
+                              uint16                    TblOptionFlags,
                               CFE_TBL_CallbackFuncPtr_t TblValidationFuncPtr)
 {
     UT_GenStub_SetupReturnBuffer(CFE_TBL_Register, CFE_Status_t);

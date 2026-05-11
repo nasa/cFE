@@ -91,7 +91,7 @@ int32 CFE_TBL_EarlyInit(void);
 **           the specified application from the Critical Data Store.
 **
 ******************************************************************************/
-int32 CFE_TBL_CleanUpApp(CFE_ES_AppId_t AppId);
+int32 CFE_TBL_CleanUpApp(uint32 Id);
 
 /**@}*/
 

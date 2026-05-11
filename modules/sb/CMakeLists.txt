@@ -14,6 +14,7 @@ set(sb_SOURCES
     fsw/src/cfe_sb_priv.c
     fsw/src/cfe_sb_task.c
     fsw/src/cfe_sb_util.c
+    fsw/src/cfe_sb_objtab.c
 )
 
 if (CFE_EDS_ENABLED)

@@ -81,7 +81,59 @@ void UT_TBL_SetupCodec(size_t ByteSize)
     /* classic build has a passthru layer here, this is a no-op */
 }
 
+void UT_TBL_ValidateCodecLoadSize_Test(void)
+{
+    /* Test Case for:
+     * CFE_Status_t CFE_TBL_ValidateCodecLoadSize(CFE_TBL_TxnState_t *Txn, const CFE_TBL_File_Hdr_t *HeaderPtr);
+     */
+
+    CFE_TBL_TxnState_t    Txn;
+    CFE_TBL_File_Hdr_t    Header;
+    CFE_TBL_RegistryRec_t RegRec;
+
+    memset(&Txn, 0, sizeof(Txn));
+    memset(&Header, 0, sizeof(Header));
+    memset(&RegRec, 0, sizeof(RegRec));
+
+    Txn.RegRecPtr = &RegRec;
+
+    /* Case where the load exactly will fill the buffer */
+    RegRec.Config.Size = 100;
+    Header.NumBytes = RegRec.Config.Size;
+    UtAssert_INT32_EQ(CFE_TBL_ValidateCodecLoadSize(&Txn, &Header), CFE_SUCCESS);
+    UtAssert_ZERO(Txn.NumPendingEvents);
+
+    /* Case where the numbytes is OK but offset is too large */
+    Header.NumBytes = RegRec.Config.Size / 2;
+    Header.Offset = RegRec.Config.Size * 2;
+    UtAssert_INT32_EQ(CFE_TBL_ValidateCodecLoadSize(&Txn, &Header), CFE_TBL_ERR_FILE_TOO_LARGE);
+    UT_TBL_EVENT_PENDING(&Txn, CFE_TBL_LOAD_EXCEEDS_SIZE_ERR_EID);
+    CFE_TBL_TxnClearEvents(&Txn);
+
+    /* Case where the offset is OK but numbytes is too large */
+    Header.NumBytes = RegRec.Config.Size * 2;
+    Header.Offset = RegRec.Config.Size / 2;
+    UtAssert_INT32_EQ(CFE_TBL_ValidateCodecLoadSize(&Txn, &Header), CFE_TBL_ERR_FILE_TOO_LARGE);
+    UT_TBL_EVENT_PENDING(&Txn, CFE_TBL_LOAD_EXCEEDS_SIZE_ERR_EID);
+    CFE_TBL_TxnClearEvents(&Txn);
+
+    /* Case where the offset is OK but numbytes causes uint32 overflow */
+    Header.NumBytes = UINT32_MAX - (RegRec.Config.Size / 2);
+    Header.Offset = RegRec.Config.Size - 1;
+    UtAssert_INT32_EQ(CFE_TBL_ValidateCodecLoadSize(&Txn, &Header), CFE_TBL_ERR_FILE_TOO_LARGE);
+    UT_TBL_EVENT_PENDING(&Txn, CFE_TBL_LOAD_EXCEEDS_SIZE_ERR_EID);
+    CFE_TBL_TxnClearEvents(&Txn);
+
+    /* Case where the offset and numbytes are individually OK but sum is too large */
+    Header.NumBytes = RegRec.Config.Size - 1;
+    Header.Offset = RegRec.Config.Size - 1;
+    UtAssert_INT32_EQ(CFE_TBL_ValidateCodecLoadSize(&Txn, &Header), CFE_TBL_ERR_FILE_TOO_LARGE);
+    UT_TBL_EVENT_PENDING(&Txn, CFE_TBL_LOAD_EXCEEDS_SIZE_ERR_EID);
+    CFE_TBL_TxnClearEvents(&Txn);
+}
+
 void UT_TBL_RegisterCodecTests(void)
 {
-    /* classic build has a passthru layer here, this is a no-op */
+    UtTest_Add(UT_TBL_ValidateCodecLoadSize_Test, UT_TBL_GlobalDataReset, NULL, "Test CFE_TBL_ValidateCodecLoadSize()");
+
 }

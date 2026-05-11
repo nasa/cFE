@@ -45,7 +45,7 @@
 /** \brief Routing table entry */
 typedef struct
 {
-    CFE_SB_DestinationD_t * ListHeadPtr; /**< \brief Destination list head */
+    CFE_SB_DestinationD_t  *ListHeadPtr; /**< \brief Destination list head */
     CFE_SB_MsgId_t          MsgId;       /**< \brief Message ID associated with route */
     CFE_MSG_SequenceCount_t SeqCnt;      /**< \brief Message sequence counter */
 } CFE_SBR_RouteEntry_t;

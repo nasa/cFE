@@ -22,6 +22,7 @@ set(tbl_SOURCES
     fsw/src/cfe_tbl_transaction.c
     fsw/src/cfe_tbl_task.c
     fsw/src/cfe_tbl_task_cmds.c
+    fsw/src/cfe_tbl_objtab.c
 )
 
 if (CFE_EDS_ENABLED)

@@ -819,9 +819,13 @@ int32 CFE_ES_GetModuleInfo(CFE_ES_AppInfo_t *ModuleInfo, CFE_ResourceId_t Resour
 ** \sa #CFE_ES_DeleteChildTask, #CFE_ES_ExitChildTask
 **
 ******************************************************************************/
-CFE_Status_t CFE_ES_CreateChildTask(CFE_ES_TaskId_t *TaskIdPtr, const char *TaskName,
-                                    CFE_ES_ChildTaskMainFuncPtr_t FunctionPtr, CFE_ES_StackPointer_t StackPtr,
-                                    size_t StackSize, CFE_ES_TaskPriority_Atom_t Priority, uint32 Flags);
+CFE_Status_t CFE_ES_CreateChildTask(CFE_ES_TaskId_t              *TaskIdPtr,
+                                    const char                   *TaskName,
+                                    CFE_ES_ChildTaskMainFuncPtr_t FunctionPtr,
+                                    CFE_ES_StackPointer_t         StackPtr,
+                                    size_t                        StackSize,
+                                    CFE_ES_TaskPriority_Atom_t    Priority,
+                                    uint32                        Flags);
 
 /*****************************************************************************/
 /**
@@ -1296,8 +1300,12 @@ CFE_Status_t CFE_ES_PoolCreate(CFE_ES_MemHandle_t *PoolID, void *MemPtr, size_t 
 ** \sa #CFE_ES_PoolCreate, #CFE_ES_PoolCreateNoSem, #CFE_ES_GetPoolBuf, #CFE_ES_PutPoolBuf, #CFE_ES_GetMemPoolStats
 **
 ******************************************************************************/
-CFE_Status_t CFE_ES_PoolCreateEx(CFE_ES_MemHandle_t *PoolID, void *MemPtr, size_t Size, uint16 NumBlockSizes,
-                                 const size_t *BlockSizes, bool UseMutex);
+CFE_Status_t CFE_ES_PoolCreateEx(CFE_ES_MemHandle_t *PoolID,
+                                 void               *MemPtr,
+                                 size_t              Size,
+                                 uint16              NumBlockSizes,
+                                 const size_t       *BlockSizes,
+                                 bool                UseMutex);
 
 /*****************************************************************************/
 /**
@@ -1348,9 +1356,13 @@ CFE_Status_t CFE_ES_PoolCreateEx(CFE_ES_MemHandle_t *PoolID, void *MemPtr, size_
 ** \sa #CFE_ES_PoolCreate, #CFE_ES_PoolCreateNoSem, #CFE_ES_GetPoolBuf, #CFE_ES_PutPoolBuf, #CFE_ES_GetMemPoolStats
 **
 ******************************************************************************/
-CFE_Status_t CFE_ES_PoolCreateEx_WithAlignment(CFE_ES_MemHandle_t *PoolID, void *MemPtr, size_t Size,
-                                               uint16 NumBlockSizes, const size_t *BlockSizes, bool UseMutex,
-                                               size_t Alignment);
+CFE_Status_t CFE_ES_PoolCreateEx_WithAlignment(CFE_ES_MemHandle_t *PoolID,
+                                               void               *MemPtr,
+                                               size_t              Size,
+                                               uint16              NumBlockSizes,
+                                               const size_t       *BlockSizes,
+                                               bool                UseMutex,
+                                               size_t              Alignment);
 
 /*****************************************************************************/
 /**

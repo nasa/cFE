@@ -71,8 +71,12 @@ void CFE_TBL_TxnUnlockRegistry(CFE_TBL_TxnState_t *Txn)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-CFE_Status_t CFE_TBL_TxnCheckConfig(CFE_TBL_TxnState_t *Txn, CFE_TBL_TableConfig_t *ReqCfg, const char *BaseName,
-                                    uint16 TblOptionFlags, size_t Size, CFE_TBL_CallbackFuncPtr_t ValidationFuncPtr)
+CFE_Status_t CFE_TBL_TxnCheckConfig(CFE_TBL_TxnState_t       *Txn,
+                                    CFE_TBL_TableConfig_t    *ReqCfg,
+                                    const char               *BaseName,
+                                    uint16                    TblOptionFlags,
+                                    size_t                    Size,
+                                    CFE_TBL_CallbackFuncPtr_t ValidationFuncPtr)
 {
     CFE_Status_t Status;
 
@@ -97,7 +101,9 @@ CFE_Status_t CFE_TBL_TxnCheckConfig(CFE_TBL_TxnState_t *Txn, CFE_TBL_TableConfig
         if (Status != CFE_SUCCESS)
         {
             /* Table cannot be critial/double buffered or must be dump-only and wasn't specified as so */
-            CFE_ES_WriteToSysLog("%s: bad TblOptionFlags combination for '%s' (0x%lx)\n", __func__, BaseName,
+            CFE_ES_WriteToSysLog("%s: bad TblOptionFlags combination for '%s' (0x%lx)\n",
+                                 __func__,
+                                 BaseName,
                                  (unsigned long)TblOptionFlags);
         }
         else
@@ -106,7 +112,9 @@ CFE_Status_t CFE_TBL_TxnCheckConfig(CFE_TBL_TxnState_t *Txn, CFE_TBL_TableConfig
             Status = CFE_TBL_ValidateTableSize(ReqCfg, Size);
             if (Status != CFE_SUCCESS)
             {
-                CFE_ES_WriteToSysLog("%s: Table '%s' has invalid size (%lu)\n", __func__, BaseName,
+                CFE_ES_WriteToSysLog("%s: Table '%s' has invalid size (%lu)\n",
+                                     __func__,
+                                     BaseName,
                                      (unsigned long)Size);
             }
             else
@@ -129,7 +137,7 @@ CFE_Status_t CFE_TBL_TxnRemoveAccessLink(CFE_TBL_TxnState_t *Txn)
 {
     int32                       Status     = CFE_SUCCESS;
     CFE_TBL_AccessDescriptor_t *AccDescPtr = CFE_TBL_TxnAccDesc(Txn);
-    CFE_TBL_RegistryRec_t *     RegRecPtr  = CFE_TBL_TxnRegRec(Txn);
+    CFE_TBL_RegistryRec_t      *RegRecPtr  = CFE_TBL_TxnRegRec(Txn);
 
     /*
      * NOTE: In all cases where this is invoked, the registry should
@@ -167,8 +175,8 @@ CFE_Status_t CFE_TBL_TxnGetTableAddress(CFE_TBL_TxnState_t *Txn, void **TblPtr)
 {
     int32                       Status;
     CFE_TBL_AccessDescriptor_t *AccDescPtr = CFE_TBL_TxnAccDesc(Txn);
-    CFE_TBL_RegistryRec_t *     RegRecPtr  = CFE_TBL_TxnRegRec(Txn);
-    CFE_TBL_LoadBuff_t *        ActiveBuffPtr;
+    CFE_TBL_RegistryRec_t      *RegRecPtr  = CFE_TBL_TxnRegRec(Txn);
+    CFE_TBL_LoadBuff_t         *ActiveBuffPtr;
 
     /* If table is unowned, then owner must have unregistered it when we weren't looking */
     if (!CFE_RESOURCEID_TEST_DEFINED(RegRecPtr->OwnerAppId))
@@ -176,8 +184,10 @@ CFE_Status_t CFE_TBL_TxnGetTableAddress(CFE_TBL_TxnState_t *Txn, void **TblPtr)
         Status  = CFE_TBL_ERR_UNREGISTERED;
         *TblPtr = NULL;
 
-        CFE_ES_WriteToSysLog("%s: App(%lu) attempt to access unowned Tbl Handle=%lu\n", __func__,
-                             CFE_TBL_TxnAppIdAsULong(Txn), CFE_TBL_TxnHandleAsULong(Txn));
+        CFE_ES_WriteToSysLog("%s: App(%lu) attempt to access unowned Tbl Handle=%lu\n",
+                             __func__,
+                             CFE_TBL_TxnAppIdAsULong(Txn),
+                             CFE_TBL_TxnHandleAsULong(Txn));
     }
     else if (!CFE_TBL_RegRecIsTableLoaded(RegRecPtr))
     {
@@ -224,6 +234,7 @@ CFE_Status_t CFE_TBL_TxnFindRegByName(CFE_TBL_TxnState_t *Txn, const char *TblNa
     if (RegRecPtr == NULL)
     {
         Status = CFE_TBL_ERR_INVALID_NAME;
+        CFE_TBL_TxnAddEvent(Txn, CFE_TBL_NO_SUCH_TABLE_ERR_EID, Status, 0);
     }
     else
     {
@@ -316,7 +327,10 @@ CFE_Status_t CFE_TBL_TxnCheckDuplicateRegistration(CFE_TBL_TxnState_t *Txn, cons
                 Status = CFE_TBL_ERR_DUPLICATE_DIFF_SIZE;
 
                 CFE_ES_WriteToSysLog("%s: Attempt to register existing table ('%s') with different size(%d!=%d)\n",
-                                     __func__, TblName, (int)Size, (int)CFE_TBL_RegRecGetSize(RegRecPtr));
+                                     __func__,
+                                     TblName,
+                                     (int)Size,
+                                     (int)CFE_TBL_RegRecGetSize(RegRecPtr));
             }
             else
             {
@@ -334,8 +348,10 @@ CFE_Status_t CFE_TBL_TxnCheckDuplicateRegistration(CFE_TBL_TxnState_t *Txn, cons
         {
             Status = CFE_TBL_ERR_DUPLICATE_NOT_OWNED;
 
-            CFE_ES_WriteToSysLog("%s: App(%lu) Registering Duplicate Table '%s' owned by App(%lu)\n", __func__,
-                                 CFE_RESOURCEID_TO_ULONG(ThisAppId), TblName,
+            CFE_ES_WriteToSysLog("%s: App(%lu) Registering Duplicate Table '%s' owned by App(%lu)\n",
+                                 __func__,
+                                 CFE_RESOURCEID_TO_ULONG(ThisAppId),
+                                 TblName,
                                  CFE_RESOURCEID_TO_ULONG(RegRecPtr->OwnerAppId));
         }
     }
@@ -358,7 +374,7 @@ void CFE_TBL_TxnConnectAccessDescriptor(CFE_TBL_TxnState_t *Txn)
 {
     /* Initialize the Table Access Descriptor */
     CFE_TBL_AccessDescriptor_t *AccDescPtr = CFE_TBL_TxnAccDesc(Txn);
-    CFE_TBL_RegistryRec_t *     RegRecPtr  = CFE_TBL_TxnRegRec(Txn);
+    CFE_TBL_RegistryRec_t      *RegRecPtr  = CFE_TBL_TxnRegRec(Txn);
 
     AccDescPtr->LockFlag = false;
 
@@ -393,8 +409,7 @@ CFE_Status_t CFE_TBL_TxnGetTableStatus(CFE_TBL_TxnState_t *Txn)
     CFE_TBL_RegistryRec_t *RegRecPtr = CFE_TBL_TxnRegRec(Txn);
 
     /* Perform validations prior to performing any updates */
-    if (CFE_TBL_VALRESULTID_IS_VALID(RegRecPtr->ValidateActiveId) ||
-        CFE_TBL_VALRESULTID_IS_VALID(RegRecPtr->ValidateInactiveId))
+    if (CFE_TBL_VALRESULTID_IS_VALID(RegRecPtr->PendingValId))
     {
         Status = CFE_TBL_INFO_VALIDATION_PENDING;
     }

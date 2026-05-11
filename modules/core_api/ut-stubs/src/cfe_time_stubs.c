@@ -113,7 +113,6 @@ void CFE_TIME_ExternalTime(CFE_TIME_SysTime_t NewTime)
  */
 void CFE_TIME_ExternalTone(void)
 {
-
     UT_GenStub_Execute(CFE_TIME_ExternalTone, Basic, NULL);
 }
 
@@ -264,7 +263,6 @@ CFE_TIME_SysTime_t CFE_TIME_GetUTC(void)
  */
 void CFE_TIME_Local1HzISR(void)
 {
-
     UT_GenStub_Execute(CFE_TIME_Local1HzISR, Basic, NULL);
 }
 

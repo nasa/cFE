@@ -48,10 +48,10 @@ int32 CFE_TBL_EarlyInit(void)
     int32  OsStatus;
     int32  Status;
 
-    CFE_TBL_RegistryRec_t *     RegRecPtr;
+    CFE_TBL_RegistryRec_t      *RegRecPtr;
     CFE_TBL_AccessDescriptor_t *AccessDescPtr;
-    CFE_TBL_LoadBuff_t *        LoadBuffPtr;
-    CFE_TBL_CritRegRec_t *      CritRegRecPtr;
+    CFE_TBL_LoadBuff_t         *LoadBuffPtr;
+    CFE_TBL_CritRegRec_t       *CritRegRecPtr;
 
     /* Clear task global */
     memset(&CFE_TBL_Global, 0, sizeof(CFE_TBL_Global));
@@ -94,7 +94,8 @@ int32 CFE_TBL_EarlyInit(void)
     }
 
     /* Initialize memory partition and allocate shared table buffers. */
-    Status = CFE_ES_PoolCreate(&CFE_TBL_Global.Buf.PoolHdl, CFE_TBL_Global.Buf.Partition.Data,
+    Status = CFE_ES_PoolCreate(&CFE_TBL_Global.Buf.PoolHdl,
+                               CFE_TBL_Global.Buf.Partition.Data,
                                sizeof(CFE_TBL_Global.Buf.Partition));
 
     if (Status < 0)
@@ -121,7 +122,8 @@ int32 CFE_TBL_EarlyInit(void)
     /* Try to obtain a previous image of the Critical Table Registry from the Critical Data Store */
     Status = CFE_ES_RegisterCDSEx(&CFE_TBL_Global.CritRegHandle,
                                   (sizeof(CFE_TBL_CritRegRec_t) * CFE_PLATFORM_TBL_MAX_CRITICAL_TABLES),
-                                  "CFE_TBL.CritReg", true);
+                                  "CFE_TBL.CritReg",
+                                  true);
 
     /* Assume for the moment that nothing is already in the CDS and zero out the Critical Table Registry */
     for (i = 0; i < CFE_PLATFORM_TBL_MAX_CRITICAL_TABLES; i++)
@@ -139,7 +141,8 @@ int32 CFE_TBL_EarlyInit(void)
         if (Status != CFE_SUCCESS)
         {
             /* Note if we were unable to recover error free Critical Table Registry from the CDS */
-            CFE_ES_WriteToSysLog("%s: Failed to recover Critical Table Registry (Err=0x%08X)\n", __func__,
+            CFE_ES_WriteToSysLog("%s: Failed to recover Critical Table Registry (Err=0x%08X)\n",
+                                 __func__,
                                  (unsigned int)Status);
         }
 
@@ -150,7 +153,8 @@ int32 CFE_TBL_EarlyInit(void)
     {
         /* Not being able to support Critical Tables is not the end of the world */
         /* Note the problem and move on */
-        CFE_ES_WriteToSysLog("%s: Failed to create Critical Table Registry (Err=0x%08X)\n", __func__,
+        CFE_ES_WriteToSysLog("%s: Failed to create Critical Table Registry (Err=0x%08X)\n",
+                             __func__,
                              (unsigned int)Status);
 
         /* Failure to support critical tables is not a good enough reason to exit the cFE on start up */
@@ -165,7 +169,8 @@ int32 CFE_TBL_EarlyInit(void)
         {
             /* Not being able to support Critical Tables is not the end of the world */
             /* Note the problem and move on */
-            CFE_ES_WriteToSysLog("%s: Failed to save Critical Table Registry (Err=0x%08X)\n", __func__,
+            CFE_ES_WriteToSysLog("%s: Failed to save Critical Table Registry (Err=0x%08X)\n",
+                                 __func__,
                                  (unsigned int)Status);
 
             /* Failure to support critical tables is not a good enough reason to exit the cFE on start up */
@@ -220,7 +225,7 @@ void CFE_TBL_DiscardWorkingBuffer(CFE_TBL_RegistryRec_t *RegRecPtr)
 {
     /* If the buffer is NOT one of the buffers "owned" by this table, then it must be
      * from a shared buffer pool so it needs to be released */
-    CFE_TBL_LoadBuff_t * LoadBuffPtr;
+    CFE_TBL_LoadBuff_t  *LoadBuffPtr;
     CFE_TBL_LoadBuffId_t LoadInProgressId;
 
     if (!CFE_TBL_RegRecGetConfig(RegRecPtr)->DoubleBuffered && CFE_TBL_RegRecIsLoadInProgress(RegRecPtr))
@@ -250,7 +255,7 @@ void CFE_TBL_DiscardWorkingBuffer(CFE_TBL_RegistryRec_t *RegRecPtr)
 void CFE_TBL_DeallocateBuffer(CFE_TBL_LoadBuff_t *BuffPtr)
 {
     CFE_Status_t Status;
-    void *       MemPtr;
+    void        *MemPtr;
 
     MemPtr = CFE_TBL_LoadBuffGetWritePointer(BuffPtr);
 
@@ -258,8 +263,10 @@ void CFE_TBL_DeallocateBuffer(CFE_TBL_LoadBuff_t *BuffPtr)
 
     if (Status < 0)
     {
-        CFE_ES_WriteToSysLog("%s: PutPoolBuf() Fail Stat=0x%08X, Hndl=0x%08lX, Buf=0x%08lX\n", __func__,
-                             (unsigned int)Status, CFE_RESOURCEID_TO_ULONG(CFE_TBL_Global.Buf.PoolHdl),
+        CFE_ES_WriteToSysLog("%s: PutPoolBuf() Fail Stat=0x%08X, Hndl=0x%08lX, Buf=0x%08lX\n",
+                             __func__,
+                             (unsigned int)Status,
+                             CFE_RESOURCEID_TO_ULONG(CFE_TBL_Global.Buf.PoolHdl),
                              (unsigned long)MemPtr);
     }
 
@@ -461,7 +468,8 @@ int32 CFE_TBL_GetWorkingBuffer(CFE_TBL_LoadBuff_t **WorkingBufferPtr, CFE_TBL_Re
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_TBL_UpdateInternal(CFE_TBL_HandleId_t TblHandle, CFE_TBL_RegistryRec_t *RegRecPtr,
+int32 CFE_TBL_UpdateInternal(CFE_TBL_HandleId_t          TblHandle,
+                             CFE_TBL_RegistryRec_t      *RegRecPtr,
                              CFE_TBL_AccessDescriptor_t *AccessDescPtr)
 {
     int32               Status = CFE_SUCCESS;
@@ -501,7 +509,8 @@ int32 CFE_TBL_UpdateInternal(CFE_TBL_HandleId_t TblHandle, CFE_TBL_RegistryRec_t
             if (NextBuffPtr == NULL)
             {
                 Status = CFE_TBL_INFO_TABLE_LOCKED;
-                CFE_ES_WriteToSysLog("%s: Unable to update locked table Handle=%lu\n", __func__,
+                CFE_ES_WriteToSysLog("%s: Unable to update locked table Handle=%lu\n",
+                                     __func__,
                                      CFE_TBL_HandleID_AsInt(CFE_TBL_AccDescGetHandle(AccessDescPtr)));
             }
         }
@@ -516,7 +525,8 @@ int32 CFE_TBL_UpdateInternal(CFE_TBL_HandleId_t TblHandle, CFE_TBL_RegistryRec_t
          */
         if (NextBuffPtr != LoadBuffPtr)
         {
-            CFE_TBL_LoadBuffCopyData(NextBuffPtr, CFE_TBL_LoadBuffGetReadPointer(LoadBuffPtr),
+            CFE_TBL_LoadBuffCopyData(NextBuffPtr,
+                                     CFE_TBL_LoadBuffGetReadPointer(LoadBuffPtr),
                                      CFE_TBL_LoadBuffGetContentSize(LoadBuffPtr));
 
             /* Save source description with active buffer (Note - structs are same type, length already checked) */
@@ -575,14 +585,17 @@ void CFE_TBL_NotifyTblUsersOfUpdate(CFE_TBL_RegistryRec_t *RegRecPtr)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_TBL_CleanUpApp(CFE_ES_AppId_t AppId)
+int32 CFE_TBL_CleanUpApp(uint32 Id)
 {
     uint32                      i;
     CFE_TBL_TxnState_t          Txn;
-    CFE_TBL_DumpControl_t *     DumpCtrlPtr;
+    CFE_TBL_DumpControl_t      *DumpCtrlPtr;
     CFE_TBL_AccessDescriptor_t *AccessDescPtr;
-    CFE_TBL_RegistryRec_t *     RegRecPtr;
+    CFE_TBL_RegistryRec_t      *RegRecPtr;
     CFE_Status_t                Status;
+    CFE_ES_AppId_t              AppId;
+
+    AppId = CFE_ES_APPID_C(CFE_ResourceId_FromInteger(Id));
 
     CFE_TBL_TxnInit(&Txn, false);
 
@@ -666,7 +679,7 @@ void CFE_TBL_FindCriticalTblInfo(CFE_TBL_CritRegRec_t **CritRegRecPtr, CFE_ES_CD
 void CFE_TBL_UpdateCriticalTblCDS(CFE_TBL_RegistryRec_t *RegRecPtr)
 {
     CFE_TBL_CritRegRec_t *CritRegRecPtr = NULL;
-    CFE_TBL_LoadBuff_t *  ActiveBufPtr;
+    CFE_TBL_LoadBuff_t   *ActiveBufPtr;
 
     int32 Status;
 
@@ -684,8 +697,10 @@ void CFE_TBL_UpdateCriticalTblCDS(CFE_TBL_RegistryRec_t *RegRecPtr)
 
     if (Status != CFE_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("%s: Unable to update Critical Table '%s' in CDS (Err=0x%08X)\n", __func__,
-                             CFE_TBL_RegRecGetName(RegRecPtr), (unsigned int)Status);
+        CFE_ES_WriteToSysLog("%s: Unable to update Critical Table '%s' in CDS (Err=0x%08X)\n",
+                             __func__,
+                             CFE_TBL_RegRecGetName(RegRecPtr),
+                             (unsigned int)Status);
     }
     else
     {
@@ -695,7 +710,8 @@ void CFE_TBL_UpdateCriticalTblCDS(CFE_TBL_RegistryRec_t *RegRecPtr)
         {
             /* Save information related to the source of the data stored in the table in Critical Table Registry */
             CritRegRecPtr->FileTime = ActiveBufPtr->FileTime;
-            strncpy(CritRegRecPtr->LastFileLoaded, CFE_TBL_RegRecGetLastFileLoaded(RegRecPtr),
+            strncpy(CritRegRecPtr->LastFileLoaded,
+                    CFE_TBL_RegRecGetLastFileLoaded(RegRecPtr),
                     sizeof(CritRegRecPtr->LastFileLoaded) - 1);
             CritRegRecPtr->LastFileLoaded[sizeof(CritRegRecPtr->LastFileLoaded) - 1] = '\0';
 
@@ -707,13 +723,15 @@ void CFE_TBL_UpdateCriticalTblCDS(CFE_TBL_RegistryRec_t *RegRecPtr)
 
             if (Status != CFE_SUCCESS)
             {
-                CFE_ES_WriteToSysLog("%s: Unable to update Critical Table Registry in CDS (Err=0x%08X)\n", __func__,
+                CFE_ES_WriteToSysLog("%s: Unable to update Critical Table Registry in CDS (Err=0x%08X)\n",
+                                     __func__,
                                      (unsigned int)Status);
             }
         }
         else
         {
-            CFE_ES_WriteToSysLog("%s: Error finding '%s' in Critical Table Registry\n", __func__,
+            CFE_ES_WriteToSysLog("%s: Error finding '%s' in Critical Table Registry\n",
+                                 __func__,
                                  CFE_TBL_RegRecGetName(RegRecPtr));
         }
     }
@@ -729,7 +747,7 @@ void CFE_TBL_UpdateCriticalTblCDS(CFE_TBL_RegistryRec_t *RegRecPtr)
  *-----------------------------------------------------------------*/
 int32 CFE_TBL_SendNotificationMsg(CFE_TBL_RegistryRec_t *RegRecPtr)
 {
-    int32 Status = CFE_SUCCESS;
+    int32 Status;
 
     /* First, determine if a message should be sent */
     if (RegRecPtr->Notify.Enabled)
@@ -748,9 +766,16 @@ int32 CFE_TBL_SendNotificationMsg(CFE_TBL_RegistryRec_t *RegRecPtr)
 
         if (Status != CFE_SUCCESS)
         {
-            CFE_EVS_SendEvent(CFE_TBL_FAIL_NOTIFY_SEND_ERR_EID, CFE_EVS_EventType_ERROR,
-                              "Manage Notification Pkt Error(Status=0x%08X)", (unsigned int)Status);
+            CFE_EVS_SendEvent(CFE_TBL_FAIL_NOTIFY_SEND_ERR_EID,
+                              CFE_EVS_EventType_ERROR,
+                              "Manage Notification Pkt Error(Status=0x%08X)",
+                              (unsigned int)Status);
         }
+    }
+    else
+    {
+        /* This is not really an "error" - it just means that notifications are not enabled */
+        Status = CFE_STATUS_INCORRECT_STATE;
     }
 
     return Status;
@@ -838,15 +863,17 @@ CFE_Status_t CFE_TBL_ValidateTableOptions(CFE_TBL_TableConfig_t *TableCfg, uint1
 CFE_Status_t CFE_TBL_AllocateTableLoadBuffer(CFE_TBL_LoadBuff_t *LoadBuffPtr, size_t Size)
 {
     CFE_Status_t Status;
-    void *       MemPtr;
+    void        *MemPtr;
 
     /* Allocate the memory buffer(s) for the table and inactive table, if necessary */
     Status = CFE_ES_GetPoolBuf(&MemPtr, CFE_TBL_Global.Buf.PoolHdl, Size);
 
     if (Status < 0)
     {
-        CFE_ES_WriteToSysLog("%s: Buf Alloc GetPool fail Stat=0x%08X MemPoolHndl=0x%08lX\n", __func__,
-                             (unsigned int)Status, CFE_RESOURCEID_TO_ULONG(CFE_TBL_Global.Buf.PoolHdl));
+        CFE_ES_WriteToSysLog("%s: Buf Alloc GetPool fail Stat=0x%08X MemPoolHndl=0x%08lX\n",
+                             __func__,
+                             (unsigned int)Status,
+                             CFE_RESOURCEID_TO_ULONG(CFE_TBL_Global.Buf.PoolHdl));
     }
     else
     {
@@ -936,7 +963,7 @@ CFE_Status_t CFE_TBL_RestoreTableDataFromCDS(CFE_TBL_RegistryRec_t *RegRecPtr)
 {
     CFE_Status_t          Status = CFE_SUCCESS;
     CFE_TBL_CritRegRec_t *CritRegRecPtr;
-    CFE_TBL_LoadBuff_t *  WorkingBufferPtr;
+    CFE_TBL_LoadBuff_t   *WorkingBufferPtr;
 
     Status = CFE_TBL_GetWorkingBuffer(&WorkingBufferPtr, RegRecPtr);
 
@@ -946,8 +973,10 @@ CFE_Status_t CFE_TBL_RestoreTableDataFromCDS(CFE_TBL_RegistryRec_t *RegRecPtr)
         /* possible at this point during table registration.  But we */
         /* do need to handle the error case because if the function */
         /* call did fail, WorkingBufferPtr would be a NULL pointer. */
-        CFE_ES_WriteToSysLog("%s: Failed to get work buffer for '%s' (ErrCode=0x%08X)\n", __func__,
-                             CFE_TBL_RegRecGetName(RegRecPtr), (unsigned int)Status);
+        CFE_ES_WriteToSysLog("%s: Failed to get work buffer for '%s' (ErrCode=0x%08X)\n",
+                             __func__,
+                             CFE_TBL_RegRecGetName(RegRecPtr),
+                             (unsigned int)Status);
     }
     else
     {
@@ -956,8 +985,10 @@ CFE_Status_t CFE_TBL_RestoreTableDataFromCDS(CFE_TBL_RegistryRec_t *RegRecPtr)
 
         if (Status != CFE_SUCCESS)
         {
-            CFE_ES_WriteToSysLog("%s: Failed to recover '%s' from CDS (ErrCode=0x%08X)\n", __func__,
-                                 CFE_TBL_RegRecGetName(RegRecPtr), (unsigned int)Status);
+            CFE_ES_WriteToSysLog("%s: Failed to recover '%s' from CDS (ErrCode=0x%08X)\n",
+                                 __func__,
+                                 CFE_TBL_RegRecGetName(RegRecPtr),
+                                 (unsigned int)Status);
 
             /*
              * Treat a restore from existing CDS error the same as
@@ -973,13 +1004,15 @@ CFE_Status_t CFE_TBL_RestoreTableDataFromCDS(CFE_TBL_RegistryRec_t *RegRecPtr)
 
             if ((CritRegRecPtr != NULL) && (CritRegRecPtr->TableLoadedOnce))
             {
-                strncpy(WorkingBufferPtr->DataSource, CritRegRecPtr->LastFileLoaded,
+                strncpy(WorkingBufferPtr->DataSource,
+                        CritRegRecPtr->LastFileLoaded,
                         sizeof(WorkingBufferPtr->DataSource) - 1);
                 WorkingBufferPtr->DataSource[sizeof(WorkingBufferPtr->DataSource) - 1] = '\0';
 
                 WorkingBufferPtr->FileTime = CritRegRecPtr->FileTime;
 
                 CFE_TBL_SetActiveBuffer(RegRecPtr, WorkingBufferPtr);
+                CFE_TBL_RegRecClearLoadInProgress(RegRecPtr);
 
                 CFE_TBL_RegRecResetLoadInfo(RegRecPtr, CritRegRecPtr->LastFileLoaded, CritRegRecPtr->TimeOfLastUpdate);
 
@@ -996,7 +1029,8 @@ CFE_Status_t CFE_TBL_RestoreTableDataFromCDS(CFE_TBL_RegistryRec_t *RegRecPtr)
             {
                 /* If an error occurred while trying to get the previous contents registry info, */
                 /* Log the error in the System Log and pretend like we created a new CDS */
-                CFE_ES_WriteToSysLog("%s: Failed to recover '%s' info from CDS TblReg\n", __func__,
+                CFE_ES_WriteToSysLog("%s: Failed to recover '%s' info from CDS TblReg\n",
+                                     __func__,
                                      CFE_TBL_RegRecGetName(RegRecPtr));
                 Status = CFE_SUCCESS;
             }
@@ -1015,8 +1049,9 @@ CFE_Status_t CFE_TBL_RestoreTableDataFromCDS(CFE_TBL_RegistryRec_t *RegRecPtr)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-void CFE_TBL_RegisterWithCriticalTableRegistry(CFE_TBL_CritRegRec_t *CritRegRecPtr, CFE_TBL_RegistryRec_t *RegRecPtr,
-                                               const char *TblName)
+void CFE_TBL_RegisterWithCriticalTableRegistry(CFE_TBL_CritRegRec_t  *CritRegRecPtr,
+                                               CFE_TBL_RegistryRec_t *RegRecPtr,
+                                               const char            *TblName)
 {
     /* Find and initialize a free entry in the Critical Table Registry */
     CFE_TBL_FindCriticalTblInfo(&CritRegRecPtr, CFE_ES_CDS_BAD_HANDLE);
@@ -1035,7 +1070,8 @@ void CFE_TBL_RegisterWithCriticalTableRegistry(CFE_TBL_CritRegRec_t *CritRegRecP
     }
     else
     {
-        CFE_ES_WriteToSysLog("%s: Failed to find a free Crit Tbl Reg Rec for '%s'\n", __func__,
+        CFE_ES_WriteToSysLog("%s: Failed to find a free Crit Tbl Reg Rec for '%s'\n",
+                             __func__,
                              CFE_TBL_RegRecGetName(RegRecPtr));
     }
 
@@ -1071,8 +1107,10 @@ static inline CFE_TBL_AccessDescriptor_t *CFE_TBL_HandleListGetPrev(const CFE_TB
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-void CFE_TBL_HandleListGetSafeLink(CFE_TBL_RegistryRec_t *RegRecPtr, CFE_TBL_AccessDescriptor_t *AccDescPtr,
-                                   CFE_TBL_HandleLink_t **PtrOut, CFE_TBL_HandleId_t *HandleOut)
+void CFE_TBL_HandleListGetSafeLink(CFE_TBL_RegistryRec_t      *RegRecPtr,
+                                   CFE_TBL_AccessDescriptor_t *AccDescPtr,
+                                   CFE_TBL_HandleLink_t      **PtrOut,
+                                   CFE_TBL_HandleId_t         *HandleOut)
 {
     if (AccDescPtr == NULL)
     {
@@ -1189,7 +1227,7 @@ void CFE_TBL_CountAccessDescHelper(CFE_TBL_AccessDescriptor_t *AccDescPtr, void 
  *-----------------------------------------------------------------*/
 CFE_TBL_ValidationResult_t *CFE_TBL_CheckValidationRequest(CFE_TBL_ValidationResultId_t *ValIdPtr)
 {
-    CFE_TBL_ValidationResult_t * ResultPtr;
+    CFE_TBL_ValidationResult_t  *ResultPtr;
     CFE_TBL_ValidationResultId_t ValId;
 
     ValId = *ValIdPtr;

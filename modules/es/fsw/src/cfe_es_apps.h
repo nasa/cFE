@@ -200,8 +200,10 @@ int32 CFE_ES_ParseFileEntry(const char **TokenList, uint32 NumTokens);
  * This only loads the code and looks up relevant runtime information.
  * It does not start any tasks.
  */
-int32 CFE_ES_LoadModule(CFE_ResourceId_t ParentResourceId, const char *ModuleName,
-                        const CFE_ES_ModuleLoadParams_t *LoadParams, CFE_ES_ModuleLoadStatus_t *LoadStatus);
+int32 CFE_ES_LoadModule(CFE_ResourceId_t                 ParentResourceId,
+                        const char                      *ModuleName,
+                        const CFE_ES_ModuleLoadParams_t *LoadParams,
+                        CFE_ES_ModuleLoadStatus_t       *LoadStatus);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -252,8 +254,11 @@ CFE_ES_AppRecord_t *CFE_ES_LockUserAppRecord(CFE_ES_AppId_t AppID, const char *L
  * Therefore this calls a dedicated CFE_ES_AppEntryPoint which then will wait until
  * the task is fully registered in the global, before calling the actual app entry point.
  */
-int32 CFE_ES_StartAppTask(CFE_ES_TaskId_t *TaskIdPtr, const char *TaskName, CFE_ES_TaskEntryFuncPtr_t EntryFunc,
-                          const CFE_ES_TaskStartParams_t *Params, CFE_ES_AppId_t ParentAppId);
+int32 CFE_ES_StartAppTask(CFE_ES_TaskId_t                *TaskIdPtr,
+                          const char                     *TaskName,
+                          CFE_ES_TaskEntryFuncPtr_t       EntryFunc,
+                          const CFE_ES_TaskStartParams_t *Params,
+                          CFE_ES_AppId_t                  ParentAppId);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -305,8 +310,12 @@ bool CFE_ES_BackgroundERLogFileDataGetter(void *Meta, uint32 RecordNum, void **B
  *
  * Report events during writing exception & reset log to a file
  */
-void CFE_ES_BackgroundERLogFileEventHandler(void *Meta, CFE_FS_FileWriteEvent_t Event, int32 Status, uint32 RecordNum,
-                                            size_t BlockSize, size_t Position);
+void CFE_ES_BackgroundERLogFileEventHandler(void                   *Meta,
+                                            CFE_FS_FileWriteEvent_t Event,
+                                            int32                   Status,
+                                            uint32                  RecordNum,
+                                            size_t                  BlockSize,
+                                            size_t                  Position);
 
 /*---------------------------------------------------------------------------------------*/
 /**

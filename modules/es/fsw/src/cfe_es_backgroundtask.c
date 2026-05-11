@@ -47,7 +47,7 @@
 typedef struct
 {
     bool (*RunFunc)(uint32 ElapsedTime, void *Arg);
-    void * JobArg;
+    void  *JobArg;
     uint32 ActivePeriod; /**< max wait/delay time between calls when job is active */
     uint32 IdlePeriod;   /**< max wait/delay time between calls when job is idle */
 } CFE_ES_BackgroundJobEntry_t;
@@ -72,47 +72,48 @@ bool CFE_ES_ActiveJob(uint32 ElapsedTime, void *Arg)
  * background task.  It will be called again after a delay period to do more work.
  */
 const CFE_ES_BackgroundJobEntry_t CFE_ES_BACKGROUND_JOB_TABLE[] = {
-    {/* ES app table background scan */
-     .RunFunc      = CFE_ES_RunAppTableScan,
+    { /* ES app table background scan */
+      .RunFunc      = CFE_ES_RunAppTableScan,
      .JobArg       = &CFE_ES_Global.BackgroundAppScanState,
      .ActivePeriod = CFE_PLATFORM_ES_APP_SCAN_RATE / 4,
-     .IdlePeriod   = CFE_PLATFORM_ES_APP_SCAN_RATE},
-    {/* Performance Log Data Dump to file */
-     .RunFunc      = CFE_ES_RunPerfLogDump,
+     .IdlePeriod   = CFE_PLATFORM_ES_APP_SCAN_RATE              },
+    { /* Performance Log Data Dump to file */
+      .RunFunc      = CFE_ES_RunPerfLogDump,
      .JobArg       = &CFE_ES_Global.BackgroundPerfDumpState,
      .ActivePeriod = CFE_PLATFORM_ES_PERF_CHILD_MS_DELAY,
-     .IdlePeriod   = CFE_PLATFORM_ES_PERF_CHILD_MS_DELAY * 1000},
-    {/* Check for exceptions stored in the PSP */
-     .RunFunc      = CFE_ES_RunExceptionScan,
+     .IdlePeriod   = CFE_PLATFORM_ES_PERF_CHILD_MS_DELAY * 1000 },
+    { /* Check for exceptions stored in the PSP */
+      .RunFunc      = CFE_ES_RunExceptionScan,
      .JobArg       = NULL,
      .ActivePeriod = CFE_PLATFORM_ES_APP_SCAN_RATE,
-     .IdlePeriod   = CFE_PLATFORM_ES_APP_SCAN_RATE},
-    {/* Call FS to handle background file writes */
-     .RunFunc      = CFE_FS_RunBackgroundFileDump,
+     .IdlePeriod   = CFE_PLATFORM_ES_APP_SCAN_RATE              },
+    { /* Call FS to handle background file writes */
+      .RunFunc      = CFE_FS_RunBackgroundFileDump,
      .JobArg       = NULL,
      .ActivePeriod = CFE_PLATFORM_ES_APP_SCAN_RATE,
-     .IdlePeriod   = CFE_PLATFORM_ES_APP_SCAN_RATE},
-    {/* Empty Job (for coverage purposes) */
-     /* Setting RunFunc to NULL triggers JobPtr->RunFunc != NULL to be false */
-     .RunFunc      = NULL,
+     .IdlePeriod   = CFE_PLATFORM_ES_APP_SCAN_RATE              },
+    { /* Empty Job (for coverage purposes) */
+      /* Setting RunFunc to NULL triggers JobPtr->RunFunc != NULL to be false */
+      .RunFunc      = NULL,
      .JobArg       = NULL,
      .ActivePeriod = 0,
-     .IdlePeriod   = 0},
-    {/* Active Job with 0 active period (for coverage purposes)*/
-     .RunFunc      = CFE_ES_ActiveJob,
+     .IdlePeriod   = 0                                          },
+    { /* Active Job with 0 active period (for coverage purposes)*/
+      .RunFunc      = CFE_ES_ActiveJob,
      .JobArg       = NULL,
      /* Setting ActivePeriod to 0 triggers JobPtr->ActivePeriod != 0 to be
-      * false */
-     .ActivePeriod = 0,
-     .IdlePeriod   = 0},
-    {/* Active Job with non-zero active period (for coverage purposes)*/
-     .RunFunc      = CFE_ES_ActiveJob,
+     * false */
+      .ActivePeriod = 0,
+     .IdlePeriod   = 0                                          },
+    { /* Active Job with non-zero active period (for coverage purposes)*/
+      .RunFunc      = CFE_ES_ActiveJob,
      .JobArg       = NULL,
      /* We set the ActivePeriod to this so we can trigger set the expression
-      * NextDelay > JobPtr->ActivePeriod to be false, since the previous 
-      * setting for NextDelay was CFE_PLATFORM_ES_APP_SCAN_RATE */
-     .ActivePeriod = CFE_PLATFORM_ES_APP_SCAN_RATE - 1,
-     .IdlePeriod   = 0}};
+     * NextDelay > JobPtr->ActivePeriod to be false, since the previous
+     * setting for NextDelay was CFE_PLATFORM_ES_APP_SCAN_RATE */
+      .ActivePeriod = CFE_PLATFORM_ES_APP_SCAN_RATE - 1,
+     .IdlePeriod   = 0                                          }
+};
 
 #define CFE_ES_BACKGROUND_NUM_JOBS (sizeof(CFE_ES_BACKGROUND_JOB_TABLE) / sizeof(CFE_ES_BACKGROUND_JOB_TABLE[0]))
 
@@ -210,9 +211,12 @@ int32 CFE_ES_BackgroundInit(void)
     }
 
     /* Spawn a task to write the performance data to a file */
-    status = CFE_ES_CreateChildTask(&CFE_ES_Global.BackgroundTask.TaskID, CFE_ES_BACKGROUND_CHILD_NAME,
-                                    CFE_ES_BackgroundTask, CFE_ES_BACKGROUND_CHILD_STACK_PTR,
-                                    CFE_ES_BACKGROUND_CHILD_STACK_SIZE, CFE_ES_BACKGROUND_CHILD_PRIORITY,
+    status = CFE_ES_CreateChildTask(&CFE_ES_Global.BackgroundTask.TaskID,
+                                    CFE_ES_BACKGROUND_CHILD_NAME,
+                                    CFE_ES_BackgroundTask,
+                                    CFE_ES_BACKGROUND_CHILD_STACK_PTR,
+                                    CFE_ES_BACKGROUND_CHILD_STACK_SIZE,
+                                    CFE_ES_BACKGROUND_CHILD_PRIORITY,
                                     CFE_ES_BACKGROUND_CHILD_FLAGS);
 
     if (status != CFE_SUCCESS)

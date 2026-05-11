@@ -57,15 +57,15 @@
 /* Hook functions for es_UT.c */
 /*****************************************************************************/
 /**
-** \brief Replaces behavior of OS_TaskDelay with exiting behavior in order to 
+** \brief Replaces behavior of OS_TaskDelay with exiting behavior in order to
 **        terminate while(1) loop in cfe_es_api.c in function CFE_ES_ExitApp().
 **
 ** \par Description
-**        Previously, condition coverage was missing in cfe_es_api.c for the 
-**        CFE_ES_ExitApp() function due to the while(1) loop. This hook 
-**        function replaces the regular OS_TaskDelay() with a simulation of 
+**        Previously, condition coverage was missing in cfe_es_api.c for the
+**        CFE_ES_ExitApp() function due to the while(1) loop. This hook
+**        function replaces the regular OS_TaskDelay() with a simulation of
 **        ES terminating the app. This simulation is done with a combination of
-**        setjmp and longjmp in es_UT.c to ensure that the while loop is 
+**        setjmp and longjmp in es_UT.c to ensure that the while loop is
 **        exited. An alternative method can be done by creating a child process
 **        using fork() to call CFE_ES_ExitApp() and the terminating the child
 **        process with exit(0).

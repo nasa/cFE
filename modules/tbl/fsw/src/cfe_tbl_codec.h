@@ -164,8 +164,8 @@ CFE_Status_t CFE_TBL_CodecGetFinalStatus(CFE_TBL_TxnState_t *Txn, const CFE_TBL_
  * \param[out]   HeaderPtr          Pointer to buffer that will hold header data
  * \returns CFE Status code, #CFE_SUCCESS if successful
  */
-CFE_Status_t CFE_TBL_DecodeHeadersFromFile(CFE_TBL_TxnState_t *Txn, osal_id_t FileDescriptor,
-                                           CFE_TBL_File_Hdr_t *HeaderPtr);
+CFE_Status_t
+CFE_TBL_DecodeHeadersFromFile(CFE_TBL_TxnState_t *Txn, osal_id_t FileDescriptor, CFE_TBL_File_Hdr_t *HeaderPtr);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -183,8 +183,8 @@ CFE_Status_t CFE_TBL_DecodeHeadersFromFile(CFE_TBL_TxnState_t *Txn, osal_id_t Fi
  * \param[in]    HeaderPtr         Pointer to buffer that holds header data
  * \returns CFE Status code, #CFE_SUCCESS if successful
  */
-CFE_Status_t CFE_TBL_EncodeHeadersToFile(CFE_TBL_TxnState_t *Txn, osal_id_t FileDescriptor,
-                                         const CFE_TBL_File_Hdr_t *HeaderPtr);
+CFE_Status_t
+CFE_TBL_EncodeHeadersToFile(CFE_TBL_TxnState_t *Txn, osal_id_t FileDescriptor, const CFE_TBL_File_Hdr_t *HeaderPtr);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -206,8 +206,9 @@ CFE_Status_t CFE_TBL_EncodeHeadersToFile(CFE_TBL_TxnState_t *Txn, osal_id_t File
  * \param[out]   DestBuffer      Table buffer to hold encoded data
  * \returns CFE Status code, #CFE_SUCCESS if successful
  */
-CFE_Status_t CFE_TBL_EncodeOutputData(CFE_TBL_TxnState_t *Txn, const CFE_TBL_LoadBuff_t *SourceBuffer,
-                                      CFE_TBL_LoadBuff_t *DestBuffer);
+CFE_Status_t CFE_TBL_EncodeOutputData(CFE_TBL_TxnState_t       *Txn,
+                                      const CFE_TBL_LoadBuff_t *SourceBuffer,
+                                      CFE_TBL_LoadBuff_t       *DestBuffer);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -229,8 +230,9 @@ CFE_Status_t CFE_TBL_EncodeOutputData(CFE_TBL_TxnState_t *Txn, const CFE_TBL_Loa
  * \param[out]   DestBuffer      Table buffer to hold native (C struct) data
  * \returns CFE Status code, #CFE_SUCCESS if successful
  */
-CFE_Status_t CFE_TBL_DecodeInputData(CFE_TBL_TxnState_t *Txn, const CFE_TBL_LoadBuff_t *SourceBuffer,
-                                     CFE_TBL_LoadBuff_t *DestBuffer);
+CFE_Status_t CFE_TBL_DecodeInputData(CFE_TBL_TxnState_t       *Txn,
+                                     const CFE_TBL_LoadBuff_t *SourceBuffer,
+                                     CFE_TBL_LoadBuff_t       *DestBuffer);
 
 /*---------------------------------------------------------------------------------------*/
 /**

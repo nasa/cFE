@@ -1,0 +1,209 @@
+name: MCDC Analysis
+
+on:
+  push:
+    branches:
+      - dev
+      - main
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+  workflow_dispatch:
+
+# Force bash to apply pipefail option so pipeline failures aren't masked
+defaults:
+  run:
+    shell: bash
+
+env:
+  SIMULATION: native
+  ENABLE_UNIT_TESTS: true
+  OMIT_DEPRECATED: false
+  BUILDTYPE: debug
+  TESTS_RAN: false
+
+jobs:
+  mcdc:
+    name: Build and Run MCDC
+    runs-on: ubuntu-22.04
+    container: ghcr.io/core-flight-system/mcdc:latest
+
+    steps:
+      - name: Checkout CFE
+        uses: actions/checkout@v6
+        with:
+          path: cfe
+
+      - name: Set up Dependencies
+        uses: ./cfe/.github/actions/setup-cfe
+        with:
+          source-dir: .
+          preferred-ref: ${{ github.head_ref }}
+          org: nasa
+
+      - name: Checkout MCDC Script
+        uses: actions/checkout@v6
+        with:
+          repository: nasa/cFS
+          path: workflows
+          ref: dev
+
+      - name: Modify osal to include coverage flags
+        run: |
+          mkdir -p sample_defs/cpu1
+          echo "target_compile_options(ut_coverage_compile INTERFACE -fcondition-coverage -fprofile-abs-path)" >> sample_defs/cpu1/install_custom.cmake
+
+      # Setup the build system
+      - name: Set up for build
+        run: make prep
+
+      - name: Build CFE
+        run: make install
+
+      - name: Build
+        run: |
+          make -C build/native/default_cpu1/config
+          make -C build/native/default_cpu1/core_api
+          make -C build/native/default_cpu1/core_private
+          make -C build/native/default_cpu1/es
+          make -C build/native/default_cpu1/evs
+          make -C build/native/default_cpu1/fs
+          make -C build/native/default_cpu1/msg
+          make -C build/native/default_cpu1/resourceid
+          make -C build/native/default_cpu1/sb
+          make -C build/native/default_cpu1/sbr
+          make -C build/native/default_cpu1/tbl
+          make -C build/native/default_cpu1/time
+
+      - name: Test
+        run: |
+          (cd build/native/default_cpu1/config && ctest --output-on-failure || true) | tee -a test_results.txt
+          (cd build/native/default_cpu1/core_api && ctest --output-on-failure || true) | tee -a test_results.txt
+          (cd build/native/default_cpu1/core_private && ctest --output-on-failure || true) | tee -a test_results.txt
+          (cd build/native/default_cpu1/es && ctest --output-on-failure || true) | tee -a test_results.txt
+          (cd build/native/default_cpu1/evs && ctest --output-on-failure || true) | tee -a test_results.txt
+          (cd build/native/default_cpu1/fs && ctest --output-on-failure || true) | tee -a test_results.txt
+          (cd build/native/default_cpu1/msg && ctest --output-on-failure || true) | tee -a test_results.txt
+          (cd build/native/default_cpu1/resourceid && ctest --output-on-failure || true) | tee -a test_results.txt
+          (cd build/native/default_cpu1/sb && ctest --output-on-failure || true) | tee -a test_results.txt
+          (cd build/native/default_cpu1/sbr && ctest --output-on-failure || true) | tee -a test_results.txt
+          (cd build/native/default_cpu1/tbl && ctest --output-on-failure || true) | tee -a test_results.txt
+          (cd build/native/default_cpu1/time && ctest --output-on-failure || true) | tee -a test_results.txt
+          echo "TESTS_RAN=true" >> $GITHUB_ENV
+
+      - name: Grab test modules
+        if: ${{ env.TESTS_RAN == 'true' }}
+        run: |
+          echo "MODULES=$(grep -oP 'Test\s+#\d+: \K[\w\-\_]+(?= )' test_results.txt | tr '\n' ' ' | sed 's/ $//')" >> $GITHUB_ENV
+          grep -oP 'Test #\d+: \K[\w\-\_]+' test_results.txt | tr '\n' ' ' | sed 's/ $//' >> modules.txt
+
+      - name: Run mcdc analysis
+        if: ${{ env.TESTS_RAN == 'true' }}
+        run: bash workflows/.github/scripts/mcdc-analyze.sh
+
+      - name: Save PR number
+        if: github.event_name == 'pull_request' && always()
+        env:
+          PR_NUMBER: ${{ github.event.number }}
+        run: echo $PR_NUMBER > pr_number
+
+      - name: Archive unit test results
+        # Upload if success or failure which supports skipping, unlike always()
+        if: ${{ env.TESTS_RAN == 'true' }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: Unit test results
+          path: |
+            test_results.txt
+
+      - name: Archive mcdc results
+        # Upload if success or failure which supports skipping, unlike always()
+        if: ${{ env.TESTS_RAN == 'true' }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: MCDC results
+          path: |
+            **/*.gcov.json.gz
+            mcdc_results.txt
+            pr_number
+            modules.txt
+
+  summary-mcdc:
+    needs: mcdc
+    if: github.event_name == 'pull_request'
+    name: Generate MCDC Comparison Summary
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout MCDC Script
+        uses: actions/checkout@v6
+        with:
+          repository: nasa/cFS
+          path: workflows
+          ref: dev
+
+      - name: Download latest main branch artifact
+        continue-on-error: true
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          workflow: mcdc-internal.yml
+          search_artifacts: true
+          branch: dev
+          name: MCDC results
+          path: ./main-branch-results
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: MCDC results
+
+      - name: Compare main and PR artifacts
+        run: |
+          if [ -f "main-branch-results/mcdc_results.txt" ]; then
+            echo "Main branch artifact found. Running comparison."
+            bash workflows/.github/scripts/mcdc-compare.sh main-branch-results/mcdc_results.txt mcdc_results.txt main-branch-results/modules.txt
+          else
+            echo "Main branch artifact not found. Skipping comparison step."
+          fi
+
+      - name: Output summary to workflow
+        run: |
+          if [ -s "mcdc_comment.txt" ]; then
+            echo "### MC/DC Results (Comparison with dev branch)" >> $GITHUB_STEP_SUMMARY
+            echo '```plaintext' >> $GITHUB_STEP_SUMMARY
+            cat mcdc_comment.txt >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+          elif [ -s "mcdc_results.txt" ]; then
+            echo "### MC/DC Results (Current PR)" >> $GITHUB_STEP_SUMMARY
+            echo '```plaintext' >> $GITHUB_STEP_SUMMARY
+            cat mcdc_results.txt >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+          else
+            echo "No MCDC results found." >> $GITHUB_STEP_SUMMARY
+          fi
+
+          # Output uncovered branches if the file exists and is not empty
+          if [ -s "uncovered.json" ]; then
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "<details>" >> $GITHUB_STEP_SUMMARY
+            echo "<summary>Click to view uncovered branches (uncovered.json)</summary>" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo '```json' >> $GITHUB_STEP_SUMMARY
+            cat uncovered.json >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "</details>" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Archive mcdc comparison
+        # Upload if success or failure which supports skipping, unlike always()
+        if: success() || failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: MCDC main branch comparison
+          path: |
+            mcdc_comment.txt
+            mcdc_compare.txt

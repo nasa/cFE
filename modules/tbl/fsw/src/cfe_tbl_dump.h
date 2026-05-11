@@ -49,7 +49,9 @@
  * \returns CFE Status Code
  * \retval #CFE_SUCCESS                     \copydoc CFE_SUCCESS
  */
-CFE_Status_t CFE_TBL_TxnOpenTableDumpFile(CFE_TBL_TxnState_t *Txn, const char *Filename, osal_id_t *FileDescOut,
+CFE_Status_t CFE_TBL_TxnOpenTableDumpFile(CFE_TBL_TxnState_t              *Txn,
+                                          const char                      *Filename,
+                                          osal_id_t                       *FileDescOut,
                                           const CFE_TBL_CombinedFileHdr_t *FileHeader);
 
 /*---------------------------------------------------------------------------------------*/
@@ -63,8 +65,8 @@ CFE_Status_t CFE_TBL_TxnOpenTableDumpFile(CFE_TBL_TxnState_t *Txn, const char *F
  * \returns CFE Status Code
  * \retval #CFE_SUCCESS                     \copydoc CFE_SUCCESS
  */
-CFE_Status_t CFE_TBL_WriteHeaders(CFE_TBL_TxnState_t *Txn, osal_id_t FileDescriptor,
-                                  const CFE_TBL_CombinedFileHdr_t *FileHeader);
+CFE_Status_t
+CFE_TBL_WriteHeaders(CFE_TBL_TxnState_t *Txn, osal_id_t FileDescriptor, const CFE_TBL_CombinedFileHdr_t *FileHeader);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -82,8 +84,8 @@ CFE_Status_t CFE_TBL_WriteHeaders(CFE_TBL_TxnState_t *Txn, osal_id_t FileDescrip
  * \returns CFE Status Code
  * \retval #CFE_SUCCESS                     \copydoc CFE_SUCCESS
  */
-CFE_Status_t CFE_TBL_PrepareDumpSnapshotBuffer(CFE_TBL_TxnState_t *Txn, CFE_TBL_DumpCtrlId_t DumpCtrlId,
-                                               const char *DumpFilename);
+CFE_Status_t
+CFE_TBL_PrepareDumpSnapshotBuffer(CFE_TBL_TxnState_t *Txn, CFE_TBL_DumpCtrlId_t DumpCtrlId, const char *DumpFilename);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -99,7 +101,8 @@ CFE_Status_t CFE_TBL_PrepareDumpSnapshotBuffer(CFE_TBL_TxnState_t *Txn, CFE_TBL_
  * \returns CFE Status Code
  * \retval #CFE_SUCCESS                     \copydoc CFE_SUCCESS
  */
-CFE_Status_t CFE_TBL_AllocateDumpCtrlBlock(CFE_TBL_TxnState_t *Txn, CFE_TBL_DumpCtrlId_t *DumpCtrlIdOut,
+CFE_Status_t CFE_TBL_AllocateDumpCtrlBlock(CFE_TBL_TxnState_t         *Txn,
+                                           CFE_TBL_DumpCtrlId_t       *DumpCtrlIdOut,
                                            CFE_TBL_BufferSelect_Enum_t BufferSelect);
 
 /*---------------------------------------------------------------------------------------*/
@@ -109,10 +112,11 @@ CFE_Status_t CFE_TBL_AllocateDumpCtrlBlock(CFE_TBL_TxnState_t *Txn, CFE_TBL_Dump
  * This sends all deferred events associated with the specified transaction
  *
  * \param[inout] Txn                 Pointer to transaction object
- * \param[out]   RequestedTableName  The table name from the original request
+ * \param[in]    FileName            The file name from the original request
+ * \param[in]    RequestedTableName  The table name from the original request
  *
  */
-void CFE_TBL_SendTableDumpEvents(CFE_TBL_TxnState_t *Txn, const char *RequestedTableName);
+void CFE_TBL_SendTableDumpEvents(CFE_TBL_TxnState_t *Txn, const char *FileName, const char *RequestedTableName);
 
 /*---------------------------------------------------------------------------------------*/
 /**

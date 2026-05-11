@@ -34,12 +34,8 @@
 
 typedef struct CFE_TBL_DumpContext
 {
-    const char *Operation;
-    const char *Tablename;
-    const char *DumpFilename;
-    const char *CallerName;
-
-    const CFE_TBL_RegistryRec_t *RegRecPtr;
+    const char *FileName;
+    const char *RequestedTableName;
 } CFE_TBL_DumpContext_t;
 
 /*----------------------------------------------------------------
@@ -48,8 +44,8 @@ typedef struct CFE_TBL_DumpContext
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-CFE_Status_t CFE_TBL_WriteHeaders(CFE_TBL_TxnState_t *Txn, osal_id_t FileDescriptor,
-                                  const CFE_TBL_CombinedFileHdr_t *FileHeader)
+CFE_Status_t
+CFE_TBL_WriteHeaders(CFE_TBL_TxnState_t *Txn, osal_id_t FileDescriptor, const CFE_TBL_CombinedFileHdr_t *FileHeader)
 {
     CFE_Status_t Status;
 
@@ -85,7 +81,9 @@ CFE_Status_t CFE_TBL_WriteHeaders(CFE_TBL_TxnState_t *Txn, osal_id_t FileDescrip
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-CFE_Status_t CFE_TBL_TxnOpenTableDumpFile(CFE_TBL_TxnState_t *Txn, const char *Filename, osal_id_t *FileDescOut,
+CFE_Status_t CFE_TBL_TxnOpenTableDumpFile(CFE_TBL_TxnState_t              *Txn,
+                                          const char                      *Filename,
+                                          osal_id_t                       *FileDescOut,
                                           const CFE_TBL_CombinedFileHdr_t *FileHeader)
 {
     CFE_Status_t ReturnCode;
@@ -129,8 +127,8 @@ CFE_Status_t CFE_TBL_WriteSnapshotToFile(const CFE_TBL_DumpControl_t *DumpCtlPtr
     bool                      FileExistedPrev;
     CFE_TBL_CombinedFileHdr_t FileHeader;
     osal_id_t                 FileDescriptor;
-    const char *              DumpFilename;
-    const void *              DumpDataAddr;
+    const char               *DumpFilename;
+    const void               *DumpDataAddr;
     size_t                    DumpDataSize;
     CFE_TBL_TxnState_t        Txn;
 
@@ -199,11 +197,13 @@ CFE_Status_t CFE_TBL_WriteSnapshotToFile(const CFE_TBL_DumpControl_t *DumpCtlPtr
         }
 
         /* Save file information statistics for housekeeping telemetry */
-        CFE_SB_MessageStringSet(CFE_TBL_Global.HkPacket.Payload.LastFileDumped, DumpFilename,
-                                sizeof(CFE_TBL_Global.HkPacket.Payload.LastFileDumped), -1);
+        CFE_SB_MessageStringSet(CFE_TBL_Global.HkPacket.Payload.LastFileDumped,
+                                DumpFilename,
+                                sizeof(CFE_TBL_Global.HkPacket.Payload.LastFileDumped),
+                                -1);
     }
 
-    CFE_TBL_SendTableDumpEvents(&Txn, NULL);
+    CFE_TBL_SendTableDumpEvents(&Txn, DumpFilename, NULL);
 
     return Status;
 }
@@ -261,11 +261,11 @@ CFE_Status_t CFE_TBL_ExecuteDumpSnapshot(CFE_TBL_DumpControl_t *DumpCtrlPtr)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-CFE_Status_t CFE_TBL_PrepareDumpSnapshotBuffer(CFE_TBL_TxnState_t *Txn, CFE_TBL_DumpCtrlId_t DumpCtrlId,
-                                               const char *DumpFilename)
+CFE_Status_t
+CFE_TBL_PrepareDumpSnapshotBuffer(CFE_TBL_TxnState_t *Txn, CFE_TBL_DumpCtrlId_t DumpCtrlId, const char *DumpFilename)
 {
     CFE_Status_t           Status;
-    CFE_TBL_LoadBuff_t *   WorkingBufferPtr;
+    CFE_TBL_LoadBuff_t    *WorkingBufferPtr;
     CFE_TBL_RegistryRec_t *RegRecPtr;
     CFE_TBL_DumpControl_t *DumpCtrlPtr;
 
@@ -329,11 +329,12 @@ CFE_Status_t CFE_TBL_PrepareDumpSnapshotBuffer(CFE_TBL_TxnState_t *Txn, CFE_TBL_
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-CFE_Status_t CFE_TBL_AllocateDumpCtrlBlock(CFE_TBL_TxnState_t *Txn, CFE_TBL_DumpCtrlId_t *DumpCtrlIdOut,
+CFE_Status_t CFE_TBL_AllocateDumpCtrlBlock(CFE_TBL_TxnState_t         *Txn,
+                                           CFE_TBL_DumpCtrlId_t       *DumpCtrlIdOut,
                                            CFE_TBL_BufferSelect_Enum_t BufferSelect)
 {
     CFE_TBL_RegistryRec_t *RegRecPtr;
-    CFE_TBL_LoadBuff_t *   SelectedBufferPtr;
+    CFE_TBL_LoadBuff_t    *SelectedBufferPtr;
     CFE_ResourceId_t       PendingDumpId;
     CFE_Status_t           Status;
     CFE_TBL_DumpControl_t *DumpCtrlPtr;
@@ -385,8 +386,10 @@ CFE_Status_t CFE_TBL_AllocateDumpCtrlBlock(CFE_TBL_TxnState_t *Txn, CFE_TBL_Dump
 
             /* Capture important context info to the dump control block */
             DumpCtrlPtr->SourceBuffId = CFE_TBL_LoadBufferGetID(SelectedBufferPtr);
-            CFE_SB_MessageStringSet(DumpCtrlPtr->TableName, CFE_TBL_RegRecGetName(RegRecPtr),
-                                    sizeof(DumpCtrlPtr->TableName), CFE_TBL_MAX_FULL_NAME_LEN);
+            CFE_SB_MessageStringSet(DumpCtrlPtr->TableName,
+                                    CFE_TBL_RegRecGetName(RegRecPtr),
+                                    sizeof(DumpCtrlPtr->TableName),
+                                    CFE_TBL_MAX_FULL_NAME_LEN);
 
             CFE_TBL_DumpCtrlBlockSetUsed(DumpCtrlPtr, PendingDumpId);
 
@@ -413,13 +416,13 @@ CFE_Status_t CFE_TBL_AllocateDumpCtrlBlock(CFE_TBL_TxnState_t *Txn, CFE_TBL_Dump
  * Local helper function for sending events
  *
  *-----------------------------------------------------------------*/
-bool CFE_TBL_SendDumpEventHelper(const CFE_TBL_TxnEvent_t *Event, void *Arg)
+bool CFE_TBL_SendDumpEventHelper(const CFE_TBL_TxnEvent_t *Event, CFE_TBL_TxnEventContext_t *Ctxt)
 {
-    const CFE_TBL_DumpContext_t *Ctxt;
+    const CFE_TBL_DumpContext_t *DumpCtxt;
     uint16                       EventType;
     char                         EventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
-    Ctxt = Arg;
+    DumpCtxt = Ctxt->OperationDataPtr;
 
     /* The majority of the events are errors, but this can be reset later to demote to info/debug */
     EventType      = CFE_EVS_EventType_ERROR;
@@ -436,7 +439,9 @@ bool CFE_TBL_SendDumpEventHelper(const CFE_TBL_TxnEvent_t *Event, void *Arg)
             break;
 
         case CFE_TBL_ILLEGAL_BUFF_PARAM_ERR_EID:
-            snprintf(EventString, sizeof(EventString), "Cmd had illegal buffer parameter (0x%08X)",
+            snprintf(EventString,
+                     sizeof(EventString),
+                     "Cmd had illegal buffer parameter (0x%08X)",
                      (unsigned int)Event->EventData2);
             break;
 
@@ -445,12 +450,16 @@ bool CFE_TBL_SendDumpEventHelper(const CFE_TBL_TxnEvent_t *Event, void *Arg)
             break;
 
         case CFE_TBL_WRITE_CFE_HDR_ERR_EID:
-            snprintf(EventString, sizeof(EventString), "Error writing cFE File Header, Status=0x%08X",
+            snprintf(EventString,
+                     sizeof(EventString),
+                     "Error writing cFE File Header, Status=0x%08X",
                      (unsigned int)Event->EventData1);
             break;
 
         case CFE_TBL_WRITE_TBL_HDR_ERR_EID:
-            snprintf(EventString, sizeof(EventString), "Error writing cFE TBL Header, Status=%d",
+            snprintf(EventString,
+                     sizeof(EventString),
+                     "Error writing cFE TBL Header, Status=%d",
                      (int)Event->EventData1);
             break;
 
@@ -479,9 +488,15 @@ bool CFE_TBL_SendDumpEventHelper(const CFE_TBL_TxnEvent_t *Event, void *Arg)
     }
 
     /* Finally send the actual event by appending all the info we have */
-    CFE_EVS_SendEventWithAppID(Event->EventId, EventType, CFE_TBL_Global.TableTaskAppId,
-                               "%s,table=%s,app=%s,file=%s:%s", Ctxt->Operation, Ctxt->Tablename, Ctxt->CallerName,
-                               Ctxt->DumpFilename, EventString);
+    CFE_EVS_SendEventWithAppID(Event->EventId,
+                               EventType,
+                               CFE_TBL_Global.TableTaskAppId,
+                               "%s,table=%s,app=%s,file=%s:%s",
+                               Ctxt->Operation,
+                               DumpCtxt->RequestedTableName,
+                               Ctxt->CallerName,
+                               DumpCtxt->FileName,
+                               EventString);
 
     return true;
 }
@@ -492,25 +507,31 @@ bool CFE_TBL_SendDumpEventHelper(const CFE_TBL_TxnEvent_t *Event, void *Arg)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-void CFE_TBL_SendTableDumpEvents(CFE_TBL_TxnState_t *Txn, const char *RequestedTableName)
+void CFE_TBL_SendTableDumpEvents(CFE_TBL_TxnState_t *Txn, const char *FileName, const char *RequestedTableName)
 {
     CFE_TBL_DumpContext_t Ctxt;
 
     memset(&Ctxt, 0, sizeof(Ctxt));
 
-    Ctxt.Operation  = "dump";
-    Ctxt.CallerName = CFE_TBL_TxnAppNameCaller(Txn);
-    Ctxt.RegRecPtr  = CFE_TBL_TxnRegRec(Txn);
-
-    if (RequestedTableName != NULL)
+    if (FileName != NULL)
     {
-        Ctxt.Tablename = RequestedTableName;
+        Ctxt.FileName = FileName;
     }
     else
     {
         /* do not leave it null/blank */
-        Ctxt.Tablename = "[unknown]";
+        Ctxt.FileName = "[none]";
     }
 
-    CFE_TBL_TxnProcessEvents(Txn, CFE_TBL_SendDumpEventHelper, &Ctxt);
+    if (RequestedTableName != NULL)
+    {
+        Ctxt.RequestedTableName = RequestedTableName;
+    }
+    else
+    {
+        /* do not leave it null/blank */
+        Ctxt.RequestedTableName = "[unknown]";
+    }
+
+    CFE_TBL_SendTransactionEvents(Txn, "Dump", CFE_TBL_SendDumpEventHelper, &Ctxt);
 }

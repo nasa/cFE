@@ -34,7 +34,6 @@
  *-----------------------------------------------------------------*/
 CFE_Status_t CFE_MSG_SetMsgTime(CFE_MSG_Message_t *MsgPtr, CFE_TIME_SysTime_t NewTime)
 {
-
     CFE_MSG_Type_t             type;
     CFE_MSG_HeaderVersion_t    version;
     bool                       hassechdr = false;
@@ -86,22 +85,23 @@ CFE_Status_t CFE_MSG_GetMsgTime(const CFE_MSG_Message_t *MsgPtr, CFE_TIME_SysTim
         return CFE_MSG_BAD_ARGUMENT;
     }
 
-     /* Ignore return, pointer already checked */
-     CFE_MSG_GetHasSecondaryHeader(MsgPtr, &hassechdr);
-     CFE_MSG_GetHeaderVersion(MsgPtr, &version);
-     CFE_MSG_GetType(MsgPtr, &type);
-     /* According to CCSDS standards, must use Version 1 CCSDS header which
-      * is represented by bit pattern '000' so Version should be just 0
-      * see https://public.ccsds.org/Pubs/133x0b2e2.pdf section 4.1.3.2*/
+    /* Ignore return, pointer already checked */
+    CFE_MSG_GetHasSecondaryHeader(MsgPtr, &hassechdr);
+    CFE_MSG_GetHeaderVersion(MsgPtr, &version);
+    CFE_MSG_GetType(MsgPtr, &type);
+    /* According to CCSDS standards, must use Version 1 CCSDS header which
+     * is represented by bit pattern '000' so Version should be just 0
+     * see https://public.ccsds.org/Pubs/133x0b2e2.pdf section 4.1.3.2*/
     if (version != CFE_MISSION_CCSDSVER || type != CFE_MSG_Type_Tlm || !hassechdr)
     {
         memset(Time, 0, sizeof(*Time));
         return CFE_MSG_WRONG_MSG_TYPE;
     }
-    
+
     /* Get big endian time fields with default 32/16 layout */
     Time->Subseconds = ((uint32)tlm->Sec.Time[4] << 24) + ((uint32)tlm->Sec.Time[5] << 16);
-    Time->Seconds    = ((uint32)tlm->Sec.Time[0] << 24) + ((uint32)tlm->Sec.Time[1] << 16) + ((uint32)tlm->Sec.Time[2] << 8) + (uint32)tlm->Sec.Time[3];
+    Time->Seconds    = ((uint32)tlm->Sec.Time[0] << 24) + ((uint32)tlm->Sec.Time[1] << 16)
+                    + ((uint32)tlm->Sec.Time[2] << 8) + (uint32)tlm->Sec.Time[3];
 
     return CFE_SUCCESS;
 }

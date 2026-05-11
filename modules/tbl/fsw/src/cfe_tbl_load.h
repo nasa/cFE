@@ -50,7 +50,9 @@
  * \returns CFE Status Code
  * \retval #CFE_SUCCESS                     \copydoc CFE_SUCCESS
  */
-CFE_Status_t CFE_TBL_TxnOpenTableLoadFile(CFE_TBL_TxnState_t *Txn, const char *Filename, osal_id_t *FileDescOut,
+CFE_Status_t CFE_TBL_TxnOpenTableLoadFile(CFE_TBL_TxnState_t        *Txn,
+                                          const char                *Filename,
+                                          osal_id_t                 *FileDescOut,
                                           CFE_TBL_CombinedFileHdr_t *TblFileHeader);
 
 /*---------------------------------------------------------------------------------------*/
@@ -90,8 +92,8 @@ CFE_Status_t CFE_TBL_ValidateFileIsLoadable(CFE_TBL_TxnState_t *Txn, const CFE_T
  * \returns CFE Status Code
  * \retval #CFE_SUCCESS                     \copydoc CFE_SUCCESS
  */
-CFE_Status_t CFE_TBL_LoadContentFromFile(CFE_TBL_TxnState_t *Txn, osal_id_t FileDescriptor, size_t Offset,
-                                         size_t NumBytes);
+CFE_Status_t
+CFE_TBL_LoadContentFromFile(CFE_TBL_TxnState_t *Txn, osal_id_t FileDescriptor, size_t Offset, size_t NumBytes);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -113,7 +115,9 @@ void CFE_TBL_SendTableLoadEvents(CFE_TBL_TxnState_t *Txn);
  * \param[in]    Filename          The name of the file being loaded
  * \param[in]    FileHdr           Buffer containing file header data
  */
-void CFE_TBL_SendTableLoadFileEvents(CFE_TBL_TxnState_t *Txn, const char *Filename, const CFE_TBL_CombinedFileHdr_t *FileHdr);
+void CFE_TBL_SendTableLoadFileEvents(CFE_TBL_TxnState_t              *Txn,
+                                     const char                      *Filename,
+                                     const CFE_TBL_CombinedFileHdr_t *FileHdr);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -150,8 +154,8 @@ void CFE_TBL_SetMetaDataFromFileHeader(CFE_TBL_TxnState_t *Txn, const char *File
 ** \retval #CFE_TBL_ERR_BAD_PROCESSOR_ID    \copydoc CFE_TBL_ERR_BAD_PROCESSOR_ID
 **
 */
-CFE_Status_t CFE_TBL_ReadHeaders(CFE_TBL_TxnState_t *Txn, osal_id_t FileDescriptor,
-                                 CFE_TBL_CombinedFileHdr_t *FileHeader);
+CFE_Status_t
+CFE_TBL_ReadHeaders(CFE_TBL_TxnState_t *Txn, osal_id_t FileDescriptor, CFE_TBL_CombinedFileHdr_t *FileHeader);
 
 /*---------------------------------------------------------------------------------------*/
 /**

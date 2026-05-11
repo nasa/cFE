@@ -45,8 +45,10 @@
  * Default handler for CFE_EVS_SendEvent coverage stub function
  *
  *------------------------------------------------------------*/
-void UT_DefaultHandler_CFE_EVS_SendEvent(void *UserObj, UT_EntryKey_t FuncKey, const UT_StubContext_t *Context,
-                                         va_list va)
+void UT_DefaultHandler_CFE_EVS_SendEvent(void                   *UserObj,
+                                         UT_EntryKey_t           FuncKey,
+                                         const UT_StubContext_t *Context,
+                                         va_list                 va)
 {
     uint16      EventID = UT_Hook_GetArgValueByName(Context, "EventID", uint16);
     const char *Spec    = UT_Hook_GetArgValueByName(Context, "Spec", const char *);
@@ -68,8 +70,10 @@ void UT_DefaultHandler_CFE_EVS_SendEvent(void *UserObj, UT_EntryKey_t FuncKey, c
  * Default handler for CFE_EVS_SendTimedEvent coverage stub function
  *
  *------------------------------------------------------------*/
-void UT_DefaultHandler_CFE_EVS_SendTimedEvent(void *UserObj, UT_EntryKey_t FuncKey, const UT_StubContext_t *Context,
-                                              va_list va)
+void UT_DefaultHandler_CFE_EVS_SendTimedEvent(void                   *UserObj,
+                                              UT_EntryKey_t           FuncKey,
+                                              const UT_StubContext_t *Context,
+                                              va_list                 va)
 {
     uint16      EventID = UT_Hook_GetArgValueByName(Context, "EventID", uint16);
     const char *Spec    = UT_Hook_GetArgValueByName(Context, "Spec", const char *);
@@ -91,8 +95,10 @@ void UT_DefaultHandler_CFE_EVS_SendTimedEvent(void *UserObj, UT_EntryKey_t FuncK
  * Default handler for CFE_EVS_SendEventWithAppID coverage stub function
  *
  *------------------------------------------------------------*/
-void UT_DefaultHandler_CFE_EVS_SendEventWithAppID(void *UserObj, UT_EntryKey_t FuncKey, const UT_StubContext_t *Context,
-                                                  va_list va)
+void UT_DefaultHandler_CFE_EVS_SendEventWithAppID(void                   *UserObj,
+                                                  UT_EntryKey_t           FuncKey,
+                                                  const UT_StubContext_t *Context,
+                                                  va_list                 va)
 {
     uint16      EventID = UT_Hook_GetArgValueByName(Context, "EventID", uint16);
     const char *Spec    = UT_Hook_GetArgValueByName(Context, "Spec", const char *);

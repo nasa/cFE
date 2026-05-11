@@ -50,14 +50,38 @@ configure_file(${CFE_SOURCE_DIR}/cmake/cfe_generated_file.h.in ${CMAKE_CURRENT_B
 
 # Generate lists of modules that will be statically linked into this CFE core target
 set(GENERATED_ENTRIES_CORE_MODULES)
+set(GENERATED_ENTRIES_CORE_OBJTAB)
+set(GENERATED_ENTRIES_CORE_EXTERNS)
 foreach(DEP core_api ${MISSION_CORE_MODULES})
     list(APPEND GENERATED_ENTRIES_CORE_MODULES "{ \"${DEP}\" },\n")
+    get_target_property(MODULE_SOURCES ${DEP} SOURCES)
+    foreach(SRC ${MODULE_SOURCES})
+        string(REGEX MATCH "_objtab\.c.?.?$" HAS_OBJTAB ${SRC})
+        if (HAS_OBJTAB)
+            string(TOUPPER "CFE_${DEP}" ENTRY_NAME)
+            list(APPEND GENERATED_ENTRIES_CORE_EXTERNS 
+                "extern Target_ObjectTable_t ${ENTRY_NAME}_ModuleEntry\;\n" 
+            )
+            list(APPEND GENERATED_ENTRIES_CORE_OBJTAB 
+                "&${ENTRY_NAME}_ModuleEntry,\n" 
+            )
+            break()
+        endif()
+    endforeach()
 endforeach()
 
 set(GENERATED_ENTRIES_STATIC_APPS)
 foreach(DEP ${${TGTNAME}_STATIC_APPLIST})
     list(APPEND GENERATED_ENTRIES_STATIC_APPS "{ \"${DEP}\" },\n")
 endforeach()
+
+string(CONCAT GENERATED_FILE_HEADER
+    "/* This file is auto-generated from CMake build system.  Do not manually edit! */\n"
+    "#include \"target_config.h\"\n"
+    "#include \"target_objtab.h\"\n" # for Target_ObjectTable_t
+    "\n"
+    ${GENERATED_ENTRIES_CORE_EXTERNS}
+)
 
 string(CONCAT GENERATED_FILE_CONTENT
     "CFE_ConfigName_t CFE_CORE_MODULE_LIST[] = {\n"
@@ -67,6 +91,10 @@ string(CONCAT GENERATED_FILE_CONTENT
     "CFE_ConfigName_t CFE_STATIC_APP_LIST[] = {\n"
     ${GENERATED_ENTRIES_STATIC_APPS}
     "{ NULL } /* End of list */\n"
+    "};\n"
+    "const Target_ObjectTable_t * const CFE_CORE_MODULE_OBJTAB[] = {\n"
+    ${GENERATED_ENTRIES_CORE_OBJTAB}
+    "NULL /* End of list */\n"
     "};\n"
 )
 

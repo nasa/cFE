@@ -51,19 +51,23 @@ const CFE_Config_IdNameEntry_t CFE_CONFIGID_NAMETABLE[CFE_ConfigIdOffset_MAX] =
 const char UT_UNKNOWN_STR[] = "UT-Unknown";
 const char UT_VALUE_STR[]   = "UT-Value";
 
-const uint32                  UT_ARR_ELEMENTS[4] = {1, 2, 3, 4};
-const CFE_Config_ArrayValue_t UT_ARRAY           = {4, UT_ARR_ELEMENTS};
+const uint32                  UT_ARR_ELEMENTS[4] = { 1, 2, 3, 4 };
+const CFE_Config_ArrayValue_t UT_ARRAY           = { 4, UT_ARR_ELEMENTS };
 
 const struct
 {
     uint16 val;
-} UT_TEST_OBJ = {456};
+} UT_TEST_OBJ = { 456 };
 
-CFE_StaticModuleLoadEntry_t UT_PspModuleListSet[3] = {{"pspmodule1"}, {"pspmodule2"}, {NULL}};
-CFE_ConfigName_t            UT_StaticModuleSet[3]  = {{"staticmodule1"}, {"staticmodule2"}, {NULL}};
-CFE_ConfigName_t            UT_CoreModuleSet[3]    = {{"coremodule1"}, {"coremodule2"}, {NULL}};
-CFE_ConfigName_t *          UT_ModuleListSet[2]    = {UT_CoreModuleSet, UT_StaticModuleSet};
-CFE_ConfigKeyValue_t        UT_ActiveList[3]       = {{"coremodule1", "ut1"}, {"staticmodule2", "ut2"}, {NULL, NULL}};
+CFE_StaticModuleLoadEntry_t UT_PspModuleListSet[3] = { { "pspmodule1" }, { "pspmodule2" }, { NULL } };
+CFE_ConfigName_t            UT_StaticModuleSet[3]  = { { "staticmodule1" }, { "staticmodule2" }, { NULL } };
+CFE_ConfigName_t            UT_CoreModuleSet[3]    = { { "coremodule1" }, { "coremodule2" }, { NULL } };
+CFE_ConfigName_t           *UT_ModuleListSet[2]    = { UT_CoreModuleSet, UT_StaticModuleSet };
+CFE_ConfigKeyValue_t        UT_ActiveList[3]       = {
+    { "coremodule1",   "ut1" },
+    { "staticmodule2", "ut2" },
+    { NULL,            NULL  }
+};
 
 /* Tune the check for EDS state depending on whether is globally enabled or disabled */
 #ifdef CFE_EDS_ENABLED
@@ -182,8 +186,8 @@ void Test_CFE_Config_SetArrayValue(void)
      * Test case for:
      * void CFE_Config_SetArrayValue(CFE_ConfigId_t ConfigId, const CFE_Config_ArrayValue_t *ArrayPtr)
      */
-    static uint16                  TESTARR[] = {5, 6, 7, 8, 9, 10};
-    static CFE_Config_ArrayValue_t TESTOBJ   = {6, TESTARR};
+    static uint16                  TESTARR[] = { 5, 6, 7, 8, 9, 10 };
+    static CFE_Config_ArrayValue_t TESTOBJ   = { 6, TESTARR };
     CFE_Config_ArrayValue_t        ArrVal;
 
     UtAssert_VOIDCALL(CFE_Config_SetArrayValue(CFE_CONFIGID_UNDEFINED, &TESTOBJ));
@@ -370,7 +374,9 @@ void UtTest_Setup(void)
     UtTest_Add(Test_CFE_Config_FindTargetKeyValue, Test_CFE_Config_Setup, NULL, "Test CFE_Config_FindTargetKeyValue()");
     UtTest_Add(Test_CFE_Config_IsPspModule, Test_CFE_Config_Setup, NULL, "Test CFE_Config_IsPspModule()");
     UtTest_Add(Test_CFE_Config_FindStaticModName, Test_CFE_Config_Setup, NULL, "Test CFE_Config_FindStaticModName()");
-    UtTest_Add(Test_CFE_Config_SetupModuleVersions, Test_CFE_Config_Setup, NULL,
+    UtTest_Add(Test_CFE_Config_SetupModuleVersions,
+               Test_CFE_Config_Setup,
+               NULL,
                "Test CFE_Config_SetupModuleVersions()");
     UtTest_Add(Test_CFE_Config_Init, Test_CFE_Config_Setup, NULL, "Test CFE_Config_Init()");
     UtTest_Add(Test_CFE_Config_EdsState, Test_CFE_Config_Setup, NULL, "Test CFE_Config_EdsState()");

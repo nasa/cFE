@@ -23,6 +23,7 @@ set(${DEP}_SRC
     fsw/src/cfe_msg_sechdr_checksum.c
     fsw/src/cfe_msg_sechdr_fc.c
     fsw/src/cfe_msg_sechdr_time.c
+    fsw/src/cfe_msg_objtab.c
 )
 
 # Source selection for if CCSDS extended header is included, and MsgId version use

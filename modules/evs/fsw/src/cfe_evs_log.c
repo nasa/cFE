@@ -48,8 +48,8 @@ void EVS_AddLog(CFE_EVS_LongEventTlm_t *EVS_PktPtr)
     }
 
     /* If the log is not full, _or_ if it is in OVERWRITE mode, add the event to the log */
-    if ((CFE_EVS_Global.EVS_LogPtr->LogFullFlag == false) ||
-        (CFE_EVS_Global.EVS_LogPtr->LogMode == CFE_EVS_LogMode_OVERWRITE))
+    if ((CFE_EVS_Global.EVS_LogPtr->LogFullFlag == false)
+        || (CFE_EVS_Global.EVS_LogPtr->LogMode == CFE_EVS_LogMode_OVERWRITE))
     {
         /* Copy the event data to the next available entry in the log */
         memcpy(&CFE_EVS_Global.EVS_LogPtr->LogEntry[CFE_EVS_Global.EVS_LogPtr->Next], EVS_PktPtr, sizeof(*EVS_PktPtr));
@@ -121,15 +121,20 @@ int32 CFE_EVS_WriteLogDataFileCmd(const CFE_EVS_WriteLogDataFileCmd_t *data)
     /*
     ** Copy the filename into local buffer with default name/path/extension if not specified
     */
-    Result = CFE_FS_ParseInputFileNameEx(LogFilename, CmdPtr->LogFilename, sizeof(LogFilename),
-                                         sizeof(CmdPtr->LogFilename), CFE_PLATFORM_EVS_DEFAULT_LOG_FILE,
+    Result = CFE_FS_ParseInputFileNameEx(LogFilename,
+                                         CmdPtr->LogFilename,
+                                         sizeof(LogFilename),
+                                         sizeof(CmdPtr->LogFilename),
+                                         CFE_PLATFORM_EVS_DEFAULT_LOG_FILE,
                                          CFE_FS_GetDefaultMountPoint(CFE_FS_FileCategory_BINARY_DATA_DUMP),
                                          CFE_FS_GetDefaultExtension(CFE_FS_FileCategory_BINARY_DATA_DUMP));
 
     if (Result != CFE_SUCCESS)
     {
-        EVS_SendEvent(CFE_EVS_ERR_CRLOGFILE_EID, CFE_EVS_EventType_ERROR,
-                      "Write Log File Command Error: CFE_FS_ParseInputFileNameEx() = 0x%08X", (unsigned int)Result);
+        EVS_SendEvent(CFE_EVS_ERR_CRLOGFILE_EID,
+                      CFE_EVS_EventType_ERROR,
+                      "Write Log File Command Error: CFE_FS_ParseInputFileNameEx() = 0x%08X",
+                      (unsigned int)Result);
     }
     else
     {
@@ -138,8 +143,10 @@ int32 CFE_EVS_WriteLogDataFileCmd(const CFE_EVS_WriteLogDataFileCmd_t *data)
             OS_OpenCreate(&LogFileHandle, LogFilename, OS_FILE_FLAG_CREATE | OS_FILE_FLAG_TRUNCATE, OS_WRITE_ONLY);
         if (OsStatus != OS_SUCCESS)
         {
-            EVS_SendEvent(CFE_EVS_ERR_CRLOGFILE_EID, CFE_EVS_EventType_ERROR,
-                          "Write Log File Command Error: OS_OpenCreate = %ld, filename = %s", (long)OsStatus,
+            EVS_SendEvent(CFE_EVS_ERR_CRLOGFILE_EID,
+                          CFE_EVS_EventType_ERROR,
+                          "Write Log File Command Error: OS_OpenCreate = %ld, filename = %s",
+                          (long)OsStatus,
                           LogFilename);
             Result = CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
         }
@@ -176,7 +183,8 @@ int32 CFE_EVS_WriteLogDataFileCmd(const CFE_EVS_WriteLogDataFileCmd_t *data)
             /* Write all the "in-use" event log entries to the file */
             for (i = 0; i < CFE_EVS_Global.EVS_LogPtr->LogCount; i++)
             {
-                OsStatus = OS_write(LogFileHandle, &CFE_EVS_Global.EVS_LogPtr->LogEntry[LogIndex],
+                OsStatus = OS_write(LogFileHandle,
+                                    &CFE_EVS_Global.EVS_LogPtr->LogEntry[LogIndex],
                                     sizeof(CFE_EVS_Global.EVS_LogPtr->LogEntry[LogIndex]));
 
                 if (OsStatus == sizeof(CFE_EVS_Global.EVS_LogPtr->LogEntry[LogIndex]))
@@ -199,23 +207,30 @@ int32 CFE_EVS_WriteLogDataFileCmd(const CFE_EVS_WriteLogDataFileCmd_t *data)
             /* Process command handler success result */
             if (i == CFE_EVS_Global.EVS_LogPtr->LogCount)
             {
-                EVS_SendEvent(CFE_EVS_WRLOG_EID, CFE_EVS_EventType_DEBUG,
+                EVS_SendEvent(CFE_EVS_WRLOG_EID,
+                              CFE_EVS_EventType_DEBUG,
                               "Write Log File Command: %d event log entries written to %s",
-                              (int)CFE_EVS_Global.EVS_LogPtr->LogCount, LogFilename);
+                              (int)CFE_EVS_Global.EVS_LogPtr->LogCount,
+                              LogFilename);
                 Result = CFE_SUCCESS;
             }
             else
             {
-                EVS_SendEvent(CFE_EVS_ERR_WRLOGFILE_EID, CFE_EVS_EventType_ERROR,
-                              "Write Log File Command Error: OS_write = %ld, filename = %s", (long)OsStatus,
+                EVS_SendEvent(CFE_EVS_ERR_WRLOGFILE_EID,
+                              CFE_EVS_EventType_ERROR,
+                              "Write Log File Command Error: OS_write = %ld, filename = %s",
+                              (long)OsStatus,
                               LogFilename);
             }
         }
         else
         {
-            EVS_SendEvent(CFE_EVS_WRITE_HEADER_ERR_EID, CFE_EVS_EventType_ERROR,
+            EVS_SendEvent(CFE_EVS_WRITE_HEADER_ERR_EID,
+                          CFE_EVS_EventType_ERROR,
                           "Write File Header to Log File Error: WriteHdr RC: %d, Expected: %d, filename = %s",
-                          (int)BytesWritten, (int)sizeof(LogFileHdr), LogFilename);
+                          (int)BytesWritten,
+                          (int)sizeof(LogFileHdr),
+                          LogFilename);
         }
 
         OS_close(LogFileHandle);
@@ -242,7 +257,9 @@ int32 CFE_EVS_SetLogModeCmd(const CFE_EVS_SetLogModeCmd_t *data)
         CFE_EVS_Global.EVS_LogPtr->LogMode = CmdPtr->LogMode;
         OS_MutSemGive(CFE_EVS_Global.EVS_SharedDataMutexID);
 
-        EVS_SendEvent(CFE_EVS_LOGMODE_EID, CFE_EVS_EventType_DEBUG, "Set Log Mode Command: Log Mode = %d",
+        EVS_SendEvent(CFE_EVS_LOGMODE_EID,
+                      CFE_EVS_EventType_DEBUG,
+                      "Set Log Mode Command: Log Mode = %d",
                       (int)CmdPtr->LogMode);
 
         Status = CFE_SUCCESS;
@@ -250,7 +267,9 @@ int32 CFE_EVS_SetLogModeCmd(const CFE_EVS_SetLogModeCmd_t *data)
     else
     {
         Status = CFE_EVS_INVALID_PARAMETER;
-        EVS_SendEvent(CFE_EVS_ERR_LOGMODE_EID, CFE_EVS_EventType_ERROR, "Set Log Mode Command Error: Log Mode = %d",
+        EVS_SendEvent(CFE_EVS_ERR_LOGMODE_EID,
+                      CFE_EVS_EventType_ERROR,
+                      "Set Log Mode Command Error: Log Mode = %d",
                       (int)CmdPtr->LogMode);
     }
 

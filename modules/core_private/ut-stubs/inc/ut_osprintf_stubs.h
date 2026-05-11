@@ -59,7 +59,7 @@
 #define UT_OSP_RECORD_USED                32
 #define UT_OSP_NO_FREE_APP_SLOTS          33
 #define UT_OSP_EARLYINIT                  34
-#define UT_OSP_FUNCTION_POINTER           35
+#define UT_OSP_CORE_APP_EARLYINIT         35
 #define UT_OSP_FILE_LINE_TOO_LONG         36
 #define UT_OSP_STARTUP_READ               37
 #define UT_OSP_CANNOT_OPEN_ES_APP_STARTUP 38
@@ -104,5 +104,6 @@
 #define UT_OSP_FORMAT_VOLATILE            78
 #define UT_OSP_RELOAD_NO_FILE             79
 #define UT_OSP_EXTERNAL_APP_EXIT          80
+#define UT_OSP_FINISHED_ES_CREATE         81
 
 #endif /* UT_OSPRINTF_STUBS_H */

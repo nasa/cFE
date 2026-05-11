@@ -49,7 +49,7 @@ typedef union
 {
     long long int AlignLong;
     long double   AlignDbl;
-    void *        AlignPtr;
+    void         *AlignPtr;
     char          Content[2 * CFE_PLATFORM_ES_MAX_BLOCK_SIZE];
 } UT_Buffer_t;
 
@@ -61,7 +61,7 @@ static UT_Buffer_t UT_PrintfBuffer;
 /* counter values for HK TLM counter verification */
 #define UT_MAX_COUNTERS_PER_TEST 4
 static uint32 UT_NumCountersTracked                   = 0;
-static uint8 *UT_CounterPtr[UT_MAX_COUNTERS_PER_TEST] = {NULL};
+static uint8 *UT_CounterPtr[UT_MAX_COUNTERS_PER_TEST] = { NULL };
 
 static union
 {
@@ -227,9 +227,9 @@ void UT_ResetPoolBufferIndex(void)
 void UT_DispatchTableHandler(void *UserObj, UT_EntryKey_t FuncKey, const UT_StubContext_t *Context)
 {
     UT_TaskPipeDispatchId_t *DispatchId    = UserObj;
-    const CFE_SB_Buffer_t *  Buffer        = UT_Hook_GetArgValueByName(Context, "Buffer", const CFE_SB_Buffer_t *);
-    const void *             DispatchTable = UT_Hook_GetArgValueByName(Context, "DispatchTable", const void *);
-    const uint8 *            Addr;
+    const CFE_SB_Buffer_t   *Buffer        = UT_Hook_GetArgValueByName(Context, "Buffer", const CFE_SB_Buffer_t *);
+    const void              *DispatchTable = UT_Hook_GetArgValueByName(Context, "DispatchTable", const void *);
+    const uint8             *Addr;
     CFE_Status_t (*MsgHandler)(const CFE_SB_Buffer_t *);
     CFE_Status_t Status;
 
@@ -242,7 +242,7 @@ void UT_DispatchTableHandler(void *UserObj, UT_EntryKey_t FuncKey, const UT_Stub
 
         if (DispatchId->Method == UT_TaskPipeDispatchMethod_TABLE_OFFSET && DispatchTable != NULL)
         {
-            Addr = DispatchTable;
+            Addr  = DispatchTable;
             Addr += DispatchId->TableOffset;
             memcpy(&MsgHandler, Addr, sizeof(void *));
         }
@@ -262,8 +262,9 @@ void UT_DispatchTableHandler(void *UserObj, UT_EntryKey_t FuncKey, const UT_Stub
 ** This is part of the general UT_CallTaskPipe process, but split off to support use cases
 ** where the task pipe is reached through other means.
 */
-void UT_SetupBasicMsgDispatch(const UT_TaskPipeDispatchId_t *DispatchReq, CFE_MSG_Size_t MsgSize,
-                              bool ExpectFailureEvent)
+void UT_SetupBasicMsgDispatch(const UT_TaskPipeDispatchId_t *DispatchReq,
+                              CFE_MSG_Size_t                 MsgSize,
+                              bool                           ExpectFailureEvent)
 {
     CFE_Status_t ErrorCode;
 
@@ -274,8 +275,10 @@ void UT_SetupBasicMsgDispatch(const UT_TaskPipeDispatchId_t *DispatchReq, CFE_MS
             /* Set up for the typical task pipe related calls */
             UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), (void *)&DispatchReq->MsgId, sizeof(DispatchReq->MsgId), true);
             UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &MsgSize, sizeof(MsgSize), true);
-            UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), (void *)&DispatchReq->CommandCode,
-                             sizeof(DispatchReq->CommandCode), true);
+            UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode),
+                             (void *)&DispatchReq->CommandCode,
+                             sizeof(DispatchReq->CommandCode),
+                             true);
         }
 
         if (DispatchReq->Method == UT_TaskPipeDispatchMethod_TABLE_OFFSET)
@@ -298,8 +301,10 @@ void UT_SetupBasicMsgDispatch(const UT_TaskPipeDispatchId_t *DispatchReq, CFE_MS
         {
             UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), (void *)&DispatchReq->MsgId, sizeof(DispatchReq->MsgId), true);
             UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &MsgSize, sizeof(MsgSize), true);
-            UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), (void *)&DispatchReq->CommandCode,
-                             sizeof(DispatchReq->CommandCode), true);
+            UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode),
+                             (void *)&DispatchReq->CommandCode,
+                             sizeof(DispatchReq->CommandCode),
+                             true);
 
             if (UT_TABLE_DISPATCHER != 0)
             {
@@ -338,8 +343,10 @@ void UT_SetupBasicMsgDispatch(const UT_TaskPipeDispatchId_t *DispatchReq, CFE_MS
 ** This first sets up the various stubs according to the test case,
 ** then invokes the pipe function.
 */
-void UT_CallTaskPipe(void (*TaskPipeFunc)(const CFE_SB_Buffer_t *), const CFE_MSG_Message_t *MsgPtr, size_t MsgSize,
-                     UT_TaskPipeDispatchId_t DispatchId)
+void UT_CallTaskPipe(void (*TaskPipeFunc)(const CFE_SB_Buffer_t *),
+                     const CFE_MSG_Message_t *MsgPtr,
+                     size_t                   MsgSize,
+                     UT_TaskPipeDispatchId_t  DispatchId)
 {
     union
     {
@@ -368,8 +375,8 @@ void UT_CallTaskPipe(void (*TaskPipeFunc)(const CFE_SB_Buffer_t *), const CFE_MS
 int32 UT_SoftwareBusSnapshotHook(void *UserObj, int32 StubRetcode, uint32 CallCount, const UT_StubContext_t *Context)
 {
     UT_SoftwareBusSnapshot_Entry_t *Snapshot = UserObj;
-    const CFE_MSG_Message_t *       MsgPtr   = UT_Hook_GetArgValueByName(Context, "MsgPtr", CFE_MSG_Message_t *);
-    const uint8_t *                 BytePtr;
+    const CFE_MSG_Message_t        *MsgPtr   = UT_Hook_GetArgValueByName(Context, "MsgPtr", CFE_MSG_Message_t *);
+    const uint8_t                  *BytePtr;
 
     if (MsgPtr != NULL && Snapshot != NULL)
     {
@@ -497,7 +504,9 @@ void UT_ClearEventHistory(void)
     UT_ResetState(UT_KEY(CFE_EVS_SendTimedEvent));
     UT_SetDataBuffer(UT_KEY(CFE_EVS_SendEvent), UT_SendEventHistory, sizeof(UT_SendEventHistory), false);
     UT_SetDataBuffer(UT_KEY(CFE_EVS_SendTimedEvent), UT_SendTimedEventHistory, sizeof(UT_SendTimedEventHistory), false);
-    UT_SetDataBuffer(UT_KEY(CFE_EVS_SendEventWithAppID), UT_SendEventAppIDHistory, sizeof(UT_SendEventAppIDHistory),
+    UT_SetDataBuffer(UT_KEY(CFE_EVS_SendEventWithAppID),
+                     UT_SendEventAppIDHistory,
+                     sizeof(UT_SendEventAppIDHistory),
                      false);
 }
 
@@ -506,13 +515,13 @@ static bool UT_CheckEventHistoryFromFunc(UT_EntryKey_t Func, uint16 EventIDToSea
     bool    Result = false;
     size_t  Position;
     size_t  MaxSize;
-    void *  TempBuff;
+    void   *TempBuff;
     uint16 *EvBuf;
 
     UT_GetDataBuffer(Func, &TempBuff, &MaxSize, &Position);
     if (TempBuff != NULL && MaxSize > 0)
     {
-        EvBuf = TempBuff;
+        EvBuf     = TempBuff;
         Position /= sizeof(*EvBuf);
         while (Position > 0)
         {
@@ -534,9 +543,9 @@ static bool UT_CheckEventHistoryFromFunc(UT_EntryKey_t Func, uint16 EventIDToSea
 */
 bool UT_EventIsInHistory(uint16 EventIDToSearchFor)
 {
-    return (UT_CheckEventHistoryFromFunc(UT_KEY(CFE_EVS_SendEvent), EventIDToSearchFor) ||
-            UT_CheckEventHistoryFromFunc(UT_KEY(CFE_EVS_SendEventWithAppID), EventIDToSearchFor) ||
-            UT_CheckEventHistoryFromFunc(UT_KEY(CFE_EVS_SendTimedEvent), EventIDToSearchFor));
+    return (UT_CheckEventHistoryFromFunc(UT_KEY(CFE_EVS_SendEvent), EventIDToSearchFor)
+            || UT_CheckEventHistoryFromFunc(UT_KEY(CFE_EVS_SendEventWithAppID), EventIDToSearchFor)
+            || UT_CheckEventHistoryFromFunc(UT_KEY(CFE_EVS_SendTimedEvent), EventIDToSearchFor));
 }
 
 /*
@@ -547,7 +556,7 @@ uint16 UT_GetNumEventsSent(void)
     uint16 Total = 0;
     size_t Position;
     size_t MaxSize;
-    void * EvBuf;
+    void  *EvBuf;
 
     UT_GetDataBuffer(UT_KEY(CFE_EVS_SendEvent), &EvBuf, &MaxSize, &Position);
     Total += Position / sizeof(uint16);
@@ -568,14 +577,14 @@ void UT_DisplayPkt(CFE_MSG_Message_t *MsgPtr, size_t size)
     size_t i;
     size_t BufSize = UT_MAX_MESSAGE_LENGTH;
     char   DisplayMsg[UT_MAX_MESSAGE_LENGTH];
-    char * msgPtr = DisplayMsg;
+    char  *msgPtr = DisplayMsg;
 
     DisplayMsg[0] = '\0';
 
     for (i = 0; i < size && BufSize > 3; i++)
     {
         snprintf(msgPtr, BufSize, "%02x ", *BytePtr);
-        msgPtr += 3;
+        msgPtr  += 3;
         BufSize -= 3;
         ++BytePtr;
     }
@@ -696,10 +705,10 @@ static int UT_StrCmpFormatStr(const char *FormatStr, const char *TestStr, size_t
                 break;
             }
 
-            WildCard = 0;
-            ChunkStart += ChunkLen;
-            TestStart += ChunkLen;
-            TestLength -= ChunkLen;
+            WildCard      = 0;
+            ChunkStart   += ChunkLen;
+            TestStart    += ChunkLen;
+            TestLength   -= ChunkLen;
             FormatLength -= ChunkLen;
         }
     }
@@ -716,13 +725,13 @@ static int UT_StrCmpExact(const char *RefStr, const char *TestStr, size_t RefLen
     return (RefLength == TestLength && memcmp(RefStr, TestStr, RefLength) == 0);
 }
 
-static uint32 UT_GetMessageCount(const char *Msg, UT_Buffer_t *Buf,
-                                 int (*Comparator)(const char *, const char *, size_t, size_t))
+static uint32
+UT_GetMessageCount(const char *Msg, UT_Buffer_t *Buf, int (*Comparator)(const char *, const char *, size_t, size_t))
 {
     uint32 Count  = 0;
     uint32 MsgLen = strlen(Msg);
-    char * Start  = Buf->Content;
-    char * End;
+    char  *Start  = Buf->Content;
+    char  *End;
 
     while (MsgLen > 0 && Msg[MsgLen - 1] == '\n')
     {
@@ -768,8 +777,11 @@ uint32 UT_PrintfIsInHistory(const char *MsgToSearchFor)
     return UT_GetMessageCount(MsgToSearchFor, &UT_PrintfBuffer, UT_StrCmpFormatStr);
 }
 
-bool CFE_UtAssert_SuccessCheck_Impl(CFE_Status_t Status, UtAssert_CaseType_t CaseType, const char *File, uint32 Line,
-                                    const char *Text)
+bool CFE_UtAssert_SuccessCheck_Impl(CFE_Status_t        Status,
+                                    UtAssert_CaseType_t CaseType,
+                                    const char         *File,
+                                    uint32              Line,
+                                    const char         *Text)
 {
     bool Result = (Status >= CFE_SUCCESS);
 
@@ -781,7 +793,10 @@ bool CFE_UtAssert_SuccessCheck_Impl(CFE_Status_t Status, UtAssert_CaseType_t Cas
     return Result;
 }
 
-bool CFE_UtAssert_MessageCheck_Impl(bool Status, const char *File, uint32 Line, const char *Desc,
+bool CFE_UtAssert_MessageCheck_Impl(bool        Status,
+                                    const char *File,
+                                    uint32      Line,
+                                    const char *Desc,
                                     const char *FormatString)
 {
     char        ScrubbedFormat[256];
@@ -813,8 +828,15 @@ bool CFE_UtAssert_MessageCheck_Impl(bool Status, const char *File, uint32 Line, 
     ScrubbedFormat[FormatLen + 1] = '\'';
     ScrubbedFormat[FormatLen + 2] = 0;
 
-    return UtAssert_GenericSignedCompare(Status, UtAssert_Compare_GT, 0, UtAssert_Radix_DECIMAL, File, Line, Desc,
-                                         ScrubbedFormat, "");
+    return UtAssert_GenericSignedCompare(Status,
+                                         UtAssert_Compare_GT,
+                                         0,
+                                         UtAssert_Radix_DECIMAL,
+                                         File,
+                                         Line,
+                                         Desc,
+                                         ScrubbedFormat,
+                                         "");
 }
 
 bool CFE_UtAssert_VerifyTlmCounterImpl(uint8 *Count, const char *File, uint32 Line, const char *Text)
@@ -844,6 +866,12 @@ bool CFE_UtAssert_VerifyTlmCounterImpl(uint8 *Count, const char *File, uint32 Li
     Expected = UT_GetStubCount((UT_EntryKey_t)Count);
     Actual   = *Count;
 
-    return UtAssertEx((Actual == Expected), UTASSERT_CASETYPE_FAILURE, File, Line, "TLM counter: %s (%u) == %u", Text,
-                      (unsigned int)Actual, (unsigned int)Expected);
+    return UtAssertEx((Actual == Expected),
+                      UTASSERT_CASETYPE_FAILURE,
+                      File,
+                      Line,
+                      "TLM counter: %s (%u) == %u",
+                      Text,
+                      (unsigned int)Actual,
+                      (unsigned int)Expected);
 }

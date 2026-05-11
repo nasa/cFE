@@ -164,14 +164,14 @@ typedef struct CFE_EVS_AppNameEventIDMaskCmd_Payload
 
 typedef struct CFE_EVS_AppTlmData
 {
-    CFE_ES_AppId_t AppID;             /**< \cfetlmmnemonic \EVS_APPID
-                                           \brief Numerical application identifier */
-    uint16 AppMessageSentCounter;     /**< \cfetlmmnemonic \EVS_APPMSGSENTC
-                                           \brief Application message sent counter */
-    uint8 AppEnableStatus;            /**< \cfetlmmnemonic \EVS_APPENASTAT
-                                           \brief Application event service enable status */
-    uint8 AppMessageSquelchedCounter; /**< \cfetlmmnemonic \EVS_SQUELCHEDC
-                                       \brief Number of events squelched */
+    CFE_ES_AppId_t AppID;                      /**< \cfetlmmnemonic \EVS_APPID
+                                                    \brief Numerical application identifier */
+    uint16         AppMessageSentCounter;      /**< \cfetlmmnemonic \EVS_APPMSGSENTC
+                                                    \brief Application message sent counter */
+    uint8          AppEnableStatus;            /**< \cfetlmmnemonic \EVS_APPENASTAT
+                                                    \brief Application event service enable status */
+    uint8          AppMessageSquelchedCounter; /**< \cfetlmmnemonic \EVS_SQUELCHEDC
+                                                \brief Number of events squelched */
 } CFE_EVS_AppTlmData_t;
 
 /**
@@ -204,12 +204,7 @@ typedef struct CFE_EVS_HousekeepingTlm_Payload
 
     uint8 LogEnabled; /**< \cfetlmmnemonic \EVS_LOGENABLED
                            \brief Current event log enable/disable state */
-    uint8 Spare1;     /**< \cfetlmmnemonic \EVS_HK_SPARE1
-                           \brief Padding for 32 bit boundary */
-    uint8 Spare2;     /**< \cfetlmmnemonic \EVS_HK_SPARE2
-                           \brief Padding for 32 bit boundary */
-    uint8 Spare3;     /**< \cfetlmmnemonic \EVS_HK_SPARE3
-                           \brief Padding for 32 bit boundary */
+    uint8 Padding[3]; /** \brief Padding for 32 bit boundary */
 
     CFE_EVS_AppTlmData_t AppData[CFE_MISSION_ES_MAX_APPLICATIONS]; /**< \cfetlmmnemonic \EVS_APP
                                                                 \brief Array of registered application table data */
@@ -219,16 +214,16 @@ typedef struct CFE_EVS_HousekeepingTlm_Payload
 
 typedef struct CFE_EVS_PacketID
 {
-    char AppName[CFE_MISSION_MAX_API_LEN]; /**< \cfetlmmnemonic \EVS_APPNAME
-                                                \brief Application name */
-    uint16 EventID;                        /**< \cfetlmmnemonic \EVS_EVENTID
-                                                \brief Numerical event identifier */
-    CFE_EVS_EventType_Enum_t EventType;    /**< \cfetlmmnemonic \EVS_EVENTTYPE
-                                                \brief Numerical event type identifier */
-    uint32 SpacecraftID;                   /**< \cfetlmmnemonic \EVS_SCID
-                                                \brief Spacecraft identifier */
-    uint32 ProcessorID;                    /**< \cfetlmmnemonic \EVS_PROCESSORID
-                                                \brief Numerical processor identifier */
+    char                     AppName[CFE_MISSION_MAX_API_LEN]; /**< \cfetlmmnemonic \EVS_APPNAME
+                                                                    \brief Application name */
+    uint16                   EventID;                          /**< \cfetlmmnemonic \EVS_EVENTID
+                                                                    \brief Numerical event identifier */
+    CFE_EVS_EventType_Enum_t EventType;                        /**< \cfetlmmnemonic \EVS_EVENTTYPE
+                                                                    \brief Numerical event type identifier */
+    uint32                   SpacecraftID;                     /**< \cfetlmmnemonic \EVS_SCID
+                                                                    \brief Spacecraft identifier */
+    uint32                   ProcessorID;                      /**< \cfetlmmnemonic \EVS_PROCESSORID
+                                                                    \brief Numerical processor identifier */
 } CFE_EVS_PacketID_t;
 
 /**
@@ -239,10 +234,7 @@ typedef struct CFE_EVS_LongEventTlm_Payload
     CFE_EVS_PacketID_t PacketID;                                    /**< \brief Event packet information */
     char               Message[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH]; /**< \cfetlmmnemonic \EVS_EVENT
                                                                  \brief Event message string */
-    uint8 Spare1;                                                   /**< \cfetlmmnemonic \EVS_SPARE1
-                                                                         \brief Structure padding */
-    uint8 Spare2;                                                   /**< \cfetlmmnemonic \EVS_SPARE2
-                                                                     \brief Structure padding */
+    uint8              Padding[2];                                  /** \brief Structure padding */
 } CFE_EVS_LongEventTlm_Payload_t;
 
 /**

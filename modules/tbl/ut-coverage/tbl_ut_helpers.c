@@ -108,10 +108,12 @@ void UT_TBL_ForEveryLoadBuff(void (*Func)(CFE_TBL_LoadBuff_t *))
     }
 }
 
-void UT_TBL_SetupSingleRegWithSize(CFE_TBL_RegistryRec_t **RegRecOut, CFE_TBL_AccessDescriptor_t **AccDescOut,
-                                   size_t TblSz, uint16 Flags)
+void UT_TBL_SetupSingleRegWithSize(CFE_TBL_RegistryRec_t      **RegRecOut,
+                                   CFE_TBL_AccessDescriptor_t **AccDescOut,
+                                   size_t                       TblSz,
+                                   uint16                       Flags)
 {
-    CFE_TBL_RegistryRec_t *     RegRecPtr;
+    CFE_TBL_RegistryRec_t      *RegRecPtr;
     CFE_TBL_AccessDescriptor_t *AccDescPtr;
     CFE_TBL_Handle_t            Handle;
     static uint32               Num = 0;
@@ -151,12 +153,14 @@ void UT_TBL_SetupSingleReg(CFE_TBL_RegistryRec_t **RegRecOut, CFE_TBL_AccessDesc
 }
 
 /* Sets up the indicated validation request/result buffer as VALIDATION_PENDING */
-void UT_TBL_SetupPendingValidation(uint32 ArrayIndex, bool UseActive, CFE_TBL_RegistryRec_t *RegRecPtr,
+void UT_TBL_SetupPendingValidation(uint32                       ArrayIndex,
+                                   bool                         UseActive,
+                                   CFE_TBL_RegistryRec_t       *RegRecPtr,
                                    CFE_TBL_ValidationResult_t **ValResultOut)
 {
     CFE_TBL_ValidationResult_t *ValResultPtr;
     CFE_ResourceId_t            PendingId;
-    CFE_TBL_LoadBuff_t *        WorkingBufferPtr;
+    CFE_TBL_LoadBuff_t         *WorkingBufferPtr;
 
     ValResultPtr = &CFE_TBL_Global.ValidationResults[ArrayIndex];
     PendingId    = CFE_ResourceId_FromInteger(CFE_TBL_VALRESULTID_BASE + ArrayIndex);
@@ -165,21 +169,26 @@ void UT_TBL_SetupPendingValidation(uint32 ArrayIndex, bool UseActive, CFE_TBL_Re
 
     ValResultPtr->State = CFE_TBL_VALIDATION_PENDING;
 
-    ValResultPtr->ValId        = CFE_TBL_VALRESULTID_C(PendingId);
-    ValResultPtr->ActiveBuffer = UseActive;
+    ValResultPtr->ValId = CFE_TBL_VALRESULTID_C(PendingId);
+    if (UseActive)
+    {
+        ValResultPtr->BufferSelect = CFE_TBL_BufferSelect_ACTIVE;
+    }
+    else
+    {
+        ValResultPtr->BufferSelect = CFE_TBL_BufferSelect_INACTIVE;
+    }
 
-    snprintf(ValResultPtr->TableName, sizeof(ValResultPtr->TableName), "ut_cfe_tbl.UT_Table%u",
+    snprintf(ValResultPtr->TableName,
+             sizeof(ValResultPtr->TableName),
+             "ut_cfe_tbl.UT_Table%u",
              (unsigned int)ArrayIndex + 1);
 
     if (RegRecPtr != NULL)
     {
-        if (UseActive)
+        RegRecPtr->PendingValId = ValResultPtr->ValId;
+        if (!UseActive)
         {
-            RegRecPtr->ValidateActiveId = ValResultPtr->ValId;
-        }
-        else
-        {
-            RegRecPtr->ValidateInactiveId = ValResultPtr->ValId;
             CFE_TBL_GetWorkingBuffer(&WorkingBufferPtr, RegRecPtr);
         }
     }
@@ -198,7 +207,9 @@ void UT_TBL_ResetValidationState(uint32 ArrayIndex)
     memset(ValResultPtr, 0, sizeof(*ValResultPtr));
 }
 
-void UT_TBL_SetupPendingDump(uint32 ArrayIndex, CFE_TBL_LoadBuff_t *DumpBufferPtr, CFE_TBL_RegistryRec_t *RegRecPtr,
+void UT_TBL_SetupPendingDump(uint32                  ArrayIndex,
+                             CFE_TBL_LoadBuff_t     *DumpBufferPtr,
+                             CFE_TBL_RegistryRec_t  *RegRecPtr,
                              CFE_TBL_DumpControl_t **DumpCtrlOut)
 {
     CFE_TBL_DumpControl_t *DumpCtrlPtr;
@@ -225,7 +236,9 @@ void UT_TBL_SetupPendingDump(uint32 ArrayIndex, CFE_TBL_LoadBuff_t *DumpBufferPt
     }
     DumpCtrlPtr->DumpBufferPtr = DumpBufferPtr;
 
-    snprintf(DumpCtrlPtr->TableName, sizeof(DumpCtrlPtr->TableName), "ut_cfe_tbl.UT_Table%u",
+    snprintf(DumpCtrlPtr->TableName,
+             sizeof(DumpCtrlPtr->TableName),
+             "ut_cfe_tbl.UT_Table%u",
              (unsigned int)ArrayIndex + 1);
 
     if (RegRecPtr != NULL)
@@ -281,8 +294,9 @@ void UT_TBL_ClearLoadPending(CFE_TBL_RegistryRec_t *RegRecPtr)
     UT_TBL_Status(RegRecPtr)->NextBufferId = CFE_TBL_LOADBUFFID_UNDEFINED;
 }
 
-void UT_TBL_SetLoadBuffTaken(CFE_TBL_LoadBuff_t *LoadBuffPtr, CFE_TBL_RegistryRec_t *RegRecPtr,
-                             CFE_ResourceId_t PendingId)
+void UT_TBL_SetLoadBuffTaken(CFE_TBL_LoadBuff_t    *LoadBuffPtr,
+                             CFE_TBL_RegistryRec_t *RegRecPtr,
+                             CFE_ResourceId_t       PendingId)
 {
     CFE_TBL_RegId_t RegId;
 
@@ -390,7 +404,7 @@ CFE_TBL_LoadBuff_t *UT_TBL_SetupLoadBuff(CFE_TBL_RegistryRec_t *RegRecPtr, bool 
     static uint32        Serial = 0;
     uint32               ReqCategory;
     CFE_TBL_LoadBuffId_t BuffId;
-    CFE_TBL_LoadBuff_t * BuffPtr;
+    CFE_TBL_LoadBuff_t  *BuffPtr;
 
     if (UseLocalBuffer)
     {
@@ -428,7 +442,8 @@ CFE_TBL_LoadBuff_t *UT_TBL_InitActiveBuffer(CFE_TBL_RegistryRec_t *RegRecPtr, ui
     ReqCategory = 1 + UT_REGREC_INDEX(RegRecPtr);
 
     CFE_TBL_LoadBuffSerialCompose(&Serial, ReqCategory, BuffNum);
-    CFE_TBL_LoadBuffSetUsed(BuffPtr, CFE_ResourceId_FromInteger(CFE_TBL_LOADBUFFID_BASE + Serial),
+    CFE_TBL_LoadBuffSetUsed(BuffPtr,
+                            CFE_ResourceId_FromInteger(CFE_TBL_LOADBUFFID_BASE + Serial),
                             CFE_TBL_RegRecGetID(RegRecPtr));
 
     CFE_TBL_SetActiveBuffer(RegRecPtr, BuffPtr);
@@ -448,21 +463,35 @@ void UT_TBL_SetActiveBufferAddr(CFE_TBL_RegistryRec_t *RegRecPtr, uint32 BuffNum
     }
 }
 
-static bool UT_TBL_CheckTxnHasEventHelper(const CFE_TBL_TxnEvent_t *Txn, void *Arg)
+static bool UT_TBL_CheckTxnHasEventHelper(const CFE_TBL_TxnEvent_t *Txn, CFE_TBL_TxnEventContext_t *Arg)
 {
-    uint16 EventId = *((const uint16 *)Arg);
+    uint16 EventId = *((const uint16 *)Arg->OperationDataPtr);
 
     return (Txn->EventId == EventId);
 }
 
-void UT_TBL_CheckTxnHasEventImpl(const CFE_TBL_TxnState_t *Txn, uint16 EventId, const char *File, uint32 Line,
-                                 const char *EventName)
+void UT_TBL_CheckTxnHasEventImpl(const CFE_TBL_TxnState_t *Txn,
+                                 uint16                    EventId,
+                                 const char               *File,
+                                 uint32                    Line,
+                                 const char               *EventName)
 {
-    uint32 Count;
+    uint32                    Count;
+    CFE_TBL_TxnEventContext_t Ctxt;
 
-    Count = CFE_TBL_TxnProcessEvents(Txn, UT_TBL_CheckTxnHasEventHelper, &EventId);
-    UtAssert_GenericUnsignedCompare(Count, UtAssert_Compare_NEQ, 0, UtAssert_Radix_DECIMAL, File, Line,
-                                    "Event Pending: ", EventName, "");
+    memset(&Ctxt, 0, sizeof(Ctxt));
+    Ctxt.OperationDataPtr = &EventId;
+
+    Count = CFE_TBL_TxnProcessEvents(Txn, UT_TBL_CheckTxnHasEventHelper, &Ctxt);
+    UtAssert_GenericUnsignedCompare(Count,
+                                    UtAssert_Compare_NEQ,
+                                    0,
+                                    UtAssert_Radix_DECIMAL,
+                                    File,
+                                    Line,
+                                    "Event Pending: ",
+                                    EventName,
+                                    "");
 }
 
 void UT_TBL_SetupRegRec(CFE_TBL_RegistryRec_t *RegRecPtr)

@@ -12,94 +12,55 @@ on:
       - synchronize
   workflow_dispatch:
   schedule:
-    # 10:45 PM UTC every Sunday
-    - cron:  '45 22 * * 0'
+    # 11:00 PM UTC every Sunday
+    - cron:  '0 23 * * 0'
 
+env:
+  WORK_PATH: ${{ github.workspace }}
 
 jobs:
-  # Checks for duplicate actions. Skips push actions if there is a matching or
-  # duplicate pull-request action.
-  checks-for-duplicates:
-    runs-on: ubuntu-latest
-    # Map a step output to a job output
-    outputs:
-      should_skip: ${{ steps.skip_check.outputs.should_skip }}
-    steps:
-      - id: skip_check
-        uses: fkirc/skip-duplicate-actions@master
-        with:
-          concurrent_skipping: 'same_content'
-          skip_after_successful_duplicate: 'true'
-          do_not_skip: '["pull_request", "workflow_dispatch", "schedule"]'
-
   checkout-and-cache:
     name: Custom checkout and cache for cFS documents
-    needs: checks-for-duplicates
-    if: ${{ needs.checks-for-duplicates.outputs.should_skip != 'true' || contains(github.ref, 'main') }}
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout bundle
-        uses: actions/checkout@v3
-        with:
-          repository: nasa/cFS
-          submodules: true
-
-      - name: Checkout submodule
-        uses: actions/checkout@v3
+      - name: Checkout cFE
+        uses: actions/checkout@v6
         with:
           path: cfe
+
+      - name: Set up Dependencies
+        uses: ./cfe/.github/actions/setup-cfe
+        with:
+          source-dir: .
+          preferred-ref: ${{ github.head_ref }}
+          org: 'nasa'
+
+      # Setup the build system
+      - name: Set up for build
+        run: make SIMULATION=native prep
 
       - name: Cache Source and Build
         id: cache-src-bld
         uses: actions/cache@v3
         with:
-          path: /home/runner/work/${{ github.event.repository.name }}/${{ github.event.repository.name }}/*
-          key: cfs-doc-${{ github.run_number }}
+          path: ${{ env.WORK_PATH }}/
+          key: cfs-doc-${{ github.run_id }}
 
   build-cfe-usersguide:
     needs: checkout-and-cache
     name: Build and deploy cFE Docs
-    uses: nasa/cFS/.github/workflows/build-deploy-doc.yml@main
+    uses: nasa/cFS/.github/workflows/build-doc-reusable.yml@dev
     with:
       target: "[\"cfe-usersguide\"]"
-      cache-key: cfs-doc-${{ github.run_number }}
+      cache-key: cfs-doc-${{ github.run_id }}
       buildpdf: ${{ github.event_name == 'push' && contains(github.ref, 'main')}}
-      deploy: false  # Note can't use cache with deploy, deploy in following job instead
 
   build-mission-doc:
-    # see cFS issue #877, here: https://github.com/nasa/cFS/issues/877
-    if: false # This will prevent the job from ever running
     needs: checkout-and-cache
     name: Build Mission Doc
-    uses: nasa/cFS/.github/workflows/build-deploy-doc.yml@main
+    uses: nasa/cFS/.github/workflows/build-doc-reusable.yml@dev
     with:
       target: "[\"mission-doc\"]"
-      cache-key: cfs-doc-${{ github.run_number }}
-      deploy: false
+      cache-key: cfs-doc-${{ github.run_id }}
       buildpdf: false # No need for mission pdf within cFE, done at bundle level
-
-  deploy-documentation:
-    needs: build-cfe-usersguide
-    if: ${{ github.event_name == 'push' && contains(github.ref, 'main')}}
-    name: Deploy documentation to gh-pages
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v3
-
-      - uses: actions/download-artifact@v4.1.7
-
-      - name: Display structure of downloaded files
-        run: ls -R
-
-      - name: Move pdfs to deployment directory
-        run: mkdir deploy; mv */*.pdf deploy
-
-      - name: Deploy to GitHub
-        uses: JamesIves/github-pages-deploy-action@3.7.1
-        with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          BRANCH: gh-pages
-          FOLDER: deploy
-          SINGLE_COMMIT: true

@@ -115,7 +115,7 @@ void Test_SBR_Route_Unsort_GetSet(void)
     CFE_SB_MsgId_t          msgid[3];
     CFE_SBR_RouteId_t       routeid[3];
     CFE_SB_DestinationD_t   dest[2];
-    CFE_MSG_SequenceCount_t seqcntexpected[] = {1, 2};
+    CFE_MSG_SequenceCount_t seqcntexpected[] = { 1, 2 };
     uint32                  count;
     uint32                  i;
 
@@ -146,8 +146,8 @@ void Test_SBR_Route_Unsort_GetSet(void)
     for (routeidx = 0; routeidx < CFE_PLATFORM_SB_MAX_MSG_IDS; routeidx++)
     {
         routeid[0] = CFE_SBR_ValueToRouteId(routeidx);
-        if (!CFE_SB_MsgId_Equal(CFE_SBR_GetMsgId(routeid[0]), CFE_SB_INVALID_MSG_ID) ||
-            (CFE_SBR_GetDestListHeadPtr(routeid[0]) != NULL) || (CFE_SBR_GetSequenceCounter(routeid[0]) != 0))
+        if (!CFE_SB_MsgId_Equal(CFE_SBR_GetMsgId(routeid[0]), CFE_SB_INVALID_MSG_ID)
+            || (CFE_SBR_GetDestListHeadPtr(routeid[0]) != NULL) || (CFE_SBR_GetSequenceCounter(routeid[0]) != 0))
         {
             count++;
         }

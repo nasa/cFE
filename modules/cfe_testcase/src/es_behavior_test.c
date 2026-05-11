@@ -63,7 +63,7 @@ void TestWaitBehavior(void)
     CFE_TIME_SysTime_t start;
     CFE_TIME_SysTime_t end;
     CFE_TIME_SysTime_t TimePassed;
-    CFE_TIME_SysTime_t TimeExpected = {8, 0};
+    CFE_TIME_SysTime_t TimeExpected = { 8, 0 };
 
     start = CFE_TIME_GetTime();
 

@@ -73,9 +73,9 @@ static inline size_t CFE_ES_MemOffset_ToNative(const CFE_ES_MemOffset_t *val)
 static inline CFE_ES_MemOffset_t CFE_ES_MemOffset_FromNative(size_t val)
 {
     CFE_ES_MemOffset_t offs;
-    offs.bits[0] = (uint32)val;
-    val >>= 16;
-    offs.bits[1] = (val >> 16);
+    offs.bits[0]   = (uint32)val;
+    val          >>= 16;
+    offs.bits[1]   = (val >> 16);
     return offs;
 }
 
@@ -130,9 +130,9 @@ static inline cpuaddr CFE_ES_MemAddress_ToNative(const CFE_ES_MemAddress_t *val)
 static inline CFE_ES_MemAddress_t CFE_ES_MemAddress_FromNative(cpuaddr val)
 {
     CFE_ES_MemAddress_t offs;
-    offs.bits[0] = (uint32)val;
-    val >>= 16;
-    offs.bits[1] = (val >> 16);
+    offs.bits[0]   = (uint32)val;
+    val          >>= 16;
+    offs.bits[1]   = (val >> 16);
     return offs;
 }
 /**

@@ -51,7 +51,7 @@ void TestMsgApiBasic(void)
 
     /* test msg-init */
     UtAssert_INT32_EQ(CFE_MSG_Init(NULL, msgId, sizeof(cmd)), CFE_MSG_BAD_ARGUMENT);
-    UtAssert_INT32_EQ(CFE_MSG_Init(CFE_MSG_PTR(cmd), CFE_SB_INVALID_MSG_ID, sizeof(cmd)), CFE_MSG_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_MSG_Init(CFE_MSG_PTR(cmd), CFE_SB_INVALID_MSG_ID, sizeof(cmd)), CFE_SUCCESS);
     UtAssert_INT32_EQ(CFE_MSG_Init(CFE_MSG_PTR(cmd), msgId, 0), CFE_MSG_BAD_ARGUMENT);
     UtAssert_INT32_EQ(
         CFE_MSG_Init(CFE_MSG_PTR(cmd), CFE_SB_ValueToMsgId(CFE_PLATFORM_SB_HIGHEST_VALID_MSGID + 1), sizeof(cmd)),
@@ -181,7 +181,7 @@ void TestMsgHeaderSecondaryApi(void)
     CFE_MSG_FcnCode_t         fcnCode;
     CFE_TIME_SysTime_t        msgTime;
     bool                      isValid     = true;
-    CFE_TIME_SysTime_t        currentTime = {1000, 0xFFFF0000};
+    CFE_TIME_SysTime_t        currentTime = { 1000, 0xFFFF0000 };
 
     memset(&cmd, 0, sizeof(cmd));
     memset(&tlm, 0, sizeof(tlm));

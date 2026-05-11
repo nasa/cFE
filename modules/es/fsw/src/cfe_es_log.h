@@ -307,8 +307,10 @@ int32 CFE_ES_SysLogDump(const char *Filename);
  *
  * \return CFE_SUCCESS if successful, or an appropriate error code from cfe_error.h
  */
-int32 CFE_ES_WriteToERLog(CFE_ES_LogEntryType_Enum_t EntryType, uint32 ResetType, uint32 ResetSubtype,
-                          const char *Description);
+int32 CFE_ES_WriteToERLog(CFE_ES_LogEntryType_Enum_t EntryType,
+                          uint32                     ResetType,
+                          uint32                     ResetSubtype,
+                          const char                *Description);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -321,7 +323,11 @@ int32 CFE_ES_WriteToERLog(CFE_ES_LogEntryType_Enum_t EntryType, uint32 ResetType
  * \param AppId The Application ID associated with the task that caused the exception
  * \param PspContextId Identifier of extended context info stored in the PSP (if available)
  */
-int32 CFE_ES_WriteToERLogWithContext(CFE_ES_LogEntryType_Enum_t EntryType, uint32 ResetType, uint32 ResetSubtype,
-                                     const char *Description, CFE_ES_AppId_t AppId, uint32 PspContextId);
+int32 CFE_ES_WriteToERLogWithContext(CFE_ES_LogEntryType_Enum_t EntryType,
+                                     uint32                     ResetType,
+                                     uint32                     ResetSubtype,
+                                     const char                *Description,
+                                     CFE_ES_AppId_t             AppId,
+                                     uint32                     PspContextId);
 
 #endif /* CFE_ES_LOG_H */

@@ -25,6 +25,6 @@
 
 #include "cfe_mission_eds_designparameters.h"
 
-#define CFE_MISSION_TESTCASE_TIDVAL(x) EdsParam_CFE_MISSION_TEST_##x##_TOPICID
+#define CFE_MISSION_TESTCASE_TIDVAL(x) EdsParam_CFE_MISSION_TESTCASE_##x##_TOPICID
 
 #endif

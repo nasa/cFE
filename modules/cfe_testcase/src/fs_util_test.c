@@ -146,8 +146,12 @@ bool FS_DataGetter(void *Meta, uint32 RecordNum, void **Buffer, size_t *BufSize)
 }
 
 /* FT helper stub compatible with background file write OnEvent */
-void FS_OnEvent(void *Meta, CFE_FS_FileWriteEvent_t Event, int32 Status, uint32 RecordNum, size_t BlockSize,
-                size_t Position)
+void FS_OnEvent(void                   *Meta,
+                CFE_FS_FileWriteEvent_t Event,
+                int32                   Status,
+                uint32                  RecordNum,
+                size_t                  BlockSize,
+                size_t                  Position)
 {
     OS_TaskDelay(100);
 }

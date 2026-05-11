@@ -62,23 +62,8 @@ typedef union
 {
     CFE_ES_EarlyInitFuncPtr_t FunctionPtr;
     CFE_ES_TaskEntryFuncPtr_t MainTaskPtr;
-    void *                    VoidPtr;
+    void                     *VoidPtr;
 } CFE_ES_FuncPtrUnion_t;
-
-typedef struct
-{
-    uint32                ObjectType;                  /* The type of object being created */
-    char                  ObjectName[OS_MAX_API_NAME]; /* task or OS object name */
-    CFE_ES_FuncPtrUnion_t FuncPtrUnion;                /* task or function reference */
-    uint32                ObjectPriority;              /* object priority */
-    size_t                ObjectSize;                  /* size used for stack, queue size, etc. */
-    uint32                ObjectFlags;                 /* extra flags to pass */
-} CFE_ES_ObjectTable_t;
-
-/*
-** Exported data
-*/
-extern CFE_ES_ObjectTable_t CFE_ES_ObjectTable[CFE_PLATFORM_ES_OBJECT_TABLE_SIZE]; /* es object table */
 
 /*
  * Name: CFE_ES_CreateObjects

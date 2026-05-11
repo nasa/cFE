@@ -62,8 +62,8 @@ void CFE_TBL_ByteSwapUint32(uint32 *Uint32ToSwapPtr)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-CFE_Status_t CFE_TBL_DecodeHeadersFromFile(CFE_TBL_TxnState_t *Txn, osal_id_t FileDescriptor,
-                                           CFE_TBL_File_Hdr_t *HeaderPtr)
+CFE_Status_t
+CFE_TBL_DecodeHeadersFromFile(CFE_TBL_TxnState_t *Txn, osal_id_t FileDescriptor, CFE_TBL_File_Hdr_t *HeaderPtr)
 {
     const uint32       EndianCheck = 0x01020304;
     CFE_Status_t       ReturnCode;
@@ -111,8 +111,8 @@ CFE_Status_t CFE_TBL_DecodeHeadersFromFile(CFE_TBL_TxnState_t *Txn, osal_id_t Fi
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-CFE_Status_t CFE_TBL_EncodeHeadersToFile(CFE_TBL_TxnState_t *Txn, osal_id_t FileDescriptor,
-                                         const CFE_TBL_File_Hdr_t *HeaderPtr)
+CFE_Status_t
+CFE_TBL_EncodeHeadersToFile(CFE_TBL_TxnState_t *Txn, osal_id_t FileDescriptor, const CFE_TBL_File_Hdr_t *HeaderPtr)
 {
     const uint32       EndianCheck = 0x01020304;
     CFE_Status_t       ReturnCode;
@@ -161,7 +161,7 @@ CFE_Status_t CFE_TBL_ValidateCodecLoadSize(CFE_TBL_TxnState_t *Txn, const CFE_TB
     /* Because the file sizes and in-memory size is the same, this check is simple */
     ActualSize    = CFE_TBL_RegRecGetSize(CFE_TBL_TxnRegRec(Txn));
     ProjectedSize = HeaderPtr->Offset + HeaderPtr->NumBytes;
-    if (ProjectedSize > ActualSize)
+    if (ProjectedSize < HeaderPtr->Offset || ProjectedSize > ActualSize)
     {
         Status = CFE_TBL_ERR_FILE_TOO_LARGE;
         CFE_TBL_TxnAddEvent(Txn, CFE_TBL_LOAD_EXCEEDS_SIZE_ERR_EID, ProjectedSize, ActualSize);
@@ -244,13 +244,15 @@ void CFE_TBL_ReleaseCodecBuffer(CFE_TBL_LoadBuff_t *BufferPtr)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-CFE_Status_t CFE_TBL_EncodeOutputData(CFE_TBL_TxnState_t *Txn, const CFE_TBL_LoadBuff_t *SourceBuffer,
-                                      CFE_TBL_LoadBuff_t *DestBuffer)
+CFE_Status_t CFE_TBL_EncodeOutputData(CFE_TBL_TxnState_t       *Txn,
+                                      const CFE_TBL_LoadBuff_t *SourceBuffer,
+                                      CFE_TBL_LoadBuff_t       *DestBuffer)
 {
     if (SourceBuffer != DestBuffer)
     {
         /* This does a straight copy, the bits are the same */
-        CFE_TBL_LoadBuffCopyData(DestBuffer, CFE_TBL_LoadBuffGetReadPointer(SourceBuffer),
+        CFE_TBL_LoadBuffCopyData(DestBuffer,
+                                 CFE_TBL_LoadBuffGetReadPointer(SourceBuffer),
                                  CFE_TBL_LoadBuffGetContentSize(SourceBuffer));
     }
 
@@ -263,13 +265,14 @@ CFE_Status_t CFE_TBL_EncodeOutputData(CFE_TBL_TxnState_t *Txn, const CFE_TBL_Loa
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-CFE_Status_t CFE_TBL_DecodeInputData(CFE_TBL_TxnState_t *Txn, const CFE_TBL_LoadBuff_t *SourceBuffer,
-                                     CFE_TBL_LoadBuff_t *DestBuffer)
+CFE_Status_t
+CFE_TBL_DecodeInputData(CFE_TBL_TxnState_t *Txn, const CFE_TBL_LoadBuff_t *SourceBuffer, CFE_TBL_LoadBuff_t *DestBuffer)
 {
     if (SourceBuffer != DestBuffer)
     {
         /* This does a straight copy, the bits are the same */
-        CFE_TBL_LoadBuffCopyData(DestBuffer, CFE_TBL_LoadBuffGetReadPointer(SourceBuffer),
+        CFE_TBL_LoadBuffCopyData(DestBuffer,
+                                 CFE_TBL_LoadBuffGetReadPointer(SourceBuffer),
                                  CFE_TBL_LoadBuffGetContentSize(SourceBuffer));
     }
 

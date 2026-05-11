@@ -46,7 +46,7 @@ void CFE_Assert_RegisterCallback(CFE_Assert_StatusCallback_t Callback)
 int32 CFE_Assert_OpenLogFile(const char *Filename)
 {
     int32  OsStatus;
-    char * Ext;
+    char  *Ext;
     size_t NameLen;
 
     strncpy(CFE_Assert_Global.LogFileFinal, Filename, sizeof(CFE_Assert_Global.LogFileFinal) - 1);
@@ -72,11 +72,15 @@ int32 CFE_Assert_OpenLogFile(const char *Filename)
     }
     strcpy(&CFE_Assert_Global.LogFileTemp[NameLen], ".tmp");
 
-    OsStatus = OS_OpenCreate(&CFE_Assert_Global.LogFileDesc, CFE_Assert_Global.LogFileTemp,
-                             OS_FILE_FLAG_CREATE | OS_FILE_FLAG_TRUNCATE, OS_WRITE_ONLY);
+    OsStatus = OS_OpenCreate(&CFE_Assert_Global.LogFileDesc,
+                             CFE_Assert_Global.LogFileTemp,
+                             OS_FILE_FLAG_CREATE | OS_FILE_FLAG_TRUNCATE,
+                             OS_WRITE_ONLY);
     if (OsStatus != OS_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("%s: Failed to open %s, rc=%ld\n", __func__, CFE_Assert_Global.LogFileTemp,
+        CFE_ES_WriteToSysLog("%s: Failed to open %s, rc=%ld\n",
+                             __func__,
+                             CFE_Assert_Global.LogFileTemp,
                              (long)OsStatus);
         return CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
     }

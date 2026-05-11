@@ -114,7 +114,7 @@ void TestCreateChildWithStack(void)
 {
     CFE_ES_TaskId_t            TaskId = CFE_ES_TASKID_UNDEFINED;
     int32                      RetryCount;
-    const char *               TaskName     = "CHILD_W_STACK";
+    const char                *TaskName     = "CHILD_W_STACK";
     CFE_ES_StackPointer_t      StackPointer = UT_LOCAL_STACK;
     size_t                     StackSize    = sizeof(UT_LOCAL_STACK);
     CFE_ES_TaskPriority_Atom_t Priority     = CFE_PLATFORM_ES_PERF_CHILD_PRIORITY;
@@ -156,7 +156,7 @@ void TestCreateChild(void)
 
     CFE_ES_TaskId_t            TaskId        = CFE_ES_TASKID_UNDEFINED;
     CFE_ES_TaskId_t            TaskId2       = CFE_ES_TASKID_UNDEFINED;
-    const char *               TaskName      = "CHILD_TASK_1";
+    const char                *TaskName      = "CHILD_TASK_1";
     CFE_ES_StackPointer_t      StackPointer  = CFE_ES_TASK_STACK_ALLOCATE;
     size_t                     StackSize     = CFE_PLATFORM_ES_PERF_CHILD_STACK_SIZE;
     CFE_ES_TaskPriority_Atom_t Priority      = CFE_PLATFORM_ES_PERF_CHILD_PRIORITY;
@@ -189,8 +189,13 @@ void TestCreateChild(void)
 
     /* Also Confirm behavior of child task create/delete when called from a child task */
     CFE_FT_Global.Count = 0;
-    UtAssert_INT32_EQ(CFE_ES_CreateChildTask(&TaskId, TaskName, TaskFunctionCheckChildTaskContext, StackPointer,
-                                             StackSize, Priority, Flags),
+    UtAssert_INT32_EQ(CFE_ES_CreateChildTask(&TaskId,
+                                             TaskName,
+                                             TaskFunctionCheckChildTaskContext,
+                                             StackPointer,
+                                             StackSize,
+                                             Priority,
+                                             Flags),
                       CFE_SUCCESS);
 
     /* wait for task to exit itself */
@@ -216,8 +221,13 @@ void TestCreateChild(void)
     CFE_Assert_STATUS_MUST_BE(CFE_ES_ERR_RESOURCEID_NOT_VALID);
 
     /* Now do the same but instead of a CFE child task, make an OSAL task that is not associated with a CFE app */
-    UtAssert_INT32_EQ(OS_TaskCreate(&OtherTaskId, "NonCfe", TaskFunctionCheckNonAppContext, OSAL_TASK_STACK_ALLOCATE,
-                                    4096, OSAL_PRIORITY_C(200), 0),
+    UtAssert_INT32_EQ(OS_TaskCreate(&OtherTaskId,
+                                    "NonCfe",
+                                    TaskFunctionCheckNonAppContext,
+                                    OSAL_TASK_STACK_ALLOCATE,
+                                    4096,
+                                    OSAL_PRIORITY_C(200),
+                                    0),
                       OS_SUCCESS);
 
     /* wait for task to exit itself */
@@ -289,7 +299,7 @@ void TestChildTaskDelete(void)
     UtPrintf("Testing: CFE_ES_DeleteChildTask");
 
     CFE_ES_TaskId_t            TaskId        = CFE_ES_TASKID_UNDEFINED;
-    const char *               TaskName      = "CHILD_TASK_1";
+    const char                *TaskName      = "CHILD_TASK_1";
     CFE_ES_StackPointer_t      StackPointer  = CFE_ES_TASK_STACK_ALLOCATE;
     size_t                     StackSize     = CFE_PLATFORM_ES_PERF_CHILD_STACK_SIZE;
     CFE_ES_TaskPriority_Atom_t Priority      = CFE_PLATFORM_ES_PERF_CHILD_PRIORITY;
@@ -303,7 +313,9 @@ void TestChildTaskDelete(void)
     OS_TaskDelay(500);
 
     UtAssert_True(ExpectedCount >= CFE_FT_Global.Count - 1 && ExpectedCount <= CFE_FT_Global.Count + 1,
-                  "countCopy (%d) == count (%d)", (int)ExpectedCount, (int)CFE_FT_Global.Count);
+                  "countCopy (%d) == count (%d)",
+                  (int)ExpectedCount,
+                  (int)CFE_FT_Global.Count);
 
     ExpectedCount = CFE_FT_Global.Count;
 
@@ -312,7 +324,9 @@ void TestChildTaskDelete(void)
     OS_TaskDelay(500);
 
     UtAssert_True(ExpectedCount == CFE_FT_Global.Count || ExpectedCount == CFE_FT_Global.Count + 1,
-                  "ExpectedCount (%d) == count (%d)", (int)ExpectedCount, (int)CFE_FT_Global.Count);
+                  "ExpectedCount (%d) == count (%d)",
+                  (int)ExpectedCount,
+                  (int)CFE_FT_Global.Count);
 
     UtAssert_INT32_EQ(CFE_ES_DeleteChildTask(CFE_ES_TASKID_UNDEFINED), CFE_ES_ERR_RESOURCEID_NOT_VALID);
 }
@@ -322,7 +336,7 @@ void TestExitChild(void)
     UtPrintf("Testing: CFE_ES_ExitChildTask");
 
     CFE_ES_TaskId_t            TaskId;
-    const char *               TaskName      = "CHILD_TASK_1";
+    const char                *TaskName      = "CHILD_TASK_1";
     CFE_ES_StackPointer_t      StackPointer  = CFE_ES_TASK_STACK_ALLOCATE;
     size_t                     StackSize     = CFE_PLATFORM_ES_PERF_CHILD_STACK_SIZE;
     CFE_ES_TaskPriority_Atom_t Priority      = CFE_PLATFORM_ES_PERF_CHILD_PRIORITY;

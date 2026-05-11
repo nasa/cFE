@@ -80,8 +80,8 @@ void CFE_EVS_ProcessCommandPacket(const CFE_SB_Buffer_t *SBBufPtr)
     Status = EdsDispatch_EdsComponent_CFE_EVS_Application_Telecommand(SBBufPtr, &CFE_EVS_TC_DISPATCH_TABLE);
 
     /* These specific status codes require sending an event with the details */
-    if (Status == CFE_STATUS_BAD_COMMAND_CODE || Status == CFE_STATUS_WRONG_MSG_LENGTH ||
-        Status == CFE_STATUS_UNKNOWN_MSG_ID)
+    if (Status == CFE_STATUS_BAD_COMMAND_CODE || Status == CFE_STATUS_WRONG_MSG_LENGTH
+        || Status == CFE_STATUS_UNKNOWN_MSG_ID)
     {
         CFE_MSG_GetMsgId(&SBBufPtr->Msg, &MsgId);
         CFE_MSG_GetFcnCode(&SBBufPtr->Msg, &MsgFc);
@@ -89,18 +89,26 @@ void CFE_EVS_ProcessCommandPacket(const CFE_SB_Buffer_t *SBBufPtr)
 
         if (Status == CFE_STATUS_BAD_COMMAND_CODE)
         {
-            EVS_SendEvent(CFE_EVS_ERR_CC_EID, CFE_EVS_EventType_ERROR, "Invalid command code -- ID = 0x%08x, CC = %d",
-                          (unsigned int)CFE_SB_MsgIdToValue(MsgId), (int)MsgFc);
+            EVS_SendEvent(CFE_EVS_ERR_CC_EID,
+                          CFE_EVS_EventType_ERROR,
+                          "Invalid command code -- ID = 0x%08x, CC = %d",
+                          (unsigned int)CFE_SB_MsgIdToValue(MsgId),
+                          (int)MsgFc);
         }
         else if (Status == CFE_STATUS_WRONG_MSG_LENGTH)
         {
-            EVS_SendEvent(CFE_EVS_LEN_ERR_EID, CFE_EVS_EventType_ERROR,
-                          "Invalid cmd length: ID = 0x%X, CC = %d, Len = %d", (unsigned int)CFE_SB_MsgIdToValue(MsgId),
-                          (int)MsgFc, (int)MsgSize);
+            EVS_SendEvent(CFE_EVS_LEN_ERR_EID,
+                          CFE_EVS_EventType_ERROR,
+                          "Invalid cmd length: ID = 0x%X, CC = %d, Len = %d",
+                          (unsigned int)CFE_SB_MsgIdToValue(MsgId),
+                          (int)MsgFc,
+                          (int)MsgSize);
         }
         else
         {
-            EVS_SendEvent(CFE_EVS_ERR_MSGID_EID, CFE_EVS_EventType_ERROR, "Invalid command packet, Message ID = 0x%08X",
+            EVS_SendEvent(CFE_EVS_ERR_MSGID_EID,
+                          CFE_EVS_EventType_ERROR,
+                          "Invalid command packet, Message ID = 0x%08X",
                           (unsigned int)CFE_SB_MsgIdToValue(MsgId));
         }
     }

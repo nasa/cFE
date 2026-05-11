@@ -89,8 +89,7 @@ typedef struct CFE_SB_HousekeepingTlm_Payload
                                     \brief Count of duplicate subscriptions */
     uint8 GetPipeIdByNameErrorCounter;   /**< \cfetlmmnemonic \SB_GETPIPEIDBYNAMEEC
                                 \brief Count of errors in get pipe id by name API */
-    uint8 Spare2Align[1];                /**< \cfetlmmnemonic \SB_SPARE2ALIGN
-                                              \brief Spare bytes to ensure alignment */
+    uint8 Padding;                       /** \brief Spare bytes to ensure alignment */
 
     uint16 PipeOverflowErrorCounter; /**< \cfetlmmnemonic \SB_PIPEOVREC
                                     \brief Count of pipe overflow errors */
@@ -114,16 +113,16 @@ typedef struct CFE_SB_HousekeepingTlm_Payload
 */
 typedef struct CFE_SB_PipeDepthStats
 {
-    CFE_SB_PipeId_t PipeId;   /**< \cfetlmmnemonic \SB_PDPIPEID
-                                   \brief Pipe Id associated with the stats below */
-    uint16 MaxQueueDepth;     /**< \cfetlmmnemonic \SB_PDDEPTH
-                           \brief Number of messages the pipe can hold */
-    uint16 CurrentQueueDepth; /**< \cfetlmmnemonic \SB_PDINUSE
-                       \brief Number of messages currently on the pipe */
-    uint16 PeakQueueDepth;    /**< \cfetlmmnemonic \SB_PDPKINUSE
-                              \brief Peak number of messages that have been on the pipe */
-    uint16 Spare;             /**< \cfetlmmnemonic \SB_PDSPARE
-                                   \brief Spare word to ensure alignment */
+    CFE_SB_PipeId_t PipeId;            /**< \cfetlmmnemonic \SB_PDPIPEID
+                                            \brief Pipe Id associated with the stats below */
+    uint16          MaxQueueDepth;     /**< \cfetlmmnemonic \SB_PDDEPTH
+                                    \brief Number of messages the pipe can hold */
+    uint16          CurrentQueueDepth; /**< \cfetlmmnemonic \SB_PDINUSE
+                                \brief Number of messages currently on the pipe */
+    uint16          PeakQueueDepth;    /**< \cfetlmmnemonic \SB_PDPKINUSE
+                                       \brief Peak number of messages that have been on the pipe */
+    uint16          Spare;             /**< \cfetlmmnemonic \SB_PDSPARE
+                                            \brief Spare word to ensure alignment */
 } CFE_SB_PipeDepthStats_t;
 
 /**

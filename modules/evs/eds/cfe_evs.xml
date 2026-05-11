@@ -301,6 +301,7 @@
               \cfetlmmnemonic  \EVS_EVENT
             </LongDescription>
           </Entry>
+          <PaddingEntry sizeInBits="16" shortDescription="Spare bytes for alignment"/>
         </EntryList>
       </ContainerDataType>
 

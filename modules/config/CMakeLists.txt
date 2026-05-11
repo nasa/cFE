@@ -12,7 +12,9 @@ set(config_SOURCES
     fsw/src/cfe_config_init.c
     fsw/src/cfe_config_lookup.c
     fsw/src/cfe_config_get.c
-    fsw/src/cfe_config_set.c)
+    fsw/src/cfe_config_set.c
+    fsw/src/cfe_config_objtab.c
+)
 
 if(CFE_EDS_ENABLED)
   list(APPEND config_SOURCES fsw/src/cfe_config_eds_enabled.c)

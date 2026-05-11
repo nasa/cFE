@@ -73,7 +73,7 @@ void TestBulkTransferSingle(void)
     CFE_SB_PipeId_t                    PipeId2 = CFE_SB_INVALID_PIPE;
     CFE_TEST_TestCmdMessage32_t        CmdMsg;
     CFE_TEST_TestTlmMessage32_t        TlmMsg;
-    CFE_SB_Buffer_t *                  MsgBuf;
+    CFE_SB_Buffer_t                   *MsgBuf;
     const CFE_TEST_TestCmdMessage32_t *CmdPtr;
     const CFE_TEST_TestTlmMessage32_t *TlmPtr;
     uint32                             SendCount;
@@ -85,7 +85,7 @@ void TestBulkTransferSingle(void)
     memset(&CmdMsg, 0, sizeof(CmdMsg));
     memset(&TlmMsg, 0, sizeof(TlmMsg));
 
-    PrintMask = UT_BulkTestDuration >> 4;
+    PrintMask  = UT_BulkTestDuration >> 4;
     PrintMask |= PrintMask >> 1;
     PrintMask |= PrintMask >> 2;
     PrintMask |= PrintMask >> 4;
@@ -182,7 +182,7 @@ void TestBulkTransferSingle(void)
 void RunSingleCmdSendRecv(void)
 {
     CFE_TEST_TestCmdMessage32_t        CmdMsg;
-    CFE_SB_Buffer_t *                  MsgBuf;
+    CFE_SB_Buffer_t                   *MsgBuf;
     const CFE_TEST_TestCmdMessage32_t *CmdPtr;
 
     UtAssert_INT32_EQ(CFE_MSG_Init(CFE_MSG_PTR(CmdMsg.CommandHeader), CFE_FT_CMD_MSGID, sizeof(CmdMsg)), CFE_SUCCESS);
@@ -235,7 +235,7 @@ void RunSingleCmdSendRecv(void)
 void RunSingleTlmSendRecv(void)
 {
     CFE_TEST_TestTlmMessage32_t        TlmMsg;
-    CFE_SB_Buffer_t *                  MsgBuf;
+    CFE_SB_Buffer_t                   *MsgBuf;
     const CFE_TEST_TestTlmMessage32_t *TlmPtr;
 
     UtAssert_INT32_EQ(CFE_MSG_Init(CFE_MSG_PTR(TlmMsg.TelemetryHeader), CFE_FT_TLM_MSGID, sizeof(TlmMsg)), CFE_SUCCESS);
@@ -347,8 +347,11 @@ void TestBulkTransferMulti2(void)
     do
     {
         OS_TaskDelay(1000);
-        UtPrintf("Counts => %lu/%lu CMD, %lu/%lu TLM", (unsigned long)BulkCmd.SendCount,
-                 (unsigned long)BulkCmd.RecvCount, (unsigned long)BulkTlm.SendCount, (unsigned long)BulkTlm.RecvCount);
+        UtPrintf("Counts => %lu/%lu CMD, %lu/%lu TLM",
+                 (unsigned long)BulkCmd.SendCount,
+                 (unsigned long)BulkCmd.RecvCount,
+                 (unsigned long)BulkTlm.SendCount,
+                 (unsigned long)BulkTlm.RecvCount);
     } while (!BulkCmd.XmitFinished || !BulkCmd.RecvFinished || !BulkTlm.XmitFinished || !BulkTlm.RecvFinished);
 
     ElapsedTime = OS_TimeSubtract(BulkCmd.EndTime, BulkCmd.StartTime);
@@ -381,7 +384,7 @@ void TestBulkTransferMulti2(void)
 
 void UT_CommandTransmitterTask(void)
 {
-    CFE_SB_Buffer_t *            BufPtr;
+    CFE_SB_Buffer_t             *BufPtr;
     CFE_TEST_TestCmdMessage32_t *CmdMsgPtr;
 
     CFE_PSP_GetTime(&BulkCmd.StartTime);
@@ -424,7 +427,7 @@ void UT_CommandTransmitterTask(void)
 
 void UT_TelemetryTransmitterTask(void)
 {
-    CFE_SB_Buffer_t *            BufPtr;
+    CFE_SB_Buffer_t             *BufPtr;
     CFE_TEST_TestTlmMessage32_t *TlmMsgPtr;
 
     CFE_PSP_GetTime(&BulkTlm.StartTime);
@@ -467,7 +470,7 @@ void UT_TelemetryTransmitterTask(void)
 
 void UT_CommandReceiverTask(void)
 {
-    CFE_SB_Buffer_t *                  MsgBuf;
+    CFE_SB_Buffer_t                   *MsgBuf;
     const CFE_TEST_TestCmdMessage32_t *CmdPtr;
 
     for (BulkCmd.RecvCount = 0; BulkCmd.RecvCount < UT_BulkTestDuration; ++BulkCmd.RecvCount)
@@ -501,7 +504,7 @@ void UT_CommandReceiverTask(void)
 
 void UT_TelemetryReceiverTask(void)
 {
-    CFE_SB_Buffer_t *                  MsgBuf;
+    CFE_SB_Buffer_t                   *MsgBuf;
     const CFE_TEST_TestTlmMessage32_t *TlmPtr;
 
     for (BulkTlm.RecvCount = 0; BulkTlm.RecvCount < UT_BulkTestDuration; ++BulkTlm.RecvCount)
@@ -579,8 +582,11 @@ void TestBulkTransferMulti4(void)
     do
     {
         OS_TaskDelay(1000);
-        UtPrintf("Counts => %lu/%lu CMD, %lu/%lu TLM", (unsigned long)BulkCmd.SendCount,
-                 (unsigned long)BulkCmd.RecvCount, (unsigned long)BulkTlm.SendCount, (unsigned long)BulkTlm.RecvCount);
+        UtPrintf("Counts => %lu/%lu CMD, %lu/%lu TLM",
+                 (unsigned long)BulkCmd.SendCount,
+                 (unsigned long)BulkCmd.RecvCount,
+                 (unsigned long)BulkTlm.SendCount,
+                 (unsigned long)BulkTlm.RecvCount);
     } while (!BulkCmd.XmitFinished || !BulkCmd.RecvFinished || !BulkTlm.XmitFinished || !BulkTlm.RecvFinished);
 
     ElapsedTime = OS_TimeSubtract(BulkCmd.EndTime, BulkCmd.StartTime);
@@ -632,7 +638,7 @@ void SBPerformanceTestSetup(void)
 
     while (i > 0)
     {
-        i /= 5;
+        i                   /= 5;
         UT_BulkTestDuration *= 2;
     }
 

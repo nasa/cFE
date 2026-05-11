@@ -76,8 +76,8 @@ void UT_DefaultHandler_CFE_TBL_GetInfo(void *UserObj, UT_EntryKey_t FuncKey, con
     int32 status;
 
     UT_Stub_GetInt32StatusCode(Context, &status);
-    if (status >= 0 &&
-        UT_Stub_CopyToLocal(UT_KEY(CFE_TBL_GetInfo), TblInfoPtr, sizeof(*TblInfoPtr)) < sizeof(*TblInfoPtr))
+    if (status >= 0
+        && UT_Stub_CopyToLocal(UT_KEY(CFE_TBL_GetInfo), TblInfoPtr, sizeof(*TblInfoPtr)) < sizeof(*TblInfoPtr))
     {
         /* just clear the output struct */
         memset(TblInfoPtr, 0, sizeof(*TblInfoPtr));

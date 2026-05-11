@@ -81,7 +81,7 @@
   </Package>
 
   <Package name="TO">
-    <Define name="TLM_PORT" value="1235" />
+    <Define name="TLM_PORT" value="2234" />
     <Define name="MAX_SUBSCRIPTIONS" value="32" />
     <Define name="PORT_CONFIG_STRING_SIZE" value="64" />
     <Define name="PORT_NAME_SIZE" value="20" />
@@ -89,7 +89,7 @@
   </Package>
 
   <Package name="TO_LAB">
-    <Define name="TLM_PORT" value="1235" />
+    <Define name="TLM_PORT" value="2234" />
     <Define name="MAX_SUBSCRIPTIONS" value="32" />
   </Package>
 

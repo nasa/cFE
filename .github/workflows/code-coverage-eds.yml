@@ -1,0 +1,52 @@
+name: "Code Coverage Analysis, EDS enabled"
+
+on:
+  push:
+    branches:
+      - dev
+      - main
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+  workflow_dispatch:
+  schedule:
+    # 11:00 PM UTC every Sunday
+    - cron:  '0 23 * * 0'
+
+env:
+  SIMULATION: native
+  ENABLE_UNIT_TESTS: true
+  OMIT_DEPRECATED: false
+  CFE_EDS_ENABLED: true
+  BUILDTYPE: debug
+
+jobs:
+
+  Execute-Unit-Tests:
+    name: Build and Execute CFE unit tests
+    runs-on: ubuntu-22.04
+    container: ghcr.io/core-flight-system/cfsbuildenv-linux:latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout CFE
+        uses: actions/checkout@v6
+        with:
+          path: cfe
+
+      - name: Set up Dependencies
+        uses: ./cfe/.github/actions/setup-cfe
+        with:
+          source-dir: .
+          preferred-ref: ${{ github.head_ref }}
+          org: nasa
+
+      - name: Execute coverage testing
+        uses: ./cfe/.github/actions/code-coverage
+        with:
+          module-list: config core_api core_private es evs fs resourceid sb sbr tbl time
+          allowed-missed-branches: 22
+          allowed-missed-lines: 14
+          allowed-missed-functions: 0
