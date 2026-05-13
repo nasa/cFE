@@ -48,6 +48,6 @@ jobs:
         uses: ./cfe/.github/actions/code-coverage
         with:
           module-list: config core_api core_private es evs fs msg resourceid sb sbr tbl time
-          allowed-missed-branches: 14
-          allowed-missed-lines: 8
+          allowed-missed-branches: 13
+          allowed-missed-lines: 7
           allowed-missed-functions: 0
