@@ -26,7 +26,7 @@
 #define CFE_VERSION_H
 
 /* Development Build Macro Definitions */
-#define CFE_BUILD_NUMBER    0 /**< @brief Development: Number of development git commits since CFE_BUILD_BASELINE */
+#define CFE_BUILD_NUMBER    1 /**< @brief Development: Number of development git commits since CFE_BUILD_BASELINE */
 #define CFE_BUILD_BASELINE  "v7.0.1" /**< @brief Development: Reference git tag for build number */
 #define CFE_BUILD_DEV_CYCLE "v7.0.1" /**< @brief Development: Release name for current development cycle */
 #define CFE_BUILD_CODENAME  "Draco"  /**< @brief: Development: Code name for the current build */
@@ -48,7 +48,7 @@
  * Value of 0 is reserved for official releases only
  * Value of 255 (0xFF) is reserved for development and testing versions
  */
-#define CFE_MISSION_REV 0x0
+#define CFE_MISSION_REV 0xFF
 
 #define CFE_STR_HELPER(x) #x                /**< @brief Convert argument to string */
 #define CFE_STR(x)        CFE_STR_HELPER(x) /**< @brief Expand macro before conversion */
