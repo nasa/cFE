@@ -18,6 +18,9 @@ on:
 env:
   WORK_PATH: ${{ github.workspace }}
 
+permissions:
+  contents: read
+
 jobs:
   checkout-and-cache:
     name: Custom checkout and cache for cFS documents

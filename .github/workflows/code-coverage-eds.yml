@@ -22,6 +22,9 @@ env:
   CFE_EDS_ENABLED: true
   BUILDTYPE: debug
 
+permissions:
+  contents: read
+
 jobs:
 
   Execute-Unit-Tests:

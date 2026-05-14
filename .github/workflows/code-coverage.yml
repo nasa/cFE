@@ -21,6 +21,9 @@ env:
   OMIT_DEPRECATED: false
   BUILDTYPE: debug
 
+permissions:
+  contents: read
+
 jobs:
  Execute-Unit-Tests:
     name: Build and Execute CFE unit tests
