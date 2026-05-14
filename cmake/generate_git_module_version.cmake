@@ -33,7 +33,7 @@ function(get_version DEP)
     endif()
 
     execute_process(
-        COMMAND ${GIT_EXECUTABLE} describe --tags --always --dirty
+        COMMAND ${GIT_EXECUTABLE} describe --tags --always --dirty --match v[0-9].[0-9].[0-9]
         WORKING_DIRECTORY ${DIR}
         OUTPUT_VARIABLE GIT_DESC_OUTPUT
         RESULT_VARIABLE GIT_RESULT
