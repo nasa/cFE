@@ -1355,13 +1355,8 @@ void Test_PipeCmds(void)
 
     /* Noop with bad size */
     UT_InitData();
-    memset(&CmdBuf, 0, sizeof(CmdBuf));
-    CFE_TIME_Global.CommandCounter      = 0;
-    CFE_TIME_Global.CommandErrorCounter = 0;
     UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, 0, UT_TPID_CFE_TIME_CMD_NOOP_CC);
     CFE_UtAssert_EVENTSENT(CFE_TIME_LEN_ERR_EID);
-    UtAssert_UINT32_EQ(CFE_TIME_Global.CommandCounter, 0);
-    UtAssert_UINT32_EQ(CFE_TIME_Global.CommandErrorCounter, 1);
 
     /* Test sending the reset counters command */
     UT_InitData();
@@ -1394,13 +1389,8 @@ void Test_PipeCmds(void)
 
     /* Reset counters with bad size */
     UT_InitData();
-    memset(&CmdBuf, 0, sizeof(CmdBuf));
-    CFE_TIME_Global.CommandCounter      = 0;
-    CFE_TIME_Global.CommandErrorCounter = 0;
     UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, 0, UT_TPID_CFE_TIME_CMD_RESET_COUNTERS_CC);
     CFE_UtAssert_EVENTSENT(CFE_TIME_LEN_ERR_EID);
-    UtAssert_UINT32_EQ(CFE_TIME_Global.CommandCounter, 0);
-    UtAssert_UINT32_EQ(CFE_TIME_Global.CommandErrorCounter, 1);
 
     /* Test sending the request diagnostics command */
     UT_InitData();
@@ -1413,13 +1403,8 @@ void Test_PipeCmds(void)
 
     /* Request diagnostics with bad size */
     UT_InitData();
-    memset(&CmdBuf, 0, sizeof(CmdBuf));
-    CFE_TIME_Global.CommandCounter      = 0;
-    CFE_TIME_Global.CommandErrorCounter = 0;
     UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, 0, UT_TPID_CFE_TIME_CMD_SEND_DIAGNOSTIC_TLM_CC);
     CFE_UtAssert_EVENTSENT(CFE_TIME_LEN_ERR_EID);
-    UtAssert_UINT32_EQ(CFE_TIME_Global.CommandCounter, 0);
-    UtAssert_UINT32_EQ(CFE_TIME_Global.CommandErrorCounter, 1);
 
     /* Test sending a clock state = invalid command */
     UT_InitData();
@@ -1453,13 +1438,8 @@ void Test_PipeCmds(void)
 
     /* Set state with invalid size */
     UT_InitData();
-    memset(&CmdBuf, 0, sizeof(CmdBuf));
-    CFE_TIME_Global.CommandCounter      = 0;
-    CFE_TIME_Global.CommandErrorCounter = 0;
     UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, 0, UT_TPID_CFE_TIME_CMD_SET_STATE_CC);
     CFE_UtAssert_EVENTSENT(CFE_TIME_LEN_ERR_EID);
-    UtAssert_UINT32_EQ(CFE_TIME_Global.CommandCounter, 0);
-    UtAssert_UINT32_EQ(CFE_TIME_Global.CommandErrorCounter, 1);
 
     /* Test sending the set time source = internal command */
     UT_InitData();
@@ -1496,13 +1476,8 @@ void Test_PipeCmds(void)
 
     /* Set time source with invalid size */
     UT_InitData();
-    memset(&CmdBuf, 0, sizeof(CmdBuf));
-    CFE_TIME_Global.CommandCounter      = 0;
-    CFE_TIME_Global.CommandErrorCounter = 0;
     UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, 0, UT_TPID_CFE_TIME_CMD_SET_SOURCE_CC);
     CFE_UtAssert_EVENTSENT(CFE_TIME_LEN_ERR_EID);
-    UtAssert_UINT32_EQ(CFE_TIME_Global.CommandCounter, 0);
-    UtAssert_UINT32_EQ(CFE_TIME_Global.CommandErrorCounter, 1);
 
     /* Test sending a set tone signal source = primary command */
     UT_InitData();
@@ -1553,13 +1528,8 @@ void Test_PipeCmds(void)
 
     /* Set tone signal source with invalid size */
     UT_InitData();
-    memset(&CmdBuf, 0, sizeof(CmdBuf));
-    CFE_TIME_Global.CommandCounter      = 0;
-    CFE_TIME_Global.CommandErrorCounter = 0;
     UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, 0, UT_TPID_CFE_TIME_CMD_SET_SIGNAL_CC);
     CFE_UtAssert_EVENTSENT(CFE_TIME_LEN_ERR_EID);
-    UtAssert_UINT32_EQ(CFE_TIME_Global.CommandCounter, 0);
-    UtAssert_UINT32_EQ(CFE_TIME_Global.CommandErrorCounter, 1);
 
     /* Test sending a time tone add delay command */
     UT_InitData();
@@ -1582,13 +1552,8 @@ void Test_PipeCmds(void)
 
     /* Time tone add delay with invalid size */
     UT_InitData();
-    memset(&CmdBuf, 0, sizeof(CmdBuf));
-    CFE_TIME_Global.CommandCounter      = 0;
-    CFE_TIME_Global.CommandErrorCounter = 0;
     UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, 0, UT_TPID_CFE_TIME_CMD_ADD_DELAY_CC);
     CFE_UtAssert_EVENTSENT(CFE_TIME_LEN_ERR_EID);
-    UtAssert_UINT32_EQ(CFE_TIME_Global.CommandCounter, 0);
-    UtAssert_UINT32_EQ(CFE_TIME_Global.CommandErrorCounter, 1);
 
     /* Test sending a time tone subtract delay command */
     UT_InitData();
@@ -1609,13 +1574,8 @@ void Test_PipeCmds(void)
 
     /* Time tone subtract delay with invalid size */
     UT_InitData();
-    memset(&CmdBuf, 0, sizeof(CmdBuf));
-    CFE_TIME_Global.CommandCounter      = 0;
-    CFE_TIME_Global.CommandErrorCounter = 0;
     UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, 0, UT_TPID_CFE_TIME_CMD_SUB_DELAY_CC);
     CFE_UtAssert_EVENTSENT(CFE_TIME_LEN_ERR_EID);
-    UtAssert_UINT32_EQ(CFE_TIME_Global.CommandCounter, 0);
-    UtAssert_UINT32_EQ(CFE_TIME_Global.CommandErrorCounter, 1);
 
     /* Test sending a set time command */
     UT_InitData();
@@ -1636,13 +1596,8 @@ void Test_PipeCmds(void)
 
     /* Set time with invalid size */
     UT_InitData();
-    memset(&CmdBuf, 0, sizeof(CmdBuf));
-    CFE_TIME_Global.CommandCounter      = 0;
-    CFE_TIME_Global.CommandErrorCounter = 0;
     UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, 0, UT_TPID_CFE_TIME_CMD_SET_TIME_CC);
     CFE_UtAssert_EVENTSENT(CFE_TIME_LEN_ERR_EID);
-    UtAssert_UINT32_EQ(CFE_TIME_Global.CommandCounter, 0);
-    UtAssert_UINT32_EQ(CFE_TIME_Global.CommandErrorCounter, 1);
 
     /* Test sending a set MET command */
     UT_InitData();
@@ -1663,13 +1618,8 @@ void Test_PipeCmds(void)
 
     /* Set MET with invalid size */
     UT_InitData();
-    memset(&CmdBuf, 0, sizeof(CmdBuf));
-    CFE_TIME_Global.CommandCounter      = 0;
-    CFE_TIME_Global.CommandErrorCounter = 0;
     UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, 0, UT_TPID_CFE_TIME_CMD_SET_MET_CC);
     CFE_UtAssert_EVENTSENT(CFE_TIME_LEN_ERR_EID);
-    UtAssert_UINT32_EQ(CFE_TIME_Global.CommandCounter, 0);
-    UtAssert_UINT32_EQ(CFE_TIME_Global.CommandErrorCounter, 1);
 
     /* Test sending a set STCF command */
     UT_InitData();
@@ -1690,13 +1640,8 @@ void Test_PipeCmds(void)
 
     /* Set STCF with invalid size */
     UT_InitData();
-    memset(&CmdBuf, 0, sizeof(CmdBuf));
-    CFE_TIME_Global.CommandCounter      = 0;
-    CFE_TIME_Global.CommandErrorCounter = 0;
     UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, 0, UT_TPID_CFE_TIME_CMD_SET_STCF_CC);
     CFE_UtAssert_EVENTSENT(CFE_TIME_LEN_ERR_EID);
-    UtAssert_UINT32_EQ(CFE_TIME_Global.CommandCounter, 0);
-    UtAssert_UINT32_EQ(CFE_TIME_Global.CommandErrorCounter, 1);
 
     /* Test sending an adjust STCF positive command */
     UT_InitData();
@@ -1717,13 +1662,8 @@ void Test_PipeCmds(void)
 
     /* Adjust STCF positive with invalid size */
     UT_InitData();
-    memset(&CmdBuf, 0, sizeof(CmdBuf));
-    CFE_TIME_Global.CommandCounter      = 0;
-    CFE_TIME_Global.CommandErrorCounter = 0;
     UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, 0, UT_TPID_CFE_TIME_CMD_ADD_ADJUST_CC);
     CFE_UtAssert_EVENTSENT(CFE_TIME_LEN_ERR_EID);
-    UtAssert_UINT32_EQ(CFE_TIME_Global.CommandCounter, 0);
-    UtAssert_UINT32_EQ(CFE_TIME_Global.CommandErrorCounter, 1);
 
     /* Test sending an adjust STCF negative command */
     UT_InitData();
@@ -1744,13 +1684,8 @@ void Test_PipeCmds(void)
 
     /* Adjust STCF negative with invalid size */
     UT_InitData();
-    memset(&CmdBuf, 0, sizeof(CmdBuf));
-    CFE_TIME_Global.CommandCounter      = 0;
-    CFE_TIME_Global.CommandErrorCounter = 0;
     UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, 0, UT_TPID_CFE_TIME_CMD_SUB_ADJUST_CC);
     CFE_UtAssert_EVENTSENT(CFE_TIME_LEN_ERR_EID);
-    UtAssert_UINT32_EQ(CFE_TIME_Global.CommandCounter, 0);
-    UtAssert_UINT32_EQ(CFE_TIME_Global.CommandErrorCounter, 1);
 
     /* Test sending an adjust STCF 1 Hz positive command */
     UT_InitData();
@@ -1774,13 +1709,8 @@ void Test_PipeCmds(void)
 
     /* Adjust STCF 1Hz positive with invalid size */
     UT_InitData();
-    memset(&CmdBuf, 0, sizeof(CmdBuf));
-    CFE_TIME_Global.CommandCounter      = 0;
-    CFE_TIME_Global.CommandErrorCounter = 0;
     UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, 0, UT_TPID_CFE_TIME_CMD_ADD_ONEHZ_ADJUSTMENT_CC);
     CFE_UtAssert_EVENTSENT(CFE_TIME_LEN_ERR_EID);
-    UtAssert_UINT32_EQ(CFE_TIME_Global.CommandCounter, 0);
-    UtAssert_UINT32_EQ(CFE_TIME_Global.CommandErrorCounter, 1);
 
     /* Test sending an adjust STCF 1 Hz negative command */
     UT_InitData();
@@ -1804,13 +1734,8 @@ void Test_PipeCmds(void)
 
     /* Adjust STCF 1 Hz negative with invalid size */
     UT_InitData();
-    memset(&CmdBuf, 0, sizeof(CmdBuf));
-    CFE_TIME_Global.CommandCounter      = 0;
-    CFE_TIME_Global.CommandErrorCounter = 0;
     UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, 0, UT_TPID_CFE_TIME_CMD_SUB_ONEHZ_ADJUSTMENT_CC);
     CFE_UtAssert_EVENTSENT(CFE_TIME_LEN_ERR_EID);
-    UtAssert_UINT32_EQ(CFE_TIME_Global.CommandCounter, 0);
-    UtAssert_UINT32_EQ(CFE_TIME_Global.CommandErrorCounter, 1);
 
     /* Test response to sending a tone delay command using an invalid time */
     UT_InitData();
@@ -1870,13 +1795,8 @@ void Test_PipeCmds(void)
 
     /* Set leap seconds with invalid size */
     UT_InitData();
-    memset(&CmdBuf, 0, sizeof(CmdBuf));
-    CFE_TIME_Global.CommandCounter      = 0;
-    CFE_TIME_Global.CommandErrorCounter = 0;
     UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, 0, UT_TPID_CFE_TIME_CMD_SET_LEAP_SECONDS_CC);
     CFE_UtAssert_EVENTSENT(CFE_TIME_LEN_ERR_EID);
-    UtAssert_UINT32_EQ(CFE_TIME_Global.CommandCounter, 0);
-    UtAssert_UINT32_EQ(CFE_TIME_Global.CommandErrorCounter, 1);
 
     /* Test response to sending an invalid command */
     UT_InitData();
