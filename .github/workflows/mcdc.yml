@@ -24,6 +24,9 @@ env:
   BUILDTYPE: debug
   TESTS_RAN: false
 
+permissions:
+  contents: read
+
 jobs:
   mcdc:
     name: Build and Run MCDC
