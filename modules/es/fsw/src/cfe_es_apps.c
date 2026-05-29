@@ -382,7 +382,7 @@ int32 CFE_ES_ParseFileEntry(const char **TokenList, uint32 NumTokens)
 
     strncpy(ParamBuf.BasicInfo.InitSymbolName, TokenList[2], sizeof(ParamBuf.BasicInfo.InitSymbolName) - 1);
 
-    if (strcmp(EntryType, "CFE_APP") == 0)
+    if (strncmp(EntryType, "CFE_APP", 7) == 0)
     {
         CFE_ES_WriteToSysLog("%s: Loading file: %s, APP: %s\n", __func__, ParamBuf.BasicInfo.FileName, ModuleName);
 
@@ -426,7 +426,7 @@ int32 CFE_ES_ParseFileEntry(const char **TokenList, uint32 NumTokens)
         */
         Status = CFE_ES_AppCreate(&IdBuf.AppId, ModuleName, &ParamBuf);
     }
-    else if (strcmp(EntryType, "CFE_LIB") == 0)
+    else if (strncmp(EntryType, "CFE_LIB", 7) == 0)
     {
         CFE_ES_WriteToSysLog("%s: Loading shared library: %s\n", __func__, ParamBuf.BasicInfo.FileName);
 
@@ -517,7 +517,7 @@ int32 CFE_ES_LoadModule(CFE_ResourceId_t                 ParentResourceId,
      * If the Load was OK, then lookup the address of the entry point
      */
     if (ReturnCode == CFE_SUCCESS && LoadParams->InitSymbolName[0] != 0
-        && strcmp(LoadParams->InitSymbolName, "NULL") != 0)
+        && strncmp(LoadParams->InitSymbolName, "NULL", 4) != 0)
     {
         OsStatus = OS_ModuleSymbolLookup(ModuleId, &InitSymbolAddress, LoadParams->InitSymbolName);
         if (OsStatus != OS_SUCCESS)

@@ -35,6 +35,7 @@
 #include "cfe_config_nametable.h"
 #include "cfe_config_priv.h"
 #include "cfe_version.h"
+#include "cfe_core_api_interface_cfg.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -147,10 +148,15 @@ CFE_ConfigId_t CFE_Config_GetIdByName(const char *Name)
     const CFE_Config_IdNameEntry_t *NamePtr;
     uint32                          OffsetVal;
 
+    if (Name == NULL)
+    {
+        return CFE_CONFIGID_UNDEFINED;
+    }
+    
     NamePtr = CFE_CONFIGID_NAMETABLE;
     for (OffsetVal = 0; OffsetVal < CFE_ConfigIdOffset_MAX; ++OffsetVal)
     {
-        if (NamePtr->Name != NULL && strcmp(NamePtr->Name, Name) == 0)
+        if (NamePtr->Name != NULL && strncmp(NamePtr->Name, Name, CFE_MISSION_MAX_API_LEN) == 0)
         {
             break;
         }
