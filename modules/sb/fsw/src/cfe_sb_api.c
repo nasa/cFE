@@ -456,14 +456,12 @@ int32 CFE_SB_DeletePipeFull(CFE_SB_PipeId_t PipeId, CFE_ES_AppId_t AppId)
     /* Send Events */
     if (PendingEventID != 0)
     {
-        /* get TaskId and name of caller for events */
+        /* get TaskId of caller for events */
         CFE_ES_GetTaskID(&TskId);
-        CFE_SB_GetAppTskName(TskId, FullName);
     }
     else
     {
-        TskId       = CFE_ES_TASKID_UNDEFINED;
-        FullName[0] = 0;
+        TskId = CFE_ES_TASKID_UNDEFINED;
     }
 
     switch (PendingEventID)
@@ -474,14 +472,14 @@ int32 CFE_SB_DeletePipeFull(CFE_SB_PipeId_t PipeId, CFE_ES_AppId_t AppId)
                                        CFE_SB_Global.AppId,
                                        "Pipe Delete Error:Bad Argument,PipedId %ld,Requestor %s",
                                        CFE_RESOURCEID_TO_ULONG(PipeId),
-                                       FullName);
+                                       CFE_SB_GetAppTskName(TskId, FullName));
             break;
         case CFE_SB_DEL_PIPE_ERR2_EID:
             CFE_EVS_SendEventWithAppID(CFE_SB_DEL_PIPE_ERR2_EID,
                                        CFE_EVS_EventType_ERROR,
                                        CFE_SB_Global.AppId,
                                        "Pipe Delete Error:Caller(%s) is not the owner of pipe %ld",
-                                       FullName,
+                                       CFE_SB_GetAppTskName(TskId, FullName),
                                        CFE_RESOURCEID_TO_ULONG(PipeId));
             break;
 
