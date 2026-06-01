@@ -767,7 +767,7 @@ CFE_ES_CDS_RegRec_t *CFE_ES_LocateCDSBlockRecordByName(const char *CDSName)
         if (CFE_ES_CDSBlockRecordIsUsed(CDSRegRecPtr))
         {
             /* Perform a case sensitive name comparison */
-            if (strcmp(CDSName, CDSRegRecPtr->Name) == 0)
+            if (strncmp(CDSName, CDSRegRecPtr->Name, CFE_MISSION_ES_CDS_MAX_FULL_NAME_LEN) == 0)
             {
                 /* If the names match, then stop */
                 break;
