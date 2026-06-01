@@ -433,7 +433,9 @@ int32 CFE_SB_DeletePipeFull(CFE_SB_PipeId_t PipeId, CFE_ES_AppId_t AppId)
         }
 
         /* Delete the underlying OS queue */
-        OS_QueueDelete(SysQueueId);
+        /* SAD: Suppress Ignored Return Value warning from CodeSonar.  If OS_QueueDelete() returns an error, nothing the
+         * user can do. */
+        (void)OS_QueueDelete(SysQueueId);
     }
 
     /*
