@@ -152,7 +152,7 @@ CFE_ConfigId_t CFE_Config_GetIdByName(const char *Name)
     {
         return CFE_CONFIGID_UNDEFINED;
     }
-    
+
     NamePtr = CFE_CONFIGID_NAMETABLE;
     for (OffsetVal = 0; OffsetVal < CFE_ConfigIdOffset_MAX; ++OffsetVal)
     {
