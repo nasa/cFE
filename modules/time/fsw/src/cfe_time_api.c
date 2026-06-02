@@ -577,7 +577,13 @@ CFE_Status_t CFE_TIME_Print(char *PrintBuffer, CFE_TIME_SysTime_t TimeToPrint)
     }
 
     time_t sec = TimeToPrint.Seconds + CFE_MISSION_TIME_EPOCH_SECONDS; // epoch is Jan 1, 1980
+
+    /* gmtime_r returns NULL for times outside the representable range.
+     * Zero-initialise tm so strftime produces a defined (epoch) string
+     * rather than reading uninitialised stack memory. */
+    memset(&tm, 0, sizeof(tm));
     gmtime_r(&sec, &tm);
+
     FmtLen            = strftime(PrintBuffer, CFE_TIME_PRINTED_STRING_SIZE - 6, "%Y-%j-%H:%M:%S", &tm);
     PrintBuffer      += FmtLen;
     *(PrintBuffer++)  = '.';
