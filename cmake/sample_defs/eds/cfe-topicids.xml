@@ -83,6 +83,8 @@
     <Define name="SB_SUB_RPT_CTRL_TOPICID"        value="${CFE_MISSION/TELECOMMAND_BASE_TOPICID} + 014"/>
     <Define name="TIME_TONE_CMD_TOPICID"          value="${CFE_MISSION/TELECOMMAND_BASE_TOPICID} + 016"/>
     <Define name="TIME_ONEHZ_CMD_TOPICID"         value="${CFE_MISSION/TELECOMMAND_BASE_TOPICID} + 017"/>
+    <Define name="TA_CMD_TOPICID"                 value="${CFE_MISSION/TELECOMMAND_BASE_TOPICID} + 018"/>
+    <Define name="TA_SEND_HK_TOPICID"             value="${CFE_MISSION/TELECOMMAND_BASE_TOPICID} + 019"/>
     <Define name="TO_LAB_CMD_TOPICID"             value="${CFE_MISSION/TELECOMMAND_BASE_TOPICID} + 128"/>
     <Define name="TO_LAB_SEND_HK_TOPICID"         value="${CFE_MISSION/TELECOMMAND_BASE_TOPICID} + 129"/>
     <Define name="TO_SEND_HK_TOPICID"             value="${CFE_MISSION/TELECOMMAND_BASE_TOPICID} + 129"/>
@@ -109,6 +111,7 @@
     <Define name="TBL_REG_TLM_TOPICID"           value="${CFE_MISSION/TELEMETRY_BASE_TOPICID} + 012"/>
     <Define name="SB_ALLSUBS_TLM_TOPICID"        value="${CFE_MISSION/TELEMETRY_BASE_TOPICID} + 013"/>
     <Define name="SB_ONESUB_TLM_TOPICID"         value="${CFE_MISSION/TELEMETRY_BASE_TOPICID} + 014"/>
+    <Define name="TA_HK_TLM_TOPICID"             value="${CFE_MISSION/TELEMETRY_BASE_TOPICID} + 015"/>
     <Define name="ES_MEMSTATS_TLM_TOPICID"       value="${CFE_MISSION/TELEMETRY_BASE_TOPICID} + 016"/>
     <Define name="TO_LAB_HK_TLM_TOPICID"         value="${CFE_MISSION/TELEMETRY_BASE_TOPICID} + 128"/>
     <Define name="TO_LAB_DATA_TYPES_TOPICID"     value="${CFE_MISSION/TELEMETRY_BASE_TOPICID} + 129"/>

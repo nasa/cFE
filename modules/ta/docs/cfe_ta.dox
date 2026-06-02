@@ -1,0 +1,246 @@
+/**
+  \page cfetaovr cFE Task Affinity (TA) Overview
+
+  The cFE Task Affinity (TA) application provides a centralized mechanism for managing 
+  and configuring CPU core affinities for operating system tasks (threads) within the 
+  core Flight System (cFS). 
+
+  In multi-core processing environments, it is often critical to ensure that certain 
+  tasks run on specific CPU cores to meet real-time deadlines, reduce cache thrashing, 
+  or isolate high-priority operations from background processing. TA bridges the gap 
+  between the cFS environment and the underlying OS (via the OSAL), allowing system 
+  operators to dynamically monitor and alter the core affinity of running tasks.
+
+  TA operates both autonomously during system startup (via OSAL event hooks) and 
+  interactively via ground commands. It is designed as an optional core module 
+  that can be conditionally compiled into the cFS objtab based on mission needs.
+
+  <h3>Mission Integration</h3>
+
+  Because TA is an optional core module, it must be explicitly enabled and configured 
+  for your specific mission deployment. To integrate TA into a cFS mission, follow 
+  these steps:
+
+  <B>1. Enable the Module</B> <BR>
+  Add the `ta` module to the core modules list in your mission's `targets.cmake` file:
+  \code
+  list(APPEND MISSION_CORE_MODULES ta)
+  \endcode
+
+  <B>2. Register Message IDs</B> <BR>
+  The TA message IDs must be integrated into the mission's global message ID namespace. 
+  Include the TA message ID definitions in your mission's `cfe_msgids.h` file 
+  (typically located in the mission `sample_defs` directory):
+  \code
+  #include "cfe_ta_msgids.h"
+  \endcode
+
+  <B>3. Configure Target-Specific Affinities</B> <BR>
+  The default task affinity assignments are defined in `cfe_ta_cpuaffinity.c`. 
+  Because different deployment targets (e.g., `cpu1`, `cpu2`) often have different 
+  hardware architectures and core counts, you can provide target-specific affinity 
+  configurations. Simply place a uniquely prefixed file in your mission definitions 
+  directory (e.g., `sample_defs/`), and the cFS build system will automatically 
+  locate and compile it. 
+  <BR><BR>
+  For example, to configure affinities specifically for `cpu1`, create the file:
+  <tt>cpu1_cfe_ta_cpuaffinity.c</tt>
+
+  <hr>
+
+  For additional detail on Task Affinity and how to manage it, see the following sections:
+
+  <UL>
+    <LI> \subpage cfetaugmanage <BR>
+    <LI> \subpage cfetaugstartup <BR>
+    <LI> \subpage cfetaugtelemetry <BR>
+    <LI> \subpage cfetaugfaq <BR>
+    <LI> \subpage cfetacmds <BR>
+    <LI> \subpage cfetatlm <BR>
+    <LI> \subpage cfetacfg <BR>
+  </UL>
+**/
+
+/**
+  \page cfetaugmanage Managing Task Affinity
+
+  Operators can interact with the TA application to query the current state of task 
+  affinities across the system and make real-time adjustments.
+
+  When a multi-core OS schedules a task, it uses an "Affinity Mask" to determine which 
+  cores the task is permitted to run on. Each bit in the mask corresponds to a specific 
+  CPU core (e.g., Bit 0 = Core 0, Bit 1 = Core 1). A mask of `0x03` (binary `0011`) 
+  indicates the task can run on Core 0 or Core 1.
+
+  The TA application maintains an internal list of tasks (`CpuTaskAffinity`) 
+  and their associated affinity masks. Operators can manage these masks using the 
+  following methods:
+
+  <B>1. Setting Task Affinity</B> <BR>
+  Operators can send the \ref CFE_TA_SET_TASK_AFFINITY_CC command, specifying a task 
+  name and a desired affinity mask. TA will look up the task via OSAL (`OS_TaskGetIdByName`), 
+  apply the new mask to the OS scheduling queue, and read the applied mask back 
+  from the OS to verify the change.
+
+  <B>2. Getting Task Affinity</B> <BR>
+  Operators can send the \ref CFE_TA_GET_TASK_AFFINITY_CC command to request the current active 
+  affinity mask for a specific task. TA will query the OS and update its internal 
+  table. If the OS reports a different affinity than what TA has on record, TA will 
+  log a discrepancy event and resynchronize its internal state.
+
+  <B>3. Querying All Tasks</B> <BR>
+  For a comprehensive view of the system, operators can send the \ref CFE_TA_QUERY_ALL_TASKS_CC 
+  command. TA will generate a diagnostic packet containing system-wide CPU 
+  capabilities (available cores, max configured cores) and write the current affinity 
+  state of all tracked tasks into an onboard file. This file can then be downlinked 
+  and analyzed by the ground system.
+**/
+
+/**
+  \page cfetaugstartup Startup and Autonomous Operations
+
+  Unlike standard cFE applications that only respond to commands, TA actively listens 
+  to the Operating System through an OSAL Event Handler (`CFE_TA_OS_EventHandler`).
+
+  During the `CFE_TA_EarlyInit` phase, TA registers itself with OSAL to receive 
+  notifications whenever a new OS resource is created. Specifically, TA monitors for 
+  `OS_EVENT_TASK_STARTUP` events. 
+
+  When a new task starts, the following sequence occurs autonomously:
+  -# The OSAL triggers the TA event handler.
+  -# TA extracts the name of the newly started task.
+  -# TA looks up the task name in its default configuration table 
+     (`CpuTaskAffinity`).
+  -# If the task is found and configured to use a specific mask (`CFE_TA_Mask`), 
+     TA immediately applies that mask to the new task.
+  -# If the task is not in the list, TA automatically adds it to its internal tracking 
+     table and flags it as `CFE_TA_Added`, leaving its affinity to the OS default.
+
+  This allows mission developers to define a static layout of task affinities in the 
+  `cfe_ta_cpuaffinity.c` file before compilation. As the cFS system boots up and 
+  various apps start their child tasks, TA seamlessly intercepts them and pins them 
+  to their pre-assigned cores without requiring any manual ground intervention.
+**/
+
+/**
+  \page cfetaugtelemetry TA Telemetry and Diagnostics
+
+  The TA application produces a standard Housekeeping packet (\ref CFE_TA_HK_TLM_MID) 
+  that provides operators with insight into the health and status of the application.
+
+  The housekeeping packet tracks standard command processing statistics:
+  <UL>
+    <LI> `CommandCounter`: Increments on successfully executed commands.
+    <LI> `CommandErrorCounter`: Increments when commands fail length checks, use 
+         invalid function codes, or encounter execution errors.
+  </UL>
+
+  Additionally, it tracks autonomous startup statistics:
+  <UL>
+    <LI> `Startup_Counter`: The number of tasks successfully processed and assigned 
+         an affinity mask during system boot/task creation.
+    <LI> `Startup_Error_Counter`: The number of tasks that failed to receive their 
+         startup affinity assignment due to OSAL errors.
+  </UL>
+**/
+
+/**
+  \page cfetaugfaq Frequently Asked Questions about Task Affinity
+
+  <B> (Q)
+     I sent a SET_TASK_AFFINITY command, but I received a CFE_TA_SET_AFFINITY_CMD_NOTFOUND_ERR_EID. 
+     What happened?
+  </B> <BR> <BR> <I>
+     The TA application maintains a finite internal list of tasks (`OS_MAX_TASKS`). 
+     If the task name provided in the command does not match any task currently 
+     tracked by TA, it cannot set the affinity. Ensure the task name is spelled 
+     correctly and matches the OSAL assigned name.
+  </I>
+
+  <B> (Q)
+     Why does the GET_TASK_AFFINITY command sometimes generate a "discrepancy" event?
+  </B> <BR> <BR> <I>
+     TA tracks what it *believes* the affinity mask should be. However, the 
+     underlying OS (or a lower-level library) might have altered the thread's 
+     affinity outside of TA's awareness. When TA queries the OS and notices the 
+     real mask differs from its internal record, it issues a 
+     `CFE_TA_GET_TASK_AFFINITY_DISCREPANCY_INF_EID` to alert operators that an 
+     uncommanded change occurred, and it resynchronizes its table.
+  </I>
+
+  <B> (Q)
+     Is TA dependent on the Platform Service Package (PSP)?
+  </B> <BR> <BR> <I>
+     No. In the modern cFS modular architecture, TA is implemented entirely at the 
+     CFE core module level. It utilizes OSAL APIs (`OS_TaskAffinitySetAffinity`, etc.) to 
+     abstract away the specific underlying operating system. If it is included in 
+     the `MISSION_CORE_MODULES` CMake list, the cFE Executive Services (ES) will 
+     automatically initialize it and generate its objtab entry.
+  </I>
+
+  <B> (Q)
+     What happens if I try to set an affinity mask for a core that doesn't exist?
+  </B> <BR> <BR> <I>
+     TA safely clamps the user-provided mask. During the mask translation process 
+     (`CFE_TA_Cpu_Set`), TA checks the requested bits against `OS_MAX_CPUS` and 
+     the actual hardware cores available (`OS_TaskGetAvailableCores()`). Bits mapped 
+     to non-existent cores are safely ignored, preventing OS-level exceptions.
+  </I>
+**/
+
+/**
+**  \page cfetacmds cFE TA Commands
+**
+**  Upon receipt of any command, the TA application will confirm that the
+**  message length embedded within the header (from `CFE_MSG_GetSize()`) matches the expected
+**  length of that message, based on the size of the C structure defining that command.
+**  If there is any discrepancy between the expected and actual message size, TA will generate
+**  the #CFE_TA_LEN_ERR_EID event, increment the command error counter, and the
+**  command will _not_ be accepted for processing.
+**
+**  The following is a list of commands that are processed by the cFE TA Task:
+**
+**  \tableofcontents
+**
+**  <table border="1" cellpadding="2" width="100%">
+**    <tr><th>Command Name</th><th>Function Code</th><th>Payload Structure</th><th>Description</th></tr>
+**    <tr><td>No-Op</td><td>\ref CFE_TA_NOOP_CC</td><td>\ref CFE_TA_NoopCmd_t</td><td>Generates an info event to verify app is alive.</td></tr>
+**    <tr><td>Reset Counters</td><td>\ref CFE_TA_RESET_COUNTERS_CC</td><td>\ref CFE_TA_ResetCountersCmd_t</td><td>Resets the command and error counters to zero.</td></tr>
+**    <tr><td>Query All Tasks</td><td>\ref CFE_TA_QUERY_ALL_TASKS_CC</td><td>\ref CFE_TA_QueryAllTasksCmd_t</td><td>Writes the current affinity state of all tracked tasks to an onboard file.</td></tr>
+**    <tr><td>Set Task Affinity</td><td>\ref CFE_TA_SET_TASK_AFFINITY_CC</td><td>\ref CFE_TA_SetTaskAffinityCmd_t</td><td>Sets a new CPU affinity mask for a specific task.</td></tr>
+**    <tr><td>Get Task Affinity</td><td>\ref CFE_TA_GET_TASK_AFFINITY_CC</td><td>\ref CFE_TA_GetTaskAffinityCmd_t</td><td>Queries the OS for a specific task's affinity and updates the internal tracking table.</td></tr>
+**  </table>
+**/
+
+/**
+**  \page cfetatlm  cFE TA Telemetry
+**
+**  The following are telemetry packets generated by the cFE TA Task:
+**
+**  \tableofcontents
+**
+**  <table border="1" cellpadding="2" width="100%">
+**    <tr><th>Telemetry Packet Name</th><th>Message ID</th><th>Payload Structure</th><th>Description</th></tr>
+**    <tr><td>Housekeeping (HK)</td><td>\ref CFE_TA_HK_TLM_MID</td><td>\ref CFE_TA_HousekeepingTlm_t</td><td>Contains command execution counters, errors, and startup tracking metrics. Generated upon receipt of the SEND_HK command.</td></tr>
+**  </table>
+**
+**  Additionally, the TA application defines a diagnostic structure (\ref CFE_TA_DiagInfo_t) 
+**  which is used to dump the complete system affinity state to a file when the 
+**  \ref CFE_TA_QUERY_ALL_TASKS_CC command is received.
+**/
+
+/**
+**  \page cfetacfg  cFE TA Configuration Parameters
+**
+**  The following are configuration parameters used to configure the cFE TA Application
+**  for a specific platform or mission. These are defined in the associated configuration 
+**  header files.
+**
+**  <table border="1" cellpadding="2" width="100%">
+**    <tr><th>Parameter Name</th><th>Description</th></tr>
+**    <tr><td>\ref CFE_TA_PIPE_NAME</td><td>The string name used for the TA application's command pipe.</td></tr>
+**    <tr><td>\ref CFE_TA_PIPE_DEPTH</td><td>The depth of the TA command pipe (number of messages it can hold).</td></tr>
+**    <tr><td>\ref CFE_TA_MAX_EVENT_SEND_COUNT</td><td>The maximum number of times an identical event can be sent before being filtered.</td></tr>
+**    <tr><td>\ref CFE_TA_TASK_LOG_DESC</td><td>The file description header placed in the file generated by the Query All Tasks command.</td></tr>
+**  </table>
+**/

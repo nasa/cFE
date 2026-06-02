@@ -141,6 +141,18 @@ add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/cfe_module_version_table.c
         ${MISSION_BINARY_DIR}/src/cfe_module_version_table.c
 )
 
+# Only locate and compile the TA configuration if TA is appended to Core Modules
+if ("ta" IN_LIST MISSION_CORE_MODULES)
+    cfe_locate_implementation_file(CFE_TA_AFFINITY_TABLE
+        "cfe_ta_cpuaffinity.c"
+        PREFIX "${BUILD_CONFIG}"
+        FALLBACK_FILE "${CFE_SOURCE_DIR}/modules/ta/examples/sample_cfe_ta_cpuaffinity.c"
+    )
+else()
+    # If TA is disabled, set this to empty so the executable doesn't try to compile anything
+    set(CFE_TA_AFFINITY_TABLE "")
+endif()
+
 # Target for the final executable
 add_executable(core-${TGTNAME}
     ${MISSION_BINARY_DIR}/src/cfe_mission_strings.c
@@ -150,6 +162,7 @@ add_executable(core-${TGTNAME}
     ${CMAKE_CURRENT_BINARY_DIR}/cfe_static_symbol_list.c
     ${CMAKE_CURRENT_BINARY_DIR}/cfe_static_module_list.c
     src/target_config.c
+    ${CFE_TA_AFFINITY_TABLE}
 )
 
 target_compile_definitions(core-${TGTNAME} PRIVATE
@@ -159,6 +172,13 @@ target_compile_definitions(core-${TGTNAME} PRIVATE
     CFE_SPACECRAFT_ID_VALUE=${SPACECRAFT_ID}
     CFE_CPU_ID_VALUE=${${TGTNAME}_PROCESSORID}
 )
+
+if (CFE_TA_AFFINITY_TABLE)
+    # If the file was found, tell target_config.c the name of the extern array
+    target_compile_definitions(core-${TGTNAME} PRIVATE 
+        CFE_TA_AFFINITY_TABLE_PTR=CFE_TA_TargetConfigList
+    )
+endif()
 
 target_include_directories(core-${TGTNAME} PRIVATE
     "${CMAKE_BINARY_DIR}/${CFE_CORE_TARGET}/inc"
