@@ -88,7 +88,7 @@ void TestCDSName(void)
     const char        *CDSName      = "CFE_TEST.CDS_Test";
     const char        *INVALID_NAME = "INVALID_NAME";
 
-    CFE_ES_CDSHandle_t IdByName;
+    CFE_ES_CDSHandle_t IdByName = CFE_ES_CDS_BAD_HANDLE;
     char               CDSNameBuf[CFE_MISSION_ES_CDS_MAX_FULL_NAME_LEN];
 
     memset(CDSNameBuf, 0, sizeof(CDSNameBuf));
