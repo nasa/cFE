@@ -902,7 +902,7 @@ void CFE_TBL_MarkNameAsModified(char *NameBufPtr, size_t NameBufSize)
         EndPtr = &NameBufPtr[NameBufSize - 4];
     }
 
-    strcpy(EndPtr, "(*)");
+    memcpy(EndPtr, "(*)", 4); /* 3 chars + null terminator; caller ensures >= 4 bytes remain */
 }
 
 /*----------------------------------------------------------------
