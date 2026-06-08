@@ -278,7 +278,7 @@ void TestChildTaskName(void)
     CFE_Assert_RESOURCEID_EQ(TaskIdByName, TaskId);
 
     UtAssert_INT32_EQ(CFE_ES_GetTaskName(TaskNameBuf, TaskId, sizeof(TaskNameBuf)), CFE_SUCCESS);
-    UtAssert_STRINGBUF_EQ(TaskNameBuf, strlen(TaskNameBuf), TaskName, strlen(TaskName));
+    UtAssert_STRINGBUF_EQ(TaskNameBuf, UTASSERT_STRINGBUF_NULL_TERM, TaskName, UTASSERT_STRINGBUF_NULL_TERM);
 
     UtAssert_INT32_EQ(CFE_ES_GetTaskIDByName(NULL, TaskName), CFE_ES_BAD_ARGUMENT);
     UtAssert_INT32_EQ(CFE_ES_GetTaskIDByName(&TaskIdByName, NULL), CFE_ES_BAD_ARGUMENT);

@@ -84,9 +84,9 @@ void TestReadHeader(void)
     UtAssert_INT32_EQ(Header.ContentType, ReadHeader.ContentType);
     UtAssert_INT32_EQ(Header.SubType, ReadHeader.SubType);
     UtAssert_STRINGBUF_EQ(TestDescription,
-                          strlen(TestDescription),
+                          UTASSERT_STRINGBUF_NULL_TERM,
                           ReadHeader.Description,
-                          strlen(ReadHeader.Description));
+                          UTASSERT_STRINGBUF_NULL_TERM);
 
     UtAssert_INT32_EQ(CFE_FS_ReadHeader(NULL, fd), CFE_FS_BAD_ARGUMENT);
     CFE_Assert_STATUS_ERROR(CFE_FS_ReadHeader(&ReadHeader, OS_OBJECT_ID_UNDEFINED));
