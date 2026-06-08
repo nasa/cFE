@@ -98,7 +98,7 @@ void TestCDSName(void)
     UtAssert_INT32_EQ(CFE_ES_RegisterCDS(&CDSHandlePtr, BlockSize, Name), CFE_ES_CDS_ALREADY_EXISTS);
 
     UtAssert_INT32_EQ(CFE_ES_GetCDSBlockName(CDSNameBuf, CDSHandlePtr, sizeof(CDSNameBuf)), CFE_SUCCESS);
-    UtAssert_StrCmp(CDSNameBuf, CDSName, "CFE_ES_GetCDSBlockName() = %s", CDSNameBuf);
+    UtAssert_STRINGBUF_EQ(CDSNameBuf, sizeof(CDSNameBuf), CDSName, sizeof(CDSName));
     UtAssert_INT32_EQ(CFE_ES_GetCDSBlockIDByName(&IdByName, CDSNameBuf), CFE_SUCCESS);
     CFE_Assert_RESOURCEID_EQ(CDSHandlePtr, IdByName);
 
@@ -134,7 +134,7 @@ void TestCopyRestoreCDS(void)
 
     UtAssert_INT32_EQ(CFE_ES_CopyToCDS(CDSHandlePtr, Data), CFE_SUCCESS);
     UtAssert_INT32_EQ(CFE_ES_RestoreFromCDS(DataBuff, CDSHandlePtr), CFE_SUCCESS);
-    UtAssert_StrCmp(Data, DataBuff, "RestoreFromCDS = %s", DataBuff);
+    UtAssert_STRINGBUF_EQ(Data, sizeof(Data), DataBuff, sizeof(DataBuff));
 
     UtAssert_INT32_EQ(CFE_ES_CopyToCDS(CFE_ES_CDS_BAD_HANDLE, Data), CFE_ES_ERR_RESOURCEID_NOT_VALID);
     UtAssert_INT32_EQ(CFE_ES_CopyToCDS(CDSHandlePtr, NULL), CFE_ES_BAD_ARGUMENT);
