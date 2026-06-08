@@ -81,18 +81,18 @@ void TestInputFile(void)
     UtAssert_INT32_EQ(
         CFE_FS_ParseInputFileNameEx(OutNameBuf, InNameBuf, sizeof(OutNameBuf), sizeof(InNameBuf), Name, Path, Ext),
         CFE_SUCCESS);
-    UtAssert_STRINGBUF_EQ(ExpectedBuf, sizeof(ExpectedBuf), OutNameBuf, sizeof(OutNameBuf));
+    UtAssert_STRINGBUF_EQ(ExpectedBuf, strlen(ExpectedBuf), OutNameBuf, strlen(OutNameBuf));
     UtAssert_INT32_EQ(
         CFE_FS_ParseInputFileNameEx(OutNameBuf, NULL, sizeof(OutNameBuf), sizeof(InNameBuf), Name, Path, Ext),
         CFE_SUCCESS);
-    UtAssert_STRINGBUF_EQ(ExpectedName, sizeof(ExpectedName), OutNameBuf, sizeof(OutNameBuf));
+    UtAssert_STRINGBUF_EQ(ExpectedName, strlen(ExpectedName), OutNameBuf, strlen(OutNameBuf));
     UtAssert_INT32_EQ(CFE_FS_ParseInputFileNameEx(OutNameBuf, InNameBuf, sizeof(OutNameBuf), 0, Name, Path, Ext),
                       CFE_SUCCESS);
-    UtAssert_STRINGBUF_EQ(ExpectedName, sizeof(ExpectedName), OutNameBuf, sizeof(OutNameBuf));
+    UtAssert_STRINGBUF_EQ(ExpectedName, strlen(ExpectedName), OutNameBuf, strlen(OutNameBuf));
     UtAssert_INT32_EQ(
         CFE_FS_ParseInputFileNameEx(OutNameBuf, InNameBuf, sizeof(OutNameBuf), sizeof(InNameBuf), NULL, Path, Ext),
         CFE_SUCCESS);
-    UtAssert_STRINGBUF_EQ(ExpectedBuf, sizeof(ExpectedBuf), OutNameBuf, sizeof(OutNameBuf));
+    UtAssert_STRINGBUF_EQ(ExpectedBuf, strlen(ExpectedBuf), OutNameBuf, strlen(OutNameBuf));
 
     UtAssert_INT32_EQ(
         CFE_FS_ParseInputFileNameEx(NULL, InNameBuf, sizeof(OutNameBuf), sizeof(InNameBuf), Name, Path, Ext),
@@ -122,7 +122,7 @@ void TestFileName(void)
 
     snprintf(Path, sizeof(Path), "/func/FileName.test");
     UtAssert_INT32_EQ(CFE_FS_ExtractFilenameFromPath(Path, Name), CFE_SUCCESS);
-    UtAssert_STRINGBUF_EQ(Name, sizeof(Name), ExpectedName, sizeof(ExpectedName));
+    UtAssert_STRINGBUF_EQ(Name, strlen(Name), ExpectedName, strlen(ExpectedName));
 
     UtAssert_INT32_EQ(CFE_FS_ExtractFilenameFromPath(NULL, Name), CFE_FS_BAD_ARGUMENT);
     UtAssert_INT32_EQ(CFE_FS_ExtractFilenameFromPath(Path, NULL), CFE_FS_BAD_ARGUMENT);
