@@ -192,8 +192,7 @@ CFE_Status_t CFE_TBL_ValidateFileIsLoadable(CFE_TBL_TxnState_t *Txn, const CFE_T
         Status = CFE_TBL_ERR_INVALID_HANDLE;
         CFE_TBL_TxnAddEvent(Txn, CFE_TBL_NO_SUCH_TABLE_ERR_EID, Status, 0);
     }
-    else if (strncmp(CFE_TBL_RegRecGetName(RegRecPtr), TblFileHeader->TableName, CFE_MISSION_TBL_MAX_FULL_NAME_LEN)
-             != 0)
+    else if (strcmp(CFE_TBL_RegRecGetName(RegRecPtr), TblFileHeader->TableName) != 0)
     {
         Status = CFE_TBL_ERR_FILE_FOR_WRONG_TABLE;
         CFE_TBL_TxnAddEvent(Txn, CFE_TBL_LOAD_TBLNAME_MISMATCH_ERR_EID, Status, 0);
