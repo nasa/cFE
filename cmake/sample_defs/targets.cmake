@@ -81,6 +81,10 @@ SET(SPACECRAFT_ID 0x42)
 # or override parts of the CFE core on a mission-specific basis.
 #list(APPEND MISSION_CORE_MODULES mymodule)
 
+# Task Affinity CFE module
+#list(APPEND MISSION_CORE_MODULES ta)
+
+
 # The "MISSION_GLOBAL_APPLIST" is a set of apps/libs that will be built
 # for every defined target.  These are built as dynamic modules
 # and must be loaded explicitly via startup script or command.

@@ -902,8 +902,7 @@ void CFE_TBL_MarkNameAsModified(char *NameBufPtr, size_t NameBufSize)
         EndPtr = &NameBufPtr[NameBufSize - 4];
     }
 
-    /* SAD: Ignore CodeSonar - strcpy ok as bounds checking was performed above */
-    strcpy(EndPtr, "(*)");
+    strcpy(EndPtr, "(*)"); /* SAD: Ignore CodeSonar: strcpy ok. Bounds checking performed above */
 }
 
 /*----------------------------------------------------------------

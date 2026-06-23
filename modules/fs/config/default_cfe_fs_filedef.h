@@ -165,7 +165,17 @@ enum CFE_FS_SubType
      * command.
      *
      */
-    CFE_FS_SubType_ES_QUERYALLTASKS = 23
+    CFE_FS_SubType_ES_QUERYALLTASKS = 23,
+
+    /**
+     * @brief Task Affinity Query All Tasks Data File
+     *
+     * Executive Services Query All Tasks Data File which is generated in response to a
+     * \link #CFE_ES_QUERY_ALL_TASKS_CC \ES_WRITETASKINFO2FILE \endlink
+     * command.
+     *
+     */
+    CFE_FS_SubType_TA_QUERYALLTASKS = 24
 };
 
 /**

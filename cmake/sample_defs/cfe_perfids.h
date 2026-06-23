@@ -54,6 +54,7 @@
 #define CFE_MISSION_TIME_LOCAL1HZTASK_PERF_ID 10 /**< \brief Performance ID for 1 Hz Local Task */
 #define CFE_MISSION_TIME_TONE1HZTASK_PERF_ID  11 /**< \brief Performance ID for 1 Hz Tone Task */
 
+#define CFE_MISSION_TA_MAIN_PERF_ID 12 /**< \brief Performance ID for Task Affinity Task */
 /** \} */
 
 #endif /* SAMPLE_PERFIDS_H */

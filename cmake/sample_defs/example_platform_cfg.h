@@ -1518,6 +1518,37 @@
 #define CFE_PLATFORM_TBL_VALID_PRID_3 0
 #define CFE_PLATFORM_TBL_VALID_PRID_4 0
 
+/***************************************************************************/
+/*
+ *   CFE Task Affinity (CFE_TA) Application Private Config Definitions
+ */
+
+/**
+**  \cfeescfg Define TA Task Priority
+**
+**  \par Description:
+**       Defines the cFE_TA Task priority.
+**
+**  \par Limits
+**       Not Applicable
+*/
+#define CFE_PLATFORM_TA_START_TASK_PRIORITY 75
+
+/**
+**  \cfeescfg Define TA Task Stack Size
+**
+**  \par Description:
+**       Defines the cFE_TA Task Stack Size
+**
+**  \par Limits
+**       There is a lower limit of 2048 on this configuration parameter.  There
+**       are no restrictions on the upper limit however, the maximum stack size
+**       is system dependent and should be verified.  Most operating systems provide
+**       tools for measuring the amount of stack used by a task during operation. It
+**       is always a good idea to verify that no more than 1/2 of the stack is used.
+*/
+#define CFE_PLATFORM_TA_START_TASK_STACK_SIZE CFE_PLATFORM_ES_DEFAULT_STACK_SIZE
+
 /*************************************************************************/
 /*
  *   CFE Time Service (CFE_TIME) Application Private Config Definitions

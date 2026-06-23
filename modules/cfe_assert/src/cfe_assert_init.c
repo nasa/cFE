@@ -70,8 +70,8 @@ int32 CFE_Assert_OpenLogFile(const char *Filename)
     {
         NameLen = sizeof(CFE_Assert_Global.LogFileTemp) - 5;
     }
-    /* SAD: Ignore CodeSonar - strcpy ok as bounds checking was performed above */
-    strcpy(&CFE_Assert_Global.LogFileTemp[NameLen], ".tmp");
+    
+    strcpy(&CFE_Assert_Global.LogFileTemp[NameLen], ".tmp"); /* SAD: strcpy ok. Bounds checking performed above */
 
     OsStatus = OS_OpenCreate(&CFE_Assert_Global.LogFileDesc,
                              CFE_Assert_Global.LogFileTemp,
