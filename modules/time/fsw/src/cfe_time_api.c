@@ -569,7 +569,7 @@ CFE_Status_t CFE_TIME_Print(char *PrintBuffer, CFE_TIME_SysTime_t TimeToPrint)
 {
     size_t    FmtLen = 0;
     uint32    Micros = (CFE_TIME_Sub2MicroSecs(TimeToPrint.Subseconds) + CFE_MISSION_TIME_EPOCH_MICROS) / 10;
-    struct tm tm;
+    struct tm tm     = { 0 };
 
     if (PrintBuffer == NULL)
     {
@@ -577,7 +577,12 @@ CFE_Status_t CFE_TIME_Print(char *PrintBuffer, CFE_TIME_SysTime_t TimeToPrint)
     }
 
     time_t sec = TimeToPrint.Seconds + CFE_MISSION_TIME_EPOCH_SECONDS; // epoch is Jan 1, 1980
-    gmtime_r(&sec, &tm);
+
+    if (gmtime_r(&sec, &tm) == NULL)
+    {
+        return CFE_TIME_BAD_ARGUMENT;
+    }
+
     FmtLen            = strftime(PrintBuffer, CFE_TIME_PRINTED_STRING_SIZE - 6, "%Y-%j-%H:%M:%S", &tm);
     PrintBuffer      += FmtLen;
     *(PrintBuffer++)  = '.';

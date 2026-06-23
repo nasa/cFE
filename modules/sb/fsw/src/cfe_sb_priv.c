@@ -1465,7 +1465,7 @@ void CFE_SB_ReceiveTxn_ExportReference(CFE_SB_MessageTxn_State_t *TxnPtr,
  *-----------------------------------------------------------------*/
 bool CFE_SB_ReceiveTxn_PipeHandler(CFE_SB_MessageTxn_State_t *TxnPtr, CFE_SB_PipeSetEntry_t *ContextPtr, void *Arg)
 {
-    CFE_SB_BufferD_t  *BufDscPtr;
+    CFE_SB_BufferD_t  *BufDscPtr = NULL;
     CFE_SB_BufferD_t **ParentBufDscPtrP;
     size_t             BufDscSize;
 

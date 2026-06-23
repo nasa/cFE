@@ -88,7 +88,7 @@ CFE_Status_t CFE_TBL_TxnOpenTableDumpFile(CFE_TBL_TxnState_t              *Txn,
 {
     CFE_Status_t ReturnCode;
     int32        OsStatus;
-    osal_id_t    FileDescriptor;
+    osal_id_t    FileDescriptor = OS_OBJECT_ID_UNDEFINED;
 
     /* Create a new dump file, overwriting anything that may have existed previously */
     OsStatus = OS_OpenCreate(&FileDescriptor, Filename, OS_FILE_FLAG_CREATE | OS_FILE_FLAG_TRUNCATE, OS_WRITE_ONLY);
@@ -126,7 +126,7 @@ CFE_Status_t CFE_TBL_WriteSnapshotToFile(const CFE_TBL_DumpControl_t *DumpCtlPtr
     int32                     OsStatus;
     bool                      FileExistedPrev;
     CFE_TBL_CombinedFileHdr_t FileHeader;
-    osal_id_t                 FileDescriptor;
+    osal_id_t                 FileDescriptor = OS_OBJECT_ID_UNDEFINED;
     const char               *DumpFilename;
     const void               *DumpDataAddr;
     size_t                    DumpDataSize;

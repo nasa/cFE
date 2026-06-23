@@ -151,12 +151,14 @@ void TestPipeName(void)
     CFE_SB_PipeId_t PipeIdBuff        = CFE_SB_INVALID_PIPE;
     const char      InvalidPipeName[] = "Invalid Pipe";
 
+    memset(PipeNameBuf, 0, sizeof(PipeNameBuf));
+
     UtPrintf("Testing: CFE_SB_GetPipeName, CFE_SB_GetPipeIdByName");
 
     UtAssert_INT32_EQ(CFE_SB_CreatePipe(&PipeId, PipeDepth, PipeName), CFE_SUCCESS);
 
     UtAssert_INT32_EQ(CFE_SB_GetPipeName(PipeNameBuf, sizeof(PipeNameBuf), PipeId), CFE_SUCCESS);
-    UtAssert_StrCmp(PipeNameBuf, PipeName, "CFE_SB_GetPipeName() = %s", PipeNameBuf);
+    UtAssert_STRINGBUF_EQ(PipeNameBuf, UTASSERT_STRINGBUF_NULL_TERM, PipeName, UTASSERT_STRINGBUF_NULL_TERM);
 
     UtAssert_INT32_EQ(CFE_SB_GetPipeIdByName(&PipeIdBuff, PipeName), CFE_SUCCESS);
     CFE_Assert_RESOURCEID_EQ(PipeId, PipeIdBuff);
