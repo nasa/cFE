@@ -287,10 +287,12 @@ void CFE_ES_TaskPipe(const CFE_SB_Buffer_t *SBBufPtr)
 
     if (CFE_SB_MsgId_Equal(MessageID, SEND_HK_MID))
     {
-        /*
-        ** Housekeeping telemetry request
-        */
-        CFE_ES_SendHkCmd((const CFE_ES_SendHkCmd_t *)SBBufPtr);
+        /* Housekeeping telemetry request — verify length before casting,
+         * consistent with every command code in CFE_ES_ProcessGroundCmd(). */
+        if (CFE_ES_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_ES_SendHkCmd_t)))
+        {
+            CFE_ES_SendHkCmd((const CFE_ES_SendHkCmd_t *)SBBufPtr);
+        }
     }
     else if (CFE_SB_MsgId_Equal(MessageID, CMD_MID))
     {
