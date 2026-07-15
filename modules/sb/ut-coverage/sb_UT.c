@@ -1570,6 +1570,7 @@ void Test_SB_EarlyInit_NoErrors(void)
     UtAssert_ZERO(CFE_SB_Global.HKTlmMsg.Payload.MsgReceiveErrorCounter);
     UtAssert_ZERO(CFE_SB_Global.HKTlmMsg.Payload.InternalErrorCounter);
     UtAssert_ZERO(CFE_SB_Global.HKTlmMsg.Payload.CreatePipeErrorCounter);
+    UtAssert_ZERO(CFE_SB_Global.HKTlmMsg.Payload.DeletePipeErrorCounter);
     UtAssert_ZERO(CFE_SB_Global.HKTlmMsg.Payload.SubscribeErrorCounter);
     UtAssert_ZERO(CFE_SB_Global.HKTlmMsg.Payload.PipeOptsErrorCounter);
     UtAssert_ZERO(CFE_SB_Global.HKTlmMsg.Payload.DuplicateSubscriptionsCounter);
@@ -1855,6 +1856,8 @@ void Test_DeletePipe_InvalidPipeId(void)
     CFE_UtAssert_EVENTCOUNT(1);
 
     CFE_UtAssert_EVENTSENT(CFE_SB_DEL_PIPE_ERR1_EID);
+
+    UtAssert_INT32_EQ(CFE_SB_Global.HKTlmMsg.Payload.DeletePipeErrorCounter, 1);
 }
 
 /*
@@ -1880,6 +1883,8 @@ void Test_DeletePipe_InvalidPipeOwner(void)
 
     CFE_UtAssert_EVENTCOUNT(1);
     CFE_UtAssert_EVENTSENT(CFE_SB_DEL_PIPE_ERR2_EID);
+
+    UtAssert_INT32_EQ(CFE_SB_Global.HKTlmMsg.Payload.DeletePipeErrorCounter, 1);
 
     /* Restore owner id and delete pipe since test is complete */
     PipeDscPtr->AppId = RealOwner;

@@ -450,7 +450,7 @@ int32 CFE_SB_DeletePipeFull(CFE_SB_PipeId_t PipeId, CFE_ES_AppId_t AppId)
     }
     else
     {
-        CFE_SB_Global.HKTlmMsg.Payload.CreatePipeErrorCounter++;
+        CFE_SB_Global.HKTlmMsg.Payload.DeletePipeErrorCounter++;
     }
 
     CFE_SB_UnlockSharedData(__func__, __LINE__);
