@@ -136,6 +136,13 @@
 #endif
 
 /*
+** Performance IDs must span whole 32-bit mask words
+*/
+#if (CFE_MISSION_ES_PERF_MAX_IDS % 32) != 0
+#error CFE_MISSION_ES_PERF_MAX_IDS must be a multiple of 32!
+#endif
+
+/*
 ** Performance data buffer size
 */
 #if CFE_PLATFORM_ES_PERF_DATA_BUFFER_SIZE < 1025

@@ -531,21 +531,13 @@ int32 CFE_ES_SendHkCmd(const CFE_ES_SendHkCmd_t *data)
     CFE_ES_Global.TaskData.HkPacket.Payload.PerfDataToWrite  = CFE_ES_GetPerfLogDumpRemaining();
 
     /*
-     * Fill out the perf trigger/filter mask objects
-     * The entire array in the HK payload object (external size) must be filled,
-     * to avoid sending garbage data.
-     *
-     * If it is larger than what the platform supports (internal size), it will
-     * be padded with 0's
-     *
-     * If it is smaller than what the platform supports, then truncate.
+     * Copy the performance trigger and filter masks into the HK telemetry packet
+     * one performance ID (bit) at a time. The internal reset-data masks and the HK
+     * packet masks are both sized from CFE_MISSION_ES_PERF_MAX_IDS, which is a
+     * multiple of 32 (enforced in cfe_es_verify.h), so every ID maps onto a valid
+     * bit in both arrays and is copied directly with no need to pad or truncate.
      */
-
-    /* COVERAGE NOTICE: If the following static_assert fails, that means the
-     * macros below were redifined such that they are no longer equal. Be sure
-     * to adjust the code below in the for loop according to the comment
-     * directly above. */
-    for (PerfIdx = 0; PerfIdx < CFE_ES_PERF_TRIGGERMASK_EXT_SIZE; ++PerfIdx)
+    for (PerfIdx = 0; PerfIdx < CFE_MISSION_ES_PERF_MAX_IDS; ++PerfIdx)
     {
         CFE_ES_SET_HKTLM_PERF_MASK(
             PerfTriggerMask,
@@ -553,8 +545,8 @@ int32 CFE_ES_SendHkCmd(const CFE_ES_SendHkCmd_t *data)
             CFE_ES_TEST_U32_MASK(CFE_ES_Global.ResetDataPtr->Perf.MetaData.TriggerMask, PerfIdx));
     }
 
-    /* See comment "COVERAGE NOTICE" */
-    for (PerfIdx = 0; PerfIdx < CFE_ES_PERF_FILTERMASK_EXT_SIZE; ++PerfIdx)
+    /* Filter mask, populated the same way as the trigger mask above */
+    for (PerfIdx = 0; PerfIdx < CFE_MISSION_ES_PERF_MAX_IDS; ++PerfIdx)
     {
         CFE_ES_SET_HKTLM_PERF_MASK(PerfFilterMask,
                                    PerfIdx,

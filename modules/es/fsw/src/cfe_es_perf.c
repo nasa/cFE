@@ -531,9 +531,9 @@ int32 CFE_ES_SetPerfFilterMaskCmd(const CFE_ES_SetPerfFilterMaskCmd_t *data)
     {
         CFE_EVS_SendEvent(CFE_ES_PERF_FILTMSKERR_EID,
                           CFE_EVS_EventType_ERROR,
-                          "Performance Filter Mask Cmd Error,Index(%u)out of range(%u)",
+                          "Performance Filter Mask Cmd Error, Index(%u) out of range, valid range is 0 to %u",
                           (unsigned int)cmd->FilterMaskNum,
-                          (unsigned int)CFE_ES_PERF_32BIT_WORDS_IN_MASK);
+                          (unsigned int)(CFE_ES_PERF_32BIT_WORDS_IN_MASK - 1));
 
         CFE_ES_Global.TaskData.CommandErrorCounter++;
     }
@@ -573,9 +573,9 @@ int32 CFE_ES_SetPerfTriggerMaskCmd(const CFE_ES_SetPerfTriggerMaskCmd_t *data)
     {
         CFE_EVS_SendEvent(CFE_ES_PERF_TRIGMSKERR_EID,
                           CFE_EVS_EventType_ERROR,
-                          "Performance Trigger Mask Cmd Error,Index(%u)out of range(%u)",
+                          "Performance Trigger Mask Cmd Error, Index(%u) out of range, valid range is 0 to %u",
                           (unsigned int)cmd->TriggerMaskNum,
-                          (unsigned int)CFE_ES_PERF_32BIT_WORDS_IN_MASK);
+                          (unsigned int)(CFE_ES_PERF_32BIT_WORDS_IN_MASK - 1));
 
         CFE_ES_Global.TaskData.CommandErrorCounter++;
     }
