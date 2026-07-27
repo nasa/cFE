@@ -521,7 +521,7 @@ int32 CFE_ES_SetPerfFilterMaskCmd(const CFE_ES_SetPerfFilterMaskCmd_t *data)
 
         CFE_EVS_SendEvent(CFE_ES_PERF_FILTMSKCMD_EID,
                           CFE_EVS_EventType_DEBUG,
-                          "Set Performance Filter Mask Cmd rcvd, num %u, val 0x%08X",
+                          "Set Performance Filter Mask Cmd rcvd, num %u, val 0x%02X",
                           (unsigned int)cmd->FilterMaskNum,
                           (unsigned int)cmd->FilterMask);
 
@@ -563,7 +563,7 @@ int32 CFE_ES_SetPerfTriggerMaskCmd(const CFE_ES_SetPerfTriggerMaskCmd_t *data)
 
         CFE_EVS_SendEvent(CFE_ES_PERF_TRIGMSKCMD_EID,
                           CFE_EVS_EventType_DEBUG,
-                          "Set Performance Trigger Mask Cmd rcvd,num %u, val 0x%08X",
+                          "Set Performance Trigger Mask Cmd rcvd, num %u, val 0x%02X",
                           (unsigned int)cmd->TriggerMaskNum,
                           (unsigned int)cmd->TriggerMask);
 
