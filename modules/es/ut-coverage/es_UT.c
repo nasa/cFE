@@ -3365,7 +3365,7 @@ void TestPerf(void)
          mask value */
     ES_ResetUnitTest();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
-    CmdBuf.PerfSetFilterMaskCmd.Payload.FilterMaskNum = CFE_ES_PERF_32BIT_WORDS_IN_MASK;
+    CmdBuf.PerfSetFilterMaskCmd.Payload.FilterMaskNum = CFE_ES_PERF_8BIT_WORDS_IN_MASK;
     UT_CallTaskPipe(CFE_ES_TaskPipe,
                     CFE_MSG_PTR(CmdBuf),
                     sizeof(CmdBuf.PerfSetFilterMaskCmd),
@@ -3375,7 +3375,7 @@ void TestPerf(void)
     /* Test successful performance filter mask command */
     ES_ResetUnitTest();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
-    CmdBuf.PerfSetFilterMaskCmd.Payload.FilterMaskNum = CFE_ES_PERF_32BIT_WORDS_IN_MASK / 2;
+    CmdBuf.PerfSetFilterMaskCmd.Payload.FilterMaskNum = CFE_ES_PERF_8BIT_WORDS_IN_MASK / 2;
     UT_CallTaskPipe(CFE_ES_TaskPipe,
                     CFE_MSG_PTR(CmdBuf),
                     sizeof(CmdBuf.PerfSetFilterMaskCmd),
@@ -3398,7 +3398,7 @@ void TestPerf(void)
      */
     ES_ResetUnitTest();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
-    CmdBuf.PerfSetTrigMaskCmd.Payload.TriggerMaskNum = CFE_ES_PERF_32BIT_WORDS_IN_MASK - 1;
+    CmdBuf.PerfSetTrigMaskCmd.Payload.TriggerMaskNum = CFE_ES_PERF_8BIT_WORDS_IN_MASK - 1;
     UT_CallTaskPipe(CFE_ES_TaskPipe,
                     CFE_MSG_PTR(CmdBuf),
                     sizeof(CmdBuf.PerfSetTrigMaskCmd),
@@ -3410,7 +3410,7 @@ void TestPerf(void)
      */
     ES_ResetUnitTest();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
-    CmdBuf.PerfSetTrigMaskCmd.Payload.TriggerMaskNum = CFE_ES_PERF_32BIT_WORDS_IN_MASK + 1;
+    CmdBuf.PerfSetTrigMaskCmd.Payload.TriggerMaskNum = CFE_ES_PERF_8BIT_WORDS_IN_MASK + 1;
     UT_CallTaskPipe(CFE_ES_TaskPipe,
                     CFE_MSG_PTR(CmdBuf),
                     sizeof(CmdBuf.PerfSetTrigMaskCmd),
@@ -3433,7 +3433,7 @@ void TestPerf(void)
     Perf->MetaData.InvalidMarkerReported = true;
     Perf->MetaData.Mode                  = CFE_ES_PerfTrigger_START;
     Perf->MetaData.DataCount             = CFE_PLATFORM_ES_PERF_DATA_BUFFER_SIZE + 1;
-    Perf->MetaData.TriggerMask[0]        = 0xFFFF;
+    Perf->MetaData.TriggerMask[0]        = 0xFF;
     CFE_ES_PerfLogAdd(1, 0);
     UtAssert_UINT32_EQ(Perf->MetaData.Mode, CFE_ES_PerfTrigger_START);
     UtAssert_UINT32_EQ(Perf->MetaData.State, CFE_ES_PERF_IDLE);
@@ -3490,7 +3490,7 @@ void TestPerf(void)
     ES_ResetUnitTest();
     Perf->MetaData.State         = CFE_ES_PERF_WAITING_FOR_TRIGGER;
     Perf->MetaData.DataCount     = 0;
-    Perf->MetaData.FilterMask[0] = 0xffff;
+    Perf->MetaData.FilterMask[0] = 0xFF;
     CFE_ES_PerfLogAdd(0x1, 0);
     UtAssert_UINT32_EQ(Perf->MetaData.DataCount, 1);
 
@@ -3510,7 +3510,7 @@ void TestPerf(void)
     Perf->MetaData.TriggerCount   = 0;
     Perf->MetaData.State          = CFE_ES_PERF_TRIGGERED;
     Perf->MetaData.Mode           = CFE_ES_PerfTrigger_START;
-    Perf->MetaData.TriggerMask[0] = 0xffff;
+    Perf->MetaData.TriggerMask[0] = 0xFF;
     CFE_ES_PerfLogAdd(0x1, 0);
     UtAssert_UINT32_EQ(Perf->MetaData.TriggerCount, 1);
 

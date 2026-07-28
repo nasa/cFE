@@ -80,9 +80,9 @@ void CFE_ES_SetupPerfVariables(uint32 ResetType)
         Perf->MetaData.DataEnd               = 0;
         Perf->MetaData.DataCount             = 0;
         Perf->MetaData.InvalidMarkerReported = false;
-        Perf->MetaData.FilterTriggerMaskSize = CFE_ES_PERF_32BIT_WORDS_IN_MASK;
+        Perf->MetaData.FilterTriggerMaskSize = CFE_ES_PERF_8BIT_WORDS_IN_MASK;
 
-        for (i = 0; i < CFE_ES_PERF_32BIT_WORDS_IN_MASK; i++)
+        for (i = 0; i < CFE_ES_PERF_8BIT_WORDS_IN_MASK; i++)
         {
             Perf->MetaData.FilterMask[i]  = CFE_PLATFORM_ES_PERF_FILTMASK_INIT;
             Perf->MetaData.TriggerMask[i] = CFE_PLATFORM_ES_PERF_TRIGMASK_INIT;
@@ -515,13 +515,13 @@ int32 CFE_ES_SetPerfFilterMaskCmd(const CFE_ES_SetPerfFilterMaskCmd_t *data)
     */
     Perf = &CFE_ES_Global.ResetDataPtr->Perf;
 
-    if (cmd->FilterMaskNum < CFE_ES_PERF_32BIT_WORDS_IN_MASK)
+    if (cmd->FilterMaskNum < CFE_ES_PERF_8BIT_WORDS_IN_MASK)
     {
         Perf->MetaData.FilterMask[cmd->FilterMaskNum] = cmd->FilterMask;
 
         CFE_EVS_SendEvent(CFE_ES_PERF_FILTMSKCMD_EID,
                           CFE_EVS_EventType_DEBUG,
-                          "Set Performance Filter Mask Cmd rcvd, num %u, val 0x%08X",
+                          "Set Performance Filter Mask Cmd rcvd, num %u, val 0x%02X",
                           (unsigned int)cmd->FilterMaskNum,
                           (unsigned int)cmd->FilterMask);
 
@@ -531,9 +531,9 @@ int32 CFE_ES_SetPerfFilterMaskCmd(const CFE_ES_SetPerfFilterMaskCmd_t *data)
     {
         CFE_EVS_SendEvent(CFE_ES_PERF_FILTMSKERR_EID,
                           CFE_EVS_EventType_ERROR,
-                          "Performance Filter Mask Cmd Error,Index(%u)out of range(%u)",
+                          "Performance Filter Mask Cmd Error, Index(%u) out of range, valid range is 0 to %u",
                           (unsigned int)cmd->FilterMaskNum,
-                          (unsigned int)CFE_ES_PERF_32BIT_WORDS_IN_MASK);
+                          (unsigned int)(CFE_ES_PERF_8BIT_WORDS_IN_MASK - 1));
 
         CFE_ES_Global.TaskData.CommandErrorCounter++;
     }
@@ -557,13 +557,13 @@ int32 CFE_ES_SetPerfTriggerMaskCmd(const CFE_ES_SetPerfTriggerMaskCmd_t *data)
     */
     Perf = &CFE_ES_Global.ResetDataPtr->Perf;
 
-    if (cmd->TriggerMaskNum < CFE_ES_PERF_32BIT_WORDS_IN_MASK)
+    if (cmd->TriggerMaskNum < CFE_ES_PERF_8BIT_WORDS_IN_MASK)
     {
         Perf->MetaData.TriggerMask[cmd->TriggerMaskNum] = cmd->TriggerMask;
 
         CFE_EVS_SendEvent(CFE_ES_PERF_TRIGMSKCMD_EID,
                           CFE_EVS_EventType_DEBUG,
-                          "Set Performance Trigger Mask Cmd rcvd,num %u, val 0x%08X",
+                          "Set Performance Trigger Mask Cmd rcvd, num %u, val 0x%02X",
                           (unsigned int)cmd->TriggerMaskNum,
                           (unsigned int)cmd->TriggerMask);
 
@@ -573,9 +573,9 @@ int32 CFE_ES_SetPerfTriggerMaskCmd(const CFE_ES_SetPerfTriggerMaskCmd_t *data)
     {
         CFE_EVS_SendEvent(CFE_ES_PERF_TRIGMSKERR_EID,
                           CFE_EVS_EventType_ERROR,
-                          "Performance Trigger Mask Cmd Error,Index(%u)out of range(%u)",
+                          "Performance Trigger Mask Cmd Error, Index(%u) out of range, valid range is 0 to %u",
                           (unsigned int)cmd->TriggerMaskNum,
-                          (unsigned int)CFE_ES_PERF_32BIT_WORDS_IN_MASK);
+                          (unsigned int)(CFE_ES_PERF_8BIT_WORDS_IN_MASK - 1));
 
         CFE_ES_Global.TaskData.CommandErrorCounter++;
     }
@@ -632,7 +632,7 @@ void CFE_ES_PerfLogAdd(uint32 Marker, uint32 EntryExit)
      * locking (and potential task switch) if the data is ultimately not going to
      * be written to the log.
      */
-    if (!CFE_ES_TEST_U32_MASK(Perf->MetaData.FilterMask, Marker))
+    if (!CFE_ES_TEST_U8_MASK(Perf->MetaData.FilterMask, Marker))
     {
         return;
     }
@@ -684,7 +684,7 @@ void CFE_ES_PerfLogAdd(uint32 Marker, uint32 EntryExit)
         /* waiting for trigger */
         if (Perf->MetaData.State == CFE_ES_PERF_WAITING_FOR_TRIGGER)
         {
-            if (CFE_ES_TEST_U32_MASK(Perf->MetaData.TriggerMask, Marker))
+            if (CFE_ES_TEST_U8_MASK(Perf->MetaData.TriggerMask, Marker))
             {
                 Perf->MetaData.State = CFE_ES_PERF_TRIGGERED;
             }

@@ -41,21 +41,21 @@
 ** Macro Definitions
 */
 
-#define CFE_ES_DBIT(x)     ((uint32)1 << (x))            /* Places a one at bit positions 0 thru 31 */
+#define CFE_ES_DBIT(x)     ((uint8)1 << (x))             /* Places a one at bit positions 0 thru 7 */
 #define CFE_ES_DTEST(i, x) (((i) & CFE_ES_DBIT(x)) != 0) /* true iff bit x of i is set */
 
-/* Test a bit within an array of 32-bit integers. */
-static inline bool CFE_ES_TEST_U32_MASK(const uint32 *m, uint32 s)
+/* Test a bit within an array of 8-bit integers. */
+static inline bool CFE_ES_TEST_U8_MASK(const uint8 *m, uint32 s)
 {
-    return (CFE_ES_DTEST(m[s / 32], s % 32));
+    return (CFE_ES_DTEST(m[s / 8], s % 8));
 }
 
-/* Set a bit within an array of 32-bit integers. */
-static inline void CFE_ES_SET_U32_MASK(uint32 *m, uint32 s, bool v)
+/* Set a bit within an array of 8-bit integers. */
+static inline void CFE_ES_SET_U8_MASK(uint8 *m, uint32 s, bool v)
 {
-    uint32 b = CFE_ES_DBIT(s % 32);
+    uint8 b = CFE_ES_DBIT(s % 8);
 
-    m += s / 32;
+    m += s / 8;
     if (v)
     {
         *m |= b;

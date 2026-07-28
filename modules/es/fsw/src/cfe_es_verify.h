@@ -131,8 +131,15 @@
 /*
 ** Maximum number of performance IDs
 */
-#if CFE_MISSION_ES_PERF_MAX_IDS < 32
-#error CFE_MISSION_ES_PERF_MAX_IDS cannot be less than 32!
+#if CFE_MISSION_ES_PERF_MAX_IDS < 8
+#error CFE_MISSION_ES_PERF_MAX_IDS cannot be less than 8!
+#endif
+
+/*
+** Performance IDs must span whole 8-bit mask words
+*/
+#if (CFE_MISSION_ES_PERF_MAX_IDS % 8) != 0
+#error CFE_MISSION_ES_PERF_MAX_IDS must be a multiple of 8!
 #endif
 
 /*
