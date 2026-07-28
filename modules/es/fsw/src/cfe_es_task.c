@@ -539,10 +539,9 @@ int32 CFE_ES_SendHkCmd(const CFE_ES_SendHkCmd_t *data)
      */
     for (PerfIdx = 0; PerfIdx < CFE_MISSION_ES_PERF_MAX_IDS; ++PerfIdx)
     {
-        CFE_ES_SET_HKTLM_PERF_MASK(
-            PerfTriggerMask,
-            PerfIdx,
-            CFE_ES_TEST_U8_MASK(CFE_ES_Global.ResetDataPtr->Perf.MetaData.TriggerMask, PerfIdx));
+        CFE_ES_SET_HKTLM_PERF_MASK(PerfTriggerMask,
+                                   PerfIdx,
+                                   CFE_ES_TEST_U8_MASK(CFE_ES_Global.ResetDataPtr->Perf.MetaData.TriggerMask, PerfIdx));
     }
 
     /* Filter mask, populated the same way as the trigger mask above */

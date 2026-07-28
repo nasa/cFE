@@ -41,7 +41,7 @@
 ** Macro Definitions
 */
 
-#define CFE_ES_DBIT(x)     ((uint8)1 << (x))            /* Places a one at bit positions 0 thru 7 */
+#define CFE_ES_DBIT(x)     ((uint8)1 << (x))             /* Places a one at bit positions 0 thru 7 */
 #define CFE_ES_DTEST(i, x) (((i) & CFE_ES_DBIT(x)) != 0) /* true iff bit x of i is set */
 
 /* Test a bit within an array of 8-bit integers. */
