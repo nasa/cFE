@@ -5276,9 +5276,9 @@ void TestSysLog(void)
 
     UtPrintf("Begin Test Sys Log");
 
-    /* Test loop in CFE_ES_SysLogReadStart_Unsync that ensures
-     * reading at the start of a message */
+    /* Test conditional in CFE_ES_SysLogReadStart_Unsync that checks for a fragment */
     ES_ResetUnitTest();
+    memset(&SysLogBuffer, 0, sizeof(SysLogBuffer));
     CFE_ES_Global.ResetDataPtr->SystemLogWriteIdx = 0;
     CFE_ES_Global.ResetDataPtr->SystemLogEndIdx   = sizeof(CFE_ES_Global.ResetDataPtr->SystemLog) - 1;
 
@@ -5288,9 +5288,15 @@ void TestSysLog(void)
     CFE_ES_SysLogReadStart_Unsync(&SysLogBuffer);
 
     UtAssert_EQ(size_t, SysLogBuffer.EndIdx, sizeof(CFE_ES_Global.ResetDataPtr->SystemLog) - 1);
-    UtAssert_EQ(size_t, SysLogBuffer.LastOffset, sizeof(CFE_ES_Global.ResetDataPtr->SystemLog) - 1);
+    UtAssert_ZERO(SysLogBuffer.LastOffset);
+    UtAssert_BOOL_TRUE(SysLogBuffer.IsFragment);
     UtAssert_ZERO(SysLogBuffer.BlockSize);
-    UtAssert_ZERO(SysLogBuffer.SizeLeft);
+    UtAssert_EQ(size_t, SysLogBuffer.SizeLeft, sizeof(CFE_ES_Global.ResetDataPtr->SystemLog) - 1);
+
+    CFE_ES_SysLogReadData(&SysLogBuffer);
+    UtAssert_BOOL_FALSE(SysLogBuffer.IsFragment);
+    UtAssert_EQ(size_t, SysLogBuffer.EndIdx, SysLogBuffer.LastOffset + SysLogBuffer.SizeLeft);
+    UtAssert_LT(size_t, SysLogBuffer.LastOffset, SysLogBuffer.BlockSize);
 
     /* Test truncation of a sys log message that is over half
      * the size of the total log */
@@ -5307,6 +5313,7 @@ void TestSysLog(void)
 
     /* Test Reading space between the current read offset and end of the log buffer */
     ES_ResetUnitTest();
+    memset(&SysLogBuffer, 0, sizeof(SysLogBuffer));
     SysLogBuffer.EndIdx     = 3;
     SysLogBuffer.LastOffset = 0;
     SysLogBuffer.BlockSize  = 3;
