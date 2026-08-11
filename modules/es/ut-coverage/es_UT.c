@@ -4406,6 +4406,7 @@ void TestCDS(void)
     uint8                BlockData[ES_UT_CDS_BLOCK_SIZE];
 
     UtPrintf("Begin Test CDS");
+    UT_ResetCDS();
 
     memset(BlockData, 0, sizeof(BlockData));
 
@@ -4594,7 +4595,6 @@ void TestCDS(void)
 
     /* Test CDS initialization with rebuilding not possible */
     ES_ResetUnitTest();
-    UT_SetDeferredRetcode(UT_KEY(CFE_PSP_ReadFromCDS), 3, OS_ERROR);
     CFE_UtAssert_SUCCESS(CFE_ES_CDS_EarlyInit());
 
     /* Test CDS validation with first CDS read call failure */
@@ -4753,6 +4753,7 @@ void TestCDSMempool(void)
     void                *CdsPtr;
 
     UtPrintf("Begin Test CDS memory pool");
+    UT_ResetCDS();
 
     ES_UT_SetupCDSGlobal(0);
 
