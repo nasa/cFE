@@ -863,6 +863,24 @@ void Test_Print(void)
                      (unsigned int)time.Subseconds,
                      timeBuf);
     }
+    /* Test the maximum seconds value, including the 2100 non-leap-century boundary */
+    time.Subseconds = 0;
+    time.Seconds    = 0xffffffff;
+
+    CFE_UtAssert_SUCCESS(CFE_TIME_Print(timeBuf, time));
+    if (usingDefaultEpoch)
+    {
+        strcpy(expectedBuf, "2116-038-06:28:15.00000");
+        UtAssert_STRINGBUF_EQ(timeBuf, sizeof(timeBuf), expectedBuf, sizeof(expectedBuf));
+    }
+    else
+    {
+        UtAssert_MIR("Confirm adding seconds = %u, subseconds = %u to configured EPOCH results in time %s",
+                     (unsigned int)time.Seconds,
+                     (unsigned int)time.Subseconds,
+                     timeBuf);
+    }
+
 }
 
 /*
