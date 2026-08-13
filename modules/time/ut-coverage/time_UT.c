@@ -880,7 +880,6 @@ void Test_Print(void)
                      (unsigned int)time.Subseconds,
                      timeBuf);
     }
-
 }
 
 /*
