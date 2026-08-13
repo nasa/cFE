@@ -132,7 +132,8 @@ void Test_TA_EarlyInit_WithTable(void)
     UT_SetDeferredRetcode(UT_KEY(OS_RegisterEventHandler), 1, OS_SUCCESS);
 
     UtAssert_INT32_EQ(CFE_TA_EarlyInit(), CFE_SUCCESS);
-    UtAssert_True(strcmp(CFE_TA_CpuTaskAffinity[0].TaskName, "MOCK_TASK") == 0, "TaskName matched");
+    UtAssert_True(strncmp(CFE_TA_CpuTaskAffinity[0].TaskName, "MOCK_TASK", sizeof("MOCK_TASK")) == 0,
+                  "TaskName matched");
     UtAssert_True(CFE_TA_CpuTaskAffinity[1].TaskName[0] == '\0', "Loop broke cleanly");
 }
 
@@ -152,7 +153,8 @@ void Test_TA_EarlyInit_MaxTasks(void)
     UT_SetDeferredRetcode(UT_KEY(OS_RegisterEventHandler), 1, OS_SUCCESS);
 
     UtAssert_INT32_EQ(CFE_TA_EarlyInit(), CFE_SUCCESS);
-    UtAssert_True(strcmp(CFE_TA_CpuTaskAffinity[OS_MAX_TASKS - 1].TaskName, "TASK") == 0, "Max tasks copied");
+    UtAssert_True(strncmp(CFE_TA_CpuTaskAffinity[OS_MAX_TASKS - 1].TaskName, "TASK", sizeof("TASK")) == 0,
+                  "Max tasks copied");
 }
 void Test_TA_EarlyInit_Error(void)
 {
