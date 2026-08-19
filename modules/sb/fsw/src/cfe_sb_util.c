@@ -49,7 +49,7 @@ void *CFE_SB_GetUserData(CFE_MSG_Message_t *MsgPtr)
     if (MsgPtr == NULL)
     {
         CFE_ES_WriteToSysLog("%s: Failed invalid arguments\n", __func__);
-        return 0;
+        return NULL;
     }
 
     BytePtr = (uint8 *)MsgPtr;

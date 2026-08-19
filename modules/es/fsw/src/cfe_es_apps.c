@@ -247,7 +247,7 @@ int32 CFE_ES_GetTaskFunction(CFE_ES_TaskEntryFuncPtr_t *FuncPtr)
         if (TaskRecPtr != NULL)
         {
             EntryFunc = TaskRecPtr->EntryFunc;
-            if (CFE_RESOURCEID_TEST_DEFINED(TaskRecPtr->AppId) && EntryFunc != 0)
+            if (CFE_RESOURCEID_TEST_DEFINED(TaskRecPtr->AppId) && EntryFunc != NULL)
             {
                 ReturnCode = CFE_SUCCESS;
             }
