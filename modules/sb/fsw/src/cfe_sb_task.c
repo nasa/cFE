@@ -347,7 +347,10 @@ void CFE_SB_ResetCounters(void)
     CFE_SB_Global.HKTlmMsg.Payload.MsgReceiveErrorCounter        = 0;
     CFE_SB_Global.HKTlmMsg.Payload.InternalErrorCounter          = 0;
     CFE_SB_Global.HKTlmMsg.Payload.CreatePipeErrorCounter        = 0;
+    CFE_SB_Global.HKTlmMsg.Payload.DeletePipeErrorCounter        = 0;
     CFE_SB_Global.HKTlmMsg.Payload.SubscribeErrorCounter         = 0;
+    CFE_SB_Global.HKTlmMsg.Payload.PipeOptsErrorCounter          = 0;
+    CFE_SB_Global.HKTlmMsg.Payload.GetPipeIdByNameErrorCounter   = 0;
     CFE_SB_Global.HKTlmMsg.Payload.PipeOverflowErrorCounter      = 0;
     CFE_SB_Global.HKTlmMsg.Payload.MsgLimitErrorCounter          = 0;
 }
