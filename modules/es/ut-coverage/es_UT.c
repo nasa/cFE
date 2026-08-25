@@ -756,12 +756,12 @@ void TestApps(void)
      */
     ES_ResetUnitTest();
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_WAITING, NULL, &UtAppRecPtr, NULL);
-    UtAppRecPtr->ControlReq.AppControlRequest = CFE_ES_RunStatus_APP_RUN;
+    UtAppRecPtr->ControlReq.AppControlRequest = CFE_ES_RunStatus_APP_ERROR;
     UtAppRecPtr->ControlReq.AppTimerMsec      = 0;
     memset(&CFE_ES_Global.BackgroundAppScanState, 0, sizeof(CFE_ES_Global.BackgroundAppScanState));
     UtAssert_BOOL_TRUE(CFE_ES_RunAppTableScan(0, &CFE_ES_Global.BackgroundAppScanState));
     UtAssert_INT32_EQ(UtAppRecPtr->ControlReq.AppTimerMsec, 0);
-    CFE_UtAssert_EVENTSENT(CFE_ES_PCR_ERR2_EID);
+    CFE_UtAssert_EVENTSENT(CFE_ES_ERREXIT_APP_INF_EID);
 
     /* Test scanning and acting on the application table where the timer
      * has not expired for a waiting application
@@ -773,17 +773,18 @@ void TestApps(void)
     UtAssert_BOOL_TRUE(CFE_ES_RunAppTableScan(1000, &CFE_ES_Global.BackgroundAppScanState));
     UtAssert_INT32_EQ(UtAppRecPtr->ControlReq.AppTimerMsec, 4000);
     UtAssert_UINT32_EQ(UtAppRecPtr->ControlReq.AppControlRequest, CFE_ES_RunStatus_APP_EXIT);
+    // jphfix not thrown CFE_UtAssert_EVENTSENT(CFE_ES_EXIT_APP_INF_EID);
 
     /* Test scanning and acting on the application table where the application
      * has stopped and is ready to be acted on
      */
     ES_ResetUnitTest();
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_STOPPED, NULL, &UtAppRecPtr, NULL);
-    UtAppRecPtr->ControlReq.AppControlRequest = CFE_ES_RunStatus_APP_RUN;
+    UtAppRecPtr->ControlReq.AppControlRequest = CFE_ES_RunStatus_APP_EXIT;
     UtAppRecPtr->ControlReq.AppTimerMsec      = 0;
     UtAssert_BOOL_TRUE(CFE_ES_RunAppTableScan(0, &CFE_ES_Global.BackgroundAppScanState));
     UtAssert_INT32_EQ(UtAppRecPtr->ControlReq.AppTimerMsec, 0);
-    CFE_UtAssert_EVENTSENT(CFE_ES_PCR_ERR2_EID);
+    CFE_UtAssert_EVENTSENT(CFE_ES_EXIT_APP_INF_EID);
 
     /* Test scanning and acting on the application table where the application
      * is running and is ready to exit
@@ -848,8 +849,55 @@ void TestApps(void)
     UtAssert_VOIDCALL(CFE_ES_ProcessControlRequest(AppId));
     CFE_UtAssert_EVENTSENT(CFE_ES_STOP_ERR3_EID);
 
+    /* Test a control action request to stop an application where the
+     * request fails and the subject is a core app
+     */
+    ES_ResetUnitTest();
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
+    UtAppRecPtr->ControlReq.AppControlRequest = CFE_ES_RunStatus_CORE_APP_RUNTIME_ERROR;
+    UT_SetDeferredRetcode(UT_KEY(CFE_EVS_CleanUpApp), 1, -1);
+    AppId = CFE_ES_AppRecordGetID(UtAppRecPtr);
+    UtAssert_VOIDCALL(CFE_ES_ProcessControlRequest(AppId));
+    CFE_UtAssert_EVENTSENT(CFE_ES_PCR_ERR2_EID);
+
+    /* Test a control action request to run an application
+     * Not really valid - this exists to cover the corresponding entry in the table
+     * this should NOT send any events
+     */
+    ES_ResetUnitTest();
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
+    UtAppRecPtr->ControlReq.AppControlRequest = CFE_ES_RunStatus_APP_RUN;
+    AppId                                     = CFE_ES_AppRecordGetID(UtAppRecPtr);
+    UtAssert_VOIDCALL(CFE_ES_ProcessControlRequest(AppId));
+    UtAssert_STUB_COUNT(CFE_EVS_SendEvent, 0); /*  */
+
+    /* Test a control action request to run an application and CleanUpApp fails
+     * Not really valid - this exists to cover the event sending logic
+     * this should NOT send any events
+     */
+    ES_ResetUnitTest();
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
+    UtAppRecPtr->ControlReq.AppControlRequest = CFE_ES_RunStatus_APP_RUN;
+    UT_SetDeferredRetcode(UT_KEY(CFE_EVS_CleanUpApp), 1, -1);
+    AppId = CFE_ES_AppRecordGetID(UtAppRecPtr);
+    UtAssert_VOIDCALL(CFE_ES_ProcessControlRequest(AppId));
+    UtAssert_STUB_COUNT(CFE_EVS_SendEvent, 0); /*  */
+
     /* Test a control action request to restart an application where the
-     * request fails due to a CleanUpApp error
+     * request fails due to a CleanUpApp error, where there should be a
+     * Cleanup only
+     */
+    ES_ResetUnitTest();
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
+    UtAppRecPtr->ControlReq.AppControlRequest = CFE_ES_RunStatus_APP_ERROR;
+    UT_SetDeferredRetcode(UT_KEY(CFE_EVS_CleanUpApp), 1, -1);
+    AppId = CFE_ES_AppRecordGetID(UtAppRecPtr);
+    UtAssert_VOIDCALL(CFE_ES_ProcessControlRequest(AppId));
+    CFE_UtAssert_EVENTSENT(CFE_ES_ERREXIT_APP_ERR_EID);
+
+    /* Test a control action request to restart an application where the
+     * request fails due to a CleanUpApp error, where there should be a
+     * Cleanup + Restart
      */
     ES_ResetUnitTest();
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);

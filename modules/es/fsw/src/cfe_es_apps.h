@@ -41,11 +41,6 @@
 #include "cfe_fs_api_typedefs.h"
 
 /*
-** Macro Definitions
-*/
-#define CFE_ES_STARTSCRIPT_MAX_TOKENS_PER_LINE 8
-
-/*
 ** Type Definitions
 */
 
@@ -163,33 +158,10 @@ typedef struct
     CFE_ES_ModuleLoadStatus_t LoadStatus;               /* Runtime information about the module */
 } CFE_ES_LibRecord_t;
 
-/*
-** CFE_ES_AppTableScanState_t is an internal structure used to keep state of
-** the background app table scan/cleanup process
-*/
-typedef struct
-{
-    uint32 PendingAppStateChanges;
-    uint32 BackgroundScanTimer;
-    uint8  LastScanCommandCount;
-} CFE_ES_AppTableScanState_t;
-
 /*****************************************************************************/
 /*
 ** Function prototypes
 */
-
-/*---------------------------------------------------------------------------------------*/
-/**
- * This routine loads/starts cFE applications.
- */
-void CFE_ES_StartApplications(uint32 ResetType, const char *StartFilePath);
-
-/*---------------------------------------------------------------------------------------*/
-/**
- * This function parses the startup file line for an individual cFE application.
- */
-int32 CFE_ES_ParseFileEntry(const char **TokenList, uint32 NumTokens);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -278,16 +250,6 @@ int32 CFE_ES_LoadLibrary(CFE_ES_LibId_t *LibraryIdPtr, const char *LibName, cons
 
 /*---------------------------------------------------------------------------------------*/
 /**
- * Scan the Application Table for actions to take
- *
- * This function scans the ES Application table and acts on the changes
- * in application states. This is where the external cFE Applications are
- * restarted, reloaded, or deleted.
- */
-bool CFE_ES_RunAppTableScan(uint32 ElapsedTime, void *Arg);
-
-/*---------------------------------------------------------------------------------------*/
-/**
  * Scan for new exceptions stored in the PSP
  *
  * This function pools the PSP to check if any exceptions have been logged
@@ -316,12 +278,6 @@ void CFE_ES_BackgroundERLogFileEventHandler(void                   *Meta,
                                             uint32                  RecordNum,
                                             size_t                  BlockSize,
                                             size_t                  Position);
-
-/*---------------------------------------------------------------------------------------*/
-/**
- * Perform the requested control action for an application
- */
-void CFE_ES_ProcessControlRequest(CFE_ES_AppId_t AppId);
 
 /*---------------------------------------------------------------------------------------*/
 /**

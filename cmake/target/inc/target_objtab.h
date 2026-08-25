@@ -40,18 +40,22 @@
  * objtab.c file.  ES iterates the table of pointers to these descriptors
  * at each lifecycle phase:
  *
- *  - EarlyInit  : called before any tasks are started
- *  - TaskMain   : entry point passed to OS_TaskCreate(); NULL for library modules
- *  - Cleanup    : called during shutdown; NULL if not required
+ *  - EarlyInit    : called before any tasks are started
+ *  - TaskMain     : entry point passed to OS_TaskCreate(); NULL for library modules
+ *  - AppCleanupCb : Notification function called when state from an external is cleaned up.
+ *           If this module has any resources associated with the given app, this routine
+ *           should free those resources.  If this module does not track any per-app state,
+ *           then this should be set NULL.  The parameter is the CFE ES AppId converted to
+ *           a plain unsigned integer value (the CFE_ES_AppId_t typedef does not exist here).
  */
 typedef struct
 {
-    const char *Name;            /**< Module name, e.g. "CFE_EVS" */
-    int32 (*EarlyInit)(void);    /**< Early initialization function; must not be NULL */
-    void (*TaskMain)(void);      /**< Task entry point; NULL for library-only modules */
-    int32 (*Cleanup)(uint32 Id); /**< Cleanup function; NULL if not required */
-    uint32 Priority;             /**< Task priority; ignored if TaskMain is NULL */
-    uint32 StackSize;            /**< Task stack size in bytes; ignored if TaskMain is NULL */
+    const char *Name;                 /**< Module name, e.g. "CFE_EVS" */
+    int32 (*EarlyInit)(void);         /**< Early initialization function; must not be NULL */
+    void (*TaskMain)(void);           /**< Task entry point; NULL for library-only modules */
+    int32 (*AppCleanupCb)(uint32 Id); /**< Callback function to invoke when external apps are stopped */
+    uint32 Priority;                  /**< Task priority; ignored if TaskMain is NULL */
+    uint32 StackSize;                 /**< Task stack size in bytes; ignored if TaskMain is NULL */
 } Target_ObjectTable_t;
 
 #endif /* CFE_ES_OBJTAB_H */

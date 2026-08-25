@@ -36,6 +36,7 @@
 */
 
 #include "cfe_es_module_all.h"
+#include "cfe_es_startupscript.h"
 #include "target_config.h"
 
 #include <stdio.h>

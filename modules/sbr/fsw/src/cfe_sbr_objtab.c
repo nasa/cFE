@@ -29,9 +29,5 @@
 
 #include "target_objtab.h"
 
-const Target_ObjectTable_t CFE_SBR_ModuleEntry = { .Name      = "CFE_SBR",
-                                                   .EarlyInit = NULL,
-                                                   .TaskMain  = NULL,
-                                                   .Cleanup   = NULL,
-                                                   .Priority  = 0,
-                                                   .StackSize = 0 };
+/* this is a core library module with no task */
+const Target_ObjectTable_t CFE_SBR_ModuleEntry = { .Name = "CFE_SBR" };
