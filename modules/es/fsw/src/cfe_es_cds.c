@@ -42,6 +42,24 @@
 #include <stdio.h>
 #include <stdarg.h>
 
+/**
+ * Context information used with registering a CDS
+ *
+ * This keeps the important state info so it can be easily
+ * passed to helper functions.
+ */
+typedef struct
+{
+    const char          *Name;
+    CFE_ES_CDS_RegRec_t *RegRecPtr;
+    CFE_ResourceId_t     PendingBlockId;
+    size_t               BlockOffset;
+    size_t               BlockSize;
+    bool                 IsNewEntry;
+    bool                 IsNewOffset;
+    bool                 IsTable;
+} CFE_ES_CDS_RegistrationContext_t;
+
 /*----------------------------------------------------------------
  *
  * Application-scope internal function
@@ -304,149 +322,170 @@ int32 CFE_ES_CDS_CachePreload(CFE_ES_CDS_AccessCache_t *Cache, const void *Sourc
 
 /*----------------------------------------------------------------
  *
- * Implemented per public API
- * See description in header file for argument/return detail
+ * Local helper function
+ * Finds a registry table entry and sets up the Context object
+ * This must be called with the CDS _locked_ because it searches through
+ * the registry.  If this returns successfully, then it is guaranteed
+ * that the RegRecPtr within the context object is valid and usable.
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_RegisterCDSEx(CFE_ES_CDSHandle_t *HandlePtr, size_t UserBlockSize, const char *Name, bool CriticalTbl)
+static CFE_Status_t
+CFE_ES_RegisterCDS_Setup(CFE_ES_CDS_RegistrationContext_t *Ctxt, size_t UserBlockSize, const char *Name, bool IsTable)
 {
     CFE_ES_CDS_Instance_t *CDS = &CFE_ES_Global.CDSVars;
-    int32                  Status;
-    int32                  RegUpdateStatus;
-    CFE_ES_CDS_RegRec_t   *RegRecPtr;
-    size_t                 BlockOffset;
-    size_t                 OldBlockSize;
-    size_t                 NewBlockSize;
-    CFE_ResourceId_t       PendingBlockId;
-    bool                   IsNewEntry;
-    bool                   IsNewOffset;
+    CFE_Status_t           Status;
 
-    Status          = CFE_SUCCESS;
-    RegUpdateStatus = CFE_SUCCESS;
-    IsNewEntry      = false;
-    IsNewOffset     = false;
+    Status = CFE_SUCCESS;
 
-    if (UserBlockSize == 0 || UserBlockSize > CDS_ABS_MAX_BLOCK_SIZE)
-    {
-        /* Block size is not supportable */
-        return CFE_ES_CDS_INVALID_SIZE;
-    }
-
-    /* Lock Registry for update.  This prevents two applications from */
-    /* trying to register CDSs at the same location at the same time  */
-    CFE_ES_LockCDS();
+    /* Account for the extra header which will be added */
+    Ctxt->BlockSize = UserBlockSize + sizeof(CFE_ES_CDS_BlockHeader_t);
+    Ctxt->Name      = Name;
+    Ctxt->IsTable   = IsTable;
 
     /*
      * Check for an existing entry with the same name.
      */
-    RegRecPtr = CFE_ES_LocateCDSBlockRecordByName(Name);
-    if (RegRecPtr != NULL)
+    Ctxt->RegRecPtr = CFE_ES_LocateCDSBlockRecordByName(Name);
+    if (Ctxt->RegRecPtr != NULL)
     {
         /* in CDS a duplicate name is not necessarily an error, we
          * may reuse/resize the existing entry */
-        PendingBlockId = CFE_RESOURCEID_UNWRAP(CFE_ES_CDSBlockRecordGetID(RegRecPtr));
+        Ctxt->PendingBlockId = CFE_RESOURCEID_UNWRAP(CFE_ES_CDSBlockRecordGetID(Ctxt->RegRecPtr));
     }
     else
     {
         /* scan for a free slot */
-        PendingBlockId = CFE_ResourceId_FindNext(CDS->LastCDSBlockId,
-                                                 CFE_PLATFORM_ES_CDS_MAX_NUM_ENTRIES,
-                                                 CFE_ES_CheckCDSHandleSlotUsed);
-        RegRecPtr      = CFE_ES_LocateCDSBlockRecordByID(CFE_ES_CDSHANDLE_C(PendingBlockId));
+        Ctxt->PendingBlockId = CFE_ResourceId_FindNext(CDS->LastCDSBlockId,
+                                                       CFE_PLATFORM_ES_CDS_MAX_NUM_ENTRIES,
+                                                       CFE_ES_CheckCDSHandleSlotUsed);
+        Ctxt->RegRecPtr      = CFE_ES_LocateCDSBlockRecordByID(CFE_ES_CDSHANDLE_C(Ctxt->PendingBlockId));
 
-        if (RegRecPtr != NULL)
+        if (Ctxt->RegRecPtr != NULL)
         {
             /* Fully clear the entry, just in case of stale data */
-            memset(RegRecPtr, 0, sizeof(*RegRecPtr));
-            CDS->LastCDSBlockId = PendingBlockId;
-            IsNewEntry          = true;
-            Status              = CFE_SUCCESS;
+            memset(Ctxt->RegRecPtr, 0, sizeof(*Ctxt->RegRecPtr));
+            CDS->LastCDSBlockId = Ctxt->PendingBlockId;
+            Ctxt->IsNewEntry    = true;
         }
         else
         {
-            Status         = CFE_ES_NO_RESOURCE_IDS_AVAILABLE;
-            PendingBlockId = CFE_RESOURCEID_UNDEFINED;
+            Status               = CFE_ES_NO_RESOURCE_IDS_AVAILABLE;
+            Ctxt->PendingBlockId = CFE_RESOURCEID_UNDEFINED;
         }
     }
 
-    if (RegRecPtr != NULL)
+    return Status;
+}
+
+/*----------------------------------------------------------------
+ *
+ * Local helper function
+ * Allocates the necessary pool block for this CDS, if needed
+ * This should be called with the CDS _locked_ as it accesses and changes registry values
+ * This may do nothing if there is already an existing entry and the block size is OK
+ *
+ *-----------------------------------------------------------------*/
+static CFE_Status_t CFE_ES_RegisterCDS_AllocateBlock(CFE_ES_CDS_RegistrationContext_t *Ctxt)
+{
+    CFE_ES_CDS_Instance_t *CDS = &CFE_ES_Global.CDSVars;
+    size_t                 OldBlockSize;
+    CFE_Status_t           Status;
+
+    /* If a reallocation is needed, the old block may need to be freed first */
+    if (Ctxt->RegRecPtr->BlockOffset != 0 && Ctxt->BlockSize != Ctxt->RegRecPtr->BlockSize)
     {
-        /* Account for the extra header which will be added */
-        NewBlockSize  = UserBlockSize;
-        NewBlockSize += sizeof(CFE_ES_CDS_BlockHeader_t);
+        /* If the new size is different, the old CDS must be deleted first  */
+        CFE_ES_GenPoolPutBlock(&CDS->Pool, &OldBlockSize, Ctxt->RegRecPtr->BlockOffset);
 
-        /* If a reallocation is needed, the old block may need to be freed first */
-        /**
-         * Removed condition checking for Status == CFE_SUCCESS since the only
-         * way it could be otherwise is if the else statment in the conditional
-         * statement above triggered:
+        /*
+         * Track that there is no longer any block associated with this registry entry
+         * Note because CDS puts a signature at the very beginning of the memory,
+         * valid data offsets are never zero.
          *
-         * if (RegRecPtr != NULL)
-         * {
-               memset(RegRecPtr, 0, sizeof(*RegRecPtr));
-               CDS->LastCDSBlockId = PendingBlockId;
-               IsNewEntry          = true;
-               Status              = CFE_SUCCESS;
-           }
-         * else
-         * {
-         *     Status         = CFE_ES_NO_RESOURCE_IDS_AVAILABLE;
-         *     PendingBlockId = CFE_RESOURCEID_UNDEFINED;
-         * }
-         *
-         * which would mean that RegRecPtr was NULL and therefore we cannot be
-         * in this conditional block in the first place.
+         * This is done regardless of the status from CFE_ES_GenPoolPutBlock() - because
+         * if that failed for some reason, the block must've been bad/invalid anyway, so
+         * it wasn't actually usable.  That should never happen in practice, but if it does
+         * happen then there is nothing we can do about it, so just drop it and move on.
          */
-        if (RegRecPtr->BlockOffset != 0 && NewBlockSize != RegRecPtr->BlockSize)
+        Ctxt->RegRecPtr->BlockOffset = 0;
+        Ctxt->RegRecPtr->BlockSize   = 0;
+    }
+
+    /* If a new allocation is needed, do it now */
+    if (Ctxt->RegRecPtr->BlockOffset != 0)
+    {
+        /* the existing block will be used as-is, nothing to be done */
+        Status = CFE_SUCCESS;
+    }
+    else
+    {
+        /* Allocate the block for the CDS */
+        Status = CFE_ES_GenPoolGetBlock(&CDS->Pool, &Ctxt->BlockOffset, Ctxt->BlockSize);
+        if (Status == CFE_SUCCESS)
         {
-            /* If the new size is different, the old CDS must be deleted first  */
-            Status = CFE_ES_GenPoolPutBlock(&CDS->Pool, &OldBlockSize, RegRecPtr->BlockOffset);
-
-            /*
-             * Note because CDS puts a signature at the very beginning of the memory,
-             * valid data offsets are never zero.
-             */
-            if (Status == CFE_SUCCESS)
-            {
-                RegRecPtr->BlockOffset = 0;
-                RegRecPtr->BlockSize   = 0;
-            }
-        }
-
-        /* If a new allocation is needed, do it now */
-        if (Status == CFE_SUCCESS && RegRecPtr->BlockOffset == 0)
-        {
-            /* Allocate the block for the CDS */
-            Status = CFE_ES_GenPoolGetBlock(&CDS->Pool, &BlockOffset, NewBlockSize);
-            if (Status == CFE_SUCCESS)
-            {
-                /* Save the size of the CDS */
-                RegRecPtr->BlockOffset = BlockOffset;
-                RegRecPtr->BlockSize   = NewBlockSize;
-                IsNewOffset            = true;
-            }
-        }
-
-        if (Status == CFE_SUCCESS && IsNewEntry)
-        {
-            /* Save flag indicating whether it is a Critical Table or not */
-            RegRecPtr->Table = CriticalTbl;
-
-            /* Save CDS Name in Registry */
-            strncpy(RegRecPtr->Name, Name, sizeof(RegRecPtr->Name) - 1);
-            RegRecPtr->Name[sizeof(RegRecPtr->Name) - 1] = 0;
-            CFE_ES_CDSBlockRecordSetUsed(RegRecPtr, PendingBlockId);
-        }
-
-        if (Status == CFE_SUCCESS && IsNewOffset)
-        {
-            /* If we succeeded at creating a CDS, save updated registry in the CDS */
-            RegUpdateStatus = CFE_ES_UpdateCDSRegistry();
+            /* Save the size of the CDS.  The IsNewOffset flag indicates a registry update is needed */
+            Ctxt->RegRecPtr->BlockOffset = Ctxt->BlockOffset;
+            Ctxt->RegRecPtr->BlockSize   = Ctxt->BlockSize;
+            Ctxt->IsNewOffset            = true;
         }
     }
 
-    /* Unlock Registry for update */
-    CFE_ES_UnlockCDS();
+    return Status;
+}
+
+/*----------------------------------------------------------------
+ *
+ * Local helper function
+ * Allocates the necessary pool block for this CDS, if needed
+ * This should be called with the CDS _locked_ as it accesses and changes registry values
+ * This may do nothing if there is already an existing entry and the block size is OK
+ *
+ *-----------------------------------------------------------------*/
+static CFE_Status_t CFE_ES_RegisterCDS_UpdateRegistry(const CFE_ES_CDS_RegistrationContext_t *Ctxt)
+{
+    CFE_Status_t Status;
+
+    if (Ctxt->IsNewEntry)
+    {
+        /* Save flag indicating whether it is a Critical Table or not */
+        Ctxt->RegRecPtr->Table = Ctxt->IsTable;
+
+        /* Save CDS Name in Registry */
+        strncpy(Ctxt->RegRecPtr->Name, Ctxt->Name, sizeof(Ctxt->RegRecPtr->Name) - 1);
+        Ctxt->RegRecPtr->Name[sizeof(Ctxt->RegRecPtr->Name) - 1] = 0;
+
+        /* marks the block as used. */
+        CFE_ES_CDSBlockRecordSetUsed(Ctxt->RegRecPtr, Ctxt->PendingBlockId);
+    }
+
+    if (Ctxt->IsNewOffset)
+    {
+        /* save updated registry in the CDS */
+        Status = CFE_ES_UpdateCDSRegistry();
+    }
+    else
+    {
+        /* there is no need to update anything (e.g. when reusing a block and not resized) */
+        Status = CFE_SUCCESS;
+    }
+
+    return Status;
+}
+
+/*----------------------------------------------------------------
+ *
+ * Local helper function
+ * Send any events from the registration operation and determine the final status code
+ * This should be called with the CDS _unlocked_ because it makes calls into other subsystems
+ *
+ *-----------------------------------------------------------------*/
+static CFE_Status_t CFE_ES_RegisterCDS_SendEvents(const CFE_ES_CDS_RegistrationContext_t *Ctxt,
+                                                  CFE_Status_t                            AllocStatus,
+                                                  CFE_Status_t                            RegUpdateStatus)
+{
+    CFE_Status_t FinalStatus;
+
+    FinalStatus = CFE_SUCCESS;
 
     /* Log any failures AFTER releasing the lock */
     if (RegUpdateStatus != CFE_SUCCESS)
@@ -454,24 +493,121 @@ int32 CFE_ES_RegisterCDSEx(CFE_ES_CDSHandle_t *HandlePtr, size_t UserBlockSize, 
         CFE_ES_WriteToSysLog("%s: Failed to update CDS Registry (Stat=0x%08X)\n",
                              __func__,
                              (unsigned int)RegUpdateStatus);
-
-        Status = RegUpdateStatus;
     }
-
-    if (Status == CFE_SUCCESS && !IsNewOffset)
+    else if (AllocStatus == CFE_SUCCESS && !Ctxt->IsNewEntry && !Ctxt->IsNewOffset)
     {
         /*
          * For backward compatibility, return the
-         * special non-success success code when
-         * reallocating an existing CDS.
+         * special alt-success code when reallocating
+         * an existing CDS without changing
+         * any block allocations.
          *
-         * Note this intentionally needs to return CFE_SUCCESS
+         * Note this intentionally does NOT return this code
          * when reusing an exiting entry but changing the size.
          */
-        Status = CFE_ES_CDS_ALREADY_EXISTS;
+        FinalStatus = CFE_ES_CDS_ALREADY_EXISTS;
     }
 
-    *HandlePtr = CFE_ES_CDSHANDLE_C(PendingBlockId);
+    /* determine which status code should be returned as the final status */
+    /* if everything worked all of these will be CFE_SUCCESS */
+    if (FinalStatus == CFE_SUCCESS)
+    {
+        FinalStatus = AllocStatus;
+    }
+    if (FinalStatus == CFE_SUCCESS)
+    {
+        FinalStatus = RegUpdateStatus;
+    }
+
+    return FinalStatus;
+}
+
+/*----------------------------------------------------------------
+ *
+ * Implemented per public API
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+CFE_Status_t
+CFE_ES_RegisterCDSEx(CFE_ES_CDSHandle_t *HandlePtr, size_t UserBlockSize, const char *Name, bool CriticalTbl)
+{
+    CFE_ES_CDS_RegistrationContext_t Ctxt;
+    CFE_Status_t                     Status;
+    CFE_Status_t                     RegUpdateStatus;
+
+    memset(&Ctxt, 0, sizeof(Ctxt));
+
+    /* Basic sanity check of request */
+    if (UserBlockSize == 0 || UserBlockSize > CDS_ABS_MAX_BLOCK_SIZE)
+    {
+        /* Block size is not supportable */
+        Status = CFE_ES_CDS_INVALID_SIZE;
+    }
+    else
+    {
+        /* Lock Registry for update.  This prevents two applications from */
+        /* trying to register CDSs at the same location at the same time  */
+        CFE_ES_LockCDS();
+
+        /*
+         * Set up all pointers/values in the context.  This locates the an existing
+         * registry entry or finds an unused one.  If an unused one is found, it
+         * is NOT marked as used (yet).  Only a pointer to the entry is obtained.
+         * This way we can simply drop the pointer if a future step does not succeed.
+         *
+         * Either way, if this returns CFE_SUCCESS, it means that the RegRecPtr
+         * within the context object is non-NULL and points to an entry that will
+         * be used in the rest of the operation.
+         *
+         * Since this is operating via a pointer, the lock must be held for the
+         * remainder of the operation until it is finalized.
+         */
+        Status = CFE_ES_RegisterCDS_Setup(&Ctxt, UserBlockSize, Name, CriticalTbl);
+
+        if (Status == CFE_SUCCESS)
+        {
+            /*
+             * [Re-]Allocate pool block.  This may be a no-op if the reusing a block and the
+             * size has not changed.  Otherwise it will free the existing block if needed,
+             * and allocate an appropriately-sized block.
+             *
+             * If this returns successfully, it means we have an appropriately-sized block
+             */
+            Status = CFE_ES_RegisterCDS_AllocateBlock(&Ctxt);
+        }
+
+        /*
+         * Note: If this is unsuccessful at this point, if it was a new entry then
+         * it was not (yet) marked as used -- its still free in the registry.  So
+         * doing nothing here will effectively drop it.
+         */
+        if (Status == CFE_SUCCESS)
+        {
+            /* Update all relevant values in the CDS registry and commit.
+             * The status is kept separate because this only is used for
+             * sending informational events */
+            RegUpdateStatus = CFE_ES_RegisterCDS_UpdateRegistry(&Ctxt);
+        }
+        else
+        {
+            /* nothing to do */
+            RegUpdateStatus = CFE_SUCCESS;
+        }
+
+        /* now that any changes are committed, the CDS can be unlocked, but
+         * The registry pointer shouldn't be used after this */
+        CFE_ES_UnlockCDS();
+
+        /* This sends any relevent events, and also scrubs the return value
+         * to make it backward compatible with historical implementations of
+         * this function. */
+        Status = CFE_ES_RegisterCDS_SendEvents(&Ctxt, Status, RegUpdateStatus);
+    }
+
+    /* Export the handle regardless of status code.  Note that the initial memset
+     * above will make this into the UNDEFINED memhandle value unless we got to
+     * the point in allocation where we have a valid ID. */
+    *HandlePtr = CFE_ES_CDSHANDLE_C(Ctxt.PendingBlockId);
 
     return Status;
 }
