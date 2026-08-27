@@ -245,15 +245,20 @@ CFE_TBL_LoadContentFromFile(CFE_TBL_TxnState_t *Txn, osal_id_t FileDescriptor, s
         return Status;
     }
 
-    /* Confirm that the data about to be loaded will fit */
-    LoadTailSize = Offset + NumBytes;
-    if (LoadTailSize > CFE_TBL_LoadBuffGetAllocSize(WorkingBufferPtr))
+    /* Confirm that the data about to be loaded will fit.
+     * Use an overflow-safe check: on 32-bit targets (ARM/SPARC/PPC RTEMS)
+     * `Offset + NumBytes` can wrap around and bypass the bounds check
+     * (CVE-2026-5476, Site 2). Test each operand against the buffer size
+     * instead of summing them first, so the comparison can never wrap. */
+    size_t BufSize = CFE_TBL_LoadBuffGetAllocSize(WorkingBufferPtr);
+    LoadTailSize   = Offset + NumBytes; /* retained only for the event log */
+    if (NumBytes > BufSize || Offset > BufSize - NumBytes)
     {
         Status = CFE_TBL_ERR_FILE_TOO_LARGE;
         CFE_TBL_TxnAddEvent(Txn,
                             CFE_TBL_FILE_TOO_BIG_ERR_EID,
                             LoadTailSize,
-                            CFE_TBL_LoadBuffGetAllocSize(WorkingBufferPtr));
+                            BufSize);
     }
     else
     {
