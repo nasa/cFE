@@ -357,7 +357,9 @@ int32 CFE_ES_ParseFileEntry(const char **TokenList, uint32 NumTokens)
     */
     if (NumTokens < 8)
     {
-        CFE_ES_WriteToSysLog("%s: Invalid ES Startup file entry: %u\n", __func__, (unsigned int)NumTokens);
+        CFE_ES_WriteToSysLog("%s: Invalid ES Startup file entry: NumTokens = %u, expected at least 8\n",
+                             __func__,
+                             (unsigned int)NumTokens);
         return CFE_ES_BAD_ARGUMENT;
     }
 
