@@ -193,7 +193,12 @@ int32 CFE_SB_MessageStringSet(char       *DestStringPtr,
 {
     int32 Result;
 
-    if (SourceStringPtr == NULL || DestStringPtr == NULL)
+    /*
+     * Error in caller if DestMaxSize == 0.
+     * Cannot terminate the string, since there is no place for the NUL
+     * In this case, do nothing
+     */
+    if (DestMaxSize == 0 || SourceStringPtr == NULL || DestStringPtr == NULL)
     {
         Result = CFE_SB_BAD_ARGUMENT;
     }
@@ -201,7 +206,17 @@ int32 CFE_SB_MessageStringSet(char       *DestStringPtr,
     {
         Result = 0;
 
-        while (SourceMaxSize > 0 && *SourceStringPtr != 0 && DestMaxSize > 0)
+        /*
+         * Stop copying with at least 1 character of space left in the
+         * destination, so the NUL terminator below always has room.
+         * Without this, a source buffer with no NUL character within
+         * the first DestMaxSize bytes (permitted per this function's
+         * documented contract, which does not require the source to
+         * be NUL terminated) would leave DestStringPtr completely
+         * filled with non-NUL data and not NUL terminated anywhere
+         * within its bounds.
+         */
+        while (SourceMaxSize > 0 && *SourceStringPtr != 0 && DestMaxSize > 1)
         {
             *DestStringPtr = *SourceStringPtr;
             ++DestStringPtr;
@@ -213,7 +228,11 @@ int32 CFE_SB_MessageStringSet(char       *DestStringPtr,
 
         /*
          * Pad the remaining space with NUL chars,
-         * but this should NOT be included in the final size
+         * but this should NOT be included in the final size.
+         * Because the loop above always leaves at least 1 byte
+         * of destination space remaining, this unconditionally
+         * NUL terminates the destination, even when the source
+         * data had to be truncated to fit.
          */
         while (DestMaxSize > 0)
         {

@@ -5267,6 +5267,7 @@ void Test_MessageString(void)
                       CFE_SB_BAD_ARGUMENT);
     UtAssert_INT32_EQ(CFE_SB_MessageStringSet(DestString, NULL, sizeof(DestString), sizeof(SrcString)),
                       CFE_SB_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_SB_MessageStringSet(DestString, SrcString, 0, sizeof(SrcString)), CFE_SB_BAD_ARGUMENT);
     UtAssert_INT32_EQ(CFE_SB_MessageStringGet(NULL, SrcString, DefString, sizeof(DestString), sizeof(SrcString)),
                       CFE_SB_BAD_ARGUMENT);
     UtAssert_INT32_EQ(CFE_SB_MessageStringGet(DestString, SrcString, DefString, 0, sizeof(SrcString)),
@@ -5289,7 +5290,17 @@ void Test_MessageString(void)
     strcpy(SrcString, "abcdefg");
     memset(DestString, 'q', sizeof(DestString));
     CFE_SB_MessageStringSet(DestString, SrcString, 4, sizeof(SrcString));
-    UtAssert_STRINGBUF_EQ(DestString, 4, SrcString, 4);
+    UtAssert_STRINGBUF_EQ(DestString, sizeof(DestString), "abc", UTASSERT_STRINGBUF_NULL_TERM);
+    /* Confirm the destination is left NUL terminated within its 4 byte
+     * allotment, even though the source string had to be truncated to fit */
+    UtAssert_UINT8_EQ(DestString[3], 0);
+
+    /* Test setting string where the source has no NUL character within
+     * the destination size (source is not required to be NUL terminated) */
+    memset(SrcString, 'z', sizeof(SrcString));
+    memset(DestString, 'q', sizeof(DestString));
+    CFE_SB_MessageStringSet(DestString, SrcString, sizeof(DestString), sizeof(SrcString));
+    UtAssert_UINT8_EQ(DestString[sizeof(DestString) - 1], 0);
 
     /* Test getting string where the destination size > source string size */
     strcpy(SrcString, "abcdefg");
