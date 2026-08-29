@@ -29,9 +29,5 @@
 #include "target_objtab.h"
 #include "cfe_fs_core_internal.h"
 
-const Target_ObjectTable_t CFE_FS_ModuleEntry = { .Name      = "CFE_FS",
-                                                  .EarlyInit = CFE_FS_EarlyInit,
-                                                  .TaskMain  = NULL, /* library module - no task */
-                                                  .Cleanup   = NULL,
-                                                  .Priority  = 0,
-                                                  .StackSize = 0 };
+/* this is a core library module with no task, but it does have a global data struct */
+const Target_ObjectTable_t CFE_FS_ModuleEntry = { .Name = "CFE_FS", .EarlyInit = CFE_FS_EarlyInit };

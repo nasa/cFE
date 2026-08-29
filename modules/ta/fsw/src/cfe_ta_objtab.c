@@ -30,9 +30,9 @@
 #include "cfe_ta_platform_cfg.h"
 #include "cfe_ta_task.h"
 
-const Target_ObjectTable_t CFE_TA_ModuleEntry = { .Name      = "CFE_TA",
-                                                  .EarlyInit = CFE_TA_EarlyInit,
-                                                  .TaskMain  = CFE_TA_TaskMain,
-                                                  .Cleanup   = CFE_TA_CleanUpApp,
-                                                  .Priority  = CFE_PLATFORM_TA_START_TASK_PRIORITY,
-                                                  .StackSize = CFE_PLATFORM_TA_START_TASK_STACK_SIZE };
+const Target_ObjectTable_t CFE_TA_ModuleEntry = { .Name         = "CFE_TA",
+                                                  .EarlyInit    = CFE_TA_EarlyInit,
+                                                  .TaskMain     = CFE_TA_TaskMain,
+                                                  .AppCleanupCb = CFE_TA_CleanUpApp,
+                                                  .Priority     = CFE_PLATFORM_TA_START_TASK_PRIORITY,
+                                                  .StackSize    = CFE_PLATFORM_TA_START_TASK_STACK_SIZE };

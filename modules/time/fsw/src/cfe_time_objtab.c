@@ -30,9 +30,9 @@
 #include "cfe_es_internal_cfg.h"
 #include "cfe_time_platform_cfg.h"
 
-const Target_ObjectTable_t CFE_TIME_ModuleEntry = { .Name      = "CFE_TIME",
-                                                    .EarlyInit = CFE_TIME_EarlyInit,
-                                                    .TaskMain  = CFE_TIME_TaskMain,
-                                                    .Cleanup   = CFE_TIME_CleanUpApp,
-                                                    .Priority  = CFE_PLATFORM_TIME_START_TASK_PRIORITY,
-                                                    .StackSize = CFE_PLATFORM_TIME_START_TASK_STACK_SIZE };
+const Target_ObjectTable_t CFE_TIME_ModuleEntry = { .Name         = "CFE_TIME",
+                                                    .EarlyInit    = CFE_TIME_EarlyInit,
+                                                    .TaskMain     = CFE_TIME_TaskMain,
+                                                    .AppCleanupCb = CFE_TIME_CleanUpApp,
+                                                    .Priority     = CFE_PLATFORM_TIME_START_TASK_PRIORITY,
+                                                    .StackSize    = CFE_PLATFORM_TIME_START_TASK_STACK_SIZE };

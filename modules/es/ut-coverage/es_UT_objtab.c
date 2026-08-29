@@ -47,65 +47,58 @@ extern int32 CFE_FS_EarlyInit(void);
 
 extern int32 CFE_Config_Init(void);
 
-const Target_ObjectTable_t CFE_EVS_ModuleEntry = { .Name      = "CFE_EVS",
-                                                   .EarlyInit = CFE_EVS_EarlyInit,
-                                                   .TaskMain  = CFE_EVS_TaskMain,
-                                                   .Cleanup   = CFE_EVS_CleanUpApp,
-                                                   .Priority  = 64,
-                                                   .StackSize = 8192 };
+const Target_ObjectTable_t CFE_EVS_ModuleEntry = { .Name         = "CFE_EVS",
+                                                   .EarlyInit    = CFE_EVS_EarlyInit,
+                                                   .TaskMain     = CFE_EVS_TaskMain,
+                                                   .AppCleanupCb = CFE_EVS_CleanUpApp,
+                                                   .Priority     = 64,
+                                                   .StackSize    = 8192 };
 
-const Target_ObjectTable_t CFE_SB_ModuleEntry = { .Name      = "CFE_SB",
-                                                  .EarlyInit = CFE_SB_EarlyInit,
-                                                  .TaskMain  = CFE_SB_TaskMain,
-                                                  .Cleanup   = CFE_SB_CleanUpApp,
-                                                  .Priority  = 64,
-                                                  .StackSize = 8192 };
+const Target_ObjectTable_t CFE_SB_ModuleEntry = { .Name         = "CFE_SB",
+                                                  .EarlyInit    = CFE_SB_EarlyInit,
+                                                  .TaskMain     = CFE_SB_TaskMain,
+                                                  .AppCleanupCb = CFE_SB_CleanUpApp,
+                                                  .Priority     = 64,
+                                                  .StackSize    = 8192 };
 
 const Target_ObjectTable_t CFE_TIME_ModuleEntry = { .Name      = "CFE_TIME",
                                                     .EarlyInit = CFE_TIME_EarlyInit,
                                                     .TaskMain  = CFE_TIME_TaskMain,
-                                                    .Cleanup   = NULL,
                                                     .Priority  = 64,
                                                     .StackSize = 8192 };
 
 const Target_ObjectTable_t CFE_TBL_ModuleEntry = { .Name      = "CFE_TBL",
                                                    .EarlyInit = CFE_TBL_EarlyInit,
                                                    .TaskMain  = CFE_TBL_TaskMain,
-                                                   .Cleanup   = NULL,
                                                    .Priority  = 64,
                                                    .StackSize = 8192 };
 
 const Target_ObjectTable_t CFE_FS_ModuleEntry = { .Name      = "CFE_FS",
                                                   .EarlyInit = CFE_FS_EarlyInit,
                                                   .TaskMain  = NULL,
-                                                  .Cleanup   = NULL,
                                                   .Priority  = 0,
                                                   .StackSize = 0 };
 
 const Target_ObjectTable_t CFE_CONFIG_ModuleEntry = { .Name      = "CFE_CONFIG",
                                                       .EarlyInit = CFE_Config_Init,
                                                       .TaskMain  = NULL,
-                                                      .Cleanup   = NULL,
                                                       .Priority  = 0,
                                                       .StackSize = 0 };
 
 const Target_ObjectTable_t CFE_MSG_ModuleEntry = { .Name      = "CFE_MSG",
                                                    .EarlyInit = NULL,
                                                    .TaskMain  = NULL,
-                                                   .Cleanup   = NULL,
                                                    .Priority  = 0,
                                                    .StackSize = 0 };
 
 const Target_ObjectTable_t CFE_SBR_ModuleEntry = { .Name      = "CFE_SBR",
                                                    .EarlyInit = NULL,
                                                    .TaskMain  = NULL,
-                                                   .Cleanup   = NULL,
                                                    .Priority  = 0,
                                                    .StackSize = 0 };
 
 const Target_ObjectTable_t CFE_RESOURCEID_ModuleEntry = { .Name      = "CFE_RESOURCEID",
                                                           .EarlyInit = NULL,
                                                           .TaskMain  = NULL,
-                                                          .Cleanup   = NULL,
                                                           .Priority  = 0,
                                                           .StackSize = 0 };
