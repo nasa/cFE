@@ -1,4 +1,4 @@
-/************************************************************************
+﻿/************************************************************************
  * NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
  *
  * Copyright (c) 2023 United States Government as represented by the
@@ -185,7 +185,22 @@ CFE_Status_t CFE_EVS_SendEventWithAppID(uint16                   EventID,
     AppDataPtr = EVS_GetAppDataByID(AppID);
     if (AppDataPtr == NULL)
     {
-        Status = CFE_EVS_APP_ILLEGAL_APP_ID;
+        /*
+         * Check if the AppId is the caller's own AppId (e.g. during cFE startup
+         * when ES/EVS tasks initialize before full registration). In this case,
+         * allow the event to proceed rather than returning ILLEGAL_APP_ID.
+         */
+        CFE_ES_AppId_t callerAppId;
+        EVS_AppData_t *callerAppData;
+        int32 status = EVS_GetCurrentContext(&callerAppData, &callerAppId);
+        if (status == CFE_SUCCESS && callerAppData != NULL && CFE_RESOURCEID_TEST_EQUAL\(callerAppId, AppID\))
+        {
+            Status = CFE_SUCCESS;
+        }
+        else
+        {
+            Status = CFE_EVS_APP_ILLEGAL_APP_ID;
+        }
     }
     else if (!EVS_AppDataIsMatch(AppDataPtr, AppID))
     {
@@ -334,3 +349,4 @@ CFE_Status_t CFE_EVS_ResetAllFilters(void)
 
     return Status;
 }
+
