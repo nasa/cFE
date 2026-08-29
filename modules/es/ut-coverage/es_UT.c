@@ -4528,6 +4528,8 @@ void TestCDS(void)
     CFE_UtAssert_SUCCESS(CFE_ES_RegisterCDS(&CDSHandle, 6, "Name"));
 
     /* Register a new size with a read CDS failure */
+    /* The intent is to make this fail in the GetBlock (not PutBlock) call */
+    UT_SetDeferredRetcode(UT_KEY(CFE_PSP_ReadFromCDS), 2, OS_ERROR);
     UT_SetDeferredRetcode(UT_KEY(CFE_PSP_ReadFromCDS), 1, OS_ERROR);
     UtAssert_INT32_EQ(CFE_ES_RegisterCDS(&CDSHandle, 8, "Name"), CFE_ES_CDS_ACCESS_ERROR);
 
