@@ -348,34 +348,47 @@ int32 CFE_ES_StartAppTask(CFE_ES_TaskId_t                *TaskIdPtr,
          */
         LocalTaskId = CFE_ES_TaskId_FromOSAL(OsalTaskId);
         TaskRecPtr  = CFE_ES_LocateTaskRecordByID(LocalTaskId);
-        if (CFE_ES_TaskRecordIsUsed(TaskRecPtr))
+
+        if (TaskRecPtr == NULL)
         {
-            CFE_ES_SysLogWrite_Unsync("%s: Error: ES_TaskTable slot for ID %lx in use at task creation!\n",
+            CFE_ES_SysLogWrite_Unsync("%s: Error: No task record slot available for ID %lx\n",
                                       __func__,
                                       OS_ObjectIdToInteger(OsalTaskId));
+            OS_TaskDelete(OsalTaskId);
+            ReturnCode = CFE_ES_NO_RESOURCE_IDS_AVAILABLE;
+            *TaskIdPtr = CFE_ES_TASKID_UNDEFINED;
         }
+        else
+        {
+            if (CFE_ES_TaskRecordIsUsed(TaskRecPtr))
+            {
+                CFE_ES_SysLogWrite_Unsync("%s: Error: ES_TaskTable slot for ID %lx in use at task creation!\n",
+                                          __func__,
+                                          OS_ObjectIdToInteger(OsalTaskId));
+            }
 
-        /*
-         * Clear any other/stale data that might be in the entry,
-         * and reset all fields to the correct value.
-         */
-        memset(TaskRecPtr, 0, sizeof(*TaskRecPtr));
+            /*
+             * Clear any other/stale data that might be in the entry,
+             * and reset all fields to the correct value.
+             */
+            memset(TaskRecPtr, 0, sizeof(*TaskRecPtr));
 
-        TaskRecPtr->AppId       = ParentAppId;
-        TaskRecPtr->EntryFunc   = EntryFunc;
-        TaskRecPtr->StartParams = *Params;
+            TaskRecPtr->AppId       = ParentAppId;
+            TaskRecPtr->EntryFunc   = EntryFunc;
+            TaskRecPtr->StartParams = *Params;
 
-        strncpy(TaskRecPtr->TaskName, TaskName, sizeof(TaskRecPtr->TaskName) - 1);
-        TaskRecPtr->TaskName[sizeof(TaskRecPtr->TaskName) - 1] = 0;
+            strncpy(TaskRecPtr->TaskName, TaskName, sizeof(TaskRecPtr->TaskName) - 1);
+            TaskRecPtr->TaskName[sizeof(TaskRecPtr->TaskName) - 1] = 0;
 
-        CFE_ES_TaskRecordSetUsed(TaskRecPtr, CFE_RESOURCEID_UNWRAP(LocalTaskId));
+            CFE_ES_TaskRecordSetUsed(TaskRecPtr, CFE_RESOURCEID_UNWRAP(LocalTaskId));
 
-        /*
-         * Increment the registered Task count.
-         */
-        CFE_ES_Global.RegisteredTasks++;
-        ReturnCode = CFE_SUCCESS;
-        *TaskIdPtr = CFE_ES_TaskRecordGetID(TaskRecPtr);
+            /*
+             * Increment the registered Task count.
+             */
+            CFE_ES_Global.RegisteredTasks++;
+            ReturnCode = CFE_SUCCESS;
+            *TaskIdPtr = CFE_ES_TaskRecordGetID(TaskRecPtr);
+        }
     }
     else
     {
