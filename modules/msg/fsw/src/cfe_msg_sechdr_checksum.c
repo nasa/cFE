@@ -43,7 +43,8 @@ CFE_MSG_Checksum_t CFE_MSG_ComputeCheckSum(const CFE_MSG_Message_t *MsgPtr)
 
     while (PktLen--)
     {
-        chksum ^= *(BytePtr++);
+        chksum ^= *(BytePtr);
+        BytePtr++;
     }
 
     return chksum;
