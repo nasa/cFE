@@ -118,22 +118,37 @@ void CFE_TIME_TaskMain(void)
 
 /*----------------------------------------------------------------
  *
- * Application-scope internal function
- * See description in header file for argument/return detail
+ * Local helper function
+ * Subscribes the command pipe to one of the "time at the tone" messages
+ * A time client subscribes globally, a time server subscribes locally.
+ * Note that cfe_time_verify.h enforces that exactly one of
+ * CFE_PLATFORM_TIME_CFG_CLIENT / CFE_PLATFORM_TIME_CFG_SERVER is true.
  *
  *-----------------------------------------------------------------*/
-int32 CFE_TIME_TaskInit(void)
+static int32 CFE_TIME_TaskInit_SubscribeTone(CFE_SB_MsgId_t MsgId)
 {
-    int32     Status;
-    int32     OsStatus;
-    osal_id_t TimeBaseId;
-    osal_id_t TimerId;
-    char      VersionString[CFE_CFG_MAX_VERSION_STR_LEN];
+#if (CFE_PLATFORM_TIME_CFG_CLIENT == true)
+    return CFE_SB_Subscribe(MsgId, CFE_TIME_Global.CmdPipe);
+#else
+    return CFE_SB_SubscribeLocal(MsgId, CFE_TIME_Global.CmdPipe, CFE_PLATFORM_SB_DEFAULT_MSG_LIMIT);
+#endif
+}
+
+/*----------------------------------------------------------------
+ *
+ * Local helper function
+ * Registers for events and creates the semaphores and child tasks
+ *
+ *-----------------------------------------------------------------*/
+static int32 CFE_TIME_TaskInit_CreateResources(const char *LogFunction)
+{
+    int32 Status;
+    int32 OsStatus;
 
     Status = CFE_EVS_Register(NULL, 0, 0);
     if (Status != CFE_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("%s: Call to CFE_EVS_Register Failed:RC=0x%08X\n", __func__, (unsigned int)Status);
+        CFE_ES_WriteToSysLog("%s: Call to CFE_EVS_Register Failed:RC=0x%08X\n", LogFunction, (unsigned int)Status);
         return Status;
     }
 
@@ -143,7 +158,7 @@ int32 CFE_TIME_TaskInit(void)
                                CFE_TIME_SEM_OPTIONS);
     if (OsStatus != OS_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("%s: Error creating tone semaphore:RC=%ld\n", __func__, (long)OsStatus);
+        CFE_ES_WriteToSysLog("%s: Error creating tone semaphore:RC=%ld\n", LogFunction, (long)OsStatus);
         return CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
     }
 
@@ -153,7 +168,7 @@ int32 CFE_TIME_TaskInit(void)
                                CFE_TIME_SEM_OPTIONS);
     if (OsStatus != OS_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("%s: Error creating local semaphore:RC=%ld\n", __func__, (long)OsStatus);
+        CFE_ES_WriteToSysLog("%s: Error creating local semaphore:RC=%ld\n", LogFunction, (long)OsStatus);
         return CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
     }
 
@@ -166,7 +181,7 @@ int32 CFE_TIME_TaskInit(void)
                                     CFE_TIME_TASK_FLAGS);
     if (Status != CFE_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("%s: Error creating tone 1Hz child task:RC=0x%08X\n", __func__, (unsigned int)Status);
+        CFE_ES_WriteToSysLog("%s: Error creating tone 1Hz child task:RC=0x%08X\n", LogFunction, (unsigned int)Status);
         return Status;
     }
 
@@ -179,77 +194,65 @@ int32 CFE_TIME_TaskInit(void)
                                     CFE_TIME_TASK_FLAGS);
     if (Status != CFE_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("%s: Error creating local 1Hz child task:RC=0x%08X\n", __func__, (unsigned int)Status);
+        CFE_ES_WriteToSysLog("%s: Error creating local 1Hz child task:RC=0x%08X\n", LogFunction, (unsigned int)Status);
         return Status;
     }
+
+    return CFE_SUCCESS;
+}
+
+/*----------------------------------------------------------------
+ *
+ * Local helper function
+ * Creates the command pipe and subscribes to all Time task messages
+ *
+ *-----------------------------------------------------------------*/
+static int32 CFE_TIME_TaskInit_SubscribeMsgs(const char *LogFunction)
+{
+    int32 Status;
 
     Status = CFE_SB_CreatePipe(&CFE_TIME_Global.CmdPipe, CFE_TIME_TASK_PIPE_DEPTH, CFE_TIME_TASK_PIPE_NAME);
     if (Status != CFE_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("%s: Error creating cmd pipe:RC=0x%08X\n", __func__, (unsigned int)Status);
+        CFE_ES_WriteToSysLog("%s: Error creating cmd pipe:RC=0x%08X\n", LogFunction, (unsigned int)Status);
         return Status;
     }
 
     Status = CFE_SB_Subscribe(CFE_SB_ValueToMsgId(CFE_TIME_SEND_HK_MID), CFE_TIME_Global.CmdPipe);
     if (Status != CFE_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("%s: Error subscribing to HK Request:RC=0x%08X\n", __func__, (unsigned int)Status);
+        CFE_ES_WriteToSysLog("%s: Error subscribing to HK Request:RC=0x%08X\n", LogFunction, (unsigned int)Status);
         return Status;
     }
 
-/*
-** Subscribe to time at the tone "signal" commands...
-*/
-#if (CFE_PLATFORM_TIME_CFG_CLIENT == true)
-    Status = CFE_SB_Subscribe(CFE_SB_ValueToMsgId(CFE_TIME_TONE_CMD_MID), CFE_TIME_Global.CmdPipe);
-#endif
-
-#if (CFE_PLATFORM_TIME_CFG_SERVER == true)
-    Status = CFE_SB_SubscribeLocal(CFE_SB_ValueToMsgId(CFE_TIME_TONE_CMD_MID),
-                                   CFE_TIME_Global.CmdPipe,
-                                   CFE_PLATFORM_SB_DEFAULT_MSG_LIMIT);
-#endif
+    /*
+    ** Subscribe to time at the tone "signal" commands...
+    */
+    Status = CFE_TIME_TaskInit_SubscribeTone(CFE_SB_ValueToMsgId(CFE_TIME_TONE_CMD_MID));
     if (Status != CFE_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("%s: Error subscribing to tone cmd:RC=0x%08X\n", __func__, (unsigned int)Status);
+        CFE_ES_WriteToSysLog("%s: Error subscribing to tone cmd:RC=0x%08X\n", LogFunction, (unsigned int)Status);
         return Status;
     }
 
-/*
-** Subscribe to time at the tone "data" commands...
-*/
-#if (CFE_PLATFORM_TIME_CFG_CLIENT == true)
-    Status = CFE_SB_Subscribe(CFE_SB_ValueToMsgId(CFE_TIME_DATA_CMD_MID), CFE_TIME_Global.CmdPipe);
-#endif
-
-#if (CFE_PLATFORM_TIME_CFG_SERVER == true)
-    Status = CFE_SB_SubscribeLocal(CFE_SB_ValueToMsgId(CFE_TIME_DATA_CMD_MID),
-                                   CFE_TIME_Global.CmdPipe,
-                                   CFE_PLATFORM_SB_DEFAULT_MSG_LIMIT);
-#endif
+    /*
+    ** Subscribe to time at the tone "data" commands...
+    */
+    Status = CFE_TIME_TaskInit_SubscribeTone(CFE_SB_ValueToMsgId(CFE_TIME_DATA_CMD_MID));
     if (Status != CFE_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("%s: Error subscribing to time data cmd:RC=0x%08X\n", __func__, (unsigned int)Status);
+        CFE_ES_WriteToSysLog("%s: Error subscribing to time data cmd:RC=0x%08X\n", LogFunction, (unsigned int)Status);
         return Status;
     }
 
-/*
-** Subscribe to 1Hz signal commands...
-*/
-#if (CFE_PLATFORM_TIME_CFG_CLIENT == true)
-    Status = CFE_SB_Subscribe(CFE_SB_ValueToMsgId(CFE_TIME_ONEHZ_CMD_MID), CFE_TIME_Global.CmdPipe);
-#endif
-
-#if (CFE_PLATFORM_TIME_CFG_SERVER == true)
-    Status = CFE_SB_SubscribeLocal(CFE_SB_ValueToMsgId(CFE_TIME_ONEHZ_CMD_MID),
-                                   CFE_TIME_Global.CmdPipe,
-                                   CFE_PLATFORM_SB_DEFAULT_MSG_LIMIT);
-#endif
-
+    /*
+    ** Subscribe to 1Hz signal commands...
+    */
+    Status = CFE_TIME_TaskInit_SubscribeTone(CFE_SB_ValueToMsgId(CFE_TIME_ONEHZ_CMD_MID));
     if (Status != CFE_SUCCESS)
     {
         CFE_ES_WriteToSysLog("%s: Error subscribing to fake tone signal cmds:RC=0x%08X\n",
-                             __func__,
+                             LogFunction,
                              (unsigned int)Status);
         return Status;
     }
@@ -262,7 +265,7 @@ int32 CFE_TIME_TaskInit(void)
     if (Status != CFE_SUCCESS)
     {
         CFE_ES_WriteToSysLog("%s: Error subscribing to time at the tone request data cmds:RC=0x%08X\n",
-                             __func__,
+                             LogFunction,
                              (unsigned int)Status);
         return Status;
     }
@@ -274,9 +277,25 @@ int32 CFE_TIME_TaskInit(void)
     Status = CFE_SB_Subscribe(CFE_SB_ValueToMsgId(CFE_TIME_CMD_MID), CFE_TIME_Global.CmdPipe);
     if (Status != CFE_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("%s: Error subscribing to time task gnd cmds:RC=0x%08X\n", __func__, (unsigned int)Status);
+        CFE_ES_WriteToSysLog("%s: Error subscribing to time task gnd cmds:RC=0x%08X\n",
+                             LogFunction,
+                             (unsigned int)Status);
         return Status;
     }
+
+    return CFE_SUCCESS;
+}
+
+/*----------------------------------------------------------------
+ *
+ * Local helper function
+ * Sends the Time task initialization event
+ *
+ *-----------------------------------------------------------------*/
+static int32 CFE_TIME_TaskInit_SendInitEvent(const char *LogFunction)
+{
+    int32 Status;
+    char  VersionString[CFE_CFG_MAX_VERSION_STR_LEN];
 
     CFE_Config_GetVersionString(VersionString,
                                 CFE_CFG_MAX_VERSION_STR_LEN,
@@ -288,7 +307,78 @@ int32 CFE_TIME_TaskInit(void)
         CFE_EVS_SendEvent(CFE_TIME_INIT_EID, CFE_EVS_EventType_INFORMATION, "cFE TIME Initialized: %s", VersionString);
     if (Status != CFE_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("%s: Error sending init event:RC=0x%08X\n", __func__, (unsigned int)Status);
+        CFE_ES_WriteToSysLog("%s: Error sending init event:RC=0x%08X\n", LogFunction, (unsigned int)Status);
+        return Status;
+    }
+
+    return CFE_SUCCESS;
+}
+
+/*----------------------------------------------------------------
+ *
+ * Local helper function
+ * Creates the 1Hz callback if the system time base is available
+ * Checks to see if the OSAL in use implements the TimeBase API and if the
+ * PSP has set up a system time base.  If so, then create a 1Hz callback
+ * based on that system time base.  The lookup should return
+ * OS_ERR_NOT_IMPLEMENTED if the OSAL does not support this, or
+ * OS_ERR_NAME_NOT_FOUND if the PSP didn't set this up.  Either way any
+ * error here means the PSP must use the "old way" and call the 1hz
+ * function directly, so the lookup failure is not reported.
+ *
+ *-----------------------------------------------------------------*/
+static void CFE_TIME_TaskInit_Setup1HzTimer(const char *LogFunction)
+{
+    int32     OsStatus;
+    osal_id_t TimeBaseId;
+    osal_id_t TimerId;
+
+    OsStatus = OS_TimeBaseGetIdByName(&TimeBaseId, "cFS-Master");
+    if (OsStatus != OS_SUCCESS)
+    {
+        return;
+    }
+
+    /* Create the 1Hz callback */
+    OsStatus = OS_TimerAdd(&TimerId, "cFS-1Hz", TimeBaseId, CFE_TIME_Local1HzTimerCallback, NULL);
+    if (OsStatus != OS_SUCCESS)
+    {
+        CFE_ES_WriteToSysLog("%s: 1Hz OS_TimerAdd failed:RC=%ld\n", LogFunction, (long)OsStatus);
+        return;
+    }
+
+    OsStatus = OS_TimerSet(TimerId, 500000, 1000000);
+    if (OsStatus != OS_SUCCESS)
+    {
+        CFE_ES_WriteToSysLog("%s: 1Hz OS_TimerSet failed:RC=%ld\n", LogFunction, (long)OsStatus);
+    }
+}
+
+/*----------------------------------------------------------------
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+int32 CFE_TIME_TaskInit(void)
+{
+    int32 Status;
+
+    Status = CFE_TIME_TaskInit_CreateResources(__func__);
+    if (Status != CFE_SUCCESS)
+    {
+        return Status;
+    }
+
+    Status = CFE_TIME_TaskInit_SubscribeMsgs(__func__);
+    if (Status != CFE_SUCCESS)
+    {
+        return Status;
+    }
+
+    Status = CFE_TIME_TaskInit_SendInitEvent(__func__);
+    if (Status != CFE_SUCCESS)
+    {
         return Status;
     }
 
@@ -299,33 +389,7 @@ int32 CFE_TIME_TaskInit(void)
     OS_SelectTone(CFE_TIME_Global.ClockSignal);
 #endif
 
-    /*
-     * Check to see if the OSAL in use implements the TimeBase API
-     * and if the PSP has set up a system time base.  If so, then create
-     * a 1Hz callback based on that system time base.  This call should
-     * return OS_ERR_NOT_IMPLEMENTED if the OSAL does not support this,
-     * or OS_ERR_NAME_NOT_FOUND if the PSP didn't set this up.  Either
-     * way any error here means the PSP must use the "old way" and call
-     * the 1hz function directly.
-     */
-    OsStatus = OS_TimeBaseGetIdByName(&TimeBaseId, "cFS-Master");
-    if (OsStatus == OS_SUCCESS)
-    {
-        /* Create the 1Hz callback */
-        OsStatus = OS_TimerAdd(&TimerId, "cFS-1Hz", TimeBaseId, CFE_TIME_Local1HzTimerCallback, NULL);
-        if (OsStatus == OS_SUCCESS)
-        {
-            OsStatus = OS_TimerSet(TimerId, 500000, 1000000);
-            if (OsStatus != OS_SUCCESS)
-            {
-                CFE_ES_WriteToSysLog("%s: 1Hz OS_TimerSet failed:RC=%ld\n", __func__, (long)OsStatus);
-            }
-        }
-        else
-        {
-            CFE_ES_WriteToSysLog("%s: 1Hz OS_TimerAdd failed:RC=%ld\n", __func__, (long)OsStatus);
-        }
-    }
+    CFE_TIME_TaskInit_Setup1HzTimer(__func__);
 
     return CFE_SUCCESS;
 }
