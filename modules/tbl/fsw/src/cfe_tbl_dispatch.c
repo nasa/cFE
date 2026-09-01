@@ -121,7 +121,7 @@ const CFE_TBL_CmdHandlerTblRec_t CFE_TBL_CmdHandlerTbl[] = {
                   CFE_TBL_CMD_MSGTYPE),
 
     /* list terminator (keep last) */
-    { 0, 0, 0, NULL, CFE_TBL_TERM_MSGTYPE }
+    { NULL, 0, 0, NULL, CFE_TBL_TERM_MSGTYPE }
 };
 
 /******************************************************************************/
