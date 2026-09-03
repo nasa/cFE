@@ -187,8 +187,8 @@ CFE_Status_t CFE_EVS_SendEventWithAppID(uint16                   EventID,
     {
         CFE_ES_AppId_t callerAppId;
         EVS_AppData_t *callerAppData;
-        if (EVS_GetCurrentContext(&callerAppData, &callerAppId) == CFE_SUCCESS &&
-            callerAppData != NULL && CFE_RESOURCEID_TEST_EQUAL(callerAppId, AppID))
+        if (EVS_GetCurrentContext(&callerAppData, &callerAppId) == CFE_SUCCESS && callerAppData != NULL
+            && CFE_RESOURCEID_TEST_EQUAL(callerAppId, AppID))
         {
             AppDataPtr = callerAppData;
         }
@@ -345,4 +345,3 @@ CFE_Status_t CFE_EVS_ResetAllFilters(void)
 
     return Status;
 }
-
