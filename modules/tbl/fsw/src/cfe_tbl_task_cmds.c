@@ -430,17 +430,20 @@ CFE_Status_t CFE_TBL_LoadCmd(const CFE_TBL_LoadCmd_t *data)
         }
 
         CFE_TBL_TxnUnlockRegistry(&Txn);
-    }
 
-    if (Status == CFE_SUCCESS)
-    {
-        Status = CFE_TBL_ValidateFileIsLoadable(&Txn, &Header.Tbl);
-    }
+        if (Status == CFE_SUCCESS)
+        {
+            Status = CFE_TBL_ValidateFileIsLoadable(&Txn, &Header.Tbl);
+        }
 
-    if (Status == CFE_SUCCESS)
-    {
-        /* Read the file content into the working buffer */
-        Status = CFE_TBL_LoadContentFromFile(&Txn, FileDescriptor, Header.Tbl.Offset, Header.Tbl.NumBytes);
+        if (Status == CFE_SUCCESS)
+        {
+            /* Read the file content into the working buffer */
+            Status = CFE_TBL_LoadContentFromFile(&Txn, FileDescriptor, Header.Tbl.Offset, Header.Tbl.NumBytes);
+        }
+
+        /* Done with the file now -- must always close the file regardless of what happened */
+        OS_close(FileDescriptor);
     }
 
     /* If all the above worked out, then set the meta info in the load buffer */
