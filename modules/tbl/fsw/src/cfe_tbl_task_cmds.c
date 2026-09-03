@@ -418,6 +418,8 @@ CFE_Status_t CFE_TBL_LoadCmd(const CFE_TBL_LoadCmd_t *data)
     Status = CFE_TBL_TxnOpenTableLoadFile(&Txn, LoadFilename, &FileDescriptor, &Header);
     if (Status == CFE_SUCCESS)
     {
+        /* NOTE: the FileDescriptor is valid and must be closed before leaving this block */
+
         /* Locate specified table in registry (wrapped in a lock) */
         /* NOTE: The header reading code ensures null term on the table name string, so its OK to pass direct */
         CFE_TBL_TxnLockRegistry(&Txn);
@@ -430,17 +432,20 @@ CFE_Status_t CFE_TBL_LoadCmd(const CFE_TBL_LoadCmd_t *data)
         }
 
         CFE_TBL_TxnUnlockRegistry(&Txn);
-    }
 
-    if (Status == CFE_SUCCESS)
-    {
-        Status = CFE_TBL_ValidateFileIsLoadable(&Txn, &Header.Tbl);
-    }
+        if (Status == CFE_SUCCESS)
+        {
+            Status = CFE_TBL_ValidateFileIsLoadable(&Txn, &Header.Tbl);
+        }
 
-    if (Status == CFE_SUCCESS)
-    {
-        /* Read the file content into the working buffer */
-        Status = CFE_TBL_LoadContentFromFile(&Txn, FileDescriptor, Header.Tbl.Offset, Header.Tbl.NumBytes);
+        if (Status == CFE_SUCCESS)
+        {
+            /* Read the file content into the working buffer */
+            Status = CFE_TBL_LoadContentFromFile(&Txn, FileDescriptor, Header.Tbl.Offset, Header.Tbl.NumBytes);
+        }
+
+        /* Done with the file now -- must always close the file regardless of what happened */
+        OS_close(FileDescriptor);
     }
 
     /* If all the above worked out, then set the meta info in the load buffer */
