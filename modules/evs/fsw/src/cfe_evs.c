@@ -185,22 +185,18 @@ CFE_Status_t CFE_EVS_SendEventWithAppID(uint16                   EventID,
     AppDataPtr = EVS_GetAppDataByID(AppID);
     if (AppDataPtr == NULL)
     {
-        /*
-         * Check if the AppId is the caller's own AppId (e.g. during cFE startup
-         * when ES/EVS tasks initialize before full registration). In this case,
-         * allow the event to proceed rather than returning ILLEGAL_APP_ID.
-         */
         CFE_ES_AppId_t callerAppId;
         EVS_AppData_t *callerAppData;
-        int32 status = EVS_GetCurrentContext(&callerAppData, &callerAppId);
-        if (status == CFE_SUCCESS && callerAppData != NULL && CFE_RESOURCEID_TEST_EQUAL\(callerAppId, AppID\))
+        if (EVS_GetCurrentContext(&callerAppData, &callerAppId) == CFE_SUCCESS &&
+            callerAppData != NULL && CFE_RESOURCEID_TEST_EQUAL(callerAppId, AppID))
         {
-            Status = CFE_SUCCESS;
+            AppDataPtr = callerAppData;
         }
-        else
-        {
-            Status = CFE_EVS_APP_ILLEGAL_APP_ID;
-        }
+    }
+
+    if (AppDataPtr == NULL)
+    {
+        Status = CFE_EVS_APP_ILLEGAL_APP_ID;
     }
     else if (!EVS_AppDataIsMatch(AppDataPtr, AppID))
     {
