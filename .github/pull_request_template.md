@@ -7,6 +7,7 @@ Click the `Preview` tab and select the pull request template corresponding to th
 **Checklist (Please check before submitting)**
 
 * [ ] I reviewed the [Contributing Guide](https://github.com/nasa/cFE/blob/main/CONTRIBUTING.md).
+* [ ] I reviewed the [Pull Request and Commit Guide](https://github.com/nasa/cFE/blob/dev/PULL_REQUEST_GUIDE.md).
 * [ ] I signed and emailed the appropriate [Contributor License Agreement](https://github.com/nasa/cFS/blob/main/CONTRIBUTING.md#contributor-license-agreement-cla) to GSFC-SoftwareRelease@mail.nasa.gov and copied cfs-program@lists.nasa.gov.
 
 **Describe the contribution**
@@ -38,4 +39,3 @@ If included, identify any third party code and provide text file of license
 **Contributor Info - All information REQUIRED for consideration of pull request**
 Full name and company/organization/center of all contributors ("Personal" if individual work)
  - Note CLAs apply to only software contributions.
- 
