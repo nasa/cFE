@@ -99,6 +99,13 @@ void CFE_TA_ProcessGroundCommand(const CFE_SB_Buffer_t *SBBufPtr, CFE_SB_MsgId_t
             }
             break;
 
+        case CFE_TA_QUERY_TASK_AFFINITY_CC:
+            if (CFE_TA_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_TA_QueryTaskAffinityCmd_t)))
+            {
+                CFE_TA_QueryTaskAffinityCmd((const CFE_TA_QueryTaskAffinityCmd_t *)SBBufPtr);
+            }
+            break;
+
         default:
             /* Unknown command code */
             CFE_EVS_SendEvent(CFE_TA_ERR_CC_EID,
