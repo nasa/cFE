@@ -948,7 +948,6 @@ int32 CFE_SB_SubscribeFull(CFE_SB_MsgId_t  MsgId,
     CFE_SB_DestinationD_t *DestPtr;
     uint32                 DestCount;
     char                   FullName[(OS_MAX_API_NAME * 2)];
-    char                   PipeName[OS_MAX_API_NAME];
     uint32                 Collisions;
     uint16                 PendingEventID;
 
@@ -1084,11 +1083,7 @@ int32 CFE_SB_SubscribeFull(CFE_SB_MsgId_t  MsgId,
     /* Send events now that the SB resources are unlocked */
     if (PendingEventID != 0)
     {
-        CFE_SB_GetPipeName(PipeName, sizeof(PipeName), PipeId);
-    }
-    else
-    {
-        PipeName[0] = 0; /* make empty string */
+        CFE_SB_IssueSubscribeEvents(PendingEventID, PipeId, MsgId, Scope);
     }
 
     /* If no other event pending, send a debug event indicating success */
