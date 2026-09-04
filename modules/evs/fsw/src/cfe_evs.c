@@ -1,4 +1,4 @@
-/************************************************************************
+﻿/************************************************************************
  * NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
  *
  * Copyright (c) 2023 United States Government as represented by the
@@ -183,6 +183,17 @@ CFE_Status_t CFE_EVS_SendEventWithAppID(uint16                   EventID,
     }
 
     AppDataPtr = EVS_GetAppDataByID(AppID);
+    if (AppDataPtr == NULL)
+    {
+        CFE_ES_AppId_t callerAppId;
+        EVS_AppData_t *callerAppData;
+        if (EVS_GetCurrentContext(&callerAppData, &callerAppId) == CFE_SUCCESS && callerAppData != NULL
+            && CFE_RESOURCEID_TEST_EQUAL(callerAppId, AppID))
+        {
+            AppDataPtr = callerAppData;
+        }
+    }
+
     if (AppDataPtr == NULL)
     {
         Status = CFE_EVS_APP_ILLEGAL_APP_ID;

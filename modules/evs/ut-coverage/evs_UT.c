@@ -274,6 +274,7 @@ void Test_IllegalAppID(void)
 {
     CFE_TIME_SysTime_t time = { 0, 0 };
     CFE_ES_AppId_t     AppID;
+    EVS_AppData_t     *CallerDataPtr;
 
     UtPrintf("Begin Test Illegal App ID");
 
@@ -328,6 +329,13 @@ void Test_IllegalAppID(void)
     UT_InitData_EVS();
     AppID = CFE_ES_APPID_C(CFE_ResourceId_FromInteger(CFE_PLATFORM_ES_MAX_APPLICATIONS));
     UtAssert_INT32_EQ(CFE_EVS_SendEventWithAppID(0, 0, AppID, "NULL"), CFE_EVS_APP_ILLEGAL_APP_ID);
+
+    /* Test caller-fallback: EVS_GetAppDataByID fails (first call) but caller IS the app.
+     * EVS_GetCurrentContext inside the fallback succeeds and IDs match → event is sent. */
+    UT_InitData_EVS();
+    EVS_GetCurrentContext(&CallerDataPtr, &AppID);
+    UT_SetDeferredRetcode(UT_KEY(CFE_ES_AppID_ToIndex), 1, CFE_ES_ERR_RESOURCEID_NOT_VALID);
+    CFE_UtAssert_SUCCESS(CFE_EVS_SendEventWithAppID(0, CFE_EVS_EventType_INFORMATION, AppID, "NULL"));
 }
 
 /*
