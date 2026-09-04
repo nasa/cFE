@@ -449,6 +449,13 @@ CFE_Status_t CFE_TBL_LoadCmd(const CFE_TBL_LoadCmd_t *data)
         CFE_TBL_SetMetaDataFromFileHeader(&Txn, LoadFilename, &Header.Std);
     }
 
+    /* Done with the file now -- must always close the file if it was opened,
+     * regardless of what happened, otherwise the file descriptor is leaked */
+    if (OS_ObjectIdDefined(FileDescriptor))
+    {
+        OS_close(FileDescriptor);
+    }
+
     CFE_TBL_TxnFinish(&Txn);
 
     if (Status == CFE_SUCCESS)
