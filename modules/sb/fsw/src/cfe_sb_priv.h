@@ -1519,6 +1519,21 @@ void CFE_SB_BackgroundFileEventHandler(void                   *Meta,
                                        size_t                  BlockSize,
                                        size_t                  Position);
 
+/*---------------------------------------------------------------------------------------
+**
+** \brief Local function that increments the subscription counters based on the Status
+**        of the subscribe function to that point
+*/
+void CFE_SB_IncrementSubscribeCounters(CFE_Status_t ErrorStatus);
+
+/*---------------------------------------------------------------------------------------
+**
+** \brief Local function that issues event for the subscribe function. The delay is to
+**        allow the lock on SB resource to be released, a lock that CFE_EVS_SendEvent-type
+**        functions need
+*/
+void CFE_SB_IssueSubscribeEvents(uint16 PendingEventID, CFE_SB_PipeId_t PipeId, CFE_SB_MsgId_t MsgId, uint16 Scope);
+
 /*
  * External variables private to the software bus module
  */
