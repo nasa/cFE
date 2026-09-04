@@ -70,10 +70,21 @@ typedef struct CFE_TA_GetTaskAffinityCmd
     CFE_TA_GetTaskAffinityCmd_Payload_t Payload;
 } CFE_TA_GetTaskAffinityCmd_t;
 
+typedef struct CFE_TA_QueryTaskAffinityCmd
+{
+    CFE_MSG_CommandHeader_t CommandHeader;
+} CFE_TA_QueryTaskAffinityCmd_t;
+
 typedef struct CFE_TA_HousekeepingTlm
 {
     CFE_MSG_TelemetryHeader_t        TelemetryHeader;
     CFE_TA_HousekeepingTlm_Payload_t Payload;
 } CFE_TA_HousekeepingTlm_t;
+
+typedef struct CFE_TA_AffinityTlm
+{
+    CFE_MSG_TelemetryHeader_t    TelemetryHeader;
+    CFE_TA_AffinityTlm_Payload_t Payload;
+} CFE_TA_AffinityTlm_t;
 
 #endif /* DEFAULT_CFE_TA_MSGSTRUCT_H */
