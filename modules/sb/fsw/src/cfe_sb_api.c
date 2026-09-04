@@ -1021,10 +1021,11 @@ int32 CFE_SB_SubscribeFull(CFE_SB_MsgId_t  MsgId,
         {
             ++DestCount;
 
-            /* Check if duplicate (status stays as CFE_SUCCESS) */
+            /* Check if duplicate, see documentation on CFE_SB_DUP_SUBSCRIP_ERR */
             if (CFE_RESOURCEID_TEST_EQUAL(DestPtr->PipeId, PipeId))
             {
                 PendingEventID = CFE_SB_DUP_SUBSCRIP_EID;
+                Status         = CFE_SB_DUP_SUBSCRIP_ERR;
                 break;
             }
 
@@ -1073,24 +1074,14 @@ int32 CFE_SB_SubscribeFull(CFE_SB_MsgId_t  MsgId,
     }
 
     /* Increment counter before unlock */
-    switch (PendingEventID)
+    if (PendingEventID != 0)
     {
-        case CFE_SB_SUB_INV_PIPE_EID:
-        case CFE_SB_SUB_INV_CALLER_EID:
-        case CFE_SB_SUB_ARG_ERR_EID:
-        case CFE_SB_MAX_MSGS_MET_EID:
-        case CFE_SB_DEST_BLK_ERR_EID:
-        case CFE_SB_MAX_DESTS_MET_EID:
-            CFE_SB_Global.HKTlmMsg.Payload.SubscribeErrorCounter++;
-            break;
-        case CFE_SB_DUP_SUBSCRIP_EID:
-            CFE_SB_Global.HKTlmMsg.Payload.DuplicateSubscriptionsCounter++;
-            break;
+        CFE_SB_IncrementSubscribeCounters(Status);
     }
 
     CFE_SB_UnlockSharedData(__func__, __LINE__);
 
-    /* Send events now - get the pipe name only if something is pending */
+    /* Send events now that the SB resources are unlocked */
     if (PendingEventID != 0)
     {
         CFE_SB_GetPipeName(PipeName, sizeof(PipeName), PipeId);
@@ -1098,83 +1089,6 @@ int32 CFE_SB_SubscribeFull(CFE_SB_MsgId_t  MsgId,
     else
     {
         PipeName[0] = 0; /* make empty string */
-    }
-
-    switch (PendingEventID)
-    {
-        case CFE_SB_DUP_SUBSCRIP_EID:
-            CFE_EVS_SendEventWithAppID(CFE_SB_DUP_SUBSCRIP_EID,
-                                       CFE_EVS_EventType_INFORMATION,
-                                       CFE_SB_Global.AppId,
-                                       "Duplicate Subscription,MsgId 0x%x on %s pipe,app %s",
-                                       (unsigned int)CFE_SB_MsgIdToValue(MsgId),
-                                       PipeName,
-                                       CFE_SB_GetAppTskName(TskId, FullName));
-            break;
-
-        case CFE_SB_SUB_INV_CALLER_EID:
-            CFE_EVS_SendEventWithAppID(CFE_SB_SUB_INV_CALLER_EID,
-                                       CFE_EVS_EventType_ERROR,
-                                       CFE_SB_Global.AppId,
-                                       "Subscribe Err:Caller(%s) is not the owner of pipe %lu,Msg=0x%x",
-                                       CFE_SB_GetAppTskName(TskId, FullName),
-                                       CFE_RESOURCEID_TO_ULONG(PipeId),
-                                       (unsigned int)CFE_SB_MsgIdToValue(MsgId));
-            break;
-
-        case CFE_SB_SUB_INV_PIPE_EID:
-            CFE_EVS_SendEventWithAppID(CFE_SB_SUB_INV_PIPE_EID,
-                                       CFE_EVS_EventType_ERROR,
-                                       CFE_SB_Global.AppId,
-                                       "Subscribe Err:Invalid Pipe Id,Msg=0x%x,PipeId=%lu,App %s",
-                                       (unsigned int)CFE_SB_MsgIdToValue(MsgId),
-                                       CFE_RESOURCEID_TO_ULONG(PipeId),
-                                       CFE_SB_GetAppTskName(TskId, FullName));
-            break;
-
-        case CFE_SB_DEST_BLK_ERR_EID:
-            CFE_EVS_SendEventWithAppID(CFE_SB_DEST_BLK_ERR_EID,
-                                       CFE_EVS_EventType_ERROR,
-                                       CFE_SB_Global.AppId,
-                                       "Subscribe Err:Request for Destination Blk failed for Msg 0x%x",
-                                       (unsigned int)CFE_SB_MsgIdToValue(MsgId));
-            break;
-
-        case CFE_SB_MAX_DESTS_MET_EID:
-            CFE_EVS_SendEventWithAppID(CFE_SB_MAX_DESTS_MET_EID,
-                                       CFE_EVS_EventType_ERROR,
-                                       CFE_SB_Global.AppId,
-                                       "Subscribe Err:Max Dests(%d)In Use For Msg 0x%x,pipe %s,app %s",
-                                       CFE_PLATFORM_SB_MAX_DEST_PER_PKT,
-                                       (unsigned int)CFE_SB_MsgIdToValue(MsgId),
-                                       PipeName,
-                                       CFE_SB_GetAppTskName(TskId, FullName));
-            break;
-
-        case CFE_SB_MAX_MSGS_MET_EID:
-            CFE_EVS_SendEventWithAppID(CFE_SB_MAX_MSGS_MET_EID,
-                                       CFE_EVS_EventType_ERROR,
-                                       CFE_SB_Global.AppId,
-                                       "Subscribe Err:Max Msgs(%d)In Use,MsgId 0x%x,pipe %s,app %s",
-                                       CFE_PLATFORM_SB_MAX_MSG_IDS,
-                                       (unsigned int)CFE_SB_MsgIdToValue(MsgId),
-                                       PipeName,
-                                       CFE_SB_GetAppTskName(TskId, FullName));
-            break;
-
-        case CFE_SB_SUB_ARG_ERR_EID:
-            CFE_EVS_SendEventWithAppID(CFE_SB_SUB_ARG_ERR_EID,
-                                       CFE_EVS_EventType_ERROR,
-                                       CFE_SB_Global.AppId,
-                                       "Subscribe Err:Bad Arg,MsgId 0x%x,PipeId %lu,app %s,scope %d",
-                                       (unsigned int)CFE_SB_MsgIdToValue(MsgId),
-                                       CFE_RESOURCEID_TO_ULONG(PipeId),
-                                       CFE_SB_GetAppTskName(TskId, FullName),
-                                       Scope);
-            break;
-
-        default:
-            break;
     }
 
     /* If no other event pending, send a debug event indicating success */

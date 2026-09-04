@@ -1643,3 +1643,19 @@ CFE_Status_t CFE_SB_GetPipeNamePriv(CFE_SB_PipeId_t PipeId, char *PipeNameBuf, s
 
     return Status;
 }
+
+void CFE_SB_IncrementSubscribeCounters(CFE_Status_t ErrorStatus)
+{
+    switch (ErrorStatus)
+    {
+        case CFE_SB_BAD_ARGUMENT:
+        case CFE_SB_MAX_MSGS_MET:
+        case CFE_SB_BUF_ALOC_ERR:
+        case CFE_SB_MAX_DESTS_MET:
+            CFE_SB_Global.HKTlmMsg.Payload.SubscribeErrorCounter++;
+            break;
+        case CFE_SB_DUP_SUBSCRIP_ERR:
+            CFE_SB_Global.HKTlmMsg.Payload.DuplicateSubscriptionsCounter++;
+            break;
+    }
+}

@@ -859,6 +859,17 @@ char *CFE_ES_StatusToString(CFE_Status_t status, CFE_StatusString_t *status_stri
 #define CFE_SB_BUFFER_INVALID ((CFE_Status_t)0xca00000e)
 
 /**
+ * @brief Destination Pipe Already Exists on this Path
+ *
+ * This error code will be returned when a destination from the routing
+ * table has the same pipe ID as the provided pipe ID. It's set to
+ * CFE_SUCCESS because it's not an error per se, it's a status that
+ * needs to noted for accounting and event reasons
+ *
+ */
+#define CFE_SB_DUP_SUBSCRIP_ERR (CFE_SUCCESS)
+
+/**
  * @brief Not Implemented
  *
  *  Current version of cFE does not have the function or the feature
