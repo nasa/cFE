@@ -41,6 +41,13 @@ CFE_Status_t CFE_MSG_Init(CFE_MSG_Message_t *MsgPtr, CFE_SB_MsgId_t MsgId, CFE_M
         return CFE_MSG_BAD_ARGUMENT;
     }
 
+    /* Reject an invalid size before it is used as the memset length. CFE_MSG_SetSize
+     * enforces the same bounds, but only after the buffer has already been cleared */
+    if (Size < CFE_MSG_SIZE_OFFSET || Size > (0xFFFF + CFE_MSG_SIZE_OFFSET))
+    {
+        return CFE_MSG_BAD_ARGUMENT;
+    }
+
     /* Clear and set defaults */
     memset(MsgPtr, 0, Size);
     CFE_MSG_InitDefaultHdr(MsgPtr);
