@@ -308,6 +308,8 @@ void Test_CFE_TBL_LoadCmd(void)
     UT_SetDefaultReturnValue(UT_KEY(OS_OpenCreate), OS_ERROR);
     UtAssert_INT32_EQ(CFE_TBL_LoadCmd(&LoadCmd), CFE_SUCCESS);
     CFE_UtAssert_COUNTER_INCR(CFE_TBL_Global.CommandErrorCounter);
+    /* Nothing was opened, so nothing is closed */
+    UtAssert_STUB_COUNT(OS_close, 0);
 
     /* Test response to inability to find the table in the registry */
     UT_InitData_TBL();
@@ -317,6 +319,8 @@ void Test_CFE_TBL_LoadCmd(void)
     UtAssert_INT32_EQ(CFE_TBL_LoadCmd(&LoadCmd), CFE_SUCCESS);
     CFE_UtAssert_COUNTER_INCR(CFE_TBL_Global.CommandErrorCounter);
     CFE_UtAssert_EVENTSENT(CFE_TBL_NO_SUCH_TABLE_ERR_EID);
+    /* The file was opened before the lookup failed and must not leak */
+    UtAssert_STUB_COUNT(OS_close, 1);
 
     /* The rest of the tests will use registry 0, note empty name matches */
     RegRec0Ptr->OwnerAppId = AppID;
@@ -362,6 +366,8 @@ void Test_CFE_TBL_LoadCmd(void)
     UT_SetReadHeader(&StdFileHeader, sizeof(StdFileHeader));
     UtAssert_INT32_EQ(CFE_TBL_LoadCmd(&LoadCmd), CFE_SUCCESS);
     CFE_UtAssert_COUNTER_INCR(CFE_TBL_Global.CommandCounter);
+    /* A successful load closes its file exactly once */
+    UtAssert_STUB_COUNT(OS_close, 1);
 
     /* Test with differing amount of data from header's claim */
     UT_InitData_TBL();
