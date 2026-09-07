@@ -4986,13 +4986,23 @@ void TestESMempool(void)
     UtAssert_BOOL_FALSE(CFE_ES_ValidateHandle(PoolID2));
 
     /* Test initializing a pre-allocated pool specifying a number of block
-     * sizes greater than the maximum
+     * sizes greater than the maximum.
+     *
+     * This checks the exact boundary (PLATFORM_ES_POOL_MAX_BUCKETS + 1) rather
+     * than a wider margin, because the bounds check in
+     * CFE_ES_PoolCreateEx_WithAlignment() must reject on
+     * CFE_PLATFORM_ES_POOL_MAX_BUCKETS - the actual size of the internal
+     * CFE_ES_GenPoolRecord_t::Buckets[] array being populated - and not on
+     * CFE_MISSION_ES_POOL_MAX_BUCKETS.  The mission constant is only required
+     * to be >= the platform constant (see cfe_es_verify.h), so on a
+     * configuration where they differ, checking against the mission constant
+     * would let NumBlockSizes exceed the array bound and write out of bounds.
      */
     ES_ResetUnitTest();
     UtAssert_INT32_EQ(CFE_ES_PoolCreateEx(&PoolID1,
                                           Buffer1,
                                           sizeof(Buffer1),
-                                          CFE_PLATFORM_ES_POOL_MAX_BUCKETS + 2,
+                                          CFE_PLATFORM_ES_POOL_MAX_BUCKETS + 1,
                                           BlockSizes,
                                           CFE_ES_USE_MUTEX),
                       CFE_ES_BAD_ARGUMENT);
