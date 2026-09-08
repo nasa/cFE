@@ -986,11 +986,53 @@ CFE_SB_MessageTxn_State_t *CFE_SB_TransmitTxn_Init(CFE_SB_TransmitTxn_State_t *T
  * Not invoked outside of this unit
  *
  *-----------------------------------------------------------------*/
+void CFE_SB_TransmitTxn_AddDestination(CFE_SB_MessageTxn_State_t *TxnPtr,
+                                       CFE_SB_DestinationD_t     *DestPtr,
+                                       CFE_SB_PipeD_t            *PipeDscPtr,
+                                       CFE_SB_BufferD_t          *BufDscPtr)
+{
+    CFE_SB_PipeSetEntry_t *ContextPtr;
+
+    ContextPtr = &TxnPtr->PipeSet[TxnPtr->NumPipes];
+    ++TxnPtr->NumPipes;
+
+    memset(ContextPtr, 0, sizeof(*ContextPtr));
+
+    ContextPtr->PipeId     = CFE_SB_PipeDescGetID(PipeDscPtr);
+    ContextPtr->SysQueueId = PipeDscPtr->SysQueueId;
+
+    /* if Msg limit exceeded, log event, increment counter */
+    /* and go to next destination */
+    if (DestPtr->BuffCount >= DestPtr->MsgId2PipeLim)
+    {
+        ContextPtr->PendingEventId = CFE_SB_MSGID_LIM_ERR_EID;
+        ++CFE_SB_Global.HKTlmMsg.Payload.MsgLimitErrorCounter;
+        ++PipeDscPtr->SendErrors;
+        ++TxnPtr->NumPipeErrs;
+    }
+    else
+    {
+        CFE_SB_IncrBufUseCnt(BufDscPtr);
+        ++DestPtr->BuffCount;
+
+        ++PipeDscPtr->CurrentQueueDepth;
+        if (PipeDscPtr->CurrentQueueDepth > PipeDscPtr->PeakQueueDepth)
+        {
+            PipeDscPtr->PeakQueueDepth = PipeDscPtr->CurrentQueueDepth;
+        }
+    }
+}
+
+/*----------------------------------------------------------------
+ *
+ * Local Helper function
+ * Not invoked outside of this unit
+ *
+ *-----------------------------------------------------------------*/
 void CFE_SB_TransmitTxn_FindDestinations(CFE_SB_MessageTxn_State_t *TxnPtr, CFE_SB_BufferD_t *BufDscPtr)
 {
     CFE_SB_PipeD_t        *PipeDscPtr;
     CFE_SB_DestinationD_t *DestPtr;
-    CFE_SB_PipeSetEntry_t *ContextPtr;
     CFE_ES_AppId_t         AppId;
     bool                   IsAcceptable;
     CFE_Status_t           Status;
@@ -1025,8 +1067,6 @@ void CFE_SB_TransmitTxn_FindDestinations(CFE_SB_MessageTxn_State_t *TxnPtr, CFE_
         DestPtr = CFE_SBR_GetDestListHeadPtr(BufDscPtr->DestRouteId);
         while (DestPtr != NULL && TxnPtr->NumPipes < TxnPtr->MaxPipes)
         {
-            ContextPtr = NULL;
-
             if (DestPtr->Active == CFE_SB_ACTIVE) /* destination is active */
             {
                 PipeDscPtr = CFE_SB_LocatePipeDescByID(DestPtr->PipeId);
@@ -1041,37 +1081,7 @@ void CFE_SB_TransmitTxn_FindDestinations(CFE_SB_MessageTxn_State_t *TxnPtr, CFE_
                 if ((PipeDscPtr->Opts & CFE_SB_PIPEOPTS_IGNOREMINE) == 0
                     || !CFE_RESOURCEID_TEST_EQUAL(PipeDscPtr->AppId, AppId))
                 {
-                    ContextPtr = &TxnPtr->PipeSet[TxnPtr->NumPipes];
-                    ++TxnPtr->NumPipes;
-                }
-            }
-
-            if (ContextPtr != NULL)
-            {
-                memset(ContextPtr, 0, sizeof(*ContextPtr));
-
-                ContextPtr->PipeId     = DestPtr->PipeId;
-                ContextPtr->SysQueueId = PipeDscPtr->SysQueueId;
-
-                /* if Msg limit exceeded, log event, increment counter */
-                /* and go to next destination */
-                if (DestPtr->BuffCount >= DestPtr->MsgId2PipeLim)
-                {
-                    ContextPtr->PendingEventId = CFE_SB_MSGID_LIM_ERR_EID;
-                    ++CFE_SB_Global.HKTlmMsg.Payload.MsgLimitErrorCounter;
-                    ++PipeDscPtr->SendErrors;
-                    ++TxnPtr->NumPipeErrs;
-                }
-                else
-                {
-                    CFE_SB_IncrBufUseCnt(BufDscPtr);
-                    ++DestPtr->BuffCount;
-
-                    ++PipeDscPtr->CurrentQueueDepth;
-                    if (PipeDscPtr->CurrentQueueDepth > PipeDscPtr->PeakQueueDepth)
-                    {
-                        PipeDscPtr->PeakQueueDepth = PipeDscPtr->CurrentQueueDepth;
-                    }
+                    CFE_SB_TransmitTxn_AddDestination(TxnPtr, DestPtr, PipeDscPtr, BufDscPtr);
                 }
             }
 
