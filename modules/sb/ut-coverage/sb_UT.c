@@ -2199,6 +2199,7 @@ void Test_Subscribe_API(void)
     SB_UT_ADD_SUBTEST(Test_Subscribe_PipeNonexistent);
     SB_UT_ADD_SUBTEST(Test_Subscribe_SubscriptionReporting);
     SB_UT_ADD_SUBTEST(Test_Subscribe_InvalidPipeOwner);
+    SB_UT_ADD_SUBTEST(Test_Subscribe_BadArg);
 }
 
 /*
@@ -2549,6 +2550,21 @@ void Test_Subscribe_InvalidPipeOwner(void)
 
     /* Restore owner id and delete pipe since test is complete */
     PipeDscPtr->AppId = RealOwner;
+    CFE_UtAssert_TEARDOWN(CFE_SB_DeletePipe(PipeId));
+}
+
+void Test_Subscribe_BadArg(void)
+{
+    CFE_SB_PipeId_t PipeId;
+
+    PipeId = CFE_SB_INVALID_PIPE;
+    CFE_UtAssert_SETUP(CFE_SB_CreatePipe(&PipeId, 2, "TestPipe"));
+
+    CFE_SB_SubscribeFull(SB_UT_FIRST_VALID_MID, PipeId, CFE_SB_DEFAULT_QOS, CFE_PLATFORM_SB_DEFAULT_MSG_LIMIT, 2);
+
+    CFE_UtAssert_EVENTCOUNT(1);
+    CFE_UtAssert_EVENTSENT(CFE_SB_SUB_ARG_ERR_EID);
+
     CFE_UtAssert_TEARDOWN(CFE_SB_DeletePipe(PipeId));
 }
 
