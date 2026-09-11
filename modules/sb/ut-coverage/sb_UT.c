@@ -2559,6 +2559,7 @@ void Test_Subscribe_BadArg(void)
 
     PipeId = CFE_SB_INVALID_PIPE;
     CFE_UtAssert_SETUP(CFE_SB_CreatePipe(&PipeId, 2, "TestPipe"));
+    UT_ClearEventHistory(); /* Clear events generated during test setup */
 
     CFE_SB_SubscribeFull(SB_UT_FIRST_VALID_MID, PipeId, CFE_SB_DEFAULT_QOS, CFE_PLATFORM_SB_DEFAULT_MSG_LIMIT, 2);
 
