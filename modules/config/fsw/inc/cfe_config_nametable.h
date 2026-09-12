@@ -28,11 +28,14 @@
 /*
 ** Includes
 */
+#include <stddef.h>
+
 #include "cfe_configid_offset.h"
 
 typedef struct CFE_Config_IdNameEntry
 {
     const char *Name;
+    size_t      NameSize;
 } CFE_Config_IdNameEntry_t;
 
 extern const CFE_Config_IdNameEntry_t CFE_CONFIGID_NAMETABLE[];
