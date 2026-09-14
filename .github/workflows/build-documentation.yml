@@ -42,7 +42,7 @@ jobs:
 
       - name: Cache Source and Build
         id: cache-src-bld
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ${{ env.WORK_PATH }}/
           key: cfs-doc-${{ github.run_id }}
