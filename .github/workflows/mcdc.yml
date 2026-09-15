@@ -149,7 +149,7 @@ jobs:
         uses: dawidd6/action-download-artifact@v24
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          workflow: mcdc-internal.yml
+          workflow: mcdc.yml
           search_artifacts: true
           branch: dev
           name: MCDC results
