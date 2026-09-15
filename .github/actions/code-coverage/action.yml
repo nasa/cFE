@@ -130,7 +130,7 @@ runs:
         echo "min_ok=$min_ok" >> $GITHUB_ENV
 
     - name: Check Limits
-      uses: actions/github-script@v6
+      uses: actions/github-script@v9
       with:
         script: |
           if (process.env.min_ok != 1 || process.env.max_ok != 1) {
