@@ -26,7 +26,7 @@ jobs:
 
   Execute-Unit-Tests:
     name: Build and Execute CFE unit tests
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     container: ghcr.io/core-flight-system/cfsbuildenv-linux:latest
     timeout-minutes: 15
 

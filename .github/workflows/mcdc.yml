@@ -27,7 +27,7 @@ env:
 jobs:
   mcdc:
     name: Build and Run MCDC
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     container: ghcr.io/core-flight-system/mcdc:latest
 
     steps:
@@ -134,7 +134,7 @@ jobs:
     needs: mcdc
     if: github.event_name == 'pull_request'
     name: Generate MCDC Comparison Summary
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout MCDC Script

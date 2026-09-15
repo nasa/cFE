@@ -18,7 +18,7 @@ on:
 jobs:
   static-analysis:
     name: Run Static Analysis
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     container: ghcr.io/core-flight-system/cfsbuildenv-linux:latest
     timeout-minutes: 15
 
