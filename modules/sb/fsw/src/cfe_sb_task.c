@@ -180,7 +180,7 @@ int32 CFE_SB_AppInit(void)
     CFE_SB_Global.StatTlmMsg.Payload.MaxSubscriptionsAllowed =
         ((CFE_PLATFORM_SB_MAX_MSG_IDS) * (CFE_PLATFORM_SB_MAX_DEST_PER_PKT));
 
-    Status = CFE_SB_CreatePipe(&CFE_SB_Global.CmdPipe, CFE_SB_CMD_PIPE_DEPTH, CFE_SB_CMD_PIPE_NAME);
+    Status = CFE_SB_CreatePipe(&CFE_SB_Global.CmdPipe, CFE_PLATFORM_SB_CMD_PIPE_DEPTH, CFE_PLATFORM_SB_CMD_PIPE_NAME);
     if (Status != CFE_SUCCESS)
     {
         CFE_ES_WriteToSysLog("%s: Call to CFE_SB_CreatePipe Failed:RC=0x%08X\n", __func__, (unsigned int)Status);

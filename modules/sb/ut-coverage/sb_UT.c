@@ -1294,7 +1294,7 @@ void Test_SB_Cmds_SendPrevSubs(void)
     CFE_SB_PipeId_t PipeId2   = CFE_SB_INVALID_PIPE;
     CFE_SB_MsgId_t  MsgId     = SB_UT_BARE_TLM_MID3;
     uint16          MsgLim    = 4;
-    uint16          PipeDepth = 50;
+    uint16          PipeDepth = CFE_PLATFORM_SB_CMD_PIPE_DEPTH;
     int32           i;
     int32           NumEvts = 0;
     CFE_MSG_Size_t  Size;
@@ -1665,7 +1665,7 @@ void Test_CreatePipe_InvalPipeDepth(void)
 void Test_CreatePipe_MaxPipes(void)
 {
     CFE_SB_PipeId_t PipeIdReturned[CFE_PLATFORM_SB_MAX_PIPES + 1];
-    uint16          PipeDepth = 50;
+    uint16          PipeDepth = CFE_PLATFORM_SB_CMD_PIPE_DEPTH;
     int32           i;
     char            PipeName[OS_MAX_API_NAME];
 
@@ -2340,7 +2340,7 @@ void Test_Subscribe_MaxDestCount(void)
     CFE_SB_PipeId_t PipeId[CFE_PLATFORM_SB_MAX_DEST_PER_PKT + 1];
     CFE_SB_MsgId_t  MsgId = SB_UT_TLM_MID;
     char            PipeName[OS_MAX_API_NAME];
-    uint16          PipeDepth = 50;
+    uint16          PipeDepth = CFE_PLATFORM_SB_CMD_PIPE_DEPTH;
     int32           i;
 
     /* Create pipes */
@@ -2383,7 +2383,7 @@ void Test_Subscribe_MaxMsgIdCount(void)
     CFE_SB_PipeId_t PipeId0   = CFE_SB_INVALID_PIPE;
     CFE_SB_PipeId_t PipeId1   = CFE_SB_INVALID_PIPE;
     CFE_SB_PipeId_t PipeId2   = CFE_SB_INVALID_PIPE;
-    uint16          PipeDepth = 50;
+    uint16          PipeDepth = CFE_PLATFORM_SB_CMD_PIPE_DEPTH;
     int32           i;
 
     CFE_UtAssert_SETUP(CFE_SB_CreatePipe(&PipeId0, PipeDepth, "TestPipe0"));
@@ -2427,7 +2427,7 @@ void Test_Subscribe_SendPrevSubs(void)
     CFE_SB_MsgId_t           MsgId0    = SB_UT_TLM_MID1;
     CFE_SB_MsgId_t           MsgId1    = SB_UT_TLM_MID2;
     CFE_SB_MsgId_t           MsgId2    = SB_UT_TLM_MID3;
-    uint16                   PipeDepth = 50;
+    uint16                   PipeDepth = CFE_PLATFORM_SB_CMD_PIPE_DEPTH;
     CFE_SB_SendPrevSubsCmd_t SendPrevSubsMsg;
     CFE_SB_MsgId_t           MsgIdCmd;
     CFE_MSG_Size_t           Size;
@@ -2593,7 +2593,7 @@ void Test_Unsubscribe_Basic(void)
 {
     CFE_SB_PipeId_t TestPipe  = CFE_SB_INVALID_PIPE;
     CFE_SB_MsgId_t  MsgId     = SB_UT_INTERMEDIATE_VALID_MID;
-    uint16          PipeDepth = 50;
+    uint16          PipeDepth = CFE_PLATFORM_SB_CMD_PIPE_DEPTH;
 
     CFE_UtAssert_SETUP(CFE_SB_CreatePipe(&TestPipe, PipeDepth, "TestPipe"));
     CFE_UtAssert_SETUP(CFE_SB_Subscribe(MsgId, TestPipe));
@@ -2623,7 +2623,7 @@ void Test_Unsubscribe_AppId(void)
 {
     CFE_SB_PipeId_t TestPipe  = CFE_SB_INVALID_PIPE;
     CFE_SB_MsgId_t  MsgId     = SB_UT_TLM_MID;
-    uint16          PipeDepth = 50;
+    uint16          PipeDepth = CFE_PLATFORM_SB_CMD_PIPE_DEPTH;
     CFE_ES_AppId_t  CallerId;
 
     CFE_UtAssert_SETUP(CFE_ES_GetAppID(&CallerId));
@@ -2647,7 +2647,7 @@ void Test_Unsubscribe_Local(void)
 {
     CFE_SB_PipeId_t TestPipe  = CFE_SB_INVALID_PIPE;
     CFE_SB_MsgId_t  MsgId     = SB_UT_TLM_MID;
-    uint16          PipeDepth = 50;
+    uint16          PipeDepth = CFE_PLATFORM_SB_CMD_PIPE_DEPTH;
 
     CFE_UtAssert_SETUP(CFE_SB_CreatePipe(&TestPipe, PipeDepth, "TestPipe"));
     CFE_UtAssert_SETUP(CFE_SB_SubscribeLocal(MsgId, TestPipe, 1));
@@ -2670,7 +2670,7 @@ void Test_Unsubscribe_InvalParam(void)
     CFE_SB_PipeId_t TestPipe = CFE_SB_INVALID_PIPE;
     CFE_ES_AppId_t  CallerId;
     CFE_SB_PipeD_t *PipeDscPtr;
-    uint16          PipeDepth = 50;
+    uint16          PipeDepth = CFE_PLATFORM_SB_CMD_PIPE_DEPTH;
     CFE_SB_PipeId_t SavedPipeId;
 
     CFE_UtAssert_SETUP(CFE_SB_CreatePipe(&TestPipe, PipeDepth, "TestPipe"));
@@ -2713,7 +2713,7 @@ void Test_Unsubscribe_NoMatch(void)
 {
     CFE_SB_PipeId_t TestPipe  = CFE_SB_INVALID_PIPE;
     CFE_SB_MsgId_t  MsgId     = SB_UT_TLM_MID;
-    uint16          PipeDepth = 50;
+    uint16          PipeDepth = CFE_PLATFORM_SB_CMD_PIPE_DEPTH;
 
     /* Create pipe, subscribe, unsubscribe */
     CFE_UtAssert_SETUP(CFE_SB_CreatePipe(&TestPipe, PipeDepth, "TestPipe"));
@@ -2740,7 +2740,7 @@ void Test_Unsubscribe_InvalidPipe(void)
 {
     CFE_SB_PipeId_t TestPipe  = CFE_SB_INVALID_PIPE;
     CFE_SB_MsgId_t  MsgId     = SB_UT_TLM_MID;
-    uint16          PipeDepth = 50;
+    uint16          PipeDepth = CFE_PLATFORM_SB_CMD_PIPE_DEPTH;
 
     CFE_UtAssert_SETUP(CFE_SB_CreatePipe(&TestPipe, PipeDepth, "TestPipe"));
     CFE_UtAssert_SETUP(CFE_SB_Subscribe(MsgId, TestPipe));
@@ -2795,7 +2795,7 @@ void Test_Unsubscribe_FirstDestWithMany(void)
     CFE_SB_PipeId_t TestPipe1 = CFE_SB_INVALID_PIPE;
     CFE_SB_PipeId_t TestPipe2 = CFE_SB_INVALID_PIPE;
     CFE_SB_PipeId_t TestPipe3 = CFE_SB_INVALID_PIPE;
-    uint16          PipeDepth = 50;
+    uint16          PipeDepth = CFE_PLATFORM_SB_CMD_PIPE_DEPTH;
 
     CFE_UtAssert_SETUP(CFE_SB_CreatePipe(&TestPipe1, PipeDepth, "TestPipe1"));
     CFE_UtAssert_SETUP(CFE_SB_CreatePipe(&TestPipe2, PipeDepth, "TestPipe2"));
@@ -2825,7 +2825,7 @@ void Test_Unsubscribe_MiddleDestWithMany(void)
     CFE_SB_PipeId_t TestPipe1 = CFE_SB_INVALID_PIPE;
     CFE_SB_PipeId_t TestPipe2 = CFE_SB_INVALID_PIPE;
     CFE_SB_PipeId_t TestPipe3 = CFE_SB_INVALID_PIPE;
-    uint16          PipeDepth = 50;
+    uint16          PipeDepth = CFE_PLATFORM_SB_CMD_PIPE_DEPTH;
 
     CFE_UtAssert_SETUP(CFE_SB_CreatePipe(&TestPipe1, PipeDepth, "TestPipe1"));
     CFE_UtAssert_SETUP(CFE_SB_CreatePipe(&TestPipe2, PipeDepth, "TestPipe2"));
@@ -2854,7 +2854,7 @@ void Test_Unsubscribe_GetDestPtr(void)
     CFE_SB_MsgId_t    MsgId     = SB_UT_CMD_MID;
     CFE_SB_PipeId_t   TestPipe1 = CFE_SB_INVALID_PIPE;
     CFE_SB_PipeId_t   TestPipe2 = CFE_SB_INVALID_PIPE;
-    uint16            PipeDepth = 50;
+    uint16            PipeDepth = CFE_PLATFORM_SB_CMD_PIPE_DEPTH;
     CFE_SBR_RouteId_t RouteId;
     CFE_UtAssert_SETUP(CFE_SB_CreatePipe(&TestPipe1, PipeDepth, "TestPipe1"));
     CFE_UtAssert_SETUP(CFE_SB_CreatePipe(&TestPipe2, PipeDepth, "TestPipe2"));
@@ -5001,7 +5001,7 @@ void Test_OS_MutSem_ErrLogic(void)
 {
     CFE_SB_PipeId_t PipeId    = CFE_SB_INVALID_PIPE;
     CFE_SB_MsgId_t  MsgId     = SB_UT_CMD_MID;
-    uint16          PipeDepth = 50;
+    uint16          PipeDepth = CFE_PLATFORM_SB_CMD_PIPE_DEPTH;
 
     UT_SetDeferredRetcode(UT_KEY(OS_MutSemTake), 1, OS_SEM_FAILURE);
     UT_SetDeferredRetcode(UT_KEY(OS_MutSemGive), 2, OS_SEM_FAILURE);

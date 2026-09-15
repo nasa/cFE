@@ -267,7 +267,7 @@
 #define DEFAULT_CFE_PLATFORM_SB_FILTER_MASK8 CFE_EVS_NO_FILTER
 
 /**
-** \cfeescfg Number of block sizes in SB memory pool structure
+** \cfesbcfg Number of block sizes in SB memory pool structure
 **
 **  \par Description:
 **      The number of block sizes for the software bus memory pool
@@ -283,7 +283,7 @@
 #define DEFAULT_CFE_PLATFORM_SB_POOL_MAX_BUCKETS 17
 
 /**
-**  \cfeescfg Define SB Memory Pool Block Sizes
+**  \cfesbcfg Define SB Memory Pool Block Sizes
 **
 **  \par Description:
 **       Software Bus Memory Pool Block Sizes
@@ -328,7 +328,7 @@
 #define DEFAULT_CFE_PLATFORM_SB_MAX_BLOCK_SIZE    (CFE_MISSION_SB_MAX_SB_MSG_SIZE + 128)
 
 /**
-**  \cfeescfg Define SB Task Priority
+**  \cfesbcfg Define SB Task Priority
 **
 **  \par Description:
 **       Defines the cFE_SB Task priority.
@@ -340,7 +340,7 @@
 #define DEFAULT_CFE_PLATFORM_SB_START_TASK_PRIORITY 64
 
 /**
-**  \cfeescfg Define SB Task Stack Size
+**  \cfesbcfg Define SB Task Stack Size
 **
 **  \par Description:
 **       Defines the cFE_SB Task Stack Size
@@ -354,5 +354,29 @@
 */
 #define CFE_PLATFORM_SB_START_TASK_STACK_SIZE         CFE_PLATFORM_SB_CFGVAL(START_TASK_STACK_SIZE)
 #define DEFAULT_CFE_PLATFORM_SB_START_TASK_STACK_SIZE CFE_PLATFORM_ES_DEFAULT_STACK_SIZE
+
+/**
+**  \cfesbcfg SB Command Pipe Depth
+**
+**  \par Description:
+**       The depth of the incoming command pipe for the SB core module
+**
+**  \par Limits
+**       Maximum dictated by the underlying OS limit for message queues
+*/
+#define CFE_PLATFORM_SB_CMD_PIPE_DEPTH         CFE_PLATFORM_SB_CFGVAL(CMD_PIPE_DEPTH)
+#define DEFAULT_CFE_PLATFORM_SB_CMD_PIPE_DEPTH OS_QUEUE_MAX_DEPTH
+
+/**
+**  \cfesbcfg SB Command Pipe Name
+**
+**  \par Description:
+**       The name of the incoming command pipe for the SB core module
+**
+**  \par Limits
+**       Must be non-empty and unique within the CFE instance
+*/
+#define CFE_PLATFORM_SB_CMD_PIPE_NAME         CFE_PLATFORM_SB_CFGVAL(CMD_PIPE_NAME)
+#define DEFAULT_CFE_PLATFORM_SB_CMD_PIPE_NAME "SB_CMD_PIPE"
 
 #endif
