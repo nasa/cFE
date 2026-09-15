@@ -2233,7 +2233,7 @@ void Test_Subscribe_InvalidPipeId(void)
 
     UtAssert_INT32_EQ(CFE_SB_Subscribe(MsgId, PipeId), CFE_SB_BAD_ARGUMENT);
 
-    CFE_UtAssert_EVENTCOUNT(2);
+    CFE_UtAssert_EVENTCOUNT(1);
 
     CFE_UtAssert_EVENTSENT(CFE_SB_SUB_INV_PIPE_EID);
 }
@@ -2473,7 +2473,7 @@ void Test_Subscribe_PipeNonexistent(void)
 
     UtAssert_INT32_EQ(CFE_SB_Subscribe(MsgId, PipeId), CFE_SB_BAD_ARGUMENT);
 
-    CFE_UtAssert_EVENTCOUNT(2);
+    CFE_UtAssert_EVENTCOUNT(1);
 
     CFE_UtAssert_EVENTSENT(CFE_SB_SUB_INV_PIPE_EID);
 }

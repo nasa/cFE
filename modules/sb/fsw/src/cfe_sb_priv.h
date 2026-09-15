@@ -1524,7 +1524,7 @@ void CFE_SB_BackgroundFileEventHandler(void                   *Meta,
 ** \brief Local function that increments the subscription counters based on the Status
 **        of the subscribe function to that point
 */
-void CFE_SB_IncrementSubscribeCounters(CFE_Status_t ErrorStatus);
+void CFE_SB_IncrementSubscribeCounters(uint16 EventID);
 
 /*---------------------------------------------------------------------------------------
 **

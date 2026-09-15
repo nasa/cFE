@@ -1024,7 +1024,6 @@ int32 CFE_SB_SubscribeFull(CFE_SB_MsgId_t  MsgId,
             if (CFE_RESOURCEID_TEST_EQUAL(DestPtr->PipeId, PipeId))
             {
                 PendingEventID = CFE_SB_DUP_SUBSCRIP_EID;
-                Status         = CFE_SB_DUP_SUBSCRIP_ERR;
                 break;
             }
 
@@ -1073,18 +1072,12 @@ int32 CFE_SB_SubscribeFull(CFE_SB_MsgId_t  MsgId,
     }
 
     /* Increment counter before unlock */
-    if (PendingEventID != 0)
-    {
-        CFE_SB_IncrementSubscribeCounters(Status);
-    }
+    CFE_SB_IncrementSubscribeCounters(PendingEventID);
 
     CFE_SB_UnlockSharedData(__func__, __LINE__);
 
     /* Send events now that the SB resources are unlocked */
-    if (PendingEventID != 0)
-    {
-        CFE_SB_IssueSubscribeEvents(PendingEventID, PipeId, MsgId, Scope);
-    }
+    CFE_SB_IssueSubscribeEvents(PendingEventID, PipeId, MsgId, Scope);
 
     /* If no other event pending, send a debug event indicating success */
     if (Status == CFE_SUCCESS && PendingEventID == 0)

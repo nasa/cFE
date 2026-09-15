@@ -1644,34 +1644,51 @@ CFE_Status_t CFE_SB_GetPipeNamePriv(CFE_SB_PipeId_t PipeId, char *PipeNameBuf, s
     return Status;
 }
 
-void CFE_SB_IncrementSubscribeCounters(CFE_Status_t ErrorStatus)
+/*----------------------------------------------------------------
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+void CFE_SB_IncrementSubscribeCounters(uint16 EventID)
 {
-    switch (ErrorStatus)
+    switch (EventID)
     {
-        case CFE_SB_BAD_ARGUMENT:
-        case CFE_SB_MAX_MSGS_MET:
-        case CFE_SB_BUF_ALOC_ERR:
-        case CFE_SB_MAX_DESTS_MET:
+        case CFE_SB_SUB_INV_PIPE_EID:
+        case CFE_SB_SUB_INV_CALLER_EID:
+        case CFE_SB_SUB_ARG_ERR_EID:
+        case CFE_SB_MAX_MSGS_MET_EID:
+        case CFE_SB_MAX_DESTS_MET_EID:
+        case CFE_SB_DEST_BLK_ERR_EID:
             CFE_SB_Global.HKTlmMsg.Payload.SubscribeErrorCounter++;
             break;
-        case CFE_SB_DUP_SUBSCRIP_ERR:
+        case CFE_SB_DUP_SUBSCRIP_EID:
             CFE_SB_Global.HKTlmMsg.Payload.DuplicateSubscriptionsCounter++;
+            break;
+        default:
+            /* If there isn't an error, don't increment error counters */
             break;
     }
 }
 
+/*----------------------------------------------------------------
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_SB_IssueSubscribeEvents(uint16 PendingEventID, CFE_SB_PipeId_t PipeId, CFE_SB_MsgId_t MsgId, uint16 Scope)
 {
     CFE_ES_TaskId_t TskId;
     char            FullName[(OS_MAX_API_NAME * 2)];
     char            PipeName[OS_MAX_API_NAME];
 
-    CFE_ES_GetTaskID(&TskId);
-    CFE_SB_GetPipeName(PipeName, sizeof(PipeName), PipeId);
-
     switch (PendingEventID)
     {
         case CFE_SB_DUP_SUBSCRIP_EID:
+            CFE_ES_GetTaskID(&TskId);
+            CFE_SB_GetPipeName(PipeName, sizeof(PipeName), PipeId);
+
             CFE_EVS_SendEventWithAppID(CFE_SB_DUP_SUBSCRIP_EID,
                                        CFE_EVS_EventType_INFORMATION,
                                        CFE_SB_Global.AppId,
@@ -1680,8 +1697,8 @@ void CFE_SB_IssueSubscribeEvents(uint16 PendingEventID, CFE_SB_PipeId_t PipeId, 
                                        PipeName,
                                        CFE_SB_GetAppTskName(TskId, FullName));
             break;
-
         case CFE_SB_SUB_INV_CALLER_EID:
+            CFE_ES_GetTaskID(&TskId);
             CFE_EVS_SendEventWithAppID(CFE_SB_SUB_INV_CALLER_EID,
                                        CFE_EVS_EventType_ERROR,
                                        CFE_SB_Global.AppId,
@@ -1690,8 +1707,8 @@ void CFE_SB_IssueSubscribeEvents(uint16 PendingEventID, CFE_SB_PipeId_t PipeId, 
                                        CFE_RESOURCEID_TO_ULONG(PipeId),
                                        (unsigned int)CFE_SB_MsgIdToValue(MsgId));
             break;
-
         case CFE_SB_SUB_INV_PIPE_EID:
+            CFE_ES_GetTaskID(&TskId);
             CFE_EVS_SendEventWithAppID(CFE_SB_SUB_INV_PIPE_EID,
                                        CFE_EVS_EventType_ERROR,
                                        CFE_SB_Global.AppId,
@@ -1700,7 +1717,6 @@ void CFE_SB_IssueSubscribeEvents(uint16 PendingEventID, CFE_SB_PipeId_t PipeId, 
                                        CFE_RESOURCEID_TO_ULONG(PipeId),
                                        CFE_SB_GetAppTskName(TskId, FullName));
             break;
-
         case CFE_SB_DEST_BLK_ERR_EID:
             CFE_EVS_SendEventWithAppID(CFE_SB_DEST_BLK_ERR_EID,
                                        CFE_EVS_EventType_ERROR,
@@ -1708,8 +1724,10 @@ void CFE_SB_IssueSubscribeEvents(uint16 PendingEventID, CFE_SB_PipeId_t PipeId, 
                                        "Subscribe Err:Request for Destination Blk failed for Msg 0x%x",
                                        (unsigned int)CFE_SB_MsgIdToValue(MsgId));
             break;
-
         case CFE_SB_MAX_DESTS_MET_EID:
+            CFE_ES_GetTaskID(&TskId);
+            CFE_SB_GetPipeName(PipeName, sizeof(PipeName), PipeId);
+
             CFE_EVS_SendEventWithAppID(CFE_SB_MAX_DESTS_MET_EID,
                                        CFE_EVS_EventType_ERROR,
                                        CFE_SB_Global.AppId,
@@ -1719,8 +1737,10 @@ void CFE_SB_IssueSubscribeEvents(uint16 PendingEventID, CFE_SB_PipeId_t PipeId, 
                                        PipeName,
                                        CFE_SB_GetAppTskName(TskId, FullName));
             break;
-
         case CFE_SB_MAX_MSGS_MET_EID:
+            CFE_ES_GetTaskID(&TskId);
+            CFE_SB_GetPipeName(PipeName, sizeof(PipeName), PipeId);
+
             CFE_EVS_SendEventWithAppID(CFE_SB_MAX_MSGS_MET_EID,
                                        CFE_EVS_EventType_ERROR,
                                        CFE_SB_Global.AppId,
@@ -1730,8 +1750,8 @@ void CFE_SB_IssueSubscribeEvents(uint16 PendingEventID, CFE_SB_PipeId_t PipeId, 
                                        PipeName,
                                        CFE_SB_GetAppTskName(TskId, FullName));
             break;
-
         case CFE_SB_SUB_ARG_ERR_EID:
+            CFE_ES_GetTaskID(&TskId);
             CFE_EVS_SendEventWithAppID(CFE_SB_SUB_ARG_ERR_EID,
                                        CFE_EVS_EventType_ERROR,
                                        CFE_SB_Global.AppId,
@@ -1740,6 +1760,9 @@ void CFE_SB_IssueSubscribeEvents(uint16 PendingEventID, CFE_SB_PipeId_t PipeId, 
                                        CFE_RESOURCEID_TO_ULONG(PipeId),
                                        CFE_SB_GetAppTskName(TskId, FullName),
                                        Scope);
+            break;
+        default:
+            /* No error means no event issued */
             break;
     }
 }
