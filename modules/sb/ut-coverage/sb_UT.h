@@ -1592,6 +1592,22 @@ void Test_Subscribe_InvalidPipeOwner(void);
 
 /*****************************************************************************/
 /**
+** \brief Test message subscription response to a bad argument
+**
+** \par Description
+**        This function tests the message subscription response to a bad
+**        argument.
+**
+** \par Assumptions, External Events, and Notes:
+**        None
+**
+** \returns
+**        This function does not return a value.
+******************************************************************************/
+void Test_Subscribe_BadArg(void);
+
+/*****************************************************************************/
+/**
 ** \brief Function for calling SB unsubscribe API test functions
 **
 ** \par Description
