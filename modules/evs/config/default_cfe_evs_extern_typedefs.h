@@ -122,7 +122,7 @@ enum CFE_EVS_EventFilter
  *
  * @sa enum CFE_EVS_EventFilter
  */
-typedef uint8 CFE_EVS_EventFilter_Enum_t;
+typedef uint16 CFE_EVS_EventFilter_Enum_t;
 
 /**
  * @brief Label definitions associated with CFE_EVS_EventOutput_Enum_t
