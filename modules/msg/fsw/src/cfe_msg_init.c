@@ -41,9 +41,12 @@ CFE_Status_t CFE_MSG_Init(CFE_MSG_Message_t *MsgPtr, CFE_SB_MsgId_t MsgId, CFE_M
         return CFE_MSG_BAD_ARGUMENT;
     }
 
-    /* Reject an invalid size before it is used as the memset length. CFE_MSG_SetSize
-     * enforces the same bounds, but only after the buffer has already been cleared */
-    if (Size < CFE_MSG_SIZE_OFFSET || Size > (0xFFFF + CFE_MSG_SIZE_OFFSET))
+    /* Reject an invalid size before it is used as the memset length: a size shorter than
+     * the header cannot be cleared safely. The CCSDS-representable upper bound is not
+     * enforced here on purpose - CFE_SB_TransmitBuffer rejects an oversize message against
+     * the real buffer/CFE_MISSION_SB_MAX_SB_MSG_SIZE, and CFE_MSG_SetSize below still
+     * enforces the CCSDS 16-bit length-field maximum for the size that is actually stored */
+    if (Size < CFE_MSG_SIZE_OFFSET)
     {
         return CFE_MSG_BAD_ARGUMENT;
     }
