@@ -51,8 +51,8 @@
 */
 typedef struct
 {
-    uint32 AppControlRequest; /* What the App should be doing next */
-    int32  AppTimerMsec;      /* Countdown timer for killing an app, in milliseconds */
+    CFE_ES_RunStatus_Enum_t AppControlRequest; /* What the App should be doing next */
+    int32                   AppTimerMsec;      /* Countdown timer for killing an app, in milliseconds */
 } CFE_ES_ControlReq_t;
 
 /*

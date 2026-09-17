@@ -31,10 +31,10 @@
 
 void TestRunCounter(void)
 {
-    CFE_ES_TaskId_t   TaskId;
-    CFE_ES_TaskInfo_t TaskInfo;
-    uint32            ExecutionCounter;
-    uint32            RunStatus = CFE_ES_RunStatus_APP_RUN;
+    CFE_ES_TaskId_t         TaskId;
+    CFE_ES_TaskInfo_t       TaskInfo;
+    uint32                  ExecutionCounter;
+    CFE_ES_RunStatus_Enum_t RunStatus = CFE_ES_RunStatus_APP_RUN;
 
     UtPrintf("Testing: CFE_ES_RunLoop, CFE_ES_IncrementTaskCounter");
 

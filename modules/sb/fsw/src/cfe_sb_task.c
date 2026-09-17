@@ -39,16 +39,6 @@
 /*  Task Globals */
 CFE_SB_Global_t CFE_SB_Global;
 
-/* Local structure for file writing callbacks */
-typedef struct
-{
-    const char *Filename;   /* File name for error reporting */
-    osal_id_t   Fd;         /* File id for writing */
-    size_t      FileSize;   /* File size for reporting */
-    uint32      EntryCount; /* Entry count for reporting */
-    int32       Status;     /* File write status */
-} CFE_SB_FileWriteCallback_t;
-
 const int32 CFE_Platform_SB_Filter_Events[CFE_PLATFORM_EVS_MAX_EVENT_FILTERS] = {
     CFE_PLATFORM_SB_FILTERED_EVENT1, CFE_PLATFORM_SB_FILTERED_EVENT2, CFE_PLATFORM_SB_FILTERED_EVENT3,
     CFE_PLATFORM_SB_FILTERED_EVENT4, CFE_PLATFORM_SB_FILTERED_EVENT5, CFE_PLATFORM_SB_FILTERED_EVENT6,

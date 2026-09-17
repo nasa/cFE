@@ -99,9 +99,9 @@ CFE_ES_TaskData_t CFE_ES_TaskData;
  *-----------------------------------------------------------------*/
 void CFE_ES_TaskMain(void)
 {
-    int32            Status;
-    uint32           AppRunStatus = CFE_ES_RunStatus_APP_RUN;
-    CFE_SB_Buffer_t *SBBufPtr;
+    int32                   Status;
+    CFE_ES_RunStatus_Enum_t AppRunStatus = CFE_ES_RunStatus_APP_RUN;
+    CFE_SB_Buffer_t        *SBBufPtr;
 
     /*
     ** Performance Time Stamp Entry

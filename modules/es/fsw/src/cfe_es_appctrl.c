@@ -138,8 +138,8 @@ uint32 CFE_ES_ProcessControlRequest_Start(CFE_ES_AppId_t           AppId,
                                           size_t                   OrigAppNameSz,
                                           CFE_ES_AppStartParams_t *RestartParamPtr)
 {
-    CFE_ES_AppRecord_t *AppRecPtr;
-    uint32              PendingControlReq;
+    CFE_ES_AppRecord_t     *AppRecPtr;
+    CFE_ES_RunStatus_Enum_t PendingControlReq;
 
     /* Init/clear all local state variables */
     PendingControlReq = 0;

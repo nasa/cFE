@@ -104,17 +104,17 @@
 */
 typedef struct
 {
-    CFE_TIME_SysTime_t AtToneMET;         /* MET at time of tone */
-    CFE_TIME_SysTime_t AtToneSTCF;        /* STCF at time of tone */
-    int16              AtToneLeapSeconds; /* Leap Seconds at time of tone */
-    int16              ClockSetState;     /* Time has been "set" */
-    int16              ClockFlyState;     /* Current fly-wheel state */
-    int16              DelayDirection;    /* Whether "AtToneDelay" is add or subtract */
-    CFE_TIME_SysTime_t AtToneDelay;       /* Adjustment for slow tone detection */
-    CFE_TIME_SysTime_t AtToneLatch;       /* Local clock latched at time of tone */
-    CFE_TIME_SysTime_t CurrentLatch;      /* Local clock latched just "now" */
-    CFE_TIME_SysTime_t TimeSinceTone;     /* Time elapsed since the tone */
-    CFE_TIME_SysTime_t CurrentMET;        /* MET at this instant */
+    CFE_TIME_SysTime_t            AtToneMET;         /* MET at time of tone */
+    CFE_TIME_SysTime_t            AtToneSTCF;        /* STCF at time of tone */
+    int16                         AtToneLeapSeconds; /* Leap Seconds at time of tone */
+    CFE_TIME_SetState_Enum_t      ClockSetState;     /* Time has been "set" */
+    CFE_TIME_FlywheelState_Enum_t ClockFlyState;     /* Current fly-wheel state */
+    int16                         DelayDirection;    /* Whether "AtToneDelay" is add or subtract */
+    CFE_TIME_SysTime_t            AtToneDelay;       /* Adjustment for slow tone detection */
+    CFE_TIME_SysTime_t            AtToneLatch;       /* Local clock latched at time of tone */
+    CFE_TIME_SysTime_t            CurrentLatch;      /* Local clock latched just "now" */
+    CFE_TIME_SysTime_t            TimeSinceTone;     /* Time elapsed since the tone */
+    CFE_TIME_SysTime_t            CurrentMET;        /* MET at this instant */
 } CFE_TIME_Reference_t;
 
 /*
@@ -136,10 +136,10 @@ typedef struct
 {
     uint32 StateVersion;
 
-    int16 AtToneLeapSeconds;
-    int16 ClockSetState;
-    int16 ClockFlyState;
-    int16 DelayDirection;
+    int16                         AtToneLeapSeconds;
+    CFE_TIME_SetState_Enum_t      ClockSetState;
+    CFE_TIME_FlywheelState_Enum_t ClockFlyState;
+    int16                         DelayDirection;
 
     CFE_TIME_SysTime_t AtToneMET;
     CFE_TIME_SysTime_t AtToneSTCF;
@@ -174,9 +174,9 @@ typedef struct
     /*
     ** Task initialization data (not reported in housekeeping)...
     */
-    int16 ClockSource;
-    int16 ClockSignal;
-    int16 ServerFlyState;
+    int16                            ClockSource;
+    CFE_TIME_ToneSignalSelect_Enum_t ClockSignal;
+    CFE_TIME_FlywheelState_Enum_t    ServerFlyState;
 
     /*
     ** Pending data values (from "time at tone" command data)...
