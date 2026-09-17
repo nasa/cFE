@@ -66,8 +66,12 @@ void Test_MSG_Init(void)
     UtAssert_INT32_EQ(CFE_MSG_Init(CFE_MSG_PTR(cmd), msgid_act, 0), CFE_MSG_BAD_ARGUMENT);
     UtAssert_INT32_EQ(CFE_MSG_Init(CFE_MSG_PTR(cmd), msgid_act, CFE_MSG_SIZE_OFFSET - 1), CFE_MSG_BAD_ARGUMENT);
 
-    /* The CCSDS-representable upper bound is enforced by CFE_MSG_SetSize (called below), not by
-     * Init itself - the largest representable size is still accepted */
+    /* An oversize length must be rejected before it is used to clear the buffer: cmd is only a
+     * command header, so clearing 0xFFFF + CFE_MSG_SIZE_OFFSET + 1 bytes would run past it */
+    UtAssert_INT32_EQ(CFE_MSG_Init(CFE_MSG_PTR(cmd), msgid_act, 0xFFFF + CFE_MSG_SIZE_OFFSET + 1),
+                      CFE_MSG_BAD_ARGUMENT);
+
+    /* The largest representable size is still accepted */
     CFE_UtAssert_SUCCESS(CFE_MSG_Init(&maxmsg.Msg, msgid_act, sizeof(maxmsg)));
     UT_SetDefaultReturnValue(UT_KEY(CFE_SB_IsValidMsgId), false);
     UtAssert_INT32_EQ(CFE_MSG_Init(CFE_MSG_PTR(cmd), msgid_act, sizeof(cmd)), CFE_MSG_BAD_ARGUMENT);
