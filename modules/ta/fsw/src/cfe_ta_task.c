@@ -166,6 +166,16 @@ int32 CFE_TA_TaskInit(void)
         return Status;
     }
 
+    /* Initialize affinity packet*/
+    Status = CFE_MSG_Init(CFE_MSG_PTR(CFE_TA_Global.TA_AffinityTlmPkt.TelemetryHeader),
+                          CFE_SB_ValueToMsgId(CFE_TA_AFFINITY_TLM_MID),
+                          sizeof(CFE_TA_Global.TA_AffinityTlmPkt));
+
+    if (Status != CFE_SUCCESS)
+    {
+        return Status;
+    }
+
     CFE_TA_Global.CFE_TA_DiagInfo.CoresConfigured = OS_TaskAffinityCoresConfigured();
     CFE_TA_Global.CFE_TA_DiagInfo.TACoresMax      = OS_MAX_CPUS;
 
@@ -658,6 +668,86 @@ int32 CFE_TA_GetTaskAffinityCmd(const CFE_TA_GetTaskAffinityCmd_t *data)
 
     return Status;
 }
+
+/*----------------------------------------------------------------
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+int32 CFE_TA_QueryTaskAffinityCmd(const CFE_TA_QueryTaskAffinityCmd_t *data)
+{
+    OS_cpuset_t  cpuset;
+    OS_cpuset_t *mask;
+    osal_id_t    task_id = OS_OBJECT_ID_UNDEFINED;
+    int32        Status;
+
+    /* Get task from the task affinity list */
+    for (uint32 i = 0; i < OS_MAX_TASKS; i++)
+    {
+        memset(&CFE_TA_Global.TA_AffinityTlmPkt.Payload.TaskAffinity[i], 0, sizeof(CFE_TA_AffinityTlm_Data_t));
+
+        if (strlen(CFE_TA_CpuTaskAffinity[i].TaskName) != 0)
+        {
+            /* copy task name */
+            strncpy(CFE_TA_Global.TA_AffinityTlmPkt.Payload.TaskAffinity[i].TaskName,
+                    CFE_TA_CpuTaskAffinity[i].TaskName,
+                    CFE_MISSION_MAX_API_LEN);
+
+            /* For tasks IDs, defer to OSAL for name lookup */
+            Status = OS_TaskGetIdByName(&task_id, CFE_TA_CpuTaskAffinity[i].TaskName);
+
+            if (Status == OS_SUCCESS)
+            {
+                /* Get the task affinity */
+                Status = OS_TaskAffinityGetAffinity(task_id, &cpuset);
+
+                if (Status == OS_SUCCESS)
+                {
+                    mask = &cpuset;
+                }
+                else
+                {
+                    // mask = &CFE_TA_CpuTaskAffinity[i].CpuFromOS;
+                    CFE_EVS_SendEvent(CFE_TA_QUERY_AFFINITY_CMD_GET_ERR_EID,
+                                      CFE_EVS_EventType_ERROR,
+                                      "Query Task Affinity Failed for task (%s), Status = %d",
+                                      CFE_TA_CpuTaskAffinity[i].TaskName,
+                                      Status);
+
+                    CFE_TA_Global.CommandErrorCounter++;
+                    return CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
+                }
+            }
+            else
+            {
+                mask = &CFE_TA_CpuTaskAffinity[i].CpuFromOS;
+            }
+
+            /* copy task affinity */
+            for (uint32 j = 0;
+                 (j < CFE_MISSION_TA_MAX_NUM_CPUS) && (j < OS_MAX_CPUS) && (j < OS_TaskAffinityCoresConfigured());
+                 j++)
+            {
+                if (OS_CPUSET_ISSET(j, mask))
+                {
+                    CFE_TA_Global.TA_AffinityTlmPkt.Payload.TaskAffinity[i].AffinityMask[j / 8] = (1 << (j % 8));
+                }
+            }
+        }
+    }
+
+    CFE_TA_Global.TA_AffinityTlmPkt.Payload.CoresConfigured = OS_TaskAffinityCoresConfigured();
+    CFE_TA_Global.TA_AffinityTlmPkt.Payload.TACoresMax      = CFE_MISSION_TA_MAX_NUM_CPUS;
+
+    CFE_SB_TimeStampMsg(CFE_MSG_PTR(CFE_TA_Global.TA_AffinityTlmPkt.TelemetryHeader));
+    CFE_SB_TransmitMsg(CFE_MSG_PTR(CFE_TA_Global.TA_AffinityTlmPkt.TelemetryHeader), true);
+
+    CFE_TA_Global.CommandCounter++;
+
+    return CFE_SUCCESS;
+}
+
 /*----------------------------------------------------------------
  *
  * Application-scope internal function

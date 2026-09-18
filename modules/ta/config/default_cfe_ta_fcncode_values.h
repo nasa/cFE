@@ -36,11 +36,12 @@
 
 enum CFE_TA_FunctionCode_
 {
-    CFE_TA_FunctionCode_NOOP              = 0,
-    CFE_TA_FunctionCode_RESET_COUNTERS    = 1,
-    CFE_TA_FunctionCode_QUERY_ALL_TASKS   = 2,
-    CFE_TA_FunctionCode_SET_TASK_AFFINITY = 3,
-    CFE_TA_FunctionCode_GET_TASK_AFFINITY = 4,
+    CFE_TA_FunctionCode_NOOP                = 0,
+    CFE_TA_FunctionCode_RESET_COUNTERS      = 1,
+    CFE_TA_FunctionCode_QUERY_ALL_TASKS     = 2,
+    CFE_TA_FunctionCode_SET_TASK_AFFINITY   = 3,
+    CFE_TA_FunctionCode_GET_TASK_AFFINITY   = 4,
+    CFE_TA_FunctionCode_QUERY_TASK_AFFINITY = 5,
 
 };
 
