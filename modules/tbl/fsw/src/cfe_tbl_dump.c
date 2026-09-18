@@ -203,7 +203,7 @@ CFE_Status_t CFE_TBL_WriteSnapshotToFile(const CFE_TBL_DumpControl_t *DumpCtlPtr
                                 -1);
     }
 
-    CFE_TBL_SendTableDumpEvents(&Txn, DumpFilename, NULL);
+    CFE_TBL_SendTableDumpEvents(&Txn, DumpFilename, DumpCtlPtr->TableName);
 
     return Status;
 }
@@ -229,21 +229,20 @@ CFE_Status_t CFE_TBL_ExecuteDumpSnapshot(CFE_TBL_DumpControl_t *DumpCtrlPtr)
         Txn.RegId     = CFE_TBL_RegRecGetID(Txn.RegRecPtr);
 
         /* Copy the contents of the active buffer to the assigned dump buffer */
-        Status = CFE_TBL_EncodeOutputData(&Txn, SourceBufPtr, DumpCtrlPtr->DumpBufferPtr);
-
         /* NOTE: In a "passthru" implementation, it is not possible for the encoding to fail,
-         * this always succeeds.  Therefore this will show up as an uncovered branch in the
-         * passthrough configuration.  It is not possible to fix this without adding stubs
-         * for the codec layer. */
-        if (Status == CFE_SUCCESS)
-        {
-            /* Save the current time so that the header in the dump file can have the correct time */
-            DumpCtrlPtr->DumpBufferPtr->FileTime = CFE_TIME_GetTime();
+         * this always succeeds.  In an implementation where it does do an encode, then it
+         * is not the type of failure where trying again later might improve the result.
+         * We need to just accept the error and move on to eventually free the dump ctrl buffer. */
+        DumpCtrlPtr->EncodeStatus = CFE_TBL_EncodeOutputData(&Txn, SourceBufPtr, DumpCtrlPtr->DumpBufferPtr);
 
-            /* Notify the Table Services Application that the dump buffer is ready to be written to a file */
-            DumpCtrlPtr->State        = CFE_TBL_DUMP_PERFORMED;
-            DumpCtrlPtr->SourceBuffId = CFE_TBL_LOADBUFFID_UNDEFINED;
-        }
+        /* Save the current time so that the header in the dump file can have the correct time */
+        DumpCtrlPtr->DumpBufferPtr->FileTime = CFE_TIME_GetTime();
+
+        /* Notify the Table Services Application that the dump buffer is ready to be written to a file */
+        DumpCtrlPtr->State        = CFE_TBL_DUMP_PERFORMED;
+        DumpCtrlPtr->SourceBuffId = CFE_TBL_LOADBUFFID_UNDEFINED;
+
+        Status = CFE_SUCCESS;
     }
     else
     {
@@ -421,6 +420,7 @@ bool CFE_TBL_SendDumpEventHelper(const CFE_TBL_TxnEvent_t *Event, CFE_TBL_TxnEve
     const CFE_TBL_DumpContext_t *DumpCtxt;
     uint16                       EventType;
     char                         EventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    char                         CallerString[CFE_MISSION_MAX_API_LEN + 8];
 
     DumpCtxt = Ctxt->OperationDataPtr;
 
@@ -487,14 +487,25 @@ bool CFE_TBL_SendDumpEventHelper(const CFE_TBL_TxnEvent_t *Event, CFE_TBL_TxnEve
         return false;
     }
 
+    if (Ctxt->CallerName[0] == 0)
+    {
+        /* Empty name indicates it was initiated via ground command */
+        snprintf(CallerString, sizeof(CallerString), "command");
+    }
+    else
+    {
+        /* non-Empty name means it was initiated by another app via API */
+        snprintf(CallerString, sizeof(CallerString), "app=%s", Ctxt->CallerName);
+    }
+
     /* Finally send the actual event by appending all the info we have */
     CFE_EVS_SendEventWithAppID(Event->EventId,
                                EventType,
                                CFE_TBL_Global.TableTaskAppId,
-                               "%s,table=%s,app=%s,file=%s:%s",
+                               "%s by %s,table=%s,file=%s:%s",
                                Ctxt->Operation,
+                               CallerString,
                                DumpCtxt->RequestedTableName,
-                               Ctxt->CallerName,
                                DumpCtxt->FileName,
                                EventString);
 
@@ -534,4 +545,44 @@ void CFE_TBL_SendTableDumpEvents(CFE_TBL_TxnState_t *Txn, const char *FileName, 
     }
 
     CFE_TBL_SendTransactionEvents(Txn, "Dump", CFE_TBL_SendDumpEventHelper, &Ctxt);
+}
+
+/*----------------------------------------------------------------
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+void CFE_TBL_TableDumpExecuteBackground(void)
+{
+    uint32                 i;
+    CFE_TBL_DumpControl_t *DumpCtrlPtr;
+
+    /* Check to see if there are any dump-only table dumps pending */
+    for (i = 0; i < CFE_PLATFORM_TBL_MAX_SIMULTANEOUS_LOADS; i++)
+    {
+        DumpCtrlPtr = &CFE_TBL_Global.DumpControlBlocks[i];
+
+        if (CFE_TBL_DumpCtrlBlockIsUsed(DumpCtrlPtr) && DumpCtrlPtr->State == CFE_TBL_DUMP_PERFORMED)
+        {
+            /* only write the file if the snapshot was successful */
+            if (DumpCtrlPtr->EncodeStatus == CFE_SUCCESS)
+            {
+                CFE_TBL_WriteSnapshotToFile(DumpCtrlPtr);
+            }
+            else
+            {
+                CFE_EVS_SendEvent(CFE_TBL_DUMP_ENCODE_FAIL_EID,
+                                  CFE_EVS_EventType_ERROR,
+                                  "Table Dump encoding failed, status=%d",
+                                  (int)DumpCtrlPtr->EncodeStatus);
+            }
+
+            /* Free the shared working buffer */
+            CFE_TBL_LoadBuffSetFree(DumpCtrlPtr->DumpBufferPtr);
+
+            /* Free the Dump Control Block for later use */
+            CFE_TBL_DumpCtrlBlockSetFree(DumpCtrlPtr);
+        }
+    }
 }

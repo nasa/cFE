@@ -97,6 +97,7 @@ void UtTest_Setup(void)
     UT_TBL_ADD_TEST(Test_CFE_TBL_TableLoadCommon);
     UT_TBL_ADD_TEST(Test_CFE_TBL_TableLoadCodec);
     UT_TBL_ADD_TEST(Test_CFE_TBL_TableDumpCommon);
+    UT_TBL_ADD_TEST(Test_CFE_TBL_TableDumpExecuteBackground);
 
     /* cfe_tbl_task_cmds.c functions */
     /* This should be done first (it initializes working data structures) */
@@ -1158,7 +1159,6 @@ void Test_CFE_TBL_DumpCmd(void)
      * working buffer; load in progress, single-buffered
      */
     UT_InitData_TBL();
-
     UT_TBL_SetName(UT_TBL_Config(RegRecPtr)->Name, sizeof(UT_TBL_Config(RegRecPtr)->Name), "DumpCmdTest");
     RegRecPtr->OwnerAppId = AppID;
     UT_TBL_SetName(DumpCmd.Payload.TableName, sizeof(DumpCmd.Payload.TableName), CFE_TBL_RegRecGetName(RegRecPtr));
@@ -1263,77 +1263,25 @@ void Test_CFE_TBL_DumpCmd(void)
 */
 void Test_CFE_TBL_SendHkCmd(void)
 {
-    int                    i;
-    CFE_TBL_LoadBuff_t     DumpBuff;
-    CFE_TBL_LoadBuff_t    *DumpBuffPtr = &DumpBuff;
     CFE_TBL_RegistryRec_t *RegRecPtr;
-    uint8                  Buff;
-    void                  *BuffPtr = &Buff;
-    CFE_TBL_LoadBuffId_t   LoadInProg;
-    CFE_TBL_DumpControl_t *DumpCtrlPtr;
 
     UtPrintf("Begin Test Housekeeping Command");
     UT_TBL_SetupSingleReg(&RegRecPtr, NULL, CFE_TBL_OPT_DEFAULT);
 
-    /* Test response to inability to update timestamp in dump file + inability
-     * to send Hk packet
-     */
+    /* nominal with load in progress on subject table */
     UT_InitData_TBL();
-    UT_TBL_SetupPendingDump(0, DumpBuffPtr, RegRecPtr, &DumpCtrlPtr);
-    LoadInProg                             = UT_CFE_TBL_LOADBUFFID_GLB_0;
-    UT_TBL_Status(RegRecPtr)->NextBufferId = LoadInProg;
-    UT_TBL_SetLoadBuffTaken(DumpBuffPtr, RegRecPtr, CFE_RESOURCEID_UNWRAP(LoadInProg));
-    DumpBuffPtr->IsValid   = true;
-    DumpBuffPtr->BufferPtr = BuffPtr;
-    DumpBuffPtr->FileTime  = CFE_TIME_ZERO_VALUE;
-    UT_TBL_SetName(DumpBuffPtr->DataSource, sizeof(DumpBuffPtr->DataSource), "hkSource");
-    DumpCtrlPtr->State = CFE_TBL_DUMP_PERFORMED;
+    CFE_TBL_Global.HkTlmTblRegId           = UT_CFE_TBL_REGID_0;
+    UT_TBL_Status(RegRecPtr)->NextBufferId = UT_CFE_TBL_LOADBUFFID_GLB_0;
 
-    for (i = 1; i < CFE_PLATFORM_TBL_MAX_SIMULTANEOUS_LOADS; i++)
-    {
-        UT_TBL_SetupPendingDump(i, NULL, NULL, NULL);
-    }
+    UtAssert_INT32_EQ(CFE_TBL_SendHkCmd(NULL), CFE_SUCCESS);
+    CFE_UtAssert_EVENTCOUNT(0);
 
-    UT_SetDeferredRetcode(UT_KEY(CFE_SB_TransmitMsg), 1, CFE_SUCCESS - 1);
-    CFE_TBL_Global.HkTlmTblRegId = UT_CFE_TBL_REGID_0;
+    /* Failure in CFE_SB_TransmitMsg() */
+    UT_SetDeferredRetcode(UT_KEY(CFE_SB_TransmitMsg), 1, CFE_SB_BAD_ARGUMENT);
     UtAssert_INT32_EQ(CFE_TBL_SendHkCmd(NULL), CFE_SUCCESS);
 
-    for (i = 1; i < CFE_PLATFORM_TBL_MAX_SIMULTANEOUS_LOADS; i++)
-    {
-        UT_TBL_SetupPendingDump(i, NULL, NULL, NULL);
-    }
-
-    UT_TBL_Status(RegRecPtr)->NextBufferId = LoadInProg;
-
-    /* Test response to inability to open dump file */
-    UT_InitData_TBL();
-    UT_TBL_SetupPendingDump(0, DumpBuffPtr, RegRecPtr, &DumpCtrlPtr);
-    DumpCtrlPtr->State           = CFE_TBL_DUMP_PERFORMED;
-    CFE_TBL_Global.HkTlmTblRegId = UT_CFE_TBL_REGID_0;
-    UT_SetDefaultReturnValue(UT_KEY(OS_OpenCreate), OS_ERROR);
-    UtAssert_INT32_EQ(CFE_TBL_SendHkCmd(NULL), CFE_SUCCESS);
-
-    /* Test response to an invalid table and a dump file create failure */
-    UT_InitData_TBL();
-    UT_TBL_SetupPendingDump(0, DumpBuffPtr, RegRecPtr, &DumpCtrlPtr);
-    CFE_TBL_Global.HkTlmTblRegId = CFE_TBL_NOT_FOUND;
-    DumpCtrlPtr->State           = CFE_TBL_DUMP_PERFORMED;
-    UT_SetDefaultReturnValue(UT_KEY(OS_OpenCreate), OS_ERROR);
-    UtAssert_INT32_EQ(CFE_TBL_SendHkCmd(NULL), CFE_SUCCESS);
-
-    /* Test response to a file time stamp failure */
-    UT_InitData_TBL();
-    UT_TBL_SetupPendingDump(0, DumpBuffPtr, RegRecPtr, &DumpCtrlPtr);
-    DumpCtrlPtr->State = CFE_TBL_DUMP_PERFORMED;
-    UT_SetDeferredRetcode(UT_KEY(CFE_FS_SetTimestamp), 1, OS_SUCCESS - 1);
-    UtAssert_INT32_EQ(CFE_TBL_SendHkCmd(NULL), CFE_SUCCESS);
-
-    /* Test response to OS_OpenCreate failure */
-    UT_InitData_TBL();
-    UT_TBL_SetupPendingDump(0, DumpBuffPtr, RegRecPtr, &DumpCtrlPtr);
-    DumpCtrlPtr->State = CFE_TBL_DUMP_PERFORMED;
-    UT_SetDeferredRetcode(UT_KEY(OS_OpenCreate), 3, -1);
-    UtAssert_INT32_EQ(CFE_TBL_SendHkCmd(NULL), CFE_SUCCESS);
+    CFE_UtAssert_EVENTCOUNT(1);
+    CFE_UtAssert_EVENTSENT(CFE_TBL_FAIL_HK_SEND_ERR_EID);
 
     /* Test when the table is not owned */
     UT_InitData_TBL();
@@ -1343,6 +1291,76 @@ void Test_CFE_TBL_SendHkCmd(void)
 
     CFE_TBL_Global.HkTlmTblRegId = UT_CFE_TBL_REGID_INVL;
     UtAssert_INT32_EQ(CFE_TBL_SendHkCmd(NULL), CFE_SUCCESS);
+}
+
+void Test_CFE_TBL_TableDumpExecuteBackground(void)
+{
+    int                    i;
+    CFE_TBL_LoadBuff_t     DumpBuff;
+    CFE_TBL_LoadBuff_t    *DumpBuffPtr = &DumpBuff;
+    CFE_TBL_RegistryRec_t *RegRecPtr;
+    uint8                  Buff[16];
+    CFE_TBL_DumpControl_t *DumpCtrlPtr;
+
+    UtPrintf("Begin Test Periodic Dump Activity");
+    UT_TBL_SetupSingleReg(&RegRecPtr, NULL, CFE_TBL_OPT_DEFAULT);
+
+    /* Set up for nominal operation */
+    UT_InitData_TBL();
+    UT_TBL_SetupPendingDump(0, DumpBuffPtr, RegRecPtr, &DumpCtrlPtr);
+    DumpBuffPtr->IsValid        = true;
+    DumpBuffPtr->BufferPtr      = Buff;
+    DumpBuffPtr->AllocationSize = sizeof(Buff);
+    DumpBuffPtr->ContentSize    = sizeof(Buff);
+    DumpBuffPtr->FileTime       = CFE_TIME_ZERO_VALUE;
+    UT_TBL_SetName(DumpBuffPtr->DataSource, sizeof(DumpBuffPtr->DataSource), "hkSource");
+    DumpCtrlPtr->State = CFE_TBL_DUMP_PERFORMED;
+
+    for (i = 1; i < CFE_PLATFORM_TBL_MAX_SIMULTANEOUS_LOADS; i++)
+    {
+        UT_TBL_SetupPendingDump(i, NULL, NULL, NULL);
+    }
+
+    UtAssert_VOIDCALL(CFE_TBL_TableDumpExecuteBackground());
+
+    /* Test response to inability to open dump file */
+    UT_InitData_TBL();
+    UT_TBL_SetupPendingDump(0, DumpBuffPtr, RegRecPtr, &DumpCtrlPtr);
+    DumpCtrlPtr->State           = CFE_TBL_DUMP_PERFORMED;
+    CFE_TBL_Global.HkTlmTblRegId = UT_CFE_TBL_REGID_0;
+    UT_SetDefaultReturnValue(UT_KEY(OS_OpenCreate), OS_ERROR);
+    UtAssert_VOIDCALL(CFE_TBL_TableDumpExecuteBackground());
+
+    /* Test response to an invalid table and a dump file create failure */
+    UT_InitData_TBL();
+    UT_TBL_SetupPendingDump(0, DumpBuffPtr, RegRecPtr, &DumpCtrlPtr);
+    CFE_TBL_Global.HkTlmTblRegId = CFE_TBL_NOT_FOUND;
+    DumpCtrlPtr->State           = CFE_TBL_DUMP_PERFORMED;
+    UT_SetDefaultReturnValue(UT_KEY(OS_OpenCreate), OS_ERROR);
+    UtAssert_VOIDCALL(CFE_TBL_TableDumpExecuteBackground());
+
+    /* Test response to a file time stamp failure */
+    UT_InitData_TBL();
+    UT_TBL_SetupPendingDump(0, DumpBuffPtr, RegRecPtr, &DumpCtrlPtr);
+    DumpCtrlPtr->State = CFE_TBL_DUMP_PERFORMED;
+    UT_SetDeferredRetcode(UT_KEY(CFE_FS_SetTimestamp), 1, OS_SUCCESS - 1);
+    UtAssert_VOIDCALL(CFE_TBL_TableDumpExecuteBackground());
+
+    /* Test response to OS_OpenCreate failure */
+    UT_InitData_TBL();
+    UT_TBL_SetupPendingDump(0, DumpBuffPtr, RegRecPtr, &DumpCtrlPtr);
+    DumpCtrlPtr->State = CFE_TBL_DUMP_PERFORMED;
+    UT_SetDeferredRetcode(UT_KEY(OS_OpenCreate), 3, -1);
+    UtAssert_VOIDCALL(CFE_TBL_TableDumpExecuteBackground());
+
+    /* Test response to Encoder failure */
+    UT_InitData_TBL();
+    UT_TBL_SetupPendingDump(0, DumpBuffPtr, RegRecPtr, &DumpCtrlPtr);
+    DumpCtrlPtr->EncodeStatus = CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
+    DumpCtrlPtr->State        = CFE_TBL_DUMP_PERFORMED;
+    UtAssert_VOIDCALL(CFE_TBL_TableDumpExecuteBackground());
+    CFE_UtAssert_EVENTCOUNT(1);
+    CFE_UtAssert_EVENTSENT(CFE_TBL_DUMP_ENCODE_FAIL_EID);
 }
 
 /*
@@ -2038,8 +2056,10 @@ void Test_CFE_TBL_TableDumpCommon(void)
     CFE_TBL_AccessDescriptor_t *AccDescPtr;
     CFE_TBL_TxnState_t          Txn;
     CFE_TBL_CombinedFileHdr_t   FileHeader;
+    char                        AppNameBuf;
 
     memset(&Txn, 0, sizeof(Txn));
+    AppNameBuf = 0;
     strncpy(Filename, "ut", sizeof(Filename));
 
     UtPrintf("Begin Test Table Dump Common Impl");
@@ -2051,6 +2071,8 @@ void Test_CFE_TBL_TableDumpCommon(void)
 
     /* Test when the transaction object is not initialized */
     UT_InitData_TBL();
+    UT_ResetState(UT_KEY(CFE_ES_GetAppName));
+    UT_SetDataBuffer(UT_KEY(CFE_ES_GetAppName), &AppNameBuf, sizeof(AppNameBuf), false);
     UtAssert_INT32_EQ(CFE_TBL_AllocateDumpCtrlBlock(&Txn, &DumpCtrlId, CFE_TBL_BufferSelect_ACTIVE),
                       CFE_TBL_ERR_INVALID_HANDLE);
     UT_TBL_EVENT_PENDING(&Txn, CFE_TBL_NO_SUCH_TABLE_ERR_EID);

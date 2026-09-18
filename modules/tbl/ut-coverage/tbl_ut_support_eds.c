@@ -520,10 +520,7 @@ void UT_TBL_EncodeOutputData_Test(void)
     UtAssert_INT32_EQ(CFE_TBL_EncodeOutputData(&Txn, &SourceBuffer, &DestBuffer), CFE_SUCCESS);
     UtAssert_ZERO(Txn.NumPendingEvents);
 
-    UT_SetDeferredRetcode(UT_KEY(EdsLib_DataTypeDB_PackCompleteObject), 1, -1);
-    UtAssert_INT32_EQ(CFE_TBL_EncodeOutputData(&Txn, &SourceBuffer, &DestBuffer), CFE_STATUS_EXTERNAL_RESOURCE_FAIL);
-
-    UT_SetDeferredRetcode(UT_KEY(EdsLib_DataTypeDB_GetTypeInfo), 1, -1);
+    UT_SetDeferredRetcode(UT_KEY(EdsLib_DataTypeDB_PackCompleteObjectVarSize), 1, -1);
     UtAssert_INT32_EQ(CFE_TBL_EncodeOutputData(&Txn, &SourceBuffer, &DestBuffer), CFE_STATUS_EXTERNAL_RESOURCE_FAIL);
 }
 
