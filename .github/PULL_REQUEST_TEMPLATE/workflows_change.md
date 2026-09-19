@@ -35,6 +35,7 @@ Closes #
 
 ## Author Checklist
 
+- [ ] I reviewed the [Pull Request and Commit Guide](https://github.com/nasa/cFE/blob/dev/PULL_REQUEST_GUIDE.md)
 - [ ] Linked GitHub issue is referenced above
 - [ ] Workflow changes were tested on a branch/fork before submitting this PR
 - [ ] All workflows ran successfully on this branch
