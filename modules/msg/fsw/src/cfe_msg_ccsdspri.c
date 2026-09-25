@@ -26,8 +26,7 @@
 
 #include <assert.h>
 
-/* CCSDS Primary Standard definitions */
-#define CFE_MSG_SIZE_OFFSET    7      /**< \brief CCSDS size offset */
+/* CCSDS Primary Standard definitions (CFE_MSG_SIZE_OFFSET is in cfe_msg_priv.h) */
 #define CFE_MSG_CCSDSVER_MASK  0xE000 /**< \brief CCSDS version mask */
 #define CFE_MSG_CCSDSVER_SHIFT 13     /**< \brief CCSDS version shift */
 #define CFE_MSG_TYPE_MASK      0x1000 /**< \brief CCSDS type mask, command when set */
@@ -378,7 +377,7 @@ CFE_Status_t CFE_MSG_GetSize(const CFE_MSG_Message_t *MsgPtr, CFE_MSG_Size_t *Si
         return CFE_MSG_BAD_ARGUMENT;
     }
 
-    *Size = (MsgPtr->CCSDS.Pri.Length[0] << 8) + MsgPtr->CCSDS.Pri.Length[1] + CFE_MSG_SIZE_OFFSET;
+    *Size = (((uint16)MsgPtr->CCSDS.Pri.Length[0] << 8) | MsgPtr->CCSDS.Pri.Length[1]) + CFE_MSG_SIZE_OFFSET;
 
     return CFE_SUCCESS;
 }
