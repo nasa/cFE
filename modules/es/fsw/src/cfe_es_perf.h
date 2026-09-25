@@ -73,13 +73,13 @@ static inline void CFE_ES_SET_U8_MASK(uint8 *m, uint32 s, bool v)
 /**
  * @brief Internal states for Performance Analyzer
  */
-typedef enum CFE_ES_PerfState
+enum CFE_ES_PerfState
 {
     CFE_ES_PERF_IDLE = 0,
     CFE_ES_PERF_WAITING_FOR_TRIGGER,
     CFE_ES_PERF_TRIGGERED,
     CFE_ES_PERF_MAX_STATES
-} CFE_ES_PerfState_t;
+};
 
 /**
  * @brief Perflog Dump Background Job states
