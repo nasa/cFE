@@ -314,6 +314,31 @@ CFE_Status_t CFE_FS_WriteHeader(osal_id_t FileDes, CFE_FS_Header_t *Hdr)
     return Result;
 }
 
+/* Serialize snapshot metadata without stamping the background task's identity
+ * and time into another service's file. */
+CFE_Status_t CFE_FS_WriteHeaderFromBuffer(osal_id_t FileDes, const CFE_FS_Header_t *Hdr)
+{
+    CFE_FS_Header_t Buffer;
+    const uint32    EndianCheck = 0x01020304;
+    int32           OsStatus;
+
+    if (Hdr == NULL)
+    {
+        return CFE_FS_BAD_ARGUMENT;
+    }
+    Buffer   = *Hdr;
+    OsStatus = OS_lseek(FileDes, 0, OS_SEEK_SET);
+    if (OsStatus >= OS_SUCCESS)
+    {
+        if (*(const uint8 *)&EndianCheck == 0x04)
+        {
+            CFE_FS_ByteSwapCFEHeader(&Buffer);
+        }
+        OsStatus = OS_write(FileDes, &Buffer, sizeof(Buffer));
+    }
+    return OsStatus < OS_SUCCESS ? CFE_STATUS_EXTERNAL_RESOURCE_FAIL : OsStatus;
+}
+
 /*----------------------------------------------------------------
  *
  * Implemented per public API
@@ -817,6 +842,7 @@ static void CFE_FS_RunBackgroundFileDump_OpenFile(CFE_FS_CurrentFileState_t *Sta
     int32           OsStatus;
     int32           Status;
     CFE_FS_Header_t FileHdr;
+    bool            HeaderWritten;
 
     if (OS_ObjectIdDefined(State->Fd) || !Meta->IsPending)
     {
@@ -833,11 +859,19 @@ static void CFE_FS_RunBackgroundFileDump_OpenFile(CFE_FS_CurrentFileState_t *Sta
         return;
     }
 
-    CFE_FS_InitHeader(&FileHdr, Meta->Description, Meta->FileSubType);
+    if (Meta->WriteHeader != NULL)
+    {
+        Status        = Meta->WriteHeader(Meta, State->Fd);
+        HeaderWritten = (Status > 0);
+    }
+    else
+    {
+        CFE_FS_InitHeader(&FileHdr, Meta->Description, Meta->FileSubType);
+        Status        = CFE_FS_WriteHeader(State->Fd, &FileHdr);
+        HeaderWritten = (Status == sizeof(CFE_FS_Header_t));
+    }
 
-    /* write the cFE header to the file */
-    Status = CFE_FS_WriteHeader(State->Fd, &FileHdr);
-    if (Status != sizeof(CFE_FS_Header_t))
+    if (!HeaderWritten)
     {
         OS_close(State->Fd);
         State->Fd = OS_OBJECT_ID_UNDEFINED;
@@ -850,8 +884,8 @@ static void CFE_FS_RunBackgroundFileDump_OpenFile(CFE_FS_CurrentFileState_t *Sta
         return;
     }
 
-    State->FileSize   = sizeof(CFE_FS_Header_t);
-    State->Credit    -= sizeof(CFE_FS_Header_t);
+    State->FileSize    = Status;
+    State->Credit     -= Status;
     State->RecordNum  = 0;
 }
 
@@ -1098,10 +1132,18 @@ int32 CFE_FS_BackgroundFileDumpRequest(CFE_FS_FileWriteMetaData_t *Meta)
  *-----------------------------------------------------------------*/
 bool CFE_FS_BackgroundFileDumpIsPending(const CFE_FS_FileWriteMetaData_t *Meta)
 {
+    bool IsPending;
+
     if (Meta == NULL)
     {
         return false;
     }
 
-    return Meta->IsPending;
+    /* Pair with the writer's completion update before the owner reads callback
+     * results or releases storage that was retained by the queue. */
+    CFE_FS_LockSharedData(__func__);
+    IsPending = Meta->IsPending;
+    CFE_FS_UnlockSharedData(__func__);
+
+    return IsPending;
 }
