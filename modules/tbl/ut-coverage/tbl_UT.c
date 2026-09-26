@@ -40,6 +40,7 @@
 #include "tbl_ut_helpers.h"
 #include "cfe_core_resourceid_basevalues.h"
 #include "cfe_config.h"
+#include "cfe_fs_core_internal.h"
 
 /*
 ** Global variables
@@ -106,6 +107,10 @@ void UtTest_Setup(void)
     UT_TBL_ADD_TEST(Test_CFE_TBL_AbortLoadCmd);
     UT_TBL_ADD_TEST(Test_CFE_TBL_ActivateCmd);
     UT_TBL_ADD_TEST(Test_CFE_TBL_DumpToFile);
+    UT_TBL_ADD_TEST(Test_CFE_TBL_SnapshotHeaders);
+    UT_TBL_ADD_TEST(Test_CFE_TBL_SnapshotBlocks);
+    UT_TBL_ADD_TEST(Test_CFE_TBL_SnapshotEvents);
+    UT_TBL_ADD_TEST(Test_CFE_TBL_SnapshotMultiple);
     UT_TBL_ADD_TEST(Test_CFE_TBL_ResetCmd);
     UT_TBL_ADD_TEST(Test_CFE_TBL_ValidateCmd);
     UT_TBL_ADD_TEST(Test_CFE_TBL_NoopCmd);
@@ -549,62 +554,6 @@ void Test_CFE_TBL_ActivateCmd(void)
              CFE_PLATFORM_TBL_MAX_NUM_TABLES + 1);
     UtAssert_INT32_EQ(CFE_TBL_ActivateCmd(&ActivateCmd), CFE_SUCCESS);
     CFE_UtAssert_COUNTER_INCR(CFE_TBL_Global.CommandErrorCounter);
-}
-
-/*
-** Test the write table data to a file function
-*/
-void Test_CFE_TBL_DumpToFile(void)
-{
-    const char TableData[]    = "dumptest";
-    size_t     TblSizeInBytes = sizeof(TableData);
-
-    CFE_TBL_DumpControl_t *DumpCtlPtr;
-    CFE_TBL_LoadBuff_t    *BuffPtr;
-
-    BuffPtr = UT_TBL_SetupLoadBuff(NULL, false, 0);
-    UT_TBL_SetupPendingDump(0, BuffPtr, NULL, &DumpCtlPtr);
-
-    strncpy(DumpCtlPtr->DumpBufferPtr->DataSource, "filename", sizeof(DumpCtlPtr->DumpBufferPtr->DataSource));
-    CFE_TBL_LoadBuffSetContentSize(BuffPtr, sizeof(TableData));
-    DumpCtlPtr->State = CFE_TBL_DUMP_PERFORMED;
-
-    UtPrintf("Begin Test Dump to File");
-
-    /* Test with an error creating the dump file */
-    UT_InitData_TBL();
-
-    UT_SetDefaultReturnValue(UT_KEY(OS_OpenCreate), OS_ERROR);
-    UtAssert_INT32_EQ(CFE_TBL_WriteSnapshotToFile(DumpCtlPtr), CFE_TBL_ERR_ACCESS);
-
-    /* Test with an error writing the cFE file header */
-    UT_InitData_TBL();
-    UT_SetDeferredRetcode(UT_KEY(CFE_FS_WriteHeader), 1, sizeof(CFE_FS_Header_t) - 1);
-    UtAssert_INT32_EQ(CFE_TBL_WriteSnapshotToFile(DumpCtlPtr), CFE_TBL_ERR_ACCESS);
-
-    /* Test with an error writing the table file header */
-    UT_InitData_TBL();
-
-    /* Set the count for the FSWriteHdrRtn return code variable to a large
-     * enough value to pass through every time
-     */
-    UT_SetDeferredRetcode(UT_KEY(CFE_FS_WriteHeader), 6, sizeof(CFE_FS_Header_t));
-    UT_SetDeferredRetcode(UT_KEY(OS_write), 1, sizeof(CFE_TBL_File_Hdr_t) - 1);
-    UtAssert_INT32_EQ(CFE_TBL_WriteSnapshotToFile(DumpCtlPtr), CFE_TBL_ERR_ACCESS);
-
-    /* Test with an error writing the table to a file */
-    UT_InitData_TBL();
-    UT_SetDeferredRetcode(UT_KEY(OS_write), 2, TblSizeInBytes - 1);
-    UtAssert_INT32_EQ(CFE_TBL_WriteSnapshotToFile(DumpCtlPtr), CFE_TBL_ERR_ACCESS);
-
-    /* Test successful file creation and data dumped */
-    UT_InitData_TBL();
-    UT_SetDeferredRetcode(UT_KEY(OS_OpenCreate), 1, OS_ERROR);
-    UtAssert_INT32_EQ(CFE_TBL_WriteSnapshotToFile(DumpCtlPtr), CFE_SUCCESS);
-
-    /* Test where file already exists so data is overwritten */
-    UT_InitData_TBL();
-    UtAssert_INT32_EQ(CFE_TBL_WriteSnapshotToFile(DumpCtlPtr), CFE_SUCCESS);
 }
 
 /*
@@ -1291,76 +1240,6 @@ void Test_CFE_TBL_SendHkCmd(void)
 
     CFE_TBL_Global.HkTlmTblRegId = UT_CFE_TBL_REGID_INVL;
     UtAssert_INT32_EQ(CFE_TBL_SendHkCmd(NULL), CFE_SUCCESS);
-}
-
-void Test_CFE_TBL_TableDumpExecuteBackground(void)
-{
-    int                    i;
-    CFE_TBL_LoadBuff_t     DumpBuff;
-    CFE_TBL_LoadBuff_t    *DumpBuffPtr = &DumpBuff;
-    CFE_TBL_RegistryRec_t *RegRecPtr;
-    uint8                  Buff[16];
-    CFE_TBL_DumpControl_t *DumpCtrlPtr;
-
-    UtPrintf("Begin Test Periodic Dump Activity");
-    UT_TBL_SetupSingleReg(&RegRecPtr, NULL, CFE_TBL_OPT_DEFAULT);
-
-    /* Set up for nominal operation */
-    UT_InitData_TBL();
-    UT_TBL_SetupPendingDump(0, DumpBuffPtr, RegRecPtr, &DumpCtrlPtr);
-    DumpBuffPtr->IsValid        = true;
-    DumpBuffPtr->BufferPtr      = Buff;
-    DumpBuffPtr->AllocationSize = sizeof(Buff);
-    DumpBuffPtr->ContentSize    = sizeof(Buff);
-    DumpBuffPtr->FileTime       = CFE_TIME_ZERO_VALUE;
-    UT_TBL_SetName(DumpBuffPtr->DataSource, sizeof(DumpBuffPtr->DataSource), "hkSource");
-    DumpCtrlPtr->State = CFE_TBL_DUMP_PERFORMED;
-
-    for (i = 1; i < CFE_PLATFORM_TBL_MAX_SIMULTANEOUS_LOADS; i++)
-    {
-        UT_TBL_SetupPendingDump(i, NULL, NULL, NULL);
-    }
-
-    UtAssert_VOIDCALL(CFE_TBL_TableDumpExecuteBackground());
-
-    /* Test response to inability to open dump file */
-    UT_InitData_TBL();
-    UT_TBL_SetupPendingDump(0, DumpBuffPtr, RegRecPtr, &DumpCtrlPtr);
-    DumpCtrlPtr->State           = CFE_TBL_DUMP_PERFORMED;
-    CFE_TBL_Global.HkTlmTblRegId = UT_CFE_TBL_REGID_0;
-    UT_SetDefaultReturnValue(UT_KEY(OS_OpenCreate), OS_ERROR);
-    UtAssert_VOIDCALL(CFE_TBL_TableDumpExecuteBackground());
-
-    /* Test response to an invalid table and a dump file create failure */
-    UT_InitData_TBL();
-    UT_TBL_SetupPendingDump(0, DumpBuffPtr, RegRecPtr, &DumpCtrlPtr);
-    CFE_TBL_Global.HkTlmTblRegId = CFE_TBL_NOT_FOUND;
-    DumpCtrlPtr->State           = CFE_TBL_DUMP_PERFORMED;
-    UT_SetDefaultReturnValue(UT_KEY(OS_OpenCreate), OS_ERROR);
-    UtAssert_VOIDCALL(CFE_TBL_TableDumpExecuteBackground());
-
-    /* Test response to a file time stamp failure */
-    UT_InitData_TBL();
-    UT_TBL_SetupPendingDump(0, DumpBuffPtr, RegRecPtr, &DumpCtrlPtr);
-    DumpCtrlPtr->State = CFE_TBL_DUMP_PERFORMED;
-    UT_SetDeferredRetcode(UT_KEY(CFE_FS_SetTimestamp), 1, OS_SUCCESS - 1);
-    UtAssert_VOIDCALL(CFE_TBL_TableDumpExecuteBackground());
-
-    /* Test response to OS_OpenCreate failure */
-    UT_InitData_TBL();
-    UT_TBL_SetupPendingDump(0, DumpBuffPtr, RegRecPtr, &DumpCtrlPtr);
-    DumpCtrlPtr->State = CFE_TBL_DUMP_PERFORMED;
-    UT_SetDeferredRetcode(UT_KEY(OS_OpenCreate), 3, -1);
-    UtAssert_VOIDCALL(CFE_TBL_TableDumpExecuteBackground());
-
-    /* Test response to Encoder failure */
-    UT_InitData_TBL();
-    UT_TBL_SetupPendingDump(0, DumpBuffPtr, RegRecPtr, &DumpCtrlPtr);
-    DumpCtrlPtr->EncodeStatus = CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
-    DumpCtrlPtr->State        = CFE_TBL_DUMP_PERFORMED;
-    UtAssert_VOIDCALL(CFE_TBL_TableDumpExecuteBackground());
-    CFE_UtAssert_EVENTCOUNT(1);
-    CFE_UtAssert_EVENTSENT(CFE_TBL_DUMP_ENCODE_FAIL_EID);
 }
 
 /*
@@ -2170,10 +2049,10 @@ void Test_CFE_TBL_TableDumpCommon(void)
     OS_OpenCreate(&FileDescriptor, Filename, 0, OS_WRITE_ONLY);
 
     /* Failure of CFE_FS_WriteHeader() */
-    UT_SetDefaultReturnValue(UT_KEY(CFE_FS_WriteHeader), -1);
+    UT_SetDefaultReturnValue(UT_KEY(CFE_FS_WriteHeaderFromBuffer), -1);
     UtAssert_INT32_EQ(CFE_TBL_WriteHeaders(&Txn, FileDescriptor, &FileHeader), CFE_TBL_ERR_ACCESS);
     UT_TBL_EVENT_PENDING(&Txn, CFE_TBL_WRITE_CFE_HDR_ERR_EID);
-    UT_ResetState(UT_KEY(CFE_FS_WriteHeader));
+    UT_ResetState(UT_KEY(CFE_FS_WriteHeaderFromBuffer));
 
     /* Failure of OS_write() */
     UT_SetDefaultReturnValue(UT_KEY(OS_write), -1);
@@ -2184,43 +2063,8 @@ void Test_CFE_TBL_TableDumpCommon(void)
     /* Nominal/success */
     UtAssert_INT32_EQ(CFE_TBL_WriteHeaders(&Txn, FileDescriptor, &FileHeader), CFE_SUCCESS);
 
-    /* Test cases focusing on the following APIs:
-     * CFE_Status_t CFE_TBL_WriteSnapshotToFile(const CFE_TBL_DumpControl_t *DumpCtlPtr);
-     */
-
-    DumpBuffPtr = CFE_TBL_AcquireGlobalLoadBuff(CFE_TBL_RegRecGetID(RegRecPtr));
-
-    /* Nominal, overwriting a file */
-    UT_TBL_SetupPendingDump(0, DumpBuffPtr, RegRecPtr, &DumpCtrlPtr);
-    UtAssert_INT32_EQ(CFE_TBL_WriteSnapshotToFile(DumpCtrlPtr), CFE_SUCCESS);
-    CFE_UtAssert_EVENTSENT(CFE_TBL_OVERWRITE_DUMP_INF_EID);
-
-    /* Nominal, creating a new file */
-    UT_SetDeferredRetcode(UT_KEY(OS_OpenCreate), 1, -1);
-    UT_TBL_SetupPendingDump(0, DumpBuffPtr, RegRecPtr, &DumpCtrlPtr);
-    UtAssert_INT32_EQ(CFE_TBL_WriteSnapshotToFile(DumpCtrlPtr), CFE_SUCCESS);
-    CFE_UtAssert_EVENTSENT(CFE_TBL_WRITE_DUMP_INF_EID);
-    UT_ResetState(UT_KEY(OS_OpenCreate));
-
-    /* Unable to open output */
-    UT_SetDefaultReturnValue(UT_KEY(OS_OpenCreate), -1);
-    UT_TBL_SetupPendingDump(0, DumpBuffPtr, RegRecPtr, &DumpCtrlPtr);
-    UtAssert_INT32_EQ(CFE_TBL_WriteSnapshotToFile(DumpCtrlPtr), CFE_TBL_ERR_ACCESS);
-    CFE_UtAssert_EVENTSENT(CFE_TBL_CREATING_DUMP_FILE_ERR_EID);
-    UT_ResetState(UT_KEY(OS_OpenCreate));
-
-    /* Fail to write header (via CFE_TBL_WriteHeaders, events already checked) */
-    UT_SetDeferredRetcode(UT_KEY(CFE_FS_WriteHeader), 1, -1);
-    UT_TBL_SetupPendingDump(0, DumpBuffPtr, RegRecPtr, &DumpCtrlPtr);
-    UtAssert_INT32_EQ(CFE_TBL_WriteSnapshotToFile(DumpCtrlPtr), CFE_TBL_ERR_ACCESS);
-    UT_ResetState(UT_KEY(CFE_FS_WriteHeader));
-
-    /* Fail to write data (headers are first OS_write call, data is second here) */
-    UT_SetDeferredRetcode(UT_KEY(OS_write), 2, -1);
-    UT_TBL_SetupPendingDump(0, DumpBuffPtr, RegRecPtr, &DumpCtrlPtr);
-    UtAssert_INT32_EQ(CFE_TBL_WriteSnapshotToFile(DumpCtrlPtr), CFE_TBL_ERR_ACCESS);
-    CFE_UtAssert_EVENTSENT(CFE_TBL_WRITE_TBL_IMG_ERR_EID);
-    UT_ResetState(UT_KEY(OS_write));
+    /* Queued snapshot writes and completion events are exercised in
+     * tbl_ut_dump.c. */
 
     /* Test cases focusing on the following APIs:
      * bool CFE_TBL_SendDumpEventHelper(const CFE_TBL_TxnEvent_t *Event, void *Arg);
