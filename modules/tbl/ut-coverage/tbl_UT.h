@@ -197,6 +197,10 @@ void Test_CFE_TBL_ActivateCmd(void);
 **        This function does not return a value.
 ******************************************************************************/
 void Test_CFE_TBL_DumpToFile(void);
+void Test_CFE_TBL_SnapshotHeaders(void);
+void Test_CFE_TBL_SnapshotBlocks(void);
+void Test_CFE_TBL_SnapshotEvents(void);
+void Test_CFE_TBL_SnapshotMultiple(void);
 
 /*****************************************************************************/
 /**

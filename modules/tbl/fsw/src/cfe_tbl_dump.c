@@ -28,6 +28,8 @@
 #include "cfe_tbl_module_all.h"
 #include "cfe_tbl_codec.h"
 #include "cfe_config.h"
+#include "cfe_fs_core_internal.h"
+#include "cfe_psp.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -49,18 +51,9 @@ CFE_TBL_WriteHeaders(CFE_TBL_TxnState_t *Txn, osal_id_t FileDescriptor, const CF
 {
     CFE_Status_t Status;
 
-    union
-    {
-        CFE_FS_Header_t    Std;
-        CFE_TBL_File_Hdr_t Tbl;
-    } Buffer;
-
-    /* Initialize the standard cFE File Header for the Dump File */
-    /* This is needed because the FS API call (possibly) modifies the buffer during write */
-    Buffer.Std = FileHeader->Std;
-
-    /* Output the Standard cFE File Header to the Dump File */
-    Status = CFE_FS_WriteHeader(FileDescriptor, &Buffer.Std);
+    /* The core serializer preserves snapshot metadata and leaves the caller's
+     * header unchanged. The table-specific codec writes the second header. */
+    Status = CFE_FS_WriteHeaderFromBuffer(FileDescriptor, &FileHeader->Std);
 
     if (Status != sizeof(CFE_FS_Header_t))
     {
@@ -75,136 +68,152 @@ CFE_TBL_WriteHeaders(CFE_TBL_TxnState_t *Txn, osal_id_t FileDescriptor, const CF
     return Status;
 }
 
-/*----------------------------------------------------------------
- *
- * Application-scope internal function
- * See description in header file for argument/return detail
- *
- *-----------------------------------------------------------------*/
-CFE_Status_t CFE_TBL_TxnOpenTableDumpFile(CFE_TBL_TxnState_t              *Txn,
-                                          const char                      *Filename,
-                                          osal_id_t                       *FileDescOut,
-                                          const CFE_TBL_CombinedFileHdr_t *FileHeader)
+/* The optional FS header callback preserves the snapshot timestamp and uses
+ * the existing native/EDS table-header codec. Only fixed-size headers are
+ * written here; table content is supplied in bounded records below. */
+static int32 CFE_TBL_WriteSnapshotHeader(void *Meta, osal_id_t FileDescriptor)
 {
-    CFE_Status_t ReturnCode;
-    int32        OsStatus;
-    osal_id_t    FileDescriptor = OS_OBJECT_ID_UNDEFINED;
-
-    /* Create a new dump file, overwriting anything that may have existed previously */
-    OsStatus = OS_OpenCreate(&FileDescriptor, Filename, OS_FILE_FLAG_CREATE | OS_FILE_FLAG_TRUNCATE, OS_WRITE_ONLY);
-
-    if (OsStatus != OS_SUCCESS)
-    {
-        CFE_TBL_TxnAddEvent(Txn, CFE_TBL_CREATING_DUMP_FILE_ERR_EID, OsStatus, 0);
-        ReturnCode     = CFE_TBL_ERR_ACCESS;
-        FileDescriptor = OS_OBJECT_ID_UNDEFINED;
-    }
-    else
-    {
-        ReturnCode = CFE_TBL_WriteHeaders(Txn, FileDescriptor, FileHeader);
-        if (ReturnCode != CFE_SUCCESS)
-        {
-            OS_close(FileDescriptor);
-            FileDescriptor = OS_OBJECT_ID_UNDEFINED;
-        }
-    }
-
-    *FileDescOut = FileDescriptor;
-
-    return ReturnCode;
-}
-
-/*----------------------------------------------------------------
- *
- * Application-scope internal function
- * See description in header file for argument/return detail
- *
- *-----------------------------------------------------------------*/
-CFE_Status_t CFE_TBL_WriteSnapshotToFile(const CFE_TBL_DumpControl_t *DumpCtlPtr)
-{
-    CFE_Status_t              Status;
-    int32                     OsStatus;
-    bool                      FileExistedPrev;
+    CFE_TBL_DumpControl_t    *DumpCtlPtr = Meta;
     CFE_TBL_CombinedFileHdr_t FileHeader;
-    osal_id_t                 FileDescriptor = OS_OBJECT_ID_UNDEFINED;
-    const char               *DumpFilename;
-    const void               *DumpDataAddr;
-    size_t                    DumpDataSize;
     CFE_TBL_TxnState_t        Txn;
+    CFE_Status_t              Status;
+    int32                     HeaderSize;
 
     CFE_TBL_TxnInit(&Txn, false);
-
-    DumpFilename = DumpCtlPtr->DumpBufferPtr->DataSource;
-    DumpDataAddr = CFE_TBL_LoadBuffGetReadPointer(DumpCtlPtr->DumpBufferPtr);
-    DumpDataSize = CFE_TBL_LoadBuffGetContentSize(DumpCtlPtr->DumpBufferPtr);
-
-    /* Clear Header of any garbage before copying content */
-    memset(&FileHeader, 0, sizeof(CFE_TBL_File_Hdr_t));
-
-    /* Initialize the standard cFE File Header for the Dump File */
+    memset(&FileHeader, 0, sizeof(FileHeader));
     CFE_FS_InitHeader(&FileHeader.Std, "Table Dump Image", CFE_FS_SubType_TBL_IMG);
+    FileHeader.Std.ContentType    = CFE_FS_FILE_CONTENT_ID;
+    FileHeader.Std.Length         = sizeof(CFE_FS_Header_t);
+    FileHeader.Std.SpacecraftID   = CFE_PSP_GetSpacecraftId();
+    FileHeader.Std.ProcessorID    = CFE_PSP_GetProcessorId();
+    FileHeader.Std.ApplicationID  = CFE_RESOURCEID_TO_ULONG(CFE_TBL_Global.TableTaskAppId);
     FileHeader.Std.TimeSeconds    = DumpCtlPtr->DumpBufferPtr->FileTime.Seconds;
     FileHeader.Std.TimeSubSeconds = DumpCtlPtr->DumpBufferPtr->FileTime.Subseconds;
-
-    /* Initialize the Table Image Header for the Dump File */
     strncpy(FileHeader.Tbl.TableName, DumpCtlPtr->TableName, sizeof(FileHeader.Tbl.TableName) - 1);
-    FileHeader.Tbl.NumBytes = DumpDataSize;
+    FileHeader.Tbl.NumBytes = CFE_TBL_LoadBuffGetContentSize(DumpCtlPtr->DumpBufferPtr);
 
-    /* Check to see if the dump file already exists */
-    /* NOTE: this is only relevant for sending a success event later, it changes the EID */
-    OsStatus = OS_OpenCreate(&FileDescriptor, DumpFilename, OS_FILE_FLAG_NONE, OS_READ_ONLY);
-
-    if (OsStatus == OS_SUCCESS)
-    {
-        FileExistedPrev = true;
-        OS_close(FileDescriptor);
-    }
-    else
-    {
-        FileExistedPrev = false;
-    }
-
-    /* Create a new dump file, overwriting anything that may have existed previously */
-    Status = CFE_TBL_TxnOpenTableDumpFile(&Txn, DumpFilename, &FileDescriptor, &FileHeader);
-
+    Status = CFE_TBL_WriteHeaders(&Txn, FileDescriptor, &FileHeader);
     if (Status == CFE_SUCCESS)
     {
-        /* Output the requested data to the dump file */
-        /* Output the active table image data to the dump file */
-        OsStatus = OS_write(FileDescriptor, DumpDataAddr, DumpDataSize);
-
-        if (OsStatus != DumpDataSize)
+        /* Obtain the encoded size rather than assuming native and EDS headers
+         * have the same representation. Table files support seeking. */
+        HeaderSize = OS_lseek(FileDescriptor, 0, OS_SEEK_CUR);
+        if (HeaderSize > 0)
         {
-            CFE_TBL_TxnAddEvent(&Txn, CFE_TBL_WRITE_TBL_IMG_ERR_EID, OsStatus, 0);
-            Status = CFE_TBL_ERR_ACCESS;
+            return HeaderSize;
         }
-
-        /* We are done outputting data to the dump file.  Close it. */
-        OS_close(FileDescriptor);
+        CFE_TBL_TxnAddEvent(&Txn, CFE_TBL_WRITE_TBL_HDR_ERR_EID, HeaderSize, 0);
+        Status = CFE_TBL_ERR_ACCESS;
     }
 
-    /* If everything went well, report happiness and update global TLM data */
-    if (Status == CFE_SUCCESS)
+    CFE_TBL_SendTableDumpEvents(&Txn, DumpCtlPtr->FileWrite.FileName, DumpCtlPtr->TableName);
+    return Status;
+}
+
+static bool CFE_TBL_SnapshotDataGetter(void *Meta, uint32 RecordNum, void **Buffer, size_t *BufSize)
+{
+    CFE_TBL_DumpControl_t *DumpCtlPtr = Meta;
+    size_t                 DataSize   = CFE_TBL_LoadBuffGetContentSize(DumpCtlPtr->DumpBufferPtr);
+
+    (void)RecordNum;
+    *Buffer  = NULL;
+    *BufSize = 0;
+    if (DumpCtlPtr->NextOffset < DataSize)
     {
-        /* The whole check of file existence is to give a different EID for overwrite vs first write */
-        if (FileExistedPrev)
+        *BufSize = DataSize - DumpCtlPtr->NextOffset;
+        if (*BufSize > CFE_TBL_DUMP_BLOCK_SIZE)
         {
-            CFE_TBL_TxnAddEvent(&Txn, CFE_TBL_OVERWRITE_DUMP_INF_EID, 0, 0);
+            *BufSize = CFE_TBL_DUMP_BLOCK_SIZE;
         }
-        else
-        {
-            CFE_TBL_TxnAddEvent(&Txn, CFE_TBL_WRITE_DUMP_INF_EID, 0, 0);
-        }
+        *Buffer = (uint8 *)CFE_TBL_LoadBuffGetReadPointer(DumpCtlPtr->DumpBufferPtr) + DumpCtlPtr->NextOffset;
+        DumpCtlPtr->NextOffset += *BufSize;
+    }
+    return DumpCtlPtr->NextOffset >= DataSize;
+}
 
-        /* Save file information statistics for housekeeping telemetry */
-        CFE_SB_MessageStringSet(CFE_TBL_Global.HkPacket.Payload.LastFileDumped,
-                                DumpFilename,
-                                sizeof(CFE_TBL_Global.HkPacket.Payload.LastFileDumped),
-                                -1);
+static void CFE_TBL_SnapshotEventHandler(void                   *Meta,
+                                         CFE_FS_FileWriteEvent_t Event,
+                                         int32                   Status,
+                                         uint32                  RecordNum,
+                                         size_t                  BlockSize,
+                                         size_t                  Position)
+{
+    CFE_TBL_DumpControl_t *DumpCtlPtr = Meta;
+    CFE_TBL_TxnState_t     Txn;
+
+    (void)RecordNum;
+    (void)BlockSize;
+    (void)Position;
+    CFE_TBL_TxnInit(&Txn, false);
+    switch (Event)
+    {
+        case CFE_FS_FileWriteEvent_COMPLETE:
+            DumpCtlPtr->WriteStatus = CFE_SUCCESS;
+            CFE_TBL_TxnAddEvent(&Txn,
+                                DumpCtlPtr->FileExisted ? CFE_TBL_OVERWRITE_DUMP_INF_EID : CFE_TBL_WRITE_DUMP_INF_EID,
+                                0,
+                                0);
+            break;
+        case CFE_FS_FileWriteEvent_CREATE_ERROR:
+            DumpCtlPtr->WriteStatus = CFE_TBL_ERR_ACCESS;
+            CFE_TBL_TxnAddEvent(&Txn, CFE_TBL_CREATING_DUMP_FILE_ERR_EID, Status, 0);
+            break;
+        case CFE_FS_FileWriteEvent_RECORD_WRITE_ERROR:
+            DumpCtlPtr->WriteStatus = CFE_TBL_ERR_ACCESS;
+            CFE_TBL_TxnAddEvent(&Txn, CFE_TBL_WRITE_TBL_IMG_ERR_EID, Status, 0);
+            break;
+        case CFE_FS_FileWriteEvent_HEADER_WRITE_ERROR:
+            /* The header callback already recorded the precise codec/write error. */
+            DumpCtlPtr->WriteStatus = CFE_TBL_ERR_ACCESS;
+            break;
+        default:
+            break;
     }
 
-    CFE_TBL_SendTableDumpEvents(&Txn, DumpFilename, DumpCtlPtr->TableName);
+    /* This helper attributes events to TBL even in the ES background task.
+     * Do not release buffers here: FS still accesses Meta after this callback. */
+    CFE_TBL_SendTableDumpEvents(&Txn, DumpCtlPtr->FileWrite.FileName, DumpCtlPtr->TableName);
+}
 
+CFE_Status_t CFE_TBL_WriteSnapshotToFile(CFE_TBL_DumpControl_t *DumpCtlPtr)
+{
+    CFE_Status_t Status;
+    os_fstat_t   FileStat;
+    int          NameLength;
+
+    if (CFE_FS_BackgroundFileDumpIsPending(&DumpCtlPtr->FileWrite))
+    {
+        return CFE_STATUS_REQUEST_ALREADY_PENDING;
+    }
+
+    NameLength = snprintf(DumpCtlPtr->FileWrite.FileName,
+                          sizeof(DumpCtlPtr->FileWrite.FileName),
+                          "%.*s",
+                          (int)sizeof(DumpCtlPtr->DumpBufferPtr->DataSource),
+                          DumpCtlPtr->DumpBufferPtr->DataSource);
+    if (NameLength < 0 || NameLength >= sizeof(DumpCtlPtr->FileWrite.FileName)
+        || NameLength >= sizeof(DumpCtlPtr->DumpBufferPtr->DataSource))
+    {
+        CFE_TBL_SnapshotEventHandler(DumpCtlPtr, CFE_FS_FileWriteEvent_CREATE_ERROR, CFE_FS_FNAME_TOO_LONG, 0, 0, 0);
+        return CFE_FS_FNAME_TOO_LONG;
+    }
+    DumpCtlPtr->FileWrite.GetData     = CFE_TBL_SnapshotDataGetter;
+    DumpCtlPtr->FileWrite.OnEvent     = CFE_TBL_SnapshotEventHandler;
+    DumpCtlPtr->FileWrite.WriteHeader = CFE_TBL_WriteSnapshotHeader;
+    DumpCtlPtr->FileExisted           = (OS_stat(DumpCtlPtr->FileWrite.FileName, &FileStat) == OS_SUCCESS);
+    DumpCtlPtr->NextOffset            = 0;
+    DumpCtlPtr->WriteStatus           = CFE_TBL_ERR_ACCESS;
+    DumpCtlPtr->State                 = CFE_TBL_DUMP_WRITING;
+
+    Status = CFE_FS_BackgroundFileDumpRequest(&DumpCtlPtr->FileWrite);
+    if (Status != CFE_SUCCESS)
+    {
+        DumpCtlPtr->State = CFE_TBL_DUMP_PERFORMED;
+        if (Status != CFE_STATUS_REQUEST_ALREADY_PENDING)
+        {
+            CFE_TBL_SnapshotEventHandler(DumpCtlPtr, CFE_FS_FileWriteEvent_CREATE_ERROR, Status, 0, 0, 0);
+        }
+    }
     return Status;
 }
 
@@ -557,18 +566,45 @@ void CFE_TBL_TableDumpExecuteBackground(void)
 {
     uint32                 i;
     CFE_TBL_DumpControl_t *DumpCtrlPtr;
+    CFE_TBL_TxnState_t     Txn;
+    CFE_Status_t           Status;
 
-    /* Check to see if there are any dump-only table dumps pending */
+    CFE_TBL_TxnInit(&Txn, false);
+    CFE_TBL_TxnLockRegistry(&Txn);
     for (i = 0; i < CFE_PLATFORM_TBL_MAX_SIMULTANEOUS_LOADS; i++)
     {
         DumpCtrlPtr = &CFE_TBL_Global.DumpControlBlocks[i];
-
-        if (CFE_TBL_DumpCtrlBlockIsUsed(DumpCtrlPtr) && DumpCtrlPtr->State == CFE_TBL_DUMP_PERFORMED)
+        if (!CFE_TBL_DumpCtrlBlockIsUsed(DumpCtrlPtr))
         {
-            /* only write the file if the snapshot was successful */
+            continue;
+        }
+
+        if (DumpCtrlPtr->State == CFE_TBL_DUMP_WRITING)
+        {
+            if (CFE_FS_BackgroundFileDumpIsPending(&DumpCtrlPtr->FileWrite))
+            {
+                continue;
+            }
+            /* FS has released the metadata. Update HK only in the TBL task. */
+            if (DumpCtrlPtr->WriteStatus == CFE_SUCCESS)
+            {
+                CFE_SB_MessageStringSet(CFE_TBL_Global.HkPacket.Payload.LastFileDumped,
+                                        DumpCtrlPtr->FileWrite.FileName,
+                                        sizeof(CFE_TBL_Global.HkPacket.Payload.LastFileDumped),
+                                        -1);
+            }
+        }
+        else if (DumpCtrlPtr->State == CFE_TBL_DUMP_PERFORMED)
+        {
             if (DumpCtrlPtr->EncodeStatus == CFE_SUCCESS)
             {
-                CFE_TBL_WriteSnapshotToFile(DumpCtrlPtr);
+                Status = CFE_TBL_WriteSnapshotToFile(DumpCtrlPtr);
+                if (Status == CFE_SUCCESS || Status == CFE_STATUS_REQUEST_ALREADY_PENDING)
+                {
+                    /* Retain accepted requests, and retry a full queue on the next HK
+                     * cycle. */
+                    continue;
+                }
             }
             else
             {
@@ -577,12 +613,14 @@ void CFE_TBL_TableDumpExecuteBackground(void)
                                   "Table Dump encoding failed, status=%d",
                                   (int)DumpCtrlPtr->EncodeStatus);
             }
-
-            /* Free the shared working buffer */
-            CFE_TBL_LoadBuffSetFree(DumpCtrlPtr->DumpBufferPtr);
-
-            /* Free the Dump Control Block for later use */
-            CFE_TBL_DumpCtrlBlockSetFree(DumpCtrlPtr);
         }
+        else
+        {
+            continue;
+        }
+
+        CFE_TBL_LoadBuffSetFree(DumpCtrlPtr->DumpBufferPtr);
+        CFE_TBL_DumpCtrlBlockSetFree(DumpCtrlPtr);
     }
+    CFE_TBL_TxnFinish(&Txn);
 }

@@ -31,6 +31,7 @@
 #include "common_types.h"
 #include "cfe_error.h"
 #include "cfe_platform_cfg.h"
+#include "cfe_fs.h"
 
 #include "cfe_tbl_resource.h"
 
@@ -49,9 +50,12 @@
  */
 typedef enum
 {
-    CFE_TBL_DUMP_FREE = 0, /**< \brief Dump Request Block is Free */
-    CFE_TBL_DUMP_PENDING,  /**< \brief Dump Request Block waiting for Application */
-    CFE_TBL_DUMP_PERFORMED /**< \brief Dump Request Block processed by Application */
+    CFE_TBL_DUMP_FREE = 0,  /**< \brief Dump Request Block is Free */
+    CFE_TBL_DUMP_PENDING,   /**< \brief Dump Request Block waiting for Application
+                             */
+    CFE_TBL_DUMP_PERFORMED, /**< \brief Snapshot ready to be queued */
+    CFE_TBL_DUMP_WRITING    /**< \brief Snapshot retained by the FS background writer
+                             */
 } CFE_TBL_DumpState_t;
 
 /*******************************************************************************/
@@ -61,13 +65,20 @@ typedef enum
 */
 struct CFE_TBL_DumpControl
 {
+    CFE_FS_FileWriteMetaData_t FileWrite;   /**< FS metadata must be first for callbacks */
+    size_t                     NextOffset;  /**< Next snapshot byte supplied by the getter */
+    CFE_Status_t               WriteStatus; /**< Final callback result, read after FS completion */
+    bool                       FileExisted; /**< Selects the completion event */
+
     CFE_TBL_DumpCtrlId_t BlockId;
 
     CFE_Status_t         EncodeStatus;
-    CFE_TBL_DumpState_t  State;         /**< \brief Current state of this block of data */
-    CFE_TBL_LoadBuff_t  *DumpBufferPtr; /**< \brief Address where dumped data is to be stored temporarily */
-    CFE_TBL_LoadBuffId_t SourceBuffId;  /**< \brief Identifier of buffer to dump */
-    char                 TableName[CFE_TBL_MAX_FULL_NAME_LEN]; /**< \brief Name of Table being Dumped */
+    CFE_TBL_DumpState_t  State;                                /**< \brief Current state of this block of data */
+    CFE_TBL_LoadBuff_t  *DumpBufferPtr;                        /**< \brief Address where dumped data is to
+                                                                  be stored temporarily */
+    CFE_TBL_LoadBuffId_t SourceBuffId;                         /**< \brief Identifier of buffer to dump */
+    char                 TableName[CFE_TBL_MAX_FULL_NAME_LEN]; /**< \brief Name of Table being
+                                                                  Dumped */
 };
 
 /*
