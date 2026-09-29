@@ -140,6 +140,14 @@ void Test_CFE_TBL_TableDumpExecuteBackground(void)
     UtAssert_INT32_EQ(Control->State, CFE_TBL_DUMP_WRITING);
     UtAssert_STUB_COUNT(CFE_FS_BackgroundFileDumpRequest, 3);
 
+    /* Other in-use states remain reserved without starting or releasing a write. */
+    UT_TBL_InitDumpTest();
+    Control        = UT_TBL_MakeSnapshot(0, Data, sizeof(Data));
+    Control->State = CFE_TBL_DUMP_PENDING;
+    CFE_TBL_TableDumpExecuteBackground();
+    UtAssert_BOOL_TRUE(CFE_TBL_DumpCtrlBlockIsUsed(Control));
+    UtAssert_STUB_COUNT(CFE_FS_BackgroundFileDumpRequest, 0);
+
     /* Non-retryable request rejection and failed encoding release their buffers.
      */
     UT_TBL_InitDumpTest();

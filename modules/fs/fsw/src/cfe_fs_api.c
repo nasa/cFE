@@ -225,6 +225,18 @@ void CFE_FS_InitHeader(CFE_FS_Header_t *Hdr, const char *Description, uint32 Sub
     }
 }
 
+/* Convert a native header to the on-disk byte order. */
+static void CFE_FS_EncodeHeader(CFE_FS_Header_t *Hdr)
+{
+    const uint32 EndianCheck = 0x01020304;
+
+    /* cppcheck-suppress knownConditionTrueFalse */
+    if (*(const uint8 *)&EndianCheck == 0x04)
+    {
+        CFE_FS_ByteSwapCFEHeader(Hdr);
+    }
+}
+
 /*----------------------------------------------------------------
  *
  * Implemented per public API
@@ -273,16 +285,8 @@ CFE_Status_t CFE_FS_WriteHeader(osal_id_t FileDes, CFE_FS_Header_t *Hdr)
         Hdr->TimeSeconds    = Time.Seconds;
         Hdr->TimeSubSeconds = Time.Subseconds;
 
-        /*
-        ** Determine if this is a little endian processor
-        */
-        /* cppcheck-suppress knownConditionTrueFalse */
-        if ((*(char *)(&EndianCheck)) == 0x04)
-        {
-            /* If this is a little endian processor, then convert the header data structure from */
-            /* the native little endian format to the required CFE standard big endian format    */
-            CFE_FS_ByteSwapCFEHeader(Hdr);
-        }
+        /* Convert the native header to the required on-disk byte order. */
+        CFE_FS_EncodeHeader(Hdr);
 
         /*
         ** Write header structure from callers buffer...
@@ -319,7 +323,6 @@ CFE_Status_t CFE_FS_WriteHeader(osal_id_t FileDes, CFE_FS_Header_t *Hdr)
 CFE_Status_t CFE_FS_WriteHeaderFromBuffer(osal_id_t FileDes, const CFE_FS_Header_t *Hdr)
 {
     CFE_FS_Header_t Buffer;
-    const uint32    EndianCheck = 0x01020304;
     int32           OsStatus;
 
     if (Hdr == NULL)
@@ -330,10 +333,7 @@ CFE_Status_t CFE_FS_WriteHeaderFromBuffer(osal_id_t FileDes, const CFE_FS_Header
     OsStatus = OS_lseek(FileDes, 0, OS_SEEK_SET);
     if (OsStatus >= OS_SUCCESS)
     {
-        if (*(const uint8 *)&EndianCheck == 0x04)
-        {
-            CFE_FS_ByteSwapCFEHeader(&Buffer);
-        }
+        CFE_FS_EncodeHeader(&Buffer);
         OsStatus = OS_write(FileDes, &Buffer, sizeof(Buffer));
     }
     return OsStatus < OS_SUCCESS ? CFE_STATUS_EXTERNAL_RESOURCE_FAIL : OsStatus;
@@ -884,8 +884,8 @@ static void CFE_FS_RunBackgroundFileDump_OpenFile(CFE_FS_CurrentFileState_t *Sta
         return;
     }
 
-    State->FileSize    = Status;
-    State->Credit     -= Status;
+    State->FileSize   = Status;
+    State->Credit    -= Status;
     State->RecordNum  = 0;
 }
 

@@ -180,6 +180,9 @@ CFE_Status_t CFE_TBL_WriteSnapshotToFile(CFE_TBL_DumpControl_t *DumpCtlPtr)
     CFE_Status_t Status;
     os_fstat_t   FileStat;
     int          NameLength;
+    const size_t NameLimit = sizeof(DumpCtlPtr->FileWrite.FileName) < sizeof(DumpCtlPtr->DumpBufferPtr->DataSource)
+                                 ? sizeof(DumpCtlPtr->FileWrite.FileName)
+                                 : sizeof(DumpCtlPtr->DumpBufferPtr->DataSource);
 
     if (CFE_FS_BackgroundFileDumpIsPending(&DumpCtlPtr->FileWrite))
     {
@@ -191,8 +194,7 @@ CFE_Status_t CFE_TBL_WriteSnapshotToFile(CFE_TBL_DumpControl_t *DumpCtlPtr)
                           "%.*s",
                           (int)sizeof(DumpCtlPtr->DumpBufferPtr->DataSource),
                           DumpCtlPtr->DumpBufferPtr->DataSource);
-    if (NameLength < 0 || NameLength >= sizeof(DumpCtlPtr->FileWrite.FileName)
-        || NameLength >= sizeof(DumpCtlPtr->DumpBufferPtr->DataSource))
+    if ((size_t)NameLength >= NameLimit)
     {
         CFE_TBL_SnapshotEventHandler(DumpCtlPtr, CFE_FS_FileWriteEvent_CREATE_ERROR, CFE_FS_FNAME_TOO_LONG, 0, 0, 0);
         return CFE_FS_FNAME_TOO_LONG;
