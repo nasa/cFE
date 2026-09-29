@@ -259,9 +259,9 @@ bool CFE_TBL_SendValidationEventHelper(const CFE_TBL_TxnEvent_t *Event, CFE_TBL_
     CFE_EVS_SendEventWithAppID(Event->EventId,
                                EventType,
                                CFE_TBL_Global.TableTaskAppId,
-                               "%s,app=%s,tbl=%s:%s",
+                               "%s%s,tbl=%s:%s",
                                Ctxt->Operation,
-                               Ctxt->CallerName,
+                               Ctxt->CallerIdent,
                                Ctxt->TableName,
                                EventString);
 

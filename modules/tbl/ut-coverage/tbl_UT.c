@@ -2235,6 +2235,18 @@ void Test_CFE_TBL_TableDumpCommon(void)
     CFE_TBL_TxnAddEvent(&Txn, -1, -1, -1);
     CFE_TBL_SendTableDumpEvents(&Txn, NULL, NULL);
     UtAssert_STUB_COUNT(CFE_EVS_SendEventWithAppID, 0); /* nothing should have been sent */
+
+    memset(&Txn, 0, sizeof(Txn));
+    CFE_TBL_TxnAddEvent(&Txn, -1, -1, -1);
+    Txn.AppId = CFE_TBL_Global.TableTaskAppId;
+    CFE_TBL_SendTableDumpEvents(&Txn, NULL, NULL);
+    UtAssert_STUB_COUNT(CFE_EVS_SendEventWithAppID, 0); /* nothing should have been sent */
+
+    memset(&Txn, 0, sizeof(Txn));
+    CFE_TBL_TxnAddEvent(&Txn, -1, -1, -1);
+    Txn.AppId = CFE_ES_APPID_C(CFE_ResourceId_FromInteger(1));
+    CFE_TBL_SendTableDumpEvents(&Txn, NULL, NULL);
+    UtAssert_STUB_COUNT(CFE_EVS_SendEventWithAppID, 0); /* nothing should have been sent */
 }
 
 /*
