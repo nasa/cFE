@@ -145,7 +145,10 @@ typedef struct CFE_TBL_TxnEventContext_t
     const void *OperationDataPtr;
 
     const char *TableName;
-    const char *CallerName;
+
+    /* a string which indicates the calling context of the operation.  For
+     * operations done via API call this looks like "app=<app-name>" */
+    char CallerIdent[CFE_MISSION_MAX_API_LEN + 8];
 
     const CFE_TBL_RegistryRec_t *RegRecPtr;
 

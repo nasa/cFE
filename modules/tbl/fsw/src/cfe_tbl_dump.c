@@ -420,7 +420,6 @@ bool CFE_TBL_SendDumpEventHelper(const CFE_TBL_TxnEvent_t *Event, CFE_TBL_TxnEve
     const CFE_TBL_DumpContext_t *DumpCtxt;
     uint16                       EventType;
     char                         EventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
-    char                         CallerString[CFE_MISSION_MAX_API_LEN + 8];
 
     DumpCtxt = Ctxt->OperationDataPtr;
 
@@ -487,24 +486,13 @@ bool CFE_TBL_SendDumpEventHelper(const CFE_TBL_TxnEvent_t *Event, CFE_TBL_TxnEve
         return false;
     }
 
-    if (Ctxt->CallerName[0] == 0)
-    {
-        /* Empty name indicates it was initiated via ground command */
-        snprintf(CallerString, sizeof(CallerString), "command");
-    }
-    else
-    {
-        /* non-Empty name means it was initiated by another app via API */
-        snprintf(CallerString, sizeof(CallerString), "app=%s", Ctxt->CallerName);
-    }
-
     /* Finally send the actual event by appending all the info we have */
     CFE_EVS_SendEventWithAppID(Event->EventId,
                                EventType,
                                CFE_TBL_Global.TableTaskAppId,
-                               "%s by %s,table=%s,file=%s:%s",
+                               "%s%s,table=%s,file=%s:%s",
                                Ctxt->Operation,
-                               CallerString,
+                               Ctxt->CallerIdent,
                                DumpCtxt->RequestedTableName,
                                DumpCtxt->FileName,
                                EventString);
