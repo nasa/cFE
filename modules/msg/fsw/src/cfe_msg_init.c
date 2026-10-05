@@ -36,7 +36,7 @@ CFE_Status_t CFE_MSG_Init(CFE_MSG_Message_t *MsgPtr, CFE_SB_MsgId_t MsgId, CFE_M
 {
     int32 status;
 
-    if (MsgPtr == NULL)
+    if (MsgPtr == NULL || Size < sizeof(*MsgPtr))
     {
         return CFE_MSG_BAD_ARGUMENT;
     }
