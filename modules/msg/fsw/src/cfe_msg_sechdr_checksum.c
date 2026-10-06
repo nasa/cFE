@@ -38,8 +38,16 @@ CFE_MSG_Checksum_t CFE_MSG_ComputeCheckSum(const CFE_MSG_Message_t *MsgPtr)
     const uint8       *BytePtr = (const uint8 *)MsgPtr;
     CFE_MSG_Checksum_t chksum  = 0xFF;
 
-    /* Message already checked, no error case reachable */
     CFE_MSG_GetSize(MsgPtr, &PktLen);
+
+    /* Clamp PktLen to the maximum valid message size before iterating.
+     * The CCSDS Length field is attacker-controlled; without this bound
+     * the loop reads PktLen bytes regardless of the actual buffer size,
+     * enabling an OOB heap read of up to (PktLen - actual_size) bytes. */
+    if (PktLen > CFE_MISSION_SB_MAX_SB_MSG_SIZE)
+    {
+        PktLen = 0;
+    }
 
     while (PktLen--)
     {
