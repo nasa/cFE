@@ -221,7 +221,7 @@ void CFE_TIME_TaskPipe(const CFE_SB_Buffer_t *SBBufPtr)
     static CFE_SB_MsgId_t TONE_CMD_MID  = CFE_SB_MSGID_RESERVED;
     static CFE_SB_MsgId_t DATA_CMD_MID  = CFE_SB_MSGID_RESERVED;
 #if (CFE_PLATFORM_TIME_CFG_SERVER == true)
-    static CFE_SB_MsgId_t SEND_CMD_MID  = CFE_SB_MSGID_RESERVED;
+    static CFE_SB_MsgId_t SEND_CMD_MID = CFE_SB_MSGID_RESERVED;
 #endif
 
     CFE_SB_MsgId_t MessageID = CFE_SB_INVALID_MSG_ID;
@@ -235,7 +235,7 @@ void CFE_TIME_TaskPipe(const CFE_SB_Buffer_t *SBBufPtr)
         TONE_CMD_MID  = CFE_SB_ValueToMsgId(CFE_TIME_TONE_CMD_MID);
         DATA_CMD_MID  = CFE_SB_ValueToMsgId(CFE_TIME_DATA_CMD_MID);
 #if (CFE_PLATFORM_TIME_CFG_SERVER == true)
-        SEND_CMD_MID  = CFE_SB_ValueToMsgId(CFE_TIME_SEND_CMD_MID);
+        SEND_CMD_MID = CFE_SB_ValueToMsgId(CFE_TIME_SEND_CMD_MID);
 #endif
     }
 

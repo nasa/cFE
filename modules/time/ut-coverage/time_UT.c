@@ -2348,9 +2348,9 @@ void Test_Tone(void)
 #if (CFE_PLATFORM_TIME_CFG_CLIENT == true)
     /* Test tone update using an invalid pending state */
     UT_InitData();
-    RefState                       = CFE_TIME_StartReferenceUpdate();
-    CFE_TIME_Global.PendingState   = CFE_TIME_ClockState_INVALID;
-    RefState->ClockSetState        = CFE_TIME_SetState_WAS_SET;
+    RefState                     = CFE_TIME_StartReferenceUpdate();
+    CFE_TIME_Global.PendingState = CFE_TIME_ClockState_INVALID;
+    RefState->ClockSetState      = CFE_TIME_SetState_WAS_SET;
     CFE_TIME_FinishReferenceUpdate(RefState);
     CFE_TIME_Global.ServerFlyState = CFE_TIME_FlywheelState_IS_FLY;
     CFE_TIME_ToneUpdate();
