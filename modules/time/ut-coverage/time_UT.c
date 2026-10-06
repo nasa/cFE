@@ -150,10 +150,8 @@ void Test_Init(void)
 #if (CFE_PLATFORM_TIME_CFG_SERVER == true)
     ExpRtn++;
 #endif
-#if (CFE_PLATFORM_TIME_CFG_SERVER == true)
 #if (CFE_MISSION_TIME_CFG_FAKE_TONE == true)
     ExpRtn++;
-#endif
 #endif
     /* account for 1Hz command, which is always enabled */
     ExpRtn++;
@@ -253,7 +251,6 @@ void Test_Init(void)
     ExpRtn = -SubErrCnt;
     UtAssert_INT32_EQ(CFE_TIME_TaskInit(), ExpRtn);
 #else
-    SubErrCnt++;
     UtAssert_NA("*Not tested* Time at tone signal commands subscription failure");
 #endif
 
@@ -2351,11 +2348,13 @@ void Test_Tone(void)
 #if (CFE_PLATFORM_TIME_CFG_CLIENT == true)
     /* Test tone update using an invalid pending state */
     UT_InitData();
+    RefState                       = CFE_TIME_StartReferenceUpdate();
     CFE_TIME_Global.PendingState   = CFE_TIME_ClockState_INVALID;
-    CFE_TIME_Global.ClockSetState  = CFE_TIME_SetState_WAS_SET;
+    RefState->ClockSetState        = CFE_TIME_SetState_WAS_SET;
+    CFE_TIME_FinishReferenceUpdate(RefState);
     CFE_TIME_Global.ServerFlyState = CFE_TIME_FlywheelState_IS_FLY;
     CFE_TIME_ToneUpdate();
-    UtAssert_INT32_EQ(CFE_TIME_Global.ClockSetState, CFE_TIME_SetState_NOT_SET);
+    UtAssert_INT32_EQ(CFE_TIME_CalculateState(&Reference), CFE_TIME_SetState_NOT_SET);
     UtAssert_INT32_EQ(CFE_TIME_Global.ServerFlyState, CFE_TIME_FlywheelState_NO_FLY);
 
     /* Test tone update using FLYWHEEL as the pending state */
