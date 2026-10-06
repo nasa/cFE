@@ -329,7 +329,10 @@ CFE_Status_t CFE_FS_ExtractFilenameFromPath(const char *OriginalPath, char *File
 ** \par Assumptions, External Events, and Notes:
 **        Metadata structure should be stored in a persistent memory area (not on stack) as
 **        it must remain accessible by the file writer task throughout the asynchronous
-**        job operation.
+**        job operation. Zero-initialize it before first use. Leave WriteHeader NULL
+**        for the standard FS preamble, or supply a callback for a custom preamble.
+**        Do not reuse metadata or data buffers from OnEvent: the FS queue still
+**        owns the metadata until CFE_FS_BackgroundFileDumpIsPending() returns false.
 **
 ** \param[inout] Meta        The background file write persistent state object @nonnull
 **
@@ -349,6 +352,8 @@ int32 CFE_FS_BackgroundFileDumpRequest(CFE_FS_FileWriteMetaData_t *Meta);
 ** \par Description
 **        This returns "true" while the request is on the background work queue
 **        This returns "false" once the request is complete and removed from the queue.
+**        The shared-data lock synchronizes this query with the writer's final
+**        callback and release, so callback results may be read after it returns false.
 **
 ** \par Assumptions, External Events, and Notes:
 **        None
