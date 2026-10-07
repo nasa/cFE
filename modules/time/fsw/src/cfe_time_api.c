@@ -565,25 +565,63 @@ uint32 CFE_TIME_Micro2SubSecs(uint32 MicroSeconds)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
+static void CFE_TIME_UnixSecondsToTm(struct tm *Time, uint64 UnixSeconds)
+{
+    uint64 Days;
+    uint32 SecondsOfDay;
+    uint32 Year;
+    uint32 DaysInYear;
+
+    Days         = UnixSeconds / 86400;
+    SecondsOfDay = UnixSeconds % 86400;
+    Year         = 1970;
+
+    while (true)
+    {
+        DaysInYear = 365;
+        if (((Year % 4) == 0) && (((Year % 100) != 0) || ((Year % 400) == 0)))
+        {
+            ++DaysInYear;
+        }
+
+        if (Days < DaysInYear)
+        {
+            break;
+        }
+
+        Days -= DaysInYear;
+        ++Year;
+    }
+
+    Time->tm_year  = (int)Year - 1900;
+    Time->tm_yday  = (int)Days;
+    Time->tm_hour  = (int)(SecondsOfDay / 3600);
+    SecondsOfDay  %= 3600;
+    Time->tm_min   = (int)(SecondsOfDay / 60);
+    Time->tm_sec   = (int)(SecondsOfDay % 60);
+}
+
 CFE_Status_t CFE_TIME_Print(char *PrintBuffer, CFE_TIME_SysTime_t TimeToPrint)
 {
     size_t    FmtLen = 0;
     uint32    Micros = (CFE_TIME_Sub2MicroSecs(TimeToPrint.Subseconds) + CFE_MISSION_TIME_EPOCH_MICROS) / 10;
-    struct tm tm     = { 0 };
+    uint64    UnixSeconds;
+    struct tm tm = { 0 };
 
     if (PrintBuffer == NULL)
     {
         return CFE_TIME_BAD_ARGUMENT;
     }
 
-    time_t sec = TimeToPrint.Seconds + CFE_MISSION_TIME_EPOCH_SECONDS; // epoch is Jan 1, 1980
+    UnixSeconds = (uint64)TimeToPrint.Seconds + (uint64)CFE_MISSION_TIME_EPOCH_SECONDS;
+    CFE_TIME_UnixSecondsToTm(&tm, UnixSeconds);
 
-    if (gmtime_r(&sec, &tm) == NULL)
+    FmtLen = strftime(PrintBuffer, CFE_TIME_PRINTED_STRING_SIZE - 6, "%Y-%j-%H:%M:%S", &tm);
+    if (FmtLen == 0)
     {
         return CFE_TIME_BAD_ARGUMENT;
     }
 
-    FmtLen            = strftime(PrintBuffer, CFE_TIME_PRINTED_STRING_SIZE - 6, "%Y-%j-%H:%M:%S", &tm);
     PrintBuffer      += FmtLen;
     *(PrintBuffer++)  = '.';
 
