@@ -147,7 +147,7 @@ void TestPipeName(void)
     CFE_SB_PipeId_t PipeId     = CFE_SB_INVALID_PIPE;
     uint16          PipeDepth  = 10;
     const char      PipeName[] = "Test Pipe";
-    char            PipeNameBuf[OS_MAX_API_NAME];
+    char            PipeNameBuf[OS_MAX_API_NAME] = {0};
     CFE_SB_PipeId_t PipeIdBuff        = CFE_SB_INVALID_PIPE;
     const char      InvalidPipeName[] = "Invalid Pipe";
 
