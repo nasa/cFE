@@ -36,6 +36,7 @@ Closes #
 
 ## Author Checklist
 
+- [ ] I reviewed the [Pull Request and Commit Guide](https://github.com/nasa/cFE/blob/dev/PULL_REQUEST_GUIDE.md)
 - [ ] Linked GitHub issue is referenced above/linked to this PR
 - [ ] Documentation generation workflow ran successfully on this branch
 - [ ] Changes are limited to documentation/comments (no code behavior changes)
