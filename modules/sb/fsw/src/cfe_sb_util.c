@@ -77,6 +77,15 @@ size_t CFE_SB_GetUserDataLength(const CFE_MSG_Message_t *MsgPtr)
     CFE_MSG_GetSize(MsgPtr, &TotalMsgSize);
     HdrSize = CFE_SB_MsgHdrSize(MsgPtr);
 
+    /* Guard against unsigned underflow: a malformed message whose CCSDS
+     * Length field encodes a total smaller than the header size would wrap
+     * the subtraction to SIZE_MAX, causing downstream OOB reads in every
+     * caller that uses the returned length as a buffer size or loop bound. */
+    if (TotalMsgSize <= HdrSize)
+    {
+        return 0;
+    }
+
     return TotalMsgSize - HdrSize;
 }
 
