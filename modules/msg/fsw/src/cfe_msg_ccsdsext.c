@@ -251,7 +251,7 @@ CFE_Status_t CFE_MSG_GetSystem(const CFE_MSG_Message_t *MsgPtr, CFE_MSG_System_t
         return CFE_MSG_BAD_ARGUMENT;
     }
 
-    *System = (MsgPtr->CCSDS.Ext.SystemId[0] << 8) + MsgPtr->CCSDS.Ext.SystemId[1];
+    *System = ((uint16)MsgPtr->CCSDS.Ext.SystemId[0] << 8) | MsgPtr->CCSDS.Ext.SystemId[1];
 
     return CFE_SUCCESS;
 }
