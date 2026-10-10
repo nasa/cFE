@@ -391,6 +391,13 @@
 /**
   \page cfesbugknwnprob Known Problem
 
+  Finite timeouts passed to #CFE_SB_ReceiveBuffer and #CFE_SB_ReceiveBufferWithRoute
+  are implemented by the underlying OS queue. On POSIX systems that use an absolute
+  real-time clock for timed queue receives, changing the system wall clock while a
+  receive is pending may cause the call to time out early or wait longer than requested.
+  Applications requiring timeout behavior independent of wall-clock adjustments should
+  account for this platform-specific limitation.
+
   The software bus may perform unexpectedly under an unlikely corner-case scenario. This
   scenario was revealed in a stress test. The stress test was designed to deplete the Software
   Bus memory pool by having a high priority application continuously send 1000 byte packets
