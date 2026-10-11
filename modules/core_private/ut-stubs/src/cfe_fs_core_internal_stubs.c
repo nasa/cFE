@@ -57,3 +57,14 @@ bool CFE_FS_RunBackgroundFileDump(uint32 ElapsedTime, void *Arg)
 
     return UT_GenStub_GetReturnValue(CFE_FS_RunBackgroundFileDump, bool);
 }
+
+void UT_DefaultHandler_CFE_FS_WriteHeaderFromBuffer(void *, UT_EntryKey_t, const UT_StubContext_t *);
+
+CFE_Status_t CFE_FS_WriteHeaderFromBuffer(osal_id_t FileDes, const CFE_FS_Header_t *Hdr)
+{
+    UT_GenStub_SetupReturnBuffer(CFE_FS_WriteHeaderFromBuffer, CFE_Status_t);
+    UT_GenStub_AddParam(CFE_FS_WriteHeaderFromBuffer, osal_id_t, FileDes);
+    UT_GenStub_AddParam(CFE_FS_WriteHeaderFromBuffer, const CFE_FS_Header_t *, Hdr);
+    UT_GenStub_Execute(CFE_FS_WriteHeaderFromBuffer, Basic, UT_DefaultHandler_CFE_FS_WriteHeaderFromBuffer);
+    return UT_GenStub_GetReturnValue(CFE_FS_WriteHeaderFromBuffer, CFE_Status_t);
+}
