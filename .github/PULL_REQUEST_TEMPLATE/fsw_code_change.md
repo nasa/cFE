@@ -52,6 +52,7 @@ Closes #
 
 ## Author Checklist
 
+- [ ] I reviewed the [Pull Request and Commit Guide](https://github.com/nasa/cFE/blob/dev/PULL_REQUEST_GUIDE.md)
 - [ ] Linked GitHub issue is referenced above
 - [ ] Code has been formatted with `.clang-format`
 - [ ] Static analysis workflows ran and passed
