@@ -142,7 +142,8 @@ CFE_TBL_RegistryRec_t *CFE_TBL_LocateRegRecByName(const char *Name)
     {
         RegRecPtr = &CFE_TBL_Global.Registry[i];
 
-        if (CFE_TBL_RegRecIsUsed(RegRecPtr) && strcmp(Name, CFE_TBL_RegRecGetName(RegRecPtr)) == 0)
+        if (CFE_TBL_RegRecIsUsed(RegRecPtr)
+            && strncmp(Name, CFE_TBL_RegRecGetName(RegRecPtr), CFE_TBL_MAX_FULL_NAME_LEN) == 0)
         {
             break;
         }

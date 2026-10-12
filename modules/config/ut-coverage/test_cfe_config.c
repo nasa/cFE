@@ -33,12 +33,12 @@
 /* clang-format off */
 const CFE_Config_IdNameEntry_t CFE_CONFIGID_NAMETABLE[CFE_ConfigIdOffset_MAX] =
 {
-    {"UT_CHECK_1"},
-    {"UT_CHECK_2"},
-    {"UT_CHECK_3"},
-    {"UT_CHECK_4"},
-    {"MOD_SRCVER_COREMODULE1"},
-    {"MOD_SRCVER_COREMODULE2"}
+    {"UT_CHECK_1", sizeof("UT_CHECK_1")},
+    {"UT_CHECK_2", sizeof("UT_CHECK_2")},
+    {"UT_CHECK_3", sizeof("UT_CHECK_3")},
+    {"UT_CHECK_4", sizeof("UT_CHECK_4")},
+    {"MOD_SRCVER_COREMODULE1", sizeof("MOD_SRCVER_COREMODULE1")},
+    {"MOD_SRCVER_COREMODULE2", sizeof("MOD_SRCVER_COREMODULE2")}
 };
 /* clang-format on */
 
@@ -234,6 +234,7 @@ void Test_CFE_Config_GetIdByName(void)
      */
     CFE_UtAssert_RESOURCEID_EQ(CFE_Config_GetIdByName("UT_CHECK_2"), CFE_CONFIGID_UT_CHECK_2);
     CFE_UtAssert_RESOURCEID_EQ(CFE_Config_GetIdByName("INVALID"), CFE_CONFIGID_UNDEFINED);
+    CFE_UtAssert_RESOURCEID_EQ(CFE_Config_GetIdByName("UT_CHECK_2_EXTRA"), CFE_CONFIGID_UNDEFINED);
     CFE_UtAssert_RESOURCEID_EQ(CFE_Config_GetIdByName(NULL), CFE_CONFIGID_UNDEFINED);
 }
 
