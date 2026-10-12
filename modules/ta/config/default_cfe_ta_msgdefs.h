@@ -77,4 +77,20 @@ typedef struct CFE_TA_HousekeepingTlm_Payload
                                   startup */
 } CFE_TA_HousekeepingTlm_Payload_t;
 
+/**
+** \brief Affinity Telemetry Payload
+**/
+typedef struct CFE_TA_AffinityTlm_Data
+{
+    char  TaskName[CFE_MISSION_MAX_API_LEN];             /**< \brief Name of the task */
+    uint8 AffinityMask[CFE_MISSION_TA_MAX_NUM_CPUS / 8]; /**< \brief CPU core affinity mask (octets) */
+} CFE_TA_AffinityTlm_Data_t;
+
+typedef struct CFE_TA_AffinityTlm_Payload
+{
+    uint16                    CoresConfigured;            /**< \brief Number of physical cores configured */
+    uint16                    TACoresMax;                 /**< \brief Maximum TA support bits*/
+    CFE_TA_AffinityTlm_Data_t TaskAffinity[OS_MAX_TASKS]; /**< \brief Tracked task array */
+} CFE_TA_AffinityTlm_Payload_t;
+
 #endif /* CFE_TA_MSGDEFS_H */
