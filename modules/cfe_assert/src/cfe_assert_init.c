@@ -70,7 +70,7 @@ int32 CFE_Assert_OpenLogFile(const char *Filename)
     {
         NameLen = sizeof(CFE_Assert_Global.LogFileTemp) - 5;
     }
-    strcpy(&CFE_Assert_Global.LogFileTemp[NameLen], ".tmp");
+    memcpy(&CFE_Assert_Global.LogFileTemp[NameLen], ".tmp", 5); /* 4 chars + null terminator */
 
     OsStatus = OS_OpenCreate(&CFE_Assert_Global.LogFileDesc,
                              CFE_Assert_Global.LogFileTemp,
