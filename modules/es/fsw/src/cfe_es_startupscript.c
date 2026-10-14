@@ -220,7 +220,7 @@ static int32 CFE_ES_ReadStartupLine(osal_id_t   AppFile,
                     ++CurrTokenPtr;
                 }
             }
-            else if (isgraph((int)c))
+            else if (isgraph((int)(unsigned char)c))
             {
                 /* store normal (non-space) chars */
                 *CurrPtr = c;
