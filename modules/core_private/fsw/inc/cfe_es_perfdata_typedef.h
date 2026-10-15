@@ -29,7 +29,7 @@
 #include "cfe_mission_cfg.h"  /* Required for CFE_MISSION_ES_PERF_MAX_IDS */
 #include "cfe_platform_cfg.h" /* Required for CFE_PLATFORM_ES_PERF_DATA_BUFFER_SIZE */
 
-#define CFE_ES_PERF_32BIT_WORDS_IN_MASK ((CFE_MISSION_ES_PERF_MAX_IDS) / 32)
+#define CFE_ES_PERF_8BIT_WORDS_IN_MASK ((CFE_MISSION_ES_PERF_MAX_IDS) / 8)
 
 typedef struct
 {
@@ -60,8 +60,8 @@ typedef struct
     uint32          DataCount;
     uint32          InvalidMarkerReported;
     uint32          FilterTriggerMaskSize;
-    uint32          FilterMask[CFE_ES_PERF_32BIT_WORDS_IN_MASK];
-    uint32          TriggerMask[CFE_ES_PERF_32BIT_WORDS_IN_MASK];
+    uint8           FilterMask[CFE_ES_PERF_8BIT_WORDS_IN_MASK];
+    uint8           TriggerMask[CFE_ES_PERF_8BIT_WORDS_IN_MASK];
 } CFE_ES_PerfMetaData_t;
 
 typedef struct

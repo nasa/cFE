@@ -9,6 +9,7 @@ project(CFE_ES C)
 # Executive services source files
 set(es_SOURCES
     fsw/src/cfe_es_api.c
+    fsw/src/cfe_es_appctrl.c
     fsw/src/cfe_es_apps.c
     fsw/src/cfe_es_backgroundtask.c
     fsw/src/cfe_es_cds.c
@@ -21,6 +22,7 @@ set(es_SOURCES
     fsw/src/cfe_es_perf.c
     fsw/src/cfe_es_resource.c
     fsw/src/cfe_es_start.c
+    fsw/src/cfe_es_startupscript.c
     fsw/src/cfe_es_syslog.c
     fsw/src/cfe_es_task.c
 )

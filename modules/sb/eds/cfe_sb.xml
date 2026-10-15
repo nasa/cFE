@@ -189,7 +189,11 @@
               \cfetlmmnemonic  \SB_GETPIPEIDBYNAMEEC
             </LongDescription>
           </Entry>
-          <PaddingEntry sizeInBits="8" shortDescription="Spare bytes for alignment"/>
+          <Entry name="DeletePipeErrorCounter" type="BASE_TYPES/uint8" shortDescription="Count of errors in delete pipe API">
+            <LongDescription>
+              \cfetlmmnemonic  \SB_DELPIPEEC
+            </LongDescription>
+          </Entry>
           <Entry name="PipeOverflowErrorCounter" type="BASE_TYPES/uint16" shortDescription="Count of pipe overflow errors">
             <LongDescription>
               \cfetlmmnemonic  \SB_PIPEOVREC

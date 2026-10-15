@@ -361,6 +361,32 @@ CFE_Status_t CFE_SB_ReceiveBuffer(CFE_SB_Buffer_t **BufPtr, CFE_SB_PipeId_t Pipe
 
 /*
  * ----------------------------------------------------
+ * Generated stub function for CFE_SB_ReceiveBufferWithRoute()
+ * ----------------------------------------------------
+ */
+CFE_Status_t CFE_SB_ReceiveBufferWithRoute(CFE_SB_PipeId_t         PipeId,
+                                           const CFE_SB_Buffer_t **BufPtr,
+                                           size_t                 *ContentSize,
+                                           CFE_SB_MsgId_t         *RoutingMsgId,
+                                           bool                    IsTermination,
+                                           int32                   TimeOut)
+{
+    UT_GenStub_SetupReturnBuffer(CFE_SB_ReceiveBufferWithRoute, CFE_Status_t);
+
+    UT_GenStub_AddParam(CFE_SB_ReceiveBufferWithRoute, CFE_SB_PipeId_t, PipeId);
+    UT_GenStub_AddParam(CFE_SB_ReceiveBufferWithRoute, const CFE_SB_Buffer_t **, BufPtr);
+    UT_GenStub_AddParam(CFE_SB_ReceiveBufferWithRoute, size_t *, ContentSize);
+    UT_GenStub_AddParam(CFE_SB_ReceiveBufferWithRoute, CFE_SB_MsgId_t *, RoutingMsgId);
+    UT_GenStub_AddParam(CFE_SB_ReceiveBufferWithRoute, bool, IsTermination);
+    UT_GenStub_AddParam(CFE_SB_ReceiveBufferWithRoute, int32, TimeOut);
+
+    UT_GenStub_Execute(CFE_SB_ReceiveBufferWithRoute, Basic, NULL);
+
+    return UT_GenStub_GetReturnValue(CFE_SB_ReceiveBufferWithRoute, CFE_Status_t);
+}
+
+/*
+ * ----------------------------------------------------
  * Generated stub function for CFE_SB_ReleaseMessageBuffer()
  * ----------------------------------------------------
  */
@@ -503,6 +529,30 @@ CFE_Status_t CFE_SB_TransmitBuffer(CFE_SB_Buffer_t *BufPtr, bool IsOrigination)
     UT_GenStub_Execute(CFE_SB_TransmitBuffer, Basic, UT_DefaultHandler_CFE_SB_TransmitBuffer);
 
     return UT_GenStub_GetReturnValue(CFE_SB_TransmitBuffer, CFE_Status_t);
+}
+
+/*
+ * ----------------------------------------------------
+ * Generated stub function for CFE_SB_TransmitBufferWithRoute()
+ * ----------------------------------------------------
+ */
+CFE_Status_t CFE_SB_TransmitBufferWithRoute(CFE_SB_Buffer_t *BufPtr,
+                                            size_t           ContentSize,
+                                            CFE_SB_MsgId_t   RoutingMsgId,
+                                            bool             IsOrigination,
+                                            int32            TimeOut)
+{
+    UT_GenStub_SetupReturnBuffer(CFE_SB_TransmitBufferWithRoute, CFE_Status_t);
+
+    UT_GenStub_AddParam(CFE_SB_TransmitBufferWithRoute, CFE_SB_Buffer_t *, BufPtr);
+    UT_GenStub_AddParam(CFE_SB_TransmitBufferWithRoute, size_t, ContentSize);
+    UT_GenStub_AddParam(CFE_SB_TransmitBufferWithRoute, CFE_SB_MsgId_t, RoutingMsgId);
+    UT_GenStub_AddParam(CFE_SB_TransmitBufferWithRoute, bool, IsOrigination);
+    UT_GenStub_AddParam(CFE_SB_TransmitBufferWithRoute, int32, TimeOut);
+
+    UT_GenStub_Execute(CFE_SB_TransmitBufferWithRoute, Basic, NULL);
+
+    return UT_GenStub_GetReturnValue(CFE_SB_TransmitBufferWithRoute, CFE_Status_t);
 }
 
 /*

@@ -4,13 +4,15 @@
 
 This repository contains NASA's Core Flight Executive (cFE), which is a framework component of the Core Flight System.
 
-This is a collection of services and associated framework to be located in the `cfe` subdirectory of a cFS Mission Tree. The Core Flight System is bundled at <https://github.com/nasa/cFS>, which includes build and execution instructions.
+This is a collection of services and associated framework to be located in the `cfe` subdirectory of a cFS Mission Tree. A demonstration bundle of the Core Flight System is available at <https://github.com/nasa/cFS>, which includes build and execution instructions.
+
+For information about a mission ready cFS bundle, see: <https://github.com/nasa/cFS#cfs-gov-mission-ready-version> 
 
 The detailed cFE user's guide can be viewed at <https://github.com/nasa/cFE/blob/gh-pages/cfe-usersguide.pdf>.
 
 ## Known issues
 
-See all open issues and closed to milestones later than this version.
+See all [open issues](https://developer.nasa.gov/cFS/cFE/issues) and closed to milestones later than this version.
 
 ## Getting Help
 

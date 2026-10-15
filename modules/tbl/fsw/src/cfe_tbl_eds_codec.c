@@ -498,11 +498,11 @@ CFE_Status_t CFE_TBL_EncodeOutputData(CFE_TBL_TxnState_t       *Txn,
                                       const CFE_TBL_LoadBuff_t *SourceBuffer,
                                       CFE_TBL_LoadBuff_t       *DestBuffer)
 {
-    CFE_Status_t                 ReturnCode;
-    EdsLib_Id_t                  EdsId;
-    int32                        EdsStatus;
-    EdsLib_DataTypeDB_TypeInfo_t TypeInfo;
-    CFE_TBL_RegistryRec_t       *RegRecPtr;
+    CFE_Status_t           ReturnCode;
+    EdsLib_Id_t            EdsId;
+    int32                  EdsStatus;
+    CFE_TBL_RegistryRec_t *RegRecPtr;
+    EdsLib_SizeInfo_t      TotalPackedSize;
 
     const EdsLib_DatabaseObject_t *EDS_DB;
 
@@ -511,26 +511,19 @@ CFE_Status_t CFE_TBL_EncodeOutputData(CFE_TBL_TxnState_t       *Txn,
 
     EdsId = CFE_TBL_RegRecGetConfig(RegRecPtr)->EdsId;
 
-    EdsStatus = EdsLib_DataTypeDB_PackCompleteObject(EDS_DB,
-                                                     &EdsId,
-                                                     DestBuffer,
-                                                     SourceBuffer->BufferPtr,
-                                                     8 * CFE_PLATFORM_TBL_MAX_SNGL_TABLE_SIZE,
-                                                     CFE_TBL_RegRecGetSize(RegRecPtr));
+    TotalPackedSize.Bytes = CFE_TBL_LoadBuffGetAllocSize(DestBuffer);
+    TotalPackedSize.Bits  = EdsLib_OCTETS_TO_BITS(TotalPackedSize.Bytes);
+
+    EdsStatus = EdsLib_DataTypeDB_PackCompleteObjectVarSize(EDS_DB,
+                                                            &EdsId,
+                                                            CFE_TBL_LoadBuffGetWritePointer(DestBuffer),
+                                                            SourceBuffer->BufferPtr,
+                                                            &TotalPackedSize);
 
     if (EdsStatus == EDSLIB_SUCCESS)
     {
-        EdsStatus = EdsLib_DataTypeDB_GetTypeInfo(EDS_DB, EdsId, &TypeInfo);
-        if (EdsStatus == EDSLIB_SUCCESS)
-        {
-            CFE_TBL_LoadBuffSetContentSize(DestBuffer, (TypeInfo.Size.Bits + 7) / 8);
-            ReturnCode = CFE_SUCCESS;
-        }
-        else
-        {
-            OS_printf("%s(): EdsLib_DataTypeDB_GetTypeInfo(): %d\n", __func__, (int)EdsStatus);
-            ReturnCode = CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
-        }
+        CFE_TBL_LoadBuffSetContentSize(DestBuffer, TotalPackedSize.Bytes);
+        ReturnCode = CFE_SUCCESS;
     }
     else
     {

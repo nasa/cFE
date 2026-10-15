@@ -147,6 +147,11 @@ CFE_ConfigId_t CFE_Config_GetIdByName(const char *Name)
     const CFE_Config_IdNameEntry_t *NamePtr;
     uint32                          OffsetVal;
 
+    if (Name == NULL)
+    {
+        return CFE_CONFIGID_UNDEFINED;
+    }
+
     NamePtr = CFE_CONFIGID_NAMETABLE;
     for (OffsetVal = 0; OffsetVal < CFE_ConfigIdOffset_MAX; ++OffsetVal)
     {

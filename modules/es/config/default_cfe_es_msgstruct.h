@@ -82,16 +82,6 @@ typedef struct CFE_ES_RestartCmd
     CFE_ES_RestartCmd_Payload_t Payload;       /**< \brief Command payload */
 } CFE_ES_RestartCmd_t;
 
-#ifndef jphfix
-/**
- * \brief Generic file name command
- */
-typedef struct CFE_ES_FileNameCmd
-{
-    CFE_MSG_CommandHeader_t      CommandHeader; /**< \brief Command header */
-    CFE_ES_FileNameCmd_Payload_t Payload;       /**< \brief Command payload */
-} CFE_ES_FileNameCmd_t;
-#endif
 /*
  * Unique typedefs for each of the commands that utilize the FileNameCmd
  * packet format

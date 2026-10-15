@@ -132,8 +132,8 @@ typedef struct CFE_FS_FileWriteMetaData
     char FileName[CFE_MISSION_MAX_PATH_LEN]; /**< Name of file to write */
 
     /* Data for FS header */
-    uint32 FileSubType;                          /**< Type of file to write (for FS header) */
-    char   Description[CFE_FS_HDR_DESC_MAX_LEN]; /**< Description of file (for FS header) */
+    CFE_FS_SubType_Enum_t FileSubType;                          /**< Type of file to write (for FS header) */
+    char                  Description[CFE_FS_HDR_DESC_MAX_LEN]; /**< Description of file (for FS header) */
 
     CFE_FS_FileWriteGetData_t GetData; /**< Application callback to get a data record */
     CFE_FS_FileWriteOnEvent_t OnEvent; /**< Application callback for abstract event processing */

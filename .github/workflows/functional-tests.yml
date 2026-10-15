@@ -24,7 +24,7 @@ env:
 jobs:
   Local-Test-Build:
     name: Build cFE
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     container: ghcr.io/core-flight-system/cfsbuildenv-linux:latest
     timeout-minutes: 15
 
@@ -76,9 +76,7 @@ jobs:
       actions: read
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      GH_HOST: github.com
-      GH_REPO: cFS/cFE
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     needs: Local-Test-Build
     timeout-minutes: 15
 
@@ -114,40 +112,58 @@ jobs:
           container-id: ${{ steps.start-cpu1.outputs.container-id }}
           healthcheck-regex: 'CFE_ES_Main entering OPERATIONAL state$'
 
-      - name: Execute No-Op Check
+      - name: Send No-Op Check
         working-directory: ./host
+        env:
+          CFE_HOST: ${{ steps.check-cpu1.outputs.ip-addr }}
         run: |
-          ./cmd_send -v --host=${{ steps.check-cpu1.outputs.ip-addr }} --endian=LE --pktid=0x1806 --cmdcode=0
+          ./cmd_send -v --host="${CFE_HOST}" --endian=LE --pktid=0x1806 --cmdcode=0
           sleep 2
-          docker logs "${{ steps.start-cpu1.outputs.container-id }}" | grep -A 2 'CFE_ES 3: No-op command'
+
+      - name: Get container logs
+        env:
+          CONTAINER_ID: ${{ steps.start-cpu1.outputs.container-id }}
+        run: |
+          docker logs "${CONTAINER_ID}" | tee "${RUNNER_TEMP}/cfe_${CONTAINER_ID}.log"
+
+      - name: Verify No-Op Receipt
+        env:
+          CONTAINER_ID: ${{ steps.start-cpu1.outputs.container-id }}
+        run: |
+          grep -A 2 'CFE_ES 3: No-op command' "${RUNNER_TEMP}/cfe_${CONTAINER_ID}.log"
 
       - name: Launch Functional Test
         working-directory: ./host
+        env:
+          CFE_HOST: ${{ steps.check-cpu1.outputs.ip-addr }}
+          CONTAINER_ID: ${{ steps.start-cpu1.outputs.container-id }}
         run: |
-          ./cmd_send -v --host=${{ steps.check-cpu1.outputs.ip-addr }} --pktid=0x1806 --cmdcode=4 --endian=LE --string="20:CFE_TEST" --string="20:CFE_TestMain" --string="64:cfe_testcase" --uint64=16384 --uint8=0 --uint8=0 --uint16=100 --uint32=0
+          ./cmd_send -v --host="${CFE_HOST}" --pktid=0x1806 --cmdcode=4 --endian=LE --string="20:CFE_TEST" --string="20:CFE_TestMain" --string="64:cfe_testcase" --uint64=16384 --uint8=0 --uint8=0 --uint16=100 --uint32=0
           sleep 10
-          docker logs "${{ steps.start-cpu1.outputs.container-id }}"
 
       - name: Wait for Functional Test
         working-directory: ./cpu1
+        env:
+          LIMIT: 3
         run: |
           counter=0
           stuck=0
 
           while [ ! -f cf/cfe_test.log ]
           do
-            temp=$(grep -c "BEGIN" cf/cfe_test.tmp)
+            temp=$(grep -c "BEGIN" cf/cfe_test.tmp || echo 0)
             if [ $temp -eq $counter ]
             then
-              stuck=$(($stuck + 1))
+              let stuck=$stuck + 1
             else
               stuck=0
+              counter=$temp
             fi
 
-            if [ $stuck -ge 3 ]
+            if [ $stuck -ge "${LIMIT}" ]
             then
               echo "Test is frozen. Quitting"
-              break
+              exit 1
             fi
 
             counter=$(grep -c "BEGIN" cf/cfe_test.tmp)
@@ -158,8 +174,10 @@ jobs:
       - name: Shut down CFE
         if: ${{ always() && steps.check-cpu1.outputs.ip-addr != '' }}
         working-directory: ./host
+        env:
+          CFE_HOST: ${{ steps.check-cpu1.outputs.ip-addr }}
         run: |
-          ./cmd_send -v --host=${{ steps.check-cpu1.outputs.ip-addr }} --endian=LE --pktid=0x1806 --cmdcode=2 --half=0x0002
+          ./cmd_send -v --host="$CFE_HOST" --endian=LE --pktid=0x1806 --cmdcode=2 --half=0x0002
           sleep 1
 
       - name: Stop CPU1 Container
@@ -168,12 +186,21 @@ jobs:
         with:
           container-id: ${{ steps.start-cpu1.outputs.container-id }}
 
-      - name: Archive cFS Startup Artifacts
+      - name: Get final container logs
+        if: always()
+        env:
+          CONTAINER_ID: ${{ steps.start-cpu1.outputs.container-id }}
+        run: |
+          mkdir -p "${GITHUB_WORKSPACE}/logs"
+          cp -t "${GITHUB_WORKSPACE}/logs" cpu1/cf/*.log ||:
+          docker logs "${CONTAINER_ID}" | tee "${GITHUB_WORKSPACE}/logs/cfe_full_output.log"
+
+      - name: Archive cFS Artifacts
         if: always()
         uses: actions/upload-artifact@v7
         with:
           name: cFS-startup-log-deprecate-true-release
-          path: cpu1/cf/cfe_test.log
+          path: logs/*
 
       - name: Check for cFS Warnings
         run: |

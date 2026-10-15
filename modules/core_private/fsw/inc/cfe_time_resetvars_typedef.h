@@ -43,12 +43,12 @@
 */
 typedef struct CFE_TIME_ResetVars
 {
-    uint32             Signature;    /**< \brief Data validation signature used to verify data structure contents*/
-    int16              LeapSeconds;  /**< \brief Leap seconds value */
-    uint16             ClockSignal;  /**< \brief Current clock signal selection */
-    CFE_TIME_SysTime_t CurrentMET;   /**< \brief Current Mission Elapsed Time (MET) */
-    CFE_TIME_SysTime_t CurrentSTCF;  /**< \brief Current Spacecraft Time Correlation Factor (STCF) */
-    CFE_TIME_SysTime_t CurrentDelay; /**< \brief Current time client delay value */
+    uint32 Signature;   /**< \brief Data validation signature used to verify data structure contents*/
+    int16  LeapSeconds; /**< \brief Leap seconds value */
+    CFE_TIME_ToneSignalSelect_Enum_t ClockSignal;  /**< \brief Current clock signal selection */
+    CFE_TIME_SysTime_t               CurrentMET;   /**< \brief Current Mission Elapsed Time (MET) */
+    CFE_TIME_SysTime_t               CurrentSTCF;  /**< \brief Current Spacecraft Time Correlation Factor (STCF) */
+    CFE_TIME_SysTime_t               CurrentDelay; /**< \brief Current time client delay value */
 } CFE_TIME_ResetVars_t;
 
 #endif /* CFE_TIME_RESETVARS_TYPEDEF_H */

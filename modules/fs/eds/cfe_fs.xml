@@ -136,6 +136,15 @@
                 command.
               </LongDescription>
             </Enumeration>
+            
+            <Enumeration label="TA_QUERYALLTASKS" value="24" shortDescription="Task Affinity Query All Tasks Data File">
+              <LongDescription>
+                Task Affinity Query All Tasks Data File which is generated in response to a
+                \link #CFE_TA_QUERY_ALL_TASKS_CC \TA_QUERY_ALL \endlink
+                command.
+              </LongDescription>
+            </Enumeration>
+            
         </EnumerationList>
       </EnumeratedDataType>
 

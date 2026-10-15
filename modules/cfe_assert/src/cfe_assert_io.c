@@ -88,7 +88,10 @@ void UT_BSP_WriteLogFile(osal_id_t FileDesc, uint8 MessageType, const char *Pref
     if (MsgEnabled & 1)
     {
         snprintf(LogFileBuffer, sizeof(LogFileBuffer), "[%5s] %s\n", Prefix, OutputMessage);
-        OS_write(FileDesc, LogFileBuffer, strlen(LogFileBuffer));
+
+        /* SAD: Suppress Ignored Return Value warning from CodeSonar.  There is no alternative action to take if
+         * OS_write fails  */
+        (void)OS_write(FileDesc, LogFileBuffer, strlen(LogFileBuffer));
     }
 }
 

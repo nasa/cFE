@@ -232,6 +232,8 @@ typedef const struct
      */
     const CFE_SbIntfDbObject_t *SbIntfDb;
 
+    const void *TaAffinityTable;
+
 } Target_ConfigData;
 
 /**

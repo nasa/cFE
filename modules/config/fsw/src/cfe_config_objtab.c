@@ -30,9 +30,5 @@
 #include "target_objtab.h"
 #include "cfe_config_core_internal.h"
 
-const Target_ObjectTable_t CFE_CONFIG_ModuleEntry = { .Name      = "CFE_CONFIG",
-                                                      .EarlyInit = CFE_Config_Init,
-                                                      .TaskMain  = NULL, /* library module - no task */
-                                                      .Cleanup   = NULL,
-                                                      .Priority  = 0,
-                                                      .StackSize = 0 };
+/* this is a core library module with no task, but it does have global data to initialize */
+const Target_ObjectTable_t CFE_CONFIG_ModuleEntry = { .Name = "CFE_CONFIG", .EarlyInit = CFE_Config_Init };

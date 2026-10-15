@@ -56,6 +56,16 @@
 #endif
 
 /*
+ * If the CMake build didn't provide a TA affinity table, default to NULL.
+ * Otherwise, declare the extern array that the mission config provided.
+ */
+#ifndef CFE_TA_AFFINITY_TABLE_PTR
+#define CFE_TA_AFFINITY_TABLE_PTR NULL
+#else
+extern const char CFE_TA_AFFINITY_TABLE_PTR[];
+#endif
+
+/*
  * Many configdata items are instantiated by the
  * build system, where it generates a .c file containing
  * the data, which is then compiled and linked with this file.
@@ -261,5 +271,6 @@ Target_ConfigData GLOBAL_CONFIGDATA = {
     .StaticAppList           = CFE_STATIC_APP_LIST,
     .EdsDb                   = CFE_CONST_EDS_DB_PTR,
     .DynamicEdsDb            = CFE_NONCONST_EDS_DB_PTR,
-    .SbIntfDb                = CFE_SB_INTF_DB_PTR
+    .SbIntfDb                = CFE_SB_INTF_DB_PTR,
+    .TaAffinityTable         = CFE_TA_AFFINITY_TABLE_PTR
 };

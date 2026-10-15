@@ -308,6 +308,7 @@ void Test_CFE_TBL_LoadCmd(void)
     UT_SetDefaultReturnValue(UT_KEY(OS_OpenCreate), OS_ERROR);
     UtAssert_INT32_EQ(CFE_TBL_LoadCmd(&LoadCmd), CFE_SUCCESS);
     CFE_UtAssert_COUNTER_INCR(CFE_TBL_Global.CommandErrorCounter);
+    UtAssert_STUB_COUNT(OS_close, 0);
 
     /* Test response to inability to find the table in the registry */
     UT_InitData_TBL();
@@ -317,6 +318,7 @@ void Test_CFE_TBL_LoadCmd(void)
     UtAssert_INT32_EQ(CFE_TBL_LoadCmd(&LoadCmd), CFE_SUCCESS);
     CFE_UtAssert_COUNTER_INCR(CFE_TBL_Global.CommandErrorCounter);
     CFE_UtAssert_EVENTSENT(CFE_TBL_NO_SUCH_TABLE_ERR_EID);
+    UtAssert_STUB_COUNT(OS_close, 1);
 
     /* The rest of the tests will use registry 0, note empty name matches */
     RegRec0Ptr->OwnerAppId = AppID;
@@ -330,6 +332,7 @@ void Test_CFE_TBL_LoadCmd(void)
     UtAssert_INT32_EQ(CFE_TBL_LoadCmd(&LoadCmd), CFE_SUCCESS);
     CFE_UtAssert_COUNTER_INCR(CFE_TBL_Global.CommandErrorCounter);
     UT_TBL_Config(RegRec0Ptr)->DumpOnly = false;
+    UtAssert_STUB_COUNT(OS_close, 1);
 
     /* Test attempt to load a table with a load already pending */
     UT_InitData_TBL();
@@ -338,6 +341,7 @@ void Test_CFE_TBL_LoadCmd(void)
     UT_TBL_SetupLoadBuff(RegRec0Ptr, false, 0);
     UtAssert_INT32_EQ(CFE_TBL_LoadCmd(&LoadCmd), CFE_SUCCESS);
     CFE_UtAssert_COUNTER_INCR(CFE_TBL_Global.CommandErrorCounter);
+    UtAssert_STUB_COUNT(OS_close, 1);
 
     /* Test where the file isn't dump only and passes table checks, get a
      * working buffer, and there is an extra byte (more data than header
@@ -362,6 +366,7 @@ void Test_CFE_TBL_LoadCmd(void)
     UT_SetReadHeader(&StdFileHeader, sizeof(StdFileHeader));
     UtAssert_INT32_EQ(CFE_TBL_LoadCmd(&LoadCmd), CFE_SUCCESS);
     CFE_UtAssert_COUNTER_INCR(CFE_TBL_Global.CommandCounter);
+    UtAssert_STUB_COUNT(OS_close, 1);
 
     /* Test with differing amount of data from header's claim */
     UT_InitData_TBL();
@@ -370,6 +375,7 @@ void Test_CFE_TBL_LoadCmd(void)
     UT_SetReadHeader(&StdFileHeader, sizeof(StdFileHeader));
     UtAssert_INT32_EQ(CFE_TBL_LoadCmd(&LoadCmd), CFE_SUCCESS);
     CFE_UtAssert_COUNTER_INCR(CFE_TBL_Global.CommandErrorCounter);
+    UtAssert_STUB_COUNT(OS_close, 1);
 
     /* Test with no working buffers available */
     UT_InitData_TBL();
@@ -382,6 +388,7 @@ void Test_CFE_TBL_LoadCmd(void)
     UtAssert_INT32_EQ(CFE_TBL_LoadCmd(&LoadCmd), CFE_SUCCESS);
     CFE_UtAssert_COUNTER_INCR(CFE_TBL_Global.CommandErrorCounter);
     CFE_UtAssert_EVENTSENT(CFE_TBL_NO_WORK_BUFFERS_ERR_EID);
+    UtAssert_STUB_COUNT(OS_close, 1);
 
     /* Test with interal CFE_TBL_GetWorkingBuffer error (memcpy with matching address */
     UT_InitData_TBL();
@@ -393,6 +400,7 @@ void Test_CFE_TBL_LoadCmd(void)
     UT_SetReadHeader(&StdFileHeader, sizeof(StdFileHeader));
     UtAssert_INT32_EQ(CFE_TBL_LoadCmd(&LoadCmd), CFE_SUCCESS);
     CFE_UtAssert_COUNTER_INCR(CFE_TBL_Global.CommandErrorCounter);
+    UtAssert_STUB_COUNT(OS_close, 1);
 
     /* Test with table header indicating data beyond size of the table */
     UT_InitData_TBL();
@@ -401,6 +409,7 @@ void Test_CFE_TBL_LoadCmd(void)
     UT_SetReadHeader(&StdFileHeader, sizeof(StdFileHeader));
     UtAssert_INT32_EQ(CFE_TBL_LoadCmd(&LoadCmd), CFE_SUCCESS);
     CFE_UtAssert_COUNTER_INCR(CFE_TBL_Global.CommandErrorCounter);
+    UtAssert_STUB_COUNT(OS_close, 1);
 
     /* Test with table header indicating no data in the file */
     UT_InitData_TBL();
@@ -408,6 +417,7 @@ void Test_CFE_TBL_LoadCmd(void)
     UT_SetReadHeader(&StdFileHeader, sizeof(StdFileHeader));
     UtAssert_INT32_EQ(CFE_TBL_LoadCmd(&LoadCmd), CFE_SUCCESS);
     CFE_UtAssert_COUNTER_INCR(CFE_TBL_Global.CommandErrorCounter);
+    UtAssert_STUB_COUNT(OS_close, 1);
 
     /* Test where file has partial load for uninitialized table and offset
      * is non-zero
@@ -423,6 +433,7 @@ void Test_CFE_TBL_LoadCmd(void)
     UtAssert_INT32_EQ(CFE_TBL_LoadCmd(&LoadCmd), CFE_SUCCESS);
     CFE_UtAssert_COUNTER_INCR(CFE_TBL_Global.CommandErrorCounter);
     CFE_UtAssert_EVENTSENT(CFE_TBL_PARTIAL_LOAD_ERR_EID);
+    UtAssert_STUB_COUNT(OS_close, 1);
 
     /* Test where file has the wrong name in the header */
     UT_InitData_TBL();
@@ -433,6 +444,7 @@ void Test_CFE_TBL_LoadCmd(void)
     UtAssert_INT32_EQ(CFE_TBL_LoadCmd(&LoadCmd), CFE_SUCCESS);
     CFE_UtAssert_COUNTER_INCR(CFE_TBL_Global.CommandErrorCounter);
     CFE_UtAssert_EVENTSENT(CFE_TBL_NO_SUCH_TABLE_ERR_EID);
+    UtAssert_STUB_COUNT(OS_close, 1);
 
     /* Test where file has partial load for uninitialized table and offset
      * is zero
@@ -444,6 +456,7 @@ void Test_CFE_TBL_LoadCmd(void)
     UT_SetReadHeader(&StdFileHeader, sizeof(StdFileHeader));
     UtAssert_INT32_EQ(CFE_TBL_LoadCmd(&LoadCmd), CFE_SUCCESS);
     CFE_UtAssert_COUNTER_INCR(CFE_TBL_Global.CommandErrorCounter);
+    UtAssert_STUB_COUNT(OS_close, 1);
 
     /* Test response to inability to read the file header */
     UT_InitData_TBL();
@@ -451,6 +464,7 @@ void Test_CFE_TBL_LoadCmd(void)
     UT_SetDeferredRetcode(UT_KEY(CFE_FS_ReadHeader), 1, sizeof(CFE_FS_Header_t) - 1);
     UtAssert_INT32_EQ(CFE_TBL_LoadCmd(&LoadCmd), CFE_SUCCESS);
     CFE_UtAssert_COUNTER_INCR(CFE_TBL_Global.CommandErrorCounter);
+    UtAssert_STUB_COUNT(OS_close, 1);
 
     /* Test where file has partial load for initialized table and offset
      * is non-zero
@@ -463,6 +477,7 @@ void Test_CFE_TBL_LoadCmd(void)
     UtAssert_INT32_EQ(CFE_TBL_LoadCmd(&LoadCmd), CFE_SUCCESS);
     CFE_UtAssert_EVENTSENT(CFE_TBL_ZERO_LENGTH_LOAD_ERR_EID);
     CFE_UtAssert_COUNTER_INCR(CFE_TBL_Global.CommandErrorCounter);
+    UtAssert_STUB_COUNT(OS_close, 1);
 
     /* Test where file has partial load for initialized table and offset
      * is non-zero
@@ -473,6 +488,7 @@ void Test_CFE_TBL_LoadCmd(void)
     UT_SetReadHeader(&StdFileHeader, sizeof(StdFileHeader));
     UtAssert_INT32_EQ(CFE_TBL_LoadCmd(&LoadCmd), CFE_SUCCESS);
     CFE_UtAssert_COUNTER_INCR(CFE_TBL_Global.CommandErrorCounter);
+    UtAssert_STUB_COUNT(OS_close, 1);
 }
 
 /*

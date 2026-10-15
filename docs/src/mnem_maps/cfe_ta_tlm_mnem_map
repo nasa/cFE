@@ -1,0 +1,24 @@
+#---------------------------------------------------------------------------
+# Each of the following assignment statements should have the documentation
+# mnemonic on the left followed by the mission specific telemetry mnemonic
+# on the right of the equals operator.
+#
+# FORMATTING DETAILS TO REMEMBER!
+# 1) ALIASES line MUST have "+=" as the operator
+# 2) There CANNOT be spaces around the "=" operator on assignment statements
+# 3) Each line, EXCEPT the last, MUST have the line continuation character "\"
+#    at the end
+# 4) NO comments, such as these, can be interspersed within the assignment
+#    statements
+# 5) Avoid style formatting, historically caused warnings
+# 6) Multiple items should be surrounded by quotes: "a, b"
+#---------------------------------------------------------------------------
+ALIASES += \
+TA_CMDPC=$sc_$cpu_TA_CMDPC \
+TA_CMDEC=$sc_$cpu_TA_CMDEC \
+TA_STARTUP_CNT=$sc_$cpu_TA_StartupCnt \
+TA_STARTUP_ERR=$sc_$cpu_TA_StartupErr \
+TA_CORES_AVAIL=$sc_$cpu_TA_CoresAvail \
+TA_OSAL_CORES_MAX=$sc_$cpu_TA_CoresMax \
+TA_MAX_AFF_BITS=$sc_$cpu_TA_MaxAffBits \
+TA_TASK_AFFINITY_INFO="$sc_$cpu_TA_TaskName, $sc_$cpu_TA_AffinityType, $sc_$cpu_TA_AffinityStatus, $sc_$cpu_TA_CpuMask, $sc_$cpu_TA_CpuFromOS"

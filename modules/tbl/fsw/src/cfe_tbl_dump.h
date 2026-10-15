@@ -149,4 +149,16 @@ CFE_Status_t CFE_TBL_ExecuteDumpSnapshot(CFE_TBL_DumpControl_t *DumpCtrlPtr);
  */
 CFE_Status_t CFE_TBL_WriteSnapshotToFile(const CFE_TBL_DumpControl_t *DumpCtlPtr);
 
+/*---------------------------------------------------------------------------------------*/
+/**
+ * \brief Executes background activity associated with table dump
+ *
+ * Checks for dump requests where the snapshot has been taken but the
+ * file is not yet written.  If found, writes the dump file and closes
+ * the dump request.
+ *
+ * This should be invoked periodically from the background wake up
+ */
+void CFE_TBL_TableDumpExecuteBackground(void);
+
 #endif /* CFE_TBL_DUMP_H */

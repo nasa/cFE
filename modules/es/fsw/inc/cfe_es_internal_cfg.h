@@ -164,7 +164,7 @@
 **       verified.
 */
 #define CFE_PLATFORM_ES_SYSTEM_LOG_SIZE         CFE_PLATFORM_ES_CFGVAL(SYSTEM_LOG_SIZE)
-#define DEFAULT_CFE_PLATFORM_ES_SYSTEM_LOG_SIZE 3072
+#define DEFAULT_CFE_PLATFORM_ES_SYSTEM_LOG_SIZE 8192
 
 /**
 **  \cfeescfg Define Max Number of Generic Counters

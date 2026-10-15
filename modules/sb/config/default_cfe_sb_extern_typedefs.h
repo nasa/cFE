@@ -118,9 +118,10 @@ typedef CFE_RESOURCEID_BASE_TYPE CFE_SB_PipeId_t;
 **/
 typedef struct
 {
-    uint8 Priority; /**< \brief  Specify high(1) or low(0) message priority for off-board routing, currently unused */
-    uint8 Reliability; /**< \brief  Specify high(1) or low(0) message transfer reliability for off-board routing,
-                          currently unused */
+    CFE_SB_QosPriority_Enum_t
+        Priority; /**< \brief  Specify high(1) or low(0) message priority for off-board routing, currently unused */
+    CFE_SB_QosReliability_Enum_t Reliability; /**< \brief  Specify high(1) or low(0) message transfer reliability for
+                          off-board routing, currently unused */
 } CFE_SB_Qos_t;
 
 #endif /* CFE_SB_EXTERN_TYPEDEFS_H */

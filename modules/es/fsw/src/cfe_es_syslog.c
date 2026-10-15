@@ -97,27 +97,13 @@ void CFE_ES_SysLogReadStart_Unsync(CFE_ES_SysLogReadBuffer_t *Buffer)
 {
     size_t ReadIdx;
     size_t EndIdx;
-    size_t TotalSize;
 
-    ReadIdx   = CFE_ES_Global.ResetDataPtr->SystemLogWriteIdx;
-    EndIdx    = CFE_ES_Global.ResetDataPtr->SystemLogEndIdx;
-    TotalSize = EndIdx;
+    ReadIdx = CFE_ES_Global.ResetDataPtr->SystemLogWriteIdx;
+    EndIdx  = CFE_ES_Global.ResetDataPtr->SystemLogEndIdx;
 
-    /*
-     * Ensure that we start reading at the start of a message
-     * Likely pointing to an old fragment right now -- find the end of it
-     */
-    while (TotalSize > 0 && ReadIdx < EndIdx)
-    {
-        ++ReadIdx;
-        --TotalSize;
-        if (CFE_ES_Global.ResetDataPtr->SystemLog[ReadIdx - 1] == '\n')
-        {
-            break;
-        }
-    }
-
-    Buffer->SizeLeft   = TotalSize;
+    /* If the write position is NOT at the tail of the buffer, then its a fragement */
+    Buffer->IsFragment = (ReadIdx != EndIdx);
+    Buffer->SizeLeft   = EndIdx;
     Buffer->LastOffset = ReadIdx;
     Buffer->EndIdx     = EndIdx;
     Buffer->BlockSize  = 0;
@@ -286,9 +272,21 @@ int32 CFE_ES_SysLogWrite_Unsync(const char *SpecStringPtr, ...)
  *-----------------------------------------------------------------*/
 void CFE_ES_SysLogReadData(CFE_ES_SysLogReadBuffer_t *Buffer)
 {
-    size_t BlockSize;
+    size_t            BlockSize;
+    static const char FRAGMENT_TAG[] = "<<FRAGMENT>> ";
 
-    Buffer->BlockSize = 0;
+    if (Buffer->IsFragment)
+    {
+        /* Add a tag indicating that this block of data does not begin w/a complete message */
+        memcpy(Buffer->Data, FRAGMENT_TAG, sizeof(FRAGMENT_TAG) - 1);
+        Buffer->BlockSize  = sizeof(FRAGMENT_TAG) - 1;
+        Buffer->IsFragment = false;
+    }
+    else
+    {
+        Buffer->BlockSize = 0;
+    }
+
     while (Buffer->SizeLeft > 0 && Buffer->BlockSize < sizeof(Buffer->Data))
     {
         /*

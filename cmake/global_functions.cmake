@@ -193,12 +193,23 @@ function(generate_configfile_set)
       endif()
     endforeach()
 
-    if (VERBOSE)
-      message(STATUS "Generating ${CFGFILE} with options: ${DEFAULT_SOURCE}")
-    endif(VERBOSE)
+    # Backward compatibility logic:  Previously the cfe_* configuration files
+    # were named with the MISSIONCONFIG as a prefix (e.g. sample_perfids.h)
+    # This maintains that extra match for backward compatibility - but this should
+    # only apply for the cfe config files, nothing else.
+    set(EXTRA_CONFIGFILE_ARGS)
+    string(REGEX REPLACE "^cfe_" "" CFGFILE_BASENAME ${CFGFILE})
+    if (IS_CFS_MISSION_BUILD AND NOT "${CFGFILE_BASENAME}" STREQUAL "${CFGFILE}")
+        list(APPEND EXTRA_CONFIGFILE_ARGS MATCH_SUFFIX ${CFGFILE_BASENAME} PREFIXES ${MISSIONCONFIG} cfe)
+    endif()
+
+    if ($ENV{VERBOSE})
+      message(STATUS "Generating ${CFGFILE} with options: ${EXTRA_CONFIGFILE_ARGS} ${DEFAULT_SOURCE}")
+    endif($ENV{VERBOSE})
 
     generate_config_includefile(
       FILE_NAME           "${CFGFILE}"
+      ${EXTRA_CONFIGFILE_ARGS}
       ${DEFAULT_SOURCE}
     )
   endforeach()

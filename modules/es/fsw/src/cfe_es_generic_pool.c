@@ -550,7 +550,7 @@ int32 CFE_ES_GenPoolRebuild(CFE_ES_GenPoolRecord_t *PoolRecPtr)
             /* Test if block is deallocated */
             BucketId  = BdPtr->Allocated - CFE_ES_MEMORY_DEALLOCATED;
             BucketPtr = CFE_ES_GenPoolGetBucketState(PoolRecPtr, BucketId);
-            if (BucketPtr != 0)
+            if (BucketPtr != NULL)
             {
                 IsDeallocatedBlock = true;
             }

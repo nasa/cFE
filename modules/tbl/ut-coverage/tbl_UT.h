@@ -684,6 +684,7 @@ void Test_CFE_TBL_TxnEvents(void);
 void Test_CFE_TBL_TableLoadCommon(void);
 void Test_CFE_TBL_TableLoadCodec(void);
 void Test_CFE_TBL_TableDumpCommon(void);
+void Test_CFE_TBL_TableDumpExecuteBackground(void);
 
 /* Handle conversion tests */
 void Test_CFE_TBL_HandleConversions(void);

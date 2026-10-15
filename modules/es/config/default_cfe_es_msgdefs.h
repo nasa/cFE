@@ -191,8 +191,8 @@ typedef struct CFE_ES_StopPerfCmd_Payload
 **/
 typedef struct CFE_ES_SetPerfFilterMaskCmd_Payload
 {
-    uint32 FilterMaskNum; /**< \brief Index into array of Filter Masks */
-    uint32 FilterMask;    /**< \brief New Mask for specified entry in array of Filter Masks */
+    uint8 FilterMaskNum; /**< \brief Index into array of Filter Masks */
+    uint8 FilterMask;    /**< \brief New Mask for specified entry in array of Filter Masks */
 } CFE_ES_SetPerfFilterMaskCmd_Payload_t;
 
 /**
@@ -203,8 +203,8 @@ typedef struct CFE_ES_SetPerfFilterMaskCmd_Payload
 **/
 typedef struct CFE_ES_SetPerfTrigMaskCmd_Payload
 {
-    uint32 TriggerMaskNum; /**< \brief Index into array of Trigger Masks */
-    uint32 TriggerMask;    /**< \brief New Mask for specified entry in array of Trigger Masks */
+    uint8 TriggerMaskNum; /**< \brief Index into array of Trigger Masks */
+    uint8 TriggerMask;    /**< \brief New Mask for specified entry in array of Trigger Masks */
 } CFE_ES_SetPerfTrigMaskCmd_Payload_t;
 
 /**
@@ -330,23 +330,23 @@ typedef struct CFE_ES_HousekeepingTlm_Payload
     uint32 BootSource;         /**< \cfetlmmnemonic \ES_BOOTSOURCE
                                     \brief Boot source ( as provided from BSP ) */
 
-    uint32 PerfState;                                        /**< \cfetlmmnemonic \ES_PERFSTATE
-                                                                  \brief Current state of Performance Analyzer */
-    uint32 PerfMode;                                         /**< \cfetlmmnemonic \ES_PERFMODE
+    uint32 PerfState;                                       /**< \cfetlmmnemonic \ES_PERFSTATE
+                                                                 \brief Current state of Performance Analyzer */
+    uint32 PerfMode;                                        /**< \cfetlmmnemonic \ES_PERFMODE
                                                                   \brief Current mode of Performance Analyzer */
-    uint32 PerfTriggerCount;                                 /**< \cfetlmmnemonic \ES_PERFTRIGCNT
-                                                                  \brief Number of Times Performance Analyzer has Triggered */
-    uint32 PerfFilterMask[CFE_MISSION_ES_PERF_MAX_IDS / 32]; /**< \cfetlmmnemonic \ES_PERFFLTRMASK
-                                                          \brief Current Setting of Performance Analyzer Filter Masks */
-    uint32
-           PerfTriggerMask[CFE_MISSION_ES_PERF_MAX_IDS / 32]; /**< \cfetlmmnemonic \ES_PERFTRIGMASK
+    uint32 PerfTriggerCount;                                /**< \cfetlmmnemonic \ES_PERFTRIGCNT
+                                                                 \brief Number of Times Performance Analyzer has Triggered */
+    uint8  PerfFilterMask[CFE_MISSION_ES_PERF_MAX_IDS / 8]; /**< \cfetlmmnemonic \ES_PERFFLTRMASK
+                                                           \brief Current Setting of Performance Analyzer Filter Masks */
+    uint8
+           PerfTriggerMask[CFE_MISSION_ES_PERF_MAX_IDS / 8]; /**< \cfetlmmnemonic \ES_PERFTRIGMASK
                                                            \brief Current Setting of Performance Analyzer Trigger Masks */
-    uint32 PerfDataStart;                                     /**< \cfetlmmnemonic \ES_PERFDATASTART
-                                                                   \brief Identifies First Stored Entry in Performance Analyzer Log */
-    uint32 PerfDataEnd;                                       /**< \cfetlmmnemonic \ES_PERFDATAEND
-                                                                   \brief Identifies Last Stored Entry in Performance Analyzer Log */
-    uint32 PerfDataCount;                                     /**< \cfetlmmnemonic \ES_PERFDATACNT
-                                                                   \brief Number of Entries Put Into the Performance Analyzer Log */
+    uint32 PerfDataStart;                                    /**< \cfetlmmnemonic \ES_PERFDATASTART
+                                                                  \brief Identifies First Stored Entry in Performance Analyzer Log */
+    uint32 PerfDataEnd;                                      /**< \cfetlmmnemonic \ES_PERFDATAEND
+                                                                  \brief Identifies Last Stored Entry in Performance Analyzer Log */
+    uint32 PerfDataCount;                                    /**< \cfetlmmnemonic \ES_PERFDATACNT
+                                                                  \brief Number of Entries Put Into the Performance Analyzer Log */
     uint32
                        PerfDataToWrite;  /**< \cfetlmmnemonic \ES_PERFDATA2WRITE
                                               \brief Number of Performance Analyzer Log Entries Left to be Written to Log Dump File */

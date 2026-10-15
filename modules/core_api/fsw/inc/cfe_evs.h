@@ -102,7 +102,7 @@
 ** \retval #CFE_EVS_APP_ILLEGAL_APP_ID  \copybrief CFE_EVS_APP_ILLEGAL_APP_ID
 ** \retval #CFE_ES_BAD_ARGUMENT         \copybrief CFE_ES_BAD_ARGUMENT
 **/
-CFE_Status_t CFE_EVS_Register(const void *Filters, uint16 NumEventFilters, uint16 FilterScheme);
+CFE_Status_t CFE_EVS_Register(const void *Filters, uint16 NumEventFilters, CFE_EVS_EventFilter_Enum_t FilterScheme);
 /**@}*/
 
 /** @defgroup CFEAPIEVSSend cFE Send Event APIs

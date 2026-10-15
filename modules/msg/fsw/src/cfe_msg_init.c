@@ -24,7 +24,7 @@
 #include "cfe_msg_defaults.h"
 #include "cfe_time.h"
 #include "cfe_sb.h"
-#include "string.h"
+#include <string.h>
 
 /*----------------------------------------------------------------
  *

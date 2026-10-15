@@ -36,13 +36,13 @@ void UT_DefaultHandler_CFE_EVS_SendTimedEvent(void *, UT_EntryKey_t, const UT_St
  * Generated stub function for CFE_EVS_Register()
  * ----------------------------------------------------
  */
-CFE_Status_t CFE_EVS_Register(const void *Filters, uint16 NumEventFilters, uint16 FilterScheme)
+CFE_Status_t CFE_EVS_Register(const void *Filters, uint16 NumEventFilters, CFE_EVS_EventFilter_Enum_t FilterScheme)
 {
     UT_GenStub_SetupReturnBuffer(CFE_EVS_Register, CFE_Status_t);
 
     UT_GenStub_AddParam(CFE_EVS_Register, const void *, Filters);
     UT_GenStub_AddParam(CFE_EVS_Register, uint16, NumEventFilters);
-    UT_GenStub_AddParam(CFE_EVS_Register, uint16, FilterScheme);
+    UT_GenStub_AddParam(CFE_EVS_Register, CFE_EVS_EventFilter_Enum_t, FilterScheme);
 
     UT_GenStub_Execute(CFE_EVS_Register, Basic, NULL);
 

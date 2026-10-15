@@ -73,9 +73,9 @@ typedef struct CFE_TIME_StateCmd_Payload
  */
 typedef struct CFE_TIME_SourceCmd_Payload
 {
-    int16 TimeSource; /**< \brief #CFE_TIME_SourceSelect_INTERNAL=Internal Source,
+    CFE_TIME_SourceSelect_Enum_t TimeSource; /**< \brief #CFE_TIME_SourceSelect_INTERNAL=Internal Source,
                                   #CFE_TIME_SourceSelect_EXTERNAL=External Source   */
-                      /**< Selects either the "Internal" and "External" clock source */
+                                             /**< Selects either the "Internal" and "External" clock source */
 } CFE_TIME_SourceCmd_Payload_t;
 
 /**
@@ -83,9 +83,9 @@ typedef struct CFE_TIME_SourceCmd_Payload
  */
 typedef struct CFE_TIME_SignalCmd_Payload
 {
-    int16 ToneSource; /**< \brief #CFE_TIME_ToneSignalSelect_PRIMARY=Primary Source,
+    CFE_TIME_ToneSignalSelect_Enum_t ToneSource; /**< \brief #CFE_TIME_ToneSignalSelect_PRIMARY=Primary Source,
                                   #CFE_TIME_ToneSignalSelect_REDUNDANT=Redundant Source   */
-                      /**< Selects either the "Primary" or "Redundant" tone signal source */
+                                                 /**< Selects either the "Primary" or "Redundant" tone signal source */
 } CFE_TIME_SignalCmd_Payload_t;
 
 /**
@@ -208,18 +208,18 @@ typedef struct CFE_TIME_DiagnosticTlm_Payload
     /*
      ** Data values used to define the current clock state...
      */
-    int16 ClockSetState;  /**< \cfetlmmnemonic \TIME_VALID
-                                     \brief Time has been "set" */
-    int16 ClockFlyState;  /**< \cfetlmmnemonic \TIME_FLYWHEEL
+    CFE_TIME_SetState_Enum_t      ClockSetState;  /**< \cfetlmmnemonic \TIME_VALID
+                                          \brief Time has been "set" */
+    CFE_TIME_FlywheelState_Enum_t ClockFlyState;  /**< \cfetlmmnemonic \TIME_FLYWHEEL
                                      \brief Current fly-wheel state */
-    int16 ClockSource;    /**< \cfetlmmnemonic \TIME_SOURCE
-                                     \brief Internal vs external, etc. */
-    int16 ClockSignal;    /**< \cfetlmmnemonic \TIME_SIGNAL
-                                     \brief Primary vs redundant, etc. */
-    int16 ServerFlyState; /**< \cfetlmmnemonic \TIME_SRVFLY
+    CFE_TIME_SourceSelect_Enum_t  ClockSource;    /**< \cfetlmmnemonic \TIME_SOURCE
+                                      \brief Internal vs external, etc. */
+    int16                         ClockSignal;    /**< \cfetlmmnemonic \TIME_SIGNAL
+                                                             \brief Primary vs redundant, etc. */
+    CFE_TIME_FlywheelState_Enum_t ServerFlyState; /**< \cfetlmmnemonic \TIME_SRVFLY
                                      \brief Used by clients only */
-    int16 Forced2Fly;     /**< \cfetlmmnemonic \TIME_CMD2FLY
-                                     \brief Commanded into fly-wheel */
+    int16                         Forced2Fly;     /**< \cfetlmmnemonic \TIME_CMD2FLY
+                                                             \brief Commanded into fly-wheel */
 
     /*
      ** Clock state flags...

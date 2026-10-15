@@ -478,6 +478,49 @@ CFE_Status_t CFE_SB_TransmitMsg(const CFE_MSG_Message_t *MsgPtr, bool IsOriginat
 **/
 CFE_Status_t CFE_SB_ReceiveBuffer(CFE_SB_Buffer_t **BufPtr, CFE_SB_PipeId_t PipeId, int32 TimeOut);
 
+/*****************************************************************************/
+/**
+** \brief Receive a generic buffer
+**
+** \par Description
+**          This routine accepts an abstract buffer via the software bus
+**          from the specified pipe, without relying on the MsgId and/or routing
+**          information from the message headers.  As a result, the buffer need not
+**          strictly be a CFE CMD/TLM message, it can be any arbitrary data.  The
+**          routing information is passed out-of-band and will be returned in the specified
+**          buffers.
+**
+**          The message also may be verified if "EnableVerify" is set to true.  In this
+**          case, CFE_MSG_Verify() is invoked on the received message, and if this results
+**          in validation failure, the message will be internally discarded and not passed
+**          back to the caller.  Note that in this case, the buffer cannot be arbitrary data,
+**          it must be compliant with the expected headers.  Arbitrary data can only be passed
+**          by setting this parameter to "false"
+**
+** \par Assumptions, External Events, and Notes:
+**       -  See CFE_SB_ReceiveBuffer()
+**
+** \param[in]  PipeId        Pipe ID to receive from
+** \param[out] BufPtr        A pointer to the buffer to be received @nonnull.
+** \param[out] ContentSize   Actual content size of the message
+** \param[out] RoutingMsgId  Destination/Route to which the message was sent
+** \param[in]  IsTermination Indicates this is termination point, headers should be verified
+** \param[in]  TimeOut       Maxmimum amount of time to block
+**
+** \return Execution status, see \ref CFEReturnCodes
+** \retval #CFE_SUCCESS         \copybrief CFE_SUCCESS
+** \retval #CFE_SB_BAD_ARGUMENT \copybrief CFE_SB_BAD_ARGUMENT
+** \retval #CFE_SB_TIME_OUT     \copybrief CFE_SB_TIME_OUT
+** \retval #CFE_SB_PIPE_RD_ERR  \covtest \copybrief CFE_SB_PIPE_RD_ERR
+** \retval #CFE_SB_NO_MESSAGE   \copybrief CFE_SB_NO_MESSAGE
+*/
+CFE_Status_t CFE_SB_ReceiveBufferWithRoute(CFE_SB_PipeId_t         PipeId,
+                                           const CFE_SB_Buffer_t **BufPtr,
+                                           size_t                 *ContentSize,
+                                           CFE_SB_MsgId_t         *RoutingMsgId,
+                                           bool                    IsTermination,
+                                           int32                   TimeOut);
+
 /** @} */
 
 /** @defgroup CFEAPISBZeroCopy cFE Zero Copy APIs
@@ -590,6 +633,43 @@ CFE_Status_t CFE_SB_ReleaseMessageBuffer(CFE_SB_Buffer_t *BufPtr);
 **/
 CFE_Status_t CFE_SB_TransmitBuffer(CFE_SB_Buffer_t *BufPtr, bool IsOrigination);
 
+/*****************************************************************************/
+/**
+** \brief Transmit a generic buffer with source routing
+**
+** \par Description
+**          This routine sends an abstract buffer via the software bus directly
+**          to the specified destination, without relying on the MsgId and/or routing
+**          information from the message headers.  As a result, the buffer need not
+**          strictly be a CFE CMD/TLM message, it can be any arbitrary data (but see note).
+**          The buffer will be delivered to subscribers based on the message ID passed in.
+**
+** \par Assumptions, External Events, and Notes:
+**       -# See CFE_SB_TransmitBuffer() - the passed-in buffer object is consumed by this
+**          call in a similar manner.
+**       -# If "EnableUpdate" is passed as "true", then the content must be a CFE message
+**          with the expected headers (it cannot be arbitrary data, as the header update
+**          will modify it based on the normally expected header).  Only when this boolean
+**          is passed as "false" does this routine not access the buffer at all.
+**       -# For normal broadcast messages, the TimeOut should generally be CFE_SB_POLL only.
+**          Nonzero timeouts may be useful for point-to-point connections as a future enhancement.
+**
+** \param[in] BufPtr        A pointer to the buffer to be sent @nonnull.
+** \param[in] ContentSize   Actual content size of the message
+** \param[in] RoutingMsgId  Destination/Route to which the message should be broadcast
+** \param[in] IsOrigination Indicates this is the origination point, update headers during transmit
+** \param[in] TimeOut       Maxmimum amount of time to block (not for broadcast)
+**
+** \return Execution status, see \ref CFEReturnCodes
+** \retval #CFE_SUCCESS         \copybrief CFE_SUCCESS
+** \retval #CFE_SB_BAD_ARGUMENT \copybrief CFE_SB_BAD_ARGUMENT
+** \retval #CFE_SB_MSG_TOO_BIG  \copybrief CFE_SB_MSG_TOO_BIG
+*/
+CFE_Status_t CFE_SB_TransmitBufferWithRoute(CFE_SB_Buffer_t *BufPtr,
+                                            size_t           ContentSize,
+                                            CFE_SB_MsgId_t   RoutingMsgId,
+                                            bool             IsOrigination,
+                                            int32            TimeOut);
 /** @} */
 
 /** @defgroup CFEAPISBMessageCharacteristics cFE Message Characteristics APIs

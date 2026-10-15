@@ -44,6 +44,48 @@ const char CFE_FS_DEFAULT_SCRIPT_EXTENSION[]    = ".scr";
 const char CFE_FS_DEFAULT_TEMP_FILE_EXTENSION[] = ".tmp";
 const char CFE_FS_DEFAULT_LOG_FILE_EXTENSION[]  = ".log";
 
+/**
+ * States of the input file name parser
+ *
+ * The filename consists of a pathname, filename, and extension component.
+ */
+typedef enum
+{
+    CFE_FS_ParseComponent_PROCESS_INIT,
+    CFE_FS_ParseComponent_PATHNAME_COMPONENT,
+    CFE_FS_ParseComponent_PATHNAME_SEPARATOR,
+    CFE_FS_ParseComponent_FILENAME_COMPONENT,
+    CFE_FS_ParseComponent_EXTENSION_SEPARATOR,
+    CFE_FS_ParseComponent_EXTENSION_COMPONENT,
+    CFE_FS_ParseComponent_END_COMPONENT
+} CFE_FS_ParseComponent_Enum_t;
+
+/**
+ * Context information used while parsing an input file name
+ *
+ * This keeps the important state info so it can be easily
+ * passed to helper functions.
+ */
+typedef struct
+{
+    /* Fixed for the duration of the parse */
+    char       *OutputBuffer;
+    size_t      OutputBufSize;
+    const char *DefaultPath;
+    const char *DefaultExtension;
+
+    /* Updated as each component is processed */
+    CFE_FS_ParseComponent_Enum_t Component;
+    const char                  *InputPtr;
+    size_t                       InputLen;
+    const char                  *ComponentPtr;
+    size_t                       ComponentLen;
+    char                         ComponentTerm;
+    size_t                       OutputLen;
+    bool                         LastPathReached;
+    int32                        Status;
+} CFE_FS_ParseContext_t;
+
 /*----------------------------------------------------------------
  *
  * Implemented per public API
@@ -365,6 +407,257 @@ void CFE_FS_ByteSwapUint32(uint32 *Uint32ToSwapPtr)
 
 /*----------------------------------------------------------------
  *
+ * Local helper function
+ * Selects the input source for the parse operation
+ * Uses the caller-supplied input buffer if it is non-empty, otherwise
+ * falls back to the DefaultInput string, otherwise there is no input.
+ *
+ *-----------------------------------------------------------------*/
+static void CFE_FS_ParseInputFileName_SelectInput(CFE_FS_ParseContext_t *Ctxt,
+                                                  const char            *InputBuffer,
+                                                  size_t                 InputBufSize,
+                                                  const char            *DefaultInput)
+{
+    /* If input buffer is not empty, then use it, otherwise use DefaultInput */
+    if (InputBuffer != NULL && InputBufSize > 0 && InputBuffer[0] != 0)
+    {
+        Ctxt->InputPtr = InputBuffer;
+        Ctxt->InputLen = InputBufSize;
+    }
+    else if (DefaultInput != NULL)
+    {
+        /* This must be a normal null terminated string */
+        Ctxt->InputPtr = DefaultInput;
+        Ctxt->InputLen = strlen(DefaultInput);
+    }
+    else
+    {
+        /* No input */
+        Ctxt->InputPtr = NULL;
+        Ctxt->InputLen = 0;
+    }
+}
+
+/*----------------------------------------------------------------
+ *
+ * Local helper function
+ * Selects the next component to process
+ * The pathname component repeats until the last path separator is reached,
+ * all other components are visited exactly once, in order.
+ *
+ *-----------------------------------------------------------------*/
+static void CFE_FS_ParseInputFileName_AdvanceComponent(CFE_FS_ParseContext_t *Ctxt)
+{
+    /* Move to next component */
+    if (Ctxt->Component == CFE_FS_ParseComponent_PATHNAME_SEPARATOR && !Ctxt->LastPathReached)
+    {
+        /* repeat until LastPathReached */
+        Ctxt->Component = CFE_FS_ParseComponent_PATHNAME_COMPONENT;
+    }
+    else
+    {
+        ++Ctxt->Component;
+    }
+}
+
+/*----------------------------------------------------------------
+ *
+ * Local helper function
+ * Selects the pathname component
+ * The path part ends with the last / char, which begins the filename.
+ *
+ *-----------------------------------------------------------------*/
+static void CFE_FS_ParseInputFileName_PathnameComponent(CFE_FS_ParseContext_t *Ctxt)
+{
+    /* path part ends with the last / char, which begins the filename */
+    Ctxt->ComponentTerm = '/';
+    Ctxt->ComponentPtr  = memchr(Ctxt->InputPtr, Ctxt->ComponentTerm, Ctxt->InputLen);
+    if (Ctxt->ComponentPtr != NULL)
+    {
+        /* has path: use pathname from input, advance InputPtr to next part (filename) */
+        Ctxt->ComponentLen  = Ctxt->ComponentPtr - Ctxt->InputPtr;
+        Ctxt->ComponentPtr  = Ctxt->InputPtr;
+        Ctxt->InputPtr     += Ctxt->ComponentLen;
+        Ctxt->InputLen     -= Ctxt->ComponentLen;
+    }
+    else
+    {
+        Ctxt->LastPathReached = true;
+
+        /* no path: if no output at all yet, use default pathname, otherwise move on. */
+        if (Ctxt->DefaultPath != NULL && Ctxt->OutputLen == 0)
+        {
+            Ctxt->ComponentLen = strlen(Ctxt->DefaultPath);
+            Ctxt->ComponentPtr = Ctxt->DefaultPath;
+        }
+        else
+        {
+            /* use no pathname at all */
+            Ctxt->ComponentLen = 0;
+            Ctxt->ComponentPtr = NULL;
+        }
+    }
+}
+
+/*----------------------------------------------------------------
+ *
+ * Local helper function
+ * Selects the filename component
+ * The filename ends with a . char, which begins the extension.  If there is
+ * no extension in the input, this switches the input over to the default
+ * extension, or ends the parse if there is no default extension.
+ *
+ *-----------------------------------------------------------------*/
+static void CFE_FS_ParseInputFileName_FilenameComponent(CFE_FS_ParseContext_t *Ctxt)
+{
+    /* filename ends with a . char, which begins the extension */
+    Ctxt->ComponentTerm = '.';
+    Ctxt->ComponentPtr  = memchr(Ctxt->InputPtr, Ctxt->ComponentTerm, Ctxt->InputLen);
+    if (Ctxt->ComponentPtr != NULL)
+    {
+        /* has ext: use filename from input, advance InputPtr to next part (extension) */
+        Ctxt->ComponentLen  = Ctxt->ComponentPtr - Ctxt->InputPtr;
+        Ctxt->ComponentPtr  = Ctxt->InputPtr;
+        Ctxt->InputPtr     += Ctxt->ComponentLen;
+        Ctxt->InputLen     -= Ctxt->ComponentLen;
+    }
+    else
+    {
+        /* no ext: use remainder of input here - then use default extension for next part */
+        Ctxt->ComponentLen = Ctxt->InputLen;
+        Ctxt->ComponentPtr = Ctxt->InputPtr;
+        if (Ctxt->DefaultExtension != NULL)
+        {
+            Ctxt->InputPtr = Ctxt->DefaultExtension;
+            Ctxt->InputLen = strlen(Ctxt->DefaultExtension);
+        }
+        else
+        {
+            /* Use no extension */
+            Ctxt->Component = CFE_FS_ParseComponent_END_COMPONENT;
+            Ctxt->InputLen  = 0;
+        }
+    }
+
+    if (Ctxt->ComponentLen > 0 && *Ctxt->ComponentPtr != 0)
+    {
+        /*
+         * If the filename part is non-empty, then consider the conversion successful
+         * (note that extension is not really needed for an acceptable filename)
+         */
+        Ctxt->Status = CFE_SUCCESS;
+    }
+}
+
+/*----------------------------------------------------------------
+ *
+ * Local helper function
+ * Selects a single separator char as the component
+ * Duplicate separators are removed from both the tail of the output and the
+ * head of the remaining input.  ComponentTerm holds the separator char, as
+ * set by the preceding pathname or filename component.
+ *
+ *-----------------------------------------------------------------*/
+static void CFE_FS_ParseInputFileName_SeparatorComponent(CFE_FS_ParseContext_t *Ctxt)
+{
+    /* Remove duplicate terminators that may have been in the input */
+    while (Ctxt->OutputLen > 0 && Ctxt->OutputBuffer[Ctxt->OutputLen - 1] == Ctxt->ComponentTerm)
+    {
+        --Ctxt->OutputLen;
+    }
+
+    Ctxt->ComponentLen = 1;
+    Ctxt->ComponentPtr = &Ctxt->ComponentTerm;
+
+    /* advance past any separators in input to get to the next content */
+    while (*Ctxt->InputPtr == Ctxt->ComponentTerm && Ctxt->InputLen > 0)
+    {
+        ++Ctxt->InputPtr;
+        --Ctxt->InputLen;
+    }
+}
+
+/*----------------------------------------------------------------
+ *
+ * Local helper function
+ * Selects all remaining input as the component
+ * This consumes the rest of the input, ending the parse.
+ *
+ *-----------------------------------------------------------------*/
+static void CFE_FS_ParseInputFileName_RemainderComponent(CFE_FS_ParseContext_t *Ctxt)
+{
+    /* Just consume the rest of input -
+     * should already be pointing to correct data */
+    Ctxt->ComponentTerm = 0;
+    Ctxt->ComponentLen  = Ctxt->InputLen;
+    Ctxt->ComponentPtr  = Ctxt->InputPtr;
+    Ctxt->InputPtr      = NULL; /* no more input */
+    Ctxt->InputLen      = 0;
+}
+
+/*----------------------------------------------------------------
+ *
+ * Local helper function
+ * Selects the component content for the current parse state
+ * On return the ComponentPtr/ComponentLen pair describes the text to append.
+ *
+ *-----------------------------------------------------------------*/
+static void CFE_FS_ParseInputFileName_SelectComponent(CFE_FS_ParseContext_t *Ctxt)
+{
+    switch (Ctxt->Component)
+    {
+        case CFE_FS_ParseComponent_PATHNAME_COMPONENT:
+            CFE_FS_ParseInputFileName_PathnameComponent(Ctxt);
+            break;
+
+        case CFE_FS_ParseComponent_FILENAME_COMPONENT:
+            CFE_FS_ParseInputFileName_FilenameComponent(Ctxt);
+            break;
+
+        case CFE_FS_ParseComponent_PATHNAME_SEPARATOR:
+        case CFE_FS_ParseComponent_EXTENSION_SEPARATOR:
+            CFE_FS_ParseInputFileName_SeparatorComponent(Ctxt);
+            break;
+
+        case CFE_FS_ParseComponent_EXTENSION_COMPONENT:
+            /* Intentional fall through to default case */
+
+        default:
+            CFE_FS_ParseInputFileName_RemainderComponent(Ctxt);
+            break;
+    }
+}
+
+/*----------------------------------------------------------------
+ *
+ * Local helper function
+ * Appends the currently selected component to the output buffer
+ * If the component does not fit, the parse is ended with FNAME_TOO_LONG.
+ *
+ *-----------------------------------------------------------------*/
+static void CFE_FS_ParseInputFileName_AppendComponent(CFE_FS_ParseContext_t *Ctxt)
+{
+    while (Ctxt->ComponentLen > 0 && *Ctxt->ComponentPtr != 0)
+    {
+        Ctxt->OutputBuffer[Ctxt->OutputLen] = *Ctxt->ComponentPtr;
+        ++Ctxt->ComponentPtr;
+        ++Ctxt->OutputLen;
+        --Ctxt->ComponentLen;
+
+        if (Ctxt->OutputLen >= Ctxt->OutputBufSize)
+        {
+            /* name is too long to fit in output buffer */
+            Ctxt->Status   = CFE_FS_FNAME_TOO_LONG;
+            Ctxt->InputPtr = NULL; /* no more input */
+            Ctxt->InputLen = 0;
+            --Ctxt->OutputLen; /* back up one char for term */
+            break;
+        }
+    }
+}
+
+/*----------------------------------------------------------------
+ *
  * Implemented per public API
  * See description in header file for argument/return detail
  *
@@ -377,26 +670,7 @@ int32 CFE_FS_ParseInputFileNameEx(char       *OutputBuffer,
                                   const char *DefaultPath,
                                   const char *DefaultExtension)
 {
-    int32       Status;
-    const char *InputPtr;
-    const char *ComponentPtr;
-    size_t      ComponentLen;
-    char        ComponentTerm;
-    size_t      OutputLen;
-    size_t      InputLen;
-    bool        LastPathReached;
-
-    /* The filename consists of a pathname, filename, and extension component. */
-    enum
-    {
-        PROCESS_INIT,
-        PATHNAME_COMPONENT,
-        PATHNAME_SEPARATOR,
-        FILENAME_COMPONENT,
-        EXTENSION_SEPARATOR,
-        EXTENSION_COMPONENT,
-        END_COMPONENT
-    } Component;
+    CFE_FS_ParseContext_t Ctxt;
 
     /* Sanity check buffer input */
     if (OutputBuffer == NULL || OutputBufSize == 0)
@@ -404,169 +678,21 @@ int32 CFE_FS_ParseInputFileNameEx(char       *OutputBuffer,
         return CFE_FS_BAD_ARGUMENT;
     }
 
-    Status          = CFE_FS_INVALID_PATH;
-    OutputLen       = 0;
-    ComponentTerm   = 0;
-    LastPathReached = false;
+    memset(&Ctxt, 0, sizeof(Ctxt));
 
-    /* If input buffer is not empty, then use it, otherwise use DefaultInput */
-    if (InputBuffer != NULL && InputBufSize > 0 && InputBuffer[0] != 0)
+    Ctxt.OutputBuffer     = OutputBuffer;
+    Ctxt.OutputBufSize    = OutputBufSize;
+    Ctxt.DefaultPath      = DefaultPath;
+    Ctxt.DefaultExtension = DefaultExtension;
+    Ctxt.Status           = CFE_FS_INVALID_PATH;
+
+    CFE_FS_ParseInputFileName_SelectInput(&Ctxt, InputBuffer, InputBufSize, DefaultInput);
+
+    while (Ctxt.InputPtr != NULL && Ctxt.Component < CFE_FS_ParseComponent_END_COMPONENT)
     {
-        InputPtr = InputBuffer;
-        InputLen = InputBufSize;
-    }
-    else if (DefaultInput != NULL)
-    {
-        /* This must be a normal null terminated string */
-        InputPtr = DefaultInput;
-        InputLen = strlen(DefaultInput);
-    }
-    else
-    {
-        /* No input */
-        InputPtr = NULL;
-        InputLen = 0;
-    }
-
-    Component = PROCESS_INIT;
-    while (InputPtr != NULL && Component < END_COMPONENT)
-    {
-        /* Move to next component */
-        if (Component == PATHNAME_SEPARATOR && !LastPathReached)
-        {
-            /* repeat until LastPathReached */
-            Component = PATHNAME_COMPONENT;
-        }
-        else
-        {
-            ++Component;
-        }
-
-        switch (Component)
-        {
-            case PATHNAME_COMPONENT:
-                /* path part ends with the last / char, which begins the filename */
-                ComponentTerm = '/';
-                ComponentPtr  = memchr(InputPtr, ComponentTerm, InputLen);
-                if (ComponentPtr != NULL)
-                {
-                    /* has path: use pathname from input, advance InputPtr to next part (filename) */
-                    ComponentLen  = ComponentPtr - InputPtr;
-                    ComponentPtr  = InputPtr;
-                    InputPtr     += ComponentLen;
-                    InputLen     -= ComponentLen;
-                }
-                else
-                {
-                    LastPathReached = true;
-
-                    /* no path: if no output at all yet, use default pathname, otherwise move on. */
-                    if (DefaultPath != NULL && OutputLen == 0)
-                    {
-                        ComponentLen = strlen(DefaultPath);
-                        ComponentPtr = DefaultPath;
-                    }
-                    else
-                    {
-                        /* use no pathname at all */
-                        ComponentLen = 0;
-                        ComponentPtr = NULL;
-                    }
-                }
-                break;
-
-            case FILENAME_COMPONENT:
-                /* filename ends with a . char, which begins the extension */
-                ComponentTerm = '.';
-                ComponentPtr  = memchr(InputPtr, ComponentTerm, InputLen);
-                if (ComponentPtr != NULL)
-                {
-                    /* has ext: use pathname from input, advance InputPtr to next part (extension) */
-                    ComponentLen  = ComponentPtr - InputPtr;
-                    ComponentPtr  = InputPtr;
-                    InputPtr     += ComponentLen;
-                    InputLen     -= ComponentLen;
-                }
-                else
-                {
-                    /* no ext: use remainder of input here - then use default extension for next part */
-                    ComponentLen = InputLen;
-                    ComponentPtr = InputPtr;
-                    if (DefaultExtension != NULL)
-                    {
-                        InputPtr = DefaultExtension;
-                        InputLen = strlen(DefaultExtension);
-                    }
-                    else
-                    {
-                        /* Use no extension */
-                        Component = END_COMPONENT;
-                        InputLen  = 0;
-                    }
-                }
-
-                if (ComponentLen > 0 && *ComponentPtr != 0)
-                {
-                    /*
-                     * If the filename part is non-empty, then consider the conversion successful
-                     * (note that extension is not really needed for an acceptable filename)
-                     */
-                    Status = CFE_SUCCESS;
-                }
-
-                break;
-
-            case PATHNAME_SEPARATOR:
-            case EXTENSION_SEPARATOR:
-                /* Remove duplicate terminators that may have been in the input */
-                while (OutputLen > 0 && OutputBuffer[OutputLen - 1] == ComponentTerm)
-                {
-                    --OutputLen;
-                }
-
-                ComponentLen = 1;
-                ComponentPtr = &ComponentTerm;
-
-                /* advance past any separators in input to get to the next content */
-                while (*InputPtr == ComponentTerm && InputLen > 0)
-                {
-                    ++InputPtr;
-                    --InputLen;
-                }
-                break;
-
-            case EXTENSION_COMPONENT:
-                /* Intentional fall through to default case */
-
-            default:
-                /* Just consume the rest of input -
-                 * should already be pointing to correct data */
-                ComponentTerm = 0;
-                ComponentLen  = InputLen;
-                ComponentPtr  = InputPtr;
-                InputPtr      = NULL; /* no more input */
-                InputLen      = 0;
-                break;
-        }
-
-        /* Append component */
-        while (ComponentLen > 0 && *ComponentPtr != 0)
-        {
-            OutputBuffer[OutputLen] = *ComponentPtr;
-            ++ComponentPtr;
-            ++OutputLen;
-            --ComponentLen;
-
-            if (OutputLen >= OutputBufSize)
-            {
-                /* name is too long to fit in output buffer */
-                Status   = CFE_FS_FNAME_TOO_LONG;
-                InputPtr = NULL; /* no more input */
-                InputLen = 0;
-                --OutputLen; /* back up one char for term */
-                break;
-            }
-        }
+        CFE_FS_ParseInputFileName_AdvanceComponent(&Ctxt);
+        CFE_FS_ParseInputFileName_SelectComponent(&Ctxt);
+        CFE_FS_ParseInputFileName_AppendComponent(&Ctxt);
     }
 
     /*
@@ -575,9 +701,9 @@ int32 CFE_FS_ParseInputFileNameEx(char       *OutputBuffer,
      * Note that the loop above should never entirely fill
      * buffer (length check includes extra char).
      */
-    OutputBuffer[OutputLen] = 0;
+    OutputBuffer[Ctxt.OutputLen] = 0;
 
-    return Status;
+    return Ctxt.Status;
 }
 
 /*----------------------------------------------------------------
@@ -679,92 +805,76 @@ CFE_Status_t CFE_FS_ExtractFilenameFromPath(const char *OriginalPath, char *File
 
 /*----------------------------------------------------------------
  *
- * Implemented per public API
- * See description in header file for argument/return detail
+ * Local helper function
+ * Opens the output file and writes the cFE header for a pending entry
+ * Does nothing if the file is already open or the entry is not pending.
+ * On any failure the file descriptor is left undefined and the
+ * corresponding error event is generated.
  *
  *-----------------------------------------------------------------*/
-bool CFE_FS_RunBackgroundFileDump(uint32 ElapsedTime, void *Arg)
+static void CFE_FS_RunBackgroundFileDump_OpenFile(CFE_FS_CurrentFileState_t *State, CFE_FS_FileWriteMetaData_t *Meta)
 {
-    CFE_FS_CurrentFileState_t        *State;
-    CFE_FS_BackgroundFileDumpEntry_t *Curr;
-    CFE_FS_FileWriteMetaData_t       *Meta;
-    int32                             OsStatus;
-    int32                             Status;
-    CFE_FS_Header_t                   FileHdr;
-    void                             *RecordPtr;
-    size_t                            RecordSize;
-    bool                              IsEOF;
+    int32           OsStatus;
+    int32           Status;
+    CFE_FS_Header_t FileHdr;
 
-    State      = &CFE_FS_Global.FileDump.Current;
-    Curr       = NULL;
+    if (OS_ObjectIdDefined(State->Fd) || !Meta->IsPending)
+    {
+        return;
+    }
+
+    /* First time processing this entry - open the file */
+    OsStatus = OS_OpenCreate(&State->Fd, Meta->FileName, OS_FILE_FLAG_CREATE | OS_FILE_FLAG_TRUNCATE, OS_WRITE_ONLY);
+    if (OsStatus != OS_SUCCESS)
+    {
+        State->Fd = OS_OBJECT_ID_UNDEFINED;
+        /* NOTE: This converts the OSAL status directly into a CFE status for logging */
+        Meta->OnEvent(Meta, CFE_FS_FileWriteEvent_CREATE_ERROR, (long)OsStatus, 0, 0, 0);
+        return;
+    }
+
+    CFE_FS_InitHeader(&FileHdr, Meta->Description, Meta->FileSubType);
+
+    /* write the cFE header to the file */
+    Status = CFE_FS_WriteHeader(State->Fd, &FileHdr);
+    if (Status != sizeof(CFE_FS_Header_t))
+    {
+        OS_close(State->Fd);
+        State->Fd = OS_OBJECT_ID_UNDEFINED;
+        Meta->OnEvent(Meta,
+                      CFE_FS_FileWriteEvent_HEADER_WRITE_ERROR,
+                      Status,
+                      State->RecordNum,
+                      sizeof(CFE_FS_Header_t),
+                      State->FileSize);
+        return;
+    }
+
+    State->FileSize   = sizeof(CFE_FS_Header_t);
+    State->Credit    -= sizeof(CFE_FS_Header_t);
+    State->RecordNum  = 0;
+}
+
+/*----------------------------------------------------------------
+ *
+ * Local helper function
+ * Writes records to the output file while credit remains
+ * Returns whether the end of the data set was reached.  A write error
+ * ends the file early without indicating EOF, so that the completion
+ * event is not generated for it.
+ *
+ *-----------------------------------------------------------------*/
+static bool CFE_FS_RunBackgroundFileDump_WriteRecords(CFE_FS_CurrentFileState_t  *State,
+                                                      CFE_FS_FileWriteMetaData_t *Meta)
+{
+    int32  OsStatus;
+    void  *RecordPtr;
+    size_t RecordSize;
+    bool   IsEOF;
+
     IsEOF      = false;
     RecordPtr  = NULL;
     RecordSize = 0;
-
-    State->Credit += (ElapsedTime * CFE_FS_BACKGROUND_CREDIT_PER_SECOND) / 1000;
-    if (State->Credit > CFE_FS_BACKGROUND_MAX_CREDIT)
-    {
-        State->Credit = CFE_FS_BACKGROUND_MAX_CREDIT;
-    }
-
-    /*
-     * Lock shared data.
-     * Not strictly necessary as the "CompleteCount" is only updated
-     * by this task but this helps in case the access isn't atomic.
-     */
-    CFE_FS_LockSharedData(__func__);
-
-    if (CFE_FS_Global.FileDump.CompleteCount != CFE_FS_Global.FileDump.RequestCount)
-    {
-        Curr = &CFE_FS_Global.FileDump
-                    .Entries[CFE_FS_Global.FileDump.CompleteCount & (CFE_FS_MAX_BACKGROUND_FILE_WRITES - 1)];
-    }
-
-    CFE_FS_UnlockSharedData(__func__);
-
-    if (Curr == NULL)
-    {
-        return false;
-    }
-
-    Meta = Curr->Meta;
-
-    if (!OS_ObjectIdDefined(State->Fd) && Meta->IsPending)
-    {
-        /* First time processing this entry - open the file */
-        OsStatus =
-            OS_OpenCreate(&State->Fd, Meta->FileName, OS_FILE_FLAG_CREATE | OS_FILE_FLAG_TRUNCATE, OS_WRITE_ONLY);
-        if (OsStatus != OS_SUCCESS)
-        {
-            State->Fd = OS_OBJECT_ID_UNDEFINED;
-            /* NOTE: This converts the OSAL status directly into a CFE status for logging */
-            Meta->OnEvent(Meta, CFE_FS_FileWriteEvent_CREATE_ERROR, (long)OsStatus, 0, 0, 0);
-        }
-        else
-        {
-            CFE_FS_InitHeader(&FileHdr, Meta->Description, Meta->FileSubType);
-
-            /* write the cFE header to the file */
-            Status = CFE_FS_WriteHeader(State->Fd, &FileHdr);
-            if (Status != sizeof(CFE_FS_Header_t))
-            {
-                OS_close(State->Fd);
-                State->Fd = OS_OBJECT_ID_UNDEFINED;
-                Meta->OnEvent(Meta,
-                              CFE_FS_FileWriteEvent_HEADER_WRITE_ERROR,
-                              Status,
-                              State->RecordNum,
-                              sizeof(CFE_FS_Header_t),
-                              State->FileSize);
-            }
-            else
-            {
-                State->FileSize   = sizeof(CFE_FS_Header_t);
-                State->Credit    -= sizeof(CFE_FS_Header_t);
-                State->RecordNum  = 0;
-            }
-        }
-    }
 
     while (OS_ObjectIdDefined(State->Fd) && State->Credit > 0 && !IsEOF)
     {
@@ -811,6 +921,57 @@ bool CFE_FS_RunBackgroundFileDump(uint32 ElapsedTime, void *Arg)
 
         ++State->RecordNum;
     }
+
+    return IsEOF;
+}
+
+/*----------------------------------------------------------------
+ *
+ * Implemented per public API
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+bool CFE_FS_RunBackgroundFileDump(uint32 ElapsedTime, void *Arg)
+{
+    CFE_FS_CurrentFileState_t        *State;
+    CFE_FS_BackgroundFileDumpEntry_t *Curr;
+    CFE_FS_FileWriteMetaData_t       *Meta;
+    bool                              IsEOF;
+
+    State = &CFE_FS_Global.FileDump.Current;
+    Curr  = NULL;
+
+    State->Credit += (ElapsedTime * CFE_FS_BACKGROUND_CREDIT_PER_SECOND) / 1000;
+    if (State->Credit > CFE_FS_BACKGROUND_MAX_CREDIT)
+    {
+        State->Credit = CFE_FS_BACKGROUND_MAX_CREDIT;
+    }
+
+    /*
+     * Lock shared data.
+     * Not strictly necessary as the "CompleteCount" is only updated
+     * by this task but this helps in case the access isn't atomic.
+     */
+    CFE_FS_LockSharedData(__func__);
+
+    if (CFE_FS_Global.FileDump.CompleteCount != CFE_FS_Global.FileDump.RequestCount)
+    {
+        Curr = &CFE_FS_Global.FileDump
+                    .Entries[CFE_FS_Global.FileDump.CompleteCount & (CFE_FS_MAX_BACKGROUND_FILE_WRITES - 1)];
+    }
+
+    CFE_FS_UnlockSharedData(__func__);
+
+    if (Curr == NULL)
+    {
+        return false;
+    }
+
+    Meta = Curr->Meta;
+
+    CFE_FS_RunBackgroundFileDump_OpenFile(State, Meta);
+
+    IsEOF = CFE_FS_RunBackgroundFileDump_WriteRecords(State, Meta);
 
     /* On normal EOF close the file and generate the complete event */
     if (IsEOF)

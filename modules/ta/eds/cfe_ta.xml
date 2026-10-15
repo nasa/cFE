@@ -1,0 +1,330 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+   NASA Docket No. GSC-19,200-1, and identified as "cFS Draco"
+
+   Copyright (c) 2023 United States Government as represented by the
+   Administrator of the National Aeronautics and Space Administration.
+   All Rights Reserved.
+
+   Licensed under the Apache License, Version 2.0 (the "License"); you may
+   not use this file except in compliance with the License. You may obtain
+   a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+
+    This document adheres to the Electronic Data Sheet (EDS) XML schema
+    as prescribed in CCSDS book 876.0.
+
+    Purpose:
+      This describes all interface objects for the Task Affinity (CFE_TA)
+      core application
+
+-->
+<PackageFile xmlns="http://www.ccsds.org/schema/sois/seds">
+  <Package name="CFE_TA" shortDescription="NASA Core Flight System Task Affinity Services">
+    <DataTypeSet>
+
+      <!-- Command Payloads -->
+
+      <ContainerDataType name="QueryAllTasksCmd_Payload" shortDescription="Query All Tasks command payload">
+        <LongDescription>
+          For command details, see #CFE_TA_QUERY_ALL_TASKS_CC
+        </LongDescription>
+        <EntryList>
+          <Entry name="FileName" type="BASE_TYPES/PathName" shortDescription="ASCII text string containing full path and filename of file in which Application data is to be dumped" />
+        </EntryList>
+      </ContainerDataType>
+
+      <!-- Define the new Byte Array for the Affinity Mask to eliminate padding -->
+      <ArrayDataType name="AffinityMask_Array" dataTypeRef="BASE_TYPES/uint8" shortDescription="CPU Mask Array">
+        <DimensionList>
+          <Dimension size="${CFE_MISSION/TA_MAX_NUM_CPUS} / 8" />
+        </DimensionList>
+      </ArrayDataType>
+
+      <ContainerDataType name="SetTaskAffinityCmd_Payload" shortDescription="Set Task Affinity command payload">
+        <LongDescription>
+          For command details, see #CFE_TA_SET_TASK_AFFINITY_CC
+        </LongDescription>
+        <EntryList>
+          <Entry name="TaskName" type="BASE_TYPES/ApiName" shortDescription="ASCII text string containing the task name" />
+          <Entry name="AffinityMask" type="AffinityMask_Array" shortDescription="Affinity mask value (octets)" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="GetTaskAffinityCmd_Payload" shortDescription="Get Task Affinity command payload">
+        <LongDescription>
+          For command details, see #CFE_TA_GET_TASK_AFFINITY_CC
+        </LongDescription>
+        <EntryList>
+          <Entry name="TaskName" type="BASE_TYPES/ApiName" shortDescription="ASCII text string containing the task name" />
+        </EntryList>
+      </ContainerDataType>
+
+      <!-- Telemetry Payloads -->
+
+      <ContainerDataType name="HousekeepingTlm_Payload" shortDescription="Task Affinity task housekeeping Packet">
+        <EntryList>
+          <Entry name="CommandCounter" type="BASE_TYPES/uint8" shortDescription="Count of valid commands received">
+            <LongDescription>
+              \cfetlmmnemonic \TA_CMDPC
+            </LongDescription>
+          </Entry>
+          <Entry name="CommandErrorCounter" type="BASE_TYPES/uint8" shortDescription="Count of invalid commands received">
+            <LongDescription>
+              \cfetlmmnemonic \TA_CMDEC
+            </LongDescription>
+          </Entry>
+          <Entry name="StartupCounter" type="BASE_TYPES/uint8" shortDescription="Count of successful startup affinity configs">
+            <LongDescription>
+              \cfetlmmnemonic \TA_START_CNT
+            </LongDescription>
+          </Entry>
+          <Entry name="StartupErrorCounter" type="BASE_TYPES/uint8" shortDescription="Count of invalid startup affinity configs">
+            <LongDescription>
+              \cfetlmmnemonic \TA_START_ERR_CNT
+            </LongDescription>
+          </Entry>
+        </EntryList>
+      </ContainerDataType>
+
+      <!-- Command Base and SendHk -->
+
+      <ContainerDataType name="CommandBase" baseType="CFE_HDR/CommandHeader">
+      </ContainerDataType>
+
+      <ContainerDataType name="SendHkCmd" baseType="CFE_HDR/CommandHeader" shortDescription="Send Housekeeping Command" />
+
+      <!-- Telemetry Messages -->
+
+      <ContainerDataType name="HousekeepingTlm" baseType="CFE_HDR/TelemetryHeader">
+        <EntryList>
+          <Entry type="HousekeepingTlm_Payload" name="Payload" />
+        </EntryList>
+      </ContainerDataType>
+
+      <!-- Command Messages -->
+
+      <ContainerDataType name="NoopCmd" baseType="CommandBase">
+        <LongDescription>
+          \cfetacmd Task Affinity No-Op
+
+          \par Description
+          This command performs no other function than to increment the
+          command execution counter. The command may be used to verify
+          general aliveness of the Task Affinity Services task.
+
+          \par Command Structure
+
+          \par Command Verification
+          Successful execution of this command may be verified with the following telemetry:
+          - \b \c \TA_CMDPC - command execution counter will increment
+          - The #CFE_TA_NOOP_INF_EID informational event message will be generated
+
+          \par Error Conditions
+          There are no error conditions for this command. If the Task
+          Affinity Services receives the command, the event is sent (although it
+          may be filtered by EVS) and the counter is incremented
+          unconditionally.
+
+          \par Criticality
+          None
+        </LongDescription>
+        <ConstraintSet>
+          <ValueConstraint entry="Sec.FunctionCode" value="0" />
+        </ConstraintSet>
+      </ContainerDataType>
+
+      <ContainerDataType name="ResetCountersCmd" baseType="CommandBase">
+        <LongDescription>
+          \cfetacmd Task Affinity Reset Counters
+
+          \par Description
+          This command resets the following counters within the Task
+          Affinity Services housekeeping telemetry:
+          - Command Execution Counter (\TA_CMDPC)
+          - Command Error Counter (\TA_CMDEC)
+
+          \par Command Structure
+
+          \par Command Verification
+          Successful execution of this command may be verified with the following telemetry:
+          - \b \c \TA_CMDPC - command execution counter will be reset to 0
+          - The #CFE_TA_RESET_COUNTERS_INF_EID debug event message will be generated
+
+          \par Error Conditions
+          There are no error conditions for this command. If the Task
+          Affinity Services receives the command, the event is sent (although it
+          may be filtered by EVS) and the counters are reset
+          unconditionally.
+
+          \par Criticality
+          This command is not inherently dangerous.  However, it is
+          possible for ground systems and on-board safing procedures
+          to be designed such that they react to changes in the counter
+          values that are reset by this command.
+        </LongDescription>
+        <ConstraintSet>
+          <ValueConstraint entry="Sec.FunctionCode" value="1" />
+        </ConstraintSet>
+      </ContainerDataType>
+
+      <ContainerDataType name="QueryAllTasksCmd" baseType="CommandBase">
+        <LongDescription>
+          \cfetacmd Query All Tasks
+
+          \par Description
+          This command will cause Task Affinity Services to query the affinity
+          settings for all tasks in the system and write the results to the
+          specified file.
+
+          \par Command Structure
+
+          \par Command Verification
+          Successful execution of this command may be verified with the following telemetry:
+          - \b \c \TA_CMDPC - command execution counter will increment
+          - The #CFE_TA_TASKINFO_EID informational event message will be generated
+
+          \par Error Conditions
+          This command may fail for the following reason(s):
+          - Error occurred during write operation to file. Possible causes
+          might be insufficient space in the file system or the filename
+          or file path is improperly specified.
+
+          Evidence of failure may be found in the following telemetry:
+          - \b \c \TA_CMDEC - command error counter will increment
+          - Command specific error event message is issued for all error cases
+
+          \par Criticality
+          This command is not inherently dangerous. It will create a new
+          file in the file system and could, if performed repeatedly without
+          sufficient file management by the operator, fill the file system.
+        </LongDescription>
+        <ConstraintSet>
+          <ValueConstraint entry="Sec.FunctionCode" value="2" />
+        </ConstraintSet>
+        <EntryList>
+          <Entry type="QueryAllTasksCmd_Payload" name="Payload" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="SetTaskAffinityCmd" baseType="CommandBase">
+        <LongDescription>
+          \cfetacmd Set Task Affinity
+
+          \par Description
+          This command will set the processor affinity for the specified task
+          to the specified affinity mask value.
+
+          \par Command Structure
+
+          \par Command Verification
+          Successful execution of this command may be verified with the following telemetry:
+          - \b \c \TA_CMDPC - command execution counter will increment
+          - The #CFE_TA_SET_TASK_AFFINITY_CMD_INF_EID informational event message will be generated
+
+          \par Error Conditions
+          This command may fail for the following reason(s):
+          - The specified task name was not found in the system.
+          - The affinity mask value is invalid for the target platform.
+          - An OS error occurred while attempting to set the affinity.
+
+          Evidence of failure may be found in the following telemetry:
+          - \b \c \TA_CMDEC - command error counter will increment
+          - Command specific error event message is issued for all error cases
+
+          \par Criticality
+          This command can affect system performance and task scheduling behavior.
+          Improper use could result in tasks not executing as expected.
+        </LongDescription>
+        <ConstraintSet>
+          <ValueConstraint entry="Sec.FunctionCode" value="3" />
+        </ConstraintSet>
+        <EntryList>
+          <Entry type="SetTaskAffinityCmd_Payload" name="Payload" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="GetTaskAffinityCmd" baseType="CommandBase">
+        <LongDescription>
+          \cfetacmd Get Task Affinity
+
+          \par Description
+          This command will query and report the current processor affinity
+          setting for the specified task via an event message.
+
+          \par Command Structure
+
+          \par Command Verification
+          Successful execution of this command may be verified with the following telemetry:
+          - \b \c \TA_CMDPC - command execution counter will increment
+          - The #CFE_TA_GET_TASK_AFFINITY_CMD_INF_EID informational event message will be generated
+          containing the current affinity mask value
+
+          \par Error Conditions
+          This command may fail for the following reason(s):
+          - The specified task name was not found in the system.
+          - An OS error occurred while attempting to query the affinity.
+
+          Evidence of failure may be found in the following telemetry:
+          - \b \c \TA_CMDEC - command error counter will increment
+          - Command specific error event message is issued for all error cases
+
+          \par Criticality
+          This is an informational command with no side effects.
+        </LongDescription>
+        <ConstraintSet>
+          <ValueConstraint entry="Sec.FunctionCode" value="4" />
+        </ConstraintSet>
+        <EntryList>
+          <Entry type="GetTaskAffinityCmd_Payload" name="Payload" />
+        </EntryList>
+      </ContainerDataType>
+
+    </DataTypeSet>
+
+    <ComponentSet>
+
+      <Component name="Application">
+        <RequiredInterfaceSet>
+          <Interface name="CMD" shortDescription="Software bus telecommand interface" type="CFE_SB/Telecommand">
+            <GenericTypeMapSet>
+              <GenericTypeMap name="TelecommandDataType" type="CommandBase" />
+            </GenericTypeMapSet>
+          </Interface>
+          <Interface name="SEND_HK" shortDescription="Send telemetry command interface" type="CFE_SB/Telecommand">
+            <GenericTypeMapSet>
+              <GenericTypeMap name="TelecommandDataType" type="SendHkCmd" />
+            </GenericTypeMapSet>
+          </Interface>
+          <Interface name="HK_TLM" shortDescription="Software bus housekeeping telemetry interface" type="CFE_SB/Telemetry">
+            <GenericTypeMapSet>
+              <GenericTypeMap name="TelemetryDataType" type="HousekeepingTlm" />
+            </GenericTypeMapSet>
+          </Interface>
+        </RequiredInterfaceSet>
+        
+<Implementation>
+          <VariableSet>
+            <!-- Calculate directly using the guaranteed base topic IDs so the CI pipeline doesn't default to 0 -->
+            <Variable type="BASE_TYPES/uint16" readOnly="true" name="CmdTopicId" initialValue="${CFE_MISSION/TELECOMMAND_BASE_TOPICID} + 18" />
+            <Variable type="BASE_TYPES/uint16" readOnly="true" name="SendHkTopicId" initialValue="${CFE_MISSION/TELECOMMAND_BASE_TOPICID} + 19" />
+            <Variable type="BASE_TYPES/uint16" readOnly="true" name="HkTlmTopicId" initialValue="${CFE_MISSION/TELEMETRY_BASE_TOPICID} + 15" />
+          </VariableSet>
+          <ParameterMapSet>
+            <ParameterMap interface="CMD" parameter="TopicId" variableRef="CmdTopicId" />
+            <ParameterMap interface="SEND_HK" parameter="TopicId" variableRef="SendHkTopicId" />
+            <ParameterMap interface="HK_TLM" parameter="TopicId" variableRef="HkTlmTopicId" />
+          </ParameterMapSet>
+        </Implementation>
+      </Component>
+
+    </ComponentSet>
+
+  </Package>
+</PackageFile>

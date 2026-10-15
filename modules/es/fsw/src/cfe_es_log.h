@@ -110,6 +110,7 @@ typedef struct
     size_t BlockSize;  /**< Size of content currently in the "Data" member */
     size_t EndIdx;     /**< End of the syslog buffer at the time reading started */
     size_t LastOffset; /**< Current Read Position */
+    bool   IsFragment; /**< Flag indicating that the data is NOT a complete message */
 
     char Data[CFE_ES_SYSLOG_READ_BUFFER_SIZE]; /**< Actual syslog content */
 } CFE_ES_SysLogReadBuffer_t;

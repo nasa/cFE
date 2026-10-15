@@ -50,7 +50,10 @@ void TestGetAppInfo(void)
     UtAssert_INT32_EQ(CFE_ES_GetAppID(&TestAppId), CFE_SUCCESS);
     CFE_Assert_RESOURCEID_EQ(TestAppId, AppIdByName);
     UtAssert_INT32_EQ(CFE_ES_GetAppName(AppNameBuf, TestAppId, sizeof(AppNameBuf)), CFE_SUCCESS);
-    UtAssert_StrCmp(AppNameBuf, TEST_EXPECTED_APP_NAME, "CFE_ES_GetAppName() = %s", AppNameBuf);
+    UtAssert_STRINGBUF_EQ(AppNameBuf,
+                          UTASSERT_STRINGBUF_NULL_TERM,
+                          TEST_EXPECTED_APP_NAME,
+                          UTASSERT_STRINGBUF_NULL_TERM);
 
     UtAssert_INT32_EQ(CFE_ES_GetAppInfo(&TestAppInfo, TestAppId), CFE_SUCCESS);
     UtAssert_INT32_EQ(CFE_ES_GetAppIDByName(&ESAppId, ES_APP_EXPECTED_NAME), CFE_SUCCESS);
@@ -59,13 +62,19 @@ void TestGetAppInfo(void)
     UtAssert_True(TestAppInfo.Type == CFE_ES_AppType_EXTERNAL, "Test App Info -> Type = %d", (int)TestAppInfo.Type);
     UtAssert_True(ESAppInfo.Type == CFE_ES_AppType_CORE, "ES App Info -> Type = %d", (int)ESAppInfo.Type);
 
-    UtAssert_StrCmp(TestAppInfo.Name, TEST_EXPECTED_APP_NAME, "Test App Info -> Name = %s", TestAppInfo.Name);
-    UtAssert_StrCmp(ESAppInfo.Name, ES_APP_EXPECTED_NAME, "ES App Info -> Name = %s", ESAppInfo.Name);
+    UtAssert_STRINGBUF_EQ(TestAppInfo.Name,
+                          UTASSERT_STRINGBUF_NULL_TERM,
+                          TEST_EXPECTED_APP_NAME,
+                          UTASSERT_STRINGBUF_NULL_TERM);
+    UtAssert_STRINGBUF_EQ(ESAppInfo.Name,
+                          UTASSERT_STRINGBUF_NULL_TERM,
+                          ES_APP_EXPECTED_NAME,
+                          UTASSERT_STRINGBUF_NULL_TERM);
 
-    UtAssert_StrCmp(TestAppInfo.EntryPoint,
-                    TEST_EXPECTED_ENTRYPOINT,
-                    "Test App Info -> EntryPt  = %s",
-                    TestAppInfo.EntryPoint);
+    UtAssert_STRINGBUF_EQ(TestAppInfo.EntryPoint,
+                          UTASSERT_STRINGBUF_NULL_TERM,
+                          TEST_EXPECTED_ENTRYPOINT,
+                          UTASSERT_STRINGBUF_NULL_TERM);
     UtAssert_True(strlen(ESAppInfo.EntryPoint) == 0, "ES App Info -> EntryPt  = %s", ESAppInfo.EntryPoint);
 
     UtAssert_True(strstr(TestAppInfo.FileName, TEST_EXPECTED_FILE_NAME) != NULL,
@@ -141,16 +150,11 @@ void TestGetTaskInfo(void)
     UtAssert_INT32_EQ(CFE_ES_GetTaskID(&TaskId), CFE_SUCCESS);
     CFE_Assert_RESOURCEID_EQ(TaskId, AppInfo.MainTaskId);
 
-    UtAssert_StrCmp(TaskInfo.AppName,
-                    AppInfo.Name,
-                    "TaskInfo.AppName (%s) = AppInfo.name (%s)",
-                    TaskInfo.AppName,
-                    AppInfo.Name);
-    UtAssert_StrCmp(TaskInfo.TaskName,
-                    AppInfo.MainTaskName,
-                    "TaskInfo.TaskName (%s) = AppInfo.MainTaskName (%s)",
-                    TaskInfo.TaskName,
-                    AppInfo.MainTaskName);
+    UtAssert_STRINGBUF_EQ(TaskInfo.AppName, UTASSERT_STRINGBUF_NULL_TERM, AppInfo.Name, UTASSERT_STRINGBUF_NULL_TERM);
+    UtAssert_STRINGBUF_EQ(TaskInfo.TaskName,
+                          UTASSERT_STRINGBUF_NULL_TERM,
+                          AppInfo.MainTaskName,
+                          UTASSERT_STRINGBUF_NULL_TERM);
 
     CFE_Assert_RESOURCEID_EQ(TaskInfo.TaskId, AppInfo.MainTaskId);
     CFE_Assert_RESOURCEID_EQ(TaskInfo.AppId, AppId);
@@ -176,10 +180,13 @@ void TestGetLibInfo(void)
     UtAssert_INT32_EQ(CFE_ES_GetLibIDByName(&LibId, LibName), CFE_SUCCESS);
     UtAssert_INT32_EQ(CFE_ES_GetLibInfo(&LibInfo, LibId), CFE_SUCCESS);
     UtAssert_INT32_EQ(CFE_ES_GetLibName(LibNameBuf, LibId, sizeof(LibNameBuf)), CFE_SUCCESS);
-    UtAssert_StrCmp(LibNameBuf, LibName, "CFE_ES_GetLibName() = %s", LibNameBuf);
+    UtAssert_STRINGBUF_EQ(LibNameBuf, UTASSERT_STRINGBUF_NULL_TERM, LibName, UTASSERT_STRINGBUF_NULL_TERM);
     UtAssert_True(LibInfo.Type == CFE_ES_AppType_LIBRARY, "Lib Info -> Type = %d", (int)LibInfo.Type);
-    UtAssert_StrCmp(LibInfo.Name, LibName, "Lib Info -> Name = %s", LibInfo.Name);
-    UtAssert_StrCmp(LibInfo.EntryPoint, "CFE_Assert_LibInit", "Lib Info -> EntryPt  = %s", LibInfo.EntryPoint);
+    UtAssert_STRINGBUF_EQ(LibInfo.Name, UTASSERT_STRINGBUF_NULL_TERM, LibName, UTASSERT_STRINGBUF_NULL_TERM);
+    UtAssert_STRINGBUF_EQ(LibInfo.EntryPoint,
+                          UTASSERT_STRINGBUF_NULL_TERM,
+                          "CFE_Assert_LibInit",
+                          UTASSERT_STRINGBUF_NULL_TERM);
     UtAssert_True(strstr(LibInfo.FileName, FileName) != NULL,
                   "Lib Info -> FileName = %s contains %s",
                   LibInfo.FileName,
@@ -260,20 +267,15 @@ void TestGetModuleInfo(void)
     UtAssert_INT32_EQ(CFE_ES_GetAppID(&TestAppId), CFE_SUCCESS);
     UtAssert_INT32_EQ(CFE_ES_GetAppInfo(&TestAppInfo, TestAppId), CFE_SUCCESS);
     UtAssert_INT32_EQ(CFE_ES_GetModuleInfo(&ModuleInfo, CFE_RESOURCEID_UNWRAP(TestAppId)), CFE_SUCCESS);
-    UtAssert_StrCmp(TestAppInfo.Name,
-                    ModuleInfo.Name,
-                    "App Info Name (%s) = Module Info Name (%s) ",
-                    TestAppInfo.Name,
-                    ModuleInfo.Name);
+    UtAssert_STRINGBUF_EQ(TestAppInfo.Name,
+                          UTASSERT_STRINGBUF_NULL_TERM,
+                          ModuleInfo.Name,
+                          UTASSERT_STRINGBUF_NULL_TERM);
 
     UtAssert_INT32_EQ(CFE_ES_GetLibIDByName(&LibIdByName, LibName), CFE_SUCCESS);
     UtAssert_INT32_EQ(CFE_ES_GetLibInfo(&LibInfo, LibIdByName), CFE_SUCCESS);
     UtAssert_INT32_EQ(CFE_ES_GetModuleInfo(&ModuleInfo, CFE_RESOURCEID_UNWRAP(LibIdByName)), CFE_SUCCESS);
-    UtAssert_StrCmp(LibInfo.Name,
-                    ModuleInfo.Name,
-                    "Lib Info Name (%s) = Module Info Name (%s) ",
-                    LibInfo.Name,
-                    ModuleInfo.Name);
+    UtAssert_STRINGBUF_EQ(LibInfo.Name, UTASSERT_STRINGBUF_NULL_TERM, ModuleInfo.Name, UTASSERT_STRINGBUF_NULL_TERM);
 
     UtAssert_INT32_EQ(CFE_ES_GetModuleInfo(&ModuleInfo, CFE_RESOURCEID_UNDEFINED), CFE_ES_ERR_RESOURCEID_NOT_VALID);
     UtAssert_INT32_EQ(CFE_ES_GetModuleInfo(NULL, CFE_RESOURCEID_UNWRAP(TestAppId)), CFE_ES_BAD_ARGUMENT);

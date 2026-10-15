@@ -141,6 +141,13 @@ typedef union CFE_SB_Msg
     CFE_MSG_Message_t Msg;        /**< \brief Base message type without enforced alignment */
     long long int     LongInt;    /**< \brief Align to support Long Integer */
     long double       LongDouble; /**< \brief Align to support Long Double */
+
+    /**
+     * \brief Allows access as opaque octet data
+     * This may be used in conjunction with the APIs that include routes:
+     * CFE_SB_TransmitBufferWithRoute(), CFE_SB_ReceiveBufferWithRoute()
+     */
+    uint8 RawData[sizeof(CFE_MSG_Message_t)];
 } CFE_SB_Buffer_t;
 
 #endif /* CFE_SB_API_TYPEDEFS_H */

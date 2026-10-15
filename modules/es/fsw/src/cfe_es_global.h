@@ -41,6 +41,7 @@
 #include "cfe_es_erlog_typedef.h"
 #include "cfe_es_resetdata_typedef.h"
 #include "cfe_es_cds.h"
+#include "cfe_es_appctrl.h"
 
 #include <signal.h> /* for sig_atomic_t */
 

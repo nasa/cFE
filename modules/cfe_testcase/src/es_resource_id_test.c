@@ -33,7 +33,7 @@ void TestAppIDToIndex(void)
 {
     UtPrintf("Testing: CFE_ES_AppID_ToIndex");
     CFE_ES_AppId_t TestAppId;
-    uint32         TestAppIdx;
+    uint32         TestAppIdx = 0;
     uint32         idx;
     UtAssert_INT32_EQ(CFE_ES_GetAppID(&TestAppId), CFE_SUCCESS);
     UtAssert_INT32_EQ(CFE_ES_AppID_ToIndex(TestAppId, &TestAppIdx), CFE_SUCCESS);
@@ -86,7 +86,7 @@ void TestCounterIDToIndex(void)
     UtPrintf("Testing: CFE_ES_CounterID_ToIndex");
     const char        *CounterName = "TEST_COUNTER";
     CFE_ES_CounterId_t CounterId;
-    uint32             CounterIdx;
+    uint32             CounterIdx = 0;
     uint32             idx;
     UtAssert_UINT32_EQ(CFE_ES_RegisterGenCounter(&CounterId, CounterName), CFE_SUCCESS);
     UtAssert_INT32_EQ(CFE_ES_CounterID_ToIndex(CounterId, &CounterIdx), CFE_SUCCESS);

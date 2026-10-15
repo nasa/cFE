@@ -825,6 +825,18 @@
  */
 #define CFE_TBL_VALIDATION_IN_PROGRESS_ERR_EID 104
 
+/**
+ * \brief TBL Dump Encoding Failure Event ID
+ *
+ *  \par Type: ERROR
+ *
+ *  \par Cause:
+
+ *   Encoding the table data into a format suitable
+ *   for writing into the dump file has failed
+ */
+#define CFE_TBL_DUMP_ENCODE_FAIL_EID 105
+
 /**\}*/
 
 #endif /* CFE_TBL_EVENTS_H */

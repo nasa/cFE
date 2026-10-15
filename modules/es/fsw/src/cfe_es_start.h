@@ -53,19 +53,6 @@
 #define CFE_ES_MUTEX_SEM     0x05
 
 /*
-** Type Definitions
-*/
-
-typedef int32 (*CFE_ES_EarlyInitFuncPtr_t)(void); /**< \brief Req'd prototype of Early Init Functions */
-
-typedef union
-{
-    CFE_ES_EarlyInitFuncPtr_t FunctionPtr;
-    CFE_ES_TaskEntryFuncPtr_t MainTaskPtr;
-    void                     *VoidPtr;
-} CFE_ES_FuncPtrUnion_t;
-
-/*
  * Name: CFE_ES_CreateObjects
  *
  * Purpose: This function reads the es_object_table and performs all of the

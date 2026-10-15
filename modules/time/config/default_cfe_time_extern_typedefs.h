@@ -208,7 +208,7 @@ enum CFE_TIME_ToneSignalSelect
  *
  * @sa enum CFE_TIME_ToneSignalSelect
  */
-typedef uint8 CFE_TIME_ToneSignalSelect_Enum_t;
+typedef int16 CFE_TIME_ToneSignalSelect_Enum_t;
 
 /**
  * @brief Label definitions associated with CFE_TIME_AdjustDirection_Enum_t
@@ -254,7 +254,7 @@ enum CFE_TIME_FlywheelState
  *
  * @sa enum CFE_TIME_FlywheelState
  */
-typedef uint8 CFE_TIME_FlywheelState_Enum_t;
+typedef int16 CFE_TIME_FlywheelState_Enum_t;
 
 /**
  * @brief Label definitions associated with CFE_TIME_SetState_Enum_t
@@ -277,6 +277,6 @@ enum CFE_TIME_SetState
  *
  * @sa enum CFE_TIME_SetState
  */
-typedef uint8 CFE_TIME_SetState_Enum_t;
+typedef int16 CFE_TIME_SetState_Enum_t;
 
 #endif /* CFE_TIME_EXTERN_TYPEDEFS_H */

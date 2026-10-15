@@ -39,16 +39,6 @@
 /*  Task Globals */
 CFE_SB_Global_t CFE_SB_Global;
 
-/* Local structure for file writing callbacks */
-typedef struct
-{
-    const char *Filename;   /* File name for error reporting */
-    osal_id_t   Fd;         /* File id for writing */
-    size_t      FileSize;   /* File size for reporting */
-    uint32      EntryCount; /* Entry count for reporting */
-    int32       Status;     /* File write status */
-} CFE_SB_FileWriteCallback_t;
-
 const int32 CFE_Platform_SB_Filter_Events[CFE_PLATFORM_EVS_MAX_EVENT_FILTERS] = {
     CFE_PLATFORM_SB_FILTERED_EVENT1, CFE_PLATFORM_SB_FILTERED_EVENT2, CFE_PLATFORM_SB_FILTERED_EVENT3,
     CFE_PLATFORM_SB_FILTERED_EVENT4, CFE_PLATFORM_SB_FILTERED_EVENT5, CFE_PLATFORM_SB_FILTERED_EVENT6,
@@ -180,7 +170,7 @@ int32 CFE_SB_AppInit(void)
     CFE_SB_Global.StatTlmMsg.Payload.MaxSubscriptionsAllowed =
         ((CFE_PLATFORM_SB_MAX_MSG_IDS) * (CFE_PLATFORM_SB_MAX_DEST_PER_PKT));
 
-    Status = CFE_SB_CreatePipe(&CFE_SB_Global.CmdPipe, CFE_SB_CMD_PIPE_DEPTH, CFE_SB_CMD_PIPE_NAME);
+    Status = CFE_SB_CreatePipe(&CFE_SB_Global.CmdPipe, CFE_PLATFORM_SB_CMD_PIPE_DEPTH, CFE_PLATFORM_SB_CMD_PIPE_NAME);
     if (Status != CFE_SUCCESS)
     {
         CFE_ES_WriteToSysLog("%s: Call to CFE_SB_CreatePipe Failed:RC=0x%08X\n", __func__, (unsigned int)Status);
@@ -347,7 +337,10 @@ void CFE_SB_ResetCounters(void)
     CFE_SB_Global.HKTlmMsg.Payload.MsgReceiveErrorCounter        = 0;
     CFE_SB_Global.HKTlmMsg.Payload.InternalErrorCounter          = 0;
     CFE_SB_Global.HKTlmMsg.Payload.CreatePipeErrorCounter        = 0;
+    CFE_SB_Global.HKTlmMsg.Payload.DeletePipeErrorCounter        = 0;
     CFE_SB_Global.HKTlmMsg.Payload.SubscribeErrorCounter         = 0;
+    CFE_SB_Global.HKTlmMsg.Payload.PipeOptsErrorCounter          = 0;
+    CFE_SB_Global.HKTlmMsg.Payload.GetPipeIdByNameErrorCounter   = 0;
     CFE_SB_Global.HKTlmMsg.Payload.PipeOverflowErrorCounter      = 0;
     CFE_SB_Global.HKTlmMsg.Payload.MsgLimitErrorCounter          = 0;
 }

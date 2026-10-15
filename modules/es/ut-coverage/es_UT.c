@@ -756,12 +756,12 @@ void TestApps(void)
      */
     ES_ResetUnitTest();
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_WAITING, NULL, &UtAppRecPtr, NULL);
-    UtAppRecPtr->ControlReq.AppControlRequest = CFE_ES_RunStatus_APP_RUN;
+    UtAppRecPtr->ControlReq.AppControlRequest = CFE_ES_RunStatus_APP_ERROR;
     UtAppRecPtr->ControlReq.AppTimerMsec      = 0;
     memset(&CFE_ES_Global.BackgroundAppScanState, 0, sizeof(CFE_ES_Global.BackgroundAppScanState));
     UtAssert_BOOL_TRUE(CFE_ES_RunAppTableScan(0, &CFE_ES_Global.BackgroundAppScanState));
     UtAssert_INT32_EQ(UtAppRecPtr->ControlReq.AppTimerMsec, 0);
-    CFE_UtAssert_EVENTSENT(CFE_ES_PCR_ERR2_EID);
+    CFE_UtAssert_EVENTSENT(CFE_ES_ERREXIT_APP_INF_EID);
 
     /* Test scanning and acting on the application table where the timer
      * has not expired for a waiting application
@@ -773,17 +773,18 @@ void TestApps(void)
     UtAssert_BOOL_TRUE(CFE_ES_RunAppTableScan(1000, &CFE_ES_Global.BackgroundAppScanState));
     UtAssert_INT32_EQ(UtAppRecPtr->ControlReq.AppTimerMsec, 4000);
     UtAssert_UINT32_EQ(UtAppRecPtr->ControlReq.AppControlRequest, CFE_ES_RunStatus_APP_EXIT);
+    // jphfix not thrown CFE_UtAssert_EVENTSENT(CFE_ES_EXIT_APP_INF_EID);
 
     /* Test scanning and acting on the application table where the application
      * has stopped and is ready to be acted on
      */
     ES_ResetUnitTest();
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_STOPPED, NULL, &UtAppRecPtr, NULL);
-    UtAppRecPtr->ControlReq.AppControlRequest = CFE_ES_RunStatus_APP_RUN;
+    UtAppRecPtr->ControlReq.AppControlRequest = CFE_ES_RunStatus_APP_EXIT;
     UtAppRecPtr->ControlReq.AppTimerMsec      = 0;
     UtAssert_BOOL_TRUE(CFE_ES_RunAppTableScan(0, &CFE_ES_Global.BackgroundAppScanState));
     UtAssert_INT32_EQ(UtAppRecPtr->ControlReq.AppTimerMsec, 0);
-    CFE_UtAssert_EVENTSENT(CFE_ES_PCR_ERR2_EID);
+    CFE_UtAssert_EVENTSENT(CFE_ES_EXIT_APP_INF_EID);
 
     /* Test scanning and acting on the application table where the application
      * is running and is ready to exit
@@ -848,8 +849,55 @@ void TestApps(void)
     UtAssert_VOIDCALL(CFE_ES_ProcessControlRequest(AppId));
     CFE_UtAssert_EVENTSENT(CFE_ES_STOP_ERR3_EID);
 
+    /* Test a control action request to stop an application where the
+     * request fails and the subject is a core app
+     */
+    ES_ResetUnitTest();
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
+    UtAppRecPtr->ControlReq.AppControlRequest = CFE_ES_RunStatus_CORE_APP_RUNTIME_ERROR;
+    UT_SetDeferredRetcode(UT_KEY(CFE_EVS_CleanUpApp), 1, -1);
+    AppId = CFE_ES_AppRecordGetID(UtAppRecPtr);
+    UtAssert_VOIDCALL(CFE_ES_ProcessControlRequest(AppId));
+    CFE_UtAssert_EVENTSENT(CFE_ES_PCR_ERR2_EID);
+
+    /* Test a control action request to run an application
+     * Not really valid - this exists to cover the corresponding entry in the table
+     * this should NOT send any events
+     */
+    ES_ResetUnitTest();
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
+    UtAppRecPtr->ControlReq.AppControlRequest = CFE_ES_RunStatus_APP_RUN;
+    AppId                                     = CFE_ES_AppRecordGetID(UtAppRecPtr);
+    UtAssert_VOIDCALL(CFE_ES_ProcessControlRequest(AppId));
+    UtAssert_STUB_COUNT(CFE_EVS_SendEvent, 0); /*  */
+
+    /* Test a control action request to run an application and CleanUpApp fails
+     * Not really valid - this exists to cover the event sending logic
+     * this should NOT send any events
+     */
+    ES_ResetUnitTest();
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
+    UtAppRecPtr->ControlReq.AppControlRequest = CFE_ES_RunStatus_APP_RUN;
+    UT_SetDeferredRetcode(UT_KEY(CFE_EVS_CleanUpApp), 1, -1);
+    AppId = CFE_ES_AppRecordGetID(UtAppRecPtr);
+    UtAssert_VOIDCALL(CFE_ES_ProcessControlRequest(AppId));
+    UtAssert_STUB_COUNT(CFE_EVS_SendEvent, 0); /*  */
+
     /* Test a control action request to restart an application where the
-     * request fails due to a CleanUpApp error
+     * request fails due to a CleanUpApp error, where there should be a
+     * Cleanup only
+     */
+    ES_ResetUnitTest();
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
+    UtAppRecPtr->ControlReq.AppControlRequest = CFE_ES_RunStatus_APP_ERROR;
+    UT_SetDeferredRetcode(UT_KEY(CFE_EVS_CleanUpApp), 1, -1);
+    AppId = CFE_ES_AppRecordGetID(UtAppRecPtr);
+    UtAssert_VOIDCALL(CFE_ES_ProcessControlRequest(AppId));
+    CFE_UtAssert_EVENTSENT(CFE_ES_ERREXIT_APP_ERR_EID);
+
+    /* Test a control action request to restart an application where the
+     * request fails due to a CleanUpApp error, where there should be a
+     * Cleanup + Restart
      */
     ES_ResetUnitTest();
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
@@ -3365,7 +3413,7 @@ void TestPerf(void)
          mask value */
     ES_ResetUnitTest();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
-    CmdBuf.PerfSetFilterMaskCmd.Payload.FilterMaskNum = CFE_ES_PERF_32BIT_WORDS_IN_MASK;
+    CmdBuf.PerfSetFilterMaskCmd.Payload.FilterMaskNum = CFE_ES_PERF_8BIT_WORDS_IN_MASK;
     UT_CallTaskPipe(CFE_ES_TaskPipe,
                     CFE_MSG_PTR(CmdBuf),
                     sizeof(CmdBuf.PerfSetFilterMaskCmd),
@@ -3375,7 +3423,7 @@ void TestPerf(void)
     /* Test successful performance filter mask command */
     ES_ResetUnitTest();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
-    CmdBuf.PerfSetFilterMaskCmd.Payload.FilterMaskNum = CFE_ES_PERF_32BIT_WORDS_IN_MASK / 2;
+    CmdBuf.PerfSetFilterMaskCmd.Payload.FilterMaskNum = CFE_ES_PERF_8BIT_WORDS_IN_MASK / 2;
     UT_CallTaskPipe(CFE_ES_TaskPipe,
                     CFE_MSG_PTR(CmdBuf),
                     sizeof(CmdBuf.PerfSetFilterMaskCmd),
@@ -3398,7 +3446,7 @@ void TestPerf(void)
      */
     ES_ResetUnitTest();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
-    CmdBuf.PerfSetTrigMaskCmd.Payload.TriggerMaskNum = CFE_ES_PERF_32BIT_WORDS_IN_MASK - 1;
+    CmdBuf.PerfSetTrigMaskCmd.Payload.TriggerMaskNum = CFE_ES_PERF_8BIT_WORDS_IN_MASK - 1;
     UT_CallTaskPipe(CFE_ES_TaskPipe,
                     CFE_MSG_PTR(CmdBuf),
                     sizeof(CmdBuf.PerfSetTrigMaskCmd),
@@ -3410,7 +3458,7 @@ void TestPerf(void)
      */
     ES_ResetUnitTest();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
-    CmdBuf.PerfSetTrigMaskCmd.Payload.TriggerMaskNum = CFE_ES_PERF_32BIT_WORDS_IN_MASK + 1;
+    CmdBuf.PerfSetTrigMaskCmd.Payload.TriggerMaskNum = CFE_ES_PERF_8BIT_WORDS_IN_MASK + 1;
     UT_CallTaskPipe(CFE_ES_TaskPipe,
                     CFE_MSG_PTR(CmdBuf),
                     sizeof(CmdBuf.PerfSetTrigMaskCmd),
@@ -3433,7 +3481,7 @@ void TestPerf(void)
     Perf->MetaData.InvalidMarkerReported = true;
     Perf->MetaData.Mode                  = CFE_ES_PerfTrigger_START;
     Perf->MetaData.DataCount             = CFE_PLATFORM_ES_PERF_DATA_BUFFER_SIZE + 1;
-    Perf->MetaData.TriggerMask[0]        = 0xFFFF;
+    Perf->MetaData.TriggerMask[0]        = 0xFF;
     CFE_ES_PerfLogAdd(1, 0);
     UtAssert_UINT32_EQ(Perf->MetaData.Mode, CFE_ES_PerfTrigger_START);
     UtAssert_UINT32_EQ(Perf->MetaData.State, CFE_ES_PERF_IDLE);
@@ -3490,7 +3538,7 @@ void TestPerf(void)
     ES_ResetUnitTest();
     Perf->MetaData.State         = CFE_ES_PERF_WAITING_FOR_TRIGGER;
     Perf->MetaData.DataCount     = 0;
-    Perf->MetaData.FilterMask[0] = 0xffff;
+    Perf->MetaData.FilterMask[0] = 0xFF;
     CFE_ES_PerfLogAdd(0x1, 0);
     UtAssert_UINT32_EQ(Perf->MetaData.DataCount, 1);
 
@@ -3510,7 +3558,7 @@ void TestPerf(void)
     Perf->MetaData.TriggerCount   = 0;
     Perf->MetaData.State          = CFE_ES_PERF_TRIGGERED;
     Perf->MetaData.Mode           = CFE_ES_PerfTrigger_START;
-    Perf->MetaData.TriggerMask[0] = 0xffff;
+    Perf->MetaData.TriggerMask[0] = 0xFF;
     CFE_ES_PerfLogAdd(0x1, 0);
     UtAssert_UINT32_EQ(Perf->MetaData.TriggerCount, 1);
 
@@ -4406,6 +4454,7 @@ void TestCDS(void)
     uint8                BlockData[ES_UT_CDS_BLOCK_SIZE];
 
     UtPrintf("Begin Test CDS");
+    UT_ResetCDS();
 
     memset(BlockData, 0, sizeof(BlockData));
 
@@ -4479,6 +4528,8 @@ void TestCDS(void)
     CFE_UtAssert_SUCCESS(CFE_ES_RegisterCDS(&CDSHandle, 6, "Name"));
 
     /* Register a new size with a read CDS failure */
+    /* The intent is to make this fail in the GetBlock (not PutBlock) call */
+    UT_SetDeferredRetcode(UT_KEY(CFE_PSP_ReadFromCDS), 2, OS_ERROR);
     UT_SetDeferredRetcode(UT_KEY(CFE_PSP_ReadFromCDS), 1, OS_ERROR);
     UtAssert_INT32_EQ(CFE_ES_RegisterCDS(&CDSHandle, 8, "Name"), CFE_ES_CDS_ACCESS_ERROR);
 
@@ -4594,7 +4645,6 @@ void TestCDS(void)
 
     /* Test CDS initialization with rebuilding not possible */
     ES_ResetUnitTest();
-    UT_SetDeferredRetcode(UT_KEY(CFE_PSP_ReadFromCDS), 3, OS_ERROR);
     CFE_UtAssert_SUCCESS(CFE_ES_CDS_EarlyInit());
 
     /* Test CDS validation with first CDS read call failure */
@@ -4753,6 +4803,7 @@ void TestCDSMempool(void)
     void                *CdsPtr;
 
     UtPrintf("Begin Test CDS memory pool");
+    UT_ResetCDS();
 
     ES_UT_SetupCDSGlobal(0);
 
@@ -5276,9 +5327,9 @@ void TestSysLog(void)
 
     UtPrintf("Begin Test Sys Log");
 
-    /* Test loop in CFE_ES_SysLogReadStart_Unsync that ensures
-     * reading at the start of a message */
+    /* Test conditional in CFE_ES_SysLogReadStart_Unsync that checks for a fragment */
     ES_ResetUnitTest();
+    memset(&SysLogBuffer, 0, sizeof(SysLogBuffer));
     CFE_ES_Global.ResetDataPtr->SystemLogWriteIdx = 0;
     CFE_ES_Global.ResetDataPtr->SystemLogEndIdx   = sizeof(CFE_ES_Global.ResetDataPtr->SystemLog) - 1;
 
@@ -5288,9 +5339,15 @@ void TestSysLog(void)
     CFE_ES_SysLogReadStart_Unsync(&SysLogBuffer);
 
     UtAssert_EQ(size_t, SysLogBuffer.EndIdx, sizeof(CFE_ES_Global.ResetDataPtr->SystemLog) - 1);
-    UtAssert_EQ(size_t, SysLogBuffer.LastOffset, sizeof(CFE_ES_Global.ResetDataPtr->SystemLog) - 1);
+    UtAssert_ZERO(SysLogBuffer.LastOffset);
+    UtAssert_BOOL_TRUE(SysLogBuffer.IsFragment);
     UtAssert_ZERO(SysLogBuffer.BlockSize);
-    UtAssert_ZERO(SysLogBuffer.SizeLeft);
+    UtAssert_EQ(size_t, SysLogBuffer.SizeLeft, sizeof(CFE_ES_Global.ResetDataPtr->SystemLog) - 1);
+
+    CFE_ES_SysLogReadData(&SysLogBuffer);
+    UtAssert_BOOL_FALSE(SysLogBuffer.IsFragment);
+    UtAssert_EQ(size_t, SysLogBuffer.EndIdx, SysLogBuffer.LastOffset + SysLogBuffer.SizeLeft);
+    UtAssert_LT(size_t, SysLogBuffer.LastOffset, SysLogBuffer.BlockSize);
 
     /* Test truncation of a sys log message that is over half
      * the size of the total log */
@@ -5307,6 +5364,7 @@ void TestSysLog(void)
 
     /* Test Reading space between the current read offset and end of the log buffer */
     ES_ResetUnitTest();
+    memset(&SysLogBuffer, 0, sizeof(SysLogBuffer));
     SysLogBuffer.EndIdx     = 3;
     SysLogBuffer.LastOffset = 0;
     SysLogBuffer.BlockSize  = 3;

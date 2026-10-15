@@ -499,8 +499,8 @@
           For command details, see #CFE_ES_PERF_SETFILTERMASK_CC
         </LongDescription>
         <EntryList>
-          <Entry name="FilterMaskNum" type="BASE_TYPES/uint32" shortDescription="Index into array of Filter Masks" />
-          <Entry name="FilterMask" type="BASE_TYPES/uint32" shortDescription="New Mask for specified entry in array of Filter Masks" />
+          <Entry name="FilterMaskNum" type="BASE_TYPES/uint8" shortDescription="Index into array of Filter Masks" />
+          <Entry name="FilterMask" type="BASE_TYPES/uint8" shortDescription="New Mask for specified entry in array of Filter Masks" />
         </EntryList>
       </ContainerDataType>
 
@@ -509,8 +509,8 @@
           For command details, see #CFE_ES_PERF_SETTRIGMASK_CC
         </LongDescription>
         <EntryList>
-          <Entry name="TriggerMaskNum" type="BASE_TYPES/uint32" shortDescription="Index into array of Trigger Masks" />
-          <Entry name="TriggerMask" type="BASE_TYPES/uint32" shortDescription="New Mask for specified entry in array of Trigger Masks" />
+          <Entry name="TriggerMaskNum" type="BASE_TYPES/uint8" shortDescription="Index into array of Trigger Masks" />
+          <Entry name="TriggerMask" type="BASE_TYPES/uint8" shortDescription="New Mask for specified entry in array of Trigger Masks" />
         </EntryList>
       </ContainerDataType>
 

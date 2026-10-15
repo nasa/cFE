@@ -426,9 +426,9 @@ bool CFE_TBL_SendLoadBasicEventHelper(const CFE_TBL_TxnEvent_t *Event, CFE_TBL_T
     CFE_EVS_SendEventWithAppID(Event->EventId,
                                EventType,
                                CFE_TBL_Global.TableTaskAppId,
-                               "%s,app=%s,tbl=%s:%s",
+                               "%s%s,tbl=%s:%s",
                                Ctxt->Operation,
-                               Ctxt->CallerName,
+                               Ctxt->CallerIdent,
                                Ctxt->TableName,
                                EventString);
 
@@ -602,9 +602,9 @@ bool CFE_TBL_SendLoadFileEventHelper(const CFE_TBL_TxnEvent_t *Event, CFE_TBL_Tx
     CFE_EVS_SendEventWithAppID(Event->EventId,
                                EventType,
                                CFE_TBL_Global.TableTaskAppId,
-                               "%s,app=%s,file=%s,tbl=%s:%s",
+                               "%s%s,file=%s,tbl=%s:%s",
                                Ctxt->Operation,
-                               Ctxt->CallerName,
+                               Ctxt->CallerIdent,
                                LoadFileCtxt->LoadFilename,
                                Ctxt->TableName,
                                EventString);

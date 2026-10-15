@@ -39,7 +39,7 @@
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-CFE_Status_t CFE_EVS_Register(const void *Filters, uint16 NumEventFilters, uint16 FilterScheme)
+CFE_Status_t CFE_EVS_Register(const void *Filters, uint16 NumEventFilters, CFE_EVS_EventFilter_Enum_t FilterScheme)
 {
     uint16               FilterLimit;
     uint16               i;

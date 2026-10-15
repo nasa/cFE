@@ -406,13 +406,32 @@ void CFE_TBL_SendTransactionEvents(CFE_TBL_TxnState_t        *Txn,
                                    const void                *OperationData)
 {
     CFE_TBL_TxnEventContext_t Ctxt;
+    const char               *CallerName;
 
     memset(&Ctxt, 0, sizeof(Ctxt));
 
     Ctxt.Operation        = Operation;
     Ctxt.OperationDataPtr = OperationData;
-    Ctxt.CallerName       = CFE_TBL_TxnAppNameCaller(Txn);
-    Ctxt.RegRecPtr        = CFE_TBL_TxnRegRec(Txn);
+
+    /* If called by table services itself, leave the CallerIdent blank.
+     * Otherwise make it a string snippet to append to the event */
+    if (CFE_RESOURCEID_TEST_DEFINED(Txn->AppId)
+        && !CFE_RESOURCEID_TEST_EQUAL(Txn->AppId, CFE_TBL_Global.TableTaskAppId))
+    {
+        CallerName = CFE_TBL_TxnAppNameCaller(Txn);
+        if (CallerName[0] == 0)
+        {
+            /* Empty name indicates it was initiated via ground command */
+            snprintf(Ctxt.CallerIdent, sizeof(Ctxt.CallerIdent), ",appid=%lx", CFE_RESOURCEID_TO_ULONG(Txn->AppId));
+        }
+        else
+        {
+            /* non-Empty name means it was initiated by another app via API */
+            snprintf(Ctxt.CallerIdent, sizeof(Ctxt.CallerIdent), ",app=%s", CallerName);
+        }
+    }
+
+    Ctxt.RegRecPtr = CFE_TBL_TxnRegRec(Txn);
 
     if (Ctxt.RegRecPtr != NULL)
     {

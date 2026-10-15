@@ -36,7 +36,6 @@ const Target_ObjectTable_t CFE_ES_ModuleEntry = {
     .Name      = "CFE_ES",
     .EarlyInit = CFE_ES_CDS_EarlyInit, /* ES drives its own startup, this is for CDS*/
     .TaskMain  = CFE_ES_TaskMain,
-    .Cleanup   = NULL, /* ES does not clean up - it owns shutdown */
     .Priority  = CFE_PLATFORM_ES_START_TASK_PRIORITY,
     .StackSize = CFE_PLATFORM_ES_START_TASK_STACK_SIZE
 };

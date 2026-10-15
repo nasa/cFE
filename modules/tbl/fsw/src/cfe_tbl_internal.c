@@ -228,21 +228,17 @@ void CFE_TBL_DiscardWorkingBuffer(CFE_TBL_RegistryRec_t *RegRecPtr)
     CFE_TBL_LoadBuff_t  *LoadBuffPtr;
     CFE_TBL_LoadBuffId_t LoadInProgressId;
 
-    if (!CFE_TBL_RegRecGetConfig(RegRecPtr)->DoubleBuffered && CFE_TBL_RegRecIsLoadInProgress(RegRecPtr))
-    {
-        LoadInProgressId = CFE_TBL_RegRecGetLoadInProgress(RegRecPtr);
-        LoadBuffPtr      = CFE_TBL_LocateLoadBufferByID(LoadInProgressId);
-    }
-    else
-    {
-        LoadBuffPtr = NULL;
-    }
+    LoadInProgressId = CFE_TBL_RegRecGetLoadInProgress(RegRecPtr);
 
     CFE_TBL_RegRecClearLoadInProgress(RegRecPtr);
 
-    if (LoadBuffPtr != NULL)
+    if (CFE_TBL_LoadBuffIsShared(LoadInProgressId))
     {
-        CFE_TBL_LoadBuffSetFree(LoadBuffPtr);
+        LoadBuffPtr = CFE_TBL_LocateLoadBufferByID(LoadInProgressId);
+        if (CFE_TBL_LoadBuffIsMatch(LoadBuffPtr, LoadInProgressId))
+        {
+            CFE_TBL_LoadBuffSetFree(LoadBuffPtr);
+        }
     }
 }
 

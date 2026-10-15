@@ -234,6 +234,7 @@ void Test_CFE_Config_GetIdByName(void)
      */
     CFE_UtAssert_RESOURCEID_EQ(CFE_Config_GetIdByName("UT_CHECK_2"), CFE_CONFIGID_UT_CHECK_2);
     CFE_UtAssert_RESOURCEID_EQ(CFE_Config_GetIdByName("INVALID"), CFE_CONFIGID_UNDEFINED);
+    CFE_UtAssert_RESOURCEID_EQ(CFE_Config_GetIdByName(NULL), CFE_CONFIGID_UNDEFINED);
 }
 
 void UT_Callback(void *Arg, CFE_ConfigId_t Id, const char *Name)

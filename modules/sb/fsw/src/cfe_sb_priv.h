@@ -78,8 +78,6 @@
 #define CFE_SB_INCREMENT_TLM    1
 
 #define CFE_SB_MAIN_LOOP_ERR_DLY             1000
-#define CFE_SB_CMD_PIPE_DEPTH                32
-#define CFE_SB_CMD_PIPE_NAME                 "SB_CMD_PIPE"
 #define CFE_SB_MAX_CFG_FILE_EVENTS_TO_FILTER 8
 
 #define CFE_SB_PIPE_OVERFLOW (-1)
@@ -1518,6 +1516,21 @@ void CFE_SB_BackgroundFileEventHandler(void                   *Meta,
                                        uint32                  RecordNum,
                                        size_t                  BlockSize,
                                        size_t                  Position);
+
+/*---------------------------------------------------------------------------------------
+**
+** \brief Local function that increments the subscription counters based on the Status
+**        of the subscribe function to that point
+*/
+void CFE_SB_IncrementSubscribeCounters(uint16 EventID);
+
+/*---------------------------------------------------------------------------------------
+**
+** \brief Local function that issues event for the subscribe function. The delay is to
+**        allow the lock on SB resource to be released, a lock that CFE_EVS_SendEvent-type
+**        functions need
+*/
+void CFE_SB_IssueSubscribeEvents(uint16 PendingEventID, CFE_SB_PipeId_t PipeId, CFE_SB_MsgId_t MsgId, uint16 Scope);
 
 /*
  * External variables private to the software bus module

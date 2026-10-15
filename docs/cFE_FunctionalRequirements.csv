@@ -1,4 +1,4 @@
-Summary,Custom field (Requirement ID),Description,Custom field (Requirement Rationale)
+Summary,Requirement ID,Description,Requirement Rationale
 ES: Housekeeping Message,cES1000,"Upon receipt of a Message, the cFE shall generate a housekeeping message that includes the following Executive Services items:
 
 - Number of Registered Applications
@@ -203,120 +203,278 @@ FS: Extract Filename From Path,cES1604,Upon receipt of a Request the cFE shall p
 FS: Filename Auto-Complete,cES1605,Upon receipt of a Request the cFE shall auto-complete a filename.,Supports filename abstraction (extensions and mount point) to support portability.
 FS: Background File Dump,cES1606,Upon receipt of a Request cFE shall write the requested file in the background.,Generic background (low priority) file write capability avoids stalling out apps and services with large file writes.
 ES: Maximum Processor Resets,cES1709,"If the cFE Core goes through `<PLATFORM_DEFINED>` Maximum Processor Resets, the cFE shall initiate a Power-On Reset of the cFE.","After a <PLATFORM DEFINED> number of Processor Resets, the cFE will attempt to recover by doing a Power-on Reset."
-EVS: Control Message By Event Type,cEVS3000,"Upon receipt of Command the cFE shall enable/disable, as specified in the Command, the future generation of Event Messages for the Command-specified Event Type.",Filtering by type allows the system to behave differently for different users.
-EVS: Set Event Format Mode,cEVS3001,"Upon receipt of Command, the cFE shall set the Event Format Mode to the command specified value, either Long or Short.",Providing a short format accommodates missions with limited telemetry bandwidth. A long format is desirable because it contains the most information.
-EVS: NOOP Event,cEVS3002,Upon receipt of Command the cFE shall generate a NO-OP event message.,This command is useful as a general sub-system aliveness test.
-EVS: Zero Counters,cEVS3003,"Upon receipt of Command the cFE shall set the following counters to zero in Event Services telemetry:
-
-- Valid Command Counter
-- Invalid Command Counter
-- Event Message Sent Counter
-- Event Message Truncation Counter
-- Unregistered Application Send Counter",This command is a common feature in heritage sub-system software design.
-EVS: Write Application Data File,cEVS3004,"Upon receipt of Command, the cFE shall write the following information to the Command specified cFE EVS Application Data file for each registered Application:
-
-- Application Event Message Sent Counter
-- Application Event Service Enable Status
-- Application Event Type Enable Statuses (one for each Event Type)
-- Application Event IDs (for events to be filtered)
-- Application Binary Filter Masks (one per registered Event ID)
-- Application Binary Filter Counters (one per registered Event ID)","Visibility of Application information is essential for FSW diagnostics, testing and maintenance."
-EVS: Write Application Data File - Default Filename,cEVS3004.1,"If a file is not specified, the cFE shall use the `<PLATFORM_DEFINED>` filename.",Want to provide a default in the event that a user does not want to specify.
-EVS: Valid Command Counter,cEVS3005,"Upon receipt of valid command, the cFE shall increment the valid command counter.",The ground needs the capability to verify that the command was received and accepted by the cFE.  Details of valid commands are documented in the cFE User's Guide.
-EVS: Invalid Command Counter,cEVS3006,"Upon receipt of an invalid command, the cFE shall in increment the invalid command counter.",The ground needs an indicator if a command is rejected by the cFE. Details of what makes a command invalid are documented in the cFE Developer's Guide and the cFE User's Guide.
-EVS: Control Message By Application and Event Type,cEVS3007,"Upon receipt of Command the cFE shall enable/disable, as specified in the Command, the future generation of Event Messages for the Command-specified Application and Event Type.",When diagnosing an Application it's useful to enable its informational and diagnostic Event Messages.
-EVS: Control Message By Application,cEVS3008,"Upon receipt of Command the cFE shall enable/disable, as specified in the Command, the future generation of Event Messages for the Command-specified Application.","During development and integration, it can be useful to turn off an Application's Event Message's without regard of the Event Type."
-EVS: Zero Application Message Sent Count,cEVS3009,"Upon receipt of Command, the cFE shall set the Command-specified Application's Event Message Sent Counter to zero.",Allow operators the ability to reset the count of application events.
-EVS: Zero App Filter Counter By Event ID,cEVS3010,"Upon receipt of Command, the cFE shall set an Application's Binary Filter Counter to zero for the Command-specified Event ID.",Clearing an Application's Filtered Event Message Counter is a convenient method for resetting the filter on the event.
-EVS: Zero App Filter Counters,cEVS3011,"Upon receipt of Command, the cFE shall set all of an Application's Binary Filter Counters to zero.",Having the ability to reset all Application Filtered Event Message Counters is a quick method for resetting all the application's event filters. Note: This command gives operators the ability to reset all exhausted event filters (i.e. send 16 and stop) so that filtered events may be generated once again.
-EVS: Set App Filter Mask By Event ID,cEVS3012,Upon receipt of Command the cFE shall set an Application's Binary Filter Mask to the Command-specified Event Filter for the given Application Event ID.,Allow an operator to tune the system for a particular operational environment.
-EVS: Clear Local Event Log,cEVS3013,"Upon receipt of Command, the cFE shall clear the Local Event Log.",Need to be able to clear the log if the event logging is operating in discard mode.
-EVS: Set Event Logging Mode,cEVS3014,"Upon receipt of Command, the cFE shall set the Event Logging Mode to the Command-specified mode, either overwrite or discard.","While in Overwrite Mode, the oldest logged event will be overwritten by the new event when the Event Log Full Flag is set to true.  While in Discard Mode the new event will be discarded, preserving the contents of the full log. Need the ability to switch between Event Message logging modes."
-EVS: Write Local Event Log To File,cEVS3015,"Upon receipt of Command, the cFE shall write the contents of the Local Event Log to the Command specified file.",Allows for ground view of the log.  Local Event Log is not intended for operation playback.  The main purpose of the Local Event Log is for ground testing.  Ground operators may view the data file for playing back stored events.
-EVS: Write Local Event Log To File - Default Filename,cEVS3015.1,"If a file is not specified, the cFE shall use the `<PLATFORM_DEFINED>` filename.",Want to provide a default in the event that a user does not want to specify one.
-EVS: Write Local Event Log Order,cEVS3016,The cFE shall write each Event Message from the earliest logged message to the most recently logged message.,"Ground operators like to see the progression of events in the order that they occurred.   In a scenario when a time correction has been made, the earliest logged may not necessarily mean the oldest time stamp.  This type of playback may not be desirable for Event Logs of considerable size.  It is worthwhile for cFE users to keep Event Logs relatively small."
-EVS: Control Message Port Routing,cEVS3017,"Upon receipt of Command the cFE shall enable/disable, as specified in the Command, the routing of all future Event Messages to the Command specified Event Message Port.","Event Message Output Ports may not be available or needed; therefore, the ability to configure sending to an Event Message Port is useful."
-EVS: Housekeeping Message,cEVS3018,"Upon receipt of a Message, the cFE shall generate a housekeeping message that includes the following Event Services items:
-
-- Valid Command Counter
-- Invalid Command Counter
-- SB Event Format Mode
-- Event Message Sent Counter
-- Event Message Truncation Counter
-- Unregistered Application Send Counter
-- Event Message Output Port Enable Statuses
-- Local Event Log Full Flag
-- Local Event Log Overflow Counter
-- Logging Mode
-- For each registered Application:
-  o Application Event Message Sent Counter
-  o Application Event Service Enable Status",Generate housekeeping message for system awareness and management.
-EVS: Add Event Filter,cEVS3019,Upon receipt of Command the cFE shall add the specified Event Filter for the specified cFE Application and Event ID.,Want to provide the ability for filters to be added at runtime.  Original implementation did not provide this capability which resulted in modifications to Applications for those events that were not registered (i.e. forgotten).
-EVS: Add Event Filter - Reject Already Filtered ,cEVS3019.1,"If the Event ID is already registered for filtering, the cFE shall reject the command and generate an event message.",Filter is done on a per Event ID basis.
-EVS: Add Event Filter - Application Maximum,cEVS3019.2,If the maximum number of Event IDs have been registered for the specified Application then the cFE shall reject the command and generate an event message.,"In order to scale the cFE, allocations are made for each cFE Application (see cEVS3302)."
-EVS: Delete Event Filter,cEVS3020,Upon receipt of Command the cFE shall delete the specified Event Filter for the specified cFE Application and Event ID.,Want to be able to remove event filtering since the cFE limits the number of filters that can be registered for a given cFE Application (see cEVS3302).
-EVS: Delete Event Filter - Reject Not Registered,cEVS3020.1,If the Event ID is not registered for filtering the cFE shall reject the command and generate an event message.,Notify caller that the Filter was not registered.
-EVS: Register App,cEVS3100,"Upon receipt of Request, the cFE shall register an Application for event service, enabling the Application Event Service Enable Status and storing the following request specified Application data: Application Event IDs (for events to be filtered) Application Binary Filter Masks (one per registered Event ID).",Supports the cFE's dynamic Application model.
-EVS: Register App - Create Filter Counter,cEVS3100.1,"Upon receipt of Request to register an Application for event service, the cFE shall create one Application Binary Filter Counter per registered Event ID.",Supports the cFE's Binary Filtering Algorithm.
-EVS: Register App - Create Sent Message Counter,cEVS3100.2,"Upon receipt of Request to register an Application for event service, the cFE shall create an Application Event Message Sent Counter.",Supports the cFE's dynamic Application model.
-EVS: Register App - Default Event Enable Status,cEVS3100.3,"Upon receipt of Request to register an Application for event service, the cFE shall use the `<PLATFORM_DEFINED>` Application Event Type Enable Statuses for each event.","By default, each platform should have a standard configuration for each event message type (eg. DEBUGs disable.  INFO, ERROR and CRITICAL events DISABLED) that should be applied to all events.  Commands are available to modify the settings."
-EVS: Message Types,cEVS3102,The cFE shall support the following Event Message Types: Debug Informational Error Critical.,Supports cFE event services.
-EVS: Create Message,cEVS3103,"Upon receipt of a Request to send an Event Message, the cFE shall create a Short or Long Event Message, as specified by the Event Format Mode, ONLY if the following cFE conditions are met:
-
-1. The requesting Application's Event Service Enable Status is Enabled.
-2. The requesting Application's registered message filtering algorithm indicates the message should be sent.
-3. The requesting Application's Event Type Enable Status is Enabled for the Event Type of the request-specified Event Message.",Supports cFE event services.
-EVS: Create Message - Unregistered App,cEVS3103.1,If the requesting Application has been determined to be unregistered the cFE shall increment the Unregistered Application Send Counter and send an event message.,Provides ground operators the ability to see when unregistered applications are using event services.
-EVS: Create Message - Data Types,cEVS3103.2,"The cFE shall support the following data types within an applications Request specified Event Data:
-
-- Signed Character
-- Unsigned Character
-- Short Integer
-- Unsigned Short Integer
-- Long Integer
-- Unsigned Long Integer",Not all processors supported under the cFE will allow floating point or real types.
-EVS: Create Message - Increment Filter Counter,cEVS3103.3,"If the request specified Event ID has been registered for binary event filtering, the cFE shall increment the request specified Application's Binary Filter Counter for the request-specified Event ID.",Support binary event filtering algorithm.
-EVS: Create Message - Increment Filter Counter - Retain Maximum Value,cEVS3103.3.1,"If the Binary Filter Counter has reached its maximum `<PLATFORM_DEFINED>` value, the cFE shall retain the maximum value (i.e. do not rollover to zero).",Preventing a counter rollover to zero eliminates the case when a user may think no events have occurred when in fact many events have occurred.
-EVS: Create Message - Long Format,cEVS3103.4,"If the Format Mode is set to Long, the cFE shall generate an Event Message formatted as specified in the cFE User's Guide containing the Spacecraft Time, Processor ID, Application ID, Event ID, Event Type, and the Request-specified Event Data.","To assist with system test and diagnostics it is important to distinguish otherwise identical messages by their sources.  This is especially true in a distributed system with common subsystems. It is the intent of this requirement to allow identical subsystems to be resident in multiple processors within the flight system.  In cases like this, the subsystem identifier, and message identifier may be the same; only the processor identifier would make the messages unique.  A long format is desirable because it contains the most information.  Design Note: It is expected that in the implemented event service, the API only requires the Event ID and Type, and that the underlying utility code fills in the processor ID, and Application ID before the message is sent."
-EVS: Create Message - Long Format - Truncation,cEVS3103.4.1,"If the Event Data is greater than the `<MISSION_DEFINED>` maximum Event Data, the cFE shall truncate the Event Message with a string-termination character and increment the Message Truncation Counter.","It's important to know if data is lost, but it doesn't need to be maintained on a per-Event ID basis, therefore a single counter is used.  A platform-defined length was considered but this prevents application reuse unless a minimum length is specified."
-EVS: Create Message - Short Format,cEVS3103.5,"If the Format Mode is set to Short, the cFE shall generate an Event Message formatted as specified in the cFE User's Guide containing the spacecraft time, Processor ID, Application ID, Event ID, and Event Type.",Providing a short format accommodates missions with limited telemetry bandwidth.
-EVS: Create Message - App ID,cEVS3103.6,The requester shall be able to specify the Application ID to be used in the Event Message.,Need to provide APIs a way to specify an Application ID to ensure the context of the Event is correct.
-EVS: Create Message - Time,cEVS3103.7,The requester shall be able to specify the time to be used in the Event Message.,"This routine should be used in situations where an error condition is detected at one time, but the event message is reported at a later time."
-EVS: Increment App Message Sent Counter,cEVS3104,"For each created Event Message, the cFE shall increment the Application Event Message Sent Counter for the request specified Application.",A counter provides a means for keeping track of how many events an application has sent through the event service. Note: The Application Event Message Sent Counter is incremented once regardless of how many enabled ports the message has been sent through.
-EVS: Increment App Message Sent Counter - Retain Maximum Value,cEVS3104.1,"If the Application Event Message Sent Counter has reached its maximum value of (2^16)-1, the cFE shall retain the maximum value (i.e. do not rollover to zero).",Preventing a counter rollover to zero eliminates the case when a user may think no events have occurred when in fact many events have occurred.
-EVS: Increment Message Sent Counter,cEVS3105,"For each created Event Message, the cFE shall increment the Event Message Sent Counter.",A counter provides a means for keeping track of how many events have been sent through the event service. Note: The Event Message Sent Counter is a count of ALL messages sent through the Event Service regardless of the Application sending the event. The Event Message Sent Counter is incremented once regardless of how many enabled ports the message has been sent through.
-EVS: Increment Message Sent Counter - Retain Maximum Value,cEVS3105.1,"If the Event Message Sent Counter has reached its maximum value of (2^16)-1 the cFE shall retain the maximum value (i.e. do not rollover to zero).",Preventing a counter rollover to zero eliminates the case when a user may think no events have occurred when in fact many events have occurred.
-EVS: Zero App Filter Counter By Event ID,cEVS3106,"Upon receipt of a request, the cFE shall set an Application's Binary Filter Counter to zero for the Application request-specified Event ID.",Clearing an Application's Binary Filter Counter is a convenient method for resetting the filter on the event.
-EVS: Zero App Filter Counters,cEVS3107,"Upon receipt of a request, the cFE shall set all of an Application's Binary Filter Counters to zero for the request-specified Application.",Having the ability to reset all Application Filtered Event Message Counters is a quick method for resetting all the application's event filters.
-EVS: Store Message In Event Log,cEVS3108,"For each created Event Message, the cFE shall store the Event Message in the Local Event Log in the Long Event Message Format.",It's useful to save Event Messages when external communications are unavailable. This may occur during system initialization (especially events generated from other cFE components) and during a communications failure.
-EVS: Store Message In Event Log - Set Full Flag,cEVS3108.1,"If the Local Event Log becomes full, the cFE shall set the Local Event Log Full Flag to true.",Ground operations needs to know the state of the Local Even Log.
-EVS: Store Message In Event Log - Increment Overflow Counter,cEVS3108.2,"If the Local Event Log is full, the cFE shall increment the Local Event Log Overflow counter.",Ground operations needs to know how many Event Messages were discarded or overwritten.
-EVS: Store Message In Event Log - Log Full Behavior,cEVS3108.3,"If the Local Event Log is full, the cFE shall either (1) overwrite the oldest Event Message if the Event Logging Mode is overwrite, or (2) discard the Event Message if the Event Logging Mode is discard.","Overwriting the oldest message is useful for nominal operations because a user doesn't need to periodically clear the Log. If an error occurs when there's no communication, the Local Event Log size must be large enough to retain the Event Messages since communications was lost. Discarding the newest Event Message is useful for trouble shooting a problem. For example, there may be a problem during processor initialization that occurs when there's no communications with the processor interfacing with the User. In this case the original Event Messages are critical to solving the problem so they should be preserved. Note that the Event Logging Mode can be changed via stored commanding."
-EVS: Message Port Routing,cEVS3109,"For each created Event Message, the cFE shall route the Event Message, formatted as an ASCII text string, to each enabled Event Message Output Port.",Debug ports are very useful for FSW development and maintenance.
-EVS: Initialize Format On Power On Reset,cEVS3201,"Upon a Power-on Reset, the cFE shall set SB Event Format Mode to `<PLATFORM_DEFINED>` default mode.","Each mission must determine what format they need, defaulted to LONG."
-EVS: Initialize Full Flag To False On Power On Reset,cEVS3202,"Upon a Power-on Reset, the cFE shall set the Local Event Log Full Flag to false.",Set cFE to default status across Power-on Resets.
-EVS: Initialize Logging Mode On Power On Reset,cEVS3203,"Upon a Power-on Reset, the cFE shall set the Event Logging Mode to `<PLATFORM_DEFINED, overwrite>`.",Set cFE to default status across Power-on Resets.
-EVS: Preserve Event Log Reset Mode On Processor Reset,cEVS3207,"Upon a Processor Reset, the cFE shall preserve the Event Logging Mode configuration parameter.",Try to retain mode across a processor reset. The contents of the Local Event Log will be preserved if the Event Logging Mode is configured to Discard. The contents of the Local Event Log may be overwritten (depending on the size and contents of the log prior to the reset) if the Event Logging Mode is configured to Overwrite.
-EVS: Preserve Log Full State On Processor Reset,cEVS3208,"Upon a Processor Reset, the cFE shall preserve the Local Event Log Full state.",Retain the cFE state across Processor Resets.
-EVS: Preserve Log Overflow Counter On Processor Reset,cEVS3210,"Upon a Processor Reset, the cFE shall preserve the Local Event Log Overflow Counter.",Retain the cFE state across Processor Resets.
-EVS: Suppress Flooding Event Messages,cEVS3220,The cFE shall suppress event messages from an application that exceed a pre-defined rate.,Event message flooding may exhaust critical resources required on the spacecraft
-EVS: Suppress Flooding Event Messages - Allow short bursts,cEVS3220.1,The cFE shall allow limited bursts of event messages from an application exceeding the suppress threshold rate.,"Startup or other events may cause a brief burst of events that exceed the nominal rate, but should still be captured."
-EVS: Suppress Flooding Event Messages - Resume events when not flooding,cEVS3220.2,The cFE shall automatically resume processing event messages from an application which is no longer flooding.,"Flooding may be a transient condition, and resuming nominal operations when this condition goes away would allow continued delivery of useful diagnostic data. This also eases implementation."
-EVS: Suppress Flooding Event Messages - Increment counter,cEVS3220.3,The cFE shall increment the squelched counter for a flooding app when events for that app have been suppressed.,A counter provides a means for keeping track of how many events have been suppressed.  Note this counter is included in the application information telemetry packet.
-EVS: Suppress Flooding Event Messages - Retain Maximum Value,cEVS3220.4,"If the squelched event counters have reached their maximum value of (2^8)-1 the cFE shall retain the maximum value (i.e. do not rollover to zero).",Preventing a counter rollover to zero eliminates the case when a user may think no events have occurred when in fact many events have occurred.
-EVS: Suppress Flooding Event Messages - Event Message,cEVS3220.5,"The cFE shall issue an event message when an application transitions to the squelched state, containing the name of the offending application.","An event message provides an obvious useful diagnostic when event suppression occurs, which is an anomaly which should be dealt with."
+Application Initialization,EVS1000,"When reset, the EVS Application shall initialize the application as follows:","Ensures the Event Services (EVS) application always starts in a known, predictable, and safe default state upon a fresh boot, preventing undefined behavior"
+,,1) Register a Critical Data Store (See EVS1001 and EVS1002),
+,,2) Clear and initialize the event log (See EVS2280),
+,,"3) Set ""SB Event Format Mode"" to 'LONG' (Default ""SB Event Format Mode"" is configurable)",
+,,"4) Set ""Event Message Output Port Enable States"" to 0x0001 (Default ""Event Message Output Port Enable States"" is configurable)",
+,,"5) Set ""Event Logging Mode"" to 'DISCARD' (Default ""Event Logging Mode"" is configurable)",
+,,"6) Set ""Event Log Enabled State"" to 'TRUE'",
+,,"7) Issue an event message stating the EVS Application initialized, including the application version number",
+CDS Restoration Failure,EVS1001,"When registering the CDS, if restoration of the contents fails, the EVS Application shall abort the cFE start up process and write an explanation of the failure to the system log","EVS is a critical core service. If its persistent memory (reset area) is corrupted or inaccessible, the system is fundamentally compromised. Aborting prevents the system from running blind or corrupting memory further"
+CDS Restoration Success,EVS1002,"When registering the CDS, if restoration of the contents succeeds, the EVS Application shall restore:","Allows the system to retain critical historical event data and log states across unexpected processor resets, aiding ground operators in anomaly investigation"
+,,"1) ""Event Logging Mode"" (The contents of the Event Log will be preserved if the ""Event Logging Mode"" is configured to Discard. The contents of the Event Log may be overwritten (depending on the size and contents of the log prior to the reset) if the ""Event Logging Mode"" is configured to Overwrite)",
+,,"2) ""Event Log Full Flag""",
+,,"3) ""Event Log Overflow Counter""",
+Counter Initialization,EVS1010,"When reset, the EVS Application shall set the following counters to 0:","Prevent carry-over from previous execution cycles that could confuse ground operators by ensuring telemetry counters accurately reflect the activity since the last reset"
+,,"1) ""Commands Processed Counter""",
+,,"2) ""Command Error Counter""",
+,,"3) ""Event Messages Sent Counter""",
+,,"4) ""Event Message Truncation Counter""",
+,,"5) ""Unregistered Application Events Sent Counter""",
+Reset Failure,EVS1999,"When the EVS Application fails to initialize properly, the EVS Application shall:","Ensures that if EVS cannot start, the failure is immediately broadcast to the system log so developers/operators can diagnose the fatal boot error"
+,,1) Issue an event message containing the reason for the failure,
+,,"2) Write to the system log that the application failed to initialize, including the return code",
+,,3) Exit the application,
+General Command Verification,EVS2000,When the EVS Application receives a command which:,"Prevents the execution of malformed, accidental, or corrupt commands. Length and ID checks are critical in C to prevent buffer overflows or memory corruption."
+,,1) Contain a CCSDS application message identifier corresponding to one of the EVS Application's subscribed messages,
+,,2) Contains a function code which is one of the EVS Application's defined function codes,
+,,3) Contains a packet length consistent with the EVS Application's defined packet structure,
+,,4) Passes any argument validations specified by the command requirements (EVS2XXX requirements),
+,,5) Passes any additional validations as specified by the command requirements (EVS2XXX requirements),
+,,the EVS Application shall accept and execute the command,
+Command Acceptance,EVS2001,"When the EVS Application accepts a command, the EVS Application shall:","Provides immediate, verifiable feedback to ground operators that their commanded action was successfully received and executed"
+,,"1) Increment the ""Commands Processed Counter"" (except in the case of EVS2020)",
+,,2) Issue an informational or debug event message,
+Command Rejection,EVS2002,"If the EVS Application receives a command which fails any of the validation specified by EVS2000, the EVS Application shall:","Prevent operators from assuming an action was taken when a command was dropped due to being invalid by providing immediate, verifiable feedback to the ground"
+,,"1) Increment the ""Command Error Counter""",
+,,2) Issue an error event message,
+No-Operation Command,EVS2010,"When the EVS Application receives a ""No-Operation"" command, the EVS Application shall issue an event which contains the version information for the EVS Application","Provides a safe ping mechanism for ground operators to verify that the EVS application is alive, responsive, and communicating properly without changing system state"
+Reset Counters Command,EVS2020,"When the EVS Application receives a ""Reset Counters"" command, the EVS Application shall set the counter to the values described in EVS1010","Allows ground operators to clear accumulated telemetry counters without having to perform a disruptive software or hardware reboot"
+Enable Messages by Event Type Command,EVS2100,"When the EVS Application receives an ""Enable Messages by Event Type"" command which passes the validations specified by EVS2101, the EVS Application shall enable the future generation of event messages for the command-specified event type(s)","Allows operators to globally enable specific types of events when troubleshooting is required"
+Enable Messages by Event Type Command Validation,EVS2101,"When the EVS Application receives an ""Enable Messages by Event Type"" command, if:","Prevents execution of the enable command if the parameters are corrupted or target non-existent event types"
+,,1) The command-specified event type state is neither 'ENABLE' nor 'DISABLE',
+,,2) The command-specified event type(s) is one or more of the valid event type as described in EVS4000.6,
+,,the EVS Application shall reject the command,
+Disable Messages by Event Type Command,EVS2110,"When the EVS Application receives a ""Disable Messages by Event Type"" command which passes the validations specified by EVS2111, the EVS Application shall disable the future generation of event messages for the command-specified event type","Allows operators to globally mute noisy event types to preserve limited downlink bandwidth"
+Disable Messages by Event Type Command Validation,EVS2111,"When the EVS Application receives a ""Disable Message by Event Type"" command, if:","Prevents execution of the disable command if the parameters are corrupted or target non-existent event types"
+,,1) The command-specified event type state is neither 'ENABLE' nor 'DISABLE',
+,,2) The command-specified event type(s) is one or more of the valid event type as described in EVS4000.6,
+,,The EVS Application shall reject the command,
+Set Event Format Mode Command,EVS2120,"When the EVS Application receives a ""Set Event Format Mode"" command which passes the validation specified by EVS2121, the EVS Application shall:","Allows switching to a low-bandwidth format (SHORT) when the full, robust ASCII text string (LONG) is not needed by the ground"
+,,"1) Transmit event with a packet identifier and message if the command-specified format is 'LONG' or,",
+,,2) Transmit events with a packet identifier if the command-specified format is 'SHORT',
+,,"3) Set ""SB Event Format Mode"" to the command-specified value",
+Set Event Format Mode Command Validation,EVS2121,"When the EVS Application receives a ""Set Event Format Mode"" command, if the command-specified message format is neither 'SHORT' nor 'LONG' the EVS Application shall reject the command","Ensures the format mode is strictly set to valid system states"
+Enable Messages by Application and Event Type Command,EVS2130,"When the EVS Application receives an ""Enable Messages by Application and Event Type"" command which passes the validation specified by EVS2131, the EVS Application shall enable the future generation of event messages for the command-specified application and event type","Provides control to turn on specific event types (like DEBUG) for only one specific app being investigated"
+Enable Messages by Application and Event Type Command Validation,EVS2131,"When the EVS Application receives an ""Enable Message by Application and Event Type"" command, if:","Validates the target app and event type exist before attempting to enable them"
+,,1) The command-specified event type state is neither 'ENABLE' nor 'DISABLE',
+,,2) The command-specified event type(s) is one or more of the valid event type as described in EVS4000.6,
+,,3) The command-specified application is not registered with EVS,
+,,4) The command-specified application's identifier is invalid,
+,,the EVS Application shall reject the command,
+Disable Messages by Application and Event Type Command,EVS2140,"When the EVS Application receives a ""Disable Messages by Application and Event Type"" command which passes the validation specified by EVS2141, the EVS Application shall disable the future generation of event messages for the command-specified application and event type","Saves bandwidth by providing control to mute specific event types for only one specific app"
+Disable Messages by Application and Event Type Command Validation,EVS2141,"When the EVS Application receives a ""Disable Messages by Application and Event Type"" command, if:","Validates the target app and event type exist before attempting to disable them"
+,,1) The command-specified event type state is neither 'ENABLE' nor 'DISABLE',
+,,2) The command-specified event type(s) is one or more of the valid event type as described in EVS4000.6,
+,,3) The command-specified application is not registered with EVS,
+,,4) The command-specified application's identifier is invalid,
+,,the EVS Application shall reject the command,
+Enable Messages by Application Command,EVS2150,"When the EVS Application receives an ""Enable Messages by Application"" command which passes the validation specific by EVS2151, the EVS Application shall enable the future generation of event messages for the command-specified application","Allows the ground to globally re-enable an application's ability to send any events"
+Enable Messages by Application Command Validation,EVS2151,"When the EVS Application receives an ""Enable Messages by Application"" command, if:","Ensures the application actually exists before changing its global enable state"
+,,1) The command-specified application is not registered with EVS,
+,,2) The command-specified application's identifier is invalid,
+,,the EVS Application shall reject the command,
+Disable Messages by Application Command,EVS2160,"When the EVS Application receives a ""Disable Messages by Application"" command which passes the validation specified by EVS2161, the EVS Application shall disable the future generation of event message for the command-specified application","Allows the ground to completely silence a noisy or malfunctioning application from spamming the system"
+Disable Messages by Application Command Validation,EVS2161,"When the EVS Application receives a ""Disable Messages by Application"" command, if:","Ensures the application actually exists before changing its global disable state"
+,,1) The command-specified application is not registered with EVS,
+,,2) The command-specified application's identifier is invalid,
+,,the EVS Application shall reject the command,
+Reset Application Counter Command,EVS2170,"When the EVS Application receives a ""Reset Application Counter"" command which passes the validation specified by EVS2171, the EVS application shall for the command-specified application:","Allows operators to clear squelch and event counters for a specific application to monitor its behavior fresh"
+,,"1) Set the ""Application Event Messages Sent Counter"" to 0",
+,,"2) ""Application Event Messages Squelched Counter"" to 0 (this lets events for this application be issued again, rather than squelched)",
+Reset Application Counter Command Validation,EVS2171,"When the EVS Application receives a ""Reset Application Counter"" command, if:","Ensures the application actually exists before attempting to reset its counters"
+,,1) The command-specified application is not registered with EVS,
+,,2) The command-specified application's identifier is invalid,
+,,the EVS Application shall reject the command,
+Set Event Filter Command,EVS2180,"When the EVS Application receives a ""Set Event Filter"" command which passes the validation specified by EVS2181, the EVS Application shall set the command-specified application's event filter to the command-specified event filter output mask for the command-specified event identifier","Prevent repeating errors from flooding telemetry by allowing the configuration of how often a specific event ID is sent"
+Set Event Filter Command Validation,EVS2181,"When the EVS Application receives a ""Set Event Filter"" command, if:","Ensures the target app, event ID, and mask are valid to prevent misconfiguration of the filter"
+,,1) The command-specified application is not registered with EVS,
+,,2) The command-specified application's identifier is invalid,
+,,3) The command-specified event identifier is not registered for event filtering,
+,,4) The command-specified event filter output mask is greater than 0xFF,
+,,the EVS Application shall reject the command,
+Enable Ports Command,EVS2190,"When the EVS Application receives an ""Enable Ports"" command which passes the validation specified in EVS2191, the EVS Application shall set the command-specified event message port(s) to an enabled state","Allows routing of messages to physical hardware ports for lab debugging"
+Enable Ports Command Validation,EVS2191,"When the EVS Application receives an ""Enable Ports"" command, if:","Ensures the requested port mask is within the supported hardware/software limits"
+,,1) The command-specified event message port does not match the ports defined in EVS4050,
+,,2) The command-specified event message port(s) is/are 0x00,
+,,"3) The command-specified event message port(s) is/are greater than 0x0F (the reason for using 0x0F is unknown right now, except for ease of use for developers)",
+,,the EVS Application shall reject the command,
+Disable Ports Command,EVS2200,"When the EVS Application receives a ""Disable Ports"" command which passes the validation specified in EVS2201, the EVS Application shall set the command-specified event message port to a disabled state","Allows turning off hardware port routing during flight to save CPU cycles and I/O bus bandwidth"
+Disable Ports Command Validation,EVS2201,"When the EVS Application receives an ""Disable Ports"" command, if:","Ensures the requested port mask to disable is within supported limits"
+,,1) The command-specified event message port does not match the ports defined in EVS4050,
+,,2) The command-specified event message port(s) is/are 0x00,
+,,"3) The command-specified event message port(s) is/are greater than 0x0F (the reason for using 0x0F is unknown right now, except for ease of developers)",
+,,the EVS Application shall reject the command,
+Reset Event Filter Command,EVS2210,"When the EVS Application receives a ""Reset Event Filter"" command which passes the validation specified in EVS2211, the EVS Application shall set the event messages requested counter to 0 for the event filter associated with the command-specified application and command-specified event identifier.","Allows operators to manually unlock a specific event filter that has reached its maximum suppression count"
+Reset Event Filter Command Validation,EVS2211,"When the EVS Application receives a ""Reset Event Filter"" command, if:","Ensures the app and filter exist before attempting to reset the filter count"
+,,1) The command-specified application is not registered with EVS,
+,,2) The command-specified application's identifier is invalid,
+,,3) The command-specified event identifier is not registered for event filtering,
+,,the EVS Application shall reject the command,
+Reset All Event Filters Command,EVS2220,"When the EVS Application receives a ""Reset All Event Filters"" command which passes the validation specified in EVS2221, the EVS Application shall set every event filter counter to zero for the command-specified application.","Return applications to their baseline reporting by allowing operators to clear all active filters for an application at once"
+Reset All Event Filters Command Validation,EVS2221,"When the EVS Application receives a ""Reset All Event Filters"" command, if:","Ensures the application exists before attempting to clear all of its filters"
+,,1) The command-specified application is not registered with EVS,
+,,2) The command-specified application's identifier is invalid,
+,,the EVS Application shall reject the command,
+Add Event Filter Command,EVS2230,"When the EVS Application receives an ""Add Event Filter"" command which passes the validation specified in EVS2231, the EVS Application shall add a command-specified event filter for the command-specified event identifier associated with the command-specified application and set the messages requested counter to 0","Allows dynamic creation of new filters in flight if an unexpected error begins spamming the bus"
+Add Event Filter Command Validation,EVS2231,"When the EVS Application receives an ""Add Event Filter"" command, if:","Prevents exceeding the maximum allocated memory for filters and prevents duplicate filter entries"
+,,1) Adding the command-specified event filter would create more than 8 event filters,
+,,2) The command-specified application is not registered with EVS,
+,,3) The command-specified application's identifier is invalid,
+,,4) The command-specified event filter output mask is greater than 0xFF,
+,,5) The command-specified event identifier for the command-specified application is already being filtered,
+,,the EVS Application shall reject the command,
+Delete Event Filter Command,EVS2240,"When the EVS Application receives a ""Delete Event Filter"" command which passes the validation specified in EVS2241, the EVS Application shall delete the event filter for the command-specified event identifier associated with the command-specified application","Allows operators to remove a filter once an anomaly is resolved or if the filter slot is needed for something else"
+Delete Event Filter Command Validation,EVS2241,"When the EVS Application receives a ""Delete Event Filter"" command, if:","Ensures the filter actually exists before attempting to delete it"
+,,1) The command-specified application is not registered with EVS,
+,,2) The command-specified application's identifier is invalid,
+,,3) The command-specified event identifier is not registered for event filtering,
+,,the EVS Application shall reject the command,
+Write Application Data to File Command,EVS2250,"When the EVS Application receives a ""Write Application Data to File"" command, the EVS Application shall write to the command-specified file name or a default file name (configurable if the file name is a valid path) if no command-specified file is given, the following:","Provides a mechanism to dump the complete internal state of EVS to a file for offline ground analysis"
+,,1) Application ID,
+,,"2) ""Application Event Services Enable Status""",
+,,"3) ""Application Event Messages Sent Counter""",
+,,4) Event Types Active Flag,
+,,"5) ""Application Event Messages Squelched Counter""",
+,,6) Event Filter Data,
+,,"    1) Event identifier",
+,,"    2) Event filter output mask",
+,,"    3) Event filter count",
+,,for all applications registered with the EVS Application,
+Write Event Log Data to File Command,EVS2260,"When the EVS Application receives a ""Write Event Log Data to File"" command, the EVS Application shall write to the command-specified file name or a default file name (configurable if the file name is a valid path) if no command-specified file name is given, the following:","Allows downlinking the full chronological history of events that occurred while out of ground station contact"
+,,1) Index of the next entry in the event log,
+,,2) The number of entries in the event log,
+,,"3) ""Event Log Full Flag""",
+,,"4) ""Event Logging Mode""",
+,,"5) ""Event Log Overflow Counter""",
+,,6) Every entry in the event log,
+Set Event Log Mode Command,EVS2270,"When the EVS Application receives a ""Set Event Log Mode"" command which passes the validation specified in EVS2271, the EVS Application shall set ""Event Logging Mode"" to the command-specified event log mode","Allows operators to choose between capturing the first events of an anomaly (DISCARD) or the most recent (OVERWRITE)"
+Set Event Log Mode Command Validation,EVS2271,"When the EVS Application receives a ""Set Event Log Mode"" command, if the command-specified event log mode is neither 'OVERWRITE' nor 'DISCARD' the EVS Application shall reject the command","Ensures the log mode is set to a strictly valid state"
+Clear Event Log Command,EVS2280,"When the EVS Application receives a ""Clear Event Log"" command, the EVS Application shall set the following:","Allows operators to flush the internal memory log manually to capture a new, clean set of events"
+,,1) Reset to the beginning of the event log,
+,,2) Set the number of entries in the event log to 0,
+,,"3) ""Event Log Full Flag"" to 'FALSE'",
+,,"4) ""Event Log Overflow Counter"" to 0",
+,,5) Remove all entry information from the event log,
+Housekeeping Telemetry Packet,EVS3000,"When the EVS Application receives a Housekeeping Request, the EVS Application shall generate a timestamped housekeeping telemetry packet containing (minimally):","Provides a periodic, low-bandwidth heartbeat so operators can monitor the health and status of the EVS application"
+,,"1) ""Commands Processed Counter""",
+,,"2) ""Command Error Counter""",
+,,"3) ""SB Event Format Mode""",
+,,"4) ""Event Messages Sent Counter""",
+,,"5) ""Event Message Truncation Counter""",
+,,"6) ""Unregistered Application Events Sent Counter""",
+,,"7) ""Event Message Output Port Enable States""",
+,,"8) ""Event Log Full Flag""",
+,,"9) ""Event Logging Mode""",
+,,"10) ""Event Log Overflow Counter""",
+,,"11) ""Event Log State""",
+,,12) For each registered application:,
+,,"    1) ""Application Event Messages Sent Counter""",
+,,"    2) ""Application Event Services Enable Status""",
+,,"    3) ""Application Event Messages Squelched Counter""",
+Event Message Generation,EVS4000,When the EVS Application receives a request to generate an event message the EVS Application shall generate an event if:,"The core gatekeeper mechanism that ensures only valid, enabled, and un-squelched events use system resources"
+,,1) The requesting application is registered with the EVS Application,
+,,2) The request-specified event identifier and the request-specified event type is not filtered for the requesting application (See EVS4021 and EVS4022),
+,,3) The requesting application isn't flooding the EVS Application with event message generation requests,
+,,"4) The requesting application's ""Application Event Services Enable Status"" is 'ENABLED'",
+,,5) The requesting application's event type enabled status is 'ENABLED' for the event type of the request-specified event message,
+,,6) The request-specified event type is one of the following types:,
+,,    1) 'DEBUG',
+,,    2) 'INFORMATIONAL',
+,,    3) 'ERROR',
+,,    4) 'CRITICAL',
+Long Event Message Format,EVS4001,"When the EVS Application receives a request to generate an event message and that request passes the criteria in EVS4000, if ""SB Event Format Mode"" is 'LONG' then the generated event message should have the following components:","Standardizes the format of long messages so ground software can reliably parse text-based telemetry"
+,,1) Packet ID,
+,,    1) Name of requesting application,
+,,    2) Request-specified event identifier,
+,,    3) Request-specified event type,
+,,    4) Spacecraft identifier,
+,,    5) Processor identifier,
+,,2) Request-specified message,
+Short Event Message Format,EVS4002,"When the EVS Application receives a request to generate an event message and that request passes the criteria in EVS4000, if ""SB Event Format Mode"" is 'SHORT' then the generated event message should have the following components:","Standardizes the format of short messages so ground software can reliably parse ID-based telemetry"
+,,1) Packet ID,
+,,    1) Name of requesting application,
+,,    2) Request-specified event identifier,
+,,    3) Request-specified event type,
+,,    4) Spacecraft identifier,
+,,    5) Processor identifier,
+Supported Event Data Types,EVS4003,"When the EVS Application receives a request to generate an event message and that request passes the criteria in EVS4000, if ""SB Event Format Mode"" is 'LONG', the EVS Application shall accept the following data types in the request-specified event data:","Ensures EVS can handle standard C numeric data types natively when formatting event text"
+,,1) Signed Character,
+,,2) Short Integer,
+,,3) Unsigned Short Integer,
+,,4) Long Integer,
+,,5) Unsigned Long Integer,
+Unregistered Application Event Generation,EVS4004,"When the EVS Application receives a request to generate an event message, if the requesting application has not been registered the EVS Application shall increment the ""Unregistered Application Events Sent Counter"" and send an event message stating that the application is not registered","Warns developers/operators if an application is attempting to use system services without properly initializing first"
+Event Message Truncation,EVS4005,"When the EVS Application receives a request to generate an event message and that request passes the criteria in EVS4000, if the number of characters in the event data is greater than the 120, the EVS Application shall truncate the event data with a '$' and increment ""Event Message Truncation Counter""","Prevents buffer overflows and memory corruption by enforcing a strict maximum size on event strings"
+,,* The number of characters allowed in an event message is configurable,
+,,* The event message truncation character ('$' in this case) is configurable,
+Event Message Generation with a Specific Application Identifier,EVS4006,"When the EVS Application receives a request to generate an event message and that request passes the criteria in EVS4000, the EVS Application shall set the application identifier in the event data to the request-specified value","Allows system-level services to generate events on behalf of other applications accurately"
+Event Message Generation with a Specific Time,EVS4007,"When the EVS Application receives a request to generate an event message and that request passes the criteria in EVS4000, the EVS Application shall set the time in the event data to the request-specified time","Allows exact timestamping of events when the generation time differs from the reporting time"
+Application Registration,EVS4010,"When the EVS Application receives an application's request to register, the EVS Application shall:","Ensures applications are properly configured in the EVS tracking arrays before they can use the service"
+,,1) Verify that the request-specified event filter is a valid event filter type as described in EVS4020,
+,,2) Store the following for each request-specified event filter:,
+,,"    1) Event identifier",
+,,"    2) Output controller",
+,,"3) Set ""Application Event Services Enable Status"" for the registering application to 'TRUE' for the requesting application",
+,,"4) Set ""Application Event Messages Squelched Counter"" to 32000 for the requesting application",
+,,"* ""Application Event Messages Squelched Counter"" initial value is configurable",
+,,"5) Set ""Application Event Messages Sent Counter"" to 0 for the requesting application",
+,,6) Set the event type states for the registering application to the following:,
+,,* See EVS4000.8 for valid event types,
+,,"    1) 'CRITICAL' to 'ENABLED'",
+,,"    2) 'ERROR' to 'ENABLED'",
+,,"    3) 'INFORMATIONAL' to 'ENABLED'",
+,,"    4) 'DEBUG' to 'DISABLED'",
+Valid Event Filter,EVS4020,A valid event filter has the following:,"Defines the minimum necessary data structure required to accurately filter events"
+,,1) Event identifier,
+,,2) Output controller,
+,,3) Messages requested counter,
+Event Filter Trigger,EVS4021,"When the EVS Application receives a request to generate an event message and that request passes the criteria in EVS4000, the requesting application's event filter output controller and messages requested counter for the request-provided event identifier shall determine whether the EVS Application shall generate an event message","Enforces the actual mathematical filtering mechanism to suppress events based on ground configuration"
+Messages Requested Counter,EVS4022,"When the EVS Application receives a request to generate an event message and that request passes the criteria in EVS4000, if the request-specified event identifier has been registered with an event filter, the EVS Application shall increment the messages requested counter for the request-specified event identifier","Tracks how many times an event attempted to fire so the ground knows how many messages were filtered"
+Messages Requested Counter Maximum,EVS4023,"When the EVS Application receives a request to generate an event message and that request passes the criteria in EVS4000, if the request-specified event identifier has been registered with an event filter, the EVS Application shall cap the messages requested counter to 0xFFFF and prevent the counter's rollover","Prevents integer rollover of the tracking counter to prevent loss of information"
+,,* Maximum messages requested counter value is configurable,
+Event Log Entry Order,EVS4030,"When the EVS Application receives a request to generate an event message and that request passes the criteria in EVS4000, the generated event message shall be logged in chronological order, from oldest event to newest event.","Ensures the event log is a highly reliable timeline of what happened, essential for root cause analysis"
+Event Log Message Format,EVS4031,"When the EVS Application receives a request to generate an event message and that request passes the criteria in EVS4000, the EVS Application shall store the generated event message in the event log in the long event message format","Ensures the log always retains full ASCII text information regardless of the real-time software bus mode"
+Event Log Full,EVS4032,"When the EVS Application receives a request to generate an event message and that request passes the criteria in EVS4000, if the local event log becomes full, the EVS Application shall:","Prevents memory corruption or crashes by governing how the system behaves when memory is full"
+,,"1) Set ""Event Log Full Flag"" to 'TRUE'",
+,,"2) Increment ""Event Log Overflow Counter""",
+,,"3) Depending on the state of ""Event Logging Mode"", either:",
+,,"    1) the oldest event message logged is overwritten if ""Event Logging Mode"" is 'OVERWRITE' or,",
+,,"    2) the generated event message is not added to the event log if ""Event Logging Mode"" is 'DISCARD'",
+Increment Event Messages Sent Counter,EVS4040,"When the EVS Application receives a request to generate an event message and that request passes the criteria in EVS4000, the EVS Application shall increment ""Event Messages Sent Counter""","Provides a global metric of how many events the entire system is generating"
+Event Messages Sent Counter Maximum,EVS4041,"When the EVS Application receives a request to generate an event message and that request passes the criteria in EVS4000, the EVS Application shall cap ""Event Messages Sent Counter"" to 0xFFFF and prevent the counter's rollover","Prevents the global sent counter from rolling over and thus losing information"
+Increment Application Messages Sent,EVS4042,"When the EVS Application receives a request to generate an event message and that request passes the criteria in EVS4000, the EVS Application shall increment the event message sent counter for the requesting application","Provides a localized metric of how many events a specific application is generating"
+Application Messages Sent Maximum,EVS4043,"When the EVS Application receives a request to generate an event message and that request passes the criteria in EVS4000, the EVS Application shall cap the event message sent counter for the requesting application to 0xFFFF and prevent the counter's rollover","Prevents the localized app counter from rolling over to 0 and thus losing information"
+Valid Event Output Port,EVS4050,To be implemented,"Ensures text strings are properly formatted for human readability when routed to a physical debug console"
+Message Port Routing,EVS4051,To be defined,"Defines the strict bounds for hardware port routing"
+Suppress Flooding Event Messages,EVS4060,"When the EVS Application receives a request to generate an event message and that request passes the criteria in EVS4000, if the number of events requested by the application exceeds 32 events per 15 seconds, the EVS Application shall suppress the application's event messages and issue an event message containing the name of the offending application when an application transitions to the squelched state","Provides a critical safety feature by automatically cutting off an application that is spamming the bus"
+,,* Number of events per time period is configurable,
+,,* Time period in seconds is configurable,
+Limited Bursts of Suppressed Messages,EVS4061,"When the EVS Application receives a request to generate an event message and that request passes the criteria in EVS4000, the EVS Application shall allow limited bursts of event message from an application exceeding the 32 events per 15 seconds","Prevents false positives by allowing legitimate, short bursts of events (e.g., during startup)"
+,,* Number of event per time period is configurable,
+,,* Time period in seconds is configurable,
+Unsuppressing Flooding Event Messages,EVS4062,"When the EVS Application receives a request to generate an event message and that request passes the criteria in EVS4000, the EVS Application shall automatically resume generating event messages from an application which is no longer flooding","Automatically restores an application's event privileges once it stops spamming"
+Increment Squelch Token,EVS4063,"When the EVS Application receives a request to generate an event message and that request passes the criteria in EVS4000, the EVS Application shall increment the squelched counter for a flooding application when events for that application have been suppressed","Tracks how many times an app was suppressed so operators can investigate erratic application behavior"
+Squelch Token Maximum,EVS4064,"When the EVS Application receives a request to generate an event message and that request passes the criteria in EVS4000, the EVS Application shall cap the squelched events counters to 255 and prevent the counters rollover","Maintains an accurate record of extreme flooding events by preventing the squelch counter from rolling over"
+,,* Squelched events counter maximum is configurable,
 SB: NOOP Event,cSB4000,"Upon receipt of a Command, the cFE shall generate a NO-OP event message.",This command is useful as a general sub-system aliveness test.
-SB: Zero Counters,cSB4001,"Upon receipt of Command the cFE shall set to zero the following counters in housekeeping telemetry:
+SB: Zero Counters,cSB4001,"Upon receipt of a Command, the cFE shall set to zero the following counters in housekeeping telemetry:
 
 - Valid command counter
 - Invalid command counter
 - No subscriptions counter
 - Message send error counter
 - Message receive error counter
+- Queue read or write error counter
 - Create Pipe error counter
 - Subscribe error counter
+- Pipe options error counter
+- Duplicate subscriptions counter
+- Get pipe ID by name error counter
+- Delete Pipe error counter
 - Pipe Overflow error counter
-- MsdID-to-pipe limit error counter",Providing a clear counter command eliminates the need for operators or onboard scripts to keep track of the last value of the counter.
+- MsgId-to-pipe limit error counter",Providing a command to zero the counters eliminates the need for operators or onboard scripts to keep track of the last value of the counter.
 SB: Statistics Message,cSB4002,"Upon receipt of a Command, the cFE shall send an SB Message containing the SB statistics.","Visibility of the SB statistics is essential for FSW diagnostics, testing, and maintenance."
 SB: Save Routing To File,cSB4003,"Upon receipt of a Command, the cFE shall save the SB routing information to the Command specified file.","Visibility of the SB routing information is essential for FSW diagnostics, testing, and maintenance."
 SB: Save Routing To File - Default Filename,cSB4003.1,"If a file is not specified, the cFE shall use the `<PLATFORM_DEFINED>` Filename.",Want to provide a default in the event that a user does not want to specify one.
@@ -328,31 +486,47 @@ SB: Housekeeping Message,cSB4005,"Upon receipt of a Message, the cFE shall gener
 - No subscriptions counter
 - Message send error counter
 - Message receive error counter
-- Pipe overflow error counter
-- MsgId-to-pipe limit error counter",Generate housekeeping message for system awareness and management.
-SB: Save Pipe Info To File,cSB4007,"Upon receipt of a Command, the cFE shall save the Pipe information to the Command specified a file.","This gives detailed information about each pipe such as owner of the pipe, queue depth and send errors which can be used for diagnostics purposes."
+- Queue read or write error counter
+- Create Pipe error counter
+- Subscribe error counter
+- Pipe options error counter
+- Duplicate subscriptions counter
+- Get pipe ID by name error counter
+- Delete Pipe error counter
+- Pipe Overflow error counter
+- MsgId-to-pipe limit error counter
+- Memory pool handle
+- Memory in use (bytes)
+- Unmarked memory",Generate housekeeping message for system awareness and management.
+SB: Save Pipe Info To File,cSB4007,"Upon receipt of a Command, the cFE shall save the Pipe information to the Command-specified file.","This gives detailed information about each pipe such as owner of the pipe, queue depth and send errors which can be used for diagnostics purposes."
 SB: Save Pipe Info To File - Default Filename,cSB4007.1,"If a file is not specified, the cFE shall use the `<PLATFORM_DEFINED>` filename.",Want to provide a default in the event that a user does not want to specify one.
-SB: Save Message Map To File,cSB4008,"Upon receipt of a Command, the cFE shall save the message map information to the Command specified a file.","This information provides information pertaining to the internals of the SB (Msg ID, and SB Routing table index) which can be used for diagnostic purposes."
+SB: Save Message Map To File,cSB4008,"Upon receipt of a Command, the cFE shall save the message map information to the Command-specified file.","This provides information pertaining to the internals of the SB (Msg ID, and SB Routing table index) which can be used for diagnostic purposes."
 SB: Save Message Map To File - Default Filename,cSB4008.1,"If a file is not specified, the cFE shall use the `<PLATFORM_DEFINED>` filename.",Want to provide a default in the event that a user does not want to specify one.
 SB: Valid Command Counter,cSB4009,"Upon receipt of a valid Command, the cFE shall increment a valid Command counter.",The ground needs the capability to verify that the command was received and accepted by the cFE.
 SB: Invalid Command Counter,cSB4010,"Upon receipt of an invalid Command, the cFE shall increment the invalid Command counter and generate an event message.",The ground needs an indicator if a command is rejected by the cFE.
 SB: Enable Subscription Reporting,cSB4011,"Upon receipt of a Message, the cFE shall enable generation of a message when a subscription is received.",Subscription reporting intended for use by software bus network class of applications.
 SB: Disable Subscription Reporting,cSB4012,"Upon receipt of a Message, the cFE shall disable generation of a message when a subscription is received.",Subscription reporting intended for use by software bus network class of applications.
-SB: Send Previous Subscriptions,cSB4013,"Upon receipt of a Message, the cFE shall generation messages for current subscriptions.",Subscription reporting intended for use by software bus network class of applications.
+SB: Send Previous Subscriptions,cSB4013,"Upon receipt of a Message, the cFE shall generate messages for current subscriptions.",Subscription reporting intended for use by software bus network class of applications.
 SB: Create Pipe,cSB4301,"Upon receipt of a Request to create a Pipe, the cFE shall create a Pipe with the Request-specified Pipe Depth and the Request-specified name.",Run time creation of Pipes supports the cFE goals of easy Application integration and system reconfiguration.
+SB: Create Pipe - Error Counter,cSB4301.1,"If the Request to create a Pipe fails (e.g., invalid arguments, the maximum number of Pipes has been reached, or the underlying queue cannot be created), the cFE shall increment the Create Pipe error counter and issue an event message.",Provides operators visibility into failed pipe creation attempts.
 SB: Delete Pipe,cSB4302,"Upon receipt of a Request to delete a Pipe, the cFE shall Unsubscribe all messages to the Request-specified Pipe, then remove the Pipe from the Routing Information.",An Application must be capable of freeing its own resources.
+SB: Delete Pipe - Error Counter,cSB4302.1,"If the Request to delete a Pipe fails validation (e.g., an invalid Pipe ID, or the requestor is not the owner of the Pipe), the cFE shall increment the Delete Pipe error counter and issue an event message.",Provides operators visibility into failed pipe deletion attempts and keeps them distinct from create pipe errors.
 SB: Subscribe To Message,cSB4303,"Upon receipt of a Request to Subscribe to an SB message, the cFE shall establish a route using the Request-specified Message ID, the Request-specified Pipe ID, the Request-specified MsgId-to-Pipe limit and the Request-specified QoS.",Run time subscription supports the cFE goals of easy system integration and run time reconfigurations.
-SB: Subscribe To Message - Duplicate,cSB4303.1,"If the Subscription is a duplicate of a previous subscription, the cFE shall issue an event message.","Duplicate subscriptions are still a success, however, want to notify the ground."
+SB: Subscribe To Message - Duplicate,cSB4303.1,"If the Subscription is a duplicate of a previous subscription, the cFE shall issue an event message and increment the Duplicate Subscriptions counter.","Duplicate subscriptions are still a success, however, want to notify the ground."
+SB: Subscribe To Message - Error Counter,cSB4303.2,"If the Request to Subscribe to an SB Message fails (e.g., an invalid Pipe ID, an invalid caller, an invalid argument, or the maximum number of messages or destinations has been reached), the cFE shall increment the Subscribe error counter and issue an event message.",Provides operators visibility into failed subscription attempts.
 SB: Unsubscribe To Message,cSB4304,"Upon receipt of a Request to Unsubscribe to an SB Message, the cFE shall remove the route corresponding to the Request-specified Message Id and the Request-specified Pipe Id from the Routing Information.","Allow an Application to dynamically change what Messages it receives. Since the ground can manipulate the state of the routing, it is not considered an error if the Message is not currently being subscribed to when an unsubscribe request is made."
 SB: Send Message,cSB4305,"Upon receipt of a Request to send an SB Message, the cFE shall route the SB Message to the Pipes of all Applications that have Subscribed to the SB Message.","This form of message passing, supports one-to-one, one-to-many, and many-to-one (all desired by branch members) in a flexible, low overhead manner.  It has been common for telemetry packets to be sent to many destinations, such as a real-time telemetry."
 SB: Send Message - Message ID To Pipe Limit,cSB4305.1,The cFE shall limit the number of messages of a particular Message ID that can be sent to an Application's Pipe.,"Prevent an errant application from monopolizing a Software Bus Pipe. This feature was part of the heritage software bus and was found to be a useful diagnostic feature.  When subscribing to a packet, an Application can specify a limit on the number of Messages for a particular Message ID that can be in the Pipe at one time. The term used for this is MsgId-to-Pipe Limit.
 "
-SB: Send Message - Pipe Overflow,cSB4305.3,"If routing a Message to an Application's Pipe results in a Pipe Overflow, the cFE shall abort the send to that pipe, issue an event, and continue sending to the remaining pipes.",The ground needs to know if a message cannot be routed to its destination. A Pipe Overflow occurs when the SB attempts to write to a Pipe that is completely full of SB messages. The number of messages a Pipe is capable of storing is defined by a platform configuration parameter.
-SB: Send Message - Exceed Message ID To Pipe Limit,cSB4305.4,"If routing a Message to an Application's Pipe would exceed the MsgId-to-Pipe Limit, the cFE shall abort the send to that pipe, issue an event, and continue sending to the remaining pipes.",The ground needs to know if a message cannot be routed to its destination. The MsgId-to-Pipe Limit is exceeded when the SB attempts to write to a Pipe that contains the maximum number of messages of a particular Message Id.
-SB: Send Message - No Subscribers,cSB4305.5,"Upon receipt of a Request to send a Message, if no Application's have Subscribed to the Message, the cFE shall increment the No Subscriber's Counter and send an event that displays the Message ID.","A single counter is enough to notify operators that there are no receivers for a packet that is being sent. The ‘no subscriber’s’ event is completely filtered by default. The ground can unfilter the ‘no subscribers’ event to get more information about the message. It is not considered an error if no Applications have subscribed because of the dynamic environment supported by the cFE. In addition, during initialization of a multi-processor system, this can easily occur.
+SB: Send Message - Queue Write Error,cSB4305.2,"If routing a Message to an Application's Pipe results in a queue write error, the cFE shall increment the Queue read or write error counter and issue an event message.",Provides operators visibility into internal queue write failures during message send.
+SB: Send Message - Pipe Overflow,cSB4305.3,"If routing a Message to an Application's Pipe results in a Pipe Overflow, the cFE shall abort the send to that pipe, issue an event, increment the Pipe Overflow error counter, and continue sending to the remaining pipes.",The ground needs to know if a message cannot be routed to its destination. A Pipe Overflow occurs when the SB attempts to write to a Pipe that is completely full of SB messages. The number of messages a Pipe is capable of storing is defined by a platform configuration parameter.
+SB: Send Message - Exceed Message ID To Pipe Limit,cSB4305.4,"If routing a Message to an Application's Pipe would exceed the MsgId-to-Pipe Limit, the cFE shall abort the send to that pipe, issue an event, increment the MsgId-to-pipe limit error counter, and continue sending to the remaining pipes.",The ground needs to know if a message cannot be routed to its destination. The MsgId-to-Pipe Limit is exceeded when the SB attempts to write to a Pipe that contains the maximum number of messages of a particular Message Id.
+SB: Send Message - No Subscribers,cSB4305.5,"Upon receipt of a Request to send a Message, if no Applications have subscribed to the Message, the cFE shall increment the No Subscriber's Counter and send an event that displays the Message ID.","A single counter is enough to notify operators that there are no receivers for a packet that is being sent. The ‘no subscribers’ event is completely filtered by default. The ground can unfilter the ‘no subscribers’ event to get more information about the message. It is not considered an error if no Applications have subscribed because of the dynamic environment supported by the cFE. In addition, during initialization of a multi-processor system, this can easily occur.
 "
-SB: Send Message - Max Size,cSB4305.6,"If the SB Message is greater than the `<MISSION_DEFINED>` maximum message size then the cFE shall not send the message, issue and event message and increment the message send error counter.",The cFE should not make any assumptions about why the message was too big and just not send it.
+SB: Send Message - Max Size,cSB4305.6,"If the SB Message is greater than the `<MISSION_DEFINED>` maximum message size then the cFE shall not send the message, issue an event message and increment the message send error counter.",The cFE should not make any assumptions about why the message was too big and just not send it.
 SB: Receive Message No Timeout,cSB4306,"Upon receipt of a Request to receive a SB Message from a Pipe without a timeout, the cFE shall remove the next SB Message from the Pipe and provide the message to the Application.",Applications need a mechanism to retrieve the SB Message they have subscribed to receive. A receive Request without a suspension timeout provides a non-blocking method of retrieving SB messages. Receives are performed on a Pipe basis not on a SB Message basis. The heritage SB Pipe-based receives have served us well. A message-based receive would add extra complexity without any real benefit.
+SB: Receive Message - Bad Argument,cSB4306.1,"If a Request to receive an SB Message from a Pipe is made with an invalid argument, the cFE shall increment the Message receive error counter and issue an event message. This applies to all receive modes (see cSB4306, cSB4307, and cSB4308).",Provides operators visibility into invalid receive requests.
+SB: Receive Message - Queue Read Error,cSB4306.2,"If a Request to receive an SB Message from a Pipe results in a queue read error, the cFE shall increment the Queue read or write error counter and issue an event message. This applies to all receive modes (see cSB4306, cSB4307, and cSB4308).",Provides operators visibility into internal queue read failures during message receive.
 SB: Receive Message With Timeout,cSB4307,"Upon receipt of a Request to receive a SB Message from a Pipe with a pending timeout, the cFE shall suspend execution of the Application until a SB Message is present on the Pipe or the timeout has expired.","A receive Request with a suspension timeout provides a blocking method of retrieving SB messages. This is useful for data driven Applications and has been used on all heritage missions with a SB. The timeout is useful for fault recovery for Applications that always expect data to arrive or to allow periodic processing for Applications that are not purely data driven. If a SB Message is queued on the Pipe then the SB Message will be provided to the Application and the Application’s execution will not be suspended. Tasks that process telemetry packets often receive many types of packets from different sources.  There should be a mechanism that allows a task to wait for many different types of messages simultaneously.  Heritage implementations of SB do this by directing the messages into one queue (or several queues, to implement priority levels).
 "
 SB: Receive Message Infinite Timeout,cSB4308,"Upon receipt of a Request to receive a SB Message from a Pipe with an infinite timeout, the cFE shall suspend execution of the Application until a SB Message is present on the Pipe.",This mode of receiving has been the most commonly used mode on the heritage SB.
@@ -374,7 +548,9 @@ SB: Set Command Code,cSB4325,"Upon receipt of a Request, the cFE shall set the r
 SB: Generate Checksum,cSB4327,"Upon receipt of a Request, the cFE shall set the requested message with the current checksum.",Message management utility.
 SB: Validate Checksum,cSB4328,"Upon receipt of a Request, the cFE shall provide the checksum validation result of the requested message.",Message management utility.
 SB: Set Pipe Options,cSB4329,"Upon receipt of a Request, the cFE shall set the requested pipe with the requested options.",Pipe management utility.
+SB: Set Pipe Options - Error Counter,cSB4329.1,"If the Request to set pipe options fails (e.g., an invalid Pipe ID, or the requestor is not the owner of the Pipe), the cFE shall increment the Pipe options error counter and issue an event message.",Provides operators visibility into failed set-pipe-options requests.
 SB: Get Pipe Options,cSB4330,"Upon receipt of a Request, the cFE shall provide the pipe options of the requested pipe.",Pipe management utility.
+SB: Get Pipe Options - Error Counter,cSB4330.1,"If the Request to get pipe options fails (e.g., an invalid Pipe ID, or a null output pointer), the cFE shall increment the Pipe options error counter and issue an event message.",Provides operators visibility into failed get-pipe-options requests.
 SB: Subscribe To Local Message,cSB4331,"Upon receipt of a Request, the cFE shall establish a route for a requested local message ID on the requested pipe using the '<MISSION_DEFINED>' default quality of service.","Subscription management, where subscription is to a message local to this cFE instance.  Typically used by software bus network applications."
 SB: Subscribe to Message With Defaults,cSB4332,"Upon receipt of a Request, the cFE shall establish a route for the requested message ID on the requested pipe, using the '<MISSION_DEFINED>' default quality of service and message limit.",Subscription management.
 SB: Unsubscribe To Local Message,cSB4333,"Upon receipt of a Request, the cFE shall remove the route for the requested local message ID on the requested pipe.","Subscription management, where unsubscribe is to a message local to this cFE instance. Typically used by software bus network applications."
@@ -384,39 +560,40 @@ SB: Message ID to Integer,cSB4336,"Upon receipt of a Request, the cFE shall prov
 SB: Integer to Message ID,cSB4337,"Upon receipt of a Request, the cFE shall provide the message ID conversion of the provided integer.",Message management utility.
 SB: Get Pipe Name,cSB4338,"Upon receipt of a Request, the cFE shall provide the pipe name given the requested pipe ID.",Pipe management utility.
 SB: Get Pipe ID By Name,cSB4339,"Upon receipt of a Request, the cFE shall provide the pipe ID for the requested pipe name.",Pipe management utility.
+SB: Get Pipe ID By Name - Error Counter,cSB4339.1,"If the Request to get a pipe ID by name fails (e.g., null arguments, or the requested name is not found), the cFE shall increment the Get Pipe ID By Name error counter and issue an event message.",Provides operators visibility into failed get-pipe-ID-by-name requests.
 SB: Zero Copy Get Pointer,cSB4340,"Upon receipt of a Request, the cFE shall provide a pointer to support routing a zero copy message.",Zero copy message passing support for reduced overhead at the cost of additional pointer management.
 SB: Zero Copy Release Pointer,cSB4341,"Upon receipt of a Request, the cFE shall release the requested zero copy pointer.",Zero copy message passing support for reduced overhead at the cost of additional pointer management.
 SB: Zero Copy Send Message,cSB4342,"Upon receipt of a Request, the cFE shall route the requested zero copy message to all subscribed pipes.",Zero copy message passing support for reduced overhead at the cost of additional pointer management.
 SB: Zero Copy Pass Message,cSB4343,"Upon receipt of a Request, the cFE shall route the requested zero copy message to all subscribed pipes without updating the message sequence counter.",Zero copy message passing support for reduced overhead at the cost of additional pointer management.
-SB: Get Packet Type,cSB4344,"Upon receipt of a Request, the CFE shall provide the message packet type.",Provides abstraction for apps to get the packet type (command or telemetry).
+SB: Get Packet Type,cSB4344,"Upon receipt of a Request, the cFE shall provide the message packet type.",Provides abstraction for apps to get the packet type (command or telemetry).
 SB: Validate Message ID,cSB4345,"Upon receipt of a Request, the cFE shall provide the validation status of the message ID.",Provides abstraction for apps to validate a message ID.
-SB: Set Packet Type,cSB4346,"Upon receipt of a Request, the CFE shall set the message packet type.",Provides abstraction for apps to set the packet type (command or telemetry).
-SB: Get Header Field,cSB4347,"Upon receipt of a Request, the CFE shall provide the requested message header field.",Provides abstraction for apps to get implementation defined header fields.
-SB: Set Header Field,cSB4348,"Upon receipt of a Request, the CFE shall set the requested message header field.",Provides abstraction for apps to set implementation defined header fields.
-SB: Get Sequence Count,cSB4349,"Upon receipt of a Request, the CFE shall provide the message sequence count.",Provides abstraction for apps to get the message sequence count.
-SB: Set Sequence Count,cSB4350,"Upon receipt of a Request, the CFE shall set the message sequence count.",Provides abstraction for apps to set the message sequence count.
-SB: Get Next Sequence Count,cSB4351,"Upon receipt of a Request, the CFE shall provide the next message sequence count.",Provides abstraction for apps to get the next message sequence count value such that rollovers are handled based on the implemented field size.
-SB: Get Type From MsgId,cSB4352,"Upon receipt of a Request, the CFE shall provide the message type associated with the requested message ID.","Provides abstraction for apps to get the message type given only the message ID.  Supports a variety of implementations allowing for efficient message ID use (supports bit, range, table, or other logic)."
+SB: Set Packet Type,cSB4346,"Upon receipt of a Request, the cFE shall set the message packet type.",Provides abstraction for apps to set the packet type (command or telemetry).
+SB: Get Header Field,cSB4347,"Upon receipt of a Request, the cFE shall provide the requested message header field.",Provides abstraction for apps to get implementation defined header fields.
+SB: Set Header Field,cSB4348,"Upon receipt of a Request, the cFE shall set the requested message header field.",Provides abstraction for apps to set implementation defined header fields.
+SB: Get Sequence Count,cSB4349,"Upon receipt of a Request, the cFE shall provide the message sequence count.",Provides abstraction for apps to get the message sequence count.
+SB: Set Sequence Count,cSB4350,"Upon receipt of a Request, the cFE shall set the message sequence count.",Provides abstraction for apps to set the message sequence count.
+SB: Get Next Sequence Count,cSB4351,"Upon receipt of a Request, the cFE shall provide the next message sequence count.",Provides abstraction for apps to get the next message sequence count value such that rollovers are handled based on the implemented field size.
+SB: Get Type From MsgId,cSB4352,"Upon receipt of a Request, the cFE shall provide the message type associated with the requested message ID.","Provides abstraction for apps to get the message type given only the message ID.  Supports a variety of implementations allowing for efficient message ID use (supports bit, range, table, or other logic)."
 SB: Initialize Routing On Power On Reset,cSB4500,Upon a Power-on Reset the cFE shall initialize the Routing Information and clear all error counters.,The cFE must initialize to a known state.
-SB: Initialize Routing On Processor Reset,cSB4501,Upon a Processor Reset the cFE shall initialize the Routing Information and clear all error counters,The cFE must initialize to a known state.
-TBL: Load Inactive Table From File,cTBL6000,Upon receipt of Command the cFE shall load an Inactive Table Image with the contents of the Command specified File.,Loading from a file allows for multiple versions of a table to be stored on board and loaded to the active table when appropriate. The file header will identify the Table that the file contents are for.
+SB: Initialize Routing On Processor Reset,cSB4501,Upon a Processor Reset the cFE shall initialize the Routing Information and clear all error counters.,The cFE must initialize to a known state.
+TBL: Load Inactive Table From File,cTBL6000,"Upon receipt of Command the cFE shall load an Inactive Table Image with the contents of the Command specified File.","Loading from a file allows for multiple versions of a table to be stored on board and loaded to the active table when appropriate. The file header will identify the Table that the file contents are for."
 TBL: Load Inactive Table From File - Partial Load,cTBL6000.1,"If the Command specified file contains only a portion of the Table, the cFE shall first load an Inactive Table Image with the contents of the Active Table Image and then load the contents of the Command specified File.","A Partial Table load capability is useful when dealing with large Tables.  It helps to ensure that additional parameters are not unintentionally modified, reduces command time required to perform a Table update and is a feature that has been used on previous missions."
-TBL: Load Inactive Table From File - Greater Than Max Size,cTBL6000.2,"If the number of data bytes contained in the file is greater than the maximum size of the table, the load shall be aborted and an event message shall be generated.",This is a sanity check to make sure that the ground generated table load does not include more data than a table can handle.
-TBL: Load Inactive Table From File - Header Size Mismatch,cTBL6000.3,"If the number of bytes specified in the file's header is not equal to the number of data bytes contained in the file, the load shall be aborted and an event message be generated.",This is another sanity check to make sure that the number of bytes specified in the file header is equal to the number of data bytes in the file.
-TBL: Load Inactive Table From File - Multiple Partial Loads,cTBL6000.4,The Inactive Table Image shall only be loaded with the contents of the Active Table if the Inactive Table Image has not been initialized.,Want to be able to perform successive partial table loads.  The first partial load of a table requires that the inactive table image be initialized with the active table image (see cTBL6000.2).  Any subsequent loads should be made with the existing contents of the Inactive Buffer.
-TBL: Load Inactive Table From File - Dump Only,cTBL6000.5,If the specified table is defined as Dump Only then the command shall be rejected and an event message be generated.,Dump only tables can't be loaded.
-TBL: Dump To File,cTBL6001,Upon receipt of Command the cFE shall dump the Command specified Active or Inactive Table contents to a Command specified File.,Dumping the contents of a table to a file simplifies the telemetering of Table contents.  The file transfer protocol between the ground and the spacecraft is capable of handling variable sized files.  The telemetering of Table contents directly to ground.
-TBL: Validate,cTBL6002,Upon receipt of Command the cFE shall determine the validity of the contents of either the Active or Inactive Table Image of the Command specified Table.,"Operations needs to verify the contents of an Inactive Table before committing it. Similarly, operations personnel may need to re-validate or identify the contents of an Active Table."
-TBL: Validate - Compute Data Integrity Check Value,cTBL6002.1,The cFE shall compute a Data Integrity Check Value on the contents of either the Active or Inactive Table Image of the Command specified Table and report the result in telemetry.,A Data Integrity Check Value can provide a quick method of validating the proper contents of a Table without performing a Table Dump and Comparison.
-TBL: Validate - App Content,cTBL6002.2,The cFE shall Request an Application to validate the contents of either the Active or Inactive Table Image of the Command specified Table and report the result in telemetry.,A Table Validation function provided by the Application can verify that the data content of a Table is reasonable.
-TBL: Activate,cTBL6003,Upon receipt of Command the cFE shall make an Inactive Table Image of the Command specified Table the Active Table Image.,"A Commit Command is useful by allowing modifications and the verification of those modifications to be accomplished in the background while an Application continues to use its previous Table data.  Then, upon Command, the new Table data is made Active."
-TBL: Activate - Validate,cTBL6003.1,The cFE shall reject an activate table command for a table that has a validation function but has not been validated.,Validation functions are there for a reason so want to prevent loading invalid tables.  Inactive buffer retains the data so that the ground can dump the contents to see why the validation failed.
-TBL: Activate - Validate - Failure,cTBL6003.1.1,"If the Inactive Table Image fails validation, the Inactive Table Image shall not be loaded into the Active Table Image.",Prevent loading of an invalid table. Note that the Inactive Table still contains the table image so that the ground can dump it.
+TBL: Load Inactive Table From File - Greater Than Max Size,cTBL6000.2,"If the number of data bytes contained in the file is greater than the maximum size of the table, the load shall be aborted and an event message shall be generated.","This is a sanity check to make sure that the ground generated table load does not include more data than a table can handle."
+TBL: Load Inactive Table From File - Header Size Mismatch,cTBL6000.3,"If the number of bytes specified in the file's header is not equal to the number of data bytes contained in the file, the load shall be aborted and an event message be generated.","This is another sanity check to make sure that the number of bytes specified in the file header is equal to the number of data bytes in the file."
+TBL: Load Inactive Table From File - Multiple Partial Loads,cTBL6000.4,"The Inactive Table Image shall only be loaded with the contents of the Active Table if the Inactive Table Image has not been initialized.","Want to be able to perform successive partial table loads.  The first partial load of a table requires that the inactive table image be initialized with the active table image (see cTBL6000.2).  Any subsequent loads should be made with the existing contents of the Inactive Buffer."
+TBL: Load Inactive Table From File - Dump Only,cTBL6000.5,"If the specified table is defined as Dump Only then the command shall be rejected and an event message be generated.","Dump only tables can’t be loaded."
+TBL: Dump To File,cTBL6001,"Upon receipt of Command the cFE shall dump the Command specified Active or Inactive Table contents to a Command specified File.","Dumping the contents of a table to a file simplifies the telemetering of Table contents.  The file transfer protocol between the ground and the spacecraft is capable of handling variable sized files.  The telemetering of Table contents directly to ground."
+TBL: Validate,cTBL6002,"Upon receipt of Command the cFE shall determine the validity of the contents of either the Active or Inactive Table Image of the Command specified Table.","Operations needs to verify the contents of an Inactive Table before committing it. Similarly, operations personnel may need to re-validate or identify the contents of an Active Table."
+TBL: Validate - Compute Data Integrity Check Value,cTBL6002.1,"The cFE shall compute a Data Integrity Check Value on the contents of either the Active or Inactive Table Image of the Command specified Table and report the result in telemetry.","A Data Integrity Check Value can provide a quick method of validating the proper contents of a Table without performing a Table Dump and Comparison."
+TBL: Validate - App Content,cTBL6002.2,"The cFE shall Request an Application to validate the contents of either the Active or Inactive Table Image of the Command specified Table and report the result in telemetry.","A Table Validation function provided by the Application can verify that the data content of a Table is reasonable."
+TBL: Activate,cTBL6003,"Upon receipt of Command the cFE shall make an Inactive Table Image of the Command specified Table the Active Table Image.","A Commit Command is useful by allowing modifications and the verification of those modifications to be accomplished in the background while an Application continues to use its previous Table data.  Then, upon Command, the new Table data is made Active."
+TBL: Activate - Validate,cTBL6003.1,"The cFE shall reject an activate table command for a table that has a validation function but has not been validated.","Validation functions are there for a reason so want to prevent loading invalid tables.  Inactive buffer retains the data so that the ground can dump the contents to see why the validation failed."
+TBL: Activate - Validate - Failure,cTBL6003.1.1,"If the Inactive Table Image fails validation, the Inactive Table Image shall not be loaded into the Active Table Image.","Prevent loading of an invalid table. Note that the Inactive Table still contains the table image so that the ground can dump it."
 TBL: Activate - Validate - No Validation Function,cTBL6003.1.2,"If a Table Validation Function does not exist for the specified Table, the Table shall be considered valid.","If there is no validation function, assume the table has good data in it (no way to check otherwise)."
-TBL: Write Table Registry To File,cTBL6005,Upon receipt of Command the cFE shall write the contents of the Table Registry to a file.,"The Table Registry will provide a list of the Tables currently registered, their attributes (double or single-buffered, dump-only, etc), a history of what files were last loaded into the Active Table Images, what time the load occurred and whether the image has been modified via Partial Table Load."
-TBL: Write Table Registry To File - Default File Name,cTBL6005.1,"If a file is not specified, the cFE shall use the `<PLATFORM_DEFINED>` filename.",Want to provide a default in the event that a user does not want to specify one.
-TBL: Table Registry Message,cTBL6006,Upon receipt of Command the cFE shall telemeter the contents of the Table Registry associated with a Command specified Table.,"Operations personnel may wish to see the attributes (double or single-buffered, dump-only, etc), a history of what file(s) was/were last loaded into the Active Table Image, what time the load(s) occurred, etc."
-TBL: NOOP Event,cTBL6007,Upon receipt of Command the cFE shall generate a NO-OP event message.,This command is useful as a general sub-system aliveness test.
+TBL: Write Table Registry To File,cTBL6005,"Upon receipt of Command the cFE shall write the contents of the Table Registry to a file.","The Table Registry will provide a list of the Tables currently registered, their attributes (double or single-buffered, dump-only, etc), a history of what files were last loaded into the Active Table Images, what time the load occurred and whether the image has been modified via Partial Table Load."
+TBL: Write Table Registry To File - Default File Name,cTBL6005.1,"If a file is not specified, the cFE shall use the `<PLATFORM_DEFINED>` filename.","Want to provide a default in the event that a user does not want to specify one."
+TBL: Table Registry Message,cTBL6006,"Upon receipt of Command the cFE shall telemeter the contents of the Table Registry associated with a Command specified Table.","Operations personnel may wish to see the attributes (double or single-buffered, dump-only, etc), a history of what file(s) was/were last loaded into the Active Table Image, what time the load(s) occurred, etc."
+TBL: NOOP Event,cTBL6007,"Upon receipt of Command the cFE shall generate a NO-OP event message.","This command is useful as a general sub-system aliveness test."
 TBL: Zero Counters,cTBL6008,"Upon receipt of Command the cFE shall set the following counters reported in telemetry to zero:
 
 - Valid Command Counter
@@ -424,9 +601,9 @@ TBL: Zero Counters,cTBL6008,"Upon receipt of Command the cFE shall set the follo
 - Number of Validation Requests
 - Number of successful Table Validations
 - Number of Unsuccessful Validations
-- Number of Completed Validations",This command is a common feature in heritage sub-system software design.
-TBL: Valid Command Counter,cTBL6009,"Upon receipt of valid command, the cFE shall increment the valid command counter.",The ground needs the capability to verify that the command was received and accepted by the cFE.  Details of valid commands are documented in the cFE User's Guide.
-TBL: Invalid Command Counter,cTBL6010,"Upon receipt of an invalid command, the cFE shall in increment the invalid command counter.",The ground needs an indicator if a command is rejected by the cFE. Details of what makes a command invalid are documented in the cFE User's Guide.
+- Number of Completed Validations","This command is a common feature in heritage sub-system software design."
+TBL: Valid Command Counter,cTBL6009,"Upon receipt of valid command, the cFE shall increment the valid command counter.","The ground needs the capability to verify that the command was received and accepted by the cFE.  Details of valid commands are documented in the cFE User's Guide."
+TBL: Invalid Command Counter,cTBL6010,"Upon receipt of an invalid command, the cFE shall in increment the invalid command counter.","The ground needs an indicator if a command is rejected by the cFE. Details of what makes a command invalid are documented in the cFE User's Guide."
 TBL: Housekeeping Message,cTBL6011,"Upon receipt of a Message, the cFE shall generate a housekeeping message that includes the following Table Services items:
 
 - Valid Command Counter
@@ -440,30 +617,28 @@ TBL: Housekeeping Message,cTBL6011,"Upon receipt of a Message, the cFE shall gen
 - Commanded Data Integrity Check Value
 - Commanded Table Verification Function Result
 - Number of unused Shared Buffers
-- Table Name of Last Table Load",Generate housekeeping message for system awareness and management.
-TBL: Abort Load,cTBL6012,"Upon receipt of Command the cFE shall abort the loading of the specified Table.
-","The ground needs a way to clear the inactive buffer of all loads in the event, for example, that erroneous values were loaded to the table by the ground. Note that once a table is activated, it cannot be aborted (significant for double-buffer tables)."
-TBL: Abort Load - Release Shared Buffer,cTBL6012.1,"If the Table buffering characteristics for the specified Table indicate that it is a Single-buffered Table, then the allocated shared buffer shall be released.",The shared buffer being used for this table load should be placed back into the pool of available shared buffers.
-TBL: Abort Load - Mark Inactive Buffer Uninitialized,cTBL6012.2,"If the Table buffering characteristics for the specified Table indicate that it is a Double-buffered table, then the inactive buffer shall be marked as uninitialized.",Need to make sure that the table image gets re-initialized with the contents of the active buffer prior to a subsequent load after an abort command is sent (see cTBL6000.4)
-TBL: Abort Load - No Loads Pending,cTBL6012.3,The Table Registry shall indicate that there are no loads pending for the specified Table.,Maintain current table status in table registry.
-TBL: Delete CDS,cTBL6013,Upon receipt of a Command the cFE shall delete the requested table CDS data.,CDS management for a table no longer in use.
-TBL: Delete CDS - Table In Use,cTBL6013.1,If the specified Table is in use the command shall be rejected and an event message generated.,Reject if table is in use.
-TBL: Delete CDS - Not Critical Table,cTBL6013.2,"If the specified table is not a critical table, the command shall be rejected and an event message generated.",Reject when not a critical table.
-TBL: Delete CDS - Already Deleted,cTBL6013.3,If the specified Table CDS has already been deleted the command shall be rejected and an event message generated.,Reject if table CDS has already been deleted.
+- Table Name of Last Table Load","Generate housekeeping message for system awareness and management."
+TBL: Abort Load,cTBL6012,"Upon receipt of Command the cFE shall abort the loading of the specified Table.","The ground needs a way to clear the inactive buffer of all loads in the event, for example, that erroneous values were loaded to the table by the ground. Note that once a table is activated, it cannot be aborted (significant for double-buffer tables)."
+TBL: Abort Load - Release Shared Buffer,cTBL6012.1,"If the Table buffering characteristics for the specified Table indicate that it is a Single-buffered Table, then the allocated shared buffer shall be released.","The shared buffer being used for this table load should be placed back into the pool of available shared buffers."
+TBL: Abort Load - Mark Inactive Buffer Uninitialized,cTBL6012.2,"If the Table buffering characteristics for the specified Table indicate that it is a Double-buffered table, then the inactive buffer shall be marked as uninitialized.","Need to make sure that the table image gets re-initialized with the contents of the active buffer prior to a subsequent load after an abort command is sent (see cTBL6000.4)"
+TBL: Abort Load - No Loads Pending,cTBL6012.3,"The Table Registry shall indicate that there are no loads pending for the specified Table.","Maintain current table status in table registry."
+TBL: Delete CDS,cTBL6013,"Upon receipt of a Command the cFE shall delete the requested table CDS data.","CDS management for a table no longer in use."
+TBL: Delete CDS - Table In Use,cTBL6013.1,"If the specified Table is in use the command shall be rejected and an event message generated.","Reject if table is in use."
+TBL: Delete CDS - Not Critical Table,cTBL6013.2,"If the specified table is not a critical table, the command shall be rejected and an event message generated.","Reject when not a critical table."
+TBL: Delete CDS - Already Deleted,cTBL6013.3,"If the specified Table CDS has already been deleted the command shall be rejected and an event message generated.","Reject if table CDS has already been deleted."
 TBL: Create,cTBL6300,"Upon receipt of Request, the cFE shall create a zero filled Table Image with the Request specified name, size, buffering characteristics (single or double-buffer), dump-only characteristics, criticality and Table Validation Function address.","Supports the cFE's dynamic Application model. Tables will be able to be either single or double-buffered.  Double buffering will allow instantaneous updates from the Application's point of view and will be useful for interrupt service routines, etc.  However, double buffering will consume more memory resources.  The Table Validation Function is optionally provided by the Application and is called when a Command to Validate the table is made. Note that a zero filled image will not be created if the Application specifies an address for the dump-only table (see cTBL6300.1)."
-TBL: Create - App Supplied Address For Dump Only,cTBL6300.1,The cFE shall allow an Application to specify an address as the one and only buffer for a dump-only Table.,"Heritage code allowed for dump only tables to come from an address instead of a true table.  In this case, table services does not allocate any memory for the dump only table.  This is referred to an Application-Defined-Address-Table."
-TBL: Initialize Contents,cTBL6302,"Upon receipt of Request, the cFE shall initialize the contents of the Request specified Table Image with the contents of the Request specified File.",Supports the cFE's dynamic Application model.
+TBL: Create - App Supplied Address For Dump Only,cTBL6300.1,"The cFE shall allow an Application to specify an address as the one and only buffer for a dump-only Table.","Heritage code allowed for dump only tables to come from an address instead of a true table.  In this case, table services does not allocate any memory for the dump only table.  This is referred to an Application-Defined-Address-Table."
+TBL: Initialize Contents,cTBL6302,"Upon receipt of Request, the cFE shall initialize the contents of the Request specified Table Image with the contents of the Request specified File.","Supports the cFE's dynamic Application model."
 TBL: Initialize Contents - Greater Than Max Size,cTBL6302.1,"If the Request specified File contains more data than the size of the Request specified Table, the Table Image will not be initialized and an Event Message shall be generated.","If a File contains more data than memory allows, there is a high likelihood that the Application is expecting the data to be in a different format.  Additionally, the cFE would not know whether to throw out the last part or the first part of the data."
-TBL: Initialize Contents - Partial,cTBL6302.2,"If the Request specified File contains less data than the size of the Request specified Table, the first portion of the Table Image will be initialized with the contents of the File and an Event Message shall be generated.",Some tables may allocate more space than is necessary at all times. The Event Message will serve as a warning but not prevent the initialization of the Table.
-TBL: Provide ID,cTBL6303,"Upon receipt of Request, the cFE shall provide the calling Application with a unique identifier of an existing Table Image.",Some Applications will not want to create a Table but obtain a handle to one that is created by another Application.
-TBL: Free Table Resources,cTBL6304,"Upon receipt of Request, the cFE shall free resources allocated for the Request specified Table.",Supports the cFE's dynamic Application model.
-TBL: Provide Data Address,cTBL6305,"Upon receipt of Request, the cFE shall provide the calling Application with the address of the Request specified Table data.",The Table Service 'owns' all Tables and Applications must ask for the current address of the data because the Table Service may move the Table as updates are made.
-TBL: Provide Data Address - Lock Contents,cTBL6305.1,"Upon providing a calling Application with the address of a Table's data, the cFE shall lock the contents of the Table to prevent modification.","The Table Service must wait for an Application to be done with the contents of the Table before considering modifying its contents.  This ensures data integrity while the Application accesses the Table contents. More than one Application can access a Table.  Therefore, a reference count will be necessary to ensure that all access is complete before a Table can be modified.
-"
-TBL: Provide Data Address - Modified Notification,cTBL6305.2,"If a Table has been modified since the last Table address request, the cFE shall notify the calling Application that the Table has been modified.",An Application may need to know when the contents of a Table have been updated.
+TBL: Initialize Contents - Partial,cTBL6302.2,"If the Request specified File contains less data than the size of the Request specified Table, the first portion of the Table Image will be initialized with the contents of the File and an Event Message shall be generated.","Some tables may allocate more space than is necessary at all times. The Event Message will serve as a warning but not prevent the initialization of the Table."
+TBL: Provide ID,cTBL6303,"Upon receipt of Request, the cFE shall provide the calling Application with a unique identifier of an existing Table Image.","Some Applications will not want to create a Table but obtain a handle to one that is created by another Application."
+TBL: Free Table Resources,cTBL6304,"Upon receipt of Request, the cFE shall free resources allocated for the Request specified Table.","Supports the cFE's dynamic Application model."
+TBL: Provide Data Address,cTBL6305,"Upon receipt of Request, the cFE shall provide the calling Application with the address of the Request specified Table data.","The Table Service 'owns' all Tables and Applications must ask for the current address of the data because the Table Service may move the Table as updates are made."
+TBL: Provide Data Address - Lock Contents,cTBL6305.1,"Upon providing a calling Application with the address of a Table's data, the cFE shall lock the contents of the Table to prevent modification.","The Table Service must wait for an Application to be done with the contents of the Table before considering modifying its contents.  This ensures data integrity while the Application accesses the Table contents. More than one Application can access a Table.  Therefore, a reference count will be necessary to ensure that all access is complete before a Table can be modified."
+TBL: Provide Data Address - Modified Notification,cTBL6305.2,"If a Table has been modified since the last Table address request, the cFE shall notify the calling Application that the Table has been modified.","An Application may need to know when the contents of a Table have been updated."
 TBL: Unlock,cTBL6306,"Upon receipt of Request, the cFE shall unlock the contents of the Request specified Table.","The Table Service must wait for an Application to be done with the contents of the Table before considering modifying its contents.  This ensures data integrity while the Application accesses the Table contents. More than one Application can access a Table.  Therefore, a reference count will be necessary to ensure that all access is complete before a Table can be modified."
-TBL: Update With Pending Load,cTBL6308,"Upon receipt of Request, the cFE shall update the request specified Table if a load is pending and it is unlocked.",This gives control to the Application as to when the table update occurs.
-TBL: Update With Pending Load - Locked,cTBL6308.1,"If a Table is locked when an update Request is made, an appropriate error code shall be returned to the calling Application and the update shall not occur.",The Application should be made aware that the table is not being updated because it is locked.
+TBL: Update With Pending Load,cTBL6308,"Upon receipt of Request, the cFE shall update the request specified Table if a load is pending and it is unlocked.","This gives control to the Application as to when the table update occurs."
+TBL: Update With Pending Load - Locked,cTBL6308.1,"If a Table is locked when an update Request is made, an appropriate error code shall be returned to the calling Application and the update shall not occur.","The Application should be made aware that the table is not being updated because it is locked."
 TBL: Provide Table Info,cTBL6309,"Upon receipt of Request, the cFE shall provide the following information to the calling Application for the specified Table:
 
 - Size of the table
@@ -474,29 +649,28 @@ TBL: Provide Table Info,cTBL6309,"Upon receipt of Request, the cFE shall provide
 - Flag indicating if the Table has been initialized
 - Flag indicating if the Table is dump only
 - Flag indicating if the Table has a dedicated buffer
-- Flag indicating if the table is maintained in the Critical Data Store",Applications such as Checksum need to obtain info such as size of the table.    The API is a more generic solution.
+- Flag indicating if the table is maintained in the Critical Data Store","Applications such as Checksum need to obtain info such as size of the table.    The API is a more generic solution."
 TBL: Pending Action Status,cTBL6310,"Upon receipt of Request the cFE shall indicate if the specified table has a validation, update, or dump pending.","Applications must periodically check to see if they need to perform updates, validations or dumps."
-TBL: Provide Data Addresses,cTBL6311,"Upon receipt of Request, the cFE shall provide the calling Application with the addresses of the data for the tables requested if more than one table is needed.",Applications may need to work with more than one table at a time.
-TBL: Provide Data Addresses - Lock Contents,cTBL6311.1,"Upon providing a calling Application with the addresses of a Tables' data, the cFE shall lock the contents of the Tables to prevent modification.",The Table Service must wait for an Application to be done with the contents of the Table before considering modifying its contents.  This ensures data integrity while the Application accesses the Table contents.
+TBL: Provide Data Addresses,cTBL6311,"Upon receipt of Request, the cFE shall provide the calling Application with the addresses of the data for the tables requested if more than one table is needed.","Applications may need to work with more than one table at a time."
+TBL: Provide Data Addresses - Lock Contents,cTBL6311.1,"Upon providing a calling Application with the addresses of a Tables' data, the cFE shall lock the contents of the Tables to prevent modification.","The Table Service must wait for an Application to be done with the contents of the Table before considering modifying its contents.  This ensures data integrity while the Application accesses the Table contents."
 TBL: Provide Data Addresses - Modified Notification,cTBL6311.2,"If at least one Table has been modified since the last Table addresses request, the cFE shall notify the calling Application that a Table has been modified.","An Application may need to know when the contents of a Tables has been updated; the Application just won't know which one."
-TBL: Unlocks,cTBL6312,"Upon receipt of Request, the cFE shall unlock the contents of the Request specified Tables.",Applications may need to work with more than one table at a time.
-TBL: Validate,cTBL6313,Upon receipt of a Request the cFE shall determine the validity of the contents of either the Active or Inactive Table Image of the requested Table if a validation request is pending.,Performs table validation if a validation request is pending. This check is nominally performed during table management when validation has been requested but can performed independent of table management.
-TBL: Dump To Buffer,cTBL6314,Upon receipt of a Request the cFE shall dump the requested Table to a buffer if a dump request is pending.,Performs table dump to a buffer if a dump request is pending. This check is nominally performed during table management when a dump has been requested but can performed independent of table management.
+TBL: Validate,cTBL6313,"Upon receipt of a Request the cFE shall determine the validity of the contents of either the Active or Inactive Table Image of the requested Table if a validation request is pending.","Performs table validation if a validation request is pending. This check is nominally performed during table management when validation has been requested but can performed independent of table management."
+TBL: Dump To Buffer,cTBL6314,"Upon receipt of a Request the cFE shall dump the requested Table to a buffer if a dump request is pending.","Performs table dump to a buffer if a dump request is pending. This check is nominally performed during table management when a dump has been requested but can performed independent of table management."
 TBL: Modified,cTBL6315,"Upon receipt of a Request, the cFE shall perform the following actions on a Table:
 
 - Update critical table data in CDS
 - Update the time of last modification
 - Update the CRC
 - Update the last loaded filename with modified indicator
-- Flag the update notification for other applications",Capability to request cFE to perform maintenance on a table that has been modified by an application.
+- Flag the update notification for other applications","Capability to request cFE to perform maintenance on a table that has been modified by an application."
 TBL: Manage,cTBL6316,"Upon receipt of a Request, the cFE shall perform the following actions on a table:
 
 - Validate Table if request pending
 - Dump Table if request pending
-- Update Table if request pending",Capability to process standard pending requests on a table.
-TBL: Free Resources On Power On Reset,cTBL6500,Upon a Power-on Reset all Table resources shall be freed.,The Table Service cannot assume the contents of any Table is legitimate after a reset.
-TBL: Free Resources On Processor Reset,cTBL6501,Upon a Processor Reset all Table resources shall be freed.,The Table Service cannot assume the contents of any Table is legitimate after a reset.
-TBL: Free Resources On Processor Reset - Preserve Critical,cTBL6501.1,If the Table is a critical table then the contents of the Table shall be preserved.,Goal of a processor reset is to preserve certain data to facilitate recovery.
+- Update Table if request pending","Capability to process standard pending requests on a table."
+TBL: Free Resources On Power On Reset,cTBL6500,"Upon a Power-on Reset all Table resources shall be freed.","The Table Service cannot assume the contents of any Table is legitimate after a reset."
+TBL: Free Resources On Processor Reset,cTBL6501,"Upon a Processor Reset all Table resources shall be freed.","The Table Service cannot assume the contents of any Table is legitimate after a reset."
+TBL: Free Resources On Processor Reset - Preserve Critical,cTBL6501.1,"If the Table is a critical table then the contents of the Table shall be preserved.","Goal of a processor reset is to preserve certain data to facilitate recovery."
 TIME: Housekeeping Message,cTIME2000,"Upon receipt of a Message, the cFE shall generate a housekeeping message that includes the following Time Services items:
 
 - Time Status

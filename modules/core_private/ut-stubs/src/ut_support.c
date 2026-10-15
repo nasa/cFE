@@ -129,6 +129,7 @@ void UT_Init(const char *subsys)
     }
 
     UT_NumCountersTracked = 0;
+    UT_ResetCDS();
 }
 
 /*
