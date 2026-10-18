@@ -226,13 +226,24 @@ CFE_Status_t CFE_ES_PoolCreateEx_WithAlignment(CFE_ES_MemHandle_t *PoolID,
         return CFE_ES_BAD_ARGUMENT;
     }
 
-    /* If too many sizes are specified, return an error */
-    if (NumBlockSizes > CFE_MISSION_ES_POOL_MAX_BUCKETS)
+    /*
+     * If too many sizes are specified, return an error.
+     *
+     * This must be checked against CFE_PLATFORM_ES_POOL_MAX_BUCKETS, not
+     * CFE_MISSION_ES_POOL_MAX_BUCKETS, because the Buckets[] array being
+     * populated below (CFE_ES_GenPoolRecord_t::Buckets) is sized using the
+     * platform constant.  The mission constant is only required to be >=
+     * the platform constant (see cfe_es_verify.h), so on a configuration
+     * where CFE_MISSION_ES_POOL_MAX_BUCKETS > CFE_PLATFORM_ES_POOL_MAX_BUCKETS,
+     * checking against the mission constant would let NumBlockSizes exceed
+     * the actual array bound and write out of bounds below.
+     */
+    if (NumBlockSizes > CFE_PLATFORM_ES_POOL_MAX_BUCKETS)
     {
         CFE_ES_WriteToSysLog("%s: Num Block Sizes (%d) greater than max (%d)\n",
                              __func__,
                              (int)NumBlockSizes,
-                             CFE_MISSION_ES_POOL_MAX_BUCKETS);
+                             CFE_PLATFORM_ES_POOL_MAX_BUCKETS);
         return CFE_ES_BAD_ARGUMENT;
     }
 
