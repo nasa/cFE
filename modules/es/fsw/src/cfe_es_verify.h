@@ -41,6 +41,11 @@
 #error CFE_PLATFORM_ES_MAX_APPLICATIONS cannot be less than 6!
 #endif
 
+/* Verify that all applications can be displayed in telemetry */
+#if (CFE_PLATFORM_ES_MAX_APPLICATIONS > CFE_MISSION_ES_MAX_APPLICATIONS)
+#error CFE_MISSION_ES_MAX_APPLICATIONS must be greater than or equal to CFE_PLATFORM_ES_MAX_APPLICATIONS
+#endif
+
 #if CFE_PLATFORM_ES_MAX_LIBRARIES < 1
 #error CFE_PLATFORM_ES_MAX_LIBRARIES cannot be less than 1!
 #endif
