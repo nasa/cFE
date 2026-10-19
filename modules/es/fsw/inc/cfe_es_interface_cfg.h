@@ -45,7 +45,7 @@
 **       to exceed the max length.
 */
 #define CFE_MISSION_ES_MAX_APPLICATIONS         CFE_MISSION_ES_CFGVAL(MAX_APPLICATIONS)
-#define DEFAULT_CFE_MISSION_ES_MAX_APPLICATIONS 16
+#define DEFAULT_CFE_MISSION_ES_MAX_APPLICATIONS 32
 
 /**
 **  \cfeescfg Define Max Number of Performance IDs for messages
