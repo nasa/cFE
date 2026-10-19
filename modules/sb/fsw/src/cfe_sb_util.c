@@ -71,11 +71,20 @@ size_t CFE_SB_GetUserDataLength(const CFE_MSG_Message_t *MsgPtr)
 
     if (MsgPtr == NULL)
     {
-        return TotalMsgSize;
+        return 0;
     }
 
-    CFE_MSG_GetSize(MsgPtr, &TotalMsgSize);
+    if (CFE_MSG_GetSize(MsgPtr, &TotalMsgSize) != CFE_SUCCESS)
+    {
+        return 0;
+    }
+
     HdrSize = CFE_SB_MsgHdrSize(MsgPtr);
+
+    if (TotalMsgSize < HdrSize)
+    {
+        return 0;
+    }
 
     return TotalMsgSize - HdrSize;
 }
