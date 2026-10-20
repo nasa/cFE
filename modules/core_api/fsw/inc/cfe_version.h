@@ -26,15 +26,14 @@
 #define CFE_VERSION_H
 
 /* Development Build Macro Definitions */
-#define CFE_BUILD_NUMBER    1 /**< @brief Development: Number of development git commits since CFE_BUILD_BASELINE */
-#define CFE_BUILD_BASELINE  "v7.0.1" /**< @brief Development: Reference git tag for build number */
-#define CFE_BUILD_DEV_CYCLE "v7.0.1" /**< @brief Development: Release name for current development cycle */
-#define CFE_BUILD_CODENAME  "Draco"  /**< @brief: Development: Code name for the current build */
+#define CFE_BUILD_NUMBER   1 /**< @brief Development: Number of development git commits since CFE_BUILD_BASELINE */
+#define CFE_BUILD_BASELINE "v7.0.2"
+#define CFE_BUILD_CODENAME "Draco" /**< @brief: Development: Code name for the current build */
 
 /* See \ref cfsversions for definitions */
-#define CFE_MAJOR_VERSION 7 /*!< @brief Major version number */
-#define CFE_MINOR_VERSION 0 /*!< @brief Minor version number */
-#define CFE_REVISION      1 /*!< @brief Revision version number. */
+#define CFE_MAJOR_VERSION 7
+#define CFE_MINOR_VERSION 0
+#define CFE_REVISION      2
 
 /**
  * @brief Last official release.
@@ -59,7 +58,7 @@
  * Short string identifying the build, see @ref cfsversions for suggested format for development
  * and official releases.
  */
-#define CFE_SRC_VERSION CFE_BUILD_BASELINE "+dev" CFE_STR(CFE_BUILD_NUMBER)
+#define CFE_SRC_VERSION CFE_BUILD_BASELINE "-rc" CFE_STR(CFE_BUILD_NUMBER) "-oss"
 
 /**
  * @brief Max Version String length.
