@@ -110,7 +110,7 @@
 **       any possible neighboring fields without implicit padding.
 */
 #define CFE_MISSION_MAX_API_LEN                  CFE_MISSION_CORE_API_CFGVAL(MAX_API_LEN)
-#define DEFAULT_CFE_MISSION_CORE_API_MAX_API_LEN 20
+#define DEFAULT_CFE_MISSION_CORE_API_MAX_API_LEN 32
 
 /**
 **  \cfemissioncfg cFE Maximum number of files in a message/data exchange
