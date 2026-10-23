@@ -272,7 +272,7 @@ CFE_Status_t CFE_EVS_SendTimedEvent(CFE_TIME_SysTime_t       Time,
 int32 CFE_EVS_ResetFilter(uint16 EventID)
 {
     int32            Status;
-    EVS_BinFilter_t *FilterPtr = NULL;
+    EVS_BinFilter_t *FilterPtr;
     CFE_ES_AppId_t   AppID;
     EVS_AppData_t   *AppDataPtr;
 
