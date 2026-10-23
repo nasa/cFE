@@ -150,8 +150,10 @@ void Test_Init(void)
 #if (CFE_PLATFORM_TIME_CFG_SERVER == true)
     ExpRtn++;
 #endif
+#if (CFE_PLATFORM_TIME_CFG_SERVER == true)
 #if (CFE_MISSION_TIME_CFG_FAKE_TONE == true)
     ExpRtn++;
+#endif
 #endif
     /* account for 1Hz command, which is always enabled */
     ExpRtn++;
