@@ -327,7 +327,7 @@ CFE_Status_t CFE_FS_SetTimestamp(osal_id_t FileDes, CFE_TIME_SysTime_t NewTimest
     CFE_FS_Header_t    TempHdr;
     int32              EndianCheck  = 0x01020304;
     CFE_TIME_SysTime_t OutTimestamp = NewTimestamp;
-    int32              FileOffset   = 0;
+    int32              FileOffset;
 
     FileOffset = ((char *)&TempHdr.TimeSeconds - (char *)&TempHdr.ContentType);
     OsStatus   = OS_lseek(FileDes, FileOffset, OS_SEEK_SET);

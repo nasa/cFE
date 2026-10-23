@@ -168,7 +168,7 @@ static int32 CFE_ES_ReadStartupLine(osal_id_t   AppFile,
     const char **LastTokenPtr;
 
     /* placeholder values - overwritten later */
-    OsStatus = OS_ERROR;
+    // OsStatus = OS_ERROR;
 
     CurrPtr = BuffPtr;
     EndPtr  = CurrPtr + *BuffSizePtr;
@@ -250,7 +250,7 @@ void CFE_ES_StartApplications(uint32 ResetType, const char *StartFilePath)
     size_t      NumTokens;
     size_t      NumLines;
     size_t      BuffLen; /* Length of the current buffer */
-    osal_id_t   AppFile = OS_OBJECT_ID_UNDEFINED;
+    osal_id_t   AppFile;
     int32       OsStatus;
 
     /* There may be more than one startup script - this finds and opens the correct one */

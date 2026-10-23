@@ -1335,7 +1335,7 @@ CFE_Status_t CFE_ES_DeleteChildTask(CFE_ES_TaskId_t TaskId)
     CFE_ES_AppRecord_t  *AppRecPtr;
     uint32               i;
     bool                 TaskIsMain;
-    int32                ReturnCode = CFE_SUCCESS;
+    int32                ReturnCode;
     int32                OsStatus;
     osal_id_t            OsalId;
 

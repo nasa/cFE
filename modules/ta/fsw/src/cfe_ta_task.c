@@ -666,7 +666,7 @@ int32 CFE_TA_GetTaskAffinityCmd(const CFE_TA_GetTaskAffinityCmd_t *data)
  *-----------------------------------------------------------------*/
 int32 CFE_TA_SetStartupAffinity(const char *taskname)
 {
-    int32       Status = CFE_SUCCESS;
+    int32       Status;
     OS_cpuset_t cpuget;
     osal_id_t   task_id = OS_OBJECT_ID_UNDEFINED;
 
