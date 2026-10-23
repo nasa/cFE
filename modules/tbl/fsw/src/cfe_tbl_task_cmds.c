@@ -173,8 +173,7 @@ void CFE_TBL_GetHkData(void)
     CFE_TBL_Global.HkPacket.Payload.NumFreeSharedBufs = CFE_PLATFORM_TBL_MAX_SIMULTANEOUS_LOADS - Count;
 
     /* Locate a completed, but unreported, validation request */
-    i      = 0;
-    ValPtr = NULL;
+    i = 0;
     while (true)
     {
         if (i >= CFE_PLATFORM_TBL_MAX_NUM_VALIDATIONS)
@@ -549,7 +548,6 @@ CFE_Status_t CFE_TBL_ValidateCmd(const CFE_TBL_ValidateCmd_t *data)
 
     CmdProcRet = CFE_TBL_CmdProcRet_INC_ERR_CTR; /* Assume failure */
 
-    ValResultPtr   = NULL;
     CreatedRequest = false;
 
     /* Make sure all strings are null terminated before attempting to process them */

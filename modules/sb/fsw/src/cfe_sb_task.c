@@ -359,8 +359,7 @@ int32 CFE_SB_EnableRouteCmd(const CFE_SB_EnableRouteCmd_t *data)
     const CFE_SB_RouteCmd_Payload_t *CmdPtr;
     uint16                           PendingEventID;
 
-    PendingEventID = 0;
-    CmdPtr         = &data->Payload;
+    CmdPtr = &data->Payload;
 
     MsgId = CmdPtr->MsgId;
 
@@ -435,8 +434,7 @@ int32 CFE_SB_DisableRouteCmd(const CFE_SB_DisableRouteCmd_t *data)
     const CFE_SB_RouteCmd_Payload_t *CmdPtr;
     uint16                           PendingEventID;
 
-    PendingEventID = 0;
-    CmdPtr         = &data->Payload;
+    CmdPtr = &data->Payload;
 
     MsgId = CmdPtr->MsgId;
 
@@ -845,7 +843,6 @@ bool CFE_SB_WritePipeInfoDataGetter(void *Meta, uint32 RecordNum, void **Buffer,
     bool                              PipeIsValid;
 
     BgFilePtr   = (CFE_SB_BackgroundFileStateInfo_t *)Meta;
-    PipeDscPtr  = NULL;
     PipeIsValid = false;
 
     PipeBufferPtr = &BgFilePtr->Buffer.PipeInfo;
