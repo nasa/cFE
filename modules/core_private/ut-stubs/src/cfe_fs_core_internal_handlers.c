@@ -58,3 +58,20 @@ void UT_DefaultHandler_CFE_FS_RunBackgroundFileDump(void                   *User
 
     UT_Stub_SetReturnValue(FuncKey, return_value);
 }
+
+void UT_DefaultHandler_CFE_FS_WriteHeaderFromBuffer(void                   *UserObj,
+                                                    UT_EntryKey_t           FuncKey,
+                                                    const UT_StubContext_t *Context)
+{
+    const CFE_FS_Header_t *Hdr = UT_Hook_GetArgValueByName(Context, "Hdr", const CFE_FS_Header_t *);
+    int32                  Status;
+    if (!UT_Stub_GetInt32StatusCode(Context, &Status))
+    {
+        Status = sizeof(*Hdr);
+    }
+    if (Status > 0)
+    {
+        UT_Stub_CopyFromLocal(FuncKey, Hdr, Status < sizeof(*Hdr) ? Status : sizeof(*Hdr));
+    }
+    UT_Stub_SetReturnValue(FuncKey, Status);
+}
