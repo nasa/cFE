@@ -465,7 +465,7 @@ int32 CFE_TA_SetTaskAffinityCmd(const CFE_TA_SetTaskAffinityCmd_t *data)
     for (uint32 i = 0; i < OS_MAX_TASKS; i++)
     {
         /* Reached the end of the entries, task not found */
-        if (strlen(CFE_TA_CpuTaskAffinity[i].TaskName) == 0)
+        if (CFE_TA_CpuTaskAffinity[i].TaskName[0] == '\0')
         {
             Status = CFE_TA_APP_TASK_NOT_FOUND;
 
@@ -477,7 +477,7 @@ int32 CFE_TA_SetTaskAffinityCmd(const CFE_TA_SetTaskAffinityCmd_t *data)
             CFE_TA_Global.CommandErrorCounter++;
             break;
         }
-        else if (strcmp(CmdPtr->TaskName, CFE_TA_CpuTaskAffinity[i].TaskName) == 0)
+        else if (strncmp(CmdPtr->TaskName, CFE_TA_CpuTaskAffinity[i].TaskName, sizeof(CmdPtr->TaskName)) == 0)
         {
             /* Task found in the list */
             CFE_TA_CpuTaskAffinity[i].Status = CFE_TA_Status_Ok;
@@ -582,7 +582,7 @@ int32 CFE_TA_GetTaskAffinityCmd(const CFE_TA_GetTaskAffinityCmd_t *data)
     /* Look for the task in the task affinity list */
     for (uint32 i = 0; i < OS_MAX_TASKS; i++)
     {
-        if (strlen(CFE_TA_CpuTaskAffinity[i].TaskName) == 0)
+        if (CFE_TA_CpuTaskAffinity[i].TaskName[0] == '\0')
         {
             Status = CFE_TA_APP_TASK_NOT_FOUND;
 
@@ -595,7 +595,7 @@ int32 CFE_TA_GetTaskAffinityCmd(const CFE_TA_GetTaskAffinityCmd_t *data)
             CFE_TA_Global.CommandErrorCounter++;
             break;
         }
-        else if (strcmp(CmdPtr->TaskName, CFE_TA_CpuTaskAffinity[i].TaskName) == 0)
+        else if (strncmp(CmdPtr->TaskName, CFE_TA_CpuTaskAffinity[i].TaskName, sizeof(CmdPtr->TaskName)) == 0)
         {
             /* Task found in the list */
             CFE_TA_CpuTaskAffinity[i].Status = CFE_TA_Status_Ok;
@@ -677,7 +677,7 @@ int32 CFE_TA_SetStartupAffinity(const char *taskname)
     {
         for (uint32 i = 0; i < OS_MAX_TASKS; i++)
         {
-            if (strlen(CFE_TA_CpuTaskAffinity[i].TaskName) == 0)
+            if (CFE_TA_CpuTaskAffinity[i].TaskName[0] == '\0')
             {
                 /* Couldn't find the task in the task affinity table */
                 CFE_ES_WriteToSysLog("%s: Set Startup Affinity - task (%s) not found "
@@ -715,7 +715,8 @@ int32 CFE_TA_SetStartupAffinity(const char *taskname)
                 }
                 break;
             }
-            else if (strcmp(taskname, CFE_TA_CpuTaskAffinity[i].TaskName) == 0)
+            else if (strncmp(taskname, CFE_TA_CpuTaskAffinity[i].TaskName, sizeof(CFE_TA_CpuTaskAffinity[i].TaskName))
+                     == 0)
             {
                 /* Task found in the list */
                 CFE_TA_CpuTaskAffinity[i].Status = CFE_TA_Status_Ok;
