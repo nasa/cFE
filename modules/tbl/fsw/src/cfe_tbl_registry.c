@@ -301,7 +301,7 @@ CFE_Status_t CFE_TBL_TxnAllocateRegistryEntry(CFE_TBL_TxnState_t *Txn)
  *-----------------------------------------------------------------*/
 CFE_Status_t CFE_TBL_TxnCheckDuplicateRegistration(CFE_TBL_TxnState_t *Txn, const char *TblName, size_t Size)
 {
-    CFE_Status_t           Status = CFE_SUCCESS;
+    CFE_Status_t           Status;
     CFE_TBL_RegistryRec_t *RegRecPtr;
     CFE_ES_AppId_t         ThisAppId;
 
