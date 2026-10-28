@@ -264,6 +264,16 @@
  */
 #define CFE_TA_CORE_INF_EID 23
 
+/**
+ * \brief TA Query All Task Affinity command get affinity Failure Event ID
+ *
+ *  \par Type: ERROR
+ *
+ *  \par Cause:
+ *  \link #CFE_TA_QUERY_TASK_AFFINITY_CC TA Query Affinity Command \endlink failed.
+ */
+#define CFE_TA_QUERY_AFFINITY_CMD_GET_ERR_EID 24
+
 /** \} */
 
 #endif /* CFE_TA_EVENTS_H */
