@@ -116,9 +116,12 @@ void TestBasicTransmitRecv(void)
         CFE_Assert_STATUS_MUST_BE(CFE_SB_BAD_ARGUMENT);
     }
 
-    /* Attempt to send a msg which is too big */
-    CFE_MSG_SetSize(&CFE_FT_BigMsg.Hdr, sizeof(CFE_FT_BigMsg));
-    CFE_MSG_SetMsgId(&CFE_FT_BigMsg.Hdr, CFE_FT_CMD_MSGID);
+    /*
+     * Attempt to send a msg one byte over the SB limit.  The size of the backing
+     * union includes extra storage and may exceed the message format's size limit.
+     */
+    UtAssert_INT32_EQ(CFE_MSG_SetSize(&CFE_FT_BigMsg.Hdr, CFE_MISSION_SB_MAX_SB_MSG_SIZE + 1), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_MSG_SetMsgId(&CFE_FT_BigMsg.Hdr, CFE_FT_CMD_MSGID), CFE_SUCCESS);
     UtAssert_INT32_EQ(CFE_SB_TransmitMsg(&CFE_FT_BigMsg.Hdr, true), CFE_SB_MSG_TOO_BIG);
 
     /* Attempt to send a msg which is NULL */
@@ -442,8 +445,9 @@ void TestZeroCopyTransmitRecv(void)
     /* Attempt to send a msg of maximum size */
     UtAssert_NOT_NULL(CmdBuf = CFE_SB_AllocateMessageBuffer(CFE_MISSION_SB_MAX_SB_MSG_SIZE));
 
-    /* First initialize to indicate its even bigger than the max (should fail to transmit) */
-    UtAssert_INT32_EQ(CFE_MSG_Init(&CmdBuf->Msg, CFE_FT_CMD_MSGID, sizeof(CFE_FT_BigMsg)), CFE_SUCCESS);
+    /* Initialize only the allocated size, then make the header one byte over the SB limit */
+    UtAssert_INT32_EQ(CFE_MSG_Init(&CmdBuf->Msg, CFE_FT_CMD_MSGID, CFE_MISSION_SB_MAX_SB_MSG_SIZE), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_MSG_SetSize(&CmdBuf->Msg, CFE_MISSION_SB_MAX_SB_MSG_SIZE + 1), CFE_SUCCESS);
     UtAssert_INT32_EQ(CFE_SB_TransmitBuffer(CmdBuf, true), CFE_SB_MSG_TOO_BIG);
 
     /* reducing size should make it work */
