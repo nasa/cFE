@@ -56,7 +56,9 @@ typedef struct CFE_TIME_OneHzCmd
 
 typedef struct CFE_TIME_ToneSignalCmd
 {
-    CFE_MSG_CommandHeader_t CommandHeader; /**< \brief Command header */
+    CFE_MSG_CommandHeader_t          CommandHeader; /**< \brief Command header */
+    CFE_TIME_ToneSignalCmd_Payload_t Payload;       /**< \brief Command payload */
+
 } CFE_TIME_ToneSignalCmd_t;
 
 typedef struct CFE_TIME_FakeToneCmd
