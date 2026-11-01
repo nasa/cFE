@@ -227,12 +227,12 @@ CFE_Status_t CFE_ES_PoolCreateEx_WithAlignment(CFE_ES_MemHandle_t *PoolID,
     }
 
     /* If too many sizes are specified, return an error */
-    if (NumBlockSizes > CFE_MISSION_ES_POOL_MAX_BUCKETS)
+    if (NumBlockSizes > CFE_PLATFORM_ES_POOL_MAX_BUCKETS)
     {
         CFE_ES_WriteToSysLog("%s: Num Block Sizes (%d) greater than max (%d)\n",
                              __func__,
                              (int)NumBlockSizes,
-                             CFE_MISSION_ES_POOL_MAX_BUCKETS);
+                             CFE_PLATFORM_ES_POOL_MAX_BUCKETS);
         return CFE_ES_BAD_ARGUMENT;
     }
 
