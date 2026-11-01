@@ -31,6 +31,7 @@
 #include "test_cfe_msg_init.h"
 #include "cfe_error.h"
 #include "cfe_msg_defaults.h"
+#include "cfe_msg_priv.h"
 #include <string.h>
 
 #define TEST_DEFAULT_APID_MASK 0x780 /* Bits that can be set by default apid if msgid V2 */
@@ -40,6 +41,12 @@
  */
 void Test_MSG_Init(void)
 {
+    /* Sized to the largest length CFE_MSG_SetSize accepts; static to keep it off the stack */
+    static union
+    {
+        CFE_MSG_Message_t Msg;
+        uint8             Bytes[0xFFFF + CFE_MSG_SIZE_OFFSET];
+    } maxmsg;
     CFE_MSG_CommandHeader_t    cmd;
     CFE_MSG_Size_t             size;
     CFE_SB_MsgId_Atom_t        msgidval_exp;
@@ -57,6 +64,15 @@ void Test_MSG_Init(void)
     UT_SetDefaultReturnValue(UT_KEY(CFE_SB_IsValidMsgId), true);
     UtAssert_INT32_EQ(CFE_MSG_Init(NULL, msgid_act, sizeof(cmd)), CFE_MSG_BAD_ARGUMENT);
     UtAssert_INT32_EQ(CFE_MSG_Init(CFE_MSG_PTR(cmd), msgid_act, 0), CFE_MSG_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_MSG_Init(CFE_MSG_PTR(cmd), msgid_act, CFE_MSG_SIZE_OFFSET - 1), CFE_MSG_BAD_ARGUMENT);
+
+    /* An oversize length must be rejected before it is used to clear the buffer: cmd is only a
+     * command header, so clearing 0xFFFF + CFE_MSG_SIZE_OFFSET + 1 bytes would run past it */
+    UtAssert_INT32_EQ(CFE_MSG_Init(CFE_MSG_PTR(cmd), msgid_act, 0xFFFF + CFE_MSG_SIZE_OFFSET + 1),
+                      CFE_MSG_BAD_ARGUMENT);
+
+    /* The largest representable size is still accepted */
+    CFE_UtAssert_SUCCESS(CFE_MSG_Init(&maxmsg.Msg, msgid_act, sizeof(maxmsg)));
     UT_SetDefaultReturnValue(UT_KEY(CFE_SB_IsValidMsgId), false);
     UtAssert_INT32_EQ(CFE_MSG_Init(CFE_MSG_PTR(cmd), msgid_act, sizeof(cmd)), CFE_MSG_BAD_ARGUMENT);
     UtAssert_INT32_EQ(CFE_MSG_Init(CFE_MSG_PTR(cmd), CFE_SB_INVALID_MSG_ID, sizeof(cmd)), CFE_SUCCESS);
