@@ -394,6 +394,8 @@ int32 CFE_EVS_SendHkCmd(const CFE_EVS_SendHkCmd_t *data)
         AppTlmDataPtr->AppEnableStatus            = false;
         AppTlmDataPtr->AppMessageSentCounter      = 0;
         AppTlmDataPtr->AppMessageSquelchedCounter = 0;
+
+        ++AppTlmDataPtr;
     }
 
     CFE_SB_TimeStampMsg(CFE_MSG_PTR(CFE_EVS_Global.EVS_TlmPkt.TelemetryHeader));
