@@ -3547,7 +3547,7 @@ void Test_TransmitBufferWithRoute(void)
 {
     /* Test case for:
      * CFE_Status_t CFE_SB_TransmitBufferWithRoute(CFE_SB_Buffer_t *BufPtr, CFE_MSG_Size_t BufSize, CFE_SB_MsgId_t
-     * RoutingMsgId, bool EnableUpdate, int32 TimeOut);
+     * RoutingMsgId, bool IsOrigination, int32 TimeOut);
      */
 
     CFE_SB_Buffer_t       *SendPtr;
@@ -4225,7 +4225,7 @@ void Test_ReceiveBufferWithRoute(void)
 {
     /* Test case for:
      * CFE_Status_t CFE_SB_ReceiveBufferWithRoute(CFE_SB_Buffer_t **BufPtr, CFE_MSG_Size_t *BufSize, CFE_SB_PipeId_t
-     * RxRoute, bool EnableVerify, int32 TimeOut);
+     * RxRoute, bool IsTermination, int32 TimeOut);
      */
 
     CFE_SB_BufferD_t       BufDsc[2];

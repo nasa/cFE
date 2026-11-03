@@ -490,7 +490,7 @@ CFE_Status_t CFE_SB_ReceiveBuffer(CFE_SB_Buffer_t **BufPtr, CFE_SB_PipeId_t Pipe
 **          routing information is passed out-of-band and will be returned in the specified
 **          buffers.
 **
-**          The message also may be verified if "EnableVerify" is set to true.  In this
+**          The message also may be verified if "IsTermination" is set to true.  In this
 **          case, CFE_MSG_Verify() is invoked on the received message, and if this results
 **          in validation failure, the message will be internally discarded and not passed
 **          back to the caller.  Note that in this case, the buffer cannot be arbitrary data,
@@ -647,7 +647,7 @@ CFE_Status_t CFE_SB_TransmitBuffer(CFE_SB_Buffer_t *BufPtr, bool IsOrigination);
 ** \par Assumptions, External Events, and Notes:
 **       -# See CFE_SB_TransmitBuffer() - the passed-in buffer object is consumed by this
 **          call in a similar manner.
-**       -# If "EnableUpdate" is passed as "true", then the content must be a CFE message
+**       -# If "IsOrigination" is passed as "true", then the content must be a CFE message
 **          with the expected headers (it cannot be arbitrary data, as the header update
 **          will modify it based on the normally expected header).  Only when this boolean
 **          is passed as "false" does this routine not access the buffer at all.
