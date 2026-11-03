@@ -155,7 +155,7 @@ CFE_ConfigId_t CFE_Config_GetIdByName(const char *Name)
     NamePtr = CFE_CONFIGID_NAMETABLE;
     for (OffsetVal = 0; OffsetVal < CFE_ConfigIdOffset_MAX; ++OffsetVal)
     {
-        if (NamePtr->Name != NULL && strcmp(NamePtr->Name, Name) == 0)
+        if (NamePtr->Name != NULL && strncmp(NamePtr->Name, Name, NamePtr->NameSize) == 0)
         {
             break;
         }

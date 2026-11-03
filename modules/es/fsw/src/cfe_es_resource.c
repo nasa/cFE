@@ -94,7 +94,8 @@ CFE_ES_AppRecord_t *CFE_ES_LocateAppRecordByName(const char *Name)
             AppRecPtr = NULL;
             break;
         }
-        if (CFE_ES_AppRecordIsUsed(AppRecPtr) && strcmp(Name, CFE_ES_AppRecordGetName(AppRecPtr)) == 0)
+        if (CFE_ES_AppRecordIsUsed(AppRecPtr)
+            && strncmp(Name, CFE_ES_AppRecordGetName(AppRecPtr), OS_MAX_API_NAME) == 0)
         {
             break;
         }
@@ -129,7 +130,8 @@ CFE_ES_LibRecord_t *CFE_ES_LocateLibRecordByName(const char *Name)
             LibRecPtr = NULL;
             break;
         }
-        if (CFE_ES_LibRecordIsUsed(LibRecPtr) && strcmp(Name, CFE_ES_LibRecordGetName(LibRecPtr)) == 0)
+        if (CFE_ES_LibRecordIsUsed(LibRecPtr)
+            && strncmp(Name, CFE_ES_LibRecordGetName(LibRecPtr), OS_MAX_API_NAME) == 0)
         {
             break;
         }
@@ -164,7 +166,8 @@ CFE_ES_GenCounterRecord_t *CFE_ES_LocateCounterRecordByName(const char *Name)
             CounterRecPtr = NULL;
             break;
         }
-        if (CFE_ES_CounterRecordIsUsed(CounterRecPtr) && strcmp(Name, CFE_ES_CounterRecordGetName(CounterRecPtr)) == 0)
+        if (CFE_ES_CounterRecordIsUsed(CounterRecPtr)
+            && strncmp(Name, CFE_ES_CounterRecordGetName(CounterRecPtr), OS_MAX_API_NAME) == 0)
         {
             break;
         }

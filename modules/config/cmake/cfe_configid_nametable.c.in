@@ -2,7 +2,7 @@
 #include "cfe_configid_offset.h"
 #include "cfe_config_nametable.h"
 
-#define CFE_CONFIGID_DEFINE(x) [CFE_CONFIGID_OFFSETNAME(x)] = { #x },
+#define CFE_CONFIGID_DEFINE(x) [CFE_CONFIGID_OFFSETNAME(x)] = {#x, sizeof(#x)},
 
 /* Map of configuration key IDs to printable names */
 const CFE_Config_IdNameEntry_t CFE_CONFIGID_NAMETABLE[CFE_ConfigIdOffset_MAX] =
