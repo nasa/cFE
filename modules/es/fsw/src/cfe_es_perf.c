@@ -695,10 +695,10 @@ void CFE_ES_PerfLogAdd(uint32 Marker, uint32 EntryExit)
         /* if marker has not been reported previously ... */
         if (Perf->MetaData.InvalidMarkerReported == false)
         {
-            CFE_ES_WriteToSysLog("%s: Invalid performance marker %d,max is %d\n",
+            CFE_ES_WriteToSysLog("%s: Invalid performance marker %u,max is %u\n",
                                  __func__,
                                  (unsigned int)Marker,
-                                 (CFE_MISSION_ES_PERF_MAX_IDS - 1));
+                                 (unsigned int)(CFE_MISSION_ES_PERF_MAX_IDS - 1));
             Perf->MetaData.InvalidMarkerReported = true;
         }
 
