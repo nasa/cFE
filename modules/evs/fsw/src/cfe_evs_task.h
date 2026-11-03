@@ -61,17 +61,17 @@
 #define CFE_EVS_MAX_SQUELCH_COUNT    255
 #define CFE_EVS_PIPE_NAME            "EVS_CMD_PIPE"
 #define CFE_EVS_MAX_PORT_MSG_LENGTH  (CFE_MISSION_EVS_MAX_MESSAGE_LENGTH + OS_MAX_API_NAME + 19)
+#define CFE_EVS_PORT_MSG_OVERHEAD    11
 #define CFE_EVS_NUM_EVENT_TYPES      4
 
 /* Since CFE_EVS_MAX_PORT_MSG_LENGTH is the size of the buffer that is sent to
  * print out (using OS_printf), we need to check to make sure that the buffer
- * size the OS uses is big enough. The buffer needs to have at least 11 extra
- * characters to accommodate the format string "EVS Port%u %s\n" used in
- * downstream processing for sending messages via ports. This check has to be
- * made here because it is the first spot after CFE_EVS_MAX_PORT_MSG_LENGTH
- * is defined. */
-#if OS_BUFFER_SIZE < CFE_EVS_MAX_PORT_MSG_LENGTH + 11
-#error CFE_EVS_MAX_PORT_MSG_LENGTH cannot be greater than OS_BUFFER_SIZE - 11!
+ * size the OS uses is big enough. CFE_EVS_PORT_MSG_OVERHEAD accounts for the
+ * "EVS Port%u " prefix (with port numbers 1-4) and the trailing newline added
+ * when messages are sent via ports. This check has to be made here because it
+ * is the first spot after CFE_EVS_MAX_PORT_MSG_LENGTH is defined. */
+#if OS_BUFFER_SIZE < CFE_EVS_MAX_PORT_MSG_LENGTH + CFE_EVS_PORT_MSG_OVERHEAD
+#error CFE_EVS_MAX_PORT_MSG_LENGTH plus CFE_EVS_PORT_MSG_OVERHEAD cannot exceed OS_BUFFER_SIZE!
 #endif
 
 /************************  Internal Structure Definitions  *****************************/
