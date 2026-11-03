@@ -119,11 +119,27 @@ typedef void (*CFE_FS_FileWriteOnEvent_t)(void                   *Meta,
                                           size_t                  Position);
 
 /**
+ * Optional header writer provided by the requester.
+ *
+ * Runs in the background task after opening the file, before any data records.
+ * The callback writes and validates the complete file preamble, including the
+ * standard cFE header. It must leave the descriptor open and positioned after
+ * the preamble. Return the positive number of bytes written, or a negative
+ * status on failure. The background writer reports HEADER_WRITE_ERROR on
+ * failure.
+ *
+ * \param[inout] Meta           Pointer to the metadata object
+ * \param[in]    FileDescriptor Open output descriptor positioned at zero
+ * \returns Preamble size in bytes on success, negative status on failure
+ */
+typedef int32 (*CFE_FS_FileWriteHeader_t)(void *Meta, osal_id_t FileDescriptor);
+
+/**
  * \brief External Metadata/State object associated with background file writes
  *
- * Applications intending to schedule background file write jobs should instantiate
- * this object in static/global data memory.  This keeps track of the state of the
- * file write request(s).
+ * Applications intending to schedule background file write jobs should
+ * instantiate this object in static/global data memory and zero-initialize it
+ * before first use. This keeps track of the state of the file write request(s).
  */
 typedef struct CFE_FS_FileWriteMetaData
 {
@@ -137,6 +153,10 @@ typedef struct CFE_FS_FileWriteMetaData
 
     CFE_FS_FileWriteGetData_t GetData; /**< Application callback to get a data record */
     CFE_FS_FileWriteOnEvent_t OnEvent; /**< Application callback for abstract event processing */
+
+    /** Optional custom preamble writer. NULL preserves the standard FS header
+     * behavior. */
+    CFE_FS_FileWriteHeader_t WriteHeader;
 } CFE_FS_FileWriteMetaData_t;
 
 #endif /* CFE_FS_API_TYPEDEFS_H */

@@ -25,6 +25,9 @@
 #ifndef CFE_TBL_DUMP_H
 #define CFE_TBL_DUMP_H
 
+/** Maximum snapshot bytes supplied to the rate-limited FS writer per record. */
+#define CFE_TBL_DUMP_BLOCK_SIZE 1024
+
 /*
 ** Required header files...
 */
@@ -33,34 +36,13 @@
 
 /*---------------------------------------------------------------------------------------*/
 /**
- * \brief Opens a table dump file
- *
- * Opens a file descriptor for writing, and writes the necessary headers to it
- *
- * If successful, the file descriptor will be left in an open state positioned appropritely
- * to accept the table data.  If not successful, then the file will be closed and events
- * will be added to the transaction object for deferred reporting.
- *
- * \param[inout] Txn               Pointer to transaction object
- * \param[in]    Filename          File name to open
- * \param[out]   FileDescOut       Buffer to hold the file descriptor ID
- * \param[in]    FileHeader        Pointer to buffer containing header data to write
- *
- * \returns CFE Status Code
- * \retval #CFE_SUCCESS                     \copydoc CFE_SUCCESS
- */
-CFE_Status_t CFE_TBL_TxnOpenTableDumpFile(CFE_TBL_TxnState_t              *Txn,
-                                          const char                      *Filename,
-                                          osal_id_t                       *FileDescOut,
-                                          const CFE_TBL_CombinedFileHdr_t *FileHeader);
-
-/*---------------------------------------------------------------------------------------*/
-/**
- * \brief Writes Table File Headers
+ * \brief Writes fully populated Table File Headers without replacing snapshot
+ * metadata
  *
  * \param[inout] Txn               Pointer to transaction object
  * \param[in]    FileDescriptor    File Descriptor, as provided by OS_fopen
- * \param[in]    FileHeader        Pointer to buffer containing header data to write
+ * \param[in]    FileHeader        Pointer to buffer containing header data to
+ * write
  *
  * \returns CFE Status Code
  * \retval #CFE_SUCCESS                     \copydoc CFE_SUCCESS
@@ -137,27 +119,29 @@ CFE_Status_t CFE_TBL_ExecuteDumpSnapshot(CFE_TBL_DumpControl_t *DumpCtrlPtr);
 
 /*---------------------------------------------------------------------------------------*/
 /**
- * \brief Writes the table data snapshot to the output file
+ * \brief Queues a table snapshot for asynchronous file output
  *
- * Writes the data from the snapshot buffer into the final output file
- * This is the last thing to happen in the table dump process
+ * The control block and snapshot buffer remain reserved until FS reports that
+ * the request is no longer pending. A successful return means queued, not
+ * written. A full queue returns CFE_STATUS_REQUEST_ALREADY_PENDING so the
+ * caller can retry without discarding the snapshot.
  *
- * \param[in]   DumpCtlPtr  Pointer to the table dump control block
+ * \param[inout] DumpCtlPtr Pointer to the table dump control block
  *
  * \returns CFE Status Code
  * \retval #CFE_SUCCESS                     \copydoc CFE_SUCCESS
  */
-CFE_Status_t CFE_TBL_WriteSnapshotToFile(const CFE_TBL_DumpControl_t *DumpCtlPtr);
+CFE_Status_t CFE_TBL_WriteSnapshotToFile(CFE_TBL_DumpControl_t *DumpCtlPtr);
 
 /*---------------------------------------------------------------------------------------*/
 /**
  * \brief Executes background activity associated with table dump
  *
- * Checks for dump requests where the snapshot has been taken but the
- * file is not yet written.  If found, writes the dump file and closes
- * the dump request.
+ * Queues completed snapshots and reclaims requests after the FS writer has
+ * released their metadata. No table file content is written in this function.
+ * Successful completion updates LastFileDumped here, in the TBL task context.
  *
- * This should be invoked periodically from the background wake up
+ * This is invoked periodically by the TBL housekeeping command.
  */
 void CFE_TBL_TableDumpExecuteBackground(void);
 

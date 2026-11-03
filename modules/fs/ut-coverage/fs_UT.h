@@ -311,5 +311,7 @@ void Test_CFE_FS_GetUncompressedFile(void);
 **
 ******************************************************************************/
 void Test_CFE_FS_BackgroundFileDump(void);
+void Test_CFE_FS_CustomBackgroundHeader(void);
+void Test_CFE_FS_SnapshotHeader(void);
 
 #endif /* FS_UT_H */
