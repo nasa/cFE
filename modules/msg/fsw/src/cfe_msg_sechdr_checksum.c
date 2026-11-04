@@ -41,9 +41,11 @@ CFE_MSG_Checksum_t CFE_MSG_ComputeCheckSum(const CFE_MSG_Message_t *MsgPtr)
     /* Message already checked, no error case reachable */
     CFE_MSG_GetSize(MsgPtr, &PktLen);
 
-    while (PktLen--)
+    while (PktLen)
     {
-        chksum ^= *(BytePtr++);
+        chksum ^= *BytePtr;
+        ++BytePtr;
+        PktLen--;
     }
 
     return chksum;

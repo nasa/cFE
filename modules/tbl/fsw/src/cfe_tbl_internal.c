@@ -378,8 +378,6 @@ CFE_TBL_LoadBuff_t *CFE_TBL_AcquireGlobalLoadBuff(CFE_TBL_RegId_t PendingOwnerId
     CFE_ResourceId_t    PendingId;
     CFE_TBL_LoadBuff_t *LoadBuffPtr;
 
-    LoadBuffPtr = NULL;
-
     /* Take Mutex to make sure we are not trying to grab a working buffer that some */
     /* other application is also trying to grab. */
     OsStatus = OS_MutSemTake(CFE_TBL_Global.WorkBufMutex);
@@ -957,7 +955,7 @@ CFE_Status_t CFE_TBL_SetupTableBuffers(CFE_TBL_RegistryRec_t *RegRecPtr, const C
  *-----------------------------------------------------------------*/
 CFE_Status_t CFE_TBL_RestoreTableDataFromCDS(CFE_TBL_RegistryRec_t *RegRecPtr)
 {
-    CFE_Status_t          Status = CFE_SUCCESS;
+    CFE_Status_t          Status;
     CFE_TBL_CritRegRec_t *CritRegRecPtr;
     CFE_TBL_LoadBuff_t   *WorkingBufferPtr;
 

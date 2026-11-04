@@ -190,7 +190,7 @@ int32 EVS_NotRegistered(EVS_AppData_t *AppDataPtr, CFE_ES_AppId_t CallerID)
 bool EVS_IsFiltered(EVS_AppData_t *AppDataPtr, uint16 EventID, CFE_EVS_EventType_Enum_t EventType)
 {
     EVS_BinFilter_t *FilterPtr;
-    bool             Filtered = false;
+    bool             Filtered;
     char             AppName[OS_MAX_API_NAME];
 
     if (AppDataPtr->ActiveFlag == false)

@@ -89,7 +89,7 @@ int32 CFE_SB_EarlyInit(void)
  *-----------------------------------------------------------------*/
 int32 CFE_SB_InitBuffers(void)
 {
-    int32                   Stat = 0;
+    int32                   Stat;
     CFE_Config_ArrayValue_t MemPoolDefSize;
 
     MemPoolDefSize = CFE_Config_GetArrayValue(CFE_CONFIGID_PLATFORM_SB_MEM_BLOCK_SIZE);

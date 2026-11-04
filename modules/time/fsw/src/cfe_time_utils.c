@@ -347,10 +347,12 @@ void CFE_TIME_InitData(void)
     /*
     ** Initialize simulated tone send message ("fake tone" mode only)...
     */
+#if (CFE_PLATFORM_TIME_CFG_SERVER == true)
 #if (CFE_MISSION_TIME_CFG_FAKE_TONE == true)
     CFE_MSG_Init(CFE_MSG_PTR(CFE_TIME_Global.ToneSendCmd.CommandHeader),
                  CFE_SB_ValueToMsgId(CFE_TIME_SEND_CMD_MID),
                  sizeof(CFE_TIME_Global.ToneSendCmd));
+#endif
 #endif
 
     /*

@@ -296,7 +296,7 @@ CFE_Status_t CFE_SB_CreatePipe(CFE_SB_PipeId_t *PipeIdPtr, uint16 Depth, const c
 CFE_Status_t CFE_SB_DeletePipe(CFE_SB_PipeId_t PipeId)
 {
     CFE_ES_AppId_t CallerId;
-    int32          Status = 0;
+    int32          Status;
 
     /* get the callers Application Id */
     CFE_ES_GetAppID(&CallerId);
@@ -314,7 +314,7 @@ CFE_Status_t CFE_SB_DeletePipe(CFE_SB_PipeId_t PipeId)
  *-----------------------------------------------------------------*/
 int32 CFE_SB_DeletePipeWithAppId(CFE_SB_PipeId_t PipeId, CFE_ES_AppId_t AppId)
 {
-    int32 Status = 0;
+    int32 Status;
 
     Status = CFE_SB_DeletePipeFull(PipeId, AppId);
 
@@ -953,7 +953,6 @@ int32 CFE_SB_SubscribeFull(CFE_SB_MsgId_t  MsgId,
 
     PendingEventID = 0;
     Status         = CFE_SUCCESS;
-    DestPtr        = NULL;
     Collisions     = 0;
 
     /* get the callers Application Id */
@@ -1118,7 +1117,7 @@ int32 CFE_SB_SubscribeFull(CFE_SB_MsgId_t  MsgId,
 CFE_Status_t CFE_SB_Unsubscribe(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId)
 {
     CFE_ES_AppId_t CallerId;
-    int32          Status = 0;
+    int32          Status;
 
     /* get the callers Application Id */
     CFE_ES_GetAppID(&CallerId);
@@ -1137,7 +1136,7 @@ CFE_Status_t CFE_SB_Unsubscribe(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId)
 CFE_Status_t CFE_SB_UnsubscribeLocal(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId)
 {
     CFE_ES_AppId_t CallerId;
-    int32          Status = 0;
+    int32          Status;
 
     /* get the callers Application Id */
     CFE_ES_GetAppID(&CallerId);
@@ -1155,7 +1154,7 @@ CFE_Status_t CFE_SB_UnsubscribeLocal(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeI
  *-----------------------------------------------------------------*/
 int32 CFE_SB_UnsubscribeWithAppId(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId, CFE_ES_AppId_t AppId)
 {
-    int32 Status = 0;
+    int32 Status;
 
     Status = CFE_SB_UnsubscribeFull(MsgId, PipeId, (uint8)CFE_SB_MSG_LOCAL, AppId);
 
@@ -1181,7 +1180,6 @@ int32 CFE_SB_UnsubscribeFull(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId, uint8
 
     PendingEventID = 0;
     Status         = CFE_SUCCESS;
-    DestPtr        = NULL;
 
     /* get TaskId of caller for events */
     CFE_ES_GetTaskID(&TskId);
@@ -1409,9 +1407,8 @@ CFE_SB_Buffer_t *CFE_SB_AllocateMessageBuffer(size_t MsgSize)
     CFE_SB_Buffer_t  *BufPtr;
     CFE_Status_t      Status;
 
-    AppId     = CFE_ES_APPID_UNDEFINED;
-    BufDscPtr = NULL;
-    BufPtr    = NULL;
+    AppId  = CFE_ES_APPID_UNDEFINED;
+    BufPtr = NULL;
 
     Status = CFE_ES_GetAppID(&AppId);
 

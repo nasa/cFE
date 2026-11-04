@@ -610,7 +610,6 @@ CFE_Status_t CFE_TBL_Validate(CFE_TBL_Handle_t TblHandle)
     const char                 *LogTagStr;
     CFE_TBL_CallbackFuncPtr_t   ValidationFunc;
 
-    ResultPtr = NULL;
     BuffPtr   = NULL;
     LogTagStr = "(none)";
 
@@ -820,7 +819,7 @@ CFE_Status_t CFE_TBL_GetStatus(CFE_TBL_Handle_t TblHandle)
 CFE_Status_t CFE_TBL_GetInfo(CFE_TBL_Info_t *TblInfoPtr, const char *TblName)
 {
     CFE_TBL_TxnState_t     Txn;
-    int32                  Status               = CFE_SUCCESS;
+    int32                  Status;
     int32                  NumAccessDescriptors = 0;
     CFE_TBL_RegistryRec_t *RegRecPtr;
     CFE_TBL_LoadBuff_t    *ActiveBufPtr;
@@ -1023,7 +1022,7 @@ CFE_Status_t CFE_TBL_NotifyByMessage(CFE_TBL_Handle_t  TblHandle,
 {
     CFE_TBL_TxnState_t     Txn;
     int32                  Status;
-    CFE_TBL_RegistryRec_t *RegRecPtr = NULL;
+    CFE_TBL_RegistryRec_t *RegRecPtr;
 
     /* Verify that this application has the right to perform operation */
     Status = CFE_TBL_TxnStartFromHandle(&Txn, CFE_TBL_HANDLE_IMPORT(TblHandle), CFE_TBL_TxnContext_ACCESSOR_APP);

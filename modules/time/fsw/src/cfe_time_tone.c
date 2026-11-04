@@ -1090,6 +1090,7 @@ void CFE_TIME_Tone1HzTask(void)
         */
         CFE_SB_TransmitMsg(CFE_MSG_PTR(CFE_TIME_Global.ToneSignalCmd.CommandHeader), true);
 
+#if (CFE_PLATFORM_TIME_CFG_SERVER == true)
 #if (CFE_MISSION_TIME_CFG_FAKE_TONE == true)
         /*
         ** If we are simulating the tone signal, also generate the message
@@ -1097,6 +1098,7 @@ void CFE_TIME_Tone1HzTask(void)
         ** (this is done by scheduler in non-fake mode)
         */
         CFE_SB_TransmitMsg(CFE_MSG_PTR(CFE_TIME_Global.ToneSendCmd.CommandHeader), true);
+#endif
 #endif
 
         /*

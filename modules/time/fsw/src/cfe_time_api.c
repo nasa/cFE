@@ -567,7 +567,7 @@ uint32 CFE_TIME_Micro2SubSecs(uint32 MicroSeconds)
  *-----------------------------------------------------------------*/
 CFE_Status_t CFE_TIME_Print(char *PrintBuffer, CFE_TIME_SysTime_t TimeToPrint)
 {
-    size_t    FmtLen = 0;
+    size_t    FmtLen;
     uint32    Micros = (CFE_TIME_Sub2MicroSecs(TimeToPrint.Subseconds) + CFE_MISSION_TIME_EPOCH_MICROS) / 10;
     struct tm tm     = { 0 };
 

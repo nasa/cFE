@@ -58,7 +58,7 @@ int32 CFE_EVS_EarlyInit(void)
     int32               PspStatus;
     uint32              resetAreaSize = 0;
     cpuaddr             resetAreaAddr;
-    CFE_ES_ResetData_t *CFE_EVS_ResetDataPtr = (CFE_ES_ResetData_t *)NULL;
+    CFE_ES_ResetData_t *CFE_EVS_ResetDataPtr;
 
     memset(&CFE_EVS_Global, 0, sizeof(CFE_EVS_Global));
 
