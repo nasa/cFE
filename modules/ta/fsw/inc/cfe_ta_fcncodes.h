@@ -222,4 +222,40 @@
 */
 #define CFE_TA_GET_TASK_AFFINITY_CC CFE_TA_CCVAL(GET_TASK_AFFINITY)
 
+/** \brief Sends telemetry packet with list of All Task Affinity Tasks
+**
+**  \par Description
+**       This command querys the task affinity of all the
+**       registered tasks and sends it in a telemetry packet.
+**
+**  \cfecmdmnemonic \TA_QUERY_AFFINITY
+**
+**  \par Command Structure
+**       #CFE_TA_QueryTaskAffinityCmd_t
+**
+**  \par Command Verification
+**       Successful execution of this command may be verified with
+**       the following telemetry:
+**       - \b \c \TA_CMDPC - command execution counter will
+**         increment
+**       - The CFE_TA_AffinityTlm_t telemetry packet will be
+**         sent with the latest task affinity information.
+**
+**  \par Error Conditions
+**       This command may fail for the following reason(s):
+**       - An Error occurs while trying to get the task affinity
+**
+**       Evidence of failure may be found in the following telemetry:
+**       - \b \c \TA_CMDEC - command error counter will increment
+**       - The #CFE_TA_QUERY_AFFINITY_CMD_GET_ERR_EID error event message
+**         will be generated.
+**
+**  \par Criticality
+**       This command is not inherently dangerous as it only reads state
+**       and generates a telemetry packet.
+**
+**  \sa
+*/
+#define CFE_TA_QUERY_TASK_AFFINITY_CC CFE_TA_CCVAL(QUERY_TASK_AFFINITY)
+
 #endif

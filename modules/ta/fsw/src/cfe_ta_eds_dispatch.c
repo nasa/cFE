@@ -39,11 +39,12 @@ static const EdsDispatchTable_EdsComponent_CFE_TA_Application_CFE_SB_Telecommand
 {
     .CMD =
     {
-        .NoopCmd_indication            = (int32_t (*)(const EdsDataType_CFE_TA_NoopCmd_t *)) CFE_TA_NoopCmd,
-        .ResetCountersCmd_indication   = (int32_t (*)(const EdsDataType_CFE_TA_ResetCountersCmd_t *)) CFE_TA_ResetCountersCmd,
-        .QueryAllTasksCmd_indication   = (int32_t (*)(const EdsDataType_CFE_TA_QueryAllTasksCmd_t *)) CFE_TA_QueryAllTasksCmd,
-        .SetTaskAffinityCmd_indication = (int32_t (*)(const EdsDataType_CFE_TA_SetTaskAffinityCmd_t *)) CFE_TA_SetTaskAffinityCmd,
-        .GetTaskAffinityCmd_indication = (int32_t (*)(const EdsDataType_CFE_TA_GetTaskAffinityCmd_t *)) CFE_TA_GetTaskAffinityCmd
+        .NoopCmd_indication              = (int32_t (*)(const EdsDataType_CFE_TA_NoopCmd_t *)) CFE_TA_NoopCmd,
+        .ResetCountersCmd_indication     = (int32_t (*)(const EdsDataType_CFE_TA_ResetCountersCmd_t *)) CFE_TA_ResetCountersCmd,
+        .QueryAllTasksCmd_indication     = (int32_t (*)(const EdsDataType_CFE_TA_QueryAllTasksCmd_t *)) CFE_TA_QueryAllTasksCmd,
+        .SetTaskAffinityCmd_indication   = (int32_t (*)(const EdsDataType_CFE_TA_SetTaskAffinityCmd_t *)) CFE_TA_SetTaskAffinityCmd,
+        .GetTaskAffinityCmd_indication   = (int32_t (*)(const EdsDataType_CFE_TA_GetTaskAffinityCmd_t *)) CFE_TA_GetTaskAffinityCmd
+        .QueryTaskAffinityCmd_indication = (int32_t (*)(const EdsDataType_CFE_TA_QueryTaskAffinityCmd_t *)) CFE_TA_QueryTaskAffinityCmd
     },
     .SEND_HK =
     {
