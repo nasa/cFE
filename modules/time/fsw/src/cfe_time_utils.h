@@ -572,7 +572,7 @@ static inline volatile CFE_TIME_ReferenceState_t *CFE_TIME_GetReferenceState(voi
  * of our local clock will always be sufficient to measure
  * time for a couple of seconds.
  */
-void CFE_TIME_ToneSignal(void);
+void CFE_TIME_ToneSignal(CFE_TIME_SysTime_t ToneSignalLatch);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -608,6 +608,18 @@ void CFE_TIME_ToneUpdate(void);
 /*
 ** Function prototypes (tone 1Hz interrupt)...
 */
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Shared Function for processing the tone signal from client or server.
+ */
+CFE_Status_t CFE_TIME_Process1HzTone(CFE_TIME_SysTime_t ToneSignalLatch);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Function for a client to process server latched tone
+ */
+void CFE_TIME_ServerToneSignal(CFE_TIME_SysTime_t ToneSignalLatch);
 
 /*---------------------------------------------------------------------------------------*/
 /**

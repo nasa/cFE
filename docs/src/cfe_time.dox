@@ -29,6 +29,7 @@
        <LI> \subpage cfetimeugtoneorder <BR>
        <LI> \subpage cfetimeugtonewindow <BR>
        <LI> \subpage cfetimeugserver <BR>
+       <LI> \subpage cfetimeuglatchservertone <BR>
        <LI> \subpage cfetimeugendian <BR>
        <LI> \subpage cfetimeugvirtualmet <BR>
        <LI> \subpage cfetimeugsource <BR>
@@ -339,6 +340,31 @@
   \endverbatim
 
   \sa #CFE_PLATFORM_TIME_CFG_SERVER, #CFE_PLATFORM_TIME_CFG_CLIENT
+**/
+
+/**
+  \page cfetimeuglatchservertone Latching the Tone Signal Time on the Server 
+
+  Configure TIME to latch the tone signal time on the server if the client is running
+  on the same operating system as the server. When used on the client, this option
+  eliminates the 1hz tone ISR/callback, and the 1hz tone task. It was added to support
+  a use case where there are multiple cFS instances running on a single operating system
+  such as Linux or QNX, and the instances are communicating via Software Bus Network.
+  With this use case, the server instance of cFS manages the 1hz, keeping potentially
+  up to dozens of cFE time clients from also having a 1PPS interrupt and task on the
+  same physical processor card. One instantiation must be configured as the server
+  and the remainder configured as clients with this option set to true.
+  Depending on the latency of the interconnect (such as SBN), and the OS, the user
+  may wish to increase the option CFE_MISSION_TIME_MAX_ELAPSED.
+
+  Set the following definition to TRUE only for TIME clients that wish to use the
+  tone signal time that was latched on the server.
+
+  \verbatim
+  #define CFE_PLATFORM_TIME_CFG_SERVER_TONE_LATCH TRUE
+  \endverbatim
+
+  \sa #CFE_PLATFORM_TIME_CFG_SERVER, #CFE_PLATFORM_TIME_CFG_CLIENT, #CFE_MISSION_TIME_MAX_ELAPSED
 **/
 
 /**
