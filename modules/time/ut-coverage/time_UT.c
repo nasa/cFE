@@ -2396,7 +2396,9 @@ void Test_Tone(void)
 */
 void Test_1Hz(void)
 {
+#if (CFE_PLATFORM_TIME_CFG_DISABLE_LOCAL_1HZ == false)
     uint16                              Arg;
+#endif
     uint16                              i;
     uint32                              delSec = 3;
     CFE_TIME_SysTime_t                  time1;
@@ -2525,6 +2527,7 @@ void Test_1Hz(void)
 #endif
     UtAssert_INT32_EQ(ut_time_CallbackCalled, 3);
 
+#if (CFE_PLATFORM_TIME_CFG_DISABLE_LOCAL_1HZ == false)
     /* Test the local 1Hz ISR */
     UT_InitData();
     CFE_TIME_Global.LocalIntCounter = 1;
@@ -2541,6 +2544,7 @@ void Test_1Hz(void)
     UT_SetDeferredRetcode(UT_KEY(OS_BinSemTake), 2, OS_ERROR);
     CFE_TIME_Local1HzTask();
     UtAssert_UINT32_EQ(CFE_TIME_Global.LocalTaskCounter, 1);
+#endif
 
     /* Test the tone 1Hz task where the binary semaphore take fails on the
      * second call
@@ -2600,6 +2604,7 @@ void Test_1Hz(void)
 #endif
     UtAssert_BOOL_FALSE(CFE_TIME_Global.IsToneGood);
 
+#if (CFE_PLATFORM_TIME_CFG_DISABLE_LOCAL_1HZ == false)
     /* Test local 1Hz interrupt when enough time has elapsed (subseconds) since
      * receiving a time update to automatically change the state to flywheel
      */
@@ -2631,6 +2636,7 @@ void Test_1Hz(void)
     UtAssert_INT32_EQ(RefState->ClockFlyState, CFE_TIME_FlywheelState_NO_FLY);
 
     /* Test the local 1Hz task where auto start flywheel is disabled */
+    /* APC - need to relocate this test */
     UT_InitData();
     CFE_TIME_Global.LocalTaskCounter = 0;
     CFE_TIME_Global.AutoStartFly     = false;
@@ -2651,6 +2657,7 @@ void Test_1Hz(void)
     UT_SetBSP_Time(0, 0);
     CFE_TIME_Local1HzTimerCallback(OS_ObjectIdFromInteger(123), &Arg);
     UtAssert_UINT32_EQ(CFE_TIME_Global.LocalIntCounter, 2);
+#endif
 }
 
 /*

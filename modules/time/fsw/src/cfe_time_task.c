@@ -187,6 +187,17 @@ static int32 CFE_TIME_TaskInit_CreateResources(const char *LogFunction)
         return CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
     }
 
+#if (CFE_PLATFORM_TIME_CFG_DISABLE_LOCAL_1HZ == false)
+    OsStatus = OS_BinSemCreate(&CFE_TIME_Global.LocalSemaphore,
+                               CFE_TIME_SEM_ONEHZ_NAME,
+                               CFE_TIME_SEM_VALUE,
+                               CFE_TIME_SEM_OPTIONS);
+    if (OsStatus != OS_SUCCESS)
+    {
+        CFE_ES_WriteToSysLog("%s: Error creating local semaphore:RC=%ld\n", LogFunction, (long)OsStatus);
+        return CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
+    }
+
     Status = CFE_ES_CreateChildTask(&CFE_TIME_Global.LocalTaskID,
                                     CFE_TIME_TASK_ONEHZ_NAME,
                                     CFE_TIME_Local1HzTask,
@@ -199,6 +210,7 @@ static int32 CFE_TIME_TaskInit_CreateResources(const char *LogFunction)
         CFE_ES_WriteToSysLog("%s: Error creating local 1Hz child task:RC=0x%08X\n", LogFunction, (unsigned int)Status);
         return Status;
     }
+#endif
 
     return CFE_SUCCESS;
 }
@@ -316,6 +328,7 @@ static int32 CFE_TIME_TaskInit_SendInitEvent(const char *LogFunction)
     return CFE_SUCCESS;
 }
 
+#if (CFE_PLATFORM_TIME_CFG_DISABLE_LOCAL_1HZ == false)
 /*----------------------------------------------------------------
  *
  * Local helper function
@@ -355,6 +368,7 @@ static void CFE_TIME_TaskInit_Setup1HzTimer(const char *LogFunction)
         CFE_ES_WriteToSysLog("%s: 1Hz OS_TimerSet failed:RC=%ld\n", LogFunction, (long)OsStatus);
     }
 }
+#endif
 
 /*----------------------------------------------------------------
  *
@@ -391,7 +405,9 @@ int32 CFE_TIME_TaskInit(void)
     OS_SelectTone(CFE_TIME_Global.ClockSignal);
 #endif
 
+#if (CFE_PLATFORM_TIME_CFG_DISABLE_LOCAL_1HZ == false)
     CFE_TIME_TaskInit_Setup1HzTimer(__func__);
+#endif
 
     return CFE_SUCCESS;
 }
