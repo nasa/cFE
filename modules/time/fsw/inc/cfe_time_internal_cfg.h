@@ -56,6 +56,26 @@
 #define DEFAULT_CFE_PLATFORM_TIME_CFG_CLIENT false
 
 /**
+**  \cfetimecfg Disable Local 1Hz task
+**
+**  \par Description:
+**       This configuration parameter selects whether the Time task creates a
+**       local 1hz task to drive the 1hz state machine, or if it relies
+**       on an external app like the cFS Scheduler to send the 1hz state
+**       machine packet. This option can support specific Time mission use
+**       cases.
+**
+**  \par Limits
+**       If set to false, the Time module will create the OSAL timer and local
+**       1Hz task that drives the Time 1Hz state machine (default).
+**       If set to true, the Time module will exclude the OSAL timer, local 1Hz ISR
+**       (callback) and the Local 1Hz task. An external source such as the scheduler
+**       will have to send the packet to drive the 1hz state machine.
+*/
+#define CFE_PLATFORM_TIME_CFG_DISABLE_LOCAL_1HZ         CFE_PLATFORM_TIME_CFGVAL(CFG_DISABLE_LOCAL_1HZ)
+#define DEFAULT_CFE_PLATFORM_TIME_CFG_DISABLE_LOCAL_1HZ false
+
+/**
 **  \cfetimecfg Local MET or Virtual MET Selection for Time Servers
 **
 **  \par Description:

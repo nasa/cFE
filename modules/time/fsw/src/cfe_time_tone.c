@@ -949,17 +949,6 @@ void CFE_TIME_ToneUpdate(void)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-void CFE_TIME_Local1HzTimerCallback(osal_id_t TimerId, void *Arg)
-{
-    CFE_TIME_Local1HzISR();
-}
-
-/*----------------------------------------------------------------
- *
- * Application-scope internal function
- * See description in header file for argument/return detail
- *
- *-----------------------------------------------------------------*/
 void CFE_TIME_Tone1HzISR(void)
 {
     CFE_TIME_SysTime_t ToneSignalLatch;
@@ -1130,6 +1119,15 @@ void CFE_TIME_Local1HzStateMachine(void)
     /* Start Performance Monitoring */
     CFE_ES_PerfLogEntry(CFE_MISSION_TIME_LOCAL1HZISR_PERF_ID);
 
+    /*
+    ** Send "info" event if we just started flywheel mode...
+    */
+    if (CFE_TIME_Global.AutoStartFly)
+    {
+        CFE_TIME_Global.AutoStartFly = false;
+        CFE_EVS_SendEvent(CFE_TIME_FLY_ON_EID, CFE_EVS_EventType_INFORMATION, "Start FLYWHEEL");
+    }
+
     /* Zero out the Reference variable because we pass it into
      * a function before using it
      * */
@@ -1241,10 +1239,25 @@ void CFE_TIME_Local1HzISR(void)
 {
     CFE_TIME_Global.LocalIntCounter++;
 
+#if (CFE_PLATFORM_TIME_CFG_DISABLE_LOCAL_1HZ == false)
     /*
     ** Enable 1Hz task (we can't send a SB message from here)...
     */
     OS_BinSemGive(CFE_TIME_Global.LocalSemaphore);
+#endif
+
+}
+
+#if (CFE_PLATFORM_TIME_CFG_DISABLE_LOCAL_1HZ == false)
+/*----------------------------------------------------------------
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+void CFE_TIME_Local1HzTimerCallback(osal_id_t TimerId, void *Arg)
+{
+    CFE_TIME_Local1HzISR();
 }
 
 /*----------------------------------------------------------------
@@ -1275,16 +1288,6 @@ void CFE_TIME_Local1HzTask(void)
         CFE_ES_PerfLogEntry(CFE_MISSION_TIME_LOCAL1HZTASK_PERF_ID);
 
         /*
-        ** Send "info" event if we just started flywheel mode...
-        */
-        if (CFE_TIME_Global.AutoStartFly)
-        {
-            CFE_TIME_Global.AutoStartFly = false;
-
-            CFE_EVS_SendEvent(CFE_TIME_FLY_ON_EID, CFE_EVS_EventType_INFORMATION, "Start FLYWHEEL");
-        }
-
-        /*
         ** Send 1Hz timing packet...
         ** This used to be optional in previous CFE versions, but it is now required
         ** as TIME subscribes to this itself to do state machine tasks.
@@ -1302,6 +1305,7 @@ void CFE_TIME_Local1HzTask(void)
     **    error in the creation of the semaphore.
     */
 }
+#endif
 
 /*----------------------------------------------------------------
  *
