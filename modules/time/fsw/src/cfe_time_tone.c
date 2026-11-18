@@ -1245,7 +1245,6 @@ void CFE_TIME_Local1HzISR(void)
     */
     OS_BinSemGive(CFE_TIME_Global.LocalSemaphore);
 #endif
-
 }
 
 #if (CFE_PLATFORM_TIME_CFG_DISABLE_LOCAL_1HZ == false)

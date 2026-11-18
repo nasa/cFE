@@ -2379,7 +2379,7 @@ void Test_Tone(void)
 void Test_1Hz(void)
 {
 #if (CFE_PLATFORM_TIME_CFG_DISABLE_LOCAL_1HZ == false)
-    uint16                              Arg;
+    uint16 Arg;
 #endif
     uint16                              i;
     uint32                              delSec = 3;
