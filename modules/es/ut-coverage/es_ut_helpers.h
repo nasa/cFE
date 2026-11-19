@@ -35,7 +35,7 @@
  * requirements for the implementation, but
  * not much larger.
  */
-#define ES_UT_CDS_SMALL_TEST_SIZE (56 * 1024)
+#define ES_UT_CDS_SMALL_TEST_SIZE (128 + CDS_RESERVED_MIN_SIZE + (32 * CFE_PLATFORM_ES_CDS_MAX_NUM_ENTRIES))
 
 /*
  * A size which has room for actual allocations
