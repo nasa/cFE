@@ -117,6 +117,14 @@ typedef struct CFE_TIME_ToneDataCmd_Payload
     CFE_TIME_ClockState_Enum_t AtToneState;       /**< \brief Clock state at time of tone */
 } CFE_TIME_ToneDataCmd_Payload_t;
 
+/**
+ * \brief Time signal packet command payload
+ */
+typedef struct CFE_TIME_ToneSignalCmd_Payload
+{
+    CFE_TIME_SysTime_t ServerToneSignalLatch; /**< \brief Time latch at tone signal */
+} CFE_TIME_ToneSignalCmd_Payload_t;
+
 /*************************************************************************/
 
 /**

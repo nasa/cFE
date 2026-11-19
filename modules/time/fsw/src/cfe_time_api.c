@@ -604,10 +604,12 @@ CFE_Status_t CFE_TIME_Print(char *PrintBuffer, CFE_TIME_SysTime_t TimeToPrint)
  *-----------------------------------------------------------------*/
 void CFE_TIME_ExternalTone(void)
 {
+#if (CFE_PLATFORM_TIME_CFG_SERVER_TONE_LATCH == false)
     /*
     ** Call tone signal ISR (OK if called from non-ISR context)...
     */
     CFE_TIME_Tone1HzISR();
+#endif
 }
 
 /*----------------------------------------------------------------

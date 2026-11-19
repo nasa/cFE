@@ -152,6 +152,7 @@ static int32 CFE_TIME_TaskInit_CreateResources(const char *LogFunction)
         return Status;
     }
 
+#if (CFE_PLATFORM_TIME_CFG_SERVER_TONE_LATCH == false)
     OsStatus = OS_BinSemCreate(&CFE_TIME_Global.ToneSemaphore,
                                CFE_TIME_SEM_TONE_NAME,
                                CFE_TIME_SEM_VALUE,
@@ -159,16 +160,6 @@ static int32 CFE_TIME_TaskInit_CreateResources(const char *LogFunction)
     if (OsStatus != OS_SUCCESS)
     {
         CFE_ES_WriteToSysLog("%s: Error creating tone semaphore:RC=%ld\n", LogFunction, (long)OsStatus);
-        return CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
-    }
-
-    OsStatus = OS_BinSemCreate(&CFE_TIME_Global.LocalSemaphore,
-                               CFE_TIME_SEM_ONEHZ_NAME,
-                               CFE_TIME_SEM_VALUE,
-                               CFE_TIME_SEM_OPTIONS);
-    if (OsStatus != OS_SUCCESS)
-    {
-        CFE_ES_WriteToSysLog("%s: Error creating local semaphore:RC=%ld\n", LogFunction, (long)OsStatus);
         return CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
     }
 
@@ -183,6 +174,17 @@ static int32 CFE_TIME_TaskInit_CreateResources(const char *LogFunction)
     {
         CFE_ES_WriteToSysLog("%s: Error creating tone 1Hz child task:RC=0x%08X\n", LogFunction, (unsigned int)Status);
         return Status;
+    }
+#endif
+
+    OsStatus = OS_BinSemCreate(&CFE_TIME_Global.LocalSemaphore,
+                               CFE_TIME_SEM_ONEHZ_NAME,
+                               CFE_TIME_SEM_VALUE,
+                               CFE_TIME_SEM_OPTIONS);
+    if (OsStatus != OS_SUCCESS)
+    {
+        CFE_ES_WriteToSysLog("%s: Error creating local semaphore:RC=%ld\n", LogFunction, (long)OsStatus);
+        return CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
     }
 
     Status = CFE_ES_CreateChildTask(&CFE_TIME_Global.LocalTaskID,
@@ -440,10 +442,23 @@ int32 CFE_TIME_SendHkCmd(const CFE_TIME_SendHkCmd_t *data)
  *-----------------------------------------------------------------*/
 int32 CFE_TIME_ToneSignalCmd(const CFE_TIME_ToneSignalCmd_t *data)
 {
+    CFE_TIME_SysTime_t ToneSignalLatch;
+
+    ToneSignalLatch = data->Payload.ServerToneSignalLatch;
+
+#if (CFE_PLATFORM_TIME_CFG_SERVER_TONE_LATCH == true)
+    /*
+    ** When the SERVER_TONE_LATCH option is selected (only for a client),
+    ** The client will use the latched signal time from the server.
+    ** It will call this function in place of the 1HZ ISR and task.
+    */
+    CFE_TIME_ServerToneSignal(ToneSignalLatch);
+#endif
+
     /*
     ** Indication that tone signal occurred recently...
     */
-    CFE_TIME_ToneSignal();
+    CFE_TIME_ToneSignal(ToneSignalLatch);
 
     /*
     ** Note: we only increment the command execution counter when
@@ -488,11 +503,13 @@ int32 CFE_TIME_OneHzCmd(const CFE_TIME_OneHzCmd_t *data)
      */
     CFE_TIME_Local1HzStateMachine();
 
+#if (CFE_PLATFORM_TIME_CFG_SERVER_TONE_LATCH == false)
 #if (CFE_MISSION_TIME_CFG_FAKE_TONE == true)
     /*
     ** Fake the call-back from the "real" h/w ISR...
     */
     CFE_TIME_Tone1HzISR();
+#endif /* CFE_MISSION_TIME_CFG_FAKE_TONE */
 #endif /* CFE_MISSION_TIME_CFG_FAKE_TONE */
 
     /*

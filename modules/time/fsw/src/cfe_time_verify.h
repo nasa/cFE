@@ -147,6 +147,15 @@
 #endif
 
 /*
+** Validate the "latch tone signal time on server" option. It is only valid for the client.
+*/
+#if (CFE_PLATFORM_TIME_CFG_SERVER == true)
+#if (CFE_PLATFORM_TIME_CFG_SERVER_TONE_LATCH == true)
+#error Cannot define CFE_PLATFORM_TIME_CFG_SERVER_TONE_LATCH as true when CFE_PLATFORM_TIME_CFG_SERVER is true!
+#endif
+#endif
+
+/*
 ** Validate task priorities...
 */
 #if CFE_PLATFORM_TIME_START_TASK_PRIORITY < 0

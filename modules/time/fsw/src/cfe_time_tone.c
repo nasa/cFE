@@ -642,7 +642,7 @@ void CFE_TIME_ToneData(const CFE_TIME_ToneDataCmd_Payload_t *ToneDataCmd)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-void CFE_TIME_ToneSignal(void)
+void CFE_TIME_ToneSignal(CFE_TIME_SysTime_t ToneSignalLatch)
 {
 /*
 ** If the data packet is designed to arrive after the tone signal...
@@ -666,7 +666,7 @@ void CFE_TIME_ToneSignal(void)
 **    now start using the new data to compute time.
 */
 #if (CFE_MISSION_TIME_AT_TONE_WILL_BE == true)
-    CFE_TIME_ToneVerify(CFE_TIME_Global.ToneDataLatch, CFE_TIME_Global.ToneSignalLatch);
+    CFE_TIME_ToneVerify(CFE_TIME_Global.ToneDataLatch, ToneSignalLatch);
 #endif
 
     /*
@@ -960,19 +960,11 @@ void CFE_TIME_Local1HzTimerCallback(osal_id_t TimerId, void *Arg)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-void CFE_TIME_Tone1HzISR(void)
+CFE_Status_t CFE_TIME_Process1HzTone(CFE_TIME_SysTime_t ToneSignalLatch)
 {
-    CFE_TIME_SysTime_t ToneSignalLatch;
+    CFE_Status_t       Status = CFE_SUCCESS;
     CFE_TIME_SysTime_t Elapsed;
     CFE_TIME_Compare_t Result;
-
-    /* Start Performance Monitoring */
-    CFE_ES_PerfLogEntry(CFE_MISSION_TIME_TONE1HZISR_PERF_ID);
-
-    /*
-    ** Latch the local clock when the tone signal occurred...
-    */
-    ToneSignalLatch = CFE_TIME_LatchClock();
 
     /*
     ** Compute elapsed time since the previous tone signal...
@@ -996,6 +988,11 @@ void CFE_TIME_Tone1HzISR(void)
     }
 
     /*
+    ** Save local time latch of most recent tone signal...
+    */
+    CFE_TIME_Global.ToneSignalLatch = ToneSignalLatch;
+
+    /*
     ** Verify that tone occurred ~1 second after previous tone...
     */
     if (((Elapsed.Seconds == 1) && (Elapsed.Subseconds < CFE_TIME_Global.ToneOverLimit))
@@ -1004,6 +1001,7 @@ void CFE_TIME_Tone1HzISR(void)
         /*
         ** Maintain count of valid tone signal interrupts...
         **   (set to zero by reset command)
+        **
         */
         CFE_TIME_Global.ToneIntCounter++;
 
@@ -1026,11 +1024,6 @@ void CFE_TIME_Tone1HzISR(void)
 #if (CFE_PLATFORM_TIME_CFG_VIRTUAL != true)
         OS_GetLocalMET(&CFE_TIME_Global.VirtualMET);
 #endif
-
-        /*
-        ** Enable tone task (we can't send a SB message from here)...
-        */
-        OS_BinSemGive(CFE_TIME_Global.ToneSemaphore);
     }
     else
     {
@@ -1044,12 +1037,54 @@ void CFE_TIME_Tone1HzISR(void)
         ** can mark this tone as 'not good'
         */
         CFE_TIME_Global.IsToneGood = false;
+
+        Status = CFE_STATUS_RANGE_ERROR;
     }
 
+    return Status;
+}
+#if (CFE_PLATFORM_TIME_CFG_SERVER_TONE_LATCH == true)
+/*----------------------------------------------------------------
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+void CFE_TIME_ServerToneSignal(CFE_TIME_SysTime_t ToneSignalLatch)
+{
+    CFE_TIME_Process1HzTone(ToneSignalLatch);
+
+    /* Notify registered time synchronization applications */
+    CFE_TIME_NotifyTimeSynchApps();
+}
+#endif
+
+#if (CFE_PLATFORM_TIME_CFG_SERVER_TONE_LATCH == false)
+/*----------------------------------------------------------------
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+void CFE_TIME_Tone1HzISR(void)
+{
+    CFE_TIME_SysTime_t ToneSignalLatch;
+
+    /* Start Performance Monitoring */
+    CFE_ES_PerfLogEntry(CFE_MISSION_TIME_TONE1HZISR_PERF_ID);
+
     /*
-    ** Save local time latch of most recent tone signal...
+    ** Latch the local clock when the tone signal occurred...
     */
-    CFE_TIME_Global.ToneSignalLatch = ToneSignalLatch;
+    ToneSignalLatch = CFE_TIME_LatchClock();
+
+    if (CFE_TIME_Process1HzTone(ToneSignalLatch) == CFE_SUCCESS)
+    {
+        /*
+        ** Enable tone task (we can't send a SB message from here)...
+        */
+        OS_BinSemGive(CFE_TIME_Global.ToneSemaphore);
+    }
 
     /* Notify registered time synchronization applications */
     CFE_TIME_NotifyTimeSynchApps();
@@ -1088,6 +1123,7 @@ void CFE_TIME_Tone1HzTask(void)
         /*
         ** Send tone signal command packet...
         */
+        CFE_TIME_Global.ToneSignalCmd.Payload.ServerToneSignalLatch = CFE_TIME_Global.ToneSignalLatch;
         CFE_SB_TransmitMsg(CFE_MSG_PTR(CFE_TIME_Global.ToneSignalCmd.CommandHeader), true);
 
 #if (CFE_PLATFORM_TIME_CFG_SERVER == true)
@@ -1115,6 +1151,7 @@ void CFE_TIME_Tone1HzTask(void)
     **    had an error in the creation of the semaphore.
     */
 }
+#endif
 
 /*----------------------------------------------------------------
  *
