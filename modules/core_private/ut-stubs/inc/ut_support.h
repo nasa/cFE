@@ -304,12 +304,13 @@ void UT_SetupBasicMsgDispatch(const UT_TaskPipeDispatchId_t *DispatchReq,
 ** \par Assumptions, External Events, and Notes:
 **        None
 **
-** \param[in] msg_ptr  Pointer to the buffer that contains the software
-**                     bus message
+** \param[in] TaskPipeFunc  Task pipe function to invoke
 **
-** \param[in] id       Message ID to put into the message header
+** \param[in] MsgPtr        Pointer to the software bus message
 **
-** \param[in] code     Command code to include in the message
+** \param[in] MsgSize       Size of the software bus message
+**
+** \param[in] DispatchId    Dispatcher configuration for the message
 **
 ** \returns
 **        This function does not return a value.
@@ -595,7 +596,7 @@ uint16 UT_GetNumEventsSent(void);
 ** \par Assumptions, External Events, and Notes:
 **        None
 **
-** \param[in] ptr   Pointer to packet to display
+** \param[in] MsgPtr  Pointer to packet to display
 **
 ** \param[in] size  Size of packet in bytes
 **
