@@ -112,13 +112,23 @@
         </EntryList>
       </ContainerDataType>
 
-      <ContainerDataType name="BitMaskCmd_Payload" shortDescription="Enable/Disable Events or Ports Commands">
+      <ContainerDataType name="EventTypeCmd_Payload" shortDescription="Enable/Disable Events Commands">
         <LongDescription>
-          For command details, see #CFE_EVS_ENABLE_EVENT_TYPE_CC, #CFE_EVS_DISABLE_EVENT_TYPE_CC,
-          #CFE_EVS_ENABLE_PORTS_CC and/or #CFE_EVS_DISABLE_PORTS_CC
+          For command details, see #CFE_EVS_ENABLE_EVENT_TYPE_CC
+          and #CFE_EVS_DISABLE_EVENT_TYPE_CC
         </LongDescription>
         <EntryList>
-          <Entry name="BitMask" type="BASE_TYPES/uint8" shortDescription="BitMask to use in the command" />
+          <Entry name="EventType" type="EventType" shortDescription="BitMask to use in the command" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="EventOutputCmd_Payload" shortDescription="Enable/Disable Ports Commands">
+        <LongDescription>
+          For command details, see #CFE_EVS_ENABLE_PORTS_CC
+          and #CFE_EVS_DISABLE_PORTS_CC
+        </LongDescription>
+        <EntryList>
+          <Entry name="EventOutput" type="EventOutput" shortDescription="BitMask to use in the command" />
           <PaddingEntry sizeInBits="8" shortDescription="Spare bytes for alignment"/>
         </EntryList>
       </ContainerDataType>
@@ -275,7 +285,7 @@
               \cfetlmmnemonic  \EVS_EVENTID
             </LongDescription>
           </Entry>
-          <Entry name="EventType" type="BASE_TYPES/uint16" shortDescription="Numerical event type identifier">
+          <Entry name="EventType" type="EventType" shortDescription="Numerical event type identifier">
             <LongDescription>
               \cfetlmmnemonic  \EVS_EVENTTYPE
             </LongDescription>
@@ -456,7 +466,7 @@
           <ValueConstraint entry="Sec.FunctionCode" value="2" />
         </ConstraintSet>
         <EntryList>
-          <Entry type="BitMaskCmd_Payload" name="Payload" />
+          <Entry type="EventTypeCmd_Payload" name="Payload" />
         </EntryList>
       </ContainerDataType>
 
@@ -510,7 +520,7 @@
           <ValueConstraint entry="Sec.FunctionCode" value="3" />
         </ConstraintSet>
         <EntryList>
-          <Entry type="BitMaskCmd_Payload" name="Payload" />
+          <Entry type="EventTypeCmd_Payload" name="Payload" />
         </EntryList>
       </ContainerDataType>
 
@@ -874,8 +884,8 @@
           \cfecmdmnemonic  \EVS_ENAPORT
 
           \par  Command Structure
-          #CFE_EVS_BitMaskCmd_t
-          The following bit positions apply to structure member named 'BitMask'.
+          #CFE_EVS_EventOutputCmd_Payload_t
+          The following bit positions apply to structure member named 'EventOutput'.
           Bit 0 - Port 1
           Bit 1 - Port 2
           Bit 2 - Port 3
@@ -906,7 +916,7 @@
           <ValueConstraint entry="Sec.FunctionCode" value="11" />
         </ConstraintSet>
         <EntryList>
-          <Entry type="BitMaskCmd_Payload" name="Payload" />
+          <Entry type="EventOutputCmd_Payload" name="Payload" />
         </EntryList>
       </ContainerDataType>
 
@@ -919,8 +929,8 @@
           \cfecmdmnemonic  \EVS_DISPORT
 
           \par  Command Structure
-          #CFE_EVS_BitMaskCmd_t
-          The following bit positions apply to structure member named 'BitMask'.
+          #CFE_EVS_EventOutputCmd_Payload_t
+          The following bit positions apply to structure member named 'EventOutput'.
           Bit 0 - Port 1
           Bit 1 - Port 2
           Bit 2 - Port 3
@@ -952,7 +962,7 @@
           <ValueConstraint entry="Sec.FunctionCode" value="12" />
         </ConstraintSet>
         <EntryList>
-          <Entry type="BitMaskCmd_Payload" name="Payload" />
+          <Entry type="EventOutputCmd_Payload" name="Payload" />
         </EntryList>
       </ContainerDataType>
 

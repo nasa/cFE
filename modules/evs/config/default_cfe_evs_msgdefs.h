@@ -87,17 +87,29 @@ typedef struct CFE_EVS_SetEventFormatCode_Payload
 } CFE_EVS_SetEventFormatMode_Payload_t;
 
 /**
-** \brief Generic Bitmask Command Payload
+** \brief Generic Event Type Command Payload
 **
-** For command details, see #CFE_EVS_ENABLE_EVENT_TYPE_CC, #CFE_EVS_DISABLE_EVENT_TYPE_CC,
-**                          #CFE_EVS_ENABLE_PORTS_CC and/or #CFE_EVS_DISABLE_PORTS_CC
+** For command details, see #CFE_EVS_ENABLE_EVENT_TYPE_CC\
+** and #CFE_EVS_DISABLE_EVENT_TYPE_CC
 **
 **/
-typedef struct CFE_EVS_BitMaskCmd_Payload
+typedef struct CFE_EVS_EventTypeCmd_Payload
 {
-    uint8 BitMask; /**< \brief BitMask to use in the command */
-    uint8 Spare;   /**< \brief Pad to even byte*/
-} CFE_EVS_BitMaskCmd_Payload_t;
+    CFE_EVS_EventType_Enum_t EventType; /**< \brief Event type to use in the command */
+} CFE_EVS_EventTypeCmd_Payload_t;
+
+/**
+** \brief Generic Event Output Command Payload
+**
+** For command details, see #CFE_EVS_ENABLE_PORTS_CC
+** and #CFE_EVS_DISABLE_PORTS_CC
+**
+**/
+typedef struct CFE_EVS_EventOutputCmd_Payload
+{
+    CFE_EVS_EventOutput_Enum_t EventOutput; /**< \brief Event output destination to use in the command */
+    uint8                      Padding;     /**< \brief Pad to even byte*/
+} CFE_EVS_EventOutputCmd_Payload_t;
 
 /**
 ** \brief Generic App Name Command Payload

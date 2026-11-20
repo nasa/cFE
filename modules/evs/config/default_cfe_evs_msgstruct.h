@@ -95,33 +95,28 @@ typedef struct CFE_EVS_SetEventFormatModeCmd
     CFE_EVS_SetEventFormatMode_Payload_t Payload;       /**< \brief Command payload */
 } CFE_EVS_SetEventFormatModeCmd_t;
 
-/*
- * The CFE_EVS_BitMaskCmd_t is shared by several EVS command handlers.
- * Create a unique type for each one so the prototypes will follow the naming pattern,
- * allowing each command to evolve independently.
- */
 typedef struct CFE_EVS_EnablePortsCmd
 {
-    CFE_MSG_CommandHeader_t      CommandHeader; /**< \brief Command header */
-    CFE_EVS_BitMaskCmd_Payload_t Payload;       /**< \brief Command payload */
+    CFE_MSG_CommandHeader_t          CommandHeader; /**< \brief Command header */
+    CFE_EVS_EventOutputCmd_Payload_t Payload;       /**< \brief Command payload */
 } CFE_EVS_EnablePortsCmd_t;
 
 typedef struct CFE_EVS_DisablePortsCmd
 {
-    CFE_MSG_CommandHeader_t      CommandHeader; /**< \brief Command header */
-    CFE_EVS_BitMaskCmd_Payload_t Payload;       /**< \brief Command payload */
+    CFE_MSG_CommandHeader_t          CommandHeader; /**< \brief Command header */
+    CFE_EVS_EventOutputCmd_Payload_t Payload;       /**< \brief Command payload */
 } CFE_EVS_DisablePortsCmd_t;
 
 typedef struct CFE_EVS_EnableEventTypeCmd
 {
-    CFE_MSG_CommandHeader_t      CommandHeader; /**< \brief Command header */
-    CFE_EVS_BitMaskCmd_Payload_t Payload;       /**< \brief Command payload */
+    CFE_MSG_CommandHeader_t        CommandHeader; /**< \brief Command header */
+    CFE_EVS_EventTypeCmd_Payload_t Payload;       /**< \brief Command payload */
 } CFE_EVS_EnableEventTypeCmd_t;
 
 typedef struct CFE_EVS_DisableEventTypeCmd
 {
-    CFE_MSG_CommandHeader_t      CommandHeader; /**< \brief Command header */
-    CFE_EVS_BitMaskCmd_Payload_t Payload;       /**< \brief Command payload */
+    CFE_MSG_CommandHeader_t        CommandHeader; /**< \brief Command header */
+    CFE_EVS_EventTypeCmd_Payload_t Payload;       /**< \brief Command payload */
 } CFE_EVS_DisableEventTypeCmd_t;
 
 /*
