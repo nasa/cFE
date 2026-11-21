@@ -411,6 +411,12 @@ static void CFE_ES_PerfLogDump_CompleteState(CFE_ES_PerfDumpGlobal_t *State, con
  * Writes one work item for the current performance log dump state
  * This must be called when the current state's StateCounter is nonzero
  *
+ * In the WRITE_PERF_ENTRIES state a work item is a batch of consecutive
+ * entries written with a single OS_write() call.  The batch is limited by the
+ * entries left to write, by the end of the circular buffer, and by the work
+ * credit, so that the number of entries written per unit of elapsed time is
+ * the same as when entries were written one at a time.
+ *
  *-----------------------------------------------------------------*/
 static void CFE_ES_PerfLogDump_WriteWorkItem(CFE_ES_PerfDumpGlobal_t *State, const CFE_ES_PerfData_t *Perf)
 {
@@ -418,18 +424,17 @@ static void CFE_ES_PerfLogDump_WriteWorkItem(CFE_ES_PerfDumpGlobal_t *State, con
     int32           Status;
     CFE_FS_Header_t FileHdr;
     size_t          BlockSize;
+    uint32          ItemCount;
 
     Status    = 0;
     BlockSize = 0;
+    ItemCount = 1;
 
     switch (State->CurrentState)
     {
         case CFE_ES_PerfDumpState_WRITE_FS_HDR:
             /* Zero cFE header, then fill in fields */
             CFE_FS_InitHeader(&FileHdr, CFE_ES_PERF_LOG_DESC, CFE_FS_SubType_ES_PERFDATA);
-            /* predicted total length of final output */
-            FileHdr.Length =
-                sizeof(CFE_ES_PerfMetaData_t) + (Perf->MetaData.DataCount * sizeof(CFE_ES_PerfDataEntry_t));
             /* write the cFE header to the file */
             Status    = CFE_FS_WriteHeader(State->FileDesc, &FileHdr);
             BlockSize = sizeof(CFE_FS_Header_t);
@@ -443,11 +448,25 @@ static void CFE_ES_PerfLogDump_WriteWorkItem(CFE_ES_PerfDumpGlobal_t *State, con
             break;
 
         case CFE_ES_PerfDumpState_WRITE_PERF_ENTRIES:
-            BlockSize = sizeof(CFE_ES_PerfDataEntry_t);
+            /* write entries up to the end of the circular buffer in one call */
+            ItemCount = State->StateCounter;
+            if (ItemCount > (CFE_PLATFORM_ES_PERF_DATA_BUFFER_SIZE - State->DataPos))
+            {
+                ItemCount = CFE_PLATFORM_ES_PERF_DATA_BUFFER_SIZE - State->DataPos;
+            }
+
+            /* one credit was already taken for this work item, each extra entry takes one more */
+            if (ItemCount > (State->WorkCredit + 1))
+            {
+                ItemCount = State->WorkCredit + 1;
+            }
+            State->WorkCredit -= ItemCount - 1;
+
+            BlockSize = ItemCount * sizeof(CFE_ES_PerfDataEntry_t);
             OsStatus  = OS_write(State->FileDesc, &Perf->DataBuffer[State->DataPos], BlockSize);
             Status    = (long)OsStatus; /* status type conversion (size) */
 
-            ++State->DataPos;
+            State->DataPos += ItemCount;
             if (State->DataPos >= CFE_PLATFORM_ES_PERF_DATA_BUFFER_SIZE)
             {
                 State->DataPos = 0;
@@ -472,7 +491,7 @@ static void CFE_ES_PerfLogDump_WriteWorkItem(CFE_ES_PerfDumpGlobal_t *State, con
         }
     }
 
-    --State->StateCounter;
+    State->StateCounter -= ItemCount;
 }
 
 /*----------------------------------------------------------------
