@@ -672,6 +672,8 @@
 **  \par Description:
 **       This parameter defines the number of performance analyzer entries the Performance
 **       Analyzer Child Task will write to the file between delays.
+**       Consecutive entries are written in batches, so this is also the largest number
+**       of entries written to the file by a single write call.
 **
 */
 #define CFE_PLATFORM_ES_PERF_ENTRIES_BTWN_DLYS 50
