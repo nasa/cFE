@@ -805,8 +805,55 @@ void CFE_TIME_ToneUpdate(void)
     */
     NextState->AtToneLatch = CFE_TIME_Global.ToneSignalLatch;
 
+#if (CFE_PLATFORM_TIME_CFG_VIRTUAL == true)
+    /*
+    ** Derive the virtual MET at the new tone latch from the previous
+    ** reference: MET at the previous latch plus the real time elapsed
+    ** between the latches, rounded to the nearest second.  The tone
+    ** count alone can fall behind when a tone is rejected or missed:
+    ** the ISR still stores the rejected tone's latch, so pairing the
+    ** stale count with the new latch loses whole seconds (see #2900).
+    ** This also replaces the flywheel-exit truncation of
+    ** Reference.CurrentMET.Seconds with the rounded value.
+    */
+    {
+        CFE_TIME_SysTime_t LatchDelta;
+        CFE_TIME_SysTime_t NewMET;
+
+        if (CFE_TIME_Compare(CFE_TIME_Global.ToneSignalLatch, Reference.AtToneLatch) == CFE_TIME_A_LT_B)
+        {
+            /*
+            ** Local clock has rolled over...
+            */
+            LatchDelta = CFE_TIME_Subtract(CFE_TIME_Global.MaxLocalClock, Reference.AtToneLatch);
+            LatchDelta = CFE_TIME_Add(LatchDelta, CFE_TIME_Global.ToneSignalLatch);
+        }
+        else
+        {
+            /*
+            ** Normal case...
+            */
+            LatchDelta = CFE_TIME_Subtract(CFE_TIME_Global.ToneSignalLatch, Reference.AtToneLatch);
+        }
+
+        NewMET = CFE_TIME_Add(Reference.AtToneMET, LatchDelta);
+
+        /*
+        ** Round to the nearest second (half a second in subseconds)...
+        */
+        if (NewMET.Subseconds >= 0x80000000)
+        {
+            NewMET.Seconds++;
+        }
+        NewMET.Subseconds = 0;
+
+        CFE_TIME_Global.VirtualMET = NewMET.Seconds;
+    }
+#endif
+
     if (CFE_TIME_Global.ClockSource == CFE_TIME_SourceSelect_INTERNAL)
     {
+#if (CFE_PLATFORM_TIME_CFG_VIRTUAL != true)
         /*
         ** If we have been flywheeling, VirtualMET may be incorrect
         **  (flywheel state is changed later in this function)
@@ -815,9 +862,10 @@ void CFE_TIME_ToneUpdate(void)
         {
             CFE_TIME_Global.VirtualMET = Reference.CurrentMET.Seconds;
         }
+#endif
 
         /*
-        ** Update "time at tone" to match virtual MET counter...
+        ** Update "time at tone" to match virtual MET...
         **
         ** Note: It is OK to not bother with reading the h/w MET
         **       since we sync'ed them at the moment of the tone.
