@@ -79,6 +79,217 @@ void OS_SelectTone(int16 Signal)
 }
 #endif
 
+/* ---- reproductions ---- */
+#include <stdio.h>
+
+static OS_time_t Repro_Now;
+static int       Repro_FlyStarts;
+
+static void Repro_TimeHandler(void *UserObj, UT_EntryKey_t FuncKey, const UT_StubContext_t *Context)
+{
+    OS_time_t *LocalTime = UT_Hook_GetArgValueByName(Context, "LocalTime", OS_time_t *);
+
+    *LocalTime = Repro_Now;
+}
+
+static void Repro_SetNow(double t)
+{
+    uint32 s  = (uint32)t;
+    Repro_Now = OS_TimeAssembleFromNanoseconds(s, (uint32)((t - s) * 1e9 + 0.5));
+}
+
+static double Repro_AsDouble(CFE_TIME_SysTime_t t)
+{
+    return (double)t.Seconds + (double)t.Subseconds / 4294967296.0;
+}
+
+static void Repro_Start(double t)
+{
+    UT_InitData();
+    UT_SetHandlerFunction(UT_KEY(CFE_PSP_GetTime), Repro_TimeHandler, NULL);
+    Repro_FlyStarts = 0;
+    Repro_SetNow(t);
+    CFE_TIME_InitData();
+    CFE_TIME_SetState(CFE_TIME_ClockState_VALID);
+}
+
+/* scheduler-driven "time at the tone" request and its data packet */
+static void Repro_SendData(double t)
+{
+    Repro_SetNow(t);
+    CFE_TIME_ToneSend();
+    CFE_TIME_ToneData(&CFE_TIME_Global.ToneDataCmd.Payload);
+}
+
+/* the local 1 Hz state machine, counting the times it starts flywheel */
+static void Repro_StateMachine(double t)
+{
+    Repro_SetNow(t);
+    CFE_TIME_Local1HzStateMachine();
+    if (CFE_TIME_Global.AutoStartFly)
+    {
+        ++Repro_FlyStarts;
+        CFE_TIME_Global.AutoStartFly = false;
+    }
+}
+
+static double Repro_MetError(double t, double MetAtZero)
+{
+    Repro_SetNow(t);
+    return Repro_AsDouble(CFE_TIME_GetMET()) - (MetAtZero + t);
+}
+
+static void Repro_Report(const char *Label, double t, double Err)
+{
+    printf("        %-26s t=%8.3f  MET error %+7.3f s  %-9s  tone errors=%u  match errors=%u  flywheel starts=%d\n",
+           Label, t, Err, CFE_TIME_GetClockState() == CFE_TIME_ClockState_VALID ? "VALID" : "not VALID",
+           (unsigned)CFE_TIME_Global.ToneIntErrorCounter, (unsigned)CFE_TIME_Global.ToneMatchErrorCounter,
+           Repro_FlyStarts);
+}
+
+/*
+ * External 1 Hz tone, internal source, virtual MET.
+ * Tone at k.000, data packet at k.010, local 1 Hz state machine at k.500.
+ * Mode 0: undisturbed.  Mode 1: one extra pulse at 1005.300.
+ * Mode 2: the 1006 tone arrives 30 ms late.  Mode 3: the 1006 tone is missing.
+ */
+static void Repro_ToneRun(int Mode, const char *Label)
+{
+    int    k;
+    double Zero = 0;
+    double Err  = 0;
+    double ToneAt;
+
+    Repro_Start(1000.0);
+
+    for (k = 1001; k <= 1012; ++k)
+    {
+        ToneAt = k;
+        if (Mode == 2 && k == 1006)
+        {
+            ToneAt = k + 0.030;
+        }
+
+        if (ToneAt <= k + 0.010)
+        {
+            if (!(Mode == 3 && k == 1006))
+            {
+                Repro_SetNow(ToneAt);
+                CFE_TIME_ExternalTone();
+            }
+            Repro_SendData(k + 0.010);
+        }
+        else
+        {
+            Repro_SendData(k + 0.010);
+            Repro_SetNow(ToneAt);
+            CFE_TIME_ExternalTone();
+        }
+
+        if (k == 1003)
+        {
+            /* MET is synchronised by now: take this as the truth */
+            Repro_SetNow(k + 0.200);
+            Zero = Repro_AsDouble(CFE_TIME_GetMET()) - (k + 0.200);
+        }
+
+        if (Mode == 1 && k == 1005)
+        {
+            Repro_SetNow(k + 0.300);
+            CFE_TIME_ExternalTone();
+        }
+
+        Repro_StateMachine(k + 0.500);
+
+        if (k >= 1004)
+        {
+            Err = Repro_MetError(k + 0.750, Zero);
+            Repro_Report(Label, k + 0.750, Err);
+        }
+    }
+
+    UtAssert_True(Err > -0.001 && Err < 0.001, "%s: MET error at the end is %+.3f s", Label, Err);
+}
+
+void Repro_Tone_Undisturbed(void)
+{
+    Repro_ToneRun(0, "undisturbed");
+}
+void Repro_Tone_SpuriousPulse(void)
+{
+    Repro_ToneRun(1, "one spurious pulse");
+}
+void Repro_Tone_OneLateTone(void)
+{
+    Repro_ToneRun(2, "one tone 30 ms late");
+}
+void Repro_Tone_OneMissingTone(void)
+{
+    Repro_ToneRun(3, "one tone missing");
+}
+
+/*
+ * Fake tone (the default build): the 1 Hz command handler runs the state
+ * machine and then the tone ISR, each latching the clock when it runs.
+ * Latency[] is how late the handler ran in each second.  The latch moves
+ * with the handler, so the result is checked to within 50 ms.
+ */
+static void Repro_FakeToneRun(const double *Latency, const char *Label)
+{
+    int    k;
+    double Zero = 0;
+    double Err  = 0;
+    double t;
+    uint32 Before;
+
+    Repro_Start(1000.0);
+
+    for (k = 1; k <= 12; ++k)
+    {
+        t = 1000.0 + k + Latency[k];
+        Repro_StateMachine(t);
+        Before = CFE_TIME_Global.ToneIntCounter;
+        CFE_TIME_Tone1HzISR();
+        if (CFE_TIME_Global.ToneIntCounter != Before)
+        {
+            /* the tone task runs only for an accepted tone */
+            Repro_SetNow(t + 0.0005);
+            CFE_TIME_ToneSignal();
+            CFE_TIME_ToneSend();
+            CFE_TIME_ToneData(&CFE_TIME_Global.ToneDataCmd.Payload);
+        }
+
+        if (k == 5)
+        {
+            Repro_SetNow(t + 0.200);
+            Zero = Repro_AsDouble(CFE_TIME_GetMET()) - (t + 0.200);
+        }
+        if (k >= 5)
+        {
+            Err = Repro_MetError(1000.0 + k + 0.750, Zero);
+            Repro_Report(Label, 1000.0 + k + 0.750, Err);
+        }
+    }
+
+    UtAssert_True(Err > -0.050 && Err < 0.050, "%s: MET error at the end is %+.3f s", Label, Err);
+}
+
+void Repro_FakeTone_Steady(void)
+{
+    static const double L[13] = {0, .001, .001, .001, .001, .001, .001, .001, .001, .001, .001, .001, .001};
+    Repro_FakeToneRun(L, "steady 1 ms");
+}
+void Repro_FakeTone_OneLateHandler(void)
+{
+    static const double L[13] = {0, .001, .001, .001, .001, .001, .035, .001, .001, .001, .001, .001, .001};
+    Repro_FakeToneRun(L, "35 ms at 1006");
+}
+void Repro_FakeTone_OneLateHandlerEarlierExit(void)
+{
+    static const double L[13] = {0, .001, .001, .001, .001, .010, .035, .001, .001, .001, .001, .001, .001};
+    Repro_FakeToneRun(L, "10 ms at 1005, 35 at 1006");
+}
+
 void UtTest_Setup(void)
 {
     /* Initialize unit test */
@@ -99,6 +310,13 @@ void UtTest_Setup(void)
     UT_ADD_TEST(Test_State);
     UT_ADD_TEST(Test_GetReference);
     UT_ADD_TEST(Test_Tone);
+    UT_ADD_TEST(Repro_Tone_Undisturbed);
+    UT_ADD_TEST(Repro_Tone_SpuriousPulse);
+    UT_ADD_TEST(Repro_Tone_OneLateTone);
+    UT_ADD_TEST(Repro_Tone_OneMissingTone);
+    UT_ADD_TEST(Repro_FakeTone_Steady);
+    UT_ADD_TEST(Repro_FakeTone_OneLateHandler);
+    UT_ADD_TEST(Repro_FakeTone_OneLateHandlerEarlierExit);
     UT_ADD_TEST(Test_1Hz);
     UT_ADD_TEST(Test_UnregisterSynchCallback);
     UT_ADD_TEST(Test_CleanUpApp);
@@ -2342,6 +2560,14 @@ void Test_Tone(void)
     Reference.CurrentMET.Seconds = 10;
     RefState                     = CFE_TIME_StartReferenceUpdate();
     RefState->ClockFlyState      = CFE_TIME_FlywheelState_NO_FLY;
+    /*
+    ** The virtual MET is derived from the reference state, so pin the
+    ** latch delta to zero and the reference MET to the preset count;
+    ** ToneUpdate must then leave VirtualMET at 5 (see #2900).
+    */
+    RefState->AtToneMET.Seconds    = 5;
+    RefState->AtToneMET.Subseconds = 0;
+    RefState->AtToneLatch          = CFE_TIME_Global.ToneSignalLatch;
     CFE_TIME_FinishReferenceUpdate(RefState);
     CFE_TIME_Global.VirtualMET = 5;
     UtAssert_VOIDCALL(CFE_TIME_ToneUpdate());
