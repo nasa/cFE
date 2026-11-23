@@ -257,7 +257,7 @@ void Test_Init(void)
 
     /* Disable ports */
     UT_InitData_EVS();
-    bitmaskcmd.Payload.BitMask = CFE_EVS_PORT1_BIT | CFE_EVS_PORT2_BIT | CFE_EVS_PORT3_BIT | CFE_EVS_PORT4_BIT;
+    bitmaskcmd.Payload.EventOutput = CFE_EVS_PORT1_BIT | CFE_EVS_PORT2_BIT | CFE_EVS_PORT3_BIT | CFE_EVS_PORT4_BIT;
     UT_EVS_DoDispatchCheckEvents(&bitmaskcmd,
                                  sizeof(bitmaskcmd),
                                  UT_TPID_CFE_EVS_CMD_DISABLE_PORTS_CC,
@@ -686,7 +686,7 @@ void Test_Ports(void)
 
     /* Test enabling all ports; reports implicitly via port output */
     UT_InitData_EVS();
-    bitmaskcmd.Payload.BitMask = CFE_EVS_PORT1_BIT | CFE_EVS_PORT2_BIT | CFE_EVS_PORT3_BIT | CFE_EVS_PORT4_BIT;
+    bitmaskcmd.Payload.EventOutput = CFE_EVS_PORT1_BIT | CFE_EVS_PORT2_BIT | CFE_EVS_PORT3_BIT | CFE_EVS_PORT4_BIT;
     UT_EVS_DoDispatchCheckEvents(&bitmaskcmd,
                                  sizeof(bitmaskcmd),
                                  UT_TPID_CFE_EVS_CMD_ENABLE_PORTS_CC,
@@ -703,7 +703,7 @@ void Test_Ports(void)
 
     /* Disable all ports to cut down on unneeded output */
     UT_InitData_EVS();
-    bitmaskcmd.Payload.BitMask = CFE_EVS_PORT1_BIT | CFE_EVS_PORT2_BIT | CFE_EVS_PORT3_BIT | CFE_EVS_PORT4_BIT;
+    bitmaskcmd.Payload.EventOutput = CFE_EVS_PORT1_BIT | CFE_EVS_PORT2_BIT | CFE_EVS_PORT3_BIT | CFE_EVS_PORT4_BIT;
     UT_EVS_DoDispatchCheckEvents(&bitmaskcmd,
                                  sizeof(bitmaskcmd),
                                  UT_TPID_CFE_EVS_CMD_DISABLE_PORTS_CC,
@@ -712,7 +712,7 @@ void Test_Ports(void)
 
     /* Test enabling a port using a bitmask that is out of range (high) */
     UT_InitData_EVS();
-    bitmaskcmd.Payload.BitMask = 0xff;
+    bitmaskcmd.Payload.EventOutput = 0xff;
     UT_EVS_DoDispatchCheckEvents(&bitmaskcmd,
                                  sizeof(bitmaskcmd),
                                  UT_TPID_CFE_EVS_CMD_ENABLE_PORTS_CC,
@@ -729,7 +729,7 @@ void Test_Ports(void)
 
     /* Test enabling a port using a bitmask that is out of range (low) */
     UT_InitData_EVS();
-    bitmaskcmd.Payload.BitMask = 0x0;
+    bitmaskcmd.Payload.EventOutput = 0x0;
     UT_EVS_DoDispatchCheckEvents(&bitmaskcmd,
                                  sizeof(bitmaskcmd),
                                  UT_TPID_CFE_EVS_CMD_ENABLE_PORTS_CC,
@@ -738,7 +738,7 @@ void Test_Ports(void)
 
     /* Test enabling a port 1 and 2, but not 3 and 4 (branch path coverage) */
     UT_InitData_EVS();
-    bitmaskcmd.Payload.BitMask = CFE_EVS_PORT1_BIT | CFE_EVS_PORT2_BIT;
+    bitmaskcmd.Payload.EventOutput = CFE_EVS_PORT1_BIT | CFE_EVS_PORT2_BIT;
     UT_EVS_DoDispatchCheckEvents(&bitmaskcmd,
                                  sizeof(bitmaskcmd),
                                  UT_TPID_CFE_EVS_CMD_ENABLE_PORTS_CC,
@@ -747,7 +747,7 @@ void Test_Ports(void)
 
     /* Test enabling a port 3 and 4, but not 1 and 2 (branch path coverage) */
     UT_InitData_EVS();
-    bitmaskcmd.Payload.BitMask = CFE_EVS_PORT3_BIT | CFE_EVS_PORT4_BIT;
+    bitmaskcmd.Payload.EventOutput = CFE_EVS_PORT3_BIT | CFE_EVS_PORT4_BIT;
     UT_EVS_DoDispatchCheckEvents(&bitmaskcmd,
                                  sizeof(bitmaskcmd),
                                  UT_TPID_CFE_EVS_CMD_ENABLE_PORTS_CC,
@@ -756,7 +756,7 @@ void Test_Ports(void)
 
     /* Test disabling a port using a bitmask that is out of range (low) */
     UT_InitData_EVS();
-    bitmaskcmd.Payload.BitMask = 0x0;
+    bitmaskcmd.Payload.EventOutput = 0x0;
     UT_EVS_DoDispatchCheckEvents(&bitmaskcmd,
                                  sizeof(bitmaskcmd),
                                  UT_TPID_CFE_EVS_CMD_DISABLE_PORTS_CC,
@@ -765,7 +765,7 @@ void Test_Ports(void)
 
     /* Test disabling a port 1 and 2, but not 3 and 4 (branch path coverage) */
     UT_InitData_EVS();
-    bitmaskcmd.Payload.BitMask = CFE_EVS_PORT1_BIT | CFE_EVS_PORT2_BIT;
+    bitmaskcmd.Payload.EventOutput = CFE_EVS_PORT1_BIT | CFE_EVS_PORT2_BIT;
     UT_EVS_DoDispatchCheckEvents(&bitmaskcmd,
                                  sizeof(bitmaskcmd),
                                  UT_TPID_CFE_EVS_CMD_DISABLE_PORTS_CC,
@@ -774,7 +774,7 @@ void Test_Ports(void)
 
     /* Test disabling a port 3 and 4, but not 1 and 2 (branch path coverage) */
     UT_InitData_EVS();
-    bitmaskcmd.Payload.BitMask = CFE_EVS_PORT3_BIT | CFE_EVS_PORT4_BIT;
+    bitmaskcmd.Payload.EventOutput = CFE_EVS_PORT3_BIT | CFE_EVS_PORT4_BIT;
     UT_EVS_DoDispatchCheckEvents(&bitmaskcmd,
                                  sizeof(bitmaskcmd),
                                  UT_TPID_CFE_EVS_CMD_DISABLE_PORTS_CC,
@@ -1496,7 +1496,7 @@ void Test_EventCmd(void)
 
     /* Test disabling an event type using an out of range bit mask (high) */
     UT_InitData_EVS();
-    bitmaskcmd.Payload.BitMask = 0xff;
+    bitmaskcmd.Payload.EventOutput = 0xff;
     UT_EVS_DoDispatchCheckEvents(&bitmaskcmd,
                                  sizeof(bitmaskcmd),
                                  UT_TPID_CFE_EVS_CMD_DISABLE_EVENT_TYPE_CC,
@@ -1505,7 +1505,7 @@ void Test_EventCmd(void)
 
     /* Test enabling an event type using an out of range bit mask (high) */
     UT_InitData_EVS();
-    bitmaskcmd.Payload.BitMask = 0xff;
+    bitmaskcmd.Payload.EventOutput = 0xff;
     UT_EVS_DoDispatchCheckEvents(&bitmaskcmd,
                                  sizeof(bitmaskcmd),
                                  UT_TPID_CFE_EVS_CMD_ENABLE_EVENT_TYPE_CC,
@@ -1536,7 +1536,7 @@ void Test_EventCmd(void)
 
     /* Test disabling an event type using an out of range bit mask (low) */
     UT_InitData_EVS();
-    bitmaskcmd.Payload.BitMask = 0x0;
+    bitmaskcmd.Payload.EventOutput = 0x0;
     UT_EVS_DoDispatchCheckEvents(&bitmaskcmd,
                                  sizeof(bitmaskcmd),
                                  UT_TPID_CFE_EVS_CMD_DISABLE_EVENT_TYPE_CC,
@@ -1545,7 +1545,7 @@ void Test_EventCmd(void)
 
     /* Test enabling an event type using an out of range bit mask (low) */
     UT_InitData_EVS();
-    bitmaskcmd.Payload.BitMask = 0x0;
+    bitmaskcmd.Payload.EventOutput = 0x0;
     UT_EVS_DoDispatchCheckEvents(&bitmaskcmd,
                                  sizeof(bitmaskcmd),
                                  UT_TPID_CFE_EVS_CMD_ENABLE_EVENT_TYPE_CC,
@@ -2174,7 +2174,7 @@ void Test_SetEvent(void)
     UtAssert_INT32_EQ(CFE_EVS_GetTypeEnable(CFE_EVS_EventType_CRITICAL), 1);
 
     /*Test CFE_EVS_SetTypeEnable with invalid event type*/
-    CFE_EVS_SetTypeEnable(5, true);
+    CFE_EVS_SetTypeEnable(CFE_EVS_EventType_CRITICAL + 1, true);
     UtAssert_INT32_EQ(AppDataPtr->EventTypesActive[0], 1);
     UtAssert_INT32_EQ(AppDataPtr->EventTypesActive[1], 0);
     UtAssert_INT32_EQ(AppDataPtr->EventTypesActive[2], 0);

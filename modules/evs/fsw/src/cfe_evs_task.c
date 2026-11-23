@@ -1421,7 +1421,13 @@ int32 CFE_EVS_WriteAppDataFileCmd(const CFE_EVS_WriteAppDataFileCmd_t *data)
  *-----------------------------------------------------------------*/
 size_t CFE_EVS_EventTypeToArrayIndex(CFE_EVS_EventType_Enum_t EventType)
 {
-    return (EventType - 1);
+    uint8 Index;
+    for (Index = 0; EventType != 1; Index++)
+    {
+        EventType >>= 1;
+    }
+
+    return Index;
 }
 
 /*----------------------------------------------------------------
