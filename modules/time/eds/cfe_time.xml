@@ -188,6 +188,12 @@
         </EntryList>
       </ContainerDataType>
 
+      <ContainerDataType name="ToneSignalCmd_Payload">
+        <EntryList>
+          <Entry name="ServerToneSignalLatch" type="SysTime" shortDescription="Time latch at tone signal" />
+        </EntryList>
+      </ContainerDataType>
+
       <ContainerDataType name="HousekeepingTlm_Payload">
         <LongDescription>
           \cfetimetlm  Time Services Housekeeping Packet
@@ -470,10 +476,9 @@
 
       <ContainerDataType name="ToneSignalCmd" baseType="CFE_HDR/CommandHeader">
         <EntryList>
-          <Entry type="SignalCmd_Payload" name="Payload" />
+          <Entry type="ToneSignalCmd_Payload" name="Payload" />
         </EntryList>
       </ContainerDataType>
-
 
       <ContainerDataType name="CommandBase" baseType="CFE_HDR/CommandHeader">
       </ContainerDataType>

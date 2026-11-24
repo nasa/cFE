@@ -56,6 +56,24 @@
 #define DEFAULT_CFE_PLATFORM_TIME_CFG_CLIENT false
 
 /**
+**  \cfetimecfg Server Tone Latch
+**
+**  \par Description:
+**       This configuration parameter selects whether the Time client manages a
+**       1PPS tone ISR and Task or if it uses the tone signal latch data
+**       from the tone signal packet from the server. This is useful for
+**       running multiple instances of cFS on one operating system, usually
+**       when each instance is running in its own process. The intention is
+**       to only need a single PPS source on the operating system.
+**
+**
+**  \par Limits
+**       This option should only be enabled if CFE_PLATFORM_TIME_CLIENT is true
+*/
+#define CFE_PLATFORM_TIME_CFG_SERVER_TONE_LATCH         CFE_PLATFORM_TIME_CFGVAL(CFG_SERVER_TONE_LATCH)
+#define DEFAULT_CFE_PLATFORM_TIME_CFG_SERVER_TONE_LATCH false
+
+/**
 **  \cfetimecfg Local MET or Virtual MET Selection for Time Servers
 **
 **  \par Description:

@@ -169,10 +169,12 @@ void Test_Init(void)
     UT_SetDeferredRetcode(UT_KEY(CFE_ES_CreateChildTask), 1, -1);
     UtAssert_INT32_EQ(CFE_TIME_TaskInit(), -1);
 
+#if (CFE_PLATFORM_TIME_CFG_SERVER_TONE_LATCH == false)
     /*  Test response to a failure creating the second child task */
     UT_InitData();
     UT_SetDeferredRetcode(UT_KEY(CFE_ES_CreateChildTask), 2, -3);
     UtAssert_INT32_EQ(CFE_TIME_TaskInit(), -3);
+#endif
 
     /* Test response to an error creating a command pipe */
     UT_InitData();
@@ -265,6 +267,7 @@ void Test_Init(void)
     ExpRtn = -SubErrCnt;
     UtAssert_INT32_EQ(CFE_TIME_TaskInit(), ExpRtn);
 
+#if (CFE_PLATFORM_TIME_CFG_SERVER_TONE_LATCH == false)
     /* Test response to failure creating a tone semaphore */
     UT_InitData();
     UT_SetDeferredRetcode(UT_KEY(OS_BinSemCreate), 1, -1);
@@ -274,6 +277,12 @@ void Test_Init(void)
     UT_InitData();
     UT_SetDeferredRetcode(UT_KEY(OS_BinSemCreate), 2, -2);
     UtAssert_INT32_EQ(CFE_TIME_TaskInit(), CFE_STATUS_EXTERNAL_RESOURCE_FAIL);
+#else
+    /* Test response to failure creating a local semaphore */
+    UT_InitData();
+    UT_SetDeferredRetcode(UT_KEY(OS_BinSemCreate), 1, -1);
+    UtAssert_INT32_EQ(CFE_TIME_TaskInit(), CFE_STATUS_EXTERNAL_RESOURCE_FAIL);
+#endif
 
     /* Test response to an EVS register failure */
     UT_InitData();
@@ -935,6 +944,7 @@ void Test_RegisterSyncCallbackTrue(void)
 void Test_ExternalTone(void)
 {
     UtPrintf("Begin Test External Tone");
+#if (CFE_PLATFORM_TIME_CFG_SERVER_TONE_LATCH == false)
     UT_InitData();
 
     UT_SetBSP_Time(123, 0);
@@ -945,6 +955,9 @@ void Test_ExternalTone(void)
 
     UtAssert_UINT32_EQ(CFE_TIME_Global.ToneSignalLatch.Seconds, 123);
     UtAssert_UINT32_EQ(CFE_TIME_Global.ToneSignalLatch.Subseconds, 0);
+#else
+    UtAssert_NA("*Not tested* when CFE_PLATFORM_TIME_CFG_SERVER_TONE_LATCH is true");
+#endif
 }
 
 /*
@@ -1329,7 +1342,12 @@ void Test_PipeCmds(void)
     UT_SetBSP_Time(123, 0);
     CFE_TIME_Global.ToneSignalLatch.Seconds    = 0;
     CFE_TIME_Global.ToneSignalLatch.Subseconds = 0;
+#if (CFE_PLATFORM_TIME_CFG_SERVER_TONE_LATCH == false)
     CFE_TIME_Tone1HzISR();
+#else
+    CFE_TIME_SysTime_t TempToneSignalLatch = { 123, 0 };
+    CFE_TIME_ServerToneSignal(TempToneSignalLatch);
+#endif
     UtAssert_UINT32_EQ(CFE_TIME_Global.ToneSignalLatch.Seconds, 123);
     UtAssert_UINT32_EQ(CFE_TIME_Global.ToneSignalLatch.Subseconds, 0);
 
@@ -2384,6 +2402,9 @@ void Test_1Hz(void)
     CFE_TIME_SysTime_t                  time1;
     CFE_TIME_SysTime_t                  time2;
     volatile CFE_TIME_ReferenceState_t *RefState;
+#if (CFE_PLATFORM_TIME_CFG_SERVER_TONE_LATCH == true)
+    CFE_TIME_SysTime_t TempToneSignalLatch = { 1, 0 };
+#endif
 
 #if (CFE_PLATFORM_TIME_CFG_SERVER == true)
     /* Test 1Hz STCF adjustment in positive direction */
@@ -2465,7 +2486,12 @@ void Test_1Hz(void)
     UT_SetBSP_Time(0, 0);
     CFE_TIME_Global.ToneSignalLatch.Seconds    = 1;
     CFE_TIME_Global.ToneSignalLatch.Subseconds = 0;
+#if (CFE_PLATFORM_TIME_CFG_SERVER_TONE_LATCH == false)
     CFE_TIME_Tone1HzISR();
+#else
+    CFE_TIME_ServerToneSignal(TempToneSignalLatch);
+#endif
+
     UtAssert_BOOL_FALSE(CFE_TIME_Global.IsToneGood);
 
     /* Test the tone signal ISR call to the application synch callback
@@ -2487,7 +2513,16 @@ void Test_1Hz(void)
         }
     }
     ut_time_CallbackCalled = 0;
+#if (CFE_PLATFORM_TIME_CFG_SERVER_TONE_LATCH == false)
     CFE_TIME_Tone1HzISR();
+#else
+    UT_SetBSP_Time(0, 0);
+    CFE_TIME_Global.ToneSignalLatch.Seconds    = 1;
+    CFE_TIME_Global.ToneSignalLatch.Subseconds = 0;
+    TempToneSignalLatch.Seconds                = 2;
+    TempToneSignalLatch.Subseconds             = 0;
+    CFE_TIME_ServerToneSignal(TempToneSignalLatch);
+#endif
     UtAssert_INT32_EQ(ut_time_CallbackCalled, 3);
 
     /* Test the local 1Hz ISR */
@@ -2510,11 +2545,15 @@ void Test_1Hz(void)
     /* Test the tone 1Hz task where the binary semaphore take fails on the
      * second call
      */
+#if (CFE_PLATFORM_TIME_CFG_SERVER_TONE_LATCH == false)
     UT_InitData();
     CFE_TIME_Global.ToneTaskCounter = 0;
     UT_SetDeferredRetcode(UT_KEY(OS_BinSemTake), 2, OS_ERROR);
     CFE_TIME_Tone1HzTask();
     UtAssert_UINT32_EQ(CFE_TIME_Global.ToneTaskCounter, 1);
+#else
+    UtAssert_NA("*Not tested* Test the tone 1Hz task where the binary semaphore take fails on the 2nd call");
+#endif
 
     /* Test the tone 1Hz task with the tone signal over the time limit */
     UT_InitData();
@@ -2524,7 +2563,11 @@ void Test_1Hz(void)
     CFE_TIME_Global.MaxLocalClock.Subseconds   = 0;
     CFE_TIME_Global.ToneSignalLatch.Seconds    = 0;
     CFE_TIME_Global.ToneSignalLatch.Subseconds = 0;
+#if (CFE_PLATFORM_TIME_CFG_SERVER_TONE_LATCH == false)
     CFE_TIME_Tone1HzISR();
+#else
+    CFE_TIME_ServerToneSignal(TempToneSignalLatch);
+#endif
     UtAssert_BOOL_FALSE(CFE_TIME_Global.IsToneGood);
 
     /* Test the tone 1Hz task with the tone signal within the time limits */
@@ -2533,7 +2576,13 @@ void Test_1Hz(void)
     CFE_TIME_Global.IsToneGood                 = false;
     CFE_TIME_Global.ToneSignalLatch.Seconds    = 0;
     CFE_TIME_Global.ToneSignalLatch.Subseconds = 0;
+#if (CFE_PLATFORM_TIME_CFG_SERVER_TONE_LATCH == false)
     CFE_TIME_Tone1HzISR();
+#else
+    TempToneSignalLatch.Seconds    = 1;
+    TempToneSignalLatch.Subseconds = 0;
+    CFE_TIME_ServerToneSignal(TempToneSignalLatch);
+#endif
     UtAssert_BOOL_TRUE(CFE_TIME_Global.IsToneGood);
 
     /* Test the tone 1Hz task with the tone signal under the time limit */
@@ -2542,7 +2591,13 @@ void Test_1Hz(void)
     CFE_TIME_Global.IsToneGood                 = true;
     CFE_TIME_Global.ToneSignalLatch.Seconds    = 0;
     CFE_TIME_Global.ToneSignalLatch.Subseconds = 0;
+#if (CFE_PLATFORM_TIME_CFG_SERVER_TONE_LATCH == false)
     CFE_TIME_Tone1HzISR();
+#else
+    TempToneSignalLatch.Seconds    = 0;
+    TempToneSignalLatch.Subseconds = 0;
+    CFE_TIME_ServerToneSignal(TempToneSignalLatch);
+#endif
     UtAssert_BOOL_FALSE(CFE_TIME_Global.IsToneGood);
 
     /* Test local 1Hz interrupt when enough time has elapsed (subseconds) since
