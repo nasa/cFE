@@ -2137,6 +2137,28 @@ void Test_Misc(void)
         EVS_AppDataSetUsed(&CFE_EVS_Global.AppData[i], AppID);
     }
     UtAssert_UINT32_EQ(CFE_EVS_SendHkCmd(NULL), CFE_STATUS_NO_COUNTER_INCREMENT);
+
+    /* Free AppData entries between housekeeping reports and confirm the
+     * unused tail of the telemetry packet is cleared, not just the first slot */
+    UT_InitData_EVS();
+    for (i = 0; i < sizeof(CFE_EVS_Global.AppData) / sizeof(CFE_EVS_Global.AppData[0]); i++)
+    {
+        EVS_AppDataSetFree(&CFE_EVS_Global.AppData[i]);
+    }
+    for (i = 0; i < 3; i++)
+    {
+        EVS_AppDataSetUsed(&CFE_EVS_Global.AppData[i], AppID);
+        CFE_EVS_Global.AppData[i].EventCount = 100 + i;
+    }
+    UtAssert_UINT32_EQ(CFE_EVS_SendHkCmd(NULL), CFE_STATUS_NO_COUNTER_INCREMENT);
+    UtAssert_UINT32_EQ(CFE_EVS_Global.EVS_TlmPkt.Payload.AppData[2].AppMessageSentCounter, 102);
+    EVS_AppDataSetFree(&CFE_EVS_Global.AppData[1]);
+    EVS_AppDataSetFree(&CFE_EVS_Global.AppData[2]);
+    UtAssert_UINT32_EQ(CFE_EVS_SendHkCmd(NULL), CFE_STATUS_NO_COUNTER_INCREMENT);
+    CFE_UtAssert_RESOURCEID_EQ(CFE_EVS_Global.EVS_TlmPkt.Payload.AppData[1].AppID, CFE_ES_APPID_UNDEFINED);
+    CFE_UtAssert_RESOURCEID_EQ(CFE_EVS_Global.EVS_TlmPkt.Payload.AppData[2].AppID, CFE_ES_APPID_UNDEFINED);
+    UtAssert_UINT32_EQ(CFE_EVS_Global.EVS_TlmPkt.Payload.AppData[1].AppMessageSentCounter, 0);
+    UtAssert_UINT32_EQ(CFE_EVS_Global.EVS_TlmPkt.Payload.AppData[2].AppMessageSentCounter, 0);
 }
 
 void Test_SetEvent(void)
