@@ -32,6 +32,9 @@
 #include "common_types.h"
 #include "cfe_msg_hdr.h"
 
+/* CCSDS size offset, shared by the size accessors and CFE_MSG_Init */
+#define CFE_MSG_SIZE_OFFSET 7 /**< \brief CCSDS size offset */
+
 /*---------------------------------------------------------------------------------------*/
 /**
  * \brief get generic header field (uint8 array[2])
