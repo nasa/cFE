@@ -106,7 +106,8 @@ typedef struct
     /*
     ** TA Task housekeeping telemetry
     */
-    CFE_TA_HousekeepingTlm_t TA_TlmPkt; /**< \brief Housekeeping telemetry packet */
+    CFE_TA_HousekeepingTlm_t TA_TlmPkt;         /**< \brief Housekeeping telemetry packet */
+    CFE_TA_AffinityTlm_t     TA_AffinityTlmPkt; /**< \brief Affinity telemetry packet */
 
     CFE_TA_DiagInfo_t CFE_TA_DiagInfo; /**< \brief Diagnostic packet for Query All command */
 
@@ -187,6 +188,14 @@ int32 CFE_TA_SetTaskAffinityCmd(const CFE_TA_SetTaskAffinityCmd_t *data);
  * This function gets the task affinity using the task name.
  */
 int32 CFE_TA_GetTaskAffinityCmd(const CFE_TA_GetTaskAffinityCmd_t *data);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Message Handler Function
+ *
+ * This function write and sends all task affinity in telemetry packet.
+ */
+int32 CFE_TA_QueryTaskAffinityCmd(const CFE_TA_QueryTaskAffinityCmd_t *data);
 
 /******************************************************************************
 **

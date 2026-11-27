@@ -46,6 +46,9 @@
 /** \brief TA Housekeeping Telemetry Message ID */
 #define CFE_TA_HK_TLM_MID CFE_PLATFORM_TA_TLM_MIDVAL(HK_TLM)
 
+/** \brief TA Affinity Telemetry Message ID */
+#define CFE_TA_AFFINITY_TLM_MID CFE_PLATFORM_TA_TLM_MIDVAL(AFFINITY_TLM)
+
 /** \} */
 
 #endif /* DEFAULT_CFE_TA_MSGIDS_H */
