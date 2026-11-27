@@ -3243,8 +3243,9 @@ void TestPerf(void)
 
     UtPrintf("Begin Test Performance Log");
 
-    CFE_ES_PerfData_t *Perf;
-    void              *TempBuff;
+    CFE_ES_PerfData_t     *Perf;
+    void                  *TempBuff;
+    CFE_ES_PerfDataEntry_t PerfEntriesWritten[4];
 
     /*
     ** Set the pointer to the data area
@@ -3648,11 +3649,91 @@ void TestPerf(void)
     CFE_ES_Global.BackgroundPerfDumpState.PendingState = CFE_ES_PerfDumpState_WRITE_PERF_ENTRIES;
     CFE_ES_Global.BackgroundPerfDumpState.DataPos      = CFE_PLATFORM_ES_PERF_DATA_BUFFER_SIZE - 2;
     CFE_ES_Global.BackgroundPerfDumpState.StateCounter = 4;
+    /* give each entry a distinct value and capture what is written, to check the output order */
+    memset(PerfEntriesWritten, 0, sizeof(PerfEntriesWritten));
+    Perf->DataBuffer[CFE_PLATFORM_ES_PERF_DATA_BUFFER_SIZE - 2].Data = 1;
+    Perf->DataBuffer[CFE_PLATFORM_ES_PERF_DATA_BUFFER_SIZE - 1].Data = 2;
+    Perf->DataBuffer[0].Data                                         = 3;
+    Perf->DataBuffer[1].Data                                         = 4;
+    UT_SetDataBuffer(UT_KEY(OS_write), PerfEntriesWritten, sizeof(PerfEntriesWritten), false);
     CFE_ES_RunPerfLogDump(1000, &CFE_ES_Global.BackgroundPerfDumpState);
     /* check that the wraparound occurred */
     UtAssert_UINT32_EQ(CFE_ES_Global.BackgroundPerfDumpState.DataPos, 2);
     /* should have written 4 entries to the log */
     UtAssert_UINT32_EQ(CFE_ES_Global.BackgroundPerfDumpState.FileSize, sizeof(CFE_ES_PerfDataEntry_t) * 4);
+    /* as two contiguous blocks, one on each side of the end of the buffer */
+    UtAssert_STUB_COUNT(OS_write, 2);
+    /* and in the same order as before, oldest entry first */
+    UtAssert_UINT32_EQ(PerfEntriesWritten[0].Data, 1);
+    UtAssert_UINT32_EQ(PerfEntriesWritten[1].Data, 2);
+    UtAssert_UINT32_EQ(PerfEntriesWritten[2].Data, 3);
+    UtAssert_UINT32_EQ(PerfEntriesWritten[3].Data, 4);
+
+    /*
+     * Test that perf entries are written in batches, not one entry per OS_write() call.
+     * A full work credit worth of entries should go out in a single write, and the
+     * remainder should be left for the next iteration.
+     */
+    ES_ResetUnitTest();
+    memset(&CFE_ES_Global.BackgroundPerfDumpState, 0, sizeof(CFE_ES_Global.BackgroundPerfDumpState));
+    OS_OpenCreate(&CFE_ES_Global.BackgroundPerfDumpState.FileDesc, "UT", 0, OS_WRITE_ONLY);
+    CFE_ES_Global.BackgroundPerfDumpState.CurrentState = CFE_ES_PerfDumpState_WRITE_PERF_ENTRIES;
+    CFE_ES_Global.BackgroundPerfDumpState.PendingState = CFE_ES_PerfDumpState_WRITE_PERF_ENTRIES;
+    CFE_ES_Global.BackgroundPerfDumpState.DataPos      = 0;
+    CFE_ES_Global.BackgroundPerfDumpState.StateCounter = CFE_PLATFORM_ES_PERF_ENTRIES_BTWN_DLYS + 10;
+    CFE_ES_RunPerfLogDump(1000, &CFE_ES_Global.BackgroundPerfDumpState);
+    UtAssert_STUB_COUNT(OS_write, 1);
+    UtAssert_UINT32_EQ(CFE_ES_Global.BackgroundPerfDumpState.StateCounter, 10);
+    UtAssert_UINT32_EQ(CFE_ES_Global.BackgroundPerfDumpState.DataPos, CFE_PLATFORM_ES_PERF_ENTRIES_BTWN_DLYS);
+    UtAssert_UINT32_EQ(CFE_ES_Global.BackgroundPerfDumpState.FileSize,
+                       sizeof(CFE_ES_PerfDataEntry_t) * CFE_PLATFORM_ES_PERF_ENTRIES_BTWN_DLYS);
+    /* the whole credit was used by that single write */
+    UtAssert_UINT32_EQ(CFE_ES_Global.BackgroundPerfDumpState.WorkCredit, 0);
+
+    /*
+     * Test that a partial work credit limits the batch size, so the existing
+     * throttling (entries written per unit of elapsed time) is preserved.
+     * No time elapses in this call, so only the preset credit of 5 is available.
+     */
+    ES_ResetUnitTest();
+    memset(&CFE_ES_Global.BackgroundPerfDumpState, 0, sizeof(CFE_ES_Global.BackgroundPerfDumpState));
+    OS_OpenCreate(&CFE_ES_Global.BackgroundPerfDumpState.FileDesc, "UT", 0, OS_WRITE_ONLY);
+    CFE_ES_Global.BackgroundPerfDumpState.CurrentState = CFE_ES_PerfDumpState_WRITE_PERF_ENTRIES;
+    CFE_ES_Global.BackgroundPerfDumpState.PendingState = CFE_ES_PerfDumpState_WRITE_PERF_ENTRIES;
+    CFE_ES_Global.BackgroundPerfDumpState.DataPos      = 0;
+    CFE_ES_Global.BackgroundPerfDumpState.StateCounter = 20;
+    CFE_ES_Global.BackgroundPerfDumpState.WorkCredit   = 5;
+    CFE_ES_RunPerfLogDump(0, &CFE_ES_Global.BackgroundPerfDumpState);
+    UtAssert_STUB_COUNT(OS_write, 1);
+    UtAssert_UINT32_EQ(CFE_ES_Global.BackgroundPerfDumpState.StateCounter, 20 - 5);
+    UtAssert_UINT32_EQ(CFE_ES_Global.BackgroundPerfDumpState.FileSize, sizeof(CFE_ES_PerfDataEntry_t) * 5);
+
+    /* Test that the final, smaller batch writes exactly the entries that remain */
+    ES_ResetUnitTest();
+    memset(&CFE_ES_Global.BackgroundPerfDumpState, 0, sizeof(CFE_ES_Global.BackgroundPerfDumpState));
+    OS_OpenCreate(&CFE_ES_Global.BackgroundPerfDumpState.FileDesc, "UT", 0, OS_WRITE_ONLY);
+    CFE_ES_Global.BackgroundPerfDumpState.CurrentState = CFE_ES_PerfDumpState_WRITE_PERF_ENTRIES;
+    CFE_ES_Global.BackgroundPerfDumpState.PendingState = CFE_ES_PerfDumpState_WRITE_PERF_ENTRIES;
+    CFE_ES_Global.BackgroundPerfDumpState.DataPos      = 7;
+    CFE_ES_Global.BackgroundPerfDumpState.StateCounter = 3;
+    CFE_ES_RunPerfLogDump(1000, &CFE_ES_Global.BackgroundPerfDumpState);
+    UtAssert_STUB_COUNT(OS_write, 1);
+    UtAssert_UINT32_EQ(CFE_ES_Global.BackgroundPerfDumpState.DataPos, 10);
+    UtAssert_UINT32_EQ(CFE_ES_Global.BackgroundPerfDumpState.FileSize, sizeof(CFE_ES_PerfDataEntry_t) * 3);
+
+    /* Test that a short write in the middle of a batch is reported and ends the dump */
+    ES_ResetUnitTest();
+    memset(&CFE_ES_Global.BackgroundPerfDumpState, 0, sizeof(CFE_ES_Global.BackgroundPerfDumpState));
+    OS_OpenCreate(&CFE_ES_Global.BackgroundPerfDumpState.FileDesc, "UT", 0, OS_WRITE_ONLY);
+    CFE_ES_Global.BackgroundPerfDumpState.CurrentState = CFE_ES_PerfDumpState_WRITE_PERF_ENTRIES;
+    CFE_ES_Global.BackgroundPerfDumpState.PendingState = CFE_ES_PerfDumpState_WRITE_PERF_ENTRIES;
+    CFE_ES_Global.BackgroundPerfDumpState.DataPos      = 0;
+    CFE_ES_Global.BackgroundPerfDumpState.StateCounter = 20;
+    UT_SetDeferredRetcode(UT_KEY(OS_write), 1, sizeof(CFE_ES_PerfDataEntry_t));
+    CFE_ES_RunPerfLogDump(1000, &CFE_ES_Global.BackgroundPerfDumpState);
+    CFE_UtAssert_EVENTSENT(CFE_ES_FILEWRITE_ERR_EID);
+    UtAssert_ZERO(CFE_ES_Global.BackgroundPerfDumpState.FileSize);
+    UtAssert_UINT32_EQ(CFE_ES_Global.BackgroundPerfDumpState.CurrentState, CFE_ES_PerfDumpState_IDLE);
 
     /* Cover close file branch with undefined file descriptor */
     ES_ResetUnitTest();
