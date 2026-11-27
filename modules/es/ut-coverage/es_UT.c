@@ -659,6 +659,7 @@ void TestApps(void)
     /* Test parsing the startup script with an invalid argument passed in */
     ES_ResetUnitTest();
     UtAssert_INT32_EQ(CFE_ES_ParseFileEntry(NULL, 0), CFE_ES_BAD_ARGUMENT);
+    CFE_UtAssert_PRINTF("NumTokens = 0, expected at least 8");
 
     /* Test application loading and creation with a task creation failure */
     ES_ResetUnitTest();
