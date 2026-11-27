@@ -248,7 +248,7 @@ void Test_Init(void)
 
     /* Enable DEBUG message output */
     UT_InitData_EVS();
-    appbitcmd.Payload.BitMask = CFE_EVS_DEBUG_BIT | CFE_EVS_INFORMATION_BIT | CFE_EVS_ERROR_BIT | CFE_EVS_CRITICAL_BIT;
+    appbitcmd.Payload.BitMask = CFE_EVS_EventType_DEBUG;
     UT_EVS_DoDispatchCheckEvents(&appbitcmd,
                                  sizeof(appbitcmd),
                                  UT_TPID_CFE_EVS_CMD_ENABLE_APP_EVENT_TYPE_CC,
@@ -570,7 +570,7 @@ void Test_Format(void)
     strncpy(appbitcmd.Payload.AppName, "ut_cfe_evs", sizeof(appbitcmd.Payload.AppName) - 1);
     appbitcmd.Payload.AppName[sizeof(appbitcmd.Payload.AppName) - 1] = '\0';
     modecmd.Payload.MsgFormat                                        = CFE_EVS_MsgFormat_LONG;
-    appbitcmd.Payload.BitMask = CFE_EVS_DEBUG_BIT | CFE_EVS_INFORMATION_BIT | CFE_EVS_ERROR_BIT | CFE_EVS_CRITICAL_BIT;
+    appbitcmd.Payload.BitMask = CFE_EVS_EventType_DEBUG;
     UT_EVS_DoDispatchCheckEvents(&appbitcmd,
                                  sizeof(appbitcmd),
                                  UT_TPID_CFE_EVS_CMD_ENABLE_APP_EVENT_TYPE_CC,
@@ -970,8 +970,7 @@ void Test_WriteApp(void)
     memset(&CmdBuf, 0, sizeof(CmdBuf));
     strncpy(CmdBuf.appbitcmd.Payload.AppName, "ut_cfe_evs", sizeof(CmdBuf.appbitcmd.Payload.AppName) - 1);
     CmdBuf.appbitcmd.Payload.AppName[sizeof(CmdBuf.appbitcmd.Payload.AppName) - 1] = '\0';
-    CmdBuf.appbitcmd.Payload.BitMask =
-        CFE_EVS_DEBUG_BIT | CFE_EVS_INFORMATION_BIT | CFE_EVS_ERROR_BIT | CFE_EVS_CRITICAL_BIT;
+    CmdBuf.appbitcmd.Payload.BitMask = CFE_EVS_EventType_DEBUG;
     UT_EVS_DoDispatchCheckEvents(&CmdBuf.appbitcmd,
                                  sizeof(CmdBuf.appbitcmd),
                                  UT_TPID_CFE_EVS_CMD_ENABLE_APP_EVENT_TYPE_CC,
@@ -1392,7 +1391,7 @@ void Test_EventCmd(void)
     appnamecmd.Payload.AppName[sizeof(appnamecmd.Payload.AppName) - 1] = '\0';
 
     /* Test disabling of all events */
-    appbitcmd.Payload.BitMask = CFE_EVS_DEBUG_BIT | CFE_EVS_INFORMATION_BIT | CFE_EVS_ERROR_BIT | CFE_EVS_CRITICAL_BIT;
+    appbitcmd.Payload.BitMask = CFE_EVS_EventType_DEBUG | CFE_EVS_EventType_INFORMATION | CFE_EVS_EventType_ERROR | CFE_EVS_EventType_CRITICAL;
     UT_EVS_DoDispatchCheckEvents(&appbitcmd,
                                  sizeof(appbitcmd),
                                  UT_TPID_CFE_EVS_CMD_DISABLE_APP_EVENT_TYPE_CC,
@@ -1472,7 +1471,7 @@ void Test_EventCmd(void)
 
     /* Test disabling event types (leave debug enabled) */
     UT_InitData_EVS();
-    bitmaskcmd.Payload.BitMask = CFE_EVS_INFORMATION_BIT | CFE_EVS_ERROR_BIT | CFE_EVS_CRITICAL_BIT;
+    bitmaskcmd.Payload.EventOutput = CFE_EVS_EventType_INFORMATION | CFE_EVS_EventType_ERROR | CFE_EVS_EventType_CRITICAL;
     UT_EVS_DoDispatchCheckEvents(&bitmaskcmd,
                                  sizeof(bitmaskcmd),
                                  UT_TPID_CFE_EVS_CMD_DISABLE_EVENT_TYPE_CC,
@@ -1609,7 +1608,7 @@ void Test_FilterCmd(void)
     appbitcmd.Payload.AppName[sizeof(appbitcmd.Payload.AppName) - 1] = '\0';
 
     /* Enable all application event message output */
-    appbitcmd.Payload.BitMask = CFE_EVS_DEBUG_BIT | CFE_EVS_INFORMATION_BIT | CFE_EVS_ERROR_BIT | CFE_EVS_CRITICAL_BIT;
+    appbitcmd.Payload.BitMask = CFE_EVS_EventType_DEBUG | CFE_EVS_EventType_INFORMATION | CFE_EVS_EventType_ERROR | CFE_EVS_EventType_CRITICAL;
     UT_EVS_DoDispatchCheckEvents(&appbitcmd,
                                  sizeof(appbitcmd),
                                  UT_TPID_CFE_EVS_CMD_ENABLE_APP_EVENT_TYPE_CC,
@@ -1721,7 +1720,7 @@ void Test_FilterCmd(void)
 
     /* Enable all application event message output */
     UT_InitData_EVS();
-    appbitcmd.Payload.BitMask = CFE_EVS_DEBUG_BIT | CFE_EVS_INFORMATION_BIT | CFE_EVS_ERROR_BIT | CFE_EVS_CRITICAL_BIT;
+    appbitcmd.Payload.BitMask = CFE_EVS_EventType_DEBUG | CFE_EVS_EventType_INFORMATION | CFE_EVS_EventType_ERROR | CFE_EVS_EventType_CRITICAL;
     UT_EVS_DoDispatchCheckEvents(&appbitcmd,
                                  sizeof(appbitcmd),
                                  UT_TPID_CFE_EVS_CMD_ENABLE_APP_EVENT_TYPE_CC,

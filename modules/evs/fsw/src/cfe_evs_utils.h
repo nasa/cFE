@@ -50,7 +50,7 @@
 
 /* Macro representing all event types turned on */
 #define CFE_EVS_ALL_EVENT_TYPES_MASK \
-    (CFE_EVS_DEBUG_BIT | CFE_EVS_INFORMATION_BIT | CFE_EVS_ERROR_BIT | CFE_EVS_CRITICAL_BIT)
+    (CFE_EVS_EventType_DEBUG | CFE_EVS_EventType_INFORMATION | CFE_EVS_EventType_ERROR | CFE_EVS_EventType_CRITICAL)
 
 /* ==============   Section II: Internal Structures ============ */
 

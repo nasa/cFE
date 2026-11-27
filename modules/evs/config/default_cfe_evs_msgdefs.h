@@ -30,12 +30,6 @@
 #include "cfe_evs_extern_typedefs.h"
 #include "cfe_evs_fcncodes.h"
 
-/* Event Type bit masks */
-#define CFE_EVS_DEBUG_BIT       (1 << (CFE_EVS_EventType_DEBUG - 1))       // 0x0001
-#define CFE_EVS_INFORMATION_BIT (1 << (CFE_EVS_EventType_INFORMATION - 1)) // 0x0002
-#define CFE_EVS_ERROR_BIT       (1 << (CFE_EVS_EventType_ERROR - 1))       // 0x0004
-#define CFE_EVS_CRITICAL_BIT    (1 << (CFE_EVS_EventType_CRITICAL - 1))    // 0x0008
-
 /* Output Port bit masks */
 #define CFE_EVS_PORT1_BIT (1 << (CFE_EVS_EventOutput_PORT1 - 1)) // 0x0001
 #define CFE_EVS_PORT2_BIT (1 << (CFE_EVS_EventOutput_PORT2 - 1)) // 0x0002
