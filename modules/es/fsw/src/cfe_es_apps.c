@@ -185,7 +185,7 @@ int32 CFE_ES_LoadModule(CFE_ResourceId_t                 ParentResourceId,
      * If the Load was OK, then lookup the address of the entry point
      */
     if (ReturnCode == CFE_SUCCESS && LoadParams->InitSymbolName[0] != 0
-        && strcmp(LoadParams->InitSymbolName, "NULL") != 0)
+        && strncmp(LoadParams->InitSymbolName, "NULL", sizeof("NULL")) != 0)
     {
         OsStatus = OS_ModuleSymbolLookup(ModuleId, &InitSymbolAddress, LoadParams->InitSymbolName);
         if (OsStatus != OS_SUCCESS)
