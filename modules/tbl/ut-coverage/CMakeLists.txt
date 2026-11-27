@@ -8,6 +8,7 @@
 set(TESTCASE_SOURCES 
     "tbl_ut_helpers.c" # Useful helper functions for everything 
     "tbl_UT.c"         # The traditional "tbl_UT.c" has most of the test cases
+    "tbl_ut_dump.c"    # Background table snapshot lifecycle and callbacks
     "tbl_ut_load.c"    # These focus on table loading - CFE_TBL_Load()
 )
 

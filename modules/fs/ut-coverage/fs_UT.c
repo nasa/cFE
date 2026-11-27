@@ -66,6 +66,29 @@ void UT_FS_OnEvent(void                   *Meta,
     UT_DEFAULT_IMPL(UT_FS_OnEvent);
 }
 
+static int32 UT_FS_CustomHeader(void *Meta, osal_id_t FileDescriptor)
+{
+    UtAssert_BOOL_TRUE(((CFE_FS_FileWriteMetaData_t *)Meta)->IsPending);
+    UtAssert_BOOL_TRUE(OS_ObjectIdDefined(FileDescriptor));
+    return UT_DEFAULT_IMPL(UT_FS_CustomHeader);
+}
+
+static void UT_FS_CustomHeaderEvent(void                   *Meta,
+                                    CFE_FS_FileWriteEvent_t Event,
+                                    int32                   Status,
+                                    uint32                  RecordNum,
+                                    size_t                  BlockSize,
+                                    size_t                  Position)
+{
+    /* The FS queue still owns Meta while a callback is executing. */
+    UtAssert_BOOL_TRUE(((CFE_FS_FileWriteMetaData_t *)Meta)->IsPending);
+    if (Event == CFE_FS_FileWriteEvent_COMPLETE)
+    {
+        UtAssert_UINT32_EQ(Position, 136);
+    }
+    UT_FS_OnEvent(Meta, Event, Status, RecordNum, BlockSize, Position);
+}
+
 /*
 ** Functions
 */
@@ -88,6 +111,8 @@ void UtTest_Setup(void)
     UT_ADD_TEST(Test_CFE_FS_Private);
 
     UT_ADD_TEST(Test_CFE_FS_BackgroundFileDump);
+    UT_ADD_TEST(Test_CFE_FS_CustomBackgroundHeader);
+    UT_ADD_TEST(Test_CFE_FS_SnapshotHeader);
 }
 
 /*
@@ -750,4 +775,86 @@ void Test_CFE_FS_BackgroundFileDump(void)
     CFE_UtAssert_SETUP(CFE_FS_BackgroundFileDumpRequest(&State));
     UT_SetDeferredRetcode(UT_KEY(UT_FS_DataGetter), 2, true); /* avoid infinite loop */
     UtAssert_BOOL_FALSE(CFE_FS_RunBackgroundFileDump(100, NULL));
+}
+
+void Test_CFE_FS_CustomBackgroundHeader(void)
+{
+    CFE_FS_FileWriteMetaData_t State;
+    uint32                     Data[2]   = { 1, 2 };
+    int32                      Results[] = { 128, OS_ERROR, 0 };
+    size_t                     Case;
+    for (Case = 0; Case < sizeof(Results) / sizeof(Results[0]); ++Case)
+    {
+        UT_InitData();
+        memset(&State, 0, sizeof(State));
+        memset(&CFE_FS_Global.FileDump, 0, sizeof(CFE_FS_Global.FileDump));
+        memset(UT_FS_FileWriteEventCount, 0, sizeof(UT_FS_FileWriteEventCount));
+        State.GetData     = UT_FS_DataGetter;
+        State.OnEvent     = UT_FS_CustomHeaderEvent;
+        State.WriteHeader = UT_FS_CustomHeader;
+        strncpy(State.FileName, "/ram/snapshot.tbl", sizeof(State.FileName));
+        UT_SetDefaultReturnValue(UT_KEY(UT_FS_CustomHeader), Results[Case]);
+        UT_SetDataBuffer(UT_KEY(UT_FS_DataGetter), Data, sizeof(Data), false);
+        UT_SetDefaultReturnValue(UT_KEY(UT_FS_DataGetter), true);
+        CFE_UtAssert_SUCCESS(CFE_FS_BackgroundFileDumpRequest(&State));
+        CFE_FS_RunBackgroundFileDump(1000, NULL);
+        UtAssert_STUB_COUNT(UT_FS_CustomHeader, 1);
+        UtAssert_STUB_COUNT(OS_close, 1);
+        UtAssert_BOOL_FALSE(CFE_FS_BackgroundFileDumpIsPending(&State));
+        if (Case == 0)
+        {
+            UtAssert_UINT32_EQ(UT_FS_FileWriteEventCount[CFE_FS_FileWriteEvent_COMPLETE], 1);
+            UtAssert_STUB_COUNT(OS_write, 1); /* Only the data; no second FS header. */
+        }
+        else
+        {
+            UtAssert_UINT32_EQ(UT_FS_FileWriteEventCount[CFE_FS_FileWriteEvent_COMPLETE], 0);
+            UtAssert_UINT32_EQ(UT_FS_FileWriteEventCount[CFE_FS_FileWriteEvent_HEADER_WRITE_ERROR], 1);
+            UtAssert_STUB_COUNT(OS_write, 0);
+            UtAssert_STUB_COUNT(UT_FS_DataGetter, 0);
+        }
+    }
+}
+
+void Test_CFE_FS_SnapshotHeader(void)
+{
+    CFE_FS_Header_t Header;
+    CFE_FS_Header_t Original;
+    CFE_FS_Header_t Encoded;
+    CFE_FS_Header_t Expected;
+    const uint32    Endian = 1;
+    osal_id_t       Fd     = OS_OBJECT_ID_UNDEFINED;
+
+    UT_InitData();
+    memset(&Header, 0, sizeof(Header));
+    Header.ContentType    = CFE_FS_FILE_CONTENT_ID;
+    Header.SubType        = CFE_FS_SubType_TBL_IMG;
+    Header.Length         = sizeof(Header);
+    Header.SpacecraftID   = 10;
+    Header.ProcessorID    = 20;
+    Header.ApplicationID  = 30;
+    Header.TimeSeconds    = 123;
+    Header.TimeSubSeconds = 456;
+    strcpy(Header.Description, "snapshot");
+    Original = Header;
+    Expected = Header;
+    if (*(const uint8 *)&Endian)
+    {
+        CFE_FS_ByteSwapCFEHeader(&Expected);
+    }
+    UT_SetDataBuffer(UT_KEY(OS_write), &Encoded, sizeof(Encoded), false);
+    UtAssert_INT32_EQ(CFE_FS_WriteHeaderFromBuffer(Fd, &Header), sizeof(Header));
+    UtAssert_MemCmp(&Encoded, &Expected, sizeof(Encoded), "Header encoded without replacing fields");
+    UtAssert_MemCmp(&Header, &Original, sizeof(Header), "Caller header remains unchanged");
+    UtAssert_STUB_COUNT(CFE_ES_GetAppID, 0);
+    UtAssert_STUB_COUNT(CFE_TIME_GetTime, 0);
+    UtAssert_INT32_EQ(CFE_FS_WriteHeaderFromBuffer(Fd, NULL), CFE_FS_BAD_ARGUMENT);
+    UT_SetDefaultReturnValue(UT_KEY(OS_lseek), OS_ERROR);
+    UtAssert_INT32_EQ(CFE_FS_WriteHeaderFromBuffer(Fd, &Header), CFE_STATUS_EXTERNAL_RESOURCE_FAIL);
+    UT_ResetState(UT_KEY(OS_lseek));
+    UT_SetDefaultReturnValue(UT_KEY(OS_write), OS_ERROR);
+    UtAssert_INT32_EQ(CFE_FS_WriteHeaderFromBuffer(Fd, &Header), CFE_STATUS_EXTERNAL_RESOURCE_FAIL);
+    UT_SetDefaultReturnValue(UT_KEY(OS_write), 1);
+    UtAssert_INT32_EQ(CFE_FS_WriteHeaderFromBuffer(Fd, &Header), 1);
+    UtAssert_MemCmp(&Header, &Original, sizeof(Header), "Failures do not alter the caller header");
 }

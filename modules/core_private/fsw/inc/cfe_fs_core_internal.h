@@ -28,6 +28,7 @@
 #ifndef CFE_FS_CORE_INTERNAL_H
 #define CFE_FS_CORE_INTERNAL_H
 
+#include "cfe_fs.h"
 #include "common_types.h"
 
 /*
@@ -71,6 +72,20 @@ int32 CFE_FS_EarlyInit(void);
 **
 ******************************************************************************/
 bool CFE_FS_RunBackgroundFileDump(uint32 ElapsedTime, void *Arg);
+
+/**
+ * Write a fully populated standard file header without replacing its metadata.
+ *
+ * Core services use this when the producer and snapshot time differ from the
+ * background writer's app and current time. The caller supplies all header
+ * fields in native representation; the output is big endian. Hdr is unchanged.
+ * The descriptor is left after the standard header on success.
+ *
+ * \param[in] FileDes Open writable file descriptor
+ * \param[in] Hdr Fully populated standard header
+ * \returns Number of header bytes written, or a negative status
+ */
+CFE_Status_t CFE_FS_WriteHeaderFromBuffer(osal_id_t FileDes, const CFE_FS_Header_t *Hdr);
 
 /**@}*/
 
