@@ -333,7 +333,7 @@ static void CFE_ES_PerfLogDump_EnterPendingState(CFE_ES_PerfDumpGlobal_t *State,
                 break;
 
             case CFE_ES_PerfDumpState_WRITE_PERF_ENTRIES:
-                State->DataPos      = Perf->MetaData.DataStart;
+                State->DataPos      = 0;
                 State->StateCounter = Perf->MetaData.DataCount;
                 break;
 
