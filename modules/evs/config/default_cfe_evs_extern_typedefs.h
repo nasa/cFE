@@ -91,12 +91,12 @@ enum CFE_EVS_EventType
     /**
      * @brief Events that identify an error but are not catastrophic (e.g. - bad command
      */
-    CFE_EVS_EventType_ERROR = 3,
+    CFE_EVS_EventType_ERROR = 4,
 
     /**
      * @brief Events that identify errors that are unrecoverable autonomously
      */
-    CFE_EVS_EventType_CRITICAL = 4
+    CFE_EVS_EventType_CRITICAL = 8
 };
 
 /**

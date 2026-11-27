@@ -30,12 +30,6 @@
 #include "cfe_evs_extern_typedefs.h"
 #include "cfe_evs_fcncodes.h"
 
-/* Event Type bit masks */
-#define CFE_EVS_DEBUG_BIT       (1 << (CFE_EVS_EventType_DEBUG - 1))       // 0x0001
-#define CFE_EVS_INFORMATION_BIT (1 << (CFE_EVS_EventType_INFORMATION - 1)) // 0x0002
-#define CFE_EVS_ERROR_BIT       (1 << (CFE_EVS_EventType_ERROR - 1))       // 0x0004
-#define CFE_EVS_CRITICAL_BIT    (1 << (CFE_EVS_EventType_CRITICAL - 1))    // 0x0008
-
 /* Output Port bit masks */
 #define CFE_EVS_PORT1_BIT (1 << (CFE_EVS_EventOutput_PORT1 - 1)) // 0x0001
 #define CFE_EVS_PORT2_BIT (1 << (CFE_EVS_EventOutput_PORT2 - 1)) // 0x0002
@@ -93,17 +87,29 @@ typedef struct CFE_EVS_SetEventFormatCode_Payload
 } CFE_EVS_SetEventFormatMode_Payload_t;
 
 /**
-** \brief Generic Bitmask Command Payload
+** \brief Generic Event Type Command Payload
 **
-** For command details, see #CFE_EVS_ENABLE_EVENT_TYPE_CC, #CFE_EVS_DISABLE_EVENT_TYPE_CC,
-**                          #CFE_EVS_ENABLE_PORTS_CC and/or #CFE_EVS_DISABLE_PORTS_CC
+** For command details, see #CFE_EVS_ENABLE_EVENT_TYPE_CC\
+** and #CFE_EVS_DISABLE_EVENT_TYPE_CC
 **
 **/
-typedef struct CFE_EVS_BitMaskCmd_Payload
+typedef struct CFE_EVS_EventTypeCmd_Payload
 {
-    uint8 BitMask; /**< \brief BitMask to use in the command */
-    uint8 Spare;   /**< \brief Pad to even byte*/
-} CFE_EVS_BitMaskCmd_Payload_t;
+    CFE_EVS_EventType_Enum_t EventType; /**< \brief Event type to use in the command */
+} CFE_EVS_EventTypeCmd_Payload_t;
+
+/**
+** \brief Generic Event Output Command Payload
+**
+** For command details, see #CFE_EVS_ENABLE_PORTS_CC
+** and #CFE_EVS_DISABLE_PORTS_CC
+**
+**/
+typedef struct CFE_EVS_EventOutputCmd_Payload
+{
+    CFE_EVS_EventOutput_Enum_t EventOutput; /**< \brief Event output destination to use in the command */
+    uint8                      Padding;     /**< \brief Pad to even byte*/
+} CFE_EVS_EventOutputCmd_Payload_t;
 
 /**
 ** \brief Generic App Name Command Payload
